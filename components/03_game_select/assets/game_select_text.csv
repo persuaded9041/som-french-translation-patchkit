@@ -1,0 +1,9 @@
+id,text
+SELECT,Choisir
+GAME_SELECT,Votre choix
+NEW_GAME,Nouveau
+GAME_FILE,Continuer
+WELCOME_1,Bienvenue dans Secret of Mana.
+WELCOME_2,"Choisissez ""Nouveau"" pour commencer une nouvelle partie."
+WELCOME_3,"Choisissez ""Continuer"" pour reprendre une partie."
+WELCOME_4,Appuyez sur le bouton B pour commencer.

@@ -1,0 +1,8 @@
+{
+  "id": "01_japanese_mana_tree",
+  "short_name": "tree",
+  "name": "Japanese Mana Tree restoration",
+  "base_sha256": "4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f",
+  "patch_sha256": "424a15e1f08be4207054d99c83d0f69a5ec5cf2d9acf3160d7b35eeb35060027",
+  "standalone": true
+}

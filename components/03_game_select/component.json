@@ -1,0 +1,8 @@
+{
+  "id": "03_game_select",
+  "short_name": "game-select",
+  "name": "French GAME SELECT",
+  "base_sha256": "4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f",
+  "patch_sha256": "ede4084d40087fbaeb6622edeb9e976e4a70477ff1ba06cc5bafd610fb5b86d2",
+  "standalone": true
+}
