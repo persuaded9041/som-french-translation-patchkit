@@ -2,29 +2,121 @@
   "format_version": 1,
   "encoding": "Secret of Mana direct glyph codes",
   "first_code": "D4",
-  "dte_threshold_full": "E6",
   "characters": [
-    {"char": "Ç", "code": "D4"},
-    {"char": "à", "code": "D5"},
-    {"char": "â", "code": "D6"},
-    {"char": "ç", "code": "D7"},
-    {"char": "é", "code": "D8"},
-    {"char": "è", "code": "D9"},
-    {"char": "ê", "code": "DA"},
-    {"char": "ë", "code": "DB"},
-    {"char": "î", "code": "DC"},
-    {"char": "ï", "code": "DD"},
-    {"char": "ô", "code": "DE"},
-    {"char": "ù", "code": "DF"},
-    {"char": "û", "code": "E0"},
-    {"char": "À", "code": "E1"},
-    {"char": "É", "code": "E2"},
-    {"char": "Î", "code": "E3"},
-    {"char": "Œ", "code": "E4"},
-    {"char": "œ", "code": "E5"}
+    {
+      "char": "Ç",
+      "code": "D4"
+    },
+    {
+      "char": "à",
+      "code": "D5"
+    },
+    {
+      "char": "â",
+      "code": "D6"
+    },
+    {
+      "char": "ç",
+      "code": "D7"
+    },
+    {
+      "char": "é",
+      "code": "D8"
+    },
+    {
+      "char": "è",
+      "code": "D9"
+    },
+    {
+      "char": "ê",
+      "code": "DA"
+    },
+    {
+      "char": "ë",
+      "code": "DB"
+    },
+    {
+      "char": "î",
+      "code": "DC"
+    },
+    {
+      "char": "ï",
+      "code": "DD"
+    },
+    {
+      "char": "ô",
+      "code": "DE"
+    },
+    {
+      "char": "ù",
+      "code": "DF"
+    },
+    {
+      "char": "û",
+      "code": "E0"
+    },
+    {
+      "char": "À",
+      "code": "E1"
+    },
+    {
+      "char": "É",
+      "code": "E2"
+    },
+    {
+      "char": "Î",
+      "code": "E3"
+    },
+    {
+      "char": "Œ",
+      "code": "E4"
+    },
+    {
+      "char": "œ",
+      "code": "E5"
+    }
   ],
   "profiles": {
-    "game_select": ["Ç", "à", "â", "ç", "é", "è", "ê", "ë", "î", "ï", "ô", "ù", "û"],
-    "full_french": ["Ç", "à", "â", "ç", "é", "è", "ê", "ë", "î", "ï", "ô", "ù", "û", "À", "É", "Î", "Œ", "œ"]
+    "basic_french": {
+      "chars": [
+        "Ç",
+        "à",
+        "â",
+        "ç",
+        "é",
+        "è",
+        "ê",
+        "ë",
+        "î",
+        "ï",
+        "ô",
+        "ù",
+        "û"
+      ],
+      "dte_threshold": "E1"
+    },
+    "full_french": {
+      "chars": [
+        "Ç",
+        "à",
+        "â",
+        "ç",
+        "é",
+        "è",
+        "ê",
+        "ë",
+        "î",
+        "ï",
+        "ô",
+        "ù",
+        "û",
+        "À",
+        "É",
+        "Î",
+        "Œ",
+        "œ"
+      ],
+      "dte_threshold": "E6"
+    }
   }
 }

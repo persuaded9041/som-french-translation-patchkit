@@ -21,10 +21,7 @@ ROM `0x0016F6` is a declared merge point:
 - GAME SELECT standalone: `$E1` (`$D4-$E0` direct).
 - intro VWF standalone: `$E6` (`$D4-$E5` direct).
 
-The values are declared in the relevant `component.json` files as
-`direct_glyph_threshold`. For an aggregate build,
-`shared/compatibility.py` applies the highest selected threshold, so a build that
-contains intro VWF uses `$E6`.
+The relevant `component.json` files declare a `shared_charset_profile`. Each profile owns its DTE threshold in `shared/french_charset/charset.json`. For an aggregate build, `shared/compatibility.py` applies the highest selected threshold, so a build that contains intro VWF uses `$E6`.
 
 ## Allocations
 

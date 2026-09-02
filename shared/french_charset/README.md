@@ -12,12 +12,12 @@ Canonical full range: `$D4-$E5`. When the full range is active, the direct-glyph
 
 Profiles:
 
-- `game_select`: `$D4-$E0` (13 glyphs), threshold `$E1`.
+- `basic_french`: `$D4-$E0` (13 glyphs), threshold `$E1`.
 - `full_french`: `$D4-$E5` (18 glyphs), threshold `$E6`.
 
 Current consumers:
 
-- `02_9char_names` uses the `game_select`/naming-safe `$D4-$E0` subset.
+- `02_9char_names` uses the `basic_french`/naming-safe `$D4-$E0` subset.
 - `03_game_select` uses the same `$D4-$E0` subset.
 - `05_intro_vwf_french` uses the complete `$D4-$E5` range.
 

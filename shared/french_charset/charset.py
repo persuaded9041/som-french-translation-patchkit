@@ -22,16 +22,25 @@ DEFINITION = _load_definition()
 CHAR_TO_CODE = {entry["char"]: int(entry["code"], 16) for entry in DEFINITION["characters"]}
 CODE_TO_CHAR = {code: char for char, code in CHAR_TO_CODE.items()}
 FIRST_CODE = int(DEFINITION["first_code"], 16)
-FULL_DTE_THRESHOLD = int(DEFINITION["dte_threshold_full"], 16)
-FULL_FRENCH_CHARS = "".join(DEFINITION["profiles"]["full_french"])
-GAME_SELECT_CHARS = "".join(DEFINITION["profiles"]["game_select"])
-
-
 def profile_chars(name: str) -> str:
     try:
-        return "".join(DEFINITION["profiles"][name])
+        return "".join(DEFINITION["profiles"][name]["chars"])
     except KeyError as exc:
         raise KeyError(f"Unknown French charset profile: {name}") from exc
+
+
+def profile_threshold(name: str) -> int:
+    try:
+        return int(DEFINITION["profiles"][name]["dte_threshold"], 16)
+    except KeyError as exc:
+        raise KeyError(f"Unknown French charset profile: {name}") from exc
+
+
+FULL_FRENCH_CHARS = profile_chars("full_french")
+BASIC_FRENCH_CHARS = profile_chars("basic_french")
+FULL_DTE_THRESHOLD = profile_threshold("full_french")
+BASIC_DTE_THRESHOLD = profile_threshold("basic_french")
+
 
 
 def profile_mapping(name: str) -> dict[str, int]:

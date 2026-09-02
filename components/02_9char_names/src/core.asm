@@ -21,3 +21,8 @@ dw $3595
 ; ROM $0033BE / SNES $C0:33BE
 org $C033BE
 dl $E44000
+
+; French direct-glyph range $D4-$E0; $E1 remains the first DTE code.
+; Glyph data itself is generated from shared/french_charset.
+org $C016F6
+    db $E1

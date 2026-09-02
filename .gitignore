@@ -1,4 +1,7 @@
 /build
 *.sfc
+*.smc
 *.ips
-__pycache__
+*.pyc
+__pycache__/
+.venv/

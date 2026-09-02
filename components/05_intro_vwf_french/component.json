@@ -2,8 +2,5 @@
   "id": "05_intro_vwf_french",
   "short_name": "intro-vwf",
   "name": "French intro VWF",
-  "standalone": true,
-  "shared_charset_profile": "full_french",
-  "shared_charset": "shared/french_charset/charset.json",
-  "direct_glyph_threshold": "0xE6"
+  "shared_charset_profile": "full_french"
 }

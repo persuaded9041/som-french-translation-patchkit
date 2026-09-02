@@ -18,7 +18,7 @@ All ROM offsets assume the clean unheadered USA ROM.
 | `0x07759D+` | `$C7:759D+` | Name Entry layout/control bytes |
 | `0x07781C-0x077821` | `$C7:781C-$7821` | Pointer trio `$74EA,$4E00,$74EA` |
 | `0x12DFF0-0x12E08B` | font data | 13 shared French glyphs `$D4-$E0` |
-| `0x244000+` | `$E4:4000+` | Generated four-row character/help resource |
+| `0x244000-0x2441FF` | `$E4:4000-$41FF` | Reserved generated four-row character/help resource |
 
 ## Selector states
 

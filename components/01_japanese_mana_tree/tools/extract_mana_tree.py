@@ -13,11 +13,15 @@ import sys
 EXPECTED_JP_SHA1 = "b78a9a844d165345631cea1b5246c8fcbcdbc162"
 TREE_OFFSET = 0x07C500
 TREE_SIZE = 0x3600
-EXPECTED_TREE_SHA1 = "538458875a43c3562aa27fc34c89d87d09402c54"
+EXPECTED_TREE_SHA256 = "9e1baa9cdca30db9bb0cf4ae57a7705b0970ce95dd1ab15090bfe64a6e3ff810"
 
 
 def sha1(data: bytes) -> str:
     return hashlib.sha1(data).hexdigest()
+
+
+def sha256(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
 
 
 def main():
@@ -49,14 +53,14 @@ def main():
 
     tree = rom[TREE_OFFSET:end]
 
-    if sha1(tree) != EXPECTED_TREE_SHA1:
-        raise SystemExit("Extracted tree resource failed SHA-1 validation")
+    if sha256(tree) != EXPECTED_TREE_SHA256:
+        raise SystemExit("Extracted tree resource failed SHA-256 validation")
 
     output_path.write_bytes(tree)
 
     print(f"Written: {output_path}")
     print(f"Size: {len(tree)} bytes")
-    print(f"SHA-1: {sha1(tree)}")
+    print(f"SHA-256: {sha256(tree)}")
 
 
 if __name__ == "__main__":

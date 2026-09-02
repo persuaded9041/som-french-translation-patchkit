@@ -14,14 +14,13 @@ import hashlib
 import sys
 import argparse
 
-EXPECTED_TREE_SHA1 = "538458875a43c3562aa27fc34c89d87d09402c54"
-
-OUTPUT_ROM_SIZE = 0x300000
+EXPECTED_TREE_SHA256 = "9e1baa9cdca30db9bb0cf4ae57a7705b0970ce95dd1ab15090bfe64a6e3ff810"
 
 ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
-from shared.rom import validate_base_rom, update_checksum  # noqa: E402
+from shared.rom import validate_base_rom, update_checksum, expand_rom, ROM_SIZE_OFFSET  # noqa: E402
+from shared.ips import make_ips  # noqa: E402
 
 TREE_DEST_ROM = 0x2FC000
 TREE_SIZE = 0x3600
@@ -35,7 +34,6 @@ HOOK_ROM = 0x14CF6
 HOOK_ORIGINAL = bytes.fromhex("5c 0b af 7e")
 HOOK_PATCHED = bytes.fromhex("5c 00 f8 ef")
 
-ROM_SIZE_BYTE = 0xFFD7
 
 # Filler layout around the relocated resource.
 FF_START = 0x2FF5E3
@@ -45,41 +43,6 @@ ZERO_LENGTH = 512
 POST_ROUTINE_ZERO_START = 0x2FF8A0
 POST_ROUTINE_ZERO_LENGTH = 1888
 
-
-def sha1(data: bytes) -> str:
-    return hashlib.sha1(data).hexdigest()
-
-
-
-def make_ips(original: bytes, modified: bytes) -> bytes:
-    out = bytearray(b"PATCH")
-    i = 0
-
-    while i < len(modified):
-        old = original[i] if i < len(original) else 0
-
-        if old == modified[i]:
-            i += 1
-            continue
-
-        start = i
-        chunk = bytearray()
-
-        while i < len(modified) and len(chunk) < 0xFFFF:
-            old = original[i] if i < len(original) else 0
-
-            if old == modified[i]:
-                break
-
-            chunk.append(modified[i])
-            i += 1
-
-        out.extend(start.to_bytes(3, "big"))
-        out.extend(len(chunk).to_bytes(2, "big"))
-        out.extend(chunk)
-
-    out.extend(b"EOF")
-    return bytes(out)
 
 
 def build(us_rom_path: Path, tree_path: Path, output_path: Path, patched_rom: Path | None = None):
@@ -93,21 +56,18 @@ def build(us_rom_path: Path, tree_path: Path, output_path: Path, patched_rom: Pa
             f"mana_tree_jp.bin must be exactly {TREE_SIZE} bytes"
         )
 
-    if sha1(tree) != EXPECTED_TREE_SHA1:
-        raise SystemExit(
-            "mana_tree_jp.bin SHA-1 does not match the expected resource"
-        )
+    if hashlib.sha256(tree).hexdigest() != EXPECTED_TREE_SHA256:
+        raise SystemExit("mana_tree_jp.bin SHA-256 does not match the expected resource")
 
     if original[HOOK_ROM:HOOK_ROM+4] != HOOK_ORIGINAL:
         raise SystemExit(
             "Unexpected resource-loader hook bytes in the source ROM"
         )
 
-    rom = bytearray(original)
-    rom.extend(b"\x00" * (OUTPUT_ROM_SIZE - len(rom)))
+    rom = expand_rom(original)
 
     # Mark the expanded ROM size in the SNES header.
-    rom[ROM_SIZE_BYTE] = 0x0C
+    rom[ROM_SIZE_OFFSET] = 0x0C
 
     # Japanese Mana Tree resource.
     rom[TREE_DEST_ROM:TREE_DEST_ROM+TREE_SIZE] = tree

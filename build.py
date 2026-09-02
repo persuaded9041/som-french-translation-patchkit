@@ -20,8 +20,10 @@ ROOT = Path(__file__).resolve().parent
 def resolve_selection(values: list[str], components):
     aliases = {component.short_name: component for component in components}
     aliases.update({component.id: component for component in components})
-    if not values or values == ["all"] or "all" in values:
+    if not values or values == ["all"]:
         return components
+    if "all" in values:
+        raise SystemExit("Component 'all' must be used alone")
     selected = []
     for value in values:
         component = aliases.get(value)

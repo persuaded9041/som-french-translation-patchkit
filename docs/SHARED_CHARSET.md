@@ -36,7 +36,7 @@ earlier DTE threshold.
 
 The shared definition currently exposes two profiles.
 
-### `game_select`
+### `basic_french`
 
 Direct-glyph range: `$D4-$E0`  
 DTE threshold: `$E1`
@@ -71,8 +71,8 @@ is used in contexts where `$E1-$E5` are available for French glyphs.
 
 ## Source files
 
-- `charset.json` — canonical character mapping, profiles, and full-profile DTE
-  threshold.
+- `charset.json` — canonical character mapping and profiles, including each profile
+  DTE threshold.
 - `french_glyphs.png` — editable 18-glyph 8×12 atlas in the exact order of the
   `full_french` profile.
 - `charset.py` — loading, validation, mapping, profile, and glyph-conversion
@@ -80,8 +80,8 @@ is used in contexts where `$E1-$E5` are available for French glyphs.
 
 ## Current consumers
 
-- `02_9char_names` — uses the `$D4-$E0` mapping and a `$E1` DTE threshold.
-- `03_game_select` — uses the `game_select` profile (`$D4-$E0`) and a `$E1` DTE
+- `02_9char_names` — uses the `basic_french` profile (`$D4-$E0`) and a `$E1` DTE threshold.
+- `03_game_select` — uses the `basic_french` profile (`$D4-$E0`) and a `$E1` DTE
   threshold.
 - `05_intro_vwf_french` — uses the `full_french` profile (`$D4-$E5`) and a
   `$E6` DTE threshold.

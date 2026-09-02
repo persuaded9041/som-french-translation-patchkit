@@ -3,15 +3,14 @@ from __future__ import annotations
 
 from .ips import patch_write_map
 from .rom import CHECKSUM_RANGE
+from .french_charset.charset import profile_threshold
 
 DTE_THRESHOLD_OFFSET = 0x0016F6
 
 
 def _threshold(component) -> int | None:
-    value = component.metadata.get("direct_glyph_threshold")
-    if value is None:
-        return None
-    return int(value, 0) if isinstance(value, str) else int(value)
+    profile = component.metadata.get("shared_charset_profile")
+    return profile_threshold(profile) if profile else None
 
 
 def audit_overlaps(components, patch_data: dict[str, bytes]) -> tuple[int, int]:

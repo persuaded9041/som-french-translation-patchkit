@@ -93,10 +93,12 @@ Allowed overlaps are:
 
 - byte-identical functional writes required by standalone components;
 - checksum bytes, which are recomputed once on the combined ROM;
-- the declared French direct-glyph threshold at ROM `0x0016F6`.
+- the shared French direct-glyph threshold at ROM `0x0016F6`.
 
-Name Entry and GAME SELECT declare threshold `$E1`; intro VWF declares `$E6`.
-When those components are combined, the builder selects the highest declared
-threshold. Any other differing functional overlap aborts the build.
+Name Entry and GAME SELECT declare the `basic_french` profile (`$E1` threshold);
+intro VWF declares `full_french` (`$E6`). Thresholds belong to the profiles in
+`shared/french_charset/charset.json`, and the aggregate builder selects the
+highest one required by the chosen components. Any other differing functional
+overlap aborts the build.
 
 See `docs/COMPATIBILITY.md` and `docs/MEMORY_MAP.md`.

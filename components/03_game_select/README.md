@@ -10,7 +10,6 @@ This component is standalone and targets only the clean unheadered US ROM.
 python3 build_patch.py "Secret of Mana (USA).sfc" -o build/patch.ips
 ```
 
-Required base SHA-256: `4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f`.
 
 ## Editable sources
 
@@ -21,6 +20,6 @@ Required base SHA-256: `4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe85
 
 ## Compatibility
 
-The 45-byte menu resource size is invariant. This standalone patch uses the shared `game_select` charset profile (`$D4-$E0`) and `$E1` as its decoder threshold. When combined with intro VWF, the root builder resolves the shared threshold to `$E6`.
+The 45-byte menu resource size is invariant. This standalone patch uses the shared `basic_french` charset profile (`$D4-$E0`) and `$E1` as its decoder threshold. When combined with intro VWF, the root builder resolves the shared threshold to `$E6`.
 
 For cross-component rules, see the package-level `docs/COMPATIBILITY.md`.

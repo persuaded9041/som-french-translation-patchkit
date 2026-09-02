@@ -11,6 +11,5 @@ The split is intentional:
 - `navigation.asm`: four-row Up/Down states and initial cursor position.
 - `selection.asm`: selected-character lookup alignment and relocated resource read.
 - `layout.asm`: four-row window geometry and layout pointer redirection.
-- `charset.asm`: direct French glyph range used by this screen.
 
 All addresses are for the clean unheadered USA ROM.

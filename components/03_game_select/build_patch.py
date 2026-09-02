@@ -6,8 +6,6 @@ import csv
 import sys
 from pathlib import Path
 
-EXPANDED_SIZE = 0x300000
-
 # Stock GAME SELECT label resource in bank C7.
 # Relocate the resource inside bank C7 because the descriptor stores
 # only a 16-bit pointer and the translated fields no longer fit the stock blob.
@@ -49,15 +47,15 @@ WELCOME_POINTER_OFFSET = 0x0033B5       # stock pointer = C0:33F0
 WELCOME_RELOC_OFFSET = 0x2D8000         # SNES ED:8000
 WELCOME_RELOC_SNES = 0xED8000
 
-ROM_SIZE_OFFSET = 0x00FFD7
 
 ASCII_TO_SOM = {" ": 0x80}
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
-from shared.french_charset import GAME_SELECT_CHARS, glyph_bytes, profile_mapping
-from shared.rom import validate_base_rom, update_checksum
+from shared.french_charset import BASIC_FRENCH_CHARS, glyph_bytes, profile_mapping, profile_threshold
+from shared.rom import validate_base_rom, update_checksum, expand_rom, ROM_SIZE_OFFSET
+from shared.ips import make_ips
 
-ACCENT_TO_SOM = profile_mapping("game_select")
+ACCENT_TO_SOM = profile_mapping("basic_french")
 ASCII_TO_SOM.update(ACCENT_TO_SOM)
 ASCII_TO_SOM.update({chr(ord("a") + i): 0x81 + i for i in range(26)})
 ASCII_TO_SOM.update({chr(ord("A") + i): 0x9B + i for i in range(26)})
@@ -76,10 +74,9 @@ SOM_TO_ASCII.update({v: k for k, v in ACCENT_TO_SOM.items()})
 
 # Stock US 8x12 font. Character $80 begins at ROM $12DC00.
 FONT_BASE = 0x12DC00
-GLYPH_WIDTH = 8
 GLYPH_HEIGHT = 12
-ACCENT_FIRST = ACCENT_TO_SOM[GAME_SELECT_CHARS[0]]
-ACCENT_CHARS = GAME_SELECT_CHARS
+ACCENT_FIRST = ACCENT_TO_SOM[BASIC_FRENCH_CHARS[0]]
+ACCENT_CHARS = BASIC_FRENCH_CHARS
 ROOT = Path(__file__).resolve().parent
 
 # The stock text decoder treats $D3-$FF as DTE dictionary bytes.
@@ -88,7 +85,7 @@ ROOT = Path(__file__).resolve().parent
 # DTE values as text.
 DTE_COMPARE_IMMEDIATE_OFFSET = 0x0016F6
 DTE_STOCK_THRESHOLD = 0xD3
-DTE_NEW_THRESHOLD = 0xE1
+DTE_NEW_THRESHOLD = profile_threshold("basic_french")
 
 def load_accent_glyphs() -> bytes:
     """Load the canonical shared GAME SELECT French glyph profile."""
@@ -116,7 +113,7 @@ def encode_text(text: str, context: str) -> bytes:
         if ch not in ASCII_TO_SOM:
             raise SystemExit(
                 f"Unsupported character {ch!r} in {context} at position {pos}. "
-                "The GAME SELECT builder supports ASCII plus the shared game_select French profile."
+                "The GAME SELECT builder supports ASCII plus the shared basic_french profile."
             )
         out.append(ASCII_TO_SOM[ch])
     if not quote_open:
@@ -239,8 +236,7 @@ def build_welcome(rows: dict[str, str]) -> bytes:
 
 
 def apply_sources(base: bytes, rows: dict[str, str]) -> tuple[bytearray, int]:
-    rom = bytearray(base)
-    rom.extend(b"\x00" * (EXPANDED_SIZE - len(rom)))
+    rom = expand_rom(base)
 
     # Turn $D4-$E0 into normal character codes for the stock text
     # decoder, while keeping $E1-$FF on the original DTE path.
@@ -284,54 +280,6 @@ def apply_sources(base: bytes, rows: dict[str, str]) -> tuple[bytearray, int]:
     checksum = update_checksum(rom)
     return rom, checksum
 
-
-def diff_records(original: bytes, modified: bytes) -> list[tuple[int, bytes]]:
-    # Treat bytes beyond the original ROM as zero and group adjacent changes.
-    records: list[tuple[int, bytes]] = []
-    i = 0
-    n = len(modified)
-    while i < n:
-        old = original[i] if i < len(original) else 0
-        if modified[i] == old:
-            i += 1
-            continue
-        start = i
-        buf = bytearray()
-        while i < n:
-            old = original[i] if i < len(original) else 0
-            if modified[i] == old:
-                # Keep very small unchanged gaps inside a record, but avoid
-                # broad writes around unrelated tables (important at C0:33BE).
-                gap = 0
-                j = i
-                while j < n and gap < 2:
-                    oldj = original[j] if j < len(original) else 0
-                    if modified[j] != oldj:
-                        break
-                    gap += 1
-                    j += 1
-                if gap >= 2 or j >= n:
-                    break
-            buf.append(modified[i])
-            i += 1
-        records.append((start, bytes(buf)))
-    return records
-
-
-def make_ips(original: bytes, modified: bytes) -> bytes:
-    out = bytearray(b"PATCH")
-    for offset, payload in diff_records(original, modified):
-        # IPS record length is 16-bit; split if necessary.
-        pos = 0
-        while pos < len(payload):
-            chunk = payload[pos:pos + 0xFFFF]
-            out += (offset + pos).to_bytes(3, "big")
-            out += len(chunk).to_bytes(2, "big")
-            out += chunk
-            pos += len(chunk)
-    out += b"EOF"
-    out += len(modified).to_bytes(3, "big")
-    return bytes(out)
 
 
 def pointer_to_rom(ptr: int) -> int:

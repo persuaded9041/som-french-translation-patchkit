@@ -2,6 +2,5 @@
   "id": "02_9char_names",
   "short_name": "names",
   "name": "9-character names + French accent row",
-  "standalone": true,
-  "direct_glyph_threshold": "0xE1"
+  "shared_charset_profile": "basic_french"
 }

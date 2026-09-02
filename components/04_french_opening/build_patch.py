@@ -8,7 +8,7 @@ the intro VWF component.
 Main changes:
 - 12 visible French prologue lines, preceded by the required blank startup row;
 - original accent-overlay system: $7D acute, $7E grave, $7F circumflex;
-- seven compact $02 markers, each rendered as "e " (two cells);
+- compact $02 markers, each rendered as "e " (two cells), chosen as needed to preserve the stock prologue block size;
 - literal three-period sequence for "Masamune...";
 - French startup credits;
 - original copyright-year tile workaround;
@@ -25,32 +25,25 @@ import sys
 import argparse
 from PIL import Image
 
-BASE_ROM_SIZE = 0x200000
-EXPANDED_ROM_SIZE = 0x300000
-
 ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
-from shared.rom import validate_base_rom, update_checksum  # noqa: E402
-from shared.ips import apply_ips  # noqa: E402
+from shared.rom import validate_base_rom, update_checksum, expand_rom, EXPANDED_SIZE, ROM_SIZE_OFFSET  # noqa: E402
+from shared.ips import apply_ips, make_ips  # noqa: E402
 
 TITLE_CODE_ROM = 0x077C00
 TITLE_ARR_ROM = 0x07B480
 TITLE_FONT_ROM = 0x07C1C0
 
 CUSTOM_CODE_ROM = 0x2E9000
-CUSTOM_CODE_CPU = 0xEE9000
 
 RELOCATED_ARR_ROM = 0x2E8000
-RELOCATED_ARR_BANK = 0xEE
-RELOCATED_ARR_ADDR = 0x8000
 
 ACUTE_TILE_CODE = 0x7D
 GRAVE_TILE_CODE = 0x7E
 CIRC_TILE_CODE = 0x7F
 BLANK_TILE_CODE = 0x60
 COMPACT_E_SPACE_MARKER = 0x02
-COMPACT_E_SPACE_COUNT = 7
 
 COMPRESSION_TYPES = {
     0: 0x1F, 1: 0x0F, 2: 0x07,
@@ -250,8 +243,8 @@ def encode_line_compact(line, compact_remaining):
     """
     Encode one visible line.
 
-    Exactly seven occurrences of the visible pair "e " are replaced, in
-    reading order across the whole prologue, with byte $02. The renderer
+    As many occurrences of the visible pair "e " as required are replaced,
+    in reading order across the whole prologue, with byte $02. The renderer
     expands $02 back to an E tile followed by a blank tile.
 
     Literal "..." stays three literal period bytes.
@@ -322,73 +315,68 @@ def find_original_prologue(arr):
 def build_prologue(arr, lines):
     start, end, technical_blank_end = find_original_prologue(arr)
 
-    blob = bytearray()
-    compact_remaining = COMPACT_E_SPACE_COUNT
-    report = []
+    def build_blob(compact_count):
+        blob = bytearray()
+        compact_remaining = compact_count
+        report = []
 
-    for index, line in enumerate(lines):
-        width = len(line)
-        if width > 27:
-            raise ValueError(
-                f"Line {index + 1} is {width} cells wide (max 27)"
+        for index, line in enumerate(lines):
+            width = len(line)
+            if width > 27:
+                raise ValueError(f"Line {index + 1} is {width} cells wide (max 27)")
+
+            indent = (32 - width) // 2
+            encoded, compact_remaining, used_compact = encode_line_compact(
+                line, compact_remaining
             )
+            accent_list = accents(line)
 
-        indent = (32 - width) // 2
+            if index == 0:
+                if line or accent_list:
+                    raise ValueError("Special first record must be empty")
+                prefix = b"\x01\x02"
+            elif accent_list:
+                by_x = {indent + pos: tile for pos, tile in accent_list}
+                first, last = min(by_x), max(by_x)
+                prefix = bytes(
+                    [first]
+                    + [by_x.get(x, BLANK_TILE_CODE) for x in range(first, last + 1)]
+                    + [0]
+                )
+            else:
+                prefix = b"\x01\x00"
 
-        encoded, compact_remaining, used_compact = encode_line_compact(
-            line, compact_remaining
-        )
-
-        accent_list = accents(line)
-
-        if index == 0:
-            if line or accent_list:
-                raise ValueError("Special first record must be empty")
-            prefix = b"\x01\x02"
-        elif accent_list:
-            by_x = {
-                indent + pos: tile
-                for pos, tile in accent_list
-            }
-            first, last = min(by_x), max(by_x)
-            prefix = bytes(
-                [first]
-                + [by_x.get(x, BLANK_TILE_CODE)
-                   for x in range(first, last + 1)]
-                + [0]
+            record = prefix + bytes([indent]) + encoded + b"\x00"
+            blob.extend(record)
+            report.append(
+                (index + 1, width, len(encoded), indent,
+                 len(prefix), len(record), used_compact, line)
             )
-        else:
-            prefix = b"\x01\x00"
+        return bytes(blob), report, compact_remaining
 
-        record = prefix + bytes([indent]) + encoded + b"\x00"
-        blob.extend(record)
-
-        report.append(
-            (index + 1, width, len(encoded), indent,
-             len(prefix), len(record), used_compact, line)
-        )
-
-    if compact_remaining != 0:
+    uncompressed_blob, _, _ = build_blob(0)
+    compact_count = len(uncompressed_blob) - 332
+    if compact_count < 0:
         raise ValueError(
-            f"Only {COMPACT_E_SPACE_COUNT-compact_remaining} of "
-            f"{COMPACT_E_SPACE_COUNT} compact markers were used"
+            f"Final 13-record block is already only {len(uncompressed_blob)} bytes; "
+            "translation must be adjusted to preserve the 332-byte layout"
         )
 
+    blob, report, compact_remaining = build_blob(compact_count)
+    if compact_remaining:
+        raise ValueError(
+            f"Need {compact_count} compact 'e ' markers to preserve the 332-byte layout, "
+            f"but only {compact_count - compact_remaining} are available"
+        )
     if len(blob) != 332:
-        raise ValueError(
-            f"Final 13-record block must be exactly 332 bytes; "
-            f"found {len(blob)}"
-        )
+        raise ValueError(f"Final 13-record block must be exactly 332 bytes; found {len(blob)}")
 
     out = bytearray(arr)
     out[start:end] = blob
-
-    # Critical: preserve the two technical blank records byte-for-byte.
     if out[end:technical_blank_end] != arr[end:technical_blank_end]:
         raise AssertionError("Post-scroll blank records moved or changed")
 
     return bytes(out), report, start, end, technical_blank_end
-
 
 def encode_credit_text(text):
     out = bytearray()
@@ -410,44 +398,6 @@ def encode_credit_text(text):
             raise ValueError(f"Unsupported startup-credit character {ch!r}")
 
     return bytes(out)
-
-
-def patch_startup_credits(arrangement, credits):
-    signatures = [
-        b"\x06programmed by nasir\x00",
-        b"\x06composed by h\x7Bkikuta\x00",
-        b"\x06directed by k\x7Bishii\x00",
-        b"\x06produced by h\x7Btanaka\x00",
-    ]
-
-    start = arrangement.find(signatures[0])
-    if start < 0:
-        raise ValueError("Could not locate startup credits")
-
-    original = b"".join(signatures)
-    if arrangement[start:start+len(original)] != original:
-        raise ValueError("Unexpected US startup-credit layout")
-
-    replacement = bytearray()
-
-    # Preserve the four original slots byte-for-byte in size.
-    # The fifth credit is stored in a separate appended list (see below).
-    for text in credits[:4]:
-        replacement.append(0x06)
-        replacement.extend(encode_credit_text(text))
-        replacement.append(0x00)
-
-    if len(replacement) != len(original):
-        raise ValueError(
-            "Startup credits must preserve their original total length"
-        )
-
-    return (
-        arrangement[:start]
-        + bytes(replacement)
-        + arrangement[start+len(original):]
-    )
-
 
 
 
@@ -667,48 +617,6 @@ def build_title_code(code):
 
 
 
-def make_ips(original, modified):
-    """
-    Create an IPS patch, treating bytes beyond the original ROM as zero.
-
-    This keeps the expanded area sparse: only actual non-zero/new data is
-    emitted, plus the explicit ROM-size/header changes.
-    """
-    out = bytearray(b"PATCH")
-    i = 0
-
-    while i < len(modified):
-        old_byte = original[i] if i < len(original) else 0
-
-        if old_byte == modified[i]:
-            i += 1
-            continue
-
-        start = i
-        chunk = bytearray()
-
-        while i < len(modified) and len(chunk) < 0xFFFF:
-            old_byte = original[i] if i < len(original) else 0
-            if old_byte == modified[i]:
-                break
-            chunk.append(modified[i])
-            i += 1
-
-        out.extend(start.to_bytes(3, "big"))
-        out.extend(len(chunk).to_bytes(2, "big"))
-        out.extend(chunk)
-
-    # Force the IPS result to the full expanded size even when the final
-    # bytes are zero. A one-byte zero record at the last ROM offset is safe
-    # and makes standalone patchers produce an exact 3 MiB file.
-    if len(modified) > len(original):
-        out.extend((len(modified) - 1).to_bytes(3, "big"))
-        out.extend((1).to_bytes(2, "big"))
-        out.append(modified[-1])
-
-    out.extend(b"EOF")
-    return bytes(out)
-
 
 
 def main():
@@ -752,7 +660,6 @@ def main():
         build_prologue(arr, lines)
     )
 
-    new_arr = patch_startup_credits(new_arr, credits)
 
     if new_arr.count(US_YEAR) != 2:
         raise ValueError("Unexpected copyright-year references")
@@ -788,14 +695,13 @@ def main():
             f"Opening font no longer fits: {len(font_cmp)} > {font_capacity}"
         )
 
-    if RELOCATED_ARR_ROM + len(arr_cmp) > EXPANDED_ROM_SIZE:
+    if RELOCATED_ARR_ROM + len(arr_cmp) > EXPANDED_SIZE:
         raise ValueError("Relocated arrangement exceeds expanded ROM")
 
-    rom = bytearray(original)
-    rom.extend(b"\x00" * (EXPANDED_ROM_SIZE - len(rom)))
+    rom = expand_rom(original)
 
     # 3 MiB / expanded-ROM size header.
-    rom[0xFFD7] = 0x0C
+    rom[ROM_SIZE_OFFSET] = 0x0C
 
     rom[
         TITLE_CODE_ROM:TITLE_CODE_ROM+code_capacity

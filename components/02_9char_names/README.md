@@ -21,7 +21,6 @@ This standalone component extends Secret of Mana's Name Entry screen while keepi
 python3 build_patch.py "Secret of Mana (USA).sfc" -o build/patch.ips
 ```
 
-Required base ROM SHA-256: `4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f`.
 
 ## Editable sources
 

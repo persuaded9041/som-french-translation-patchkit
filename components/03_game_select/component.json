@@ -2,8 +2,5 @@
   "id": "03_game_select",
   "short_name": "game-select",
   "name": "French GAME SELECT",
-  "standalone": true,
-  "shared_charset_profile": "game_select",
-  "shared_charset": "shared/french_charset/charset.json",
-  "direct_glyph_threshold": "0xE1"
+  "shared_charset_profile": "basic_french"
 }

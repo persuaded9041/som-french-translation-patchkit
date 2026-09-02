@@ -15,8 +15,6 @@ from pathlib import Path
 
 from src.patch_data import STATIC_EDITS
 
-EXPANDED_SIZE = 0x300000
-HEADER_OFFSET = 0x00FFC0
 
 
 
@@ -35,17 +33,18 @@ def find_shared_root(component_root: Path) -> Path:
 ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = find_shared_root(ROOT)
 sys.path.insert(0, str(PROJECT_ROOT))
-from shared.french_charset import GAME_SELECT_CHARS, glyph_bytes, profile_mapping  # noqa: E402
-from shared.rom import validate_base_rom, update_checksum  # noqa: E402
+from shared.french_charset import BASIC_FRENCH_CHARS, glyph_bytes, profile_mapping, profile_threshold  # noqa: E402
+from shared.rom import validate_base_rom, update_checksum, expand_rom  # noqa: E402
+from shared.ips import make_ips  # noqa: E402
 
 # Naming screen can safely use the original French-ROM range $D4-$E0. The
 # extended $E1-$E5 slots are still used by graphics on this screen.
 FONT_BASE = 0x12DC00
 GLYPH_HEIGHT = 12
 DTE_COMPARE_IMMEDIATE_OFFSET = 0x0016F6
-DTE_NEW_THRESHOLD = 0xE1
-ACCENT_TO_SOM = profile_mapping("game_select")
-ACCENT_FIRST = ACCENT_TO_SOM[GAME_SELECT_CHARS[0]]
+DTE_NEW_THRESHOLD = profile_threshold("basic_french")
+ACCENT_TO_SOM = profile_mapping("basic_french")
+ACCENT_FIRST = ACCENT_TO_SOM[BASIC_FRENCH_CHARS[0]]
 ACCENT_FONT_OFFSET = FONT_BASE + (ACCENT_FIRST - 0x80) * GLYPH_HEIGHT
 
 NAMED_CHARACTER_TOKENS = {
@@ -185,15 +184,14 @@ def build_naming_resource() -> bytes:
 
 
 def apply_source_edits(base: bytes, resource: bytes) -> bytearray:
-    rom = bytearray(base)
-    rom.extend(b"\x00" * (EXPANDED_SIZE - len(rom)))
+    rom = expand_rom(base)
 
     for edit in STATIC_EDITS:
         rom[edit.offset:edit.offset + len(edit.payload)] = edit.payload
 
     # Install the shared naming-safe French glyph range $D4-$E0.
     rom[DTE_COMPARE_IMMEDIATE_OFFSET] = DTE_NEW_THRESHOLD
-    accent_glyphs = glyph_bytes(GAME_SELECT_CHARS)
+    accent_glyphs = glyph_bytes(BASIC_FRENCH_CHARS)
     rom[ACCENT_FONT_OFFSET:ACCENT_FONT_OFFSET + len(accent_glyphs)] = accent_glyphs
 
     # Expanded-ROM metadata and generated Name Entry resource.
@@ -202,24 +200,6 @@ def apply_source_edits(base: bytes, resource: bytes) -> bytearray:
     update_checksum(rom)
     return rom
 
-
-def make_ips(patched: bytes, resource_length: int) -> bytes:
-    records = [(edit.offset, len(edit.payload)) for edit in STATIC_EDITS]
-    records += [
-        (DTE_COMPARE_IMMEDIATE_OFFSET, 1),
-        (ACCENT_FONT_OFFSET, len(glyph_bytes(GAME_SELECT_CHARS))),
-        (0x00FFD7, 9),
-        (0x244000, resource_length),
-    ]
-    records.sort()
-
-    out = bytearray(b"PATCH")
-    for offset, length in records:
-        out += offset.to_bytes(3, "big")
-        out += length.to_bytes(2, "big")
-        out += patched[offset:offset + length]
-    out += b"EOF" + EXPANDED_SIZE.to_bytes(3, "big")
-    return bytes(out)
 
 
 def main() -> None:
@@ -233,7 +213,7 @@ def main() -> None:
     validate_base_rom(base)
     resource = build_naming_resource()
     patched = apply_source_edits(base, resource)
-    ips = make_ips(patched, len(resource))
+    ips = make_ips(base, patched)
 
     output = args.output if args.output.is_absolute() else ROOT / args.output
     output.parent.mkdir(parents=True, exist_ok=True)
