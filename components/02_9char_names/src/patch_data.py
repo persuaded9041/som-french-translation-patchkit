@@ -30,11 +30,11 @@ NAVIGATION_CODE = hx(
     """
 )
 
-# Runtime-validated SoM Plus-derived control bytes retained byte-for-byte.
-VALIDATED_LAYOUT_CONTROL = hx("02 06 1E 01 C0 04 06 1E 81 8A 00 02 0A")
+# SoM Plus-derived control bytes retained byte-for-byte.
+LAYOUT_CONTROL = hx("02 06 1E 01 C0 04 06 1E 81 8A 00 02 0A")
 
 # Complete private four-row Name Entry script at C7:4E00.
-# It is the validated 107-byte script with only:
+# It is the original three-row script with these changes:
 #   $02C0 -> $0240, height 6 -> 8, plus draw command 08 AA 02.
 FOUR_ROW_LAYOUT_SCRIPT = hx(
     """
@@ -48,8 +48,7 @@ FOUR_ROW_LAYOUT_SCRIPT = hx(
     """
 )
 
-# Three neighbouring pointers. The two $74EA values are part of the validated
-# checkpoint; only the middle Name Entry pointer is redirected to C7:4E00.
+# Three neighbouring pointers; only the middle Name Entry pointer is redirected to C7:4E00.
 LAYOUT_POINTER_TRIO = hx("EA 74 00 4E EA 74")
 
 # Character validation/lookup code. Selected bytes are read from E4:4000.
@@ -65,7 +64,7 @@ STATIC_EDITS = (
     PatchEdit(0x07502A, hx("0C"), "naming grid/lookup parameter"),
     PatchEdit(0x0750A6, CHARACTER_LOOKUP_CODE, "selected character lookup -> E4:4000"),
     PatchEdit(0x0750E8, hx("48"), "selection-map origin aligned with raised grid"),
-    PatchEdit(0x07759D, VALIDATED_LAYOUT_CONTROL, "validated naming layout/control data"),
+    PatchEdit(0x07759D, LAYOUT_CONTROL, "naming layout/control data"),
     PatchEdit(0x074E00, FOUR_ROW_LAYOUT_SCRIPT, "private four-row Name Entry layout script"),
     PatchEdit(0x07781C, LAYOUT_POINTER_TRIO, "Name Entry layout pointer -> C7:4E00"),
 )

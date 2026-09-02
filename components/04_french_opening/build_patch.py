@@ -2,8 +2,8 @@
 """
 Build the final French opening patch for Secret of Mana (USA).
 
-The patch keeps the fixed-width opening renderer and is independent from the
-future game-wide VWF.
+The patch keeps the fixed-width opening renderer and remains independent from
+the intro VWF component.
 
 Main changes:
 - 12 visible French prologue lines, preceded by the required blank startup row;
@@ -17,20 +17,22 @@ Main changes:
 
 Base ROM:
 Secret of Mana (USA), headerless
-SHA-1 8133041a363e3cc68cedef40b49b6d20d03c505d
 """
 
 from pathlib import Path
 import csv
-import hashlib
-import struct
 import sys
 import argparse
 from PIL import Image
 
-EXPECTED_US_SHA1 = "8133041a363e3cc68cedef40b49b6d20d03c505d"
 BASE_ROM_SIZE = 0x200000
 EXPANDED_ROM_SIZE = 0x300000
+
+ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = ROOT.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+from shared.rom import validate_base_rom, update_checksum  # noqa: E402
+from shared.ips import apply_ips  # noqa: E402
 
 TITLE_CODE_ROM = 0x077C00
 TITLE_ARR_ROM = 0x07B480
@@ -77,8 +79,6 @@ US_YEAR = bytes.fromhex("7d 7e 7f")
 FR_STYLE_1993 = bytes.fromhex("5b 5c 5d")
 
 
-def sha1(data):
-    return hashlib.sha1(data).hexdigest()
 
 
 def decompress_block(data, offset):
@@ -430,7 +430,7 @@ def patch_startup_credits(arrangement, credits):
 
     replacement = bytearray()
 
-    # Preserve the validated four original slots byte-for-byte in size.
+    # Preserve the four original slots byte-for-byte in size.
     # The fifth credit is stored in a separate appended list (see below).
     for text in credits[:4]:
         replacement.append(0x06)
@@ -666,12 +666,6 @@ def build_title_code(code):
     return bytes(out)
 
 
-def update_checksum(rom):
-    rom[0xFFDC:0xFFE0] = b"\xFF\xFF\x00\x00"
-    chk = sum(rom) & 0xFFFF
-    rom[0xFFDC:0xFFE0] = struct.pack("<HH", chk ^ 0xFFFF, chk)
-    return chk
-
 
 def make_ips(original, modified):
     """
@@ -716,43 +710,14 @@ def make_ips(original, modified):
     return bytes(out)
 
 
-def apply_ips(base, patch):
-    if not patch.startswith(b"PATCH"):
-        raise ValueError("Not an IPS patch")
-
-    out = bytearray(base)
-    p = 5
-
-    while patch[p:p+3] != b"EOF":
-        offset = int.from_bytes(patch[p:p+3], "big")
-        p += 3
-        size = int.from_bytes(patch[p:p+2], "big")
-        p += 2
-
-        if size:
-            data = patch[p:p+size]
-            p += size
-        else:
-            rle_size = int.from_bytes(patch[p:p+2], "big")
-            p += 2
-            value = patch[p]
-            p += 1
-            data = bytes([value]) * rle_size
-
-        end = offset + len(data)
-        if len(out) < end:
-            out.extend(b"\x00" * (end - len(out)))
-
-        out[offset:end] = data
-
-    return bytes(out)
-
 
 def main():
-    root = Path(__file__).resolve().parent
+    root = ROOT
     parser = argparse.ArgumentParser(description="Build the standalone French opening patch.")
     parser.add_argument("rom", type=Path, help="clean unheadered Secret of Mana (USA) ROM")
-    parser.add_argument("-o", "--output-dir", type=Path, default=root / "build", help="output directory")
+    parser.add_argument("-o", "--output", type=Path, default=root / "build" / "patch.ips", help="output IPS path")
+    parser.add_argument("--patched-rom", type=Path, help="optional patched ROM output")
+    parser.add_argument("--layout", type=Path, help="optional generated layout report")
     parser.add_argument("--text", type=Path, default=root / "assets" / "opening_text.csv")
     parser.add_argument("--credits", type=Path, default=root / "assets" / "opening_credits.csv")
     parser.add_argument("--font", type=Path, default=root / "assets" / "opening_font.png")
@@ -762,18 +727,11 @@ def main():
     text_path = args.text
     credits_path = args.credits
     font_path = args.font
-    out_dir = args.output_dir
+    output_path = args.output
 
     original = bytearray(src.read_bytes())
 
-    if (
-        len(original) != BASE_ROM_SIZE
-        or sha1(original) != EXPECTED_US_SHA1
-    ):
-        raise SystemExit(
-            "Wrong ROM. Use the unheadered US ROM with SHA-1 "
-            + EXPECTED_US_SHA1
-        )
+    validate_base_rom(original)
 
     lines = read_lines(text_path)
     credits = read_credits(credits_path)
@@ -836,7 +794,7 @@ def main():
     rom = bytearray(original)
     rom.extend(b"\x00" * (EXPANDED_ROM_SIZE - len(rom)))
 
-    # 3 MiB / expanded-ROM size header used by the validated tests.
+    # 3 MiB / expanded-ROM size header.
     rom[0xFFD7] = 0x0C
 
     rom[
@@ -897,31 +855,29 @@ def main():
     if apply_ips(original, patch) != bytes(rom):
         raise AssertionError("IPS self-application failed")
 
-    out_dir.mkdir(parents=True, exist_ok=True)
-    rom_path = out_dir / "Secret of Mana (USA) - French Opening Final.sfc"
-    ips_path = out_dir / "patch.ips"
-    layout_path = out_dir / "layout.txt"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_bytes(patch)
+    if args.patched_rom:
+        args.patched_rom.parent.mkdir(parents=True, exist_ok=True)
+        args.patched_rom.write_bytes(rom)
+        print("ROM:", args.patched_rom)
 
-    rom_path.write_bytes(rom)
-    ips_path.write_bytes(patch)
+    if args.layout:
+        args.layout.parent.mkdir(parents=True, exist_ok=True)
+        with args.layout.open("w", encoding="utf-8") as f:
+            for row in layout:
+                (
+                    number, width, stored, indent,
+                    prefix_size, record_size, compact_used, text
+                ) = row
+                f.write(
+                    f"{number:02d}: visible={width:2d} stored={stored:2d} "
+                    f"indent={indent:2d} prefix={prefix_size:2d} "
+                    f"record={record_size:2d} compact02={compact_used}  "
+                    f"{text}\n"
+                )
 
-    with layout_path.open("w", encoding="utf-8") as f:
-        for row in layout:
-            (
-                number, width, stored, indent,
-                prefix_size, record_size, compact_used, text
-            ) = row
-            f.write(
-                f"{number:02d}: visible={width:2d} stored={stored:2d} "
-                f"indent={indent:2d} prefix={prefix_size:2d} "
-                f"record={record_size:2d} compact02={compact_used}  "
-                f"{text}\n"
-            )
-
-    print("ROM:", rom_path)
-    print("ROM SHA-1:", sha1(rom))
-    print("IPS:", ips_path)
-    print("IPS SHA-1:", sha1(patch))
+    print("IPS:", output_path)
     print("Arrangement:", len(arr_cmp), "bytes compressed")
     print("Title code:", len(code_cmp), "/", code_capacity)
     print("Opening font:", len(font_cmp), "/", font_capacity)

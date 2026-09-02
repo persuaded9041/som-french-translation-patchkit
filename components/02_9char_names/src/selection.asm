@@ -2,6 +2,8 @@
 
 ; Grid/lookup parameter used by the revised renderer.
 ; ROM $07502A / SNES $C7:502A
+hirom
+
 org $C7502A
 db $0C
 

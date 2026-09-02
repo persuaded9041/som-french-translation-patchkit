@@ -11,10 +11,10 @@
 ;
 ; Hooks fall back to stock behavior outside event $0400.
 
-lorom
+hirom
 
 !INTRO_START       = $0C02
-!INTRO_END         = $0E8B      ; current checkpoint; generated dynamically
+!INTRO_END         = $0E8B      ; generated dynamically
 !PRIVATE_BUFFER    = $9390
 !PRIVATE_BUF_SIZE  = $002C      ; 44 bytes
 !STOCK_BUFFER      = $A1A4

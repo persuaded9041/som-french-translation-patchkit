@@ -1,53 +1,51 @@
 # Compatibility audit
 
-All five standalone IPS files are built from the same clean USA ROM and audited
-byte-for-byte before combination.
+All selected components are rebuilt from the same clean USA ROM before an
+aggregate build. Their IPS write maps are then compared byte-for-byte.
 
 ## Shared French glyph writes
 
-`02_9char_names` and `03_game_select` both install the naming-safe French range
-`$D4-$E0`. `05_intro_vwf_french` installs the same 13 glyphs plus `$E1-$E5`.
-All overlapping glyph bytes are identical because they come from the same
-`shared/french_charset` source.
+`02_9char_names` and `03_game_select` install the naming-safe French range
+`$D4-$E0`. `05_intro_vwf_french` installs those same 13 glyphs plus `$E1-$E5`.
+The common glyph bytes are identical because all three builders consume
+`shared/french_charset`.
 
-The duplicated ROM writes are intentional: every IPS must still work alone.
-The editable mapping/artwork is not duplicated.
+These duplicated writes are intentional: each component must remain usable on a
+clean USA ROM without requiring another component.
 
 ## Direct-glyph threshold
 
-ROM `0x0016F6` is the only differing functional overlap among these charset
-consumers:
+ROM `0x0016F6` is a declared merge point:
 
 - Name Entry standalone: `$E1` (`$D4-$E0` direct).
 - GAME SELECT standalone: `$E1` (`$D4-$E0` direct).
-- intro VWF: `$E6` (`$D4-$E5` direct).
-- any combined build containing intro VWF plus either of the first two: `$E6`.
+- intro VWF standalone: `$E6` (`$D4-$E5` direct).
 
-`build.py` declares and resolves this rule explicitly.
+The values are declared in the relevant `component.json` files as
+`direct_glyph_threshold`. For an aggregate build,
+`shared/compatibility.py` applies the highest selected threshold, so a build that
+contains intro VWF uses `$E6`.
 
-## Name Entry allocation
+## Allocations
 
-The four-row Name Entry layout script lives at ROM `0x074E00-0x074E6D`
-/ CPU `$C7:4E00-$4E6D`. Current overlap auditing confirms that this allocation
-does not collide with GAME SELECT or intro VWF code/data.
+The principal ROM/WRAM allocations are documented in `docs/MEMORY_MAP.md` and
+in each component's technical documentation. New code/data must be placed only
+after checking those ranges against all existing components.
 
-## Opening + intro VWF
+## Header/checksum writes
 
-The historical collision at `$C7:4285` is already removed. The opening helper
-lives at `$EE:9000`; `$C7:4285` remains owned by intro VWF.
-
-## Header/checksum overlaps
-
-Standalone components may independently write expanded-ROM metadata and their
-own checksum. The combined builder treats those bytes as build metadata and
-recalculates one final checksum after all selected patches are applied.
+Standalone builders may write ROM-size/header metadata and their own SNES
+checksum. Checksum-byte overlaps are build metadata, not functional collisions.
+The aggregate builder recomputes one checksum after all selected components and
+merge rules have been applied.
 
 ## Policy
 
-- byte-identical overlap required for standalone operation: allowed;
-- header/checksum overlap: allowed/recomputed;
-- declared French decoder-threshold overlap: allowed/resolved;
+- byte-identical functional overlap required for standalone operation: allowed;
+- checksum overlap: allowed and recomputed;
+- declared direct-glyph threshold overlap: allowed and resolved;
 - any other differing functional overlap: build failure.
 
-All **31 non-empty combinations** of the five current components are checked by
-the project maintenance workflow and build without undeclared collisions.
+The normal maintenance target is the modified component by itself plus the full
+all-components build. Partial combinations are only tested when a specific
+compatibility concern justifies them.

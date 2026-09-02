@@ -2,7 +2,5 @@
   "id": "04_french_opening",
   "short_name": "opening",
   "name": "French opening and credits",
-  "base_sha256": "4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f",
-  "patch_sha256": "ba9145ff516e48dfe838c1258bd9aa1841be6a2aa4c85e75af663f018313c14b",
   "standalone": true
 }

@@ -9,6 +9,8 @@
 ; Up/Down changes the state by $10 and wraps across exactly those four rows.
 
 ; ROM $003583 / SNES $C0:3583
+hirom
+
 org $C03583
 name_row_up:
     jsr $324A

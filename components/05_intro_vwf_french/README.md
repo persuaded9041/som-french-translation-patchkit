@@ -7,20 +7,17 @@ This component is standalone and targets only the clean unheadered US ROM.
 ## Build
 
 ```bash
-python3 build_patch.py "Secret of Mana (USA).sfc" -o build
+python3 build_patch.py "Secret of Mana (USA).sfc" -o build/patch.ips
 ```
 
 Required base SHA-256: `4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f`.
 
-Reference standalone IPS SHA-256: `36d419d9ad83e98cbc0b34ff41f11ef2941992ac223dc1cfc4d8b21ccdf37758`.
-
 ## Editable sources
 
 - `assets/`: component-specific intro text/layout inputs used by the builder.
-- `../../shared/french_charset/`: canonical French character mapping and 18-glyph atlas used by this builder.
-- `src/`: assembly-oriented map of the machine-code/data changes.
-- `tools/`: extraction/support scripts when present.
-- `docs/`: component memory map and validation notes.
+- `../../shared/french_charset/`: canonical French character mapping and 18-glyph atlas.
+- `src/intro_vwf.asm`: readable 65C816 representation of the code/data emitted by Python.
+- `docs/MEMORY_MAP.md`: component ROM/WRAM allocations and hooks.
 
 ## Compatibility
 

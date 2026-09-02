@@ -9,6 +9,8 @@
 
 ; Direct glyph / DTE threshold: values below $E1 are direct glyphs.
 ; ROM $0016F6 / SNES $C0:16F6
+hirom
+
 org $C016F6
 db $E1
 

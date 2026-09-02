@@ -21,7 +21,7 @@ Current consumers:
 - `03_game_select` uses the same `$D4-$E0` subset.
 - `05_intro_vwf_french` uses the complete `$D4-$E5` range.
 
-Name Entry intentionally stops at `$E0`: runtime testing showed that `$E1-$E5`
+Name Entry intentionally stops at `$E0`: `$E1-$E5`
 are still used by graphics on that screen. This is a screen-specific limitation,
 not a different character mapping.
 

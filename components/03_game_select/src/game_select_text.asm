@@ -1,4 +1,4 @@
-; Secret of Mana (USA) - GAME SELECT translation support - validated step 3
+; Secret of Mana (USA) - GAME SELECT translation support
 ; All ROM offsets refer to the clean, unheadered US ROM.
 ; build_patch.py is the canonical implementation; this file documents the
 ; relevant structures and patches in assembler form.
@@ -8,7 +8,7 @@
 ; ---------------------------------------------------------------------------
 ;
 ; The stock labels are stored in one 45-byte menu resource in bank C7.
-; Runtime testing showed that the physical resource must remain exactly 45
+; The physical resource must remain exactly 45
 ; bytes: changing its size desynchronizes the help-text rendering below the
 ; menu. The builder therefore relocates the resource but preserves its native
 ; 45-byte structure.
@@ -32,6 +32,8 @@
 ; The final $00 terminator doubles as the last logical GAME_FILE cell, matching
 ; the stock resource layout.
 
+hirom
+
 org $C7780A
 dw $4400
 
@@ -43,7 +45,7 @@ dw $4400
 ; One width unit corresponds to two text cells. The builder derives these
 ; values from the CSV while preserving a total of 36 framed cells.
 ;
-; Current validated values:
+; Current values:
 ;   GAME_SELECT : $07 = 14 cells
 ;   NEW_GAME    : $05 = 10 cells
 ;   GAME_FILE   : $06 = 12 cells

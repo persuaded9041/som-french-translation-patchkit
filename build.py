@@ -1,193 +1,88 @@
 #!/usr/bin/env python3
+"""Build one or more independent components, audit compatibility, and emit one IPS."""
 from __future__ import annotations
-import argparse, hashlib, struct
-from pathlib import Path
 
-BASE_SHA256 = '4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f'
-BASE_SIZE = 0x200000
-CHECKSUM_RANGE = range(0xFFDC, 0xFFE0)
-ROM_SIZE_OFFSET = 0xFFD7
-MERGED_THRESHOLD_OFFSET = 0x0016F6
-DIRECT_FRENCH_COMPONENTS = {'02_9char_names', '03_game_select'}
+import argparse
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+
+from shared.compatibility import apply_merge_rules, audit_overlaps
+from shared.components import discover_components
+from shared.ips import apply_ips, make_ips
+from shared.rom import update_checksum, validate_base_rom
 
 ROOT = Path(__file__).resolve().parent
-COMPONENTS = [
-    ('tree', '01_japanese_mana_tree', 'Japanese Mana Tree restoration'),
-    ('names', '02_9char_names', '9-character mixed-case names'),
-    ('game-select', '03_game_select', 'French GAME SELECT'),
-    ('opening', '04_french_opening', 'French opening / credits'),
-    ('intro-vwf', '05_intro_vwf_french', 'French intro VWF'),
-]
-ALIASES = {key: folder for key, folder, _ in COMPONENTS}
-ALIASES.update({folder: folder for _, folder, _ in COMPONENTS})
 
 
-def parse_ips(data: bytes):
-    if not data.startswith(b'PATCH'):
-        raise ValueError('Not an IPS patch')
-    pos = 5
-    records = []
-    while data[pos:pos+3] != b'EOF':
-        off = int.from_bytes(data[pos:pos+3], 'big')
-        size = int.from_bytes(data[pos+3:pos+5], 'big')
-        pos += 5
-        if size:
-            payload = data[pos:pos+size]
-            pos += size
-        else:
-            run = int.from_bytes(data[pos:pos+2], 'big')
-            value = data[pos+2]
-            pos += 3
-            payload = bytes([value]) * run
-        records.append((off, payload))
-    pos += 3
-    final_size = int.from_bytes(data[pos:pos+3], 'big') if len(data) >= pos + 3 else None
-    return records, final_size
-
-
-def patch_write_map(data: bytes):
-    records, final_size = parse_ips(data)
-    out = {}
-    for off, payload in records:
-        for i, value in enumerate(payload):
-            out[off+i] = value
-    return out, final_size
-
-
-def apply_ips(rom: bytearray, patch: bytes):
-    records, final_size = parse_ips(patch)
-    for off, payload in records:
-        end = off + len(payload)
-        if end > len(rom):
-            rom.extend(b'\0' * (end - len(rom)))
-        rom[off:end] = payload
-    if final_size is not None:
-        if final_size > len(rom):
-            rom.extend(b'\0' * (final_size - len(rom)))
-        elif final_size < len(rom):
-            del rom[final_size:]
-    return rom
-
-
-def update_checksum(rom: bytearray):
-    rom[0xFFDC:0xFFE0] = b'\xff\xff\x00\x00'
-    checksum = sum(rom) & 0xFFFF
-    rom[0xFFDC:0xFFE0] = struct.pack('<HH', checksum ^ 0xFFFF, checksum)
-    return checksum
-
-
-def make_ips(base: bytes, patched: bytes):
-    out = bytearray(b'PATCH')
-    n = max(len(base), len(patched))
-    i = 0
-    while i < n:
-        old = base[i] if i < len(base) else 0
-        new = patched[i] if i < len(patched) else 0
-        if old == new:
-            i += 1
-            continue
-        start = i
-        chunk = bytearray()
-        while i < n and len(chunk) < 0xFFFF:
-            old = base[i] if i < len(base) else 0
-            new = patched[i] if i < len(patched) else 0
-            if old == new:
-                break
-            chunk.append(new)
-            i += 1
-        out += start.to_bytes(3, 'big') + len(chunk).to_bytes(2, 'big') + chunk
-    out += b'EOF'
-    if len(patched) != len(base):
-        out += len(patched).to_bytes(3, 'big')
-    return bytes(out)
-
-
-def resolve_selection(values):
-    if not values or values == ['all']:
-        return [folder for _, folder, _ in COMPONENTS]
-    requested = []
+def resolve_selection(values: list[str], components):
+    aliases = {component.short_name: component for component in components}
+    aliases.update({component.id: component for component in components})
+    if not values or values == ["all"] or "all" in values:
+        return components
+    selected = []
     for value in values:
-        if value == 'all':
-            return [folder for _, folder, _ in COMPONENTS]
-        if value not in ALIASES:
-            raise SystemExit(f'Unknown component: {value}')
-        folder = ALIASES[value]
-        if folder not in requested:
-            requested.append(folder)
-    canonical = [folder for _, folder, _ in COMPONENTS]
-    return [folder for folder in canonical if folder in requested]
+        component = aliases.get(value)
+        if component is None:
+            raise SystemExit(f"Unknown component: {value}")
+        if component not in selected:
+            selected.append(component)
+    selected_ids = {component.id for component in selected}
+    return [component for component in components if component.id in selected_ids]
 
 
-def audit_overlaps(selected, patch_data):
-    maps = {name: patch_write_map(patch_data[name])[0] for name in selected}
-    errors = []
-    identical = 0
-    declared = 0
-    for i, left in enumerate(selected):
-        for right in selected[i+1:]:
-            common = set(maps[left]) & set(maps[right])
-            for off in common:
-                # Checksums necessarily differ per standalone component and are recomputed later.
-                if off in CHECKSUM_RANGE:
-                    declared += 1
-                    continue
-                lv, rv = maps[left][off], maps[right][off]
-                if lv == rv:
-                    identical += 1
-                    continue
-                # Name Entry and GAME SELECT use the naming-safe/direct range through $E0
-                # ($E1 threshold). Intro VWF extends the same canonical charset through
-                # $E5 and therefore needs $E6. The combined build resolves this explicitly.
-                pair = {left, right}
-                if (
-                    off == MERGED_THRESHOLD_OFFSET
-                    and '05_intro_vwf_french' in pair
-                    and bool(pair & DIRECT_FRENCH_COMPONENTS)
-                ):
-                    declared += 1
-                    continue
-                errors.append((left, right, off, lv, rv))
-    if errors:
-        lines = ['Undeclared patch collision(s):']
-        for left, right, off, lv, rv in errors[:20]:
-            lines.append(f'  {left} / {right} @ 0x{off:06X}: ${lv:02X} vs ${rv:02X}')
-        raise SystemExit('\n'.join(lines))
-    return identical, declared
+def build_component(component, rom_path: Path, output_path: Path) -> bytes:
+    command = [sys.executable, str(component.path / "build_patch.py"), str(rom_path), "-o", str(output_path)]
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(ROOT) + os.pathsep + env.get("PYTHONPATH", "")
+    result = subprocess.run(command, cwd=component.path, env=env, text=True, capture_output=True)
+    if result.returncode:
+        details = (result.stdout + "\n" + result.stderr).strip()
+        raise SystemExit(f"Builder failed for {component.id}:\n{details}")
+    if not output_path.is_file():
+        raise SystemExit(f"Builder for {component.id} did not create {output_path}")
+    return output_path.read_bytes()
 
 
-def main():
-    parser = argparse.ArgumentParser(description='Combine independent Secret of Mana French-project components safely.')
-    parser.add_argument('rom', type=Path, help='clean unheadered Secret of Mana (USA) ROM')
-    parser.add_argument('components', nargs='*', help='all, tree, names, game-select, opening, intro-vwf')
-    parser.add_argument('-o', '--output', type=Path, default=ROOT/'build'/'patch.ips', help='combined IPS output')
-    parser.add_argument('--patched-rom', type=Path, help='optional patched ROM output')
-    parser.add_argument('--list', action='store_true', help='list component names and exit')
+def main() -> None:
+    components = discover_components(ROOT)
+    parser = argparse.ArgumentParser(
+        description="Rebuild and safely combine independent Secret of Mana French-project components."
+    )
+    parser.add_argument("rom", nargs="?", type=Path, help="clean unheadered Secret of Mana (USA) ROM")
+    parser.add_argument("components", nargs="*", help="component short names/IDs; default: all")
+    parser.add_argument("-o", "--output", type=Path, default=ROOT / "build" / "all.ips", help="combined IPS output")
+    parser.add_argument("--patched-rom", type=Path, help="optional patched ROM output")
+    parser.add_argument("--list", action="store_true", help="list discovered components and exit")
     args = parser.parse_args()
 
     if args.list:
-        for key, folder, description in COMPONENTS:
-            print(f'{key:12} {folder:26} {description}')
+        for component in components:
+            print(f"{component.short_name:12} {component.id:26} {component.name}")
         return
+    if args.rom is None:
+        parser.error("rom is required unless --list is used")
 
     base = args.rom.read_bytes()
-    if len(base) != BASE_SIZE or hashlib.sha256(base).hexdigest() != BASE_SHA256:
-        raise SystemExit('Wrong base ROM. Expected clean unheadered Secret of Mana (USA).')
+    validate_base_rom(base)
+    selected = resolve_selection(args.components, components)
 
-    selected = resolve_selection(args.components)
-    patch_data = {name: (ROOT/'components'/name/'patch.ips').read_bytes() for name in selected}
-    identical, declared = audit_overlaps(selected, patch_data)
+    with tempfile.TemporaryDirectory(prefix="som_patchkit_") as temp_dir:
+        temp = Path(temp_dir)
+        patch_data = {
+            component.id: build_component(component, args.rom, temp / f"{component.id}.ips")
+            for component in selected
+        }
+        identical, declared = audit_overlaps(selected, patch_data)
 
-    rom = bytearray(base)
-    for name in selected:
-        rom = apply_ips(rom, patch_data[name])
-
-    # Explicit merged rule for the French direct-glyph threshold. Name Entry and
-    # GAME SELECT use $E1; intro VWF extends the canonical range through $E5.
-    if '05_intro_vwf_french' in selected and any(name in selected for name in DIRECT_FRENCH_COMPONENTS):
-        rom[MERGED_THRESHOLD_OFFSET] = 0xE6
-
-    checksum = update_checksum(rom)
-    patch = make_ips(base, bytes(rom))
+        rom = bytearray(base)
+        for component in selected:
+            rom = apply_ips(rom, patch_data[component.id])
+        apply_merge_rules(rom, selected)
+        checksum = update_checksum(rom)
+        patch = make_ips(base, bytes(rom))
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(patch)
@@ -195,18 +90,14 @@ def main():
         args.patched_rom.parent.mkdir(parents=True, exist_ok=True)
         args.patched_rom.write_bytes(rom)
 
-    print('Components:')
-    for name in selected:
-        print(f'  - {name}')
-    print(f'Compatible identical overlapping bytes: {identical}')
-    print(f'Declared special/header overlapping bytes: {declared}')
-    print(f'Final ROM size: 0x{len(rom):X}')
-    print(f'Final checksum: ${checksum:04X}')
-    print(f'IPS: {args.output}')
-    print(f'IPS SHA-256: {hashlib.sha256(patch).hexdigest()}')
-    if args.patched_rom:
-        print(f'ROM SHA-256: {hashlib.sha256(rom).hexdigest()}')
+    print("Components:")
+    for component in selected:
+        print(f"  - {component.id}")
+    print(f"Compatible identical overlapping bytes: {identical}")
+    print(f"Declared special/header overlapping bytes: {declared}")
+    print(f"Final ROM size: 0x{len(rom):X}")
+    print(f"Final checksum: ${checksum:04X}")
+    print(f"IPS: {args.output}")
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

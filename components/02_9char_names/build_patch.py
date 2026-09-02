@@ -3,34 +3,22 @@
 
 The module remains self-contained from the clean unheadered US ROM. Editable
 character rows and help text live in assets/. 65C816/data edits are centralized
-in src/patch_data.py and mirrored as commented assembly in src/*.asm.
+in src/patch_data.py and mirrored as readable assembly in src/*.asm.
 """
 from __future__ import annotations
 
 import argparse
 import csv
-import hashlib
 import re
 import sys
-import zlib
 from pathlib import Path
 
 from src.patch_data import STATIC_EDITS
 
-BASE_SIZE = 0x200000
 EXPANDED_SIZE = 0x300000
 HEADER_OFFSET = 0x00FFC0
-CHECKSUM_COMPLEMENT_OFFSET = HEADER_OFFSET + 0x1C
-CHECKSUM_OFFSET = HEADER_OFFSET + 0x1E
 
-BASE_CRC32 = 0xD0176B24
-BASE_MD5 = "10a894199a9adc50ff88815fd9853e19"
-BASE_SHA1 = "8133041a363e3cc68cedef40b49b6d20d03c505d"
-BASE_SHA256 = "4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f"
 
-# Runtime-validated four-row Name Entry checkpoint.
-REFERENCE_PATCH_SHA256 = "31cdc4c829130194a54020c87c2d1bb56cc908372d2024aac1aaebb230196f9f"
-REFERENCE_RESOURCE_SHA256 = "c80dc4bc038eda52c046bee1cf1026fe32bd5646bc90dd25cf8dab6254a8f96f"
 
 # Find shared/ both in the full repository and in a standalone component pack.
 def find_shared_root(component_root: Path) -> Path:
@@ -48,6 +36,7 @@ ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = find_shared_root(ROOT)
 sys.path.insert(0, str(PROJECT_ROOT))
 from shared.french_charset import GAME_SELECT_CHARS, glyph_bytes, profile_mapping  # noqa: E402
+from shared.rom import validate_base_rom, update_checksum  # noqa: E402
 
 # Naming screen can safely use the original French-ROM range $D4-$E0. The
 # extended $E1-$E5 slots are still used by graphics on this screen.
@@ -82,30 +71,6 @@ ASCII_TO_SOM.update({
 
 MAX_RESOURCE_SIZE = 0x200
 
-
-def digest(data: bytes) -> dict[str, str]:
-    return {
-        "crc32": f"{zlib.crc32(data) & 0xFFFFFFFF:08x}",
-        "md5": hashlib.md5(data).hexdigest(),
-        "sha1": hashlib.sha1(data).hexdigest(),
-        "sha256": hashlib.sha256(data).hexdigest(),
-    }
-
-
-def verify_base_rom(data: bytes) -> None:
-    expected = {
-        "crc32": f"{BASE_CRC32:08x}", "md5": BASE_MD5,
-        "sha1": BASE_SHA1, "sha256": BASE_SHA256,
-    }
-    actual = digest(data)
-    errors = []
-    if len(data) != BASE_SIZE:
-        errors.append(f"size {len(data):#x}, expected {BASE_SIZE:#x}")
-    for key, expected_value in expected.items():
-        if actual[key] != expected_value:
-            errors.append(f"{key.upper()} {actual[key]}, expected {expected_value}")
-    if errors:
-        raise SystemExit("Base ROM verification failed:\n  " + "\n  ".join(errors))
 
 
 def parse_sections(path: Path) -> dict[str, str]:
@@ -211,22 +176,12 @@ def encode_help_text(path: Path) -> bytes:
 def build_naming_resource() -> bytes:
     rows = build_character_rows(ROOT / "assets" / "naming_characters.txt")
     help_text = encode_help_text(ROOT / "assets" / "naming_help.csv")
-    # Explicit terminator/guard bytes are part of the runtime-validated checkpoint.
+    # Explicit terminator/guard bytes complete the relocated resource.
     resource = rows + help_text + bytes(16)
     if len(resource) > MAX_RESOURCE_SIZE:
         raise SystemExit(f"Naming resource is {len(resource)} bytes; maximum is {MAX_RESOURCE_SIZE}")
     return resource
 
-
-def update_snes_checksum(rom: bytearray) -> None:
-    if len(rom) != EXPANDED_SIZE:
-        raise ValueError("checksum helper expects the 3 MiB expanded ROM")
-    rom[CHECKSUM_COMPLEMENT_OFFSET:CHECKSUM_COMPLEMENT_OFFSET + 2] = b"\xff\xff"
-    rom[CHECKSUM_OFFSET:CHECKSUM_OFFSET + 2] = b"\x00\x00"
-    checksum = sum(rom) & 0xFFFF
-    complement = checksum ^ 0xFFFF
-    rom[CHECKSUM_COMPLEMENT_OFFSET:CHECKSUM_COMPLEMENT_OFFSET + 2] = complement.to_bytes(2, "little")
-    rom[CHECKSUM_OFFSET:CHECKSUM_OFFSET + 2] = checksum.to_bytes(2, "little")
 
 
 def apply_source_edits(base: bytes, resource: bytes) -> bytearray:
@@ -244,7 +199,7 @@ def apply_source_edits(base: bytes, resource: bytes) -> bytearray:
     # Expanded-ROM metadata and generated Name Entry resource.
     rom[0x00FFD7:0x00FFDC] = bytes.fromhex("0C0301C300")
     rom[0x244000:0x244000 + len(resource)] = resource
-    update_snes_checksum(rom)
+    update_checksum(rom)
     return rom
 
 
@@ -275,7 +230,7 @@ def main() -> None:
     args = parser.parse_args()
 
     base = args.rom.read_bytes()
-    verify_base_rom(base)
+    validate_base_rom(base)
     resource = build_naming_resource()
     patched = apply_source_edits(base, resource)
     ips = make_ips(patched, len(resource))
@@ -288,20 +243,11 @@ def main() -> None:
         patched_path.parent.mkdir(parents=True, exist_ok=True)
         patched_path.write_bytes(patched)
         print(f"Patched ROM: {patched_path}")
-        print(f"Patched ROM SHA-256: {hashlib.sha256(patched).hexdigest()}")
 
-    resource_sha = hashlib.sha256(resource).hexdigest()
-    patch_sha = hashlib.sha256(ips).hexdigest()
     print(f"Base ROM verified: {args.rom}")
     print(f"Naming resource: {len(resource)} bytes")
-    print(f"Naming resource SHA-256: {resource_sha}")
     print(f"IPS: {output}")
     print(f"IPS size: {len(ips)} bytes")
-    print(f"IPS SHA-256: {patch_sha}")
-    if patch_sha == REFERENCE_PATCH_SHA256 and resource_sha == REFERENCE_RESOURCE_SHA256:
-        print("Runtime-validated Name Entry checkpoint: exact match")
-    else:
-        print("Custom build: differs from the runtime-validated Name Entry checkpoint")
 
 
 if __name__ == "__main__":

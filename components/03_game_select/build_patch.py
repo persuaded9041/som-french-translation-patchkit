@@ -3,21 +3,13 @@ from __future__ import annotations
 
 import argparse
 import csv
-import hashlib
-import struct
-import zlib
 import sys
 from pathlib import Path
 
-BASE_SIZE = 0x200000
 EXPANDED_SIZE = 0x300000
-BASE_CRC32 = 0xD0176B24
-BASE_MD5 = "10a894199a9adc50ff88815fd9853e19"
-BASE_SHA1 = "8133041a363e3cc68cedef40b49b6d20d03c505d"
-BASE_SHA256 = "4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f"
 
 # Stock GAME SELECT label resource in bank C7.
-# Step 3 relocates the resource inside bank C7 because the descriptor stores
+# Relocate the resource inside bank C7 because the descriptor stores
 # only a 16-bit pointer and the translated fields no longer fit the stock blob.
 MENU_RESOURCE_RELOC_OFFSET = 0x074400  # C7:4400, stock free space
 MENU_RESOURCE_RELOC_PTR = 0x4400
@@ -50,21 +42,20 @@ STOCK_FRAME_WIDTHS = {
 }
 
 # The native menu resource is exactly 45 source bytes including its final $00.
-# Runtime testing showed that changing this physical size desynchronizes the
-# help-text rendering, so step 3 preserves the 45-byte layout exactly.
+# Changing this physical size desynchronizes the
+# help-text rendering, so the builder preserves the 45-byte layout exactly.
 MENU_RESOURCE_SAFE_SOURCE_SIZE = 45
 WELCOME_POINTER_OFFSET = 0x0033B5       # stock pointer = C0:33F0
 WELCOME_RELOC_OFFSET = 0x2D8000         # SNES ED:8000
 WELCOME_RELOC_SNES = 0xED8000
 
 ROM_SIZE_OFFSET = 0x00FFD7
-CHECKSUM_COMPLEMENT_OFFSET = 0x00FFDC
-CHECKSUM_OFFSET = 0x00FFDE
 
 ASCII_TO_SOM = {" ": 0x80}
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 from shared.french_charset import GAME_SELECT_CHARS, glyph_bytes, profile_mapping
+from shared.rom import validate_base_rom, update_checksum
 
 ACCENT_TO_SOM = profile_mapping("game_select")
 ASCII_TO_SOM.update(ACCENT_TO_SOM)
@@ -112,32 +103,6 @@ REQUIRED_IDS = [
     "WELCOME_1", "WELCOME_2", "WELCOME_3", "WELCOME_4",
 ]
 
-
-def digest(data: bytes) -> dict[str, str]:
-    return {
-        "crc32": f"{zlib.crc32(data) & 0xFFFFFFFF:08x}",
-        "md5": hashlib.md5(data).hexdigest(),
-        "sha1": hashlib.sha1(data).hexdigest(),
-        "sha256": hashlib.sha256(data).hexdigest(),
-    }
-
-
-def verify_base_rom(data: bytes) -> None:
-    expected = {
-        "crc32": f"{BASE_CRC32:08x}",
-        "md5": BASE_MD5,
-        "sha1": BASE_SHA1,
-        "sha256": BASE_SHA256,
-    }
-    got = digest(data)
-    errors = []
-    if len(data) != BASE_SIZE:
-        errors.append(f"size {len(data):#x}, expected {BASE_SIZE:#x}")
-    for key, value in expected.items():
-        if got[key] != value:
-            errors.append(f"{key.upper()} {got[key]}, expected {value}")
-    if errors:
-        raise SystemExit("Base ROM verification failed:\n  " + "\n  ".join(errors))
 
 
 def encode_text(text: str, context: str) -> bytes:
@@ -272,20 +237,12 @@ def build_welcome(rows: dict[str, str]) -> bytes:
     return encoded[0] + b"\x7F\x7F" + encoded[1] + b"\x7F" + encoded[2] + b"\x7F" + encoded[3] + b"\x7F\x7F\x00"
 
 
-def update_checksum(rom: bytearray) -> int:
-    # Same physical-3-MiB method used by the validated opening/tree builders.
-    rom[CHECKSUM_COMPLEMENT_OFFSET:CHECKSUM_OFFSET + 2] = b"\xFF\xFF\x00\x00"
-    checksum = sum(rom) & 0xFFFF
-    complement = checksum ^ 0xFFFF
-    rom[CHECKSUM_COMPLEMENT_OFFSET:CHECKSUM_OFFSET + 2] = struct.pack("<HH", complement, checksum)
-    return checksum
-
 
 def apply_sources(base: bytes, rows: dict[str, str]) -> tuple[bytearray, int]:
     rom = bytearray(base)
     rom.extend(b"\x00" * (EXPANDED_SIZE - len(rom)))
 
-    # Step 2: turn $D4-$E0 into normal character codes for the stock text
+    # Turn $D4-$E0 into normal character codes for the stock text
     # decoder, while keeping $E1-$FF on the original DTE path.
     if base[DTE_COMPARE_IMMEDIATE_OFFSET] != DTE_STOCK_THRESHOLD:
         raise SystemExit(
@@ -300,9 +257,8 @@ def apply_sources(base: bytes, rows: dict[str, str]) -> tuple[bytearray, int]:
     glyph_blob = load_accent_glyphs()
     rom[glyph_start:glyph_start + len(glyph_blob)] = glyph_blob
 
-    # Step 3: relocate the label resource and derive the three frame widths
-    # directly from the CSV text.  Unlike the failed v1 experiment, the field
-    # segmentation and the window geometry are changed together.
+    # Relocate the label resource and derive all three frame widths directly
+    # from the CSV text so field segmentation and window geometry stay aligned.
     menu_resource, frame_widths = build_menu_resource(rows)
     if MENU_RESOURCE_RELOC_OFFSET + len(menu_resource) > 0x075000:
         raise SystemExit("Relocated GAME SELECT resource exceeded reserved C7:4400-C7:4FFF")
@@ -415,7 +371,7 @@ def write_csv(path: Path, rows: dict[str, str]) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Secret of Mana (USA) GAME SELECT text source builder - validated step 3")
+    parser = argparse.ArgumentParser(description="Build the Secret of Mana (USA) French GAME SELECT component")
     parser.add_argument("rom", type=Path, help="clean unheadered Secret of Mana (USA) ROM")
     parser.add_argument("--csv", type=Path, default=ROOT / "assets" / "game_select_text.csv")
     parser.add_argument("--extract", type=Path, metavar="CSV", help="extract the stock GAME SELECT texts to CSV and exit")
@@ -424,7 +380,7 @@ def main() -> None:
     args = parser.parse_args()
 
     base = args.rom.read_bytes()
-    verify_base_rom(base)
+    validate_base_rom(base)
 
     if args.extract:
         rows = extract_rows(base)
@@ -444,7 +400,6 @@ def main() -> None:
         args.patched_rom.write_bytes(patched)
 
     print(f"Patch: {args.output}")
-    print(f"IPS SHA-256: {hashlib.sha256(patch).hexdigest()}")
     print(f"Expanded ROM size: {len(patched):#x}")
     print(f"SNES checksum: ${checksum:04X}")
     print(f"WELCOME pointer: ${int.from_bytes(patched[WELCOME_POINTER_OFFSET:WELCOME_POINTER_OFFSET+3], 'little'):06X}")

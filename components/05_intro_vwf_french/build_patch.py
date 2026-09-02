@@ -8,13 +8,11 @@ Line/page breaks are defined by numeric word counts in intro_layout.json.
 from __future__ import annotations
 
 from pathlib import Path
-import hashlib
 import json
 import struct
 import sys
 import argparse
 
-EXPECTED_SHA1 = "8133041a363e3cc68cedef40b49b6d20d03c505d"
 
 # VWF code/data locations.
 CODE_FILE = 0x074285
@@ -32,13 +30,14 @@ CAPACITY_HELPER_FILE = CODE_FILE + (CAPACITY_HELPER_CPU - CODE_CPU)
 # Stock text/font locations.
 DTE_COMPARE_IMMEDIATE_OFFSET = 0x0016F6
 DTE_STOCK_THRESHOLD = 0xD3
-DTE_NEW_THRESHOLD = 0xE6  # validated below against shared FULL_DTE_THRESHOLD
 FONT_BASE = 0x12DC00
 
 # Direct character codes reserved for French glyphs.
 ROOT = Path(__file__).resolve().parent
-PROJECT_ROOT = ROOT.parents[1]
+PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
+from shared.rom import validate_base_rom, update_checksum  # noqa: E402
+from shared.ips import make_ips  # noqa: E402
 from shared.french_charset import (
     CHAR_TO_CODE,
     FIRST_CODE,
@@ -48,6 +47,7 @@ from shared.french_charset import (
     glyph_bytes,
 )
 
+DTE_NEW_THRESHOLD = FULL_DTE_THRESHOLD
 ACCENT_FIRST = FIRST_CODE
 ACCENT_CHARS = GAME_SELECT_CHARS
 FRENCH_CHARS = FULL_FRENCH_CHARS
@@ -58,8 +58,6 @@ ASCII_TO_SOM.update({chr(ord("A") + i): 0x9B + i for i in range(26)})
 ASCII_TO_SOM.update({".": 0xBF, ",": 0xC0, "'": 0xC2})
 ASCII_TO_SOM.update(CHAR_TO_CODE)
 
-if DTE_NEW_THRESHOLD != FULL_DTE_THRESHOLD:
-    raise RuntimeError("Intro VWF DTE threshold diverges from shared French charset")
 SCRTXT_FILE = ROOT / "assets" / "text" / "scrtxt_fr.bin"
 INTRO_ANDROID_IDS = tuple(range(3445, 3453))
 INTRO_EVENT_START = 0x0C02
@@ -577,7 +575,7 @@ def assemble_vwf(intro_end_ptr: int) -> bytes:
     a.rel16(0x82, "char_loop")
 
     a.label("done")
-    # Validated V1.2 behavior:
+    # Intro VWF behavior:
     # Normally leave $A1CE untouched. The intro contains a WAIT command ($28)
     # in the middle of the final logical line (`river...` / `and history`).
     # When the next event opcode is WAIT, convert the VWF pixel cursor to an
@@ -793,38 +791,10 @@ def make_compact_font(rom: bytearray) -> tuple[bytes, bytes]:
     return bytes(advances), bytes(compact)
 
 
-def make_ips(base: bytes, modified: bytes) -> bytes:
-    output = bytearray(b"PATCH")
-    index = 0
-    length = len(base)
 
-    while index < length:
-        if base[index] == modified[index]:
-            index += 1
-            continue
-
-        start = index
-        while index < length and base[index] != modified[index] and index - start < 0xFFFF:
-            index += 1
-        payload = modified[start:index]
-        output += start.to_bytes(3, "big")
-        output += len(payload).to_bytes(2, "big")
-        output += payload
-
-    output += b"EOF"
-    return bytes(output)
-
-
-def main(source_rom: str, output_dir: str) -> None:
-    output = Path(output_dir)
-    output.mkdir(parents=True, exist_ok=True)
-
-    base = bytearray(Path(source_rom).read_bytes())
-    actual_sha1 = hashlib.sha1(base).hexdigest()
-    if len(base) != 0x200000 or actual_sha1 != EXPECTED_SHA1:
-        raise SystemExit(
-            "Wrong ROM. Expected headerless Secret of Mana (USA), SHA-1 " + EXPECTED_SHA1
-        )
+def main(source_rom: Path, output_path: Path, patched_rom: Path | None = None) -> None:
+    base = bytearray(source_rom.read_bytes())
+    validate_base_rom(base)
     rom = bytearray(base)
 
     # Reserve $D4-$E5 for direct French glyph codes.
@@ -982,14 +952,14 @@ def main(source_rom: str, output_dir: str) -> None:
     rom[DTE_LOADER_FILE : DTE_LOADER_FILE + len(dte_loader)] = dte_loader
     rom[CUSTOM_DTE_FILE : CUSTOM_DTE_FILE + len(custom_dte)] = custom_dte
 
-    # Recalculate SNES checksum/complement.
-    rom[0xFFDC:0xFFE0] = b"\xFF\xFF\x00\x00"
-    checksum = sum(rom) & 0xFFFF
+    checksum = update_checksum(rom)
     complement = checksum ^ 0xFFFF
-    rom[0xFFDC:0xFFE0] = struct.pack("<HH", complement, checksum)
 
-    patch_path = output / "patch.ips"
-    patch_path.write_bytes(make_ips(base, rom))
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_bytes(make_ips(base, rom))
+    if patched_rom:
+        patched_rom.parent.mkdir(parents=True, exist_ok=True)
+        patched_rom.write_bytes(rom)
 
     print(f"Android IDs: {INTRO_ANDROID_IDS[0]}-{INTRO_ANDROID_IDS[-1]}")
     for text_id, pages in zip(INTRO_ANDROID_IDS, paragraph_pages):
@@ -997,14 +967,14 @@ def main(source_rom: str, output_dir: str) -> None:
         print(f"{text_id}: pages {lengths}")
     print(f"Private DTE pairs: {len(dte_pairs)}")
     print(f"Intro event: ${INTRO_EVENT_START:04X}-${intro_end_ptr:04X} ({len(new_event)} bytes)")
-    print(f"Patched ROM SHA-1: {hashlib.sha1(rom).hexdigest()}")
     print(f"Checksum: {checksum:04X}; complement: {complement:04X}")
-    print(f"Patch written to: {patch_path}")
+    print(f"Patch written to: {output_path}")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Build the standalone French intro VWF patch.")
     parser.add_argument("rom", type=Path, help="clean unheadered Secret of Mana (USA) ROM")
-    parser.add_argument("-o", "--output-dir", type=Path, default=ROOT / "build", help="output directory")
+    parser.add_argument("-o", "--output", type=Path, default=ROOT / "build" / "patch.ips", help="output IPS path")
+    parser.add_argument("--patched-rom", type=Path, help="optional patched ROM output")
     args = parser.parse_args()
-    main(args.rom, args.output_dir)
+    main(args.rom, args.output, args.patched_rom)

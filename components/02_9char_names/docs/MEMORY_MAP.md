@@ -15,7 +15,7 @@ All ROM offsets assume the clean unheadered USA ROM.
 | `0x07502A` | `$C7:502A` | Naming grid/lookup parameter |
 | `0x0750A6+` | `$C7:50A6+` | Character lookup -> `$E4:4000` |
 | `0x0750E8` | `$C7:50E8` | Selection-map origin (`#$48`) aligned with raised grid |
-| `0x07759D+` | `$C7:759D+` | Runtime-validated layout/control bytes retained from prior checkpoint |
+| `0x07759D+` | `$C7:759D+` | Name Entry layout/control bytes |
 | `0x07781C-0x077821` | `$C7:781C-$7821` | Pointer trio `$74EA,$4E00,$74EA` |
 | `0x12DFF0-0x12E08B` | font data | 13 shared French glyphs `$D4-$E0` |
 | `0x244000+` | `$E4:4000+` | Generated four-row character/help resource |

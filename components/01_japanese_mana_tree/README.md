@@ -7,19 +7,17 @@ This component is standalone and targets only the clean unheadered US ROM.
 ## Build
 
 ```bash
-python3 build_patch.py "Secret of Mana (USA).sfc" -o build
+python3 build_patch.py "Secret of Mana (USA).sfc" -o build/patch.ips
 ```
 
 Required base SHA-256: `4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f`.
 
-Reference standalone IPS SHA-256: `424a15e1f08be4207054d99c83d0f69a5ec5cf2d9acf3160d7b35eeb35060027`.
-
 ## Editable sources
 
-- `assets/`: data/text/font inputs used by the builder.
-- `src/`: assembly-oriented map of the machine-code/data changes.
-- `tools/`: extraction/support scripts when present.
-- `docs/`: component memory map and validation notes.
+- `assets/mana_tree_jp.bin`: Japanese Mana Tree resource used by the builder.
+- `src/tree_restoration.asm`: assembly/source-map representation of the hook, relocated resource and loader helper.
+- `tools/extract_mana_tree.py`: extraction helper for rebuilding the internal asset from the Japanese ROM.
+- `docs/MEMORY_MAP.md`: component ROM allocations and hooks.
 
 ## Compatibility
 

@@ -2,6 +2,8 @@
 
 ; Maximum name length: 6 -> 9 characters.
 ; ROM $00319C / SNES $C0:319C
+hirom
+
 org $C0319C
 db $09
 

@@ -1,28 +1,25 @@
 # French opening and credits
 
-Translates the startup credits and opening story while preserving the validated fixed-width renderer.
+Translates the startup credits and opening story while preserving the fixed-width renderer.
 
 This component is standalone and targets only the clean unheadered US ROM.
 
 ## Build
 
 ```bash
-python3 build_patch.py "Secret of Mana (USA).sfc" -o build
+python3 build_patch.py "Secret of Mana (USA).sfc" -o build/patch.ips
 ```
 
 Required base SHA-256: `4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f`.
 
-Reference standalone IPS SHA-256: `ba9145ff516e48dfe838c1258bd9aa1841be6a2aa4c85e75af663f018313c14b`.
-
 ## Editable sources
 
-- `assets/`: data/text/font inputs used by the builder.
-- `src/`: assembly-oriented map of the machine-code/data changes.
-- `tools/`: extraction/support scripts when present.
-- `docs/`: component memory map and validation notes.
+- `assets/`: text, credits and font inputs used by the builder.
+- `src/opening_hook.asm`: readable 65C816 representation of the renderer helper emitted by Python.
+- `docs/MEMORY_MAP.md`: component ROM allocations and hooks.
 
 ## Compatibility
 
-The helper was moved from $C7:4285 to $EE:9000 specifically to remove the collision with intro VWF. Its behavior is otherwise unchanged.
+The helper lives at `$EE:9000`, separate from the intro VWF code at `$C7:4285`.
 
 For cross-component rules, see the package-level `docs/COMPATIBILITY.md`.
