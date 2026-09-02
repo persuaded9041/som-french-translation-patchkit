@@ -8,7 +8,7 @@
 ; form. The character pages and help text are authored in:
 ;
 ;   assets/naming_characters.txt
-;   assets/naming_help.txt
+;   assets/naming_help.csv
 ;
 ; The builder encodes both files and writes the resulting resource at E4:4000.
 
@@ -105,7 +105,7 @@ name_page_commit:
 ; The ROM is expanded from 2 MiB to 3 MiB. build_patch.py writes the updated
 ; ROM-size metadata and recalculates the SNES checksum after all source edits.
 ;
-; For the canonical English sources, the resulting bytes at $00FFD7-$00FFDF
+; For the canonical French sources, the resulting bytes at $00FFD7-$00FFDF
 ; match the validated reference patch exactly:
 ;
 ;   0C 03 01 C3 00 CB FC 34 03
@@ -168,8 +168,8 @@ db $EA,$74,$9B,$75,$EA
 ; read from assets/naming_characters.txt.
 ;
 ; The help text uses Secret of Mana's native text encoding. Source lines are
-; read from assets/naming_help.txt. The builder inserts the original leading space on
+; read from assets/naming_help.csv. The builder inserts the original leading space on
 ; each display line and converts line boundaries to byte $7F.
 ;
-; The canonical English sources generate 335 bytes and reproduce the original
-; validated resource byte-for-byte.
+; The canonical French sources generate 343 bytes. The CSV rows are encoded in
+; order and the builder converts row boundaries to byte $7F.

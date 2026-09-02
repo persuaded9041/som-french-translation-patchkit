@@ -3,6 +3,6 @@
   "short_name": "names",
   "name": "9-character names",
   "base_sha256": "4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f",
-  "patch_sha256": "dc20f8994d78968863311543212dde5c9c8ee9befa97d58f79dd834d8156e77f",
+  "patch_sha256": "e793dc519b3239d714038a34c6bffdb6ff93f08becc8baac90f960107447817c",
   "standalone": true
 }

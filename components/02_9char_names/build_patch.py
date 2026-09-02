@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
 import re
 import sys
@@ -19,8 +20,8 @@ BASE_MD5 = "10a894199a9adc50ff88815fd9853e19"
 BASE_SHA1 = "8133041a363e3cc68cedef40b49b6d20d03c505d"
 BASE_SHA256 = "4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f"
 
-REFERENCE_PATCH_SHA256 = "dc20f8994d78968863311543212dde5c9c8ee9befa97d58f79dd834d8156e77f"
-REFERENCE_RESOURCE_SHA256 = "948b8977b4a9ae84ac1cd4518da65a587143c799a3f00fb4ad585360f3d830ee"
+REFERENCE_PATCH_SHA256 = "e793dc519b3239d714038a34c6bffdb6ff93f08becc8baac90f960107447817c"
+REFERENCE_RESOURCE_SHA256 = "dcdb71f9f2af2f7300ef4b993317566811dc2fa3efd2707914315493e17dca28"
 
 # Static code/data edits. The internal header/checksum record and the generated
 # naming resource are added separately by the build pipeline.
@@ -166,14 +167,25 @@ def build_character_pages(path: Path) -> bytes:
 
 
 def encode_help_text(path: Path) -> bytes:
-    # splitlines() intentionally discards the final file newline. The in-ROM
-    # resource has $7F only between display lines, not after the final line.
-    lines = path.read_text(encoding="utf-8").splitlines()
-    if not lines:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle)
+        if reader.fieldnames != ["id", "text"]:
+            raise SystemExit(f"{path.name} must use exactly the columns: id,text")
+        rows = list(reader)
+
+    if not rows:
         raise SystemExit(f"{path.name} is empty")
 
+    expected_ids = [f"NAME_HELP_{i}" for i in range(1, len(rows) + 1)]
+    actual_ids = [row["id"].strip() for row in rows]
+    if actual_ids != expected_ids:
+        raise SystemExit(
+            f"{path.name} IDs must be sequential: " + ", ".join(expected_ids)
+        )
+
     encoded_lines: list[bytes] = []
-    for line_number, line in enumerate(lines, 1):
+    for line_number, row in enumerate(rows, 1):
+        line = row["text"]
         out = bytearray((0x80,))  # stock resource starts every line with one space
         quote_open = True
         for char in line:
@@ -183,19 +195,27 @@ def encode_help_text(path: Path) -> bytes:
                 continue
             if char not in ASCII_TO_SOM:
                 raise SystemExit(
-                    f"Unsupported character {char!r} in {path.name}, line {line_number}"
+                    f"Unsupported character {char!r} in {path.name}, row {line_number}"
                 )
             out.append(ASCII_TO_SOM[char])
         if not quote_open:
-            raise SystemExit(f"Unbalanced double quote in {path.name}, line {line_number}")
+            raise SystemExit(f"Unbalanced double quote in {path.name}, row {line_number}")
         encoded_lines.append(bytes(out))
     return b"\x7f".join(encoded_lines)
 
 
+MAX_VALIDATED_RESOURCE_SIZE = 335
+
 def build_naming_resource(root: Path) -> bytes:
     pages = build_character_pages(root / "assets" / "naming_characters.txt")
-    help_text = encode_help_text(root / "assets" / "naming_help.txt")
-    return pages + help_text
+    help_text = encode_help_text(root / "assets" / "naming_help.csv")
+    resource = pages + help_text
+    if len(resource) > MAX_VALIDATED_RESOURCE_SIZE:
+        raise SystemExit(
+            f"Naming resource is {len(resource)} bytes; the runtime-validated limit is "
+            f"{MAX_VALIDATED_RESOURCE_SIZE}. Shorten the help text or extend the renderer safely first."
+        )
+    return resource
 
 
 def update_snes_checksum(rom: bytearray) -> None:

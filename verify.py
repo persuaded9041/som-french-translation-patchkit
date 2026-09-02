@@ -8,7 +8,7 @@ from shared.french_charset import (CHAR_TO_CODE, FIRST_CODE, FULL_DTE_THRESHOLD,
 ROOT = Path(__file__).resolve().parent
 EXPECTED = {
  '01_japanese_mana_tree':'424a15e1f08be4207054d99c83d0f69a5ec5cf2d9acf3160d7b35eeb35060027',
- '02_9char_names':'dc20f8994d78968863311543212dde5c9c8ee9befa97d58f79dd834d8156e77f',
+ '02_9char_names':'f2a4c957ae51aed5a8d92726784ca69eb2ace26ead85b089e464eb27ec69b5c8',
  '03_game_select':'ede4084d40087fbaeb6622edeb9e976e4a70477ff1ba06cc5bafd610fb5b86d2',
  '04_french_opening':'ba9145ff516e48dfe838c1258bd9aa1841be6a2aa4c85e75af663f018313c14b',
  '05_intro_vwf_french':'36d419d9ad83e98cbc0b34ff41f11ef2941992ac223dc1cfc4d8b21ccdf37758',

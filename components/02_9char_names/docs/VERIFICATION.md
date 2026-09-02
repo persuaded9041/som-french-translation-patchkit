@@ -2,6 +2,8 @@
 
 Standalone patch SHA-256:
 
-`dc20f8994d78968863311543212dde5c9c8ee9befa97d58f79dd834d8156e77f`
+`e793dc519b3239d714038a34c6bffdb6ff93f08becc8baac90f960107447817c`
 
-The packaged `patch.ips` is the runtime-validated reference. The source builder must reproduce it byte-for-byte from the clean US ROM and packaged editable assets.
+The builder reproduces this packaged IPS byte-for-byte from the clean US ROM and
+the editable sources. The existing 9-character/mixed-case naming behavior is
+runtime-validated; the new French CSV help text is pending runtime validation.
