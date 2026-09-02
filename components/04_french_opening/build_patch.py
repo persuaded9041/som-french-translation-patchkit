@@ -216,13 +216,13 @@ def read_credits(path):
     with path.open("r", encoding="utf-8-sig", newline="") as f:
         rows = list(csv.DictReader(f))
 
-    if len(rows) != 4:
-        raise ValueError("Expected exactly four startup credit lines")
+    if len(rows) != 5:
+        raise ValueError("Expected exactly five startup credit lines")
 
     result = []
     for expected, row in enumerate(rows, 1):
         if int(row["line"]) != expected:
-            raise ValueError("Credit line numbers must run from 1 to 4")
+            raise ValueError("Credit line numbers must run from 1 to 5")
         result.append(row["text"])
 
     return result
@@ -430,7 +430,9 @@ def patch_startup_credits(arrangement, credits):
 
     replacement = bytearray()
 
-    for text in credits:
+    # Preserve the validated four original slots byte-for-byte in size.
+    # The fifth credit is stored in a separate appended list (see below).
+    for text in credits[:4]:
         replacement.append(0x06)
         replacement.extend(encode_credit_text(text))
         replacement.append(0x00)
@@ -445,6 +447,67 @@ def patch_startup_credits(arrangement, credits):
         + bytes(replacement)
         + arrangement[start+len(original):]
     )
+
+
+
+
+TEXT_TABLE_BASE_OFFSET = 0x09F8
+CREDIT_LIST_START_SIGNATURE = bytes.fromhex("a2 be 01 86 08")
+CREDIT_DWELL_SIGNATURE = bytes.fromhex("a2 f0 00 20 00 8b")
+CREDIT_DWELL_FRAMES = 180
+
+
+def append_startup_credit_list(arrangement, credits):
+    """Append a private 5-credit list without moving any stock arrangement data.
+
+    The title text renderer addresses records as X offsets relative to
+    $7E:59F8 (arrangement offset $09F8).  Appending the list preserves every
+    existing arrangement offset and gives us a safe new X value.
+
+    Each record is: indent byte $06, encoded text, $00 terminator.
+    A final standalone $00 is the list sentinel used by the stock loop.
+    """
+    blob = bytearray()
+    for text in credits:
+        blob.append(0x06)
+        blob.extend(encode_credit_text(text))
+        blob.append(0x00)
+    blob.append(0x00)
+
+    start_offset = len(arrangement)
+    relative_x = start_offset - TEXT_TABLE_BASE_OFFSET
+    if not 0 <= relative_x <= 0xFFFF:
+        raise ValueError("Appended startup-credit list is outside renderer range")
+
+    return arrangement + bytes(blob), relative_x, bytes(blob)
+
+
+def patch_startup_credit_sequence(code, relative_x):
+    """Redirect the stock credit loop and shorten the real visible dwell.
+
+    Stock credit routine (CPU $8DD0 area):
+      - X=$01BE selects the original 4-credit list.
+      - each record is faded in (~31 frames), held for $00F0 = 240 frames,
+        then faded out (~31 frames).
+
+    With five credits, a 180-frame hold keeps the complete section almost
+    exactly the same duration:
+        4 * (31 + 240 + 31) = 1208 frames
+        5 * (31 + 180 + 31) = 1210 frames
+    """
+    out = bytearray(code)
+
+    pos = out.find(CREDIT_LIST_START_SIGNATURE)
+    if pos < 0 or out.find(CREDIT_LIST_START_SIGNATURE, pos + 1) >= 0:
+        raise ValueError("Startup-credit list pointer signature missing/ambiguous")
+    out[pos:pos+3] = bytes((0xA2, relative_x & 0xFF, relative_x >> 8))
+
+    dwell = out.find(CREDIT_DWELL_SIGNATURE)
+    if dwell < 0 or out.find(CREDIT_DWELL_SIGNATURE, dwell + 1) >= 0:
+        raise ValueError("Startup-credit dwell signature missing/ambiguous")
+    out[dwell:dwell+3] = bytes((0xA2, CREDIT_DWELL_FRAMES & 0xFF, CREDIT_DWELL_FRAMES >> 8))
+
+    return bytes(out)
 
 
 def encode_4bpp_tile(px):
@@ -738,6 +801,13 @@ def main():
 
     new_arr = new_arr.replace(US_YEAR, FR_STYLE_1993)
 
+    # Append the five-credit list only after all fixed-offset arrangement
+    # edits. No existing byte is inserted/moved.
+    new_arr, credit_relative_x, credit_blob = append_startup_credit_list(
+        new_arr, credits
+    )
+    new_code = patch_startup_credit_sequence(new_code, credit_relative_x)
+
     new_font = load_font_png(font_path, font)
 
     code_cmp = compress_block(new_code, code_key)
@@ -799,6 +869,11 @@ def main():
     if decompress_block(rom, RELOCATED_ARR_ROM)[0] != new_arr:
         raise AssertionError("Relocated-arrangement round trip failed")
 
+    rendered_arr = decompress_block(rom, RELOCATED_ARR_ROM)[0]
+    appended_start = TEXT_TABLE_BASE_OFFSET + credit_relative_x
+    if rendered_arr[appended_start:appended_start+len(credit_blob)] != credit_blob:
+        raise AssertionError("Appended five-credit list changed during build")
+
     if rom[TITLE_ARR_ROM:TITLE_ARR_ROM+16] != original[
         TITLE_ARR_ROM:TITLE_ARR_ROM+16
     ]:
@@ -806,7 +881,6 @@ def main():
 
     # Verify literal "..." in the final stored prologue. No $01 ellipsis
     # marker is used by this final version.
-    rendered_arr = decompress_block(rom, RELOCATED_ARR_ROM)[0]
     masamune = b"masamune"
     m = rendered_arr.find(masamune)
     if m < 0 or rendered_arr[m+8:m+11] != b"\x7B\x7B\x7B":
