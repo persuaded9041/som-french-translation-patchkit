@@ -11,3 +11,7 @@ Standalone IPS SHA-256 values:
 - French intro VWF: `36d419d9ad83e98cbc0b34ff41f11ef2941992ac223dc1cfc4d8b21ccdf37758`
 
 `verify.py` checks these hashes and audits overlaps without requiring a ROM.
+
+## Shared charset refactor
+
+The shared-charset refactor is source-only. Rebuilding GAME SELECT and intro VWF from `shared/french_charset/` produces byte-identical IPS files with the hashes above. Therefore the existing runtime validation remains applicable to the produced patches.

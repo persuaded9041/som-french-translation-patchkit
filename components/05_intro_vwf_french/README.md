@@ -16,13 +16,14 @@ Reference standalone IPS SHA-256: `36d419d9ad83e98cbc0b34ff41f11ef2941992ac223dc
 
 ## Editable sources
 
-- `assets/`: data/text/font inputs used by the builder.
+- `assets/`: component-specific intro text/layout inputs used by the builder.
+- `../../shared/french_charset/`: canonical French character mapping and 18-glyph atlas used by this builder.
 - `src/`: assembly-oriented map of the machine-code/data changes.
 - `tools/`: extraction/support scripts when present.
 - `docs/`: component memory map and validation notes.
 
 ## Compatibility
 
-The first 13 accented glyphs are identical to GAME SELECT. Five additional French glyphs extend the direct range through $E5.
+This component consumes the shared full French charset profile (`$D4-$E5`) and therefore uses `$E6` as its direct/DTE boundary. GAME SELECT consumes the first 13 characters from the same canonical source.
 
 For cross-component rules, see the package-level `docs/COMPATIBILITY.md`.

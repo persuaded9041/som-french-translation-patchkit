@@ -63,7 +63,8 @@ db $06
 ;   $D4 Ç  $D5 à  $D6 â  $D7 ç  $D8 é  $D9 è  $DA ê
 ;   $DB ë  $DC î  $DD ï  $DE ô  $DF ù  $E0 û
 ;
-; Their editable 8x12 glyphs come from assets/font_accents.png. The PNG is an exact
+; Their editable 8x12 glyphs come from ../../../shared/french_charset/french_glyphs.png.
+; Character/code assignments come from ../../../shared/french_charset/charset.json. The atlas is an exact
 ; pixel-for-pixel extraction of the same 13 glyphs from the original French
 ; release (French ROM 12DFF0-12E08B). The builder writes them into the matching
 ; font area beginning at ROM 12DFF0 in the US ROM.

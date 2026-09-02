@@ -421,7 +421,7 @@ intro_dte_load:
 ;
 ; The French glyph bitmaps are injected into the stock 8x12 font address space
 ; before the compact VWF font is generated. Their editable source is:
-;   assets/font/french_glyphs.png
+;   ../../../shared/french_charset/french_glyphs.png (mapping: ../../../shared/french_charset/charset.json)
 ;
 ; The translated event itself is rebuilt by Python from:
 ;   assets/text/scrtxt_fr.bin

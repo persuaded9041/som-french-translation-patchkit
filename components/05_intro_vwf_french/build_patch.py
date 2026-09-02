@@ -32,28 +32,34 @@ CAPACITY_HELPER_FILE = CODE_FILE + (CAPACITY_HELPER_CPU - CODE_CPU)
 # Stock text/font locations.
 DTE_COMPARE_IMMEDIATE_OFFSET = 0x0016F6
 DTE_STOCK_THRESHOLD = 0xD3
-DTE_NEW_THRESHOLD = 0xE6
+DTE_NEW_THRESHOLD = 0xE6  # validated below against shared FULL_DTE_THRESHOLD
 FONT_BASE = 0x12DC00
 
 # Direct character codes reserved for French glyphs.
-ACCENT_FIRST = 0xD4
-ACCENT_CHARS = "Çàâçéèêëîïôùû"
-EXTRA_CHARS = "ÀÉÎŒœ"
-FRENCH_CHARS = ACCENT_CHARS + EXTRA_CHARS
+ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = ROOT.parents[1]
+sys.path.insert(0, str(PROJECT_ROOT))
+from shared.french_charset import (
+    CHAR_TO_CODE,
+    FIRST_CODE,
+    FULL_DTE_THRESHOLD,
+    FULL_FRENCH_CHARS,
+    GAME_SELECT_CHARS,
+    glyph_bytes,
+)
+
+ACCENT_FIRST = FIRST_CODE
+ACCENT_CHARS = GAME_SELECT_CHARS
+FRENCH_CHARS = FULL_FRENCH_CHARS
 
 ASCII_TO_SOM = {" ": 0x80}
 ASCII_TO_SOM.update({chr(ord("a") + i): 0x81 + i for i in range(26)})
 ASCII_TO_SOM.update({chr(ord("A") + i): 0x9B + i for i in range(26)})
 ASCII_TO_SOM.update({".": 0xBF, ",": 0xC0, "'": 0xC2})
-ASCII_TO_SOM.update({
-    "Ç": 0xD4, "à": 0xD5, "â": 0xD6, "ç": 0xD7, "é": 0xD8,
-    "è": 0xD9, "ê": 0xDA, "ë": 0xDB, "î": 0xDC, "ï": 0xDD,
-    "ô": 0xDE, "ù": 0xDF, "û": 0xE0, "À": 0xE1, "É": 0xE2,
-    "Î": 0xE3, "Œ": 0xE4, "œ": 0xE5,
-})
+ASCII_TO_SOM.update(CHAR_TO_CODE)
 
-ROOT = Path(__file__).resolve().parent
-FRENCH_GLYPHS_FILE = ROOT / "assets" / "font" / "french_glyphs.png"
+if DTE_NEW_THRESHOLD != FULL_DTE_THRESHOLD:
+    raise RuntimeError("Intro VWF DTE threshold diverges from shared French charset")
 SCRTXT_FILE = ROOT / "assets" / "text" / "scrtxt_fr.bin"
 INTRO_ANDROID_IDS = tuple(range(3445, 3453))
 INTRO_EVENT_START = 0x0C02
@@ -391,32 +397,11 @@ def assemble_dte_loader(intro_end_ptr: int) -> bytes:
 
 
 def load_french_glyphs() -> bytes:
-    """Convert the editable 18×(8×12) PNG sheet into SNES 1bpp glyph rows."""
+    """Load the canonical shared 18-glyph French atlas as SNES 1bpp rows."""
     try:
-        from PIL import Image
-    except ImportError as exc:
-        raise SystemExit(
-            "Pillow is required. Install it with: python3 -m pip install Pillow"
-        ) from exc
-
-    image = Image.open(FRENCH_GLYPHS_FILE).convert("RGBA")
-    expected_size = (len(FRENCH_CHARS) * 8, 12)
-    if image.size != expected_size:
-        raise SystemExit(
-            f"assets/font/french_glyphs.png must be {expected_size[0]}x{expected_size[1]} pixels; "
-            f"got {image.size[0]}x{image.size[1]}"
-        )
-
-    output = bytearray()
-    for glyph_index in range(len(FRENCH_CHARS)):
-        for y in range(12):
-            row = 0
-            for x in range(8):
-                _r, _g, _b, alpha = image.getpixel((glyph_index * 8 + x, y))
-                if alpha != 0:
-                    row |= 0x80 >> x
-            output.append(row)
-    return bytes(output)
+        return glyph_bytes(FRENCH_CHARS)
+    except RuntimeError as exc:
+        raise SystemExit(str(exc)) from exc
 
 
 def assemble_vwf(intro_end_ptr: int) -> bytes:

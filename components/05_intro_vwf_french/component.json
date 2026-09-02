@@ -4,5 +4,7 @@
   "name": "French intro VWF",
   "base_sha256": "4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f",
   "patch_sha256": "36d419d9ad83e98cbc0b34ff41f11ef2941992ac223dc1cfc4d8b21ccdf37758",
-  "standalone": true
+  "standalone": true,
+  "shared_charset_profile": "full_french",
+  "shared_charset": "shared/french_charset/charset.json"
 }

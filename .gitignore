@@ -1,3 +1,4 @@
 /build
 *.sfc
 *.ips
+__pycache__

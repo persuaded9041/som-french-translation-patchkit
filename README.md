@@ -10,6 +10,10 @@ This archive groups five independent, runtime-validated components for the Frenc
 
 The ROM itself is deliberately not included in this archive.
 
+## Shared French character set
+
+`shared/french_charset/` is the canonical source for French direct-glyph codes and artwork. GAME SELECT and the intro VWF consume this shared definition instead of maintaining private copies. The standalone IPS files still install the bytes they need so each patch remains independently applicable. See `docs/SHARED_CHARSET.md`.
+
 ## Components
 
 1. `01_japanese_mana_tree` — restores the original Japanese Mana Tree artwork.
@@ -22,7 +26,7 @@ Each component contains:
 
 - `patch.ips`: standalone validated patch;
 - `build_patch.py`: source builder;
-- `assets/`: editable/generated source assets;
+- `assets/`: component-specific editable/generated source assets;
 - `src/`: assembly-oriented technical documentation;
 - `tools/`: extraction/support tools when applicable;
 - `docs/`: memory map and validation notes.
@@ -56,7 +60,7 @@ Available short names: `tree`, `names`, `game-select`, `opening`, `intro-vwf`.
 Every component remains standalone. Therefore a few writes are intentionally shared:
 
 - ROM-size/checksum header writes are per-component standalone housekeeping. The combined builder recalculates the checksum once at the end.
-- GAME SELECT and intro VWF both install the same 13 French accented glyphs. Those bytes are identical. Keeping them in both components is required so either patch works alone.
+- GAME SELECT and intro VWF both install the same 13 French accented glyph bytes for standalone operation, but their source mapping/artwork now comes exclusively from `shared/french_charset/`.
 - GAME SELECT writes decoder threshold `$E1` at ROM `0x0016F6`; intro VWF writes `$E6`, because it reserves five additional direct glyphs. When both are selected, `build.py` explicitly resolves this byte to `$E6`.
 
 No other differing functional overlap is allowed. `build.py` aborts on undeclared collisions.

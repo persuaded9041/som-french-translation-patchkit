@@ -6,6 +6,7 @@ import csv
 import hashlib
 import struct
 import zlib
+import sys
 from pathlib import Path
 
 BASE_SIZE = 0x200000
@@ -61,21 +62,11 @@ CHECKSUM_COMPLEMENT_OFFSET = 0x00FFDC
 CHECKSUM_OFFSET = 0x00FFDE
 
 ASCII_TO_SOM = {" ": 0x80}
-ACCENT_TO_SOM = {
-    "Ç": 0xD4,
-    "à": 0xD5,
-    "â": 0xD6,
-    "ç": 0xD7,
-    "é": 0xD8,
-    "è": 0xD9,
-    "ê": 0xDA,
-    "ë": 0xDB,
-    "î": 0xDC,
-    "ï": 0xDD,
-    "ô": 0xDE,
-    "ù": 0xDF,
-    "û": 0xE0,
-}
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT))
+from shared.french_charset import GAME_SELECT_CHARS, glyph_bytes, profile_mapping
+
+ACCENT_TO_SOM = profile_mapping("game_select")
 ASCII_TO_SOM.update(ACCENT_TO_SOM)
 ASCII_TO_SOM.update({chr(ord("a") + i): 0x81 + i for i in range(26)})
 ASCII_TO_SOM.update({chr(ord("A") + i): 0x9B + i for i in range(26)})
@@ -96,10 +87,9 @@ SOM_TO_ASCII.update({v: k for k, v in ACCENT_TO_SOM.items()})
 FONT_BASE = 0x12DC00
 GLYPH_WIDTH = 8
 GLYPH_HEIGHT = 12
-ACCENT_FIRST = 0xD4
-ACCENT_CHARS = "Çàâçéèêëîïôùû"
+ACCENT_FIRST = ACCENT_TO_SOM[GAME_SELECT_CHARS[0]]
+ACCENT_CHARS = GAME_SELECT_CHARS
 ROOT = Path(__file__).resolve().parent
-DEFAULT_FONT_IMAGE = ROOT / "assets" / "font_accents.png"
 
 # The stock text decoder treats $D3-$FF as DTE dictionary bytes.
 # For this project, $D4-$E0 become ordinary glyph codes, so the DTE
@@ -109,43 +99,12 @@ DTE_COMPARE_IMMEDIATE_OFFSET = 0x0016F6
 DTE_STOCK_THRESHOLD = 0xD3
 DTE_NEW_THRESHOLD = 0xE1
 
-def load_accent_glyphs(image_path: Path) -> bytes:
-    """Load the 13 editable 8x12 glyphs from a 104x12 PNG atlas.
-
-    Layout: Ç à â ç é è ê ë î ï ô ù û, left to right.
-    Any pixel darker than 128 is considered ink; lighter pixels are blank.
-    """
+def load_accent_glyphs() -> bytes:
+    """Load the canonical shared GAME SELECT French glyph profile."""
     try:
-        from PIL import Image
-    except ImportError as exc:
-        raise SystemExit(
-            "Pillow is required to read font_accents.png. Install it with: "
-            "python3 -m pip install Pillow"
-        ) from exc
-
-    if not image_path.is_file():
-        raise SystemExit(f"Accent font image not found: {image_path}")
-
-    img = Image.open(image_path).convert("L")
-    expected_size = (GLYPH_WIDTH * len(ACCENT_CHARS), GLYPH_HEIGHT)
-    if img.size != expected_size:
-        raise SystemExit(
-            f"{image_path.name} must be exactly {expected_size[0]}x{expected_size[1]} pixels "
-            f"(13 glyphs of 8x12), got {img.size[0]}x{img.size[1]}"
-        )
-
-    glyphs = bytearray()
-    for glyph_index, char in enumerate(ACCENT_CHARS):
-        x0 = glyph_index * GLYPH_WIDTH
-        for y in range(GLYPH_HEIGHT):
-            row = 0
-            for x in range(GLYPH_WIDTH):
-                if img.getpixel((x0 + x, y)) < 128:
-                    row |= 1 << (7 - x)
-            glyphs.append(row)
-
-    assert len(glyphs) == len(ACCENT_CHARS) * GLYPH_HEIGHT
-    return bytes(glyphs)
+        return glyph_bytes(ACCENT_CHARS)
+    except RuntimeError as exc:
+        raise SystemExit(str(exc)) from exc
 
 
 REQUIRED_IDS = [
@@ -192,7 +151,7 @@ def encode_text(text: str, context: str) -> bytes:
         if ch not in ASCII_TO_SOM:
             raise SystemExit(
                 f"Unsupported character {ch!r} in {context} at position {pos}. "
-                "The step-2 builder supports ASCII plus Çàâçéèêëîïôùû."
+                "The GAME SELECT builder supports ASCII plus the shared game_select French profile."
             )
         out.append(ASCII_TO_SOM[ch])
     if not quote_open:
@@ -322,7 +281,7 @@ def update_checksum(rom: bytearray) -> int:
     return checksum
 
 
-def apply_sources(base: bytes, rows: dict[str, str], font_image: Path) -> tuple[bytearray, int]:
+def apply_sources(base: bytes, rows: dict[str, str]) -> tuple[bytearray, int]:
     rom = bytearray(base)
     rom.extend(b"\x00" * (EXPANDED_SIZE - len(rom)))
 
@@ -336,9 +295,9 @@ def apply_sources(base: bytes, rows: dict[str, str], font_image: Path) -> tuple[
     rom[DTE_COMPARE_IMMEDIATE_OFFSET] = DTE_NEW_THRESHOLD
 
     # Replace the 13 otherwise-unused direct-glyph slots $D4-$E0 with the
-    # editable 8x12 glyph atlas in font_accents.png.
+    # editable 8x12 glyph atlas in shared/french_charset/french_glyphs.png.
     glyph_start = FONT_BASE + (ACCENT_FIRST - 0x80) * GLYPH_HEIGHT
-    glyph_blob = load_accent_glyphs(font_image)
+    glyph_blob = load_accent_glyphs()
     rom[glyph_start:glyph_start + len(glyph_blob)] = glyph_blob
 
     # Step 3: relocate the label resource and derive the three frame widths
@@ -459,8 +418,6 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Secret of Mana (USA) GAME SELECT text source builder - validated step 3")
     parser.add_argument("rom", type=Path, help="clean unheadered Secret of Mana (USA) ROM")
     parser.add_argument("--csv", type=Path, default=ROOT / "assets" / "game_select_text.csv")
-    parser.add_argument("--font", type=Path, default=DEFAULT_FONT_IMAGE,
-                        help="104x12 PNG atlas for Çàâçéèêëîïôùû (default: assets/font_accents.png)")
     parser.add_argument("--extract", type=Path, metavar="CSV", help="extract the stock GAME SELECT texts to CSV and exit")
     parser.add_argument("-o", "--output", type=Path, default=Path("build/patch.ips"), help="output IPS")
     parser.add_argument("--patched-rom", type=Path, help="optional output ROM for local testing")
@@ -477,7 +434,7 @@ def main() -> None:
         return
 
     rows = read_csv(args.csv)
-    patched, checksum = apply_sources(base, rows, args.font)
+    patched, checksum = apply_sources(base, rows)
     patch = make_ips(base, bytes(patched))
 
     args.output.parent.mkdir(parents=True, exist_ok=True)

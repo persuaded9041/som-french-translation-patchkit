@@ -16,13 +16,14 @@ Reference standalone IPS SHA-256: `ede4084d40087fbaeb6622edeb9e976e4a70477ff1ba0
 
 ## Editable sources
 
-- `assets/`: data/text/font inputs used by the builder.
+- `assets/`: component-specific text inputs used by the builder.
+- `../../shared/french_charset/`: canonical French character mapping and glyph atlas used by this builder.
 - `src/`: assembly-oriented map of the machine-code/data changes.
 - `tools/`: extraction/support scripts when present.
 - `docs/`: component memory map and validation notes.
 
 ## Compatibility
 
-The 45-byte menu resource size is invariant. When combined with intro VWF, the decoder threshold is upgraded to $E6; the shared 13 glyphs are byte-identical.
+The 45-byte menu resource size is invariant. This standalone patch uses the shared `game_select` charset profile (`$D4-$E0`) and keeps its validated `$E1` decoder threshold. When combined with intro VWF, the root builder upgrades the threshold to `$E6`.
 
 For cross-component rules, see the package-level `docs/COMPATIBILITY.md`.

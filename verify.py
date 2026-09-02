@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib, json
 from pathlib import Path
 from build import COMPONENTS, patch_write_map, CHECKSUM_RANGE, MERGED_THRESHOLD_OFFSET
+from shared.french_charset import (CHAR_TO_CODE, FIRST_CODE, FULL_DTE_THRESHOLD, FULL_FRENCH_CHARS, GAME_SELECT_CHARS, glyph_bytes)
 
 ROOT = Path(__file__).resolve().parent
 EXPECTED = {
@@ -23,9 +24,38 @@ def ranges(values):
     out.append((start,prev)); return out
 
 
+def verify_shared_charset():
+    expected_chars = "ÇàâçéèêëîïôùûÀÉÎŒœ"
+    expected_codes = list(range(0xD4, 0xE6))
+    got_codes = [CHAR_TO_CODE[ch] for ch in FULL_FRENCH_CHARS]
+    errors=[]
+    if FULL_FRENCH_CHARS != expected_chars:
+        errors.append(f"full_french profile differs: {FULL_FRENCH_CHARS!r}")
+    if got_codes != expected_codes:
+        errors.append("French charset is not contiguous $D4-$E5")
+    if FIRST_CODE != 0xD4 or FULL_DTE_THRESHOLD != 0xE6:
+        errors.append("French charset boundaries differ from $D4/$E6")
+    if GAME_SELECT_CHARS != expected_chars[:13]:
+        errors.append("game_select profile is not the first 13 canonical glyphs")
+    try:
+        blob = glyph_bytes(FULL_FRENCH_CHARS)
+        if len(blob) != 18 * 12:
+            errors.append(f"canonical glyph blob has {len(blob)} bytes, expected 216")
+    except RuntimeError as exc:
+        errors.append(str(exc))
+    return errors
+
+
 def main():
     maps={}
     ok=True
+    charset_errors=verify_shared_charset()
+    if charset_errors:
+        ok=False
+        print('Shared French charset: MISMATCH')
+        for error in charset_errors: print('  -', error)
+    else:
+        print('Shared French charset: OK ($D4-$E5, 18 canonical glyphs)')
     for _,folder,_ in COMPONENTS:
         p=ROOT/'components'/folder/'patch.ips'
         digest=hashlib.sha256(p.read_bytes()).hexdigest()
