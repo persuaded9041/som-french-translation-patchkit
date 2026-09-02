@@ -35,7 +35,6 @@ HOOK_ORIGINAL = bytes.fromhex("5c 0b af 7e")
 HOOK_PATCHED = bytes.fromhex("5c 00 f8 ef")
 
 
-# Filler layout around the relocated resource.
 FF_START = 0x2FF5E3
 FF_LENGTH = 29
 ZERO_START = 0x2FF600
@@ -66,17 +65,14 @@ def build(us_rom_path: Path, tree_path: Path, output_path: Path, patched_rom: Pa
 
     rom = expand_rom(original)
 
-    # Mark the expanded ROM size in the SNES header.
     rom[ROM_SIZE_OFFSET] = 0x0C
 
-    # Japanese Mana Tree resource.
     rom[TREE_DEST_ROM:TREE_DEST_ROM+TREE_SIZE] = tree
 
     # Preserve the resource layout expected by the helper.
     rom[FF_START:FF_START+FF_LENGTH] = b"\xFF" * FF_LENGTH
     rom[ZERO_START:ZERO_START+ZERO_LENGTH] = b"\x00" * ZERO_LENGTH
 
-    # Resource-loader helper.
     rom[ROUTINE_ROM:ROUTINE_ROM+len(ROUTINE)] = ROUTINE
 
     rom[
@@ -84,7 +80,6 @@ def build(us_rom_path: Path, tree_path: Path, output_path: Path, patched_rom: Pa
         POST_ROUTINE_ZERO_START+POST_ROUTINE_ZERO_LENGTH
     ] = b"\x00" * POST_ROUTINE_ZERO_LENGTH
 
-    # Redirect the existing stock JML instruction.
     rom[HOOK_ROM:HOOK_ROM+4] = HOOK_PATCHED
 
     update_checksum(rom)

@@ -13,10 +13,10 @@ for the owning component even when the current generated payload is shorter.
 | French opening | `0x2E9000-0x2EFFFF` | `$EE:9000-$FFFF` | reserved opening-helper region |
 | Mana Tree | `0x2FC000-0x2FF5FF` | `$EF:C000-$F5FF` | Japanese Mana Tree resource |
 | Mana Tree | `0x2FF800-0x2FF89F` | `$EF:F800-$F89F` | 160-byte resource-loader helper |
-| intro VWF | `0x074285+` | `$C7:4285+` | intro-only VWF renderer/code |
+| intro VWF | `0x074285-0x0743FE` | `$C7:4285-$43FE` | reserved VWF renderer/parser code region |
 | intro VWF | `0x074440-0x0744BF` | `$C7:4440-$44BF` | 128-byte width table |
 | intro VWF | `0x0744C0-0x074CBF` | `$C7:44C0-$4CBF` | 128 × 12-byte compact glyph table |
-| intro VWF | `0x074D00+` | `$C7:4D00+` | private DTE table |
+| intro VWF | `0x074D00-0x074D31` | `$C7:4D00-$4D31` | 25-pair private DTE table |
 | intro VWF | WRAM | `$7E:9390-$93BB` | 44-byte private parser buffer |
 
 The Name Entry layout begins after the intro VWF DTE allocation. GAME SELECT's

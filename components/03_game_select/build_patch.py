@@ -76,7 +76,6 @@ SOM_TO_ASCII.update({v: k for k, v in ACCENT_TO_SOM.items()})
 FONT_BASE = 0x12DC00
 GLYPH_HEIGHT = 12
 ACCENT_FIRST = ACCENT_TO_SOM[BASIC_FRENCH_CHARS[0]]
-ACCENT_CHARS = BASIC_FRENCH_CHARS
 ROOT = Path(__file__).resolve().parent
 
 # The stock text decoder treats $D3-$FF as DTE dictionary bytes.
@@ -90,7 +89,7 @@ DTE_NEW_THRESHOLD = profile_threshold("basic_french")
 def load_accent_glyphs() -> bytes:
     """Load the canonical shared GAME SELECT French glyph profile."""
     try:
-        return glyph_bytes(ACCENT_CHARS)
+        return glyph_bytes(BASIC_FRENCH_CHARS)
     except RuntimeError as exc:
         raise SystemExit(str(exc)) from exc
 
@@ -183,12 +182,8 @@ def build_menu_resource(rows: dict[str, str]) -> tuple[bytes, dict[str, int]]:
         payloads[key] = payload
         width_cells[key] = cells
 
-    # The native source layout requires the three framed widths to total 36
-    # logical cells.  Keep the resource at exactly 45 bytes, but spend any spare
-    # pair first on GAME_SELECT: its 11-character French label otherwise fills
-    # the 11-cell usable interior of a $06 frame and visually touches the right
-    # edge. NEW_GAME already has one usable blank cell at $06. GAME_FILE is the
-    # least sensitive field and can safely use its minimum width.
+    # The native resource has 36 framed cells. Distribute spare pairs in
+    # display order, which gives GAME_SELECT the first extra margin.
     TARGET_TOTAL_CELLS = 36
     used = sum(width_cells.values())
     if used > TARGET_TOTAL_CELLS:
