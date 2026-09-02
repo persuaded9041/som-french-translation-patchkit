@@ -1,52 +1,48 @@
 # Shared French charset
 
-`shared/french_charset/` is the canonical source of French direct character codes for the project.
+`shared/french_charset/` is the canonical source of French direct character
+codes and glyph artwork for the project.
 
 ## Canonical mapping
 
-| Code | Character |
-|---|---|
-| `$D4` | Ç |
-| `$D5` | à |
-| `$D6` | â |
-| `$D7` | ç |
-| `$D8` | é |
-| `$D9` | è |
-| `$DA` | ê |
-| `$DB` | ë |
-| `$DC` | î |
-| `$DD` | ï |
-| `$DE` | ô |
-| `$DF` | ù |
-| `$E0` | û |
-| `$E1` | À |
-| `$E2` | É |
-| `$E3` | Î |
-| `$E4` | Œ |
-| `$E5` | œ |
+| Code | Character | Code | Character |
+|---|---|---|---|
+| `$D4` | Ç | `$DD` | ï |
+| `$D5` | à | `$DE` | ô |
+| `$D6` | â | `$DF` | ù |
+| `$D7` | ç | `$E0` | û |
+| `$D8` | é | `$E1` | À |
+| `$D9` | è | `$E2` | É |
+| `$DA` | ê | `$E3` | Î |
+| `$DB` | ë | `$E4` | Œ |
+| `$DC` | î | `$E5` | œ |
 
-The full direct range ends immediately before `$E6`, so consumers of all 18 characters use `$E6` as the DTE boundary.
+The full direct range ends before `$E6`.
 
 ## Source files
 
-- `charset.json`: machine-readable mapping and named profiles.
-- `french_glyphs.png`: canonical editable 18 × 8x12 glyph atlas.
-- `charset.py`: validation/loading helpers used by builders.
+- `charset.json` — canonical mapping and profiles.
+- `french_glyphs.png` — editable 18 × 8×12 glyph atlas.
+- `charset.py` — validation/loading helpers used by builders.
 
 ## Current consumers
 
-- `03_game_select`: profile `game_select`, first 13 characters (`$D4-$E0`). It intentionally retains standalone threshold `$E1` to reproduce the validated IPS exactly.
-- `05_intro_vwf_french`: profile `full_french`, all 18 characters (`$D4-$E5`), threshold `$E6`.
+- `02_9char_names`: naming-safe profile `$D4-$E0`; threshold `$E1`.
+- `03_game_select`: same `$D4-$E0` profile; threshold `$E1`.
+- `05_intro_vwf_french`: full `$D4-$E5` profile; threshold `$E6`.
 
-Both standalone patches still write the first 13 glyph bytes to the ROM because each patch must work alone. This is a runtime duplication required by modularity, not a duplicated source asset.
+The Name Entry screen deliberately does not overwrite `$E1-$E5`, because those
+font slots are still used by original graphics in that screen. Runtime testing
+showed that overwriting them causes graphical corruption. Accented names using
+`$D4-$E0` are nevertheless stored directly and have been validated to render
+correctly later in normal game dialogue.
 
 ## Rules for future components
 
-1. Do not create another private mapping for French accented characters.
-2. Reuse the canonical character codes whenever the engine context allows direct glyph codes.
-3. Reuse the canonical artwork or derive component-specific graphics from it.
-4. If a component needs a subset, add a named profile to `charset.json` rather than copying the table.
-5. If a new French character is required, extend this shared definition first and update verification.
-6. Keep standalone patches self-sufficient at runtime even if that requires identical ROM writes.
-
-The naming-screen accent extension and the future main-dialogue VWF should therefore consume this shared charset.
+1. Do not create a private conflicting French mapping.
+2. Reuse canonical codes whenever the engine context allows them.
+3. Reuse/derive glyph artwork from this shared source.
+4. Add named subsets/profiles instead of copying tables.
+5. Extend the canonical definition first when adding a genuinely new character.
+6. Keep standalone patches self-sufficient even when this requires identical
+   ROM writes generated from the shared source.

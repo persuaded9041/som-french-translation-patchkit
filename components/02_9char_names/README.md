@@ -1,8 +1,24 @@
-# 9-character names
+# 02 — 9-character names + French accent row
 
-Extends player names from 6 to 9 characters and adds uppercase, lowercase and symbol pages.
+This standalone component extends Secret of Mana's Name Entry screen while
+keeping the clean unheadered USA ROM as its only ROM dependency.
 
-This component is standalone and targets only the clean unheadered US ROM.
+## Runtime-validated behavior
+
+- Names can contain up to **9 characters** instead of 6.
+- Four selectable rows are displayed:
+  1. `ABCDEFGHIJKLMNOPQRSTUVWXYZ`
+  2. `abcdefghijklmnopqrstuvwxyz`
+  3. digits / punctuation / symbols
+  4. `Çàâçéèêëîïôùû`
+- The cursor opens on the uppercase row and moves correctly across all four rows.
+- Selecting a visible character inserts that exact character.
+- Blank cells on the accent row are encoded as `$80`, i.e. **spaces**; they are
+  selectable and count toward the 9-character limit.
+- Accented characters selected here are stored with their real Secret of Mana
+  codes `$D4-$E0`. They have been runtime-validated to appear correctly when the
+  player's name is inserted into normal game dialogue.
+- The lower help text is sourced from `assets/naming_help.csv`.
 
 ## Build
 
@@ -10,36 +26,59 @@ This component is standalone and targets only the clean unheadered US ROM.
 python3 build_patch.py "Secret of Mana (USA).sfc" -o build/patch.ips
 ```
 
-Required base SHA-256: `4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f`.
+Required base ROM SHA-256:
 
-Reference standalone IPS SHA-256: `e793dc519b3239d714038a34c6bffdb6ff93f08becc8baac90f960107447817c`.
+`4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f`
+
+Runtime-validated component IPS SHA-256:
+
+`31cdc4c829130194a54020c87c2d1bb56cc908372d2024aac1aaebb230196f9f`
+
+With the canonical repository sources, the builder reproduces that IPS exactly.
 
 ## Editable sources
 
-- `assets/`: data/text/font inputs used by the builder.
-- `src/`: assembly-oriented map of the machine-code/data changes.
-- `tools/`: extraction/support scripts when present.
-- `docs/`: component memory map and validation notes.
+- `assets/naming_characters.txt` — the four visible character rows.
+- `assets/naming_help.csv` — the three French help lines.
+- `src/patch_data.py` — exact machine-code/data payloads used by the builder.
+- `src/*.asm` — commented 65C816/source-map representation of those changes.
+- `docs/MEMORY_MAP.md` — ROM allocations and hooks.
+- `docs/VERIFICATION.md` — static and runtime validation status.
 
-## Compatibility
+The assembly files are intentionally human-readable documentation/source maps;
+the Python builder emits the exact known-good bytes without requiring an
+external 65C816 assembler.
 
-Character pages and help text are generated from assets/naming_characters.txt and assets/naming_help.csv.
+## French charset
 
-For cross-component rules, see the package-level `docs/COMPATIBILITY.md`.
-
-## French help-text CSV
-
-`assets/naming_help.csv` is the editable reinsertion source for the three help
-lines displayed at the bottom of the Name Entry screen. It uses exactly two
-columns, `id,text`, with sequential IDs `NAME_HELP_1`, `NAME_HELP_2`, etc.
-
-Current French text:
+The naming screen deliberately uses only the **naming-safe** part of the shared
+French charset:
 
 ```text
-Choisissez une lettre avec la Croix Directionnelle.
-Appuyez sur le bouton B pour valider. Le nom peut faire
-9 lettres maximum. Appuyez sur Start pour continuer.
+$D4 Ç  $D5 à  $D6 â  $D7 ç  $D8 é  $D9 è  $DA ê
+$DB ë  $DC î  $DD ï  $DE ô  $DF ù  $E0 û
 ```
 
-The builder adds the stock leading blank cell to each display line and encodes
-CSV row boundaries as the original `$7F` line separator.
+These glyphs come from `shared/french_charset` and are the same canonical
+characters used by the other French text components.
+
+`$E1-$E5` (`À É Î Œ œ` in the full shared charset) are intentionally **not**
+installed by this module because those font slots are still used by original
+Name Entry graphics. This avoids the graphical corruption observed during
+runtime testing.
+
+## Name Entry resource
+
+The generated resource is relocated to `$E4:4000`:
+
+```text
++$0000  uppercase row     60 bytes
++$003C  lowercase row     60 bytes
++$0078  symbols row       60 bytes
++$00B4  accent row        60 bytes
++$00F0  French help text  variable
++...    16 zero guard bytes
+```
+
+Each row contains 30 two-byte cells. The builder supplies framing/terminator
+cells automatically; the editable files contain only the useful text/characters.

@@ -8,6 +8,7 @@ BASE_SIZE = 0x200000
 CHECKSUM_RANGE = range(0xFFDC, 0xFFE0)
 ROM_SIZE_OFFSET = 0xFFD7
 MERGED_THRESHOLD_OFFSET = 0x0016F6
+DIRECT_FRENCH_COMPONENTS = {'02_9char_names', '03_game_select'}
 
 ROOT = Path(__file__).resolve().parent
 COMPONENTS = [
@@ -134,8 +135,15 @@ def audit_overlaps(selected, patch_data):
                 if lv == rv:
                     identical += 1
                     continue
-                # GAME SELECT standalone uses $E1; intro VWF extends direct glyphs through $E5.
-                if off == MERGED_THRESHOLD_OFFSET and {left, right} == {'03_game_select', '05_intro_vwf_french'}:
+                # Name Entry and GAME SELECT use the naming-safe/direct range through $E0
+                # ($E1 threshold). Intro VWF extends the same canonical charset through
+                # $E5 and therefore needs $E6. The combined build resolves this explicitly.
+                pair = {left, right}
+                if (
+                    off == MERGED_THRESHOLD_OFFSET
+                    and '05_intro_vwf_french' in pair
+                    and bool(pair & DIRECT_FRENCH_COMPONENTS)
+                ):
                     declared += 1
                     continue
                 errors.append((left, right, off, lv, rv))
@@ -173,8 +181,9 @@ def main():
     for name in selected:
         rom = apply_ips(rom, patch_data[name])
 
-    # Explicit merged rule for the only meaningful differing overlap.
-    if '03_game_select' in selected and '05_intro_vwf_french' in selected:
+    # Explicit merged rule for the French direct-glyph threshold. Name Entry and
+    # GAME SELECT use $E1; intro VWF extends the canonical range through $E5.
+    if '05_intro_vwf_french' in selected and any(name in selected for name in DIRECT_FRENCH_COMPONENTS):
         rom[MERGED_THRESHOLD_OFFSET] = 0xE6
 
     checksum = update_checksum(rom)

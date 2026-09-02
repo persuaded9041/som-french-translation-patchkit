@@ -1,8 +1,10 @@
 {
   "id": "02_9char_names",
   "short_name": "names",
-  "name": "9-character names",
+  "name": "9-character names + French accent row",
   "base_sha256": "4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f",
-  "patch_sha256": "e793dc519b3239d714038a34c6bffdb6ff93f08becc8baac90f960107447817c",
-  "standalone": true
+  "patch_sha256": "31cdc4c829130194a54020c87c2d1bb56cc908372d2024aac1aaebb230196f9f",
+  "standalone": true,
+  "runtime_validated": true,
+  "notes": "Validated four-row Name Entry screen: 9-character names, uppercase/lowercase/symbols/French accents, French CSV help text, correct cursor navigation/selection, and accented names preserved in normal game dialogue."
 }

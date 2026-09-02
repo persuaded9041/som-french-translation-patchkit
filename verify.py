@@ -2,13 +2,13 @@
 from __future__ import annotations
 import hashlib, json
 from pathlib import Path
-from build import COMPONENTS, patch_write_map, CHECKSUM_RANGE, MERGED_THRESHOLD_OFFSET
+from build import COMPONENTS, patch_write_map, CHECKSUM_RANGE, MERGED_THRESHOLD_OFFSET, DIRECT_FRENCH_COMPONENTS
 from shared.french_charset import (CHAR_TO_CODE, FIRST_CODE, FULL_DTE_THRESHOLD, FULL_FRENCH_CHARS, GAME_SELECT_CHARS, glyph_bytes)
 
 ROOT = Path(__file__).resolve().parent
 EXPECTED = {
  '01_japanese_mana_tree':'424a15e1f08be4207054d99c83d0f69a5ec5cf2d9acf3160d7b35eeb35060027',
- '02_9char_names':'f2a4c957ae51aed5a8d92726784ca69eb2ace26ead85b089e464eb27ec69b5c8',
+ '02_9char_names':'31cdc4c829130194a54020c87c2d1bb56cc908372d2024aac1aaebb230196f9f',
  '03_game_select':'ede4084d40087fbaeb6622edeb9e976e4a70477ff1ba06cc5bafd610fb5b86d2',
  '04_french_opening':'ba9145ff516e48dfe838c1258bd9aa1841be6a2aa4c85e75af663f018313c14b',
  '05_intro_vwf_french':'36d419d9ad83e98cbc0b34ff41f11ef2941992ac223dc1cfc4d8b21ccdf37758',
@@ -77,15 +77,21 @@ def main():
                     print('    identical:', ', '.join(f'0x{s:06X}-0x{e:06X}' if s!=e else f'0x{s:06X}' for s,e in ranges(same)))
                 if diff:
                     print('    different:', ', '.join(f'0x{x:06X} (${maps[a][x]:02X}/${maps[b][x]:02X})' for x in sorted(diff)))
-                    allowed=(a=='03_game_select' and b=='05_intro_vwf_french' and diff=={MERGED_THRESHOLD_OFFSET})
+                    pair={a,b}
+                    allowed=(
+                        diff=={MERGED_THRESHOLD_OFFSET}
+                        and '05_intro_vwf_french' in pair
+                        and bool(pair & DIRECT_FRENCH_COMPONENTS)
+                    )
                     if not allowed: functional_diff.append((a,b,diff))
     if functional_diff:
         ok=False
         print('\nERROR: undeclared functional overlap detected.')
     else:
         print('\nOK: no undeclared functional overlap.')
-        print('The GAME SELECT / intro-VWF glyph overlap is byte-identical and required for standalone operation.')
-        print('Their decoder threshold overlap is explicitly resolved to $E6 by build.py.')
+        print('Shared French glyph overlaps are byte-identical and required for standalone operation.')
+        print('Name Entry/GAME SELECT use threshold $E1; intro VWF extends it to $E6.')
+        print('build.py explicitly resolves that threshold to $E6 whenever intro VWF is combined with either component.')
     raise SystemExit(0 if ok else 1)
 
 if __name__=='__main__': main()

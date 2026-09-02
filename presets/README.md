@@ -1,19 +1,17 @@
 # Presets
 
-`all_five.ips` combines all five components, including the new French Name Entry
-help text.
+`all_five.ips` combines all five current components, including the
+runtime-validated four-row French Name Entry screen.
 
-SHA-256: `1122ad524cc77a512bde6af55db69aba643b5c2c10f29493a06c7f6ec0bf95d0`
+IPS SHA-256:
 
-Applying it to the required clean US ROM produces a 3 MiB ROM with SHA-256:
+`ffd5ddcfc436dba874751211ba9386ae57aa055b73772e6d42e649dd3f7d60a1`
 
-`e97a832795a665dc50aea2672700067d87e1bd0fa1da5d11be73d6fe499232b0`
+Applied to the required clean USA ROM, it produces a 3 MiB ROM with SHA-256:
 
-The previous combined build was runtime-validated. This preset differs only by
-the translated Name Entry help resource (and resulting checksum) and therefore
-requires runtime validation of that screen.
+`3044c9b4dd21fe9c0c356888b2e974b032c46f43d0662e56dafff2d4e10caac5`
 
-The preset can always be regenerated with:
+Regenerate with:
 
 ```bash
 python3 build.py "Secret of Mana (USA).sfc" all -o presets/all_five.ips

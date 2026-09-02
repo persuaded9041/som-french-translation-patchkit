@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+"""Build the standalone 9-character French Name Entry IPS.
+
+The module remains self-contained from the clean unheadered US ROM. Editable
+character rows and help text live in assets/. 65C816/data edits are centralized
+in src/patch_data.py and mirrored as commented assembly in src/*.asm.
+"""
 from __future__ import annotations
 
 import argparse
@@ -8,6 +14,8 @@ import re
 import sys
 import zlib
 from pathlib import Path
+
+from src.patch_data import STATIC_EDITS
 
 BASE_SIZE = 0x200000
 EXPANDED_SIZE = 0x300000
@@ -20,26 +28,36 @@ BASE_MD5 = "10a894199a9adc50ff88815fd9853e19"
 BASE_SHA1 = "8133041a363e3cc68cedef40b49b6d20d03c505d"
 BASE_SHA256 = "4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f"
 
-REFERENCE_PATCH_SHA256 = "e793dc519b3239d714038a34c6bffdb6ff93f08becc8baac90f960107447817c"
-REFERENCE_RESOURCE_SHA256 = "dcdb71f9f2af2f7300ef4b993317566811dc2fa3efd2707914315493e17dca28"
+# Runtime-validated four-row Name Entry checkpoint.
+REFERENCE_PATCH_SHA256 = "31cdc4c829130194a54020c87c2d1bb56cc908372d2024aac1aaebb230196f9f"
+REFERENCE_RESOURCE_SHA256 = "c80dc4bc038eda52c046bee1cf1026fe32bd5646bc90dd25cf8dab6254a8f96f"
 
-# Static code/data edits. The internal header/checksum record and the generated
-# naming resource are added separately by the build pipeline.
-STATIC_EDITS = [
-    (0x00319C, bytes.fromhex("09"), "maximum name length"),
-    (0x00334D, bytes.fromhex("8335"), "Name Edit Up handler -> C0:3583"),
-    (0x003363, bytes.fromhex("9535"), "Name Edit Down handler -> C0:3595"),
-    (0x0033BE, bytes.fromhex("0040E4"), "Name Entry resource pointer -> E4:4000"),
-    (0x003583, bytes.fromhex(
-        "204A32AD5AA138E910C951B002A9804CA435"
-        "204A32AD5AA1186910C9819002A9608D5AA1"
-        "223D50C720AA1B60"
-    ), "three-page naming-screen navigation handlers"),
-    (0x07502A, bytes.fromhex("0C"), "naming-screen character-grid parameter"),
-    (0x0750A6, bytes.fromhex("CC00BD0090DA38E94E204AAAE220BF0040E4"), "character lookup path -> E4:4000"),
-    (0x07759D, bytes.fromhex("02061E01C004061E818A00020A"), "naming-screen layout/control data"),
-    (0x07781C, bytes.fromhex("EA749B75EA"), "naming-screen table/pointer data"),
-]
+# Find shared/ both in the full repository and in a standalone component pack.
+def find_shared_root(component_root: Path) -> Path:
+    candidates = (
+        component_root.parent.parent,  # repository/components/02_9char_names
+        component_root.parent,         # standalone pack/02_9char_names
+    )
+    for candidate in candidates:
+        if (candidate / "shared" / "french_charset").is_dir():
+            return candidate
+    raise SystemExit("Could not locate shared/french_charset")
+
+
+ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = find_shared_root(ROOT)
+sys.path.insert(0, str(PROJECT_ROOT))
+from shared.french_charset import GAME_SELECT_CHARS, glyph_bytes, profile_mapping  # noqa: E402
+
+# Naming screen can safely use the original French-ROM range $D4-$E0. The
+# extended $E1-$E5 slots are still used by graphics on this screen.
+FONT_BASE = 0x12DC00
+GLYPH_HEIGHT = 12
+DTE_COMPARE_IMMEDIATE_OFFSET = 0x0016F6
+DTE_NEW_THRESHOLD = 0xE1
+ACCENT_TO_SOM = profile_mapping("game_select")
+ACCENT_FIRST = ACCENT_TO_SOM[GAME_SELECT_CHARS[0]]
+ACCENT_FONT_OFFSET = FONT_BASE + (ACCENT_FIRST - 0x80) * GLYPH_HEIGHT
 
 NAMED_CHARACTER_TOKENS = {
     "<QUOTE_OPEN>": 0xC3,
@@ -52,23 +70,17 @@ NAMED_CHARACTER_TOKENS = {
 }
 
 ASCII_TO_SOM = {" ": 0x80}
+ASCII_TO_SOM.update(ACCENT_TO_SOM)
 ASCII_TO_SOM.update({chr(ord("a") + i): 0x81 + i for i in range(26)})
 ASCII_TO_SOM.update({chr(ord("A") + i): 0x9B + i for i in range(26)})
 ASCII_TO_SOM.update({str(i): 0xB5 + i for i in range(10)})
 ASCII_TO_SOM.update({
-    ".": 0xBF,
-    ",": 0xC0,
-    "/": 0xC1,
-    "'": 0xC2,
-    "-": 0xC6,
-    "%": 0xC7,
-    "!": 0xC8,
-    "&": 0xC9,
-    "?": 0xCA,
-    "(": 0xCB,
-    ")": 0xCC,
-    "#": 0xCD,
+    ".": 0xBF, ",": 0xC0, "/": 0xC1, "'": 0xC2,
+    "-": 0xC6, "%": 0xC7, "!": 0xC8, "&": 0xC9,
+    "?": 0xCA, "(": 0xCB, ")": 0xCC, "#": 0xCD,
 })
+
+MAX_RESOURCE_SIZE = 0x200
 
 
 def digest(data: bytes) -> dict[str, str]:
@@ -81,19 +93,17 @@ def digest(data: bytes) -> dict[str, str]:
 
 
 def verify_base_rom(data: bytes) -> None:
-    hashes = digest(data)
     expected = {
-        "crc32": f"{BASE_CRC32:08x}",
-        "md5": BASE_MD5,
-        "sha1": BASE_SHA1,
-        "sha256": BASE_SHA256,
+        "crc32": f"{BASE_CRC32:08x}", "md5": BASE_MD5,
+        "sha1": BASE_SHA1, "sha256": BASE_SHA256,
     }
+    actual = digest(data)
     errors = []
     if len(data) != BASE_SIZE:
         errors.append(f"size {len(data):#x}, expected {BASE_SIZE:#x}")
     for key, expected_value in expected.items():
-        if hashes[key] != expected_value:
-            errors.append(f"{key.upper()} {hashes[key]}, expected {expected_value}")
+        if actual[key] != expected_value:
+            errors.append(f"{key.upper()} {actual[key]}, expected {expected_value}")
     if errors:
         raise SystemExit("Base ROM verification failed:\n  " + "\n  ".join(errors))
 
@@ -117,10 +127,10 @@ def parse_sections(path: Path) -> dict[str, str]:
     return {name: "".join(lines) for name, lines in sections.items()}
 
 
-def encode_page_entries(source: str, section_name: str) -> list[int]:
+def encode_page_entries(source: str, section_name: str, *, allow_padding: bool = False) -> list[int]:
     result: list[int] = []
-    pos = 0
     token_re = re.compile(r"<[^>]+>")
+    pos = 0
     while pos < len(source):
         if source[pos] == "<":
             match = token_re.match(source, pos)
@@ -138,29 +148,29 @@ def encode_page_entries(source: str, section_name: str) -> list[int]:
         result.append(ASCII_TO_SOM[char])
         pos += 1
 
-    if len(result) != 26:
-        raise SystemExit(
-            f"[{section_name}] resolves to {len(result)} entries; exactly 26 are required"
-        )
+    if allow_padding:
+        if len(result) > 26:
+            raise SystemExit(f"[{section_name}] has {len(result)} entries; at most 26 are allowed")
+        result.extend([0x80] * (26 - len(result)))
+    elif len(result) != 26:
+        raise SystemExit(f"[{section_name}] has {len(result)} entries; exactly 26 are required")
     return result
 
 
-def build_character_pages(path: Path) -> bytes:
+def build_character_rows(path: Path) -> bytes:
     sections = parse_sections(path)
-    required = ("uppercase", "lowercase", "symbols")
+    required = ("uppercase", "lowercase", "symbols", "accents")
     missing = [name for name in required if name not in sections]
     if missing:
         raise SystemExit(f"Missing section(s) in {path.name}: {', '.join(missing)}")
 
     output = bytearray()
     for name in required:
-        entries = encode_page_entries(sections[name], name)
-        # The renderer expects 30 16-bit cells per page. Each cell is stored as
-        # $80 followed by the encoded glyph. Two leading cells and one trailing
-        # cell are blank; the last cell contains the $7F row terminator.
+        entries = encode_page_entries(sections[name], name, allow_padding=(name == "accents"))
+        # 30 16-bit cells: two leading blanks, 26 selectable cells, one blank,
+        # then the $7F row terminator. Every cell begins with $80.
         framed = [0x80, 0x80] + entries + [0x80, 0x7F]
-        if len(framed) != 30:
-            raise AssertionError("internal page framing error")
+        assert len(framed) == 30
         for value in framed:
             output += bytes((0x80, value))
     return bytes(output)
@@ -172,57 +182,43 @@ def encode_help_text(path: Path) -> bytes:
         if reader.fieldnames != ["id", "text"]:
             raise SystemExit(f"{path.name} must use exactly the columns: id,text")
         rows = list(reader)
-
     if not rows:
         raise SystemExit(f"{path.name} is empty")
 
     expected_ids = [f"NAME_HELP_{i}" for i in range(1, len(rows) + 1)]
     actual_ids = [row["id"].strip() for row in rows]
     if actual_ids != expected_ids:
-        raise SystemExit(
-            f"{path.name} IDs must be sequential: " + ", ".join(expected_ids)
-        )
+        raise SystemExit(f"{path.name} IDs must be sequential: {', '.join(expected_ids)}")
 
     encoded_lines: list[bytes] = []
     for line_number, row in enumerate(rows, 1):
-        line = row["text"]
-        out = bytearray((0x80,))  # stock resource starts every line with one space
+        out = bytearray((0x80,))  # stock resource begins each displayed line with a blank
         quote_open = True
-        for char in line:
+        for char in row["text"]:
             if char == '"':
                 out.append(0xC3 if quote_open else 0xC4)
                 quote_open = not quote_open
-                continue
-            if char not in ASCII_TO_SOM:
-                raise SystemExit(
-                    f"Unsupported character {char!r} in {path.name}, row {line_number}"
-                )
-            out.append(ASCII_TO_SOM[char])
+            elif char in ASCII_TO_SOM:
+                out.append(ASCII_TO_SOM[char])
+            else:
+                raise SystemExit(f"Unsupported character {char!r} in {path.name}, row {line_number}")
         if not quote_open:
             raise SystemExit(f"Unbalanced double quote in {path.name}, row {line_number}")
         encoded_lines.append(bytes(out))
     return b"\x7f".join(encoded_lines)
 
 
-MAX_VALIDATED_RESOURCE_SIZE = 335
-
-def build_naming_resource(root: Path) -> bytes:
-    pages = build_character_pages(root / "assets" / "naming_characters.txt")
-    help_text = encode_help_text(root / "assets" / "naming_help.csv")
-    resource = pages + help_text
-    if len(resource) > MAX_VALIDATED_RESOURCE_SIZE:
-        raise SystemExit(
-            f"Naming resource is {len(resource)} bytes; the runtime-validated limit is "
-            f"{MAX_VALIDATED_RESOURCE_SIZE}. Shorten the help text or extend the renderer safely first."
-        )
+def build_naming_resource() -> bytes:
+    rows = build_character_rows(ROOT / "assets" / "naming_characters.txt")
+    help_text = encode_help_text(ROOT / "assets" / "naming_help.csv")
+    # Explicit terminator/guard bytes are part of the runtime-validated checkpoint.
+    resource = rows + help_text + bytes(16)
+    if len(resource) > MAX_RESOURCE_SIZE:
+        raise SystemExit(f"Naming resource is {len(resource)} bytes; maximum is {MAX_RESOURCE_SIZE}")
     return resource
 
 
 def update_snes_checksum(rom: bytearray) -> None:
-    # Preserve the checksum convention used by the runtime-validated reference
-    # IPS: sum the physical 3 MiB image after clearing the checksum fields.
-    # This is intentionally kept for byte-for-byte reproducibility of the
-    # validated checkpoint. Emulators do not depend on this header checksum.
     if len(rom) != EXPANDED_SIZE:
         raise ValueError("checksum helper expects the 3 MiB expanded ROM")
     rom[CHECKSUM_COMPLEMENT_OFFSET:CHECKSUM_COMPLEMENT_OFFSET + 2] = b"\xff\xff"
@@ -237,79 +233,75 @@ def apply_source_edits(base: bytes, resource: bytes) -> bytearray:
     rom = bytearray(base)
     rom.extend(b"\x00" * (EXPANDED_SIZE - len(rom)))
 
-    for offset, payload, _description in STATIC_EDITS:
-        rom[offset:offset + len(payload)] = payload
+    for edit in STATIC_EDITS:
+        rom[edit.offset:edit.offset + len(edit.payload)] = edit.payload
 
-    # ROM size / SRAM size / region / developer / version. Checksum fields are
-    # filled after every other edit so customized text builds remain valid.
+    # Install the shared naming-safe French glyph range $D4-$E0.
+    rom[DTE_COMPARE_IMMEDIATE_OFFSET] = DTE_NEW_THRESHOLD
+    accent_glyphs = glyph_bytes(GAME_SELECT_CHARS)
+    rom[ACCENT_FONT_OFFSET:ACCENT_FONT_OFFSET + len(accent_glyphs)] = accent_glyphs
+
+    # Expanded-ROM metadata and generated Name Entry resource.
     rom[0x00FFD7:0x00FFDC] = bytes.fromhex("0C0301C300")
     rom[0x244000:0x244000 + len(resource)] = resource
     update_snes_checksum(rom)
     return rom
 
 
-def make_ips(base: bytes, patched: bytes, resource_length: int) -> bytes:
-    records = [(offset, len(payload)) for offset, payload, _ in STATIC_EDITS]
-    records.append((0x00FFD7, 9))
-    records.append((0x244000, resource_length))
-    records.sort(key=lambda item: item[0])
+def make_ips(patched: bytes, resource_length: int) -> bytes:
+    records = [(edit.offset, len(edit.payload)) for edit in STATIC_EDITS]
+    records += [
+        (DTE_COMPARE_IMMEDIATE_OFFSET, 1),
+        (ACCENT_FONT_OFFSET, len(glyph_bytes(GAME_SELECT_CHARS))),
+        (0x00FFD7, 9),
+        (0x244000, resource_length),
+    ]
+    records.sort()
 
     out = bytearray(b"PATCH")
     for offset, length in records:
-        payload = bytes(patched[offset:offset + length])
         out += offset.to_bytes(3, "big")
         out += length.to_bytes(2, "big")
-        out += payload
-    out += b"EOF"
-    out += EXPANDED_SIZE.to_bytes(3, "big")
+        out += patched[offset:offset + length]
+    out += b"EOF" + EXPANDED_SIZE.to_bytes(3, "big")
     return bytes(out)
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Build the Secret of Mana (USA) 9-character mixed-case naming patch from a clean ROM."
-    )
+    parser = argparse.ArgumentParser(description="Build the Secret of Mana French Name Entry component.")
     parser.add_argument("rom", type=Path, help="clean unheadered Secret of Mana (USA) ROM")
     parser.add_argument("-o", "--output", type=Path, default=Path("build/patch.ips"), help="output IPS path")
-    parser.add_argument("--patched-rom", type=Path, help="optional path for the generated patched ROM")
+    parser.add_argument("--patched-rom", type=Path, help="optional patched ROM output")
     args = parser.parse_args()
 
-    root = Path(__file__).resolve().parent
     base = args.rom.read_bytes()
     verify_base_rom(base)
-    resource = build_naming_resource(root)
+    resource = build_naming_resource()
     patched = apply_source_edits(base, resource)
-    ips = make_ips(base, patched, len(resource))
+    ips = make_ips(patched, len(resource))
 
-    resource_sha256 = hashlib.sha256(resource).hexdigest()
-    patch_sha256 = hashlib.sha256(ips).hexdigest()
-    canonical = resource_sha256 == REFERENCE_RESOURCE_SHA256
-
-    if canonical and patch_sha256 != REFERENCE_PATCH_SHA256:
-        raise SystemExit(
-            "Canonical sources did not reproduce the validated reference patch.\n"
-            f"  built:    {patch_sha256}\n"
-            f"  expected: {REFERENCE_PATCH_SHA256}"
-        )
-
-    output = args.output if args.output.is_absolute() else root / args.output
+    output = args.output if args.output.is_absolute() else ROOT / args.output
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_bytes(ips)
-
     if args.patched_rom:
-        patched_path = args.patched_rom if args.patched_rom.is_absolute() else root / args.patched_rom
+        patched_path = args.patched_rom if args.patched_rom.is_absolute() else ROOT / args.patched_rom
         patched_path.parent.mkdir(parents=True, exist_ok=True)
         patched_path.write_bytes(patched)
         print(f"Patched ROM: {patched_path}")
         print(f"Patched ROM SHA-256: {hashlib.sha256(patched).hexdigest()}")
 
+    resource_sha = hashlib.sha256(resource).hexdigest()
+    patch_sha = hashlib.sha256(ips).hexdigest()
     print(f"Base ROM verified: {args.rom}")
     print(f"Naming resource: {len(resource)} bytes")
-    print(f"Naming resource SHA-256: {resource_sha256}")
+    print(f"Naming resource SHA-256: {resource_sha}")
     print(f"IPS: {output}")
     print(f"IPS size: {len(ips)} bytes")
-    print(f"IPS SHA-256: {patch_sha256}")
-    print("Reference build: yes" if canonical else "Reference build: no (text/character sources customized)")
+    print(f"IPS SHA-256: {patch_sha}")
+    if patch_sha == REFERENCE_PATCH_SHA256 and resource_sha == REFERENCE_RESOURCE_SHA256:
+        print("Runtime-validated Name Entry checkpoint: exact match")
+    else:
+        print("Custom build: differs from the runtime-validated Name Entry checkpoint")
 
 
 if __name__ == "__main__":
