@@ -10,7 +10,7 @@ Main changes:
 - original accent-overlay system: $7D acute, $7E grave, $7F circumflex;
 - compact $02 markers, each rendered as "e " (two cells), chosen as needed to preserve the stock prologue block size;
 - literal three-period sequence for "Masamune...";
-- French startup credits;
+- French startup credits sourced from CSV, including a dedicated one-cell É at $7A;
 - original copyright-year tile workaround;
 - title arrangement relocated to ROM 0x2E8000 / CPU $EE:8000;
 - 3 MiB ROM expansion.
@@ -44,6 +44,7 @@ GRAVE_TILE_CODE = 0x7E
 CIRC_TILE_CODE = 0x7F
 BLANK_TILE_CODE = 0x60
 COMPACT_E_SPACE_MARKER = 0x02
+CREDIT_E_ACUTE_TILE_CODE = 0x7A  # Z slot, unused by the current French opening
 
 COMPRESSION_TYPES = {
     0: 0x1F, 1: 0x0F, 2: 0x07,
@@ -70,8 +71,6 @@ ARR_LOADER_RELOCATED = bytes.fromhex(
 
 US_YEAR = bytes.fromhex("7d 7e 7f")
 FR_STYLE_1993 = bytes.fromhex("5b 5c 5d")
-
-
 
 
 def decompress_block(data, offset):
@@ -382,7 +381,9 @@ def encode_credit_text(text):
     out = bytearray()
 
     for ch in text:
-        if ch == " ":
+        if ch in "éÉ":
+            out.append(CREDIT_E_ACUTE_TILE_CODE)
+        elif ch == " ":
             out.append(0x20)
         elif ch == ".":
             out.append(0x7B)
@@ -398,7 +399,6 @@ def encode_credit_text(text):
             raise ValueError(f"Unsupported startup-credit character {ch!r}")
 
     return bytes(out)
-
 
 
 TEXT_TABLE_BASE_OFFSET = 0x09F8
@@ -511,8 +511,10 @@ def load_font_png(path, original_font):
     if len(result) != 0x400:
         raise AssertionError("Unexpected encoded font size")
 
-    # A-Z must remain byte-identical to the original US opening font.
-    for idx in range(1, 27):
+    # A-Y must remain byte-identical to the original US opening font.
+    # Z ($7A) is intentionally replaced by the one-cell startup-credit É
+    # directly in opening_font.png.
+    for idx in range(1, 26):
         if (
             result[idx*32:(idx+1)*32]
             != original_font[idx*32:(idx+1)*32]
@@ -616,9 +618,6 @@ def build_title_code(code):
     return bytes(out)
 
 
-
-
-
 def main():
     root = ROOT
     parser = argparse.ArgumentParser(description="Build the standalone French opening patch.")
@@ -643,6 +642,8 @@ def main():
 
     lines = read_lines(text_path)
     credits = read_credits(credits_path)
+    if any("z" in text.lower() for text in lines + credits):
+        raise ValueError("Opening tile $7A is reserved for startup-credit É; literal Z is unavailable")
 
     code, code_capacity, code_key = decompress_block(
         original, TITLE_CODE_ROM
@@ -674,6 +675,10 @@ def main():
     new_code = patch_startup_credit_sequence(new_code, credit_relative_x)
 
     new_font = load_font_png(font_path, font)
+    if new_font[26*32:27*32] == font[26*32:27*32]:
+        raise ValueError(
+            "opening_font.png tile $7A must contain the dedicated startup-credit É"
+        )
 
     code_cmp = compress_block(new_code, code_key)
     arr_cmp = compress_block(new_arr, arr_key)

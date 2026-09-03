@@ -23,3 +23,5 @@ The Name Entry layout begins after the intro VWF DTE allocation. GAME SELECT's
 relocated label block ends before the intro VWF width table. New allocations
 must be checked against both the reserved ranges above and the actual IPS write
 maps produced by all components.
+
+`04_french_opening` also repurposes tile `$7A` inside its existing opening-font resource as a one-cell `É` for startup credits. This is a font-slot convention rather than a new ROM or WRAM allocation; the scrolling-text accent tiles `$7D-$7F` remain unchanged.

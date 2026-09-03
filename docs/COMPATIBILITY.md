@@ -13,6 +13,10 @@ The common glyph bytes are identical because all three builders consume
 These duplicated writes are intentional: each component must remain usable on a
 clean USA ROM without requiring another component.
 
+## Opening-font local glyph
+
+`04_french_opening` reserves tile `$7A` of its own title-screen font for the one-cell startup-credit `É`. This is local to the opening font, does not consume a shared French charset code, and introduces no new ROM/WRAM allocation or cross-component merge rule. The component builder rejects literal `Z` text because that opening-font slot is no longer available as `Z`.
+
 ## Direct-glyph threshold
 
 ROM `0x0016F6` is a declared merge point:
