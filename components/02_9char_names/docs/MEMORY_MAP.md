@@ -1,4 +1,4 @@
-# Memory map — 02_9char_names
+# Memory map - 02_9char_names
 
 All ROM offsets assume the clean unheadered USA ROM.
 

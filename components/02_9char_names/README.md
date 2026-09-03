@@ -1,4 +1,4 @@
-# 02 — 9-character names + French accent row
+# 02 - 9-character names + French accent row
 
 This standalone component extends Secret of Mana's Name Entry screen while keeping the clean unheadered USA ROM as its only ROM dependency.
 

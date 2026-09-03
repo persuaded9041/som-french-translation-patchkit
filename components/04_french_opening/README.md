@@ -12,11 +12,11 @@ python3 build_patch.py "Secret of Mana (USA).sfc" -o build/patch.ips
 
 ## Editable sources
 
-- `assets/opening_text.csv` — the scrolling prologue text.
-- `assets/opening_credits.csv` — the five startup-credit lines.
-- `assets/opening_font.png` — the editable 128×16, 32-tile opening font atlas used by both the scrolling text and startup credits.
-- `src/opening_hook.asm` — readable 65C816 representation of the renderer helper emitted by Python.
-- `docs/MEMORY_MAP.md` — component ROM allocations and hooks.
+- `assets/opening_text.csv` - the scrolling prologue text.
+- `assets/opening_credits.csv` - the five startup-credit lines.
+- `assets/opening_font.png` - the editable 128×16, 32-tile opening font atlas used by both the scrolling text and startup credits.
+- `src/opening_hook.asm` - readable 65C816 representation of the renderer helper emitted by Python.
+- `docs/MEMORY_MAP.md` - component ROM allocations and hooks.
 
 ## Accents and the startup-credit É
 

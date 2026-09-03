@@ -51,7 +51,7 @@ def build_component(component, rom_path: Path, output_path: Path) -> bytes:
 def main() -> None:
     components = discover_components(ROOT)
     parser = argparse.ArgumentParser(
-        description="Rebuild and safely combine independent Secret of Mana French-project components."
+        description="Rebuild and safely combine independent components for the French re-translation of Secret of Mana."
     )
     parser.add_argument("rom", nargs="?", type=Path, help="clean unheadered Secret of Mana (USA) ROM")
     parser.add_argument("components", nargs="*", help="component short names/IDs; default: all")

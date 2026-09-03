@@ -1,6 +1,6 @@
-# Secret of Mana (USA) — French translation patch kit
+# Secret of Mana - French translation patch kit
 
-This repository groups independent components for the French Secret of Mana project.
+This repository contains independent components for the French re-translation of Secret of Mana, based on the US ROM.
 
 This project was developed with assistance from ChatGPT by OpenAI for code review, 
 documentation, reverse-engineering analysis, and implementation support.
@@ -19,11 +19,11 @@ The ROM itself is deliberately not included.
 
 ## Components
 
-1. `01_japanese_mana_tree` — restores the original Japanese Mana Tree artwork.
-2. `02_9char_names` — 9-character names, four character rows, French accent row and French help text.
-3. `03_game_select` — French GAME SELECT labels/help, dynamic frame widths and French accented glyphs.
-4. `04_french_opening` — French startup credits/opening text, including the runtime-validated one-cell `É` used by `CHAUVIRÉ`.
-5. `05_intro_vwf_french` — French new-game introduction with VWF, private DTE and accented glyphs.
+1. `01_japanese_mana_tree` - restores the original Japanese Mana Tree artwork.
+2. `02_9char_names` - 9-character names, four character rows, French accent row and French help text.
+3. `03_game_select` - French GAME SELECT labels/help, dynamic frame widths and French accented glyphs.
+4. `04_french_opening` - French startup credits/opening text, including the runtime-validated one-cell `É` used by `CHAUVIRÉ`.
+5. `05_intro_vwf_french` - French new-game introduction with VWF, private DTE and accented glyphs.
 
 Component metadata lives in `components/*/component.json`. The aggregate builder
 discovers components from these manifests; adding a component does not require a
