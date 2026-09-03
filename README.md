@@ -21,7 +21,7 @@ The ROM itself is deliberately not included.
 
 1. `01_japanese_mana_tree` - restores the original Japanese Mana Tree artwork.
 2. `02_9char_names` - 9-character names, four character rows, French accent row and French help text.
-3. `03_game_select` - French GAME SELECT labels/help, dynamic frame widths and French accented glyphs.
+3. `03_game_select` - French GAME SELECT and GAME FILE text pipeline, dynamic frame widths and French accented glyphs.
 4. `04_french_opening` - French startup credits/opening text.
 5. `05_intro_vwf_french` - French new-game introduction with VWF, private DTE and accented glyphs.
 

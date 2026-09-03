@@ -67,6 +67,7 @@ def main() -> None:
     if args.rom is None:
         parser.error("rom is required unless --list is used")
 
+    args.rom = args.rom.resolve()
     base = args.rom.read_bytes()
     validate_base_rom(base)
     selected = resolve_selection(args.components, components)

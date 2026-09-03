@@ -8,7 +8,9 @@ for the owning component even when the current generated payload is shorter.
 | 9-char names | `0x074E00-0x074E6D` | `$C7:4E00-$4E6D` | private four-row Name Entry layout script |
 | 9-char names | `0x244000-0x2441FF` | `$E4:4000-$41FF` | reserved generated character/help resource |
 | GAME SELECT | `0x074400-0x07442C` | `$C7:4400-$442C` | 45-byte relocated label resource |
-| GAME SELECT | `0x2D8000-0x2DFFFF` | `$ED:8000-$FFFF` | reserved relocated help-text region |
+| GAME FILE | `0x074D40-0x074DBE` | `$C7:4D40-$4DBE` | relocated save/load-menu resource for expanded `Fichier` label |
+| GAME SELECT | `0x2D8000-0x2D83FF` | `$ED:8000-$83FF` | relocated GAME SELECT welcome/help text |
+| GAME FILE | `0x2D8400-0x2DFFFF` | `$ED:8400-$FFFF` | relocated GAME FILE save-help text / reserved component text space |
 | French opening | `0x2E8000-0x2E8FFF` | `$EE:8000-$8FFF` | reserved relocated title-arrangement region |
 | French opening | `0x2E9000-0x2EFFFF` | `$EE:9000-$FFFF` | reserved opening-helper region |
 | Mana Tree | `0x2FC000-0x2FF5FF` | `$EF:C000-$F5FF` | Japanese Mana Tree resource |
@@ -19,9 +21,10 @@ for the owning component even when the current generated payload is shorter.
 | intro VWF | `0x074D00-0x074D31` | `$C7:4D00-$4D31` | 25-pair private DTE table |
 | intro VWF | WRAM | `$7E:9390-$93BB` | 44-byte private parser buffer |
 
-The Name Entry layout begins after the intro VWF DTE allocation. GAME SELECT's
-relocated label block ends before the intro VWF width table. New allocations
+The GAME FILE relocation uses the stock-`$FF` gap after the intro VWF DTE allocation and ends before the Name Entry layout at `C7:4E00`. GAME SELECT's relocated label block ends before the intro VWF width table. New allocations
 must be checked against both the reserved ranges above and the actual IPS write
 maps produced by all components.
 
 `04_french_opening` also repurposes tile `$7A` inside its existing opening-font resource as a one-cell `É` for startup credits. This is a font-slot convention rather than a new ROM or WRAM allocation; the scrolling-text accent tiles `$7D-$7F` remain unchanged.
+
+GAME FILE also uses three in-place code/data edits: ROM `0x0753C9` / `$C7:53C9` and `0x075AF1` / `$C7:5AF1` change the dynamic level prefix from `L` to `N` (`$A6 -> $A8`), and ROM `0x077585` / `$C7:7585` changes the FILE-frame descriptor from `$03` (6 text cells) to `$04` (8 text cells). These are not new allocations.

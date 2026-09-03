@@ -1,0 +1,11 @@
+id,text
+FILE_SELECT,Choisir
+FILE_LABEL,Fichier
+EMPTY,Vide
+SAVE_POINT,Lieu
+MONEY,Argent
+GP,PO
+COUNTER,Compteur
+MANA_POWER,Force Mana
+SAVE_HELP_1,Sauvegarder sur un fichier utilisé efface ses données.
+SAVE_HELP_2,"Appuyez sur B pour sauvegarder, ou sur Y pour annuler."

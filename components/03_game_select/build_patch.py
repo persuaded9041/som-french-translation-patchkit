@@ -47,6 +47,53 @@ WELCOME_POINTER_OFFSET = 0x0033B5       # stock pointer = C0:33F0
 WELCOME_RELOC_OFFSET = 0x2D8000         # SNES ED:8000
 WELCOME_RELOC_SNES = 0xED8000
 
+# GAME FILE / save-menu text that shares the same stock menu text pipeline.
+# The main C7:7340 resource is relocated as a whole so FILE_LABEL can grow
+# from the stock 4-cell "FILE" to the 7-cell French "Fichier" without
+# overwriting the following terminator / SAVE POINT data.
+GAME_FILE_STOCK_RESOURCE_OFFSET = 0x077340
+GAME_FILE_STOCK_RESOURCE_END = 0x0773BC      # next resource begins at C7:73BC
+GAME_FILE_STOCK_RESOURCE_PTR = 0x7340
+GAME_FILE_RELOC_OFFSET = 0x074D40             # C7:4D40, stock $FF free space
+GAME_FILE_RELOC_PTR = 0x4D40
+GAME_FILE_POINTER_OFFSETS = (0x077810, 0x077816)
+# FILE label frame descriptor: stock width $03 = 6 cells.  Fichier needs
+# 7 visible cells plus the native margin; use $04 = 8 cells.  A $05 test
+# was runtime-rejected because it pulled the following dynamic "L" into the frame.
+GAME_FILE_FILE_FRAME_WIDTH_OFFSET = 0x077585
+GAME_FILE_FILE_FRAME_STOCK_WIDTH = 0x03
+GAME_FILE_FILE_FRAME_NEW_WIDTH = 0x04
+GAME_FILE_FILE_SEGMENT_START = 0x077349
+GAME_FILE_FILE_SEGMENT_END = 0x07734F         # FILE + one blank + $00
+
+# Dynamic slot level prefix. Two GAME FILE rendering paths write the stock
+# single-cell "L" directly into the menu text buffer. French uses "N"
+# (Niveau), which is a same-width, one-byte substitution in both paths.
+GAME_FILE_LEVEL_LABEL_OFFSETS = (0x0753C9, 0x075AF1)
+GAME_FILE_LEVEL_LABEL_STOCK = 0xA6  # L
+GAME_FILE_LEVEL_LABEL_NEW = 0xA8    # N
+
+# Field offsets inside the stock C7:7340 resource. Capacities for the other
+# labels include the adjacent padding cells validated in game.
+GAME_FILE_RESOURCE_FIELDS = {
+    "FILE_SELECT": (0x077341, 7),
+    "SAVE_POINT":  (0x077350, 11),
+    "MONEY":       (0x077374, 6),
+    "GP":          (0x077394, 2),
+    "COUNTER":     (0x077398, 8),
+    "MANA_POWER":  (0x0773AA, 10),
+}
+GAME_FILE_EXTERNAL_FIELDS = {
+    "EMPTY":       (0x077805, 5),
+}
+SAVE_HELP_POINTER_OFFSET = 0x0033B8     # stock pointer = C0:348D
+SAVE_HELP_STOCK_PTR = 0xC0348D
+SAVE_HELP_STOCK_OFFSET = 0x00348D
+SAVE_HELP_STOCK_SIZE = 108              # stock extraction size only
+SAVE_HELP_RELOC_OFFSET = 0x2D8400        # SNES ED:8400
+SAVE_HELP_RELOC_SNES = 0xED8400
+SAVE_HELP_RELOC_LIMIT = 0x2E0000         # end of component reserved bank
+
 
 ASCII_TO_SOM = {" ": 0x80}
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -99,6 +146,12 @@ REQUIRED_IDS = [
     "WELCOME_1", "WELCOME_2", "WELCOME_3", "WELCOME_4",
 ]
 
+GAME_FILE_REQUIRED_IDS = [
+    "FILE_SELECT", "FILE_LABEL", "EMPTY",
+    "SAVE_POINT", "MONEY", "GP", "COUNTER", "MANA_POWER",
+    "SAVE_HELP_1", "SAVE_HELP_2",
+]
+
 
 
 def encode_text(text: str, context: str) -> bytes:
@@ -129,7 +182,7 @@ def decode_text(data: bytes) -> str:
     return "".join(chars)
 
 
-def read_csv(path: Path) -> dict[str, str]:
+def read_csv(path: Path, required_ids: list[str] = REQUIRED_IDS) -> dict[str, str]:
     with path.open("r", encoding="utf-8-sig", newline="") as fh:
         rows = list(csv.DictReader(fh))
     if not rows or "id" not in rows[0] or "text" not in rows[0]:
@@ -142,7 +195,7 @@ def read_csv(path: Path) -> dict[str, str]:
         if key in result:
             raise SystemExit(f"Duplicate id {key!r} in {path.name}")
         result[key] = row.get("text") or ""
-    missing = [key for key in REQUIRED_IDS if key not in result]
+    missing = [key for key in required_ids if key not in result]
     if missing:
         raise SystemExit("Missing CSV id(s): " + ", ".join(missing))
     return result
@@ -230,7 +283,121 @@ def build_welcome(rows: dict[str, str]) -> bytes:
 
 
 
-def apply_sources(base: bytes, rows: dict[str, str]) -> tuple[bytearray, int]:
+def extract_game_file_rows(rom: bytes) -> dict[str, str]:
+    rows: dict[str, str] = {}
+    for key, (offset, capacity) in GAME_FILE_RESOURCE_FIELDS.items():
+        rows[key] = decode_text(rom[offset:offset + capacity]).rstrip(" ")
+    rows["FILE_LABEL"] = decode_text(rom[0x077349:0x07734D])
+    for key, (offset, capacity) in GAME_FILE_EXTERNAL_FIELDS.items():
+        rows[key] = decode_text(rom[offset:offset + capacity]).rstrip(" ")
+
+    ptr = int.from_bytes(rom[SAVE_HELP_POINTER_OFFSET:SAVE_HELP_POINTER_OFFSET + 3], "little")
+    if ptr != SAVE_HELP_STOCK_PTR:
+        raise SystemExit(f"Unexpected stock save-help pointer: ${ptr:06X}")
+    end = rom.index(0x00, SAVE_HELP_STOCK_OFFSET)
+    raw = rom[SAVE_HELP_STOCK_OFFSET:end]
+    parts = raw.split(b"\x7F")
+    visible = [decode_text(part) for part in parts if part]
+    if len(visible) != 2:
+        raise SystemExit(f"Expected 2 visible save-help lines, found {len(visible)}")
+    rows["SAVE_HELP_1"], rows["SAVE_HELP_2"] = visible
+    return rows
+
+
+def build_save_help(rows: dict[str, str]) -> bytes:
+    line1 = encode_text(rows["SAVE_HELP_1"], "SAVE_HELP_1")
+    line2 = encode_text(rows["SAVE_HELP_2"], "SAVE_HELP_2")
+    return line1 + b"\x7F" + line2 + b"\x00"
+
+
+def build_game_file_resource(base: bytes, rows: dict[str, str]) -> bytes:
+    """Relocate the native C7:7340 save/load-menu resource and expand FILE_LABEL.
+
+    The resource is otherwise kept byte-for-byte stock except for CSV-backed
+    fields.  The stock FILE segment is `FILE`, one blank cell and `$00`; its
+    replacement keeps the same trailing blank + terminator convention, so the
+    parser sees the same structure with a longer label.
+    """
+    stock = bytearray(base[GAME_FILE_STOCK_RESOURCE_OFFSET:GAME_FILE_STOCK_RESOURCE_END])
+    if len(stock) != GAME_FILE_STOCK_RESOURCE_END - GAME_FILE_STOCK_RESOURCE_OFFSET:
+        raise SystemExit("Could not read complete stock GAME FILE resource")
+
+    file_payload = encode_text(rows["FILE_LABEL"], "FILE_LABEL")
+    if not file_payload:
+        raise SystemExit("FILE_LABEL may not be empty")
+    replacement = file_payload + b"\x80\x00"
+    rel_start = GAME_FILE_FILE_SEGMENT_START - GAME_FILE_STOCK_RESOURCE_OFFSET
+    rel_end = GAME_FILE_FILE_SEGMENT_END - GAME_FILE_STOCK_RESOURCE_OFFSET
+    resource = stock[:rel_start] + replacement + stock[rel_end:]
+    delta = len(replacement) - (rel_end - rel_start)
+
+    for key, (stock_offset, capacity) in GAME_FILE_RESOURCE_FIELDS.items():
+        payload = encode_text(rows[key], key)
+        if len(payload) > capacity:
+            raise SystemExit(
+                f"{key} encodes to {len(payload)} cells; current validated field capacity is {capacity}."
+            )
+        rel = stock_offset - GAME_FILE_STOCK_RESOURCE_OFFSET
+        if stock_offset >= GAME_FILE_FILE_SEGMENT_END:
+            rel += delta
+        resource[rel:rel + capacity] = payload + b"\x80" * (capacity - len(payload))
+
+    return bytes(resource)
+
+
+def apply_game_file_sources(base: bytes, rom: bytearray, rows: dict[str, str]) -> int:
+    resource = build_game_file_resource(base, rows)
+    reloc_end = GAME_FILE_RELOC_OFFSET + len(resource)
+    # Stop before the standalone 9-char names allocation at C7:4E00.
+    if reloc_end > 0x074E00:
+        raise SystemExit("Relocated GAME FILE resource exceeded C7:4D40-C7:4DFF")
+    if any(b != 0xFF for b in base[GAME_FILE_RELOC_OFFSET:reloc_end]):
+        raise SystemExit("GAME FILE relocation target C7:4D40 is not stock $FF free space")
+    rom[GAME_FILE_RELOC_OFFSET:reloc_end] = resource
+
+    # Expand the small FILE frame from 6 to 8 text cells. The menu descriptor
+    # uses the same two-cells-per-width-unit convention as GAME SELECT.
+    if base[GAME_FILE_FILE_FRAME_WIDTH_OFFSET] != GAME_FILE_FILE_FRAME_STOCK_WIDTH:
+        raise SystemExit(
+            f"Unexpected stock FILE frame width at ${GAME_FILE_FILE_FRAME_WIDTH_OFFSET:06X}: "
+            f"${base[GAME_FILE_FILE_FRAME_WIDTH_OFFSET]:02X}"
+        )
+    rom[GAME_FILE_FILE_FRAME_WIDTH_OFFSET] = GAME_FILE_FILE_FRAME_NEW_WIDTH
+
+    # Translate the dynamic level prefix L -> N (Niveau) in both GAME FILE
+    # rendering paths. This is deliberately kept as a single-cell substitution
+    # so it cannot affect the validated slot-row geometry.
+    for offset in GAME_FILE_LEVEL_LABEL_OFFSETS:
+        if base[offset] != GAME_FILE_LEVEL_LABEL_STOCK:
+            raise SystemExit(
+                f"Unexpected stock GAME FILE level label at ${offset:06X}: "
+                f"${base[offset]:02X}"
+            )
+        rom[offset] = GAME_FILE_LEVEL_LABEL_NEW
+
+    for pointer_offset in GAME_FILE_POINTER_OFFSETS:
+        stock_ptr = int.from_bytes(base[pointer_offset:pointer_offset + 2], "little")
+        if stock_ptr != GAME_FILE_STOCK_RESOURCE_PTR:
+            raise SystemExit(
+                f"Unexpected GAME FILE resource pointer at ${pointer_offset:06X}: ${stock_ptr:04X}"
+            )
+        rom[pointer_offset:pointer_offset + 2] = GAME_FILE_RELOC_PTR.to_bytes(2, "little")
+
+    for key, (offset, capacity) in GAME_FILE_EXTERNAL_FIELDS.items():
+        payload = encode_text(rows[key], key)
+        if len(payload) > capacity:
+            raise SystemExit(f"{key} encodes to {len(payload)} cells; capacity is {capacity}.")
+        rom[offset:offset + capacity] = payload + b"\x80" * (capacity - len(payload))
+
+    help_payload = build_save_help(rows)
+    if SAVE_HELP_RELOC_OFFSET + len(help_payload) > SAVE_HELP_RELOC_LIMIT:
+        raise SystemExit("GAME FILE save help exceeded the reserved ED:8400-ED:FFFF region")
+    rom[SAVE_HELP_RELOC_OFFSET:SAVE_HELP_RELOC_OFFSET + len(help_payload)] = help_payload
+    rom[SAVE_HELP_POINTER_OFFSET:SAVE_HELP_POINTER_OFFSET + 3] = SAVE_HELP_RELOC_SNES.to_bytes(3, "little")
+    return len(resource)
+
+
+def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, str]) -> tuple[bytearray, int]:
     rom = expand_rom(base)
 
     # Turn $D4-$E0 into normal character codes for the stock text
@@ -262,6 +429,12 @@ def apply_sources(base: bytes, rows: dict[str, str]) -> tuple[bytearray, int]:
                 f"Unexpected stock {key} frame width at ${offset:06X}: ${base[offset]:02X}"
             )
         rom[offset] = frame_widths[key]
+
+    # GAME FILE/save-menu strings share this decoder/font. A few labels may
+    # consume one adjacent stock padding cell without moving later fields.
+    # The two-line save help is relocated
+    # to ED:8400 so its source payload is no longer limited by the stock block.
+    apply_game_file_sources(base, rom, game_file_rows)
 
     # Relocate the long help text now, so its translation will no longer be
     # constrained by the 156-byte stock allocation at C0:33F0.
@@ -305,11 +478,11 @@ def extract_rows(rom: bytes) -> dict[str, str]:
     return rows
 
 
-def write_csv(path: Path, rows: dict[str, str]) -> None:
+def write_csv(path: Path, rows: dict[str, str], required_ids: list[str] = REQUIRED_IDS) -> None:
     with path.open("w", encoding="utf-8", newline="") as fh:
         writer = csv.writer(fh)
         writer.writerow(["id", "text"])
-        for key in REQUIRED_IDS:
+        for key in required_ids:
             writer.writerow([key, rows[key]])
 
 
@@ -317,7 +490,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Build the Secret of Mana (USA) French GAME SELECT component")
     parser.add_argument("rom", type=Path, help="clean unheadered Secret of Mana (USA) ROM")
     parser.add_argument("--csv", type=Path, default=ROOT / "assets" / "game_select_text.csv")
+    parser.add_argument("--game-file-csv", type=Path, default=ROOT / "assets" / "game_file_text.csv")
     parser.add_argument("--extract", type=Path, metavar="CSV", help="extract the stock GAME SELECT texts to CSV and exit")
+    parser.add_argument("--extract-game-file", type=Path, metavar="CSV", help="extract stock GAME FILE/save-menu texts to CSV and exit")
     parser.add_argument("-o", "--output", type=Path, default=Path("build/patch.ips"), help="output IPS")
     parser.add_argument("--patched-rom", type=Path, help="optional output ROM for local testing")
     args = parser.parse_args()
@@ -331,9 +506,16 @@ def main() -> None:
         write_csv(args.extract, rows)
         print(f"Extracted: {args.extract}")
         return
+    if args.extract_game_file:
+        rows = extract_game_file_rows(base)
+        args.extract_game_file.parent.mkdir(parents=True, exist_ok=True)
+        write_csv(args.extract_game_file, rows, GAME_FILE_REQUIRED_IDS)
+        print(f"Extracted: {args.extract_game_file}")
+        return
 
     rows = read_csv(args.csv)
-    patched, checksum = apply_sources(base, rows)
+    game_file_rows = read_csv(args.game_file_csv, GAME_FILE_REQUIRED_IDS)
+    patched, checksum = apply_sources(base, rows, game_file_rows)
     patch = make_ips(base, bytes(patched))
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -347,6 +529,10 @@ def main() -> None:
     print(f"SNES checksum: ${checksum:04X}")
     print(f"WELCOME pointer: ${int.from_bytes(patched[WELCOME_POINTER_OFFSET:WELCOME_POINTER_OFFSET+3], 'little'):06X}")
     print(f"WELCOME payload: {len(build_welcome(rows))} bytes at ROM ${WELCOME_RELOC_OFFSET:06X}")
+    print(f"GAME FILE resource pointer: C7:${GAME_FILE_RELOC_PTR:04X}")
+    print(f"GAME FILE resource: {len(build_game_file_resource(base, game_file_rows))} bytes at ROM ${GAME_FILE_RELOC_OFFSET:06X}")
+    print(f"GAME FILE save-help pointer: ${int.from_bytes(patched[SAVE_HELP_POINTER_OFFSET:SAVE_HELP_POINTER_OFFSET+3], 'little'):06X}")
+    print(f"GAME FILE save-help payload: {len(build_save_help(game_file_rows))} bytes at ROM ${SAVE_HELP_RELOC_OFFSET:06X}")
     menu_resource, widths = build_menu_resource(rows)
     print(f"GAME SELECT resource: {len(menu_resource)} bytes at C7:${MENU_RESOURCE_RELOC_PTR:04X}")
     print("GAME SELECT layout: native 45-byte resource; no additional DTE compression")

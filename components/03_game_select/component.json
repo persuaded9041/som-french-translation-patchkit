@@ -1,6 +1,6 @@
 {
   "id": "03_game_select",
   "short_name": "game-select",
-  "name": "French GAME SELECT",
+  "name": "French GAME SELECT / GAME FILE",
   "shared_charset_profile": "basic_french"
 }
