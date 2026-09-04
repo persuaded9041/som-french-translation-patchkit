@@ -85,6 +85,7 @@ is used in contexts where `$E1-$E5` are available for French glyphs.
   threshold.
 - `05_intro_vwf_french` - uses the `full_french` profile (`$D4-$E5`) and a
   `$E6` DTE threshold.
+- `06_dialogue_vwf` - uses the same `full_french` profile and independently installs the canonical glyphs / `$E6` threshold so its standalone build does not depend on component 05.
 
 The same direct character codes are intentionally reused across components so
 that identical French characters keep the same encoding whenever the engine

@@ -20,6 +20,7 @@ Current consumers:
 - `02_9char_names` uses the `basic_french`/naming-safe `$D4-$E0` subset.
 - `03_game_select` uses the same `$D4-$E0` subset.
 - `05_intro_vwf_french` uses the complete `$D4-$E5` range.
+- `06_dialogue_vwf` uses the same complete range and installs it independently for standalone builds.
 
 Name Entry intentionally stops at `$E0`: `$E1-$E5`
 are still used by graphics on that screen. This is a screen-specific limitation,

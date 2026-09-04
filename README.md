@@ -24,6 +24,7 @@ The ROM itself is deliberately not included.
 3. `03_game_select` - French GAME SELECT and GAME FILE text pipeline, dynamic frame widths and French accented glyphs.
 4. `04_french_opening` - French startup credits/opening text.
 5. `05_intro_vwf_french` - French new-game introduction with VWF, private DTE and accented glyphs.
+6. `06_dialogue_vwf` - development component for variable-width normal in-game dialogue rendering.
 
 Component metadata lives in `components/*/component.json`. The aggregate builder
 discovers components from these manifests; adding a component does not require a
@@ -41,7 +42,7 @@ builds. `shared/components.py` discovers component manifests and
 `shared/compatibility.py` owns cross-component merge rules.
 
 `shared/french_charset/` is the canonical source for French direct-glyph codes
-and artwork. Name Entry, GAME SELECT and intro VWF consume this definition while
+and artwork. Name Entry, GAME SELECT, intro VWF and dialogue VWF consume this definition while
 each standalone IPS still writes the bytes required for independent operation.
 See `docs/SHARED_CHARSET.md`.
 
@@ -100,7 +101,7 @@ Allowed overlaps are:
 - the shared French direct-glyph threshold at ROM `0x0016F6`.
 
 Name Entry and GAME SELECT declare the `basic_french` profile (`$E1` threshold);
-intro VWF declares `full_french` (`$E6`). Thresholds belong to the profiles in
+intro VWF and dialogue VWF declare `full_french` (`$E6`). Thresholds belong to the profiles in
 `shared/french_charset/charset.json`, and the aggregate builder selects the
 highest one required by the chosen components. Any other differing functional
 overlap aborts the build.
