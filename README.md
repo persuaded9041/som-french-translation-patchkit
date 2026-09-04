@@ -24,7 +24,7 @@ The ROM itself is deliberately not included.
 3. `03_game_select` - French GAME SELECT and GAME FILE text pipeline, dynamic frame widths and French accented glyphs.
 4. `04_french_opening` - French startup credits/opening text.
 5. `05_intro_vwf_french` - French new-game introduction with VWF, private DTE and accented glyphs.
-6. `06_dialogue_vwf` - development component for variable-width normal in-game dialogue rendering.
+6. `06_dialogue_vwf` - development component for variable-width normal in-game dialogue rendering; technical status and handoff live inside the component.
 
 Component metadata lives in `components/*/component.json`. The aggregate builder
 discovers components from these manifests; adding a component does not require a
@@ -106,4 +106,4 @@ intro VWF and dialogue VWF declare `full_french` (`$E6`). Thresholds belong to t
 highest one required by the chosen components. Any other differing functional
 overlap aborts the build.
 
-See `docs/COMPATIBILITY.md` and `docs/MEMORY_MAP.md`.
+See `docs/COMPATIBILITY.md` and `docs/MEMORY_MAP.md`. Component-specific renderer notes stay under each component; for dialogue VWF start with `components/06_dialogue_vwf/README.md`.
