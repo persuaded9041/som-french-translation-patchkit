@@ -47,10 +47,10 @@ WELCOME_POINTER_OFFSET = 0x0033B5       # stock pointer = C0:33F0
 WELCOME_RELOC_OFFSET = 0x2D8000         # SNES ED:8000
 WELCOME_RELOC_SNES = 0xED8000
 
-# GAME FILE / save-menu text that shares the same stock menu text pipeline.
-# The main C7:7340 resource is relocated as a whole so FILE_LABEL can grow
-# from the stock 4-cell "FILE" to the 7-cell French "Fichier" without
-# overwriting the following terminator / SAVE POINT data.
+# GAME FILE / save-menu text uses two stock runtime paths.  The full resource
+# is relocated so FILE_LABEL can grow from the 4-cell stock "FILE" to the
+# 7-cell French "Fichier", but several labels are still consumed directly
+# from C7:7340 by another path.  Keep both copies synchronized.
 GAME_FILE_STOCK_RESOURCE_OFFSET = 0x077340
 GAME_FILE_STOCK_RESOURCE_END = 0x0773BC      # next resource begins at C7:73BC
 GAME_FILE_STOCK_RESOURCE_PTR = 0x7340
@@ -72,8 +72,10 @@ GAME_FILE_LEVEL_LABEL_OFFSETS = (0x0753C9, 0x075AF1)
 GAME_FILE_LEVEL_LABEL_STOCK = 0xA6  # L
 GAME_FILE_LEVEL_LABEL_NEW = 0xA8    # N
 
-# Field offsets inside the stock C7:7340 resource. Capacities for the other
-# labels include the adjacent padding cells validated in game.
+# Field offsets inside C7:7340.  These capacities include adjacent stock
+# padding cells that were runtime-validated for the French labels.  The same
+# fields are written both into the relocated resource and back into the stock
+# resource because GAME FILE uses both paths at runtime.
 GAME_FILE_RESOURCE_FIELDS = {
     "FILE_SELECT": (0x077341, 7),
     "SAVE_POINT":  (0x077350, 11),
@@ -82,6 +84,10 @@ GAME_FILE_RESOURCE_FIELDS = {
     "COUNTER":     (0x077398, 8),
     "MANA_POWER":  (0x0773AA, 10),
 }
+# FILE_LABEL is special: the stock path has only four cells, so it receives
+# the first four encoded cells ("Fich" for the current translation), while the
+# relocated path contains the complete label.
+GAME_FILE_FILE_STOCK_CAPACITY = 4
 GAME_FILE_EXTERNAL_FIELDS = {
     "EMPTY":       (0x077805, 5),
 }
@@ -343,7 +349,7 @@ def build_game_file_resource(base: bytes, rows: dict[str, str]) -> bytes:
     return bytes(resource)
 
 
-def apply_game_file_sources(base: bytes, rom: bytearray, rows: dict[str, str]) -> int:
+def apply_game_file_sources(base: bytes, rom: bytearray, rows: dict[str, str]) -> None:
     resource = build_game_file_resource(base, rows)
     reloc_end = GAME_FILE_RELOC_OFFSET + len(resource)
     # Stop before the standalone 9-char names allocation at C7:4E00.
@@ -381,6 +387,24 @@ def apply_game_file_sources(base: bytes, rom: bytearray, rows: dict[str, str]) -
             )
         rom[pointer_offset:pointer_offset + 2] = GAME_FILE_RELOC_PTR.to_bytes(2, "little")
 
+    # Runtime validation showed that redirecting the two table pointers is not
+    # sufficient: another GAME FILE path still reads these labels from their
+    # original C7:7340 locations.  Mirror the CSV-backed values in place while
+    # preserving every stock field boundary.
+    for key, (offset, capacity) in GAME_FILE_RESOURCE_FIELDS.items():
+        payload = encode_text(rows[key], key)
+        if len(payload) > capacity:
+            raise SystemExit(
+                f"{key} encodes to {len(payload)} cells; current validated field capacity is {capacity}."
+            )
+        rom[offset:offset + capacity] = payload + b"\x80" * (capacity - len(payload))
+
+    file_payload = encode_text(rows["FILE_LABEL"], "FILE_LABEL")
+    stock_file = file_payload[:GAME_FILE_FILE_STOCK_CAPACITY]
+    rom[GAME_FILE_FILE_SEGMENT_START:GAME_FILE_FILE_SEGMENT_START + GAME_FILE_FILE_STOCK_CAPACITY] = (
+        stock_file + b"\x80" * (GAME_FILE_FILE_STOCK_CAPACITY - len(stock_file))
+    )
+
     for key, (offset, capacity) in GAME_FILE_EXTERNAL_FIELDS.items():
         payload = encode_text(rows[key], key)
         if len(payload) > capacity:
@@ -392,7 +416,6 @@ def apply_game_file_sources(base: bytes, rom: bytearray, rows: dict[str, str]) -
         raise SystemExit("GAME FILE save help exceeded the reserved ED:8400-ED:FFFF region")
     rom[SAVE_HELP_RELOC_OFFSET:SAVE_HELP_RELOC_OFFSET + len(help_payload)] = help_payload
     rom[SAVE_HELP_POINTER_OFFSET:SAVE_HELP_POINTER_OFFSET + 3] = SAVE_HELP_RELOC_SNES.to_bytes(3, "little")
-    return len(resource)
 
 
 def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, str]) -> tuple[bytearray, int]:
@@ -428,10 +451,9 @@ def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, s
             )
         rom[offset] = frame_widths[key]
 
-    # GAME FILE/save-menu strings share this decoder/font. A few labels may
-    # consume one adjacent stock padding cell without moving later fields.
-    # The two-line save help is relocated
-    # to ED:8400 so its source payload is no longer limited by the stock block.
+    # GAME FILE/save-menu strings share this decoder/font.  The full resource
+    # is relocated for Fichier, while the stock label fields are mirrored in
+    # place for the second runtime path.  Save help is relocated separately.
     apply_game_file_sources(base, rom, game_file_rows)
 
     # Relocate the long help text now, so its translation will no longer be

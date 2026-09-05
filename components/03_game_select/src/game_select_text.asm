@@ -25,9 +25,9 @@ org $C033B5
     dl $ED8000
 
 ; GAME FILE/save-menu text is sourced from assets/game_file_text.csv.
-; The stock C7:7340-C7:73BB resource is rebuilt at C7:4D40 so FILE can grow
-; to "Fichier" without overwriting the following separator/data. Two states
-; reference the same resource through the table entries below.
+; The full C7:7340-C7:73BB resource is rebuilt at C7:4D40 so FILE can grow
+; to "Fichier". Two table entries are redirected to that copy, but runtime
+; validation showed that another path still consumes several stock locations.
 org $C77810
     dw $4D40
 org $C77816
@@ -47,10 +47,13 @@ org $C753C9
 org $C75AF1
     db $A8
 
-; C7:7805 Empty remains external to that resource and is patched in place.
-; Save help is relocated to ED:8400 through the pointer at C0:33B8.
+; The builder also mirrors FILE_SELECT, SAVE_POINT, MONEY, GP, COUNTER and
+; MANA_POWER at their original C7:7340 field locations without moving any
+; boundaries. The stock FILE field receives the four-cell prefix "Fich"; the
+; relocated copy contains full "Fichier". C7:7805 Empty remains external and
+; is patched in place. Save help is relocated to ED:8400 via C0:33B8.
 org $C033B8
     dl $ED8400
 
-; No VWF is introduced for GAME FILE. The Fichier resource relocation and
-; 8-cell frame are runtime-validated.
+; No VWF is introduced for GAME FILE. The mixed stock/relocated text path,
+; full Fichier label and 8-cell frame are runtime-validated.

@@ -10,12 +10,12 @@
 
 ## GAME FILE/save-menu stock text locations
 
-These are the stock source locations used for extraction. At build time the main `C7:7340-C7:73BB` resource is relocated to `C7:4D40` so `FILE_LABEL` can expand safely.
+These locations are both extraction sources and active runtime mirrors. The full `C7:7340-C7:73BB` resource is also relocated to `C7:4D40` so `FILE_LABEL` can expand safely, but runtime testing proved that another GAME FILE path still reads the stock fields. The builder therefore keeps both paths synchronized without shifting any stock boundary.
 
 | ROM offset | Purpose | Current capacity |
 |---:|---|---:|
 | `0x077341` | file-screen `SELECT` | 7 cells in the relocated build (6 stock + adjacent padding) |
-| `0x077349` | stock `FILE` | 4 stock cells; relocated build expands structurally to `Fichier` |
+| `0x077349` | stock `FILE` | 4 cells; mirrored as `Fich`, while relocated copy contains full `Fichier` |
 | `0x077350` | `SAVE  POINT` | 11 cells |
 | `0x077374` | `MONEY` | 6 cells in the relocated build (5 stock + adjacent padding) |
 | `0x077394` | `GP` | 2 cells |
@@ -25,7 +25,7 @@ These are the stock source locations used for extraction. At build time the main
 | `0x0033B8` | pointer to save-help text (`$C0:348D`) | 3 bytes |
 | `0x00348D-0x0034F8` | two-line save help block | 108 bytes |
 
-The builder preserves the validated field boundaries above. `FILE_LABEL` is the exception: its segment is rebuilt inside the relocated resource so `Fichier` can exceed the four stock cells. The save-help payload is separately relocated to `ED:8400` and is no longer limited by the 108-byte stock block.
+The builder preserves every validated stock field boundary above and mirrors the CSV-backed values there. `FILE_LABEL` is the exception only in content length: the stock field receives its first four encoded cells (`Fich` currently), while its segment is expanded inside the relocated resource to full `Fichier`. The save-help payload is separately relocated to `ED:8400` and is no longer limited by the 108-byte stock block.
 
 ## GAME FILE relocation hooks
 
@@ -34,4 +34,4 @@ The builder preserves the validated field boundaries above. `FILE_LABEL` is the 
 - ROM `0x077585` / `$C7:7585`: FILE/Fichier frame width `$03 -> $04` (6 -> 8 text cells).
 - ROM `0x077810-0x077811` / `$C7:7810-$7811`: resource pointer `$7340 -> $4D40`.
 - ROM `0x077816-0x077817` / `$C7:7816-$7817`: second state/resource pointer `$7340 -> $4D40`.
-- Stock resource copied from ROM `0x077340-0x0773BB` (`$C7:7340-$73BB`); the stock bytes remain untouched in the output ROM.
+- Stock resource source: ROM `0x077340-0x0773BB` (`$C7:7340-$73BB`). `FILE_SELECT`, `FILE_LABEL` prefix, `SAVE_POINT`, `MONEY`, `GP`, `COUNTER`, and `MANA_POWER` are mirrored in place because a runtime path still reads them there.
