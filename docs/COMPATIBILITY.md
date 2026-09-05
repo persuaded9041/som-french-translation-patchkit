@@ -6,12 +6,15 @@ aggregate build. Their IPS write maps are then compared byte-for-byte.
 ## Shared French glyph writes
 
 `02_9char_names` and `03_game_select` install the naming-safe French range
-`$D4-$E0`. `05_intro_vwf_french` and `06_dialogue_vwf` install those same 13 glyphs plus `$E1-$E5`.
-The common glyph bytes are identical because all four builders consume
-`shared/french_charset`.
+`$D4-$E0`. `05_intro_vwf_french` and `06_dialogue_vwf` install those same 13
+glyphs plus `$E1-$E5`. `08_dialogue_text` uses that same `full_french` range when a French
+translation differs from its canonical source token; with the current empty
+`translations/dialogues_french.json` it emits no glyph writes.
 
-These duplicated writes are intentional: each component must remain usable on a
-clean USA ROM without requiring another component.
+Whenever several standalone builders emit the same glyphs, the bytes are
+identical because they all consume `shared/french_charset`. Those duplicated
+writes are intentional so an edited component can remain usable on a clean USA
+ROM without requiring another component.
 
 ## Opening-font local glyph
 
@@ -25,6 +28,8 @@ ROM `0x0016F6` is a declared merge point:
 - GAME SELECT standalone: `$E1` (`$D4-$E0` direct).
 - intro VWF standalone: `$E6` (`$D4-$E5` direct).
 - dialogue VWF standalone: `$E6` (`$D4-$E5` direct).
+- dialogue-text standalone: no threshold write while no translations are present;
+  `$E6` (`$D4-$E5` direct) automatically once translated dialogue text is added.
 
 The relevant `component.json` files declare a `shared_charset_profile`. Each profile owns its DTE threshold in `shared/french_charset/charset.json`. For an aggregate build, `shared/compatibility.py` applies the highest selected threshold, so any build containing a `full_french` consumer uses `$E6`.
 
@@ -117,3 +122,35 @@ is protected by the same early interception.
 Renderer architecture, metrics, caller discrimination and generic event-
 interruption handling belong to `components/06_dialogue_vwf/docs/`, not to this
 cross-component compatibility document.
+
+## Dialogue text compatibility
+
+`08_dialogue_text` remains the owner of event-script source/reinsertion data, not of the
+VWF renderer itself. The first edited-event checkpoint (`$0107`) was
+runtime-validated with the existing dialogue VWF, including dynamic player-name
+insertion, line breaks and WAIT sequencing. The canonical `assets/dialogues.json` contains clean-USA source only, and
+`translations/dialogues_french.json` is currently empty.
+
+Growth has a runtime-validated relocation path. Component 08 can install a sparse
+24-bit event-address table and dispatcher hook, then pack only overlong rebuilt
+events into reserved banks `$E8-$EC`. A zero sparse-table entry falls back to
+the *live* stock `$C9/$CA` tables, so component 05 remains authoritative for its
+validated `$0400-$040F` pointer rewrites. Event `$0400` is still excluded from
+the component-08 asset.
+
+Relocated dialogue must keep the same VWF/parser behavior. Components 05 and 06
+therefore share one minimal bank-gate extension: their existing caller-gated
+private parser path and component-06 renderer path continue to accept stock
+`$C9/$CA`, and additionally accept only component-08's reserved `$E8-$EC` range.
+The `$C9/$CA` behavior is unchanged. The `$E8-$EC` path was runtime-validated
+with unchanged event `$0107` executing from `$E8:2000`, including dynamic name
+insertion, VWF rendering, line breaks and WAIT behavior. The temporary force
+probe has now been removed: normal builds relocate only events that genuinely
+outgrow their source span.
+
+When a future French dialogue translation is added, component 08 still installs the same
+canonical `full_french` `$D4-$E5` glyph bytes and `$E6` direct/DTE threshold as
+components 05/06. The root extractor continues to structurally parse all 2048 stock event scripts
+and commits the 713 text-bearing events excluding `$0400`. The 513 following
+`$CA` non-event resources are now extracted separately to
+`assets/text_resources.json` and are not owned by the dialogue VWF runtime.

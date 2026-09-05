@@ -1,21 +1,36 @@
 # French opening and credits
 
-Translates the startup credits and scrolling opening story while preserving the original fixed-width title-screen renderer.
+Translates the startup credits and scrolling opening story while preserving the
+original fixed-width title-screen renderer.
 
-## Editable sources
+## Sources
 
-- `assets/opening_text.csv`: scrolling prologue text.
-- `assets/opening_credits.csv`: five startup-credit lines.
+- root `assets/opening_text.json`: clean-USA strings extracted from the compressed
+  startup/title arrangement.
+- root `translations/opening_text_french.json`: sparse French prologue/credit
+  translations already validated by this component.
 - `assets/opening_font.png`: editable 128×16, 32-tile opening font atlas.
 - `src/opening_hook.asm`: readable representation of the renderer helper emitted by Python.
 - `docs/MEMORY_MAP.md`: component ROM allocations and hooks.
 
+Opening source IDs use the compressed container address plus deterministic
+decompressed offset, for example `C7:B480+09F9`. The fifth French credit has no
+clean-USA source position and therefore uses the explicit target-only ID
+`new:opening.credit.translation`.
+
 ## Accent handling
 
-The scrolling prologue keeps the validated overlay mechanism: `$7D` acute, `$7E` grave and `$7F` circumflex. Accented `E` characters are rendered as a normal `E` plus an accent tile on the row above.
+The scrolling prologue keeps the validated overlay mechanism: `$7D` acute,
+`$7E` grave and `$7F` circumflex. Accented `E` characters are rendered as a
+normal `E` plus an accent tile on the row above.
 
-Startup credits instead use a dedicated one-cell `É` in opening-font tile `$7A` (the original `Z` slot), because the overlay mechanism is unsuitable for their fade. The current text does not use `Z`; the builder rejects a literal `Z` rather than displaying the wrong glyph.
+Startup credits instead use a dedicated one-cell `É` in opening-font tile `$7A`
+(the original `Z` slot), because the overlay mechanism is unsuitable for their
+fade. The current text does not use `Z`; the builder rejects a literal `Z`
+rather than displaying the wrong glyph.
 
-The `É` artwork is authored directly in `assets/opening_font.png`, and `opening_credits.csv` accepts `É` directly in UTF-8.
+The `É` artwork is authored directly in `assets/opening_font.png`; translated
+credit text is UTF-8 JSON in `translations/opening_text_french.json`.
 
-This `$7A` reservation is local to the opening font and does not alter the shared French charset used by other components.
+This `$7A` reservation is local to the opening font and does not alter the
+shared French charset used by other components.

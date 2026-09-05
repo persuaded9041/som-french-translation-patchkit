@@ -317,7 +317,8 @@ intro_dte_load:
 ;   ../../../shared/french_charset/french_glyphs.png (mapping: ../../../shared/french_charset/charset.json)
 ;
 ; The translated event itself is rebuilt by Python from:
-;   assets/text/scrtxt_fr.bin
+;   ../../../assets/intro_event.json
+;   ../../../translations/intro_event_french.json
 ;   assets/text/intro_layout.json
 ;
 ; Therefore those generated binary data blocks are intentionally not duplicated

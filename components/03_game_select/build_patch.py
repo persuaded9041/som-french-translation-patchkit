@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import argparse
-import csv
 import sys
 from pathlib import Path
 
@@ -12,14 +11,6 @@ from pathlib import Path
 MENU_RESOURCE_RELOC_OFFSET = 0x074400  # C7:4400, stock free space
 MENU_RESOURCE_RELOC_PTR = 0x4400
 MENU_DESCRIPTOR_TEXT_PTR_OFFSET = 0x07780A
-
-# Stock-only extraction map (used by --extract on the clean US ROM).
-STOCK_LABEL_FIELDS = {
-    "SELECT":      (0x077314, 6),
-    "GAME_SELECT": (0x07731C, 12),
-    "NEW_GAME":    (0x07732A, 8),
-    "GAME_FILE":   (0x077334, 10),
-}
 
 # The D-pad label occupies eight decoded cells after the initial prefix.
 # Keeping this segment at eight preserves its two stock placements.
@@ -70,7 +61,6 @@ GAME_FILE_FILE_SEGMENT_END = 0x07734F         # FILE + one blank + $00
 # (Niveau), which is a same-width, one-byte substitution in both paths.
 GAME_FILE_LEVEL_LABEL_OFFSETS = (0x0753C9, 0x075AF1)
 GAME_FILE_LEVEL_LABEL_STOCK = 0xA6  # L
-GAME_FILE_LEVEL_LABEL_NEW = 0xA8    # N
 
 # Field offsets inside C7:7340.  These capacities include adjacent stock
 # padding cells that were runtime-validated for the French labels.  The same
@@ -92,8 +82,6 @@ GAME_FILE_EXTERNAL_FIELDS = {
     "EMPTY":       (0x077805, 5),
 }
 SAVE_HELP_POINTER_OFFSET = 0x0033B8     # stock pointer = C0:348D
-SAVE_HELP_STOCK_PTR = 0xC0348D
-SAVE_HELP_STOCK_OFFSET = 0x00348D
 SAVE_HELP_RELOC_OFFSET = 0x2D8400        # SNES ED:8400
 SAVE_HELP_RELOC_SNES = 0xED8400
 SAVE_HELP_RELOC_LIMIT = 0x2E0000         # end of component reserved bank
@@ -105,6 +93,15 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from shared.french_charset import BASIC_FRENCH_CHARS, glyph_bytes, profile_mapping, profile_threshold
 from shared.rom import validate_base_rom, update_checksum, expand_rom, ROM_SIZE_OFFSET
 from shared.ips import make_ips
+from shared.interface_text import (
+    load_document as load_interface_text,
+    verify_against_rom as verify_interface_text,
+)
+from shared.menu_text import (
+    load_document as load_menu_text,
+    verify_against_rom as verify_menu_text,
+)
+from shared.translation_json import load_translation, require
 
 ACCENT_TO_SOM = profile_mapping("basic_french")
 ASCII_TO_SOM.update(ACCENT_TO_SOM)
@@ -117,10 +114,7 @@ ASCII_TO_SOM.update({
     "-": 0xC6, "%": 0xC7, "!": 0xC8, "&": 0xC9,
     "?": 0xCA, "(": 0xCB, ")": 0xCC, "#": 0xCD,
 })
-SOM_TO_ASCII = {v: k for k, v in ASCII_TO_SOM.items() if k != '"'}
-SOM_TO_ASCII[0xC3] = '"'
-SOM_TO_ASCII[0xC4] = '"'
-SOM_TO_ASCII.update({v: k for k, v in ACCENT_TO_SOM.items()})
+
 
 
 # Stock US 8x12 font. Character $80 begins at ROM $12DC00.
@@ -145,17 +139,6 @@ def load_accent_glyphs() -> bytes:
         raise SystemExit(str(exc)) from exc
 
 
-REQUIRED_IDS = [
-    "SELECT", "GAME_SELECT", "NEW_GAME", "GAME_FILE",
-    "WELCOME_1", "WELCOME_2", "WELCOME_3", "WELCOME_4",
-]
-
-GAME_FILE_REQUIRED_IDS = [
-    "FILE_SELECT", "FILE_LABEL", "EMPTY",
-    "SAVE_POINT", "MONEY", "GP", "COUNTER", "MANA_POWER",
-    "SAVE_HELP_1", "SAVE_HELP_2",
-]
-
 
 
 def encode_text(text: str, context: str) -> bytes:
@@ -177,32 +160,73 @@ def encode_text(text: str, context: str) -> bytes:
     return bytes(out)
 
 
-def decode_text(data: bytes) -> str:
-    chars = []
-    for b in data:
-        if b not in SOM_TO_ASCII:
-            raise ValueError(f"Unsupported stock text byte ${b:02X}")
-        chars.append(SOM_TO_ASCII[b])
-    return "".join(chars)
+
+GAME_SELECT_IDS = {
+    "SELECT": "C7:7314",
+    "GAME_SELECT": "C7:731C",
+    "NEW_GAME": "C7:732A",
+    "GAME_FILE": "C7:7334",
+}
+WELCOME_IDS = {
+    "WELCOME_1": "C0:33F0",
+    "WELCOME_2": "C0:340C",
+    "WELCOME_3": "C0:343B",
+    "WELCOME_4": "C0:3472",
+}
+GAME_FILE_IDS = {
+    "FILE_SELECT": "C7:7341",
+    "FILE_LABEL": "C7:7349",
+    "SAVE_POINT": "C7:7350",
+    "MONEY": "C7:7374",
+    "GP": "C7:7394",
+    "COUNTER": "C7:7398",
+    "MANA_POWER": "C7:73AA",
+    "EMPTY": "C7:7805",
+    "LEVEL_PREFIX_A": "C7:53C9",
+    "LEVEL_PREFIX_B": "C7:5AF1",
+}
+SAVE_HELP_IDS = {
+    "SAVE_HELP_1": "C0:348D",
+    "SAVE_HELP_2": "C0:34BE",
+}
 
 
-def read_csv(path: Path, required_ids: list[str] = REQUIRED_IDS) -> dict[str, str]:
-    with path.open("r", encoding="utf-8-sig", newline="") as fh:
-        rows = list(csv.DictReader(fh))
-    if not rows or "id" not in rows[0] or "text" not in rows[0]:
-        raise SystemExit(f"{path.name} must contain columns: id,text")
-    result: dict[str, str] = {}
-    for row in rows:
-        key = (row.get("id") or "").strip()
-        if not key:
-            continue
-        if key in result:
-            raise SystemExit(f"Duplicate id {key!r} in {path.name}")
-        result[key] = row.get("text") or ""
-    missing = [key for key in required_ids if key not in result]
-    if missing:
-        raise SystemExit("Missing CSV id(s): " + ", ".join(missing))
-    return result
+def load_french_rows(base: bytes) -> tuple[dict[str, str], dict[str, str]]:
+    interface = load_interface_text(PROJECT_ROOT / "assets" / "interface_text.json")
+    menu = load_menu_text(PROJECT_ROOT / "assets" / "menu_text.json")
+    try:
+        verify_interface_text(base, interface)
+        verify_menu_text(base, menu)
+        interface_fr = load_translation(
+            PROJECT_ROOT / "translations" / "interface_text_french.json",
+            interface,
+            source_asset="interface_text.json",
+        )
+        menu_fr = load_translation(
+            PROJECT_ROOT / "translations" / "menu_text_french.json",
+            menu,
+            source_asset="menu_text.json",
+        )
+
+        rows = {
+            name: require(menu_fr, [text_id], context="GAME SELECT")[0]
+            for name, text_id in GAME_SELECT_IDS.items()
+        }
+        rows.update({
+            name: require(interface_fr, [text_id], context="GAME SELECT welcome")[0]
+            for name, text_id in WELCOME_IDS.items()
+        })
+        game_file_rows = {
+            name: require(menu_fr, [text_id], context="GAME FILE")[0]
+            for name, text_id in GAME_FILE_IDS.items()
+        }
+        game_file_rows.update({
+            name: require(interface_fr, [text_id], context="GAME FILE save help")[0]
+            for name, text_id in SAVE_HELP_IDS.items()
+        })
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
+    return rows, game_file_rows
 
 
 def _min_even_width(text: str, context: str) -> tuple[bytes, int]:
@@ -287,26 +311,6 @@ def build_welcome(rows: dict[str, str]) -> bytes:
 
 
 
-def extract_game_file_rows(rom: bytes) -> dict[str, str]:
-    rows: dict[str, str] = {}
-    for key, (offset, capacity) in GAME_FILE_RESOURCE_FIELDS.items():
-        rows[key] = decode_text(rom[offset:offset + capacity]).rstrip(" ")
-    rows["FILE_LABEL"] = decode_text(rom[0x077349:0x07734D])
-    for key, (offset, capacity) in GAME_FILE_EXTERNAL_FIELDS.items():
-        rows[key] = decode_text(rom[offset:offset + capacity]).rstrip(" ")
-
-    ptr = int.from_bytes(rom[SAVE_HELP_POINTER_OFFSET:SAVE_HELP_POINTER_OFFSET + 3], "little")
-    if ptr != SAVE_HELP_STOCK_PTR:
-        raise SystemExit(f"Unexpected stock save-help pointer: ${ptr:06X}")
-    end = rom.index(0x00, SAVE_HELP_STOCK_OFFSET)
-    raw = rom[SAVE_HELP_STOCK_OFFSET:end]
-    parts = raw.split(b"\x7F")
-    visible = [decode_text(part) for part in parts if part]
-    if len(visible) != 2:
-        raise SystemExit(f"Expected 2 visible save-help lines, found {len(visible)}")
-    rows["SAVE_HELP_1"], rows["SAVE_HELP_2"] = visible
-    return rows
-
 
 def build_save_help(rows: dict[str, str]) -> bytes:
     line1 = encode_text(rows["SAVE_HELP_1"], "SAVE_HELP_1")
@@ -317,7 +321,7 @@ def build_save_help(rows: dict[str, str]) -> bytes:
 def build_game_file_resource(base: bytes, rows: dict[str, str]) -> bytes:
     """Relocate the native C7:7340 save/load-menu resource and expand FILE_LABEL.
 
-    The resource is otherwise kept byte-for-byte stock except for CSV-backed
+    The resource is otherwise kept byte-for-byte stock except for translation-backed
     fields.  The stock FILE segment is `FILE`, one blank cell and `$00`; its
     replacement keeps the same trailing blank + terminator convention, so the
     parser sees the same structure with a longer label.
@@ -368,16 +372,17 @@ def apply_game_file_sources(base: bytes, rom: bytearray, rows: dict[str, str]) -
         )
     rom[GAME_FILE_FILE_FRAME_WIDTH_OFFSET] = GAME_FILE_FILE_FRAME_NEW_WIDTH
 
-    # Translate the dynamic level prefix L -> N (Niveau) in both GAME FILE
-    # rendering paths. This is deliberately kept as a single-cell substitution
-    # so it cannot affect the validated slot-row geometry.
-    for offset in GAME_FILE_LEVEL_LABEL_OFFSETS:
+    # Translate the dynamic level prefix in both direct-rendering paths.
+    for key, offset in zip(("LEVEL_PREFIX_A", "LEVEL_PREFIX_B"), GAME_FILE_LEVEL_LABEL_OFFSETS, strict=True):
         if base[offset] != GAME_FILE_LEVEL_LABEL_STOCK:
             raise SystemExit(
                 f"Unexpected stock GAME FILE level label at ${offset:06X}: "
                 f"${base[offset]:02X}"
             )
-        rom[offset] = GAME_FILE_LEVEL_LABEL_NEW
+        payload = encode_text(rows[key], key)
+        if len(payload) != 1:
+            raise SystemExit(f"{key} must remain exactly one encoded cell")
+        rom[offset] = payload[0]
 
     for pointer_offset in GAME_FILE_POINTER_OFFSETS:
         stock_ptr = int.from_bytes(base[pointer_offset:pointer_offset + 2], "little")
@@ -389,7 +394,7 @@ def apply_game_file_sources(base: bytes, rom: bytearray, rows: dict[str, str]) -
 
     # Runtime validation showed that redirecting the two table pointers is not
     # sufficient: another GAME FILE path still reads these labels from their
-    # original C7:7340 locations.  Mirror the CSV-backed values in place while
+    # original C7:7340 locations.  Mirror the translation-backed values in place while
     # preserving every stock field boundary.
     for key, (offset, capacity) in GAME_FILE_RESOURCE_FIELDS.items():
         payload = encode_text(rows[key], key)
@@ -437,7 +442,7 @@ def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, s
     rom[glyph_start:glyph_start + len(glyph_blob)] = glyph_blob
 
     # Relocate the label resource and derive all three frame widths directly
-    # from the CSV text so field segmentation and window geometry stay aligned.
+    # from the translated text so field segmentation and window geometry stay aligned.
     menu_resource, frame_widths = build_menu_resource(rows)
     if MENU_RESOURCE_RELOC_OFFSET + len(menu_resource) > 0x075000:
         raise SystemExit("Relocated GAME SELECT resource exceeded reserved C7:4400-C7:4FFF")
@@ -470,49 +475,9 @@ def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, s
 
 
 
-def pointer_to_rom(ptr: int) -> int:
-    bank = (ptr >> 16) & 0xFF
-    addr = ptr & 0xFFFF
-    if not 0xC0 <= bank <= 0xEF:
-        raise ValueError(f"Pointer ${ptr:06X} is outside expected HiROM banks")
-    return ((bank - 0xC0) << 16) | addr
-
-
-def extract_rows(rom: bytes) -> dict[str, str]:
-    rows: dict[str, str] = {}
-    for key, (offset, content_capacity) in STOCK_LABEL_FIELDS.items():
-        raw = rom[offset:offset + content_capacity]
-        rows[key] = decode_text(raw).rstrip(" ")
-
-    ptr = int.from_bytes(rom[WELCOME_POINTER_OFFSET:WELCOME_POINTER_OFFSET + 3], "little")
-    start = pointer_to_rom(ptr)
-    end = rom.index(0x00, start)
-    raw = rom[start:end]
-    # $7F is the stock line-control code. Empty segments are layout spacing.
-    parts = raw.split(b"\x7F")
-    visible = [decode_text(part) for part in parts if part]
-    if len(visible) != 4:
-        raise SystemExit(f"Expected 4 visible WELCOME lines, found {len(visible)} at ${ptr:06X}")
-    for i, text in enumerate(visible, 1):
-        rows[f"WELCOME_{i}"] = text
-    return rows
-
-
-def write_csv(path: Path, rows: dict[str, str], required_ids: list[str] = REQUIRED_IDS) -> None:
-    with path.open("w", encoding="utf-8", newline="") as fh:
-        writer = csv.writer(fh)
-        writer.writerow(["id", "text"])
-        for key in required_ids:
-            writer.writerow([key, rows[key]])
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description="Build the Secret of Mana (USA) French GAME SELECT component")
     parser.add_argument("rom", type=Path, help="clean unheadered Secret of Mana (USA) ROM")
-    parser.add_argument("--csv", type=Path, default=ROOT / "assets" / "game_select_text.csv")
-    parser.add_argument("--game-file-csv", type=Path, default=ROOT / "assets" / "game_file_text.csv")
-    parser.add_argument("--extract", type=Path, metavar="CSV", help="extract the stock GAME SELECT texts to CSV and exit")
-    parser.add_argument("--extract-game-file", type=Path, metavar="CSV", help="extract stock GAME FILE/save-menu texts to CSV and exit")
     parser.add_argument("-o", "--output", type=Path, default=Path("build/patch.ips"), help="output IPS")
     parser.add_argument("--patched-rom", type=Path, help="optional output ROM for local testing")
     args = parser.parse_args()
@@ -520,21 +485,7 @@ def main() -> None:
     base = args.rom.read_bytes()
     validate_base_rom(base)
 
-    if args.extract:
-        rows = extract_rows(base)
-        args.extract.parent.mkdir(parents=True, exist_ok=True)
-        write_csv(args.extract, rows)
-        print(f"Extracted: {args.extract}")
-        return
-    if args.extract_game_file:
-        rows = extract_game_file_rows(base)
-        args.extract_game_file.parent.mkdir(parents=True, exist_ok=True)
-        write_csv(args.extract_game_file, rows, GAME_FILE_REQUIRED_IDS)
-        print(f"Extracted: {args.extract_game_file}")
-        return
-
-    rows = read_csv(args.csv)
-    game_file_rows = read_csv(args.game_file_csv, GAME_FILE_REQUIRED_IDS)
+    rows, game_file_rows = load_french_rows(base)
     patched, checksum = apply_sources(base, rows, game_file_rows)
     patch = make_ips(base, bytes(patched))
 

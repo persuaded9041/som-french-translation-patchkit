@@ -6,7 +6,7 @@ This project was developed with assistance from ChatGPT by OpenAI for code revie
 documentation, reverse-engineering analysis, and implementation support.
 
 Every component targets the same clean, unheadered USA ROM and can be
-built alone. `build.py` can rebuild only the components currently being worked
+rebuilt independently within the repository. `build.py` can rebuild only the components currently being worked
 on, stores their standalone IPS files under `patches/`, and can combine those
 reusable patches into `patches/all.ips` without rebuilding unchanged components.
 
@@ -25,17 +25,70 @@ The ROM itself is deliberately not included.
 3. `03_game_select` - French GAME SELECT and GAME FILE text pipeline, dynamic frame widths and French accented glyphs.
 4. `04_french_opening` - French startup credits/opening text.
 5. `05_intro_vwf_french` - French new-game introduction with VWF, private DTE and accented glyphs.
-6. `06_dialogue_vwf` - runtime-validated variable-width renderer for stock event dialogue in banks `$C9/$CA`, gated by the event-engine renderer caller so menus remain fixed-width.
+6. `06_dialogue_vwf` - runtime-validated variable-width renderer for stock `$C9/$CA` event dialogue and component-08 relocated `$E8-$EC` events under the same caller gate.
 7. `07_intro_skip` - hold R for about two seconds during the introduction to skip directly to the waterfall scene.
+8. `08_dialogue_text` - deterministic source/translation reinsertion for all stock text-bearing event scripts except intro `$0400`, with in-place rebuilds and deterministic expanded-ROM relocation for growth.
 
 Component metadata lives in `components/*/component.json`. The aggregate builder
 discovers components from these manifests; adding a component does not require a
 hard-coded component list in the root scripts.
 
 Standalone component IPS files may be kept in `patches/` as reusable build
-snapshots. Each `build_patch.py` can still reconstruct its patch from the clean
-USA ROM plus the component's editable sources/assets. The aggregate builder
+snapshots. Each `build_patch.py` can reconstruct its patch from the clean USA ROM plus
+the repository's canonical root text/translation assets and any component-local
+non-text assets it owns. The aggregate builder
 never needs to rebuild an unchanged component when its stored IPS is available.
+
+## Canonical text assets
+
+ROM-derived text sources live at the repository root instead of being
+re-discovered independently by each component. The clean-USA inventory is split
+by stock storage/rendering mechanism:
+
+- `assets/dialogues.json` - the 713 text-bearing event scripts owned by component 08;
+- `assets/intro_event.json` - the eight stock text parts from event `$0400`, kept
+  separate because component 05 owns that event;
+- `assets/text_resources.json` - all 513 non-event `$CA` text resources;
+- `assets/interface_text.json` - 27 help/status rows from the nine-entry
+  `$C0:33B5` 24-bit interface pointer-table family;
+- `assets/menu_text.json` - 66 logical native `$C7` menu/status source elements;
+- `assets/battle_text.json` - the complete 109-record `$C0` battle-message pool;
+- `assets/shop_text.json` - nine `$D9` shop/forge response mini-event strings;
+- `assets/opening_text.json` - user-visible strings from the compressed startup/title arrangement.
+
+Regenerate the complete inventory deterministically from the clean USA ROM with:
+
+```bash
+python3 tools/extract_text.py "Secret of Mana (USA).sfc"
+```
+
+Or regenerate one family with `--only dialogues|resources|interface|menu|battle|shop|opening|intro`.
+Verify all source/no-op round-trips and parse every event script with:
+
+```bash
+python3 tools/check_text_roundtrip.py "Secret of Mana (USA).sfc" --scan-all-events
+```
+
+Audit that components have not reintroduced CSV/BIN prose sources or parallel translation paths:
+
+```bash
+python3 tools/check_text_source_hygiene.py
+```
+
+All files under `assets/` are now **clean-ROM source only**. Every translatable
+source element carries a globally unique position-based ID. Ordinary data uses
+its SNES address (`C0:33F0`, `CA:98E1`, ...); compressed opening text uses the
+container address plus decompressed offset (`C7:B480+09F9`).
+
+French text lives separately under `translations/` in sparse `*_french.json`
+files. The validated translations formerly stored in component CSV/BIN inputs
+for components 02-05 have been migrated there, and component 08 is ready to use
+`translations/dialogues_french.json` when dialogue translation begins.
+
+See `docs/TEXT_INVENTORY.md` for coverage, `docs/TRANSLATIONS.md` for the source/translation
+model and ID scheme, `docs/TEXT_COMPONENT_AUDIT.md` for component ownership and
+legacy-source cleanup, and `docs/TEXT_RESEARCH_NOTES.md` for the reverse-engineering
+trail behind the inventory.
 
 ## Shared code and charset
 
@@ -59,11 +112,12 @@ shared stock-font row load + framing + compositor helper used by both VWF paths;
 `shared/vwf_row_renderer.asm` is its readable reference. `shared/vwf_outline.py`
 owns the common stock-outline `ROL -> ASL` preparation installed by both VWF
 components; `shared/vwf_outline.asm` documents that one-byte fix.
-`shared/components.py` discovers component
+`shared/translation_json.py` binds sparse language files to canonical source IDs.
+`shared/text_ids.py` defines the position-based source-ID scheme. `shared/components.py` discovers component
 manifests and `shared/compatibility.py` owns cross-component merge rules.
 
 `shared/french_charset/` is the canonical source for French direct-glyph codes
-and artwork. Name Entry, GAME SELECT, intro VWF and dialogue VWF consume this definition while
+and artwork. Name Entry, GAME SELECT, intro VWF, dialogue VWF and dialogue text rendering consume this definition while
 each standalone IPS still writes the bytes required for independent operation.
 See `docs/SHARED_CHARSET.md`.
 
@@ -153,9 +207,9 @@ Allowed overlaps are:
 - the shared French direct-glyph threshold at ROM `0x0016F6`.
 
 Name Entry and GAME SELECT declare the `basic_french` profile (`$E1` threshold);
-intro VWF and dialogue VWF declare `full_french` (`$E6`). Thresholds belong to the profiles in
+intro VWF, dialogue VWF and translated dialogue data declare `full_french` (`$E6`). Thresholds belong to the profiles in
 `shared/french_charset/charset.json`, and the aggregate builder selects the
 highest one required by the chosen components. Any other differing functional
 overlap aborts the build.
 
-See `docs/COMPATIBILITY.md` and `docs/MEMORY_MAP.md`. Component-specific renderer notes stay under each component; for dialogue VWF start with `components/06_dialogue_vwf/README.md`.
+See `docs/COMPATIBILITY.md` and `docs/MEMORY_MAP.md`. Component-specific renderer notes stay under each component; for dialogue VWF start with `components/06_dialogue_vwf/README.md`. The stock event/dialogue format notes are in `docs/DIALOGUE_FORMAT.md`; the 513 non-event resources are documented in `docs/TEXT_RESOURCES.md`. The repository-wide text map is `docs/TEXT_INVENTORY.md`, with family details in `docs/INTERFACE_TEXT.md`, `docs/MENU_TEXT.md`, `docs/BATTLE_TEXT.md` and `docs/OPENING_TEXT.md`. Component-08 build details remain in `components/08_dialogue_text/README.md`.

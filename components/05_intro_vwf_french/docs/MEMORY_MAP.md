@@ -24,7 +24,7 @@ All hooks fall back to stock behavior outside translated intro event `$0400`.
 | `0x074440-0x0744BF` | `$C7:4440-$44BF` | 128-byte VWF advance table |
 | `0x0744C0-0x074557` | `$C7:44C0-$4557` | shared 152-byte runtime framing selector bundle |
 | `0x074560-0x07456C` | `$C7:4560-$456C` | shared stock-font row load + framing + compositor helper |
-| `0x074AC0-0x074B33` | `$C7:4AC0-$4B33` | shared caller-gated private-buffer initializer |
+| `0x074AC0-0x074B3B` | `$C7:4AC0-$4B3B` | shared caller-gated private-buffer initializer |
 | `0x074B40-0x074B5A` | `$C7:4B40-$4B5A` | shared previous-character source helper |
 | `0x074BC0-0x074BE9` | `$C7:4BC0-$4BE9` | shared intro/dialogue/stock capacity helper |
 | `0x074C40-0x074C6B` | `$C7:4C40-$4C6B` | intro DTE-loader helper |

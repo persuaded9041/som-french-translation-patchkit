@@ -1,0 +1,3085 @@
+{
+  "format_version": 2,
+  "description": "Canonical non-event CA text resources. Translation text lives separately under translations/; pointers and exact source bytes are derived from the clean USA ROM.",
+  "source_rom_sha256": "4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f",
+  "resources": [
+    {
+      "id": "CA:98E1",
+      "resource_id": "000",
+      "category": "magic_name",
+      "source": "EARTH SLIDE"
+    },
+    {
+      "id": "CA:98ED",
+      "resource_id": "001",
+      "category": "magic_name",
+      "source": "GEM MISSILE"
+    },
+    {
+      "id": "CA:98F9",
+      "resource_id": "002",
+      "category": "magic_name",
+      "source": "SPEED DOWN"
+    },
+    {
+      "id": "CA:9904",
+      "resource_id": "003",
+      "category": "magic_name",
+      "source": "STONE SABER"
+    },
+    {
+      "id": "CA:9910",
+      "resource_id": "004",
+      "category": "magic_name",
+      "source": "SPEED UP"
+    },
+    {
+      "id": "CA:9919",
+      "resource_id": "005",
+      "category": "magic_name",
+      "source": "DEFENDER"
+    },
+    {
+      "id": "CA:9922",
+      "resource_id": "006",
+      "category": "magic_name",
+      "source": "FREEZE"
+    },
+    {
+      "id": "CA:9929",
+      "resource_id": "007",
+      "category": "magic_name",
+      "source": "ACID STORM"
+    },
+    {
+      "id": "CA:9934",
+      "resource_id": "008",
+      "category": "magic_name",
+      "source": "ENERGY ABSORB"
+    },
+    {
+      "id": "CA:9942",
+      "resource_id": "009",
+      "category": "magic_name",
+      "source": "ICE SABER"
+    },
+    {
+      "id": "CA:994C",
+      "resource_id": "00A",
+      "category": "magic_name",
+      "source": "REMEDY"
+    },
+    {
+      "id": "CA:9953",
+      "resource_id": "00B",
+      "category": "magic_name",
+      "source": "CURE WATER"
+    },
+    {
+      "id": "CA:995E",
+      "resource_id": "00C",
+      "category": "magic_name",
+      "source": "FIREBALL"
+    },
+    {
+      "id": "CA:9967",
+      "resource_id": "00D",
+      "category": "magic_name",
+      "source": "EXPLODER"
+    },
+    {
+      "id": "CA:9970",
+      "resource_id": "00E",
+      "category": "magic_name",
+      "source": "LAVA WAVE"
+    },
+    {
+      "id": "CA:997A",
+      "resource_id": "00F",
+      "category": "magic_name",
+      "source": "FLAME SABER"
+    },
+    {
+      "id": "CA:9986",
+      "resource_id": "010",
+      "category": "magic_name",
+      "source": "FIRE BOUQUET"
+    },
+    {
+      "id": "CA:9993",
+      "resource_id": "011",
+      "category": "magic_name",
+      "source": "BLAZE WALL"
+    },
+    {
+      "id": "CA:999E",
+      "resource_id": "012",
+      "category": "magic_name",
+      "source": "AIR BLAST"
+    },
+    {
+      "id": "CA:99A8",
+      "resource_id": "013",
+      "category": "magic_name",
+      "source": "THUNDERBOLT"
+    },
+    {
+      "id": "CA:99B4",
+      "resource_id": "014",
+      "category": "magic_name",
+      "source": "SILENCE"
+    },
+    {
+      "id": "CA:99BC",
+      "resource_id": "015",
+      "category": "magic_name",
+      "source": "THUNDER SABER"
+    },
+    {
+      "id": "CA:99CA",
+      "resource_id": "016",
+      "category": "magic_name",
+      "source": "BALLOON"
+    },
+    {
+      "id": "CA:99D2",
+      "resource_id": "017",
+      "category": "magic_name",
+      "source": "ANALYZER"
+    },
+    {
+      "id": "CA:99DB",
+      "resource_id": "018",
+      "category": "magic_name",
+      "source": "CHANGE FORM"
+    },
+    {
+      "id": "CA:99E7",
+      "resource_id": "019",
+      "category": "magic_name",
+      "source": "MAGIC ABSORB"
+    },
+    {
+      "id": "CA:99F4",
+      "resource_id": "01A",
+      "category": "magic_name",
+      "source": "LUNAR MAGIC"
+    },
+    {
+      "id": "CA:9A00",
+      "resource_id": "01B",
+      "category": "magic_name",
+      "source": "MOON SABER"
+    },
+    {
+      "id": "CA:9A0B",
+      "resource_id": "01C",
+      "category": "magic_name",
+      "source": "LUNAR BOOST"
+    },
+    {
+      "id": "CA:9A17",
+      "resource_id": "01D",
+      "category": "magic_name",
+      "source": "MOON ENERGY"
+    },
+    {
+      "id": "CA:9A23",
+      "resource_id": "01E",
+      "category": "magic_name",
+      "source": "SLEEP FLOWER"
+    },
+    {
+      "id": "CA:9A30",
+      "resource_id": "01F",
+      "category": "magic_name",
+      "source": "BURST"
+    },
+    {
+      "id": "CA:9A36",
+      "resource_id": "020",
+      "category": "magic_name",
+      "source": "MANA MAGIC"
+    },
+    {
+      "id": "CA:9A41",
+      "resource_id": "021",
+      "category": "magic_name",
+      "source": "REVIVIFIER"
+    },
+    {
+      "id": "CA:9A4C",
+      "resource_id": "022",
+      "category": "magic_name",
+      "source": "WALL"
+    },
+    {
+      "id": "CA:9A51",
+      "resource_id": "023",
+      "category": "magic_name",
+      "source": "MANA MAGIC"
+    },
+    {
+      "id": "CA:9A5C",
+      "resource_id": "024",
+      "category": "magic_name",
+      "source": "EVIL GATE"
+    },
+    {
+      "id": "CA:9A66",
+      "resource_id": "025",
+      "category": "magic_name",
+      "source": "DARK FORCE"
+    },
+    {
+      "id": "CA:9A71",
+      "resource_id": "026",
+      "category": "magic_name",
+      "source": "DISPEL MAGIC"
+    },
+    {
+      "id": "CA:9A7E",
+      "resource_id": "027",
+      "category": "magic_name",
+      "source": "LIGHT SABER"
+    },
+    {
+      "id": "CA:9A8A",
+      "resource_id": "028",
+      "category": "magic_name",
+      "source": "LUCENT BEAM"
+    },
+    {
+      "id": "CA:9A96",
+      "resource_id": "029",
+      "category": "magic_name",
+      "source": "LUCID BARRIER"
+    },
+    {
+      "id": "CA:9AA4",
+      "resource_id": "02A",
+      "category": "mana_spirit_name",
+      "source": "GNOME"
+    },
+    {
+      "id": "CA:9AAA",
+      "resource_id": "02B",
+      "category": "mana_spirit_name",
+      "source": "UNDINE"
+    },
+    {
+      "id": "CA:9AB1",
+      "resource_id": "02C",
+      "category": "mana_spirit_name",
+      "source": "SALAMANDO"
+    },
+    {
+      "id": "CA:9ABB",
+      "resource_id": "02D",
+      "category": "mana_spirit_name",
+      "source": "SYLPHID"
+    },
+    {
+      "id": "CA:9AC3",
+      "resource_id": "02E",
+      "category": "mana_spirit_name",
+      "source": "LUNA"
+    },
+    {
+      "id": "CA:9AC8",
+      "resource_id": "02F",
+      "category": "mana_spirit_name",
+      "source": "DRYAD"
+    },
+    {
+      "id": "CA:9ACE",
+      "resource_id": "030",
+      "category": "mana_spirit_name",
+      "source": "SHADE"
+    },
+    {
+      "id": "CA:9AD4",
+      "resource_id": "031",
+      "category": "mana_spirit_name",
+      "source": "LUMINA"
+    },
+    {
+      "id": "CA:9ADB",
+      "resource_id": "032",
+      "category": "weapon_name",
+      "source": "SPIKE KNUCKLE"
+    },
+    {
+      "id": "CA:9AE9",
+      "resource_id": "033",
+      "category": "weapon_name",
+      "source": "POWER GLOVE"
+    },
+    {
+      "id": "CA:9AF5",
+      "resource_id": "034",
+      "category": "weapon_name",
+      "source": "MOOGLE CLAWS"
+    },
+    {
+      "id": "CA:9B02",
+      "resource_id": "035",
+      "category": "weapon_name",
+      "source": "CHAKRA HAND"
+    },
+    {
+      "id": "CA:9B0E",
+      "resource_id": "036",
+      "category": "weapon_name",
+      "source": "HEAVY GLOVE"
+    },
+    {
+      "id": "CA:9B1A",
+      "resource_id": "037",
+      "category": "weapon_name",
+      "source": "HYPER-FIST"
+    },
+    {
+      "id": "CA:9B25",
+      "resource_id": "038",
+      "category": "weapon_name",
+      "source": "GRIFFIN CLAWS"
+    },
+    {
+      "id": "CA:9B33",
+      "resource_id": "039",
+      "category": "weapon_name",
+      "source": "DRAGON CLAWS"
+    },
+    {
+      "id": "CA:9B40",
+      "resource_id": "03A",
+      "category": "weapon_name",
+      "source": "AURA GLOVE"
+    },
+    {
+      "id": "CA:9B4B",
+      "resource_id": "03B",
+      "category": "weapon_name",
+      "source": "RUSTY SWORD"
+    },
+    {
+      "id": "CA:9B57",
+      "resource_id": "03C",
+      "category": "weapon_name",
+      "source": "BROAD SWORD"
+    },
+    {
+      "id": "CA:9B63",
+      "resource_id": "03D",
+      "category": "weapon_name",
+      "source": "HERALD SWORD"
+    },
+    {
+      "id": "CA:9B70",
+      "resource_id": "03E",
+      "category": "weapon_name",
+      "source": "CLAYMORE"
+    },
+    {
+      "id": "CA:9B79",
+      "resource_id": "03F",
+      "category": "weapon_name",
+      "source": "EXCALIBUR"
+    },
+    {
+      "id": "CA:9B83",
+      "resource_id": "040",
+      "category": "weapon_name",
+      "source": "MASAMUNE"
+    },
+    {
+      "id": "CA:9B8C",
+      "resource_id": "041",
+      "category": "weapon_name",
+      "source": "GIGAS SWORD"
+    },
+    {
+      "id": "CA:9B98",
+      "resource_id": "042",
+      "category": "weapon_name",
+      "source": "DRAGON BUSTER"
+    },
+    {
+      "id": "CA:9BA6",
+      "resource_id": "043",
+      "category": "weapon_name",
+      "source": "MANA SWORD"
+    },
+    {
+      "id": "CA:9BB1",
+      "resource_id": "044",
+      "category": "weapon_name",
+      "source": "WATT'S AXE"
+    },
+    {
+      "id": "CA:9BBC",
+      "resource_id": "045",
+      "category": "weapon_name",
+      "source": "LODE AXE"
+    },
+    {
+      "id": "CA:9BC5",
+      "resource_id": "046",
+      "category": "weapon_name",
+      "source": "STOUT AXE"
+    },
+    {
+      "id": "CA:9BCF",
+      "resource_id": "047",
+      "category": "weapon_name",
+      "source": "BATTLE AXE"
+    },
+    {
+      "id": "CA:9BDA",
+      "resource_id": "048",
+      "category": "weapon_name",
+      "source": "GOLDEN AXE"
+    },
+    {
+      "id": "CA:9BE5",
+      "resource_id": "049",
+      "category": "weapon_name",
+      "source": "WERE-BUSTER"
+    },
+    {
+      "id": "CA:9BF1",
+      "resource_id": "04A",
+      "category": "weapon_name",
+      "source": "GREAT AXE"
+    },
+    {
+      "id": "CA:9BFB",
+      "resource_id": "04B",
+      "category": "weapon_name",
+      "source": "GIGAS AXE"
+    },
+    {
+      "id": "CA:9C05",
+      "resource_id": "04C",
+      "category": "weapon_name",
+      "source": "DOOM AXE"
+    },
+    {
+      "id": "CA:9C0E",
+      "resource_id": "04D",
+      "category": "weapon_name",
+      "source": "SPEAR"
+    },
+    {
+      "id": "CA:9C14",
+      "resource_id": "04E",
+      "category": "weapon_name",
+      "source": "HEAVY SPEAR"
+    },
+    {
+      "id": "CA:9C20",
+      "resource_id": "04F",
+      "category": "weapon_name",
+      "source": "SPRITE'S SPEAR"
+    },
+    {
+      "id": "CA:9C2F",
+      "resource_id": "050",
+      "category": "weapon_name",
+      "source": "PARTISAN"
+    },
+    {
+      "id": "CA:9C38",
+      "resource_id": "051",
+      "category": "weapon_name",
+      "source": "HALBERD"
+    },
+    {
+      "id": "CA:9C40",
+      "resource_id": "052",
+      "category": "weapon_name",
+      "source": "OCEANID SPEAR"
+    },
+    {
+      "id": "CA:9C4E",
+      "resource_id": "053",
+      "category": "weapon_name",
+      "source": "GIGAS LANCE"
+    },
+    {
+      "id": "CA:9C5A",
+      "resource_id": "054",
+      "category": "weapon_name",
+      "source": "DRAGON LANCE"
+    },
+    {
+      "id": "CA:9C67",
+      "resource_id": "055",
+      "category": "weapon_name",
+      "source": "DAEDALUS LANCE"
+    },
+    {
+      "id": "CA:9C76",
+      "resource_id": "056",
+      "category": "weapon_name",
+      "source": "WHIP"
+    },
+    {
+      "id": "CA:9C7B",
+      "resource_id": "057",
+      "category": "weapon_name",
+      "source": "BLACK WHIP"
+    },
+    {
+      "id": "CA:9C86",
+      "resource_id": "058",
+      "category": "weapon_name",
+      "source": "BACKHAND WHIP"
+    },
+    {
+      "id": "CA:9C94",
+      "resource_id": "059",
+      "category": "weapon_name",
+      "source": "CHAIN WHIP"
+    },
+    {
+      "id": "CA:9C9F",
+      "resource_id": "05A",
+      "category": "weapon_name",
+      "source": "FLAIL OF HOPE"
+    },
+    {
+      "id": "CA:9CAD",
+      "resource_id": "05B",
+      "category": "weapon_name",
+      "source": "MORNING STAR"
+    },
+    {
+      "id": "CA:9CBA",
+      "resource_id": "05C",
+      "category": "weapon_name",
+      "source": "HAMMER FLAIL"
+    },
+    {
+      "id": "CA:9CC7",
+      "resource_id": "05D",
+      "category": "weapon_name",
+      "source": "NIMBUS CHAIN"
+    },
+    {
+      "id": "CA:9CD4",
+      "resource_id": "05E",
+      "category": "weapon_name",
+      "source": "GIGAS FLAIL"
+    },
+    {
+      "id": "CA:9CE0",
+      "resource_id": "05F",
+      "category": "weapon_name",
+      "source": "CHOBIN'S BOW"
+    },
+    {
+      "id": "CA:9CED",
+      "resource_id": "060",
+      "category": "weapon_name",
+      "source": "SHORT BOW"
+    },
+    {
+      "id": "CA:9CF7",
+      "resource_id": "061",
+      "category": "weapon_name",
+      "source": "LONG BOW"
+    },
+    {
+      "id": "CA:9D00",
+      "resource_id": "062",
+      "category": "weapon_name",
+      "source": "GREAT BOW"
+    },
+    {
+      "id": "CA:9D0A",
+      "resource_id": "063",
+      "category": "weapon_name",
+      "source": "BOW OF HOPE"
+    },
+    {
+      "id": "CA:9D16",
+      "resource_id": "064",
+      "category": "weapon_name",
+      "source": "ELFIN BOW"
+    },
+    {
+      "id": "CA:9D20",
+      "resource_id": "065",
+      "category": "weapon_name",
+      "source": "WING BOW"
+    },
+    {
+      "id": "CA:9D29",
+      "resource_id": "066",
+      "category": "weapon_name",
+      "source": "DOOM BOW"
+    },
+    {
+      "id": "CA:9D32",
+      "resource_id": "067",
+      "category": "weapon_name",
+      "source": "GARUDA BUSTER"
+    },
+    {
+      "id": "CA:9D40",
+      "resource_id": "068",
+      "category": "weapon_name",
+      "source": "BOOMERANG"
+    },
+    {
+      "id": "CA:9D4A",
+      "resource_id": "069",
+      "category": "weapon_name",
+      "source": "CHAKRAM"
+    },
+    {
+      "id": "CA:9D52",
+      "resource_id": "06A",
+      "category": "weapon_name",
+      "source": "LODE BOOMERANG"
+    },
+    {
+      "id": "CA:9D61",
+      "resource_id": "06B",
+      "category": "weapon_name",
+      "source": "RISING SUN"
+    },
+    {
+      "id": "CA:9D6C",
+      "resource_id": "06C",
+      "category": "weapon_name",
+      "source": "RED CLEAVER"
+    },
+    {
+      "id": "CA:9D78",
+      "resource_id": "06D",
+      "category": "weapon_name",
+      "source": "COBRA SHUTTLE"
+    },
+    {
+      "id": "CA:9D86",
+      "resource_id": "06E",
+      "category": "weapon_name",
+      "source": "FRIZBAR"
+    },
+    {
+      "id": "CA:9D8E",
+      "resource_id": "06F",
+      "category": "weapon_name",
+      "source": "SHURIKEN"
+    },
+    {
+      "id": "CA:9D97",
+      "resource_id": "070",
+      "category": "weapon_name",
+      "source": "NINJA'S TRUMP"
+    },
+    {
+      "id": "CA:9DA5",
+      "resource_id": "071",
+      "category": "weapon_name",
+      "source": "POLE DART"
+    },
+    {
+      "id": "CA:9DAF",
+      "resource_id": "072",
+      "category": "weapon_name",
+      "source": "JAVELIN"
+    },
+    {
+      "id": "CA:9DB7",
+      "resource_id": "073",
+      "category": "weapon_name",
+      "source": "LIGHT TRIDENT"
+    },
+    {
+      "id": "CA:9DC5",
+      "resource_id": "074",
+      "category": "weapon_name",
+      "source": "LODE JAVELIN"
+    },
+    {
+      "id": "CA:9DD2",
+      "resource_id": "075",
+      "category": "weapon_name",
+      "source": "FORK OF HOPE"
+    },
+    {
+      "id": "CA:9DDF",
+      "resource_id": "076",
+      "category": "weapon_name",
+      "source": "IMP'S FORK"
+    },
+    {
+      "id": "CA:9DEA",
+      "resource_id": "077",
+      "category": "weapon_name",
+      "source": "ELF'S HARPOON"
+    },
+    {
+      "id": "CA:9DF8",
+      "resource_id": "078",
+      "category": "weapon_name",
+      "source": "DRAGON DART"
+    },
+    {
+      "id": "CA:9E04",
+      "resource_id": "079",
+      "category": "weapon_name",
+      "source": "VALKYRIAN"
+    },
+    {
+      "id": "CA:9E0E",
+      "resource_id": "07A",
+      "category": "helmet_name",
+      "source": "Bare Head"
+    },
+    {
+      "id": "CA:9E18",
+      "resource_id": "07B",
+      "category": "helmet_name",
+      "source": "Bandanna"
+    },
+    {
+      "id": "CA:9E21",
+      "resource_id": "07C",
+      "category": "helmet_name",
+      "source": "Hair Ribbon"
+    },
+    {
+      "id": "CA:9E2D",
+      "resource_id": "07D",
+      "category": "helmet_name",
+      "source": "Rabite Cap"
+    },
+    {
+      "id": "CA:9E38",
+      "resource_id": "07E",
+      "category": "helmet_name",
+      "source": "Head Gear"
+    },
+    {
+      "id": "CA:9E42",
+      "resource_id": "07F",
+      "category": "helmet_name",
+      "source": "Quill Cap"
+    },
+    {
+      "id": "CA:9E4C",
+      "resource_id": "080",
+      "category": "helmet_name",
+      "source": "Steel Cap"
+    },
+    {
+      "id": "CA:9E56",
+      "resource_id": "081",
+      "category": "helmet_name",
+      "source": "Golden Tiara"
+    },
+    {
+      "id": "CA:9E63",
+      "resource_id": "082",
+      "category": "helmet_name",
+      "source": "Raccoon Cap"
+    },
+    {
+      "id": "CA:9E6F",
+      "resource_id": "083",
+      "category": "helmet_name",
+      "source": "Quilted Hood"
+    },
+    {
+      "id": "CA:9E7C",
+      "resource_id": "084",
+      "category": "helmet_name",
+      "source": "Tiger Cap"
+    },
+    {
+      "id": "CA:9E86",
+      "resource_id": "085",
+      "category": "helmet_name",
+      "source": "Circlet"
+    },
+    {
+      "id": "CA:9E8E",
+      "resource_id": "086",
+      "category": "helmet_name",
+      "source": "Ruby Armet"
+    },
+    {
+      "id": "CA:9E99",
+      "resource_id": "087",
+      "category": "helmet_name",
+      "source": "Unicorn Helm"
+    },
+    {
+      "id": "CA:9EA6",
+      "resource_id": "088",
+      "category": "helmet_name",
+      "source": "Dragon Helm"
+    },
+    {
+      "id": "CA:9EB2",
+      "resource_id": "089",
+      "category": "helmet_name",
+      "source": "Duck Helm"
+    },
+    {
+      "id": "CA:9EBC",
+      "resource_id": "08A",
+      "category": "helmet_name",
+      "source": "Needle Helm"
+    },
+    {
+      "id": "CA:9EC8",
+      "resource_id": "08B",
+      "category": "helmet_name",
+      "source": "Cockatrice Cap"
+    },
+    {
+      "id": "CA:9ED7",
+      "resource_id": "08C",
+      "category": "helmet_name",
+      "source": "Amulet Helm"
+    },
+    {
+      "id": "CA:9EE3",
+      "resource_id": "08D",
+      "category": "helmet_name",
+      "source": "Griffin Helm"
+    },
+    {
+      "id": "CA:9EF0",
+      "resource_id": "08E",
+      "category": "helmet_name",
+      "source": "Faerie Crown"
+    },
+    {
+      "id": "CA:9EFD",
+      "resource_id": "08F",
+      "category": "armor_name",
+      "source": "No"
+    },
+    {
+      "id": "CA:9F00",
+      "resource_id": "090",
+      "category": "armor_name",
+      "source": "Overalls"
+    },
+    {
+      "id": "CA:9F09",
+      "resource_id": "091",
+      "category": "armor_name",
+      "source": "Kung Fu Suit"
+    },
+    {
+      "id": "CA:9F16",
+      "resource_id": "092",
+      "category": "armor_name",
+      "source": "Midge Robe"
+    },
+    {
+      "id": "CA:9F21",
+      "resource_id": "093",
+      "category": "armor_name",
+      "source": "Chain Vest"
+    },
+    {
+      "id": "CA:9F2C",
+      "resource_id": "094",
+      "category": "armor_name",
+      "source": "Spiky Suit"
+    },
+    {
+      "id": "CA:9F37",
+      "resource_id": "095",
+      "category": "armor_name",
+      "source": "Kung Fu Dress"
+    },
+    {
+      "id": "CA:9F45",
+      "resource_id": "096",
+      "category": "armor_name",
+      "source": "Fancy Overalls"
+    },
+    {
+      "id": "CA:9F54",
+      "resource_id": "097",
+      "category": "armor_name",
+      "source": "Chest Guard"
+    },
+    {
+      "id": "CA:9F60",
+      "resource_id": "098",
+      "category": "armor_name",
+      "source": "Golden Vest"
+    },
+    {
+      "id": "CA:9F6C",
+      "resource_id": "099",
+      "category": "armor_name",
+      "source": "Ruby Vest"
+    },
+    {
+      "id": "CA:9F76",
+      "resource_id": "09A",
+      "category": "armor_name",
+      "source": "Tiger Suit"
+    },
+    {
+      "id": "CA:9F81",
+      "resource_id": "09B",
+      "category": "armor_name",
+      "source": "Tiger Bikini"
+    },
+    {
+      "id": "CA:9F8E",
+      "resource_id": "09C",
+      "category": "armor_name",
+      "source": "Magical Armor"
+    },
+    {
+      "id": "CA:9F9C",
+      "resource_id": "09D",
+      "category": "armor_name",
+      "source": "Tortoise Mail"
+    },
+    {
+      "id": "CA:9FAA",
+      "resource_id": "09E",
+      "category": "armor_name",
+      "source": "Flower Suit"
+    },
+    {
+      "id": "CA:9FB6",
+      "resource_id": "09F",
+      "category": "armor_name",
+      "source": "Battle Suit"
+    },
+    {
+      "id": "CA:9FC2",
+      "resource_id": "0A0",
+      "category": "armor_name",
+      "source": "Vestguard"
+    },
+    {
+      "id": "CA:9FCC",
+      "resource_id": "0A1",
+      "category": "armor_name",
+      "source": "Vampire Cape"
+    },
+    {
+      "id": "CA:9FD9",
+      "resource_id": "0A2",
+      "category": "armor_name",
+      "source": "Power Suit"
+    },
+    {
+      "id": "CA:9FE4",
+      "resource_id": "0A3",
+      "category": "armor_name",
+      "source": "Faerie Cloak"
+    },
+    {
+      "id": "CA:9FF1",
+      "resource_id": "0A4",
+      "category": "accessory_name",
+      "source": "Nothing"
+    },
+    {
+      "id": "CA:9FF9",
+      "resource_id": "0A5",
+      "category": "accessory_name",
+      "source": "Faerie's Ring"
+    },
+    {
+      "id": "CA:A007",
+      "resource_id": "0A6",
+      "category": "accessory_name",
+      "source": "Elbow Pad"
+    },
+    {
+      "id": "CA:A011",
+      "resource_id": "0A7",
+      "category": "accessory_name",
+      "source": "Power Wrist"
+    },
+    {
+      "id": "CA:A01D",
+      "resource_id": "0A8",
+      "category": "accessory_name",
+      "source": "Cobra Bracelet"
+    },
+    {
+      "id": "CA:A02C",
+      "resource_id": "0A9",
+      "category": "accessory_name",
+      "source": "Wolf's Band"
+    },
+    {
+      "id": "CA:A038",
+      "resource_id": "0AA",
+      "category": "accessory_name",
+      "source": "Silver Band"
+    },
+    {
+      "id": "CA:A044",
+      "resource_id": "0AB",
+      "category": "accessory_name",
+      "source": "Golem Ring"
+    },
+    {
+      "id": "CA:A04F",
+      "resource_id": "0AC",
+      "category": "accessory_name",
+      "source": "Frosty Ring"
+    },
+    {
+      "id": "CA:A05B",
+      "resource_id": "0AD",
+      "category": "accessory_name",
+      "source": "Ivy Amulet"
+    },
+    {
+      "id": "CA:A066",
+      "resource_id": "0AE",
+      "category": "accessory_name",
+      "source": "Gold Bracelet"
+    },
+    {
+      "id": "CA:A074",
+      "resource_id": "0AF",
+      "category": "accessory_name",
+      "source": "Shield Ring"
+    },
+    {
+      "id": "CA:A080",
+      "resource_id": "0B0",
+      "category": "accessory_name",
+      "source": "Lazuri Ring"
+    },
+    {
+      "id": "CA:A08C",
+      "resource_id": "0B1",
+      "category": "accessory_name",
+      "source": "Guardian Ring"
+    },
+    {
+      "id": "CA:A09A",
+      "resource_id": "0B2",
+      "category": "accessory_name",
+      "source": "Gauntlet"
+    },
+    {
+      "id": "CA:A0A3",
+      "resource_id": "0B3",
+      "category": "accessory_name",
+      "source": "Ninja Gloves"
+    },
+    {
+      "id": "CA:A0B0",
+      "resource_id": "0B4",
+      "category": "accessory_name",
+      "source": "Dragon Ring"
+    },
+    {
+      "id": "CA:A0BC",
+      "resource_id": "0B5",
+      "category": "accessory_name",
+      "source": "Watcher Ring"
+    },
+    {
+      "id": "CA:A0C9",
+      "resource_id": "0B6",
+      "category": "accessory_name",
+      "source": "Imp's Ring"
+    },
+    {
+      "id": "CA:A0D4",
+      "resource_id": "0B7",
+      "category": "accessory_name",
+      "source": "Amulet Ring"
+    },
+    {
+      "id": "CA:A0E0",
+      "resource_id": "0B8",
+      "category": "accessory_name",
+      "source": "Wristband"
+    },
+    {
+      "id": "CA:A0EA",
+      "resource_id": "0B9",
+      "category": "item_name",
+      "source": ""
+    },
+    {
+      "id": "CA:A0EB",
+      "resource_id": "0BA",
+      "category": "item_name",
+      "source": "Candy"
+    },
+    {
+      "id": "CA:A0F1",
+      "resource_id": "0BB",
+      "category": "item_name",
+      "source": "Chocolate"
+    },
+    {
+      "id": "CA:A0FB",
+      "resource_id": "0BC",
+      "category": "item_name",
+      "source": "Royal Jam"
+    },
+    {
+      "id": "CA:A105",
+      "resource_id": "0BD",
+      "category": "item_name",
+      "source": "Faerie Walnut"
+    },
+    {
+      "id": "CA:A113",
+      "resource_id": "0BE",
+      "category": "item_name",
+      "source": "Medical Herb"
+    },
+    {
+      "id": "CA:A120",
+      "resource_id": "0BF",
+      "category": "item_name",
+      "source": "Cup of Wishes"
+    },
+    {
+      "id": "CA:A12E",
+      "resource_id": "0C0",
+      "category": "item_name",
+      "source": "Magic Rope"
+    },
+    {
+      "id": "CA:A139",
+      "resource_id": "0C1",
+      "category": "item_name",
+      "source": "Flammie Drum"
+    },
+    {
+      "id": "CA:A146",
+      "resource_id": "0C2",
+      "category": "item_name",
+      "source": "Moogle Belt"
+    },
+    {
+      "id": "CA:A152",
+      "resource_id": "0C3",
+      "category": "item_name",
+      "source": "Midge Mallet"
+    },
+    {
+      "id": "CA:A15F",
+      "resource_id": "0C4",
+      "category": "item_name",
+      "source": "Barrel"
+    },
+    {
+      "id": "CA:A166",
+      "resource_id": "0C5",
+      "category": "item_name",
+      "source": "?"
+    },
+    {
+      "id": "CA:A168",
+      "resource_id": "0C6",
+      "category": "menu_label",
+      "source": "Equip Armor"
+    },
+    {
+      "id": "CA:A174",
+      "resource_id": "0C7",
+      "category": "menu_label",
+      "source": "Targeting"
+    },
+    {
+      "id": "CA:A17E",
+      "resource_id": "0C8",
+      "category": "menu_label",
+      "source": "Status"
+    },
+    {
+      "id": "CA:A185",
+      "resource_id": "0C9",
+      "category": "menu_label",
+      "source": "Weapon/Magic Level"
+    },
+    {
+      "id": "CA:A198",
+      "resource_id": "0CA",
+      "category": "menu_label",
+      "source": "Action Grid"
+    },
+    {
+      "id": "CA:A1A4",
+      "resource_id": "0CB",
+      "category": "menu_label",
+      "source": "Controller Edit"
+    },
+    {
+      "id": "CA:A1B4",
+      "resource_id": "0CC",
+      "category": "menu_label",
+      "source": "Window Edit"
+    },
+    {
+      "id": "CA:A1C0",
+      "resource_id": "0CD",
+      "category": "menu_label",
+      "source": "Trash"
+    },
+    {
+      "id": "CA:A1C6",
+      "resource_id": "0CE",
+      "category": "menu_label",
+      "source": "All"
+    },
+    {
+      "id": "CA:A1CA",
+      "resource_id": "0CF",
+      "category": "enemy_name",
+      "source": "Rabite"
+    },
+    {
+      "id": "CA:A1D1",
+      "resource_id": "0D0",
+      "category": "enemy_name",
+      "source": "Buzz Bee"
+    },
+    {
+      "id": "CA:A1DA",
+      "resource_id": "0D1",
+      "category": "enemy_name",
+      "source": "Mushboom"
+    },
+    {
+      "id": "CA:A1E3",
+      "resource_id": "0D2",
+      "category": "enemy_name",
+      "source": "Chobin Hood"
+    },
+    {
+      "id": "CA:A1EF",
+      "resource_id": "0D3",
+      "category": "enemy_name",
+      "source": "Lullabud"
+    },
+    {
+      "id": "CA:A1F8",
+      "resource_id": "0D4",
+      "category": "enemy_name",
+      "source": "Iffish"
+    },
+    {
+      "id": "CA:A1FF",
+      "resource_id": "0D5",
+      "category": "enemy_name",
+      "source": "Kid Goblin"
+    },
+    {
+      "id": "CA:A20A",
+      "resource_id": "0D6",
+      "category": "enemy_name",
+      "source": "Eye Spy"
+    },
+    {
+      "id": "CA:A212",
+      "resource_id": "0D7",
+      "category": "enemy_name",
+      "source": "Green Drop"
+    },
+    {
+      "id": "CA:A21D",
+      "resource_id": "0D8",
+      "category": "enemy_name",
+      "source": "Specter"
+    },
+    {
+      "id": "CA:A225",
+      "resource_id": "0D9",
+      "category": "enemy_name",
+      "source": "Blat"
+    },
+    {
+      "id": "CA:A22A",
+      "resource_id": "0DA",
+      "category": "enemy_name",
+      "source": "Goblin"
+    },
+    {
+      "id": "CA:A231",
+      "resource_id": "0DB",
+      "category": "enemy_name",
+      "source": "Water Thug"
+    },
+    {
+      "id": "CA:A23C",
+      "resource_id": "0DC",
+      "category": "enemy_name",
+      "source": "Polter Chair"
+    },
+    {
+      "id": "CA:A249",
+      "resource_id": "0DD",
+      "category": "enemy_name",
+      "source": "Ma Goblin"
+    },
+    {
+      "id": "CA:A253",
+      "resource_id": "0DE",
+      "category": "enemy_name",
+      "source": "Dark Funk"
+    },
+    {
+      "id": "CA:A25D",
+      "resource_id": "0DF",
+      "category": "enemy_name",
+      "source": "Crawler"
+    },
+    {
+      "id": "CA:A265",
+      "resource_id": "0E0",
+      "category": "enemy_name",
+      "source": "Ice Thug"
+    },
+    {
+      "id": "CA:A26E",
+      "resource_id": "0E1",
+      "category": "enemy_name",
+      "source": "Zombie"
+    },
+    {
+      "id": "CA:A275",
+      "resource_id": "0E2",
+      "category": "enemy_name",
+      "source": "Kimono Bird"
+    },
+    {
+      "id": "CA:A281",
+      "resource_id": "0E3",
+      "category": "enemy_name",
+      "source": "Silktail"
+    },
+    {
+      "id": "CA:A28A",
+      "resource_id": "0E4",
+      "category": "enemy_name",
+      "source": "Nemesis Owl"
+    },
+    {
+      "id": "CA:A296",
+      "resource_id": "0E5",
+      "category": "enemy_name",
+      "source": "Pebbler"
+    },
+    {
+      "id": "CA:A29E",
+      "resource_id": "0E6",
+      "category": "enemy_name",
+      "source": "Pumpkin Bomb"
+    },
+    {
+      "id": "CA:A2AB",
+      "resource_id": "0E7",
+      "category": "enemy_name",
+      "source": "Steamed Crab"
+    },
+    {
+      "id": "CA:A2B8",
+      "resource_id": "0E8",
+      "category": "enemy_name",
+      "source": "Chess Knight"
+    },
+    {
+      "id": "CA:A2C5",
+      "resource_id": "0E9",
+      "category": "enemy_name",
+      "source": "Wizard Eye"
+    },
+    {
+      "id": "CA:A2D0",
+      "resource_id": "0EA",
+      "category": "enemy_name",
+      "source": "Howler"
+    },
+    {
+      "id": "CA:A2D7",
+      "resource_id": "0EB",
+      "category": "enemy_name",
+      "source": "Robin Foot"
+    },
+    {
+      "id": "CA:A2E2",
+      "resource_id": "0EC",
+      "category": "enemy_name",
+      "source": "LA Funk"
+    },
+    {
+      "id": "CA:A2EA",
+      "resource_id": "0ED",
+      "category": "enemy_name",
+      "source": "Grave Bat"
+    },
+    {
+      "id": "CA:A2F4",
+      "resource_id": "0EE",
+      "category": "enemy_name",
+      "source": "Werewolf"
+    },
+    {
+      "id": "CA:A2FD",
+      "resource_id": "0EF",
+      "category": "enemy_name",
+      "source": "Shadow X3"
+    },
+    {
+      "id": "CA:A307",
+      "resource_id": "0F0",
+      "category": "enemy_name",
+      "source": "Evil Sword"
+    },
+    {
+      "id": "CA:A312",
+      "resource_id": "0F1",
+      "category": "enemy_name",
+      "source": "Tomato Man"
+    },
+    {
+      "id": "CA:A31D",
+      "resource_id": "0F2",
+      "category": "enemy_name",
+      "source": "Mystic Book"
+    },
+    {
+      "id": "CA:A329",
+      "resource_id": "0F3",
+      "category": "enemy_name",
+      "source": "Sand Stinger"
+    },
+    {
+      "id": "CA:A336",
+      "resource_id": "0F4",
+      "category": "enemy_name",
+      "source": "Mad Mallard"
+    },
+    {
+      "id": "CA:A342",
+      "resource_id": "0F5",
+      "category": "enemy_name",
+      "source": "Emberman"
+    },
+    {
+      "id": "CA:A34B",
+      "resource_id": "0F6",
+      "category": "enemy_name",
+      "source": "Red Drop"
+    },
+    {
+      "id": "CA:A354",
+      "resource_id": "0F7",
+      "category": "enemy_name",
+      "source": "Eggatrice"
+    },
+    {
+      "id": "CA:A35E",
+      "resource_id": "0F8",
+      "category": "enemy_name",
+      "source": "Bomb Bee"
+    },
+    {
+      "id": "CA:A367",
+      "resource_id": "0F9",
+      "category": "enemy_name",
+      "source": "Mushgloom"
+    },
+    {
+      "id": "CA:A371",
+      "resource_id": "0FA",
+      "category": "enemy_name",
+      "source": "Trap Flower"
+    },
+    {
+      "id": "CA:A37D",
+      "resource_id": "0FB",
+      "category": "enemy_name",
+      "source": "Dinofish"
+    },
+    {
+      "id": "CA:A386",
+      "resource_id": "0FC",
+      "category": "enemy_name",
+      "source": "Mimic Box"
+    },
+    {
+      "id": "CA:A390",
+      "resource_id": "0FD",
+      "category": "enemy_name",
+      "source": "Shadow X1"
+    },
+    {
+      "id": "CA:A39A",
+      "resource_id": "0FE",
+      "category": "enemy_name",
+      "source": "Kimono Wizard"
+    },
+    {
+      "id": "CA:A3A8",
+      "resource_id": "0FF",
+      "category": "enemy_name",
+      "source": "Ghost"
+    },
+    {
+      "id": "CA:A3AE",
+      "resource_id": "100",
+      "category": "enemy_name",
+      "source": "Metal Crawler"
+    },
+    {
+      "id": "CA:A3BC",
+      "resource_id": "101",
+      "category": "enemy_name",
+      "source": "Spider Legs"
+    },
+    {
+      "id": "CA:A3C8",
+      "resource_id": "102",
+      "category": "enemy_name",
+      "source": "Weepy Eye"
+    },
+    {
+      "id": "CA:A3D2",
+      "resource_id": "103",
+      "category": "enemy_name",
+      "source": "Shellblast"
+    },
+    {
+      "id": "CA:A3DD",
+      "resource_id": "104",
+      "category": "enemy_name",
+      "source": "Beast Zombie"
+    },
+    {
+      "id": "CA:A3EA",
+      "resource_id": "105",
+      "category": "enemy_name",
+      "source": "Ghoul"
+    },
+    {
+      "id": "CA:A3F0",
+      "resource_id": "106",
+      "category": "enemy_name",
+      "source": "Imp"
+    },
+    {
+      "id": "CA:A3F4",
+      "resource_id": "107",
+      "category": "enemy_name",
+      "source": "Blue Drop"
+    },
+    {
+      "id": "CA:A3FE",
+      "resource_id": "108",
+      "category": "enemy_name",
+      "source": "Marmablue"
+    },
+    {
+      "id": "CA:A408",
+      "resource_id": "109",
+      "category": "enemy_name",
+      "source": "Fierce Head"
+    },
+    {
+      "id": "CA:A414",
+      "resource_id": "10A",
+      "category": "enemy_name",
+      "source": "Griffin Hand"
+    },
+    {
+      "id": "CA:A421",
+      "resource_id": "10B",
+      "category": "enemy_name",
+      "source": "Needlion"
+    },
+    {
+      "id": "CA:A42A",
+      "resource_id": "10C",
+      "category": "enemy_name",
+      "source": "Metal Crab"
+    },
+    {
+      "id": "CA:A435",
+      "resource_id": "10D",
+      "category": "enemy_name",
+      "source": "Armored Man"
+    },
+    {
+      "id": "CA:A441",
+      "resource_id": "10E",
+      "category": "enemy_name",
+      "source": "Shadow X2"
+    },
+    {
+      "id": "CA:A44B",
+      "resource_id": "10F",
+      "category": "enemy_name",
+      "source": "Eggplant Man"
+    },
+    {
+      "id": "CA:A458",
+      "resource_id": "110",
+      "category": "enemy_name",
+      "source": "Captain Duck"
+    },
+    {
+      "id": "CA:A465",
+      "resource_id": "111",
+      "category": "enemy_name",
+      "source": "Nitro Pumpkin"
+    },
+    {
+      "id": "CA:A473",
+      "resource_id": "112",
+      "category": "enemy_name",
+      "source": "Turtlance"
+    },
+    {
+      "id": "CA:A47D",
+      "resource_id": "113",
+      "category": "enemy_name",
+      "source": "Tsunami"
+    },
+    {
+      "id": "CA:A485",
+      "resource_id": "114",
+      "category": "enemy_name",
+      "source": "Basilisk"
+    },
+    {
+      "id": "CA:A48E",
+      "resource_id": "115",
+      "category": "enemy_name",
+      "source": "Gremlin"
+    },
+    {
+      "id": "CA:A496",
+      "resource_id": "116",
+      "category": "enemy_name",
+      "source": "Steelpion"
+    },
+    {
+      "id": "CA:A4A0",
+      "resource_id": "117",
+      "category": "enemy_name",
+      "source": "Dark Ninja"
+    },
+    {
+      "id": "CA:A4AB",
+      "resource_id": "118",
+      "category": "enemy_name",
+      "source": "Whimper"
+    },
+    {
+      "id": "CA:A4B3",
+      "resource_id": "119",
+      "category": "enemy_name",
+      "source": "Heck Hound"
+    },
+    {
+      "id": "CA:A4BE",
+      "resource_id": "11A",
+      "category": "enemy_name",
+      "source": "Fiend Head"
+    },
+    {
+      "id": "CA:A4C9",
+      "resource_id": "11B",
+      "category": "enemy_name",
+      "source": "National Scar"
+    },
+    {
+      "id": "CA:A4D7",
+      "resource_id": "11C",
+      "category": "enemy_name",
+      "source": "Dark Stalker"
+    },
+    {
+      "id": "CA:A4E4",
+      "resource_id": "11D",
+      "category": "enemy_name",
+      "source": "Dark Knight"
+    },
+    {
+      "id": "CA:A4F0",
+      "resource_id": "11E",
+      "category": "enemy_name",
+      "source": "Shape Shifter"
+    },
+    {
+      "id": "CA:A4FE",
+      "resource_id": "11F",
+      "category": "enemy_name",
+      "source": "Wolf Lord"
+    },
+    {
+      "id": "CA:A508",
+      "resource_id": "120",
+      "category": "enemy_name",
+      "source": "Doom Sword"
+    },
+    {
+      "id": "CA:A513",
+      "resource_id": "121",
+      "category": "enemy_name",
+      "source": "Terminator"
+    },
+    {
+      "id": "CA:A51E",
+      "resource_id": "122",
+      "category": "enemy_name",
+      "source": "Master Ninja"
+    },
+    {
+      "id": "CA:A52B",
+      "resource_id": "123",
+      "category": "enemy_name",
+      "source": "?"
+    },
+    {
+      "id": "CA:A52D",
+      "resource_id": "124",
+      "category": "enemy_name",
+      "source": "Crystal Orb"
+    },
+    {
+      "id": "CA:A539",
+      "resource_id": "125",
+      "category": "enemy_name",
+      "source": "Treasure Chest"
+    },
+    {
+      "id": "CA:A548",
+      "resource_id": "126",
+      "category": "enemy_name",
+      "source": "Mantis Ant"
+    },
+    {
+      "id": "CA:A553",
+      "resource_id": "127",
+      "category": "enemy_name",
+      "source": "Wall Face"
+    },
+    {
+      "id": "CA:A55D",
+      "resource_id": "128",
+      "category": "enemy_name",
+      "source": "Tropicallo"
+    },
+    {
+      "id": "CA:A568",
+      "resource_id": "129",
+      "category": "enemy_name",
+      "source": "Minotaur"
+    },
+    {
+      "id": "CA:A571",
+      "resource_id": "12A",
+      "category": "enemy_name",
+      "source": "Spikey Tiger"
+    },
+    {
+      "id": "CA:A57E",
+      "resource_id": "12B",
+      "category": "enemy_name",
+      "source": "Jabberwocky"
+    },
+    {
+      "id": "CA:A58A",
+      "resource_id": "12C",
+      "category": "enemy_name",
+      "source": "Spring Beak"
+    },
+    {
+      "id": "CA:A596",
+      "resource_id": "12D",
+      "category": "enemy_name",
+      "source": "Frost Gigas"
+    },
+    {
+      "id": "CA:A5A2",
+      "resource_id": "12E",
+      "category": "enemy_name",
+      "source": "Snap Dragon"
+    },
+    {
+      "id": "CA:A5AE",
+      "resource_id": "12F",
+      "category": "enemy_name",
+      "source": "Mech Rider"
+    },
+    {
+      "id": "CA:A5B9",
+      "resource_id": "130",
+      "category": "enemy_name",
+      "source": "Doom's Wall"
+    },
+    {
+      "id": "CA:A5C5",
+      "resource_id": "131",
+      "category": "enemy_name",
+      "source": "Vampire"
+    },
+    {
+      "id": "CA:A5CD",
+      "resource_id": "132",
+      "category": "enemy_name",
+      "source": "Metal Mantis"
+    },
+    {
+      "id": "CA:A5DA",
+      "resource_id": "133",
+      "category": "enemy_name",
+      "source": "Mech Rider"
+    },
+    {
+      "id": "CA:A5E5",
+      "resource_id": "134",
+      "category": "enemy_name",
+      "source": "Kilroy"
+    },
+    {
+      "id": "CA:A5EC",
+      "resource_id": "135",
+      "category": "enemy_name",
+      "source": "Gorgon Bull"
+    },
+    {
+      "id": "CA:A5F8",
+      "resource_id": "136",
+      "category": "enemy_name",
+      "source": "Brambler"
+    },
+    {
+      "id": "CA:A601",
+      "resource_id": "137",
+      "category": "enemy_name",
+      "source": "Boreal Face"
+    },
+    {
+      "id": "CA:A60D",
+      "resource_id": "138",
+      "category": "enemy_name",
+      "source": "Great Viper"
+    },
+    {
+      "id": "CA:A619",
+      "resource_id": "139",
+      "category": "enemy_name",
+      "source": "Lime Slime"
+    },
+    {
+      "id": "CA:A624",
+      "resource_id": "13A",
+      "category": "enemy_name",
+      "source": "Blue Spike"
+    },
+    {
+      "id": "CA:A62F",
+      "resource_id": "13B",
+      "category": "enemy_name",
+      "source": "Chamber's Eye"
+    },
+    {
+      "id": "CA:A63D",
+      "resource_id": "13C",
+      "category": "enemy_name",
+      "source": "Hydra"
+    },
+    {
+      "id": "CA:A643",
+      "resource_id": "13D",
+      "category": "enemy_name",
+      "source": "Aegagropilon"
+    },
+    {
+      "id": "CA:A650",
+      "resource_id": "13E",
+      "category": "enemy_name",
+      "source": "Hexas"
+    },
+    {
+      "id": "CA:A656",
+      "resource_id": "13F",
+      "category": "enemy_name",
+      "source": "Kettle Kin"
+    },
+    {
+      "id": "CA:A661",
+      "resource_id": "140",
+      "category": "enemy_name",
+      "source": "Tonpole"
+    },
+    {
+      "id": "CA:A669",
+      "resource_id": "141",
+      "category": "enemy_name",
+      "source": "Mech Rider"
+    },
+    {
+      "id": "CA:A674",
+      "resource_id": "142",
+      "category": "enemy_name",
+      "source": "Snow Dragon"
+    },
+    {
+      "id": "CA:A680",
+      "resource_id": "143",
+      "category": "enemy_name",
+      "source": "Fire Gigas"
+    },
+    {
+      "id": "CA:A68B",
+      "resource_id": "144",
+      "category": "enemy_name",
+      "source": "Red Dragon"
+    },
+    {
+      "id": "CA:A696",
+      "resource_id": "145",
+      "category": "enemy_name",
+      "source": "Axe Beak"
+    },
+    {
+      "id": "CA:A69F",
+      "resource_id": "146",
+      "category": "enemy_name",
+      "source": "Blue Dragon"
+    },
+    {
+      "id": "CA:A6AB",
+      "resource_id": "147",
+      "category": "enemy_name",
+      "source": "Buffy"
+    },
+    {
+      "id": "CA:A6B1",
+      "resource_id": "148",
+      "category": "enemy_name",
+      "source": "Dark Lich"
+    },
+    {
+      "id": "CA:A6BB",
+      "resource_id": "149",
+      "category": "enemy_name",
+      "source": "Biting Lizard"
+    },
+    {
+      "id": "CA:A6C9",
+      "resource_id": "14A",
+      "category": "enemy_name",
+      "source": "Dragon Worm"
+    },
+    {
+      "id": "CA:A6D5",
+      "resource_id": "14B",
+      "category": "enemy_name",
+      "source": "Dread Slime"
+    },
+    {
+      "id": "CA:A6E1",
+      "resource_id": "14C",
+      "category": "enemy_name",
+      "source": "Thunder Gigas"
+    },
+    {
+      "id": "CA:A6EF",
+      "resource_id": "14D",
+      "category": "enemy_name",
+      "source": "Doom's Eye"
+    },
+    {
+      "id": "CA:A6FA",
+      "resource_id": "14E",
+      "category": "enemy_name",
+      "source": "Mana Beast"
+    },
+    {
+      "id": "CA:A705",
+      "resource_id": "14F",
+      "category": "weapon_description",
+      "source": "\n\n\n\n"
+    },
+    {
+      "id": "CA:A70A",
+      "resource_id": "150",
+      "category": "weapon_description",
+      "source": " INFLICTS DAMAGE ON INSECTS, E\nTC.\n\n\n"
+    },
+    {
+      "id": "CA:A730",
+      "resource_id": "151",
+      "category": "weapon_description",
+      "source": " PUTS ENEMIES TO SLEEP.\n\n\n\n"
+    },
+    {
+      "id": "CA:A74C",
+      "resource_id": "152",
+      "category": "weapon_description",
+      "source": " RAISES INTELLIGENCE/WISDOM.\n\n\n\n"
+    },
+    {
+      "id": "CA:A76D",
+      "resource_id": "153",
+      "category": "weapon_description",
+      "source": " INFLICTS DAMAGE ON INSECTS, E\nTC.\n\n\n"
+    },
+    {
+      "id": "CA:A793",
+      "resource_id": "154",
+      "category": "weapon_description",
+      "source": " EFFECTIVE AGAINST SLIMES/LIZA\nRDS.\n\n\n"
+    },
+    {
+      "id": "CA:A7BA",
+      "resource_id": "155",
+      "category": "weapon_description",
+      "source": " POISONS ENEMIES.\n\n\n\n"
+    },
+    {
+      "id": "CA:A7D0",
+      "resource_id": "156",
+      "category": "weapon_description",
+      "source": " EFFECTIVE AGAINST DRAGONS.\n\n\n\n"
+    },
+    {
+      "id": "CA:A7F0",
+      "resource_id": "157",
+      "category": "weapon_description",
+      "source": " THE TOP GLOVE!\n\n\n\n"
+    },
+    {
+      "id": "CA:A804",
+      "resource_id": "158",
+      "category": "weapon_description",
+      "source": "\n\n\n\n"
+    },
+    {
+      "id": "CA:A809",
+      "resource_id": "159",
+      "category": "weapon_description",
+      "source": " RAISES AGILITY/EVADE %.\n\n\n\n"
+    },
+    {
+      "id": "CA:A826",
+      "resource_id": "15A",
+      "category": "weapon_description",
+      "source": " EFFECTIVE AGAINST SLIMES/LIZA\nRDS.\n\n\n"
+    },
+    {
+      "id": "CA:A84D",
+      "resource_id": "15B",
+      "category": "weapon_description",
+      "source": " INFLICTS DAMAGE ON INSECTS, E\nTC.\n\n\n"
+    },
+    {
+      "id": "CA:A873",
+      "resource_id": "15C",
+      "category": "weapon_description",
+      "source": " EFFECTIVE ON EVIL/NON-LIVING \nENEMIES.\n\n\n"
+    },
+    {
+      "id": "CA:A89E",
+      "resource_id": "15D",
+      "category": "weapon_description",
+      "source": " RAISES % OF CRITICAL HITS.\n\n\n\n"
+    },
+    {
+      "id": "CA:A8BE",
+      "resource_id": "15E",
+      "category": "weapon_description",
+      "source": " INCREASES STRENGTH 2 PTS.\n\n\n\n"
+    },
+    {
+      "id": "CA:A8DD",
+      "resource_id": "15F",
+      "category": "weapon_description",
+      "source": " EFFECTIVE AGAINST DRAGONS.\n\n\n\n"
+    },
+    {
+      "id": "CA:A8FD",
+      "resource_id": "160",
+      "category": "weapon_description",
+      "source": " THE TOP SWORD!\n\n\n\n"
+    },
+    {
+      "id": "CA:A911",
+      "resource_id": "161",
+      "category": "weapon_description",
+      "source": "\n\n\n\n"
+    },
+    {
+      "id": "CA:A916",
+      "resource_id": "162",
+      "category": "weapon_description",
+      "source": " EFFECTIVE AGAINST PLANTS/FISH\n.\n\n\n"
+    },
+    {
+      "id": "CA:A93A",
+      "resource_id": "163",
+      "category": "weapon_description",
+      "source": " INCREASES CONSTITUTION BY 2 P\nTS.\n\n\n"
+    },
+    {
+      "id": "CA:A960",
+      "resource_id": "164",
+      "category": "weapon_description",
+      "source": " EFFECTIVE AGAINST PLANTS/FISH\n.\n\n\n"
+    },
+    {
+      "id": "CA:A984",
+      "resource_id": "165",
+      "category": "weapon_description",
+      "source": " INFLICTS DAMAGE ON INSECTS, E\nTC.\n\n\n"
+    },
+    {
+      "id": "CA:A9AA",
+      "resource_id": "166",
+      "category": "weapon_description",
+      "source": " USE AGAINST ANIMALS/BIRDS/BEA\nSTS.\n\n\n"
+    },
+    {
+      "id": "CA:A9D1",
+      "resource_id": "167",
+      "category": "weapon_description",
+      "source": " EFFECTIVE AGAINST PLANTS/FISH\n.\n\n\n"
+    },
+    {
+      "id": "CA:A9F5",
+      "resource_id": "168",
+      "category": "weapon_description",
+      "source": " INCREASES STRENGTH 5 PTS.\n\n\n\n "
+    },
+    {
+      "id": "CA:AA15",
+      "resource_id": "169",
+      "category": "weapon_description",
+      "source": " THE TOP AXE!\n\n\n\n"
+    },
+    {
+      "id": "CA:AA27",
+      "resource_id": "16A",
+      "category": "weapon_description",
+      "source": "\n\n\n\n"
+    },
+    {
+      "id": "CA:AA2C",
+      "resource_id": "16B",
+      "category": "weapon_description",
+      "source": "\n\n\n\n"
+    },
+    {
+      "id": "CA:AA31",
+      "resource_id": "16C",
+      "category": "weapon_description",
+      "source": " BALLOONS ENEMIES.\n\n\n\n"
+    },
+    {
+      "id": "CA:AA48",
+      "resource_id": "16D",
+      "category": "weapon_description",
+      "source": " EFFECTIVE AGAINST SLIMES/LIZA\nRDS.\n\n\n"
+    },
+    {
+      "id": "CA:AA6F",
+      "resource_id": "16E",
+      "category": "weapon_description",
+      "source": " CONFUSES ENEMIES.\n\n\n\n"
+    },
+    {
+      "id": "CA:AA86",
+      "resource_id": "16F",
+      "category": "weapon_description",
+      "source": " PUTS ENEMIES TO SLEEP.\n\n\n\n"
+    },
+    {
+      "id": "CA:AAA2",
+      "resource_id": "170",
+      "category": "weapon_description",
+      "source": " INCREASES STRENGTH 2 PTS.\n\n\n\n "
+    },
+    {
+      "id": "CA:AAC2",
+      "resource_id": "171",
+      "category": "weapon_description",
+      "source": " EFFECTIVE AGAINST DRAGONS.\n\n\n\n"
+    },
+    {
+      "id": "CA:AAE2",
+      "resource_id": "172",
+      "category": "weapon_description",
+      "source": " THE TOP SPEAR!\n\n\n\n"
+    },
+    {
+      "id": "CA:AAF6",
+      "resource_id": "173",
+      "category": "weapon_description",
+      "source": "\n\n\n\n"
+    },
+    {
+      "id": "CA:AAFB",
+      "resource_id": "174",
+      "category": "weapon_description",
+      "source": " SLOWS ENEMIES DOWN.\n\n\n\n"
+    },
+    {
+      "id": "CA:AB14",
+      "resource_id": "175",
+      "category": "weapon_description",
+      "source": " RAISES AGILITY/EVADE %\n\n\n\n"
+    },
+    {
+      "id": "CA:AB30",
+      "resource_id": "176",
+      "category": "weapon_description",
+      "source": " EFFECTIVE AGAINST SLIMES/LIZA\nRDS.\n\n\n"
+    },
+    {
+      "id": "CA:AB57",
+      "resource_id": "177",
+      "category": "weapon_description",
+      "source": " EFFECTIVE ON EVIL/NON-LIVING \nENEMIES.\n\n\n"
+    },
+    {
+      "id": "CA:AB82",
+      "resource_id": "178",
+      "category": "weapon_description",
+      "source": " INFLICTS DAMAGE ON INSECTS, E\nTC.\n\n\n"
+    },
+    {
+      "id": "CA:ABA8",
+      "resource_id": "179",
+      "category": "weapon_description",
+      "source": "SLOWS ENEMIES DOWN.\n\n\n\n"
+    },
+    {
+      "id": "CA:ABC0",
+      "resource_id": "17A",
+      "category": "weapon_description",
+      "source": " INFLICTS DAMAGE ON INSECTS, E\nTC.\n\n\n"
+    },
+    {
+      "id": "CA:ABE6",
+      "resource_id": "17B",
+      "category": "weapon_description",
+      "source": " THE TOP WHIP!\n\n\n\n"
+    },
+    {
+      "id": "CA:ABF9",
+      "resource_id": "17C",
+      "category": "weapon_description",
+      "source": "\n\n\n\n"
+    },
+    {
+      "id": "CA:ABFE",
+      "resource_id": "17D",
+      "category": "weapon_description",
+      "source": "\n\n\n\n"
+    },
+    {
+      "id": "CA:AC03",
+      "resource_id": "17E",
+      "category": "weapon_description",
+      "source": " USE AGAINST ANIMALS/BIRDS/BEA\nSTS.\n\n\n"
+    },
+    {
+      "id": "CA:AC2A",
+      "resource_id": "17F",
+      "category": "weapon_description",
+      "source": " CONFUSES ENEMIES.\n\n\n\n"
+    },
+    {
+      "id": "CA:AC41",
+      "resource_id": "180",
+      "category": "weapon_description",
+      "source": " EFFECTIVE ON EVIL/NON-LIVING \nENEMIES.\n\n\n"
+    },
+    {
+      "id": "CA:AC6C",
+      "resource_id": "181",
+      "category": "weapon_description",
+      "source": " RAISES INTELLIGENCE/WISDOM.\n\n\n\n"
+    },
+    {
+      "id": "CA:AC8D",
+      "resource_id": "182",
+      "category": "weapon_description",
+      "source": " CONFUSES ENEMIES.\n\n\n\n"
+    },
+    {
+      "id": "CA:ACA4",
+      "resource_id": "183",
+      "category": "weapon_description",
+      "source": " RAISES % OF CRITICAL HITS.\n\n\n\n"
+    },
+    {
+      "id": "CA:ACC4",
+      "resource_id": "184",
+      "category": "weapon_description",
+      "source": " THE TOP BOW!\n\n\n\n"
+    },
+    {
+      "id": "CA:ACD6",
+      "resource_id": "185",
+      "category": "weapon_description",
+      "source": "\n\n\n\n"
+    },
+    {
+      "id": "CA:ACDB",
+      "resource_id": "186",
+      "category": "weapon_description",
+      "source": " EFFECTIVE AGAINST SLIMES/LIZA\nRDS.\n\n\n"
+    },
+    {
+      "id": "CA:AD02",
+      "resource_id": "187",
+      "category": "weapon_description",
+      "source": " SLOWS ENEMIES DOWN.\n\n\n\n"
+    },
+    {
+      "id": "CA:AD1B",
+      "resource_id": "188",
+      "category": "weapon_description",
+      "source": "\n\n\n\n"
+    },
+    {
+      "id": "CA:AD20",
+      "resource_id": "189",
+      "category": "weapon_description",
+      "source": " INFLICTS DAMAGE ON INSECTS, E\nTC.\n\n\n"
+    },
+    {
+      "id": "CA:AD46",
+      "resource_id": "18A",
+      "category": "weapon_description",
+      "source": " POISONS ENEMIES.\n\n\n"
+    },
+    {
+      "id": "CA:AD5B",
+      "resource_id": "18B",
+      "category": "weapon_description",
+      "source": " EFFECTIVE AGAINST SLIMES/LIZA\nRDS.\n\n\n"
+    },
+    {
+      "id": "CA:AD82",
+      "resource_id": "18C",
+      "category": "weapon_description",
+      "source": " RAISES % OF CRITICAL HITS.\n\n\n\n"
+    },
+    {
+      "id": "CA:ADA2",
+      "resource_id": "18D",
+      "category": "weapon_description",
+      "source": " THE TOP BOOMERANG!\n\n\n\n"
+    },
+    {
+      "id": "CA:ADBA",
+      "resource_id": "18E",
+      "category": "weapon_description",
+      "source": "\n\n\n\n"
+    },
+    {
+      "id": "CA:ADBF",
+      "resource_id": "18F",
+      "category": "weapon_description",
+      "source": "\n\n\n\n"
+    },
+    {
+      "id": "CA:ADC4",
+      "resource_id": "190",
+      "category": "weapon_description",
+      "source": " USE AGAINST ANIMALS/BIRDS/BEA\nSTS.\n\n\n"
+    },
+    {
+      "id": "CA:ADEB",
+      "resource_id": "191",
+      "category": "weapon_description",
+      "source": " BALLOONS ENEMIES.\n\n\n\n"
+    },
+    {
+      "id": "CA:AE02",
+      "resource_id": "192",
+      "category": "weapon_description",
+      "source": " EFFECTIVE ON EVIL/NON-LIVING \nENEMIES.\n\n\n"
+    },
+    {
+      "id": "CA:AE2D",
+      "resource_id": "193",
+      "category": "weapon_description",
+      "source": " BALLOONS ENEMIES.\n\n\n\n"
+    },
+    {
+      "id": "CA:AE44",
+      "resource_id": "194",
+      "category": "weapon_description",
+      "source": " RAISES INTELLIGENCE/WISDOM.\n\n\n\n "
+    },
+    {
+      "id": "CA:AE66",
+      "resource_id": "195",
+      "category": "weapon_description",
+      "source": " EFFECTIVE AGAINST DRAGONS.\n\n\n\n"
+    },
+    {
+      "id": "CA:AE86",
+      "resource_id": "196",
+      "category": "weapon_description",
+      "source": " THE TOP JAVELIN!\n\n\n\n"
+    },
+    {
+      "id": "CA:AE9C",
+      "resource_id": "197",
+      "category": "magic_description",
+      "source": " COVERS ENEMI\nES IN ROCK SLIDE."
+    },
+    {
+      "id": "CA:AEBC",
+      "resource_id": "198",
+      "category": "magic_description",
+      "source": " RAINS JAGGED\n DIAMONDS ON ENEMIES."
+    },
+    {
+      "id": "CA:AEE0",
+      "resource_id": "199",
+      "category": "magic_description",
+      "source": " LOWERS EVADE\n % AND SLOWS ATTACK."
+    },
+    {
+      "id": "CA:AF03",
+      "resource_id": "19A",
+      "category": "magic_description",
+      "source": " WEAPONS GAIN\n THE POWER TO PETRIFY."
+    },
+    {
+      "id": "CA:AF28",
+      "resource_id": "19B",
+      "category": "magic_description",
+      "source": " RAISES EVADE\n % AND SPEEDS ATTACK."
+    },
+    {
+      "id": "CA:AF4C",
+      "resource_id": "19C",
+      "category": "magic_description",
+      "source": " RAISES DEFEN\nSE/DECREASES DAMAGE."
+    },
+    {
+      "id": "CA:AF6F",
+      "resource_id": "19D",
+      "category": "magic_description",
+      "source": " CAUSES A FRE\nEZING ICE STORM."
+    },
+    {
+      "id": "CA:AF8E",
+      "resource_id": "19E",
+      "category": "magic_description",
+      "source": " ACID RAIN LO\nWERS ENEMY'S DEFENSE."
+    },
+    {
+      "id": "CA:AFB2",
+      "resource_id": "19F",
+      "category": "magic_description",
+      "source": " TAKES AWAY E\nNEMY'S HP."
+    },
+    {
+      "id": "CA:AFCB",
+      "resource_id": "1A0",
+      "category": "magic_description",
+      "source": " WEAPONS GAIN\n THE POWER OF WATER!"
+    },
+    {
+      "id": "CA:AFEE",
+      "resource_id": "1A1",
+      "category": "magic_description",
+      "source": " RECOVERS STA\nTUS."
+    },
+    {
+      "id": "CA:B001",
+      "resource_id": "1A2",
+      "category": "magic_description",
+      "source": " RECOVERS HP.\n"
+    },
+    {
+      "id": "CA:B010",
+      "resource_id": "1A3",
+      "category": "magic_description",
+      "source": " SENDS FIREBA\nLLS AT ENEMIES."
+    },
+    {
+      "id": "CA:B02E",
+      "resource_id": "1A4",
+      "category": "magic_description",
+      "source": " AN EXPLOSION\n ROCKS THE ENEMIES."
+    },
+    {
+      "id": "CA:B050",
+      "resource_id": "1A5",
+      "category": "magic_description",
+      "source": " MAGMA ENGULF\nS THE ENEMIES."
+    },
+    {
+      "id": "CA:B06D",
+      "resource_id": "1A6",
+      "category": "magic_description",
+      "source": " WEAPONS GAIN\n THE POWER OF FIRE!"
+    },
+    {
+      "id": "CA:B08F",
+      "resource_id": "1A7",
+      "category": "magic_description",
+      "source": " SCALDS ENEMY\n/LOWERS BATTLE POWER."
+    },
+    {
+      "id": "CA:B0B3",
+      "resource_id": "1A8",
+      "category": "magic_description",
+      "source": " A WALL OF FI\nRE ENGULFS THE ENEMIES."
+    },
+    {
+      "id": "CA:B0D9",
+      "resource_id": "1A9",
+      "category": "magic_description",
+      "source": " WIND-BURN DA\nMAGES THE ENEMIES."
+    },
+    {
+      "id": "CA:B0FA",
+      "resource_id": "1AA",
+      "category": "magic_description",
+      "source": " STRIKES THE \nENEMIES WITH LIGHTNING."
+    },
+    {
+      "id": "CA:B120",
+      "resource_id": "1AB",
+      "category": "magic_description",
+      "source": " CONFUSES THE\n ENEMIES."
+    },
+    {
+      "id": "CA:B138",
+      "resource_id": "1AC",
+      "category": "magic_description",
+      "source": " WEAPONS GAIN\n THE POWER OF WIND!"
+    },
+    {
+      "id": "CA:B15A",
+      "resource_id": "1AD",
+      "category": "magic_description",
+      "source": " LOWERS WISDO\nM/CONFUSES ENEMIES."
+    },
+    {
+      "id": "CA:B17C",
+      "resource_id": "1AE",
+      "category": "magic_description",
+      "source": " DETECTS TRAP\nS/ENEMY'S WEAK POINT."
+    },
+    {
+      "id": "CA:B1A0",
+      "resource_id": "1AF",
+      "category": "magic_description",
+      "source": " TRANSFORMS E\nNEMY TO WEAKER LEVEL."
+    },
+    {
+      "id": "CA:B1C4",
+      "resource_id": "1B0",
+      "category": "magic_description",
+      "source": " TAKES ENEMY'\nS MP."
+    },
+    {
+      "id": "CA:B1D8",
+      "resource_id": "1B1",
+      "category": "magic_description",
+      "source": " MAKES ENEMY/\nYOU DO CURIOUS THINGS."
+    },
+    {
+      "id": "CA:B1FD",
+      "resource_id": "1B2",
+      "category": "magic_description",
+      "source": " WEAPONS GAIN\n THE POWER TO TAKE HP!"
+    },
+    {
+      "id": "CA:B222",
+      "resource_id": "1B3",
+      "category": "magic_description",
+      "source": " RAISES BATTL\nE POWER."
+    },
+    {
+      "id": "CA:B239",
+      "resource_id": "1B4",
+      "category": "magic_description",
+      "source": " RAISES CRITI\nCAL HIT %."
+    },
+    {
+      "id": "CA:B252",
+      "resource_id": "1B5",
+      "category": "magic_description",
+      "source": " LULLS ENEMIE\nS TO SLEEP."
+    },
+    {
+      "id": "CA:B26C",
+      "resource_id": "1B6",
+      "category": "magic_description",
+      "source": " HIDDEN ENERG\nY STRIKES ENEMIES."
+    },
+    {
+      "id": "CA:B28D",
+      "resource_id": "1B7",
+      "category": "magic_description",
+      "source": " SECRET\n"
+    },
+    {
+      "id": "CA:B296",
+      "resource_id": "1B8",
+      "category": "magic_description",
+      "source": " SENDS THE RE\nAPER RUNNING."
+    },
+    {
+      "id": "CA:B2B2",
+      "resource_id": "1B9",
+      "category": "magic_description",
+      "source": " MAKES A BARR\nIER TO WARD OFF MAGIC."
+    },
+    {
+      "id": "CA:B2D7",
+      "resource_id": "1BA",
+      "category": "magic_description",
+      "source": " SECRET\n"
+    },
+    {
+      "id": "CA:B2E0",
+      "resource_id": "1BB",
+      "category": "magic_description",
+      "source": " WAVE OF DARK\nNESS HITS THE ENEMIES."
+    },
+    {
+      "id": "CA:B305",
+      "resource_id": "1BC",
+      "category": "magic_description",
+      "source": " ENEMY'S ENER\nGY EXPLODES."
+    },
+    {
+      "id": "CA:B320",
+      "resource_id": "1BD",
+      "category": "magic_description",
+      "source": " SETS ENEMY'S\n GAUGE TO 0/HALTS MAGIC."
+    },
+    {
+      "id": "CA:B347",
+      "resource_id": "1BE",
+      "category": "magic_description",
+      "source": " WEAPONS GAIN\n THE POWER OF LIGHT!"
+    },
+    {
+      "id": "CA:B36A",
+      "resource_id": "1BF",
+      "category": "magic_description",
+      "source": " EVIL FOE HIT\n WITH PURE LIGHT."
+    },
+    {
+      "id": "CA:B38A",
+      "resource_id": "1C0",
+      "category": "magic_description",
+      "source": " PROTECTION F\nROM WEAPON ATTACKS."
+    },
+    {
+      "id": "CA:B3AC",
+      "resource_id": "1C1",
+      "category": "location_name",
+      "source": "POTOS VILLAGE"
+    },
+    {
+      "id": "CA:B3BA",
+      "resource_id": "1C2",
+      "category": "location_name",
+      "source": "NEKO'S"
+    },
+    {
+      "id": "CA:B3C1",
+      "resource_id": "1C3",
+      "category": "location_name",
+      "source": "WATER PALACE"
+    },
+    {
+      "id": "CA:B3CE",
+      "resource_id": "1C4",
+      "category": "location_name",
+      "source": "PANDORA"
+    },
+    {
+      "id": "CA:B3D6",
+      "resource_id": "1C5",
+      "category": "location_name",
+      "source": "KIPPO VILLAGE"
+    },
+    {
+      "id": "CA:B3E4",
+      "resource_id": "1C6",
+      "category": "location_name",
+      "source": "DWARF VILLAGE"
+    },
+    {
+      "id": "CA:B3F2",
+      "resource_id": "1C7",
+      "category": "location_name",
+      "source": "HAUNTED FOREST"
+    },
+    {
+      "id": "CA:B401",
+      "resource_id": "1C8",
+      "category": "location_name",
+      "source": "WITCH'S CASTLE"
+    },
+    {
+      "id": "CA:B410",
+      "resource_id": "1C9",
+      "category": "location_name",
+      "source": "WITCH'S CASTLE"
+    },
+    {
+      "id": "CA:B41F",
+      "resource_id": "1CA",
+      "category": "location_name",
+      "source": "MOOGLE VILLAGE"
+    },
+    {
+      "id": "CA:B42E",
+      "resource_id": "1CB",
+      "category": "location_name",
+      "source": "SPRITE VILLAGE"
+    },
+    {
+      "id": "CA:B43D",
+      "resource_id": "1CC",
+      "category": "location_name",
+      "source": "WIND PALACE"
+    },
+    {
+      "id": "CA:B449",
+      "resource_id": "1CD",
+      "category": "location_name",
+      "source": "MATANGO"
+    },
+    {
+      "id": "CA:B451",
+      "resource_id": "1CE",
+      "category": "location_name",
+      "source": "TODO VILLAGE"
+    },
+    {
+      "id": "CA:B45E",
+      "resource_id": "1CF",
+      "category": "location_name",
+      "source": "SANDSHIP"
+    },
+    {
+      "id": "CA:B467",
+      "resource_id": "1D0",
+      "category": "location_name",
+      "source": "KAKKARA"
+    },
+    {
+      "id": "CA:B46F",
+      "resource_id": "1D1",
+      "category": "location_name",
+      "source": "SOUTHTOWN"
+    },
+    {
+      "id": "CA:B479",
+      "resource_id": "1D2",
+      "category": "location_name",
+      "source": "NORTHTOWN"
+    },
+    {
+      "id": "CA:B483",
+      "resource_id": "1D3",
+      "category": "location_name",
+      "source": "GOLD CITY"
+    },
+    {
+      "id": "CA:B48D",
+      "resource_id": "1D4",
+      "category": "location_name",
+      "source": "MOON PALACE"
+    },
+    {
+      "id": "CA:B499",
+      "resource_id": "1D5",
+      "category": "location_name",
+      "source": "MANDALA"
+    },
+    {
+      "id": "CA:B4A1",
+      "resource_id": "1D6",
+      "category": "location_name",
+      "source": "MOUNTAIN ROAD"
+    },
+    {
+      "id": "CA:B4AF",
+      "resource_id": "1D7",
+      "category": "location_name",
+      "source": "SAGE'S CAVE"
+    },
+    {
+      "id": "CA:B4BB",
+      "resource_id": "1D8",
+      "category": "location_name",
+      "source": "TASNICA"
+    },
+    {
+      "id": "CA:B4C3",
+      "resource_id": "1D9",
+      "category": "location_name",
+      "source": "TREE PALACE"
+    },
+    {
+      "id": "CA:B4CF",
+      "resource_id": "1DA",
+      "category": "location_name",
+      "source": "LOST CONTINENT"
+    },
+    {
+      "id": "CA:B4DE",
+      "resource_id": "1DB",
+      "category": "location_name",
+      "source": "PURE LAND"
+    },
+    {
+      "id": "CA:B4E8",
+      "resource_id": "1DC",
+      "category": "location_name",
+      "source": "MANA FORTRESS"
+    },
+    {
+      "id": "CA:B4F6",
+      "resource_id": "1DD",
+      "category": "location_name",
+      "source": "EMPIRE CASTLE"
+    },
+    {
+      "id": "CA:B504",
+      "resource_id": "1DE",
+      "category": "location_name",
+      "source": "FROSTY FOREST"
+    },
+    {
+      "id": "CA:B512",
+      "resource_id": "1DF",
+      "category": "location_name",
+      "source": "GAIA'S NAVEL"
+    },
+    {
+      "id": "CA:B51F",
+      "resource_id": "1E0",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B520",
+      "resource_id": "1E1",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B521",
+      "resource_id": "1E2",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B522",
+      "resource_id": "1E3",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B523",
+      "resource_id": "1E4",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B524",
+      "resource_id": "1E5",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B525",
+      "resource_id": "1E6",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B526",
+      "resource_id": "1E7",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B527",
+      "resource_id": "1E8",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B528",
+      "resource_id": "1E9",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B529",
+      "resource_id": "1EA",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B52A",
+      "resource_id": "1EB",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B52B",
+      "resource_id": "1EC",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B52C",
+      "resource_id": "1ED",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B52D",
+      "resource_id": "1EE",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B52E",
+      "resource_id": "1EF",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B52F",
+      "resource_id": "1F0",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B530",
+      "resource_id": "1F1",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B531",
+      "resource_id": "1F2",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B532",
+      "resource_id": "1F3",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B533",
+      "resource_id": "1F4",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B534",
+      "resource_id": "1F5",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B535",
+      "resource_id": "1F6",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B536",
+      "resource_id": "1F7",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B537",
+      "resource_id": "1F8",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B538",
+      "resource_id": "1F9",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B539",
+      "resource_id": "1FA",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B53A",
+      "resource_id": "1FB",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B53B",
+      "resource_id": "1FC",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B53C",
+      "resource_id": "1FD",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B53D",
+      "resource_id": "1FE",
+      "category": "unused",
+      "source": ""
+    },
+    {
+      "id": "CA:B53E",
+      "resource_id": "1FF",
+      "category": "system_message",
+      "source": "CANNOT use Magic Rope here!"
+    },
+    {
+      "id": "CA:B55A",
+      "resource_id": "200",
+      "category": "system_message",
+      "source": "CANNOT call Flammie here!"
+    }
+  ]
+}

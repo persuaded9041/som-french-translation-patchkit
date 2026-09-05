@@ -86,6 +86,7 @@ is used in contexts where `$E1-$E5` are available for French glyphs.
 - `05_intro_vwf_french` - uses the `full_french` profile (`$D4-$E5`) and a
   `$E6` DTE threshold.
 - `06_dialogue_vwf` - uses the same `full_french` profile and independently installs the canonical glyphs / `$E6` threshold so its standalone build does not depend on component 05.
+- `08_dialogue_text` - declares `full_french` for future directly encoded French event text; its builder installs the canonical glyphs / `$E6` threshold only when `translations/dialogues_french.json` contains an actual source-changing translation. The current empty translation is a no-op and it never modifies the VWF renderer.
 
 The same direct character codes are intentionally reused across components so
 that identical French characters keep the same encoding whenever the engine

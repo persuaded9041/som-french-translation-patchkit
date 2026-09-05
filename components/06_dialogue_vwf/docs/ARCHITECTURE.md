@@ -22,19 +22,18 @@ marker.
 
 At `$C0:167D`, before the stock renderer has pushed local values, component 06
 reads the caller's 16-bit return address at `1,S`. It tags the invocation as VWF
-only when the stacked return is `$1152` and the live event bank is `$C9` or `$CA`.
+only when the stacked return is `$1152` and the live event bank is stock `$C9/$CA` or the component-08 relocation range `$E8-$EC`.
 A private flag at `$7E:9385` carries that decision through the internal renderer
 hooks. Every invocation reaching component 06 clears the flag before making the
 decision, so non-event calls always fall back to stock behavior.
 
-This is runtime-validated for both sides of the boundary: `$CA` story dialogue
-uses the VWF and GAME SELECT remains fixed-width.
+The `$C9/$CA` side of this gate is runtime-validated: `$CA` story dialogue uses the VWF and GAME SELECT remains fixed-width. The `$E8-$EC` extension is a narrow relocation candidate and must be runtime-validated before being treated as a checkpoint.
 
 The parser initializer at `$C0:16B8` is also shared: event engine calls it from
 `$C0:1149` (stacked return `$114B`) and GAME SELECT from `$C0:2359` (return
 `$235B`). Components 05 and 06 now install one byte-identical private-buffer
 bridge. Component 06 enables dialogue mode only for `$114B` plus live bank
-`$C9/$CA`; GAME SELECT therefore keeps its stock `$A1A4` parser buffer even if
+`$C9/$CA` or `$E8-$EC`; GAME SELECT therefore keeps its stock `$A1A4` parser buffer even if
 shared global bank state is stale. This 38-character parser-capacity extension is runtime-validated.
 
 Component 05 hooks `$C0:1664` itself for translated intro event `$0400`. When its
@@ -205,4 +204,4 @@ investigation proves otherwise:
 - resolve generated relative branches from labels rather than hard-coded offsets;
 - do not reintroduce a progression hook for interrupted chunks;
 - do not special-case event addresses or WAIT/movement opcodes;
-- keep the post-outline repair gated by exact component-06 tag `$9385 == $01`; do not replace it with a bank-only `$C9/$CA` test.
+- keep the post-outline repair gated by exact component-06 tag `$9385 == $01`; do not replace it with a bank-only test.

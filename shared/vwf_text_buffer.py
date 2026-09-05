@@ -7,7 +7,8 @@ that can route selected event-engine invocations to the already validated
 44-byte private buffer at $7E:9390-$93BB.
 
 Component 05 enables mode 1 for translated intro event $0400. Component 06
-enables mode 2 for ordinary event-engine text in banks $C9/$CA. GAME SELECT
+enables mode 2 for ordinary event-engine text in stock banks $C9/$CA and
+for component-08 relocated event banks $E8-$EC. GAME SELECT
 also calls the stock parser initializer, so activation is structurally gated by
 the caller return address ($114B from JSR $C0:16B8 at $C0:1149).
 """
@@ -89,7 +90,8 @@ def _assemble_buffer_init() -> bytes:
     a.emit(0xE2, 0x20)
     a.label("dialogue_check")
 
-    # Component 06 generic dialogue mode: exact event parser + live C9/CA bank.
+    # Component 06 generic dialogue mode: exact event parser + stock C9/CA or
+    # component-08 relocated E8-EC bank.
     a.emit(0xAF, *lo24(DIALOGUE_CONFIG_CPU))
     a.emit(0xC9, DIALOGUE_MARKER)
     a.rel8(0xD0, "stock_init")
@@ -97,7 +99,11 @@ def _assemble_buffer_init() -> bytes:
     a.emit(0xC9, 0xC9)
     a.rel8(0xF0, "dialogue_active")
     a.emit(0xC9, 0xCA)
-    a.rel8(0xD0, "stock_init")
+    a.rel8(0xF0, "dialogue_active")
+    a.emit(0xC9, 0xE8)
+    a.rel8(0x90, "stock_init")
+    a.emit(0xC9, 0xED)
+    a.rel8(0xB0, "stock_init")
 
     a.label("dialogue_active")
     a.emit(0xA9, 0x02)                     # mode 2 = dialogue 38-char path

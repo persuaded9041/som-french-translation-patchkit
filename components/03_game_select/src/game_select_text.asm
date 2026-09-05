@@ -1,5 +1,5 @@
 ; Secret of Mana (USA) - GAME SELECT translation support
-; build_patch.py generates text/resources from assets/game_select_text.csv.
+; build_patch.py resolves source IDs from root assets/*.json and French text from root translations/*_french.json.
 
 hirom
 
@@ -24,7 +24,7 @@ org $C016F6
 org $C033B5
     dl $ED8000
 
-; GAME FILE/save-menu text is sourced from assets/game_file_text.csv.
+; GAME FILE/save-menu text is bound to root menu/interface source IDs and French translation JSON.
 ; The full C7:7340-C7:73BB resource is rebuilt at C7:4D40 so FILE can grow
 ; to "Fichier". Two table entries are redirected to that copy, but runtime
 ; validation showed that another path still consumes several stock locations.

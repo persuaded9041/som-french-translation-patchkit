@@ -1,0 +1,128 @@
+{
+  "format_version": 3,
+  "description": "Stock user-visible strings extracted from the compressed startup/title arrangement. Renderer/layout bytes and graphic-only tiles are not duplicated in this source asset.",
+  "source_rom_sha256": "4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f",
+  "groups": [
+    {
+      "group": "opening.prologue",
+      "entries": [
+        {
+          "id": "C7:B480+09F9",
+          "source": "darkness sweeps the"
+        },
+        {
+          "id": "C7:B480+0A10",
+          "source": "troubled land, as mana's"
+        },
+        {
+          "id": "C7:B480+0A2C",
+          "source": "power fades..."
+        },
+        {
+          "id": "C7:B480+0A3E",
+          "source": "people await a hero who"
+        },
+        {
+          "id": "C7:B480+0A59",
+          "source": "will wield the sword..."
+        },
+        {
+          "id": "C7:B480+0A74",
+          "source": "excalibur, herald, gigas..."
+        },
+        {
+          "id": "C7:B480+0A93",
+          "source": "the blade has had many"
+        },
+        {
+          "id": "C7:B480+0AAD",
+          "source": "names, for it has been"
+        },
+        {
+          "id": "C7:B480+0AC7",
+          "source": "celebrated in myths and"
+        },
+        {
+          "id": "C7:B480+0AE2",
+          "source": "legends throughout time."
+        },
+        {
+          "id": "C7:B480+0AFE",
+          "source": "but all of these speak to"
+        },
+        {
+          "id": "C7:B480+0B1B",
+          "source": "just one weapon:"
+        },
+        {
+          "id": "C7:B480+0B2F",
+          "source": "the sword of mana."
+        }
+      ]
+    },
+    {
+      "group": "opening.legal",
+      "entries": [
+        {
+          "id": "C7:B480+0B4D",
+          "source": "© 1993 SQUARE CO., LTD."
+        },
+        {
+          "id": "C7:B480+0B66",
+          "source": "all rights reserved."
+        },
+        {
+          "id": "C7:B480+0B7E",
+          "source": "licensed by nintendo"
+        }
+      ]
+    },
+    {
+      "group": "opening.system",
+      "entries": [
+        {
+          "id": "C7:B480+0B9B",
+          "source": "multi player adapter error"
+        }
+      ]
+    },
+    {
+      "group": "opening.credits",
+      "entries": [
+        {
+          "id": "C7:B480+0BB7",
+          "source": "programmed by nasir"
+        },
+        {
+          "id": "C7:B480+0BCC",
+          "source": "composed by h.kikuta"
+        },
+        {
+          "id": "C7:B480+0BE2",
+          "source": "directed by k.ishii"
+        },
+        {
+          "id": "C7:B480+0BF7",
+          "source": "produced by h.tanaka"
+        }
+      ]
+    },
+    {
+      "group": "opening.compatibility",
+      "entries": [
+        {
+          "id": "C7:B480+0C0E",
+          "source": "this game pak is not designed"
+        },
+        {
+          "id": "C7:B480+0C2D",
+          "source": "for your super famicom"
+        },
+        {
+          "id": "C7:B480+0C45",
+          "source": "or super nes."
+        }
+      ]
+    }
+  ]
+}

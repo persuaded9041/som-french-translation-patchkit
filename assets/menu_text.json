@@ -1,0 +1,331 @@
+{
+  "format_version": 3,
+  "description": "Native C7 menu/status source text outside the CA text-resource table. IDs are source SNES addresses; packed layout bytes and dynamic placeholders are omitted.",
+  "source_rom_sha256": "4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f",
+  "groups": [
+    {
+      "group": "menu.game_select",
+      "entries": [
+        {
+          "id": "C7:7314",
+          "source": "SELECT"
+        },
+        {
+          "id": "C7:731C",
+          "source": "GAME  SELECT"
+        },
+        {
+          "id": "C7:732A",
+          "source": "NEW GAME"
+        },
+        {
+          "id": "C7:7334",
+          "source": "GAME  FILE"
+        }
+      ]
+    },
+    {
+      "group": "menu.game_file",
+      "entries": [
+        {
+          "id": "C7:7341",
+          "source": "SELECT"
+        },
+        {
+          "id": "C7:7349",
+          "source": "FILE"
+        },
+        {
+          "id": "C7:7350",
+          "source": "SAVE  POINT"
+        },
+        {
+          "id": "C7:7374",
+          "source": "MONEY"
+        },
+        {
+          "id": "C7:7394",
+          "source": "GP"
+        },
+        {
+          "id": "C7:7398",
+          "source": "COUNTER"
+        },
+        {
+          "id": "C7:73AA",
+          "source": "MANA POWER"
+        },
+        {
+          "id": "C7:7805",
+          "source": "Empty"
+        },
+        {
+          "id": "C7:53C9",
+          "source": "L"
+        },
+        {
+          "id": "C7:5AF1",
+          "source": "L"
+        }
+      ]
+    },
+    {
+      "group": "menu.window_edit",
+      "entries": [
+        {
+          "id": "C7:73C9",
+          "source": "SELECT"
+        },
+        {
+          "id": "C7:73D1",
+          "source": "WINDOW  EDIT"
+        }
+      ]
+    },
+    {
+      "group": "menu.action_settings",
+      "entries": [
+        {
+          "id": "C7:73E0",
+          "source": "ATTACK"
+        },
+        {
+          "id": "C7:73E7",
+          "source": "KEEP AWAY"
+        },
+        {
+          "id": "C7:73F1",
+          "source": "APPROACH"
+        },
+        {
+          "id": "C7:73F9",
+          "source": "GUARD"
+        }
+      ]
+    },
+    {
+      "group": "menu.controller_edit",
+      "entries": [
+        {
+          "id": "C7:7409",
+          "source": "SELECT"
+        },
+        {
+          "id": "C7:7411",
+          "source": "CONTROLLER  EDIT"
+        },
+        {
+          "id": "C7:7423",
+          "source": "YOUR ICONS"
+        },
+        {
+          "id": "C7:7431",
+          "source": "ALLY'S ICONS"
+        },
+        {
+          "id": "C7:743F",
+          "source": "ATTACK"
+        },
+        {
+          "id": "C7:744D",
+          "source": "DASH"
+        }
+      ]
+    },
+    {
+      "group": "menu.weapon_skill",
+      "entries": [
+        {
+          "id": "C7:745E",
+          "source": "WEAPON SKILL"
+        },
+        {
+          "id": "C7:7478",
+          "source": "MAGIC SKILL"
+        }
+      ]
+    },
+    {
+      "group": "menu.magic_skill",
+      "entries": [
+        {
+          "id": "C7:7486",
+          "source": "MAGIC  SKILL"
+        },
+        {
+          "id": "C7:749F",
+          "source": "WEAPON SKILL"
+        }
+      ]
+    },
+    {
+      "group": "menu.name_entry",
+      "entries": [
+        {
+          "id": "C7:74B2",
+          "source": "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z"
+        }
+      ]
+    },
+    {
+      "group": "status.conditions",
+      "entries": [
+        {
+          "id": "C7:7A8E",
+          "source": "UNCONSCIOUS"
+        },
+        {
+          "id": "C7:7A9A",
+          "source": "ENGULFED"
+        },
+        {
+          "id": "C7:7AA3",
+          "source": "POISONED"
+        },
+        {
+          "id": "C7:7AAC",
+          "source": "MOOGLED!"
+        },
+        {
+          "id": "C7:7AB5",
+          "source": "TRANSFORMED"
+        },
+        {
+          "id": "C7:7AC1",
+          "source": "BARRELLED"
+        },
+        {
+          "id": "C7:7ACB",
+          "source": "SHRUNK"
+        },
+        {
+          "id": "C7:7AD2",
+          "source": "BALLOONED"
+        },
+        {
+          "id": "C7:7ADC",
+          "source": "DIZZY"
+        },
+        {
+          "id": "C7:7AE2",
+          "source": "PETRIFIED"
+        },
+        {
+          "id": "C7:7AEC",
+          "source": "FROZEN"
+        },
+        {
+          "id": "C7:7AF3",
+          "source": "SLEEPING"
+        },
+        {
+          "id": "C7:7AFC",
+          "source": "TANGLED UP"
+        },
+        {
+          "id": "C7:7B07",
+          "source": "SLOWED DOWN"
+        },
+        {
+          "id": "C7:7B13",
+          "source": "DAMAGED"
+        },
+        {
+          "id": "C7:7B1B",
+          "source": "DAMAGED!"
+        }
+      ]
+    },
+    {
+      "group": "status.templates",
+      "entries": [
+        {
+          "id": "C7:7B24",
+          "source": "LEVEL{5C16} "
+        },
+        {
+          "id": "C7:7B2D",
+          "source": "HP {5C12}"
+        },
+        {
+          "id": "C7:7B33",
+          "source": "MP{5C12} "
+        },
+        {
+          "id": "C7:7B39",
+          "source": "EXP. {5C12}"
+        },
+        {
+          "id": "C7:7B41",
+          "source": "FOR NEXT LEVEL {5C12}"
+        },
+        {
+          "id": "C7:7B53",
+          "source": "MANA POWER{5C16} "
+        },
+        {
+          "id": "C7:7B61",
+          "source": "MONEY {5C12}"
+        },
+        {
+          "id": "C7:7B6A",
+          "source": "GP"
+        }
+      ]
+    },
+    {
+      "group": "status.weapon_types",
+      "entries": [
+        {
+          "id": "C7:7B6D",
+          "source": "GLOVES"
+        },
+        {
+          "id": "C7:7B74",
+          "source": "SWORD"
+        },
+        {
+          "id": "C7:7B7A",
+          "source": "AXE"
+        },
+        {
+          "id": "C7:7B7E",
+          "source": "SPEAR"
+        },
+        {
+          "id": "C7:7B84",
+          "source": "WHIP"
+        },
+        {
+          "id": "C7:7B89",
+          "source": "BOW/ARROW"
+        },
+        {
+          "id": "C7:7B93",
+          "source": "BOOMERANG"
+        },
+        {
+          "id": "C7:7B9D",
+          "source": "JAVELIN"
+        }
+      ]
+    },
+    {
+      "group": "status.misc",
+      "entries": [
+        {
+          "id": "C7:7BA5",
+          "source": "TYPE"
+        },
+        {
+          "id": "C7:7BAA",
+          "source": "ENERGY ORB"
+        },
+        {
+          "id": "C7:7BB5",
+          "source": "/"
+        }
+      ]
+    }
+  ]
+}

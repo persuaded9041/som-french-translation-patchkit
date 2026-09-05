@@ -1,0 +1,89 @@
+{
+  "format_version": 1,
+  "language": "fr",
+  "source_asset": "opening_text.json",
+  "groups": [
+    {
+      "group": "opening.prologue",
+      "entries": [
+        {
+          "id": "C7:B480+09F9",
+          "text": ""
+        },
+        {
+          "id": "C7:B480+0A10",
+          "text": "Dans des temps troublés,"
+        },
+        {
+          "id": "C7:B480+0A2C",
+          "text": "le peuple attend le héros"
+        },
+        {
+          "id": "C7:B480+0A3E",
+          "text": "qui brandira l'Épée et"
+        },
+        {
+          "id": "C7:B480+0A59",
+          "text": "ramènera la paix dans"
+        },
+        {
+          "id": "C7:B480+0A74",
+          "text": "le monde.Excalibur,"
+        },
+        {
+          "id": "C7:B480+0A93",
+          "text": "Kusanagi,Masamune..."
+        },
+        {
+          "id": "C7:B480+0AAD",
+          "text": "L'Épée porte bien des noms"
+        },
+        {
+          "id": "C7:B480+0AC7",
+          "text": "dans les mythes et légendes"
+        },
+        {
+          "id": "C7:B480+0AE2",
+          "text": "qui la glorifient."
+        },
+        {
+          "id": "C7:B480+0AFE",
+          "text": "Mais tous désignent"
+        },
+        {
+          "id": "C7:B480+0B1B",
+          "text": "en fait la même lame :"
+        },
+        {
+          "id": "C7:B480+0B2F",
+          "text": "l'Épée sacrée de Mana."
+        }
+      ]
+    },
+    {
+      "group": "opening.credits",
+      "entries": [
+        {
+          "id": "C7:B480+0BB7",
+          "text": "Programmeur : NASIR"
+        },
+        {
+          "id": "C7:B480+0BF7",
+          "text": "Producteur : H.Tanaka"
+        },
+        {
+          "id": "C7:B480+0BCC",
+          "text": "Musiques : H.Kikuta"
+        },
+        {
+          "id": "C7:B480+0BE2",
+          "text": "Directeur : K.Ichii"
+        },
+        {
+          "id": "new:opening.credit.translation",
+          "text": "Traduction : E.CHAUVIRÉ"
+        }
+      ]
+    }
+  ]
+}

@@ -153,7 +153,8 @@ def make_event_render_scope_helper() -> bytes:
     The renderer at $C0:1664 is shared by the event engine, GAME SELECT and a
     third non-event caller.  The entry helper tags only the exact event-engine
     caller ($C0:1150, whose JSR return address on the stack is $1152) and only
-    for stock event banks $C9/$CA.  Internal hooks then consume this private
+    for stock event banks $C9/$CA and component-08 relocated banks $E8-$EC.
+    Internal hooks then consume this private
     flag instead of guessing from shared global state.
     """
     return bytes.fromhex(
@@ -477,7 +478,8 @@ def make_entry_helper() -> bytes:
       $235E = GAME SELECT ($C0:235C)
       $CB3E = other non-event caller ($C0:CB3C)
 
-    Tag only $1152 and then accept event banks $C9/$CA. Component 05 intercepts
+    Tag only $1152 and then accept stock event banks $C9/$CA plus component-08
+    relocated banks $E8-$EC. Component 05 intercepts
     its translated intro before this point, so its private $CA renderer remains
     isolated. $9385 is shared with component 05 only under mutually exclusive
     scopes (intro glyph-advance scratch there, renderer-active flag here).
@@ -510,7 +512,11 @@ def make_entry_helper() -> bytes:
     emit(0xC9, 0xC9)
     br(0xF0, "activate")
     emit(0xC9, 0xCA)
-    br(0xD0, "replay")
+    br(0xF0, "activate")
+    emit(0xC9, 0xE8)
+    br(0x90, "replay")
+    emit(0xC9, 0xED)
+    br(0xB0, "replay")
 
     label("activate")
     emit(0xA9, 0x01, 0x8D, 0x85, 0x93) # active = 1
@@ -547,7 +553,7 @@ def make_char_start_helper() -> bytes:
         emit(op, 0)
         branches.append((len(code) - 1, target))
 
-    emit(0x22, 0xB0, 0x73, 0xED)       # tagged event-render scope: exact caller + C9/CA
+    emit(0x22, 0xB0, 0x73, 0xED)       # tagged event-render scope: exact caller + C9/CA/E8-EC
     br(0x90, "replay")                 # BCC replay
     emit(0x22, 0x80, 0x73, 0xED)       # JSL $ED7380: snapshot useful chunk cells
 
@@ -593,7 +599,7 @@ def make_char_end_helper() -> bytes:
         branches.append((len(code) - 1, target))
 
     emit(0xFA)                          # stock PLX
-    emit(0x22, 0xB0, 0x73, 0xED)       # tagged event-render scope: exact caller + C9/CA
+    emit(0x22, 0xB0, 0x73, 0xED)       # tagged event-render scope: exact caller + C9/CA/E8-EC
     br(0x90, "stock_tail")             # BCC -> stock loop tail
 
     emit(0xBD, 0x8F, 0x93)             # current private decoded byte ($9390 + X - 1)
@@ -781,7 +787,7 @@ def make_outline_post_helper() -> bytes:
 
     The repair itself is bank-neutral. Runtime-validated scope gating requires
     the exact component-06 renderer-active tag value ($7E:9385 == $01), so
-    ordinary tagged $C9/$CA dialogue is eligible while component 05's translated
+    ordinary tagged $C9/$CA or relocated $E8-$EC dialogue is eligible while component 05's translated
     intro remains excluded: under that mutually-exclusive scope $9385 holds a
     validated glyph advance in the range 3..8, never the tag value 1.
 
@@ -1166,7 +1172,7 @@ def main() -> None:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(patch)
     print(f"IPS: {args.output}")
-    print("Caller-gated $C9/$CA dialogue VWF with runtime-validated pixel-aware right-edge wrap")
+    print("Caller-gated $C9/$CA + relocated $E8-$EC dialogue VWF with pixel-aware right-edge wrap")
 
 
 if __name__ == "__main__":

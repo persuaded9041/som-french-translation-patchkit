@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Build the French new-game intro VWF IPS patch.
 
-Text comes from assets/text/scrtxt_fr.bin (Android IDs 3445-3452).
-Line/page breaks are defined by numeric word counts in intro_layout.json.
+French text comes from root translations/intro_event_french.json and is bound
+to the clean-USA event-$0400 source by ROM-position IDs. Line/page breaks are
+defined by numeric word counts in intro_layout.json.
 """
 
 from __future__ import annotations
@@ -28,8 +29,13 @@ FONT_BASE = 0x12DC00
 ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
+COMPONENT_08 = PROJECT_ROOT / "components" / "08_dialogue_text"
+sys.path.insert(0, str(COMPONENT_08))
 from shared.rom import validate_base_rom, update_checksum  # noqa: E402
 from shared.ips import make_ips  # noqa: E402
+from shared.intro_event_text import load_document as load_intro_source, make_document as make_intro_source  # noqa: E402
+from shared.translation_json import load_translation, require  # noqa: E402
+from dialogue_codec import parse_event  # noqa: E402
 from shared.asm65816 import MiniAssembler, lo16, lo24  # noqa: E402
 from shared.vwf_geometry import left_compact_glyph  # noqa: E402
 from shared.vwf_metrics import apply_validated_framing, validated_advance  # noqa: E402
@@ -77,8 +83,6 @@ ASCII_TO_SOM.update({".": 0xBF, ",": 0xC0, "'": 0xC2})
 ASCII_TO_SOM.update(CHAR_TO_CODE)
 INTRO_RENDER_CODES = frozenset(ASCII_TO_SOM.values())
 
-SCRTXT_FILE = ROOT / "assets" / "text" / "scrtxt_fr.bin"
-INTRO_ANDROID_IDS = tuple(range(3445, 3453))
 INTRO_EVENT_START = 0x0C02
 INTRO_EVENT_END_STOCK = 0x0E44
 INTRO_EVENT_FILE = 0x0A0000 + INTRO_EVENT_START
@@ -98,124 +102,79 @@ LAYOUT_METADATA_FILE = ROOT / "assets" / "text" / "intro_layout.json"
 
 
 
-def load_android_intro_texts() -> list[str]:
-    """Read Android French intro entries 3445-3452 from scrtxt_fr.bin."""
-    data = SCRTXT_FILE.read_bytes()
-    if len(data) < 8:
-        raise SystemExit("assets/scrtxt_fr.bin is too small")
-    count, pool_size = struct.unpack_from("<II", data, 0)
-    table_end = 8 + count * 8
-    if table_end > len(data):
-        raise SystemExit("Invalid scrtxt_fr.bin entry table")
-    pool = data[table_end:]
-    if pool_size > len(pool):
-        raise SystemExit("Invalid scrtxt_fr.bin string pool size")
-
-    wanted = set(INTRO_ANDROID_IDS)
-    found: dict[int, str] = {}
-    for index in range(count):
-        text_id, offset = struct.unpack_from("<II", data, 8 + index * 8)
-        if text_id not in wanted or text_id in found:
-            continue
-        if offset >= len(pool):
-            raise SystemExit(f"Invalid scrtxt_fr.bin offset for ID {text_id}")
-        end = pool.find(b"\x00", offset)
-        if end < 0:
-            raise SystemExit(f"Unterminated scrtxt_fr.bin string for ID {text_id}")
-        found[text_id] = pool[offset:end].decode("utf-8")
-
-    missing = [text_id for text_id in INTRO_ANDROID_IDS if text_id not in found]
-    if missing:
-        raise SystemExit("Missing Android intro IDs: " + ", ".join(map(str, missing)))
-    return [found[text_id] for text_id in INTRO_ANDROID_IDS]
+def load_french_intro_texts(base: bytes) -> tuple[list[str], list[str]]:
+    source_document = load_intro_source(PROJECT_ROOT / "assets" / "intro_event.json")
+    canonical = make_intro_source(parse_event(base, 0x0400))
+    if source_document != canonical:
+        raise SystemExit("intro_event.json differs from a fresh clean-ROM extraction")
+    try:
+        translations = load_translation(
+            PROJECT_ROOT / "translations" / "intro_event_french.json",
+            source_document,
+            source_asset="intro_event.json",
+        )
+        ids = [entry["id"] for entry in source_document["entries"]]
+        texts = require(translations, ids, context="French intro event $0400")
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
+    return ids, texts
 
 
-
-def load_layout_metadata(android_texts: list[str]) -> list[list[str]]:
-    """Apply numeric line/page metadata to text read from scrtxt_fr.bin.
-
-    The JSON file stores only word counts. For each Android entry, words are
-    consumed sequentially according to those counts. This keeps the translation
-    source exclusively in the binary asset while preserving an editor-controlled
-    page and line layout.
-    """
+def load_layout_metadata(text_ids: list[str], french_texts: list[str]) -> list[list[str]]:
+    """Apply numeric line/page metadata to the root French intro translation."""
     try:
         metadata = json.loads(LAYOUT_METADATA_FILE.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise SystemExit(f"Cannot read layout metadata: {exc}") from exc
 
-    if metadata.get("format_version") != 1:
+    if metadata.get("format_version") != 2:
         raise SystemExit("Unsupported intro layout metadata version")
     entries = metadata.get("entries")
     if not isinstance(entries, dict):
         raise SystemExit("intro_layout.json must contain an 'entries' object")
-
-    expected_ids = [str(text_id) for text_id in INTRO_ANDROID_IDS]
-    if sorted(entries, key=int) != expected_ids:
-        raise SystemExit(
-            "intro_layout.json must contain exactly IDs " + ", ".join(expected_ids)
-        )
+    if list(entries) != text_ids:
+        raise SystemExit("intro_layout.json IDs/order must match assets/intro_event.json")
 
     result: list[list[str]] = []
-    for text_id, source in zip(INTRO_ANDROID_IDS, android_texts):
+    for text_id, source in zip(text_ids, french_texts, strict=True):
         normalized = " ".join(source.replace("\r", " ").replace("\n", " ").split())
         words = normalized.split(" ") if normalized else []
-        page_spec = entries[str(text_id)]
+        page_spec = entries[text_id]
         if not isinstance(page_spec, list) or not page_spec:
-            raise SystemExit(f"Android ID {text_id} has invalid page metadata")
+            raise SystemExit(f"Intro text {text_id} has invalid page metadata")
 
         cursor = 0
         pages: list[str] = []
         for page_index, line_counts in enumerate(page_spec, 1):
             if not isinstance(line_counts, list) or not 1 <= len(line_counts) <= 3:
-                raise SystemExit(
-                    f"Android ID {text_id} page {page_index} must contain 1-3 line counts"
-                )
+                raise SystemExit(f"Intro text {text_id} page {page_index} must contain 1-3 line counts")
             lines: list[str] = []
             for line_index, count in enumerate(line_counts, 1):
                 if not isinstance(count, int) or count <= 0:
-                    raise SystemExit(
-                        f"Android ID {text_id} page {page_index} line {line_index} "
-                        "has an invalid word count"
-                    )
-                end = cursor + count
-                if end > len(words):
-                    raise SystemExit(
-                        f"Android ID {text_id} layout consumes more words than the BIN text"
-                    )
-                line = " ".join(words[cursor:end])
-                cursor = end
+                    raise SystemExit(f"Intro text {text_id} page {page_index} line {line_index} has an invalid word count")
+                word_end = cursor + count
+                if word_end > len(words):
+                    raise SystemExit(f"Intro text {text_id} layout consumes more words than its translation")
+                line = " ".join(words[cursor:word_end])
+                cursor = word_end
                 if len(line) > LINE_CHAR_LIMIT:
-                    raise SystemExit(
-                        f"Android ID {text_id} page {page_index} line {line_index} "
-                        f"exceeds {LINE_CHAR_LIMIT} visible characters ({len(line)})"
-                    )
+                    raise SystemExit(f"Intro text {text_id} page {page_index} line {line_index} exceeds {LINE_CHAR_LIMIT} visible characters ({len(line)})")
                 lines.append(line)
             pages.append("\n".join(lines))
 
         if cursor != len(words):
-            raise SystemExit(
-                f"Android ID {text_id} layout consumes {cursor} of {len(words)} words"
-            )
+            raise SystemExit(f"Intro text {text_id} layout consumes {cursor} of {len(words)} words")
         result.append(pages)
     return result
 
 # Wait inserted between two pages of the same paragraph.
-SUBPAGE_WAIT = {
-    3446: 0x18,
-    3447: 0x1C,
-    3448: 0x18,
-    3449: 0x12,
-}
+SUBPAGE_WAIT_BY_INDEX = {1: 0x18, 2: 0x1C, 3: 0x18, 4: 0x12}
 
 # Stock/new WAIT after each paragraph. The command is stored in the gap before
 # the following text run.
-PARAGRAPH_END_WAIT = {
-    3445: (0x30, 0x18),
-    3446: (0x38, 0x1C),
-    3447: (0x40, 0x18),
-    3448: (0x38, 0x14),
-    3449: (0x30, 0x12),
+PARAGRAPH_END_WAIT_BY_INDEX = {
+    0: (0x30, 0x18), 1: (0x38, 0x1C), 2: (0x40, 0x18),
+    3: (0x38, 0x14), 4: (0x30, 0x12),
 }
 
 
@@ -223,7 +182,7 @@ def encode_french(text: str) -> bytes:
     try:
         return bytes(0x7F if ch == "\n" else ASCII_TO_SOM[ch] for ch in text)
     except KeyError as exc:
-        raise SystemExit(f"Unsupported French character from scrtxt_fr.bin: {exc.args[0]!r}") from exc
+        raise SystemExit(f"Unsupported French intro character: {exc.args[0]!r}") from exc
 
 
 def choose_dte_pairs(encoded_texts: list[bytes], max_pairs: int = 0xFF - DTE_NEW_THRESHOLD):
@@ -309,13 +268,13 @@ def rebuild_intro_event(base: bytes, french_chunks: list[bytes]) -> bytes:
         gap = bytearray(stock[cursor - INTRO_EVENT_START : start - INTRO_EVENT_START])
 
         if index:
-            previous_id = INTRO_ANDROID_IDS[index - 1]
-            if previous_id in PARAGRAPH_END_WAIT:
-                stock_wait, new_wait = PARAGRAPH_END_WAIT[previous_id]
+            previous_index = index - 1
+            if previous_index in PARAGRAPH_END_WAIT_BY_INDEX:
+                stock_wait, new_wait = PARAGRAPH_END_WAIT_BY_INDEX[previous_index]
                 if len(gap) < 2 or gap[0] != 0x28 or gap[1] != stock_wait:
                     raise SystemExit(
-                        f"Expected WAIT ${stock_wait:02X} after Android ID "
-                        f"{previous_id}, got: {gap[:4].hex(' ')}"
+                        f"Expected WAIT ${stock_wait:02X} after intro part {previous_index + 1}, "
+                        f"got: {gap[:4].hex(' ')}"
                     )
                 gap[1] = new_wait
 
@@ -586,25 +545,25 @@ def main(source_rom: Path, output_path: Path, patched_rom: Path | None = None) -
     glyph_start = FONT_BASE + (ACCENT_FIRST - 0x80) * 12
     rom[glyph_start : glyph_start + len(french_glyphs)] = french_glyphs
 
-    # Extract and prepare French text directly from the Android binary.
-    android_texts = load_android_intro_texts()
-    paragraph_pages = load_layout_metadata(android_texts)
+    # Load the sparse French translation bound to the canonical event-$0400 source.
+    text_ids, french_texts = load_french_intro_texts(base)
+    paragraph_pages = load_layout_metadata(text_ids, french_texts)
 
     # Validate logical and pixel line widths.
     check_advances, _check_font = make_vwf_font(rom)
-    for text_id, pages in zip(INTRO_ANDROID_IDS, paragraph_pages):
+    for text_id, pages in zip(text_ids, paragraph_pages, strict=True):
         for page in pages:
             if len(page.split("\n")) > 3:
-                raise SystemExit(f"Android ID {text_id} page exceeds three lines")
+                raise SystemExit(f"Intro text {text_id} page exceeds three lines")
             for line in page.split("\n"):
                 if len(line) > LINE_CHAR_LIMIT:
                     raise SystemExit(
-                        f"Wrapped line for Android ID {text_id} exceeds {LINE_CHAR_LIMIT} chars: {line!r}"
+                        f"Wrapped line for Intro text {text_id} exceeds {LINE_CHAR_LIMIT} chars: {line!r}"
                     )
                 pixel_width = sum(check_advances[ASCII_TO_SOM[ch] - 0x80] for ch in line)
                 if pixel_width > 252:
                     raise SystemExit(
-                        f"Wrapped line for Android ID {text_id} exceeds 252 pixels: "
+                        f"Wrapped line for Intro text {text_id} exceeds 252 pixels: "
                         f"{pixel_width}px: {line!r}"
                     )
 
@@ -614,7 +573,7 @@ def main(source_rom: Path, output_path: Path, patched_rom: Path | None = None) -
 
     compressed_chunks = []
     page_cursor = 0
-    for text_id, pages in zip(INTRO_ANDROID_IDS, paragraph_pages):
+    for text_index, (text_id, pages) in enumerate(zip(text_ids, paragraph_pages, strict=True)):
         encoded_pages = compressed_pages[page_cursor : page_cursor + len(pages)]
         page_cursor += len(pages)
 
@@ -622,12 +581,10 @@ def main(source_rom: Path, output_path: Path, patched_rom: Path | None = None) -
             compressed_chunks.append(encoded_pages[0])
             continue
 
-        if len(encoded_pages) != 2 or text_id not in SUBPAGE_WAIT:
-            raise SystemExit(
-                f"Unexpected multi-page timing configuration for Android ID {text_id}"
-            )
+        if len(encoded_pages) != 2 or text_index not in SUBPAGE_WAIT_BY_INDEX:
+            raise SystemExit(f"Unexpected multi-page timing configuration for intro text {text_id}")
 
-        separator = bytes((0x28, SUBPAGE_WAIT[text_id], 0x52))  # WAIT, CLEAR
+        separator = bytes((0x28, SUBPAGE_WAIT_BY_INDEX[text_index], 0x52))  # WAIT, CLEAR
         compressed_chunks.append(separator.join(encoded_pages))
 
     # Rebuild event $0400 with the configured page and paragraph waits.
@@ -735,8 +692,7 @@ def main(source_rom: Path, output_path: Path, patched_rom: Path | None = None) -
         patched_rom.parent.mkdir(parents=True, exist_ok=True)
         patched_rom.write_bytes(rom)
 
-    print(f"Android IDs: {INTRO_ANDROID_IDS[0]}-{INTRO_ANDROID_IDS[-1]}")
-    for text_id, pages in zip(INTRO_ANDROID_IDS, paragraph_pages):
+    for text_id, pages in zip(text_ids, paragraph_pages, strict=True):
         lengths = [[len(line) for line in page.split("\n")] for page in pages]
         print(f"{text_id}: pages {lengths}")
     print(f"Private DTE pairs: {len(dte_pairs)}")

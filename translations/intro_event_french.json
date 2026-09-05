@@ -1,0 +1,44 @@
+{
+  "format_version": 1,
+  "language": "fr",
+  "source_asset": "intro_event.json",
+  "groups": [
+    {
+      "group": "intro.event_0400",
+      "entries": [
+        {
+          "id": "CA:0C0D",
+          "text": "Jadis, une civilisation se servit du pouvoir de Mana pour croître et prospérer..."
+        },
+        {
+          "id": "CA:0C59",
+          "text": "Bientôt les hommes tentèrent d'utiliser Mana à des fins guerrières, et bâtirent un immense vaisseau appelé Forteresse de Mana."
+        },
+        {
+          "id": "CA:0CB3",
+          "text": "Cette soif de puissance provoqua cependant le courroux des Dieux, qui envoyèrent alors leurs bénévodons sur terre..."
+        },
+        {
+          "id": "CA:0D0C",
+          "text": "Le conflit opposant les bénévodons à la puissante Forteresse dévasta le monde, et la force de Mana semblait vouée à disparaître..."
+        },
+        {
+          "id": "CA:0D5C",
+          "text": "C'est alors qu'un brave brandit l'Épée sacrée et parvint à vaincre la Forteresse. Les bénévodons tombèrent dans l'oubli..."
+        },
+        {
+          "id": "CA:0DAB",
+          "text": "La civilisation avait été anéantie par le conflit, mais la paix était revenue sur terre..."
+        },
+        {
+          "id": "CA:0DFF",
+          "text": "Mais le temps s'écoule tel le flot des rivières..."
+        },
+        {
+          "id": "CA:0E21",
+          "text": "Et l'histoire se répète."
+        }
+      ]
+    }
+  ]
+}

@@ -77,7 +77,8 @@ shared_vwf_buffer_init:
     sep #$20
 .dialogue_check:
 
-    ; Mode 2: component 06 real event-engine text in stock banks C9/CA.
+    ; Mode 2: component 06 real event-engine text in stock C9/CA or
+    ; component-08 relocated E8-EC banks.
     lda.l !DIALOGUE_CONFIG
     cmp #$06
     bne .stock_init
@@ -85,7 +86,11 @@ shared_vwf_buffer_init:
     cmp #$C9
     beq .dialogue_active
     cmp #$CA
-    bne .stock_init
+    beq .dialogue_active
+    cmp #$E8
+    bcc .stock_init
+    cmp #$ED
+    bcs .stock_init
 .dialogue_active:
     lda #$02
     bra .private_init

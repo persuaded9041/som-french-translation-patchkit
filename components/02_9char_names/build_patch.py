@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
-"""Build the standalone 9-character French Name Entry IPS.
-
-The module remains self-contained from the clean unheadered US ROM. Editable
-character rows and help text live in assets/. 65C816/data edits are centralized
-in src/patch_data.py and mirrored as readable assembly in src/*.asm.
+"""Build the standalone 9-character French Name Entry component from the clean USA ROM.
+Editable character rows remain component-local; shared source/translation text
+lives at repository root and is bound by ROM-position ID. 65C816/data edits are
+centralized in src/patch_data.py and mirrored as readable assembly in src/*.asm.
 """
 from __future__ import annotations
 
 import argparse
-import csv
 import re
 import sys
 from pathlib import Path
@@ -16,26 +14,19 @@ from pathlib import Path
 from src.patch_data import STATIC_EDITS
 
 
-
-
-# Find shared/ both in the full repository and in a standalone component pack.
-def find_shared_root(component_root: Path) -> Path:
-    candidates = (
-        component_root.parent.parent,  # repository/components/02_9char_names
-        component_root.parent,         # standalone pack/02_9char_names
-    )
-    for candidate in candidates:
-        if (candidate / "shared" / "french_charset").is_dir():
-            return candidate
-    raise SystemExit("Could not locate shared/french_charset")
-
-
 ROOT = Path(__file__).resolve().parent
-PROJECT_ROOT = find_shared_root(ROOT)
+PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 from shared.french_charset import BASIC_FRENCH_CHARS, glyph_bytes, profile_mapping, profile_threshold  # noqa: E402
 from shared.rom import validate_base_rom, update_checksum, expand_rom  # noqa: E402
 from shared.ips import make_ips  # noqa: E402
+from shared.interface_text import (  # noqa: E402
+    NAME_HELP_GROUP,
+    group_entries,
+    load_document as load_interface_text,
+    verify_against_rom as verify_interface_text,
+)
+from shared.translation_json import load_translation, require  # noqa: E402
 
 # Naming screen can safely use the original French-ROM range $D4-$E0. The
 # extended $E1-$E5 slots are still used by graphics on this screen.
@@ -140,41 +131,49 @@ def build_character_rows(path: Path) -> bytes:
     return bytes(output)
 
 
-def encode_help_text(path: Path) -> bytes:
-    with path.open("r", encoding="utf-8", newline="") as handle:
-        reader = csv.DictReader(handle)
-        if reader.fieldnames != ["id", "text"]:
-            raise SystemExit(f"{path.name} must use exactly the columns: id,text")
-        rows = list(reader)
-    if not rows:
-        raise SystemExit(f"{path.name} is empty")
-
-    expected_ids = [f"NAME_HELP_{i}" for i in range(1, len(rows) + 1)]
-    actual_ids = [row["id"].strip() for row in rows]
-    if actual_ids != expected_ids:
-        raise SystemExit(f"{path.name} IDs must be sequential: {', '.join(expected_ids)}")
+def encode_help_text(interface_text: dict, translations: dict[str, str]) -> bytes:
+    source_entries = group_entries(interface_text, NAME_HELP_GROUP)
+    try:
+        texts = require(
+            translations, [entry["id"] for entry in source_entries], context="Name Entry help"
+        )
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
 
     encoded_lines: list[bytes] = []
-    for line_number, row in enumerate(rows, 1):
+    for line_number, text in enumerate(texts, 1):
         out = bytearray((0x80,))  # stock resource begins each displayed line with a blank
         quote_open = True
-        for char in row["text"]:
+        for char in text:
             if char == '"':
                 out.append(0xC3 if quote_open else 0xC4)
                 quote_open = not quote_open
             elif char in ASCII_TO_SOM:
                 out.append(ASCII_TO_SOM[char])
             else:
-                raise SystemExit(f"Unsupported character {char!r} in {path.name}, row {line_number}")
+                raise SystemExit(f"Unsupported character {char!r} in French Name Entry translation, row {line_number}")
         if not quote_open:
-            raise SystemExit(f"Unbalanced double quote in {path.name}, row {line_number}")
+            raise SystemExit(f"Unbalanced double quote in French Name Entry translation, row {line_number}")
         encoded_lines.append(bytes(out))
     return b"\x7f".join(encoded_lines)
 
 
-def build_naming_resource() -> bytes:
+def build_naming_resource(base: bytes) -> bytes:
+    interface_text = load_interface_text(PROJECT_ROOT / "assets" / "interface_text.json")
+    try:
+        verify_interface_text(base, interface_text)
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
+    try:
+        translations = load_translation(
+            PROJECT_ROOT / "translations" / "interface_text_french.json",
+            interface_text,
+            source_asset="interface_text.json",
+        )
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
     rows = build_character_rows(ROOT / "assets" / "naming_characters.txt")
-    help_text = encode_help_text(ROOT / "assets" / "naming_help.csv")
+    help_text = encode_help_text(interface_text, translations)
     # Explicit terminator/guard bytes complete the relocated resource.
     resource = rows + help_text + bytes(16)
     if len(resource) > MAX_RESOURCE_SIZE:
@@ -217,7 +216,7 @@ def main() -> None:
 
     base = args.rom.read_bytes()
     validate_base_rom(base)
-    resource = build_naming_resource()
+    resource = build_naming_resource(base)
     patched = apply_source_edits(base, resource)
     ips = make_ips(base, patched)
 

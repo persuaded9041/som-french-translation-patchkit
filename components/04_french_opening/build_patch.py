@@ -10,7 +10,7 @@ Main changes:
 - original accent-overlay system: $7D acute, $7E grave, $7F circumflex;
 - compact $02 markers, each rendered as "e " (two cells), chosen as needed to preserve the stock prologue block size;
 - literal three-period sequence for "Masamune...";
-- French startup credits sourced from CSV, including a dedicated one-cell É at $7A;
+- French startup credits sourced from root translation JSON, including a dedicated one-cell É at $7A;
 - original copyright-year tile workaround;
 - title arrangement relocated to ROM 0x2E8000 / CPU $EE:8000;
 - 3 MiB ROM expansion.
@@ -20,7 +20,6 @@ Secret of Mana (USA), headerless
 """
 
 from pathlib import Path
-import csv
 import sys
 import argparse
 from PIL import Image
@@ -30,6 +29,8 @@ PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 from shared.rom import validate_base_rom, update_checksum, expand_rom, EXPANDED_SIZE, ROM_SIZE_OFFSET  # noqa: E402
 from shared.ips import apply_ips, make_ips  # noqa: E402
+from shared.opening_text import load_document as load_opening_source, verify_against_rom as verify_opening_source  # noqa: E402
+from shared.translation_json import load_translation, require  # noqa: E402
 
 TITLE_CODE_ROM = 0x077C00
 TITLE_ARR_ROM = 0x07B480
@@ -183,41 +184,32 @@ def compress_block(data, key):
     )
 
 
-def read_lines(path):
-    with path.open("r", encoding="utf-8-sig", newline="") as f:
-        rows = list(csv.DictReader(f))
+def _opening_group(document: dict, group_name: str) -> list[dict]:
+    matches = [group for group in document["groups"] if group.get("group") == group_name]
+    if len(matches) != 1:
+        raise ValueError(f"Opening source group {group_name!r} is missing or duplicated")
+    return matches[0]["entries"]
 
-    if len(rows) != 13:
-        raise ValueError("Expected exactly 13 opening rows")
 
-    result = []
-    for expected, row in enumerate(rows, 1):
-        if int(row["line"]) != expected:
-            raise ValueError("Opening line numbers must run from 1 to 13")
-        result.append(row["text"])
-
+def read_lines(source_document: dict, translations: dict[str, str]) -> list[str]:
+    entries = _opening_group(source_document, "opening.prologue")
+    if len(entries) != 13:
+        raise ValueError("Expected exactly 13 opening source rows")
+    result = require(translations, [entry["id"] for entry in entries], context="French opening prologue")
     if result[0] != "":
-        raise ValueError(
-            "Line 1 must remain blank because it uses the special 01 02 record"
-        )
-
+        raise ValueError("Translated prologue row 1 must remain blank because it uses the special 01 02 record")
     return result
 
 
-def read_credits(path):
-    with path.open("r", encoding="utf-8-sig", newline="") as f:
-        rows = list(csv.DictReader(f))
-
-    if len(rows) != 5:
-        raise ValueError("Expected exactly five startup credit lines")
-
-    result = []
-    for expected, row in enumerate(rows, 1):
-        if int(row["line"]) != expected:
-            raise ValueError("Credit line numbers must run from 1 to 5")
-        result.append(row["text"])
-
-    return result
+def read_credits(source_document: dict, translations: dict[str, str]) -> list[str]:
+    entries = _opening_group(source_document, "opening.credits")
+    if len(entries) != 4:
+        raise ValueError("Expected exactly four stock opening credit strings")
+    # Stock physical order is programmer, composer, director, producer.
+    # The validated French sequence is programmer, producer, composer, director.
+    order = (0, 3, 1, 2)
+    ids = [entries[index]["id"] for index in order] + ["new:opening.credit.translation"]
+    return require(translations, ids, context="French opening credits")
 
 
 def encode_char(ch):
@@ -625,14 +617,10 @@ def main():
     parser.add_argument("-o", "--output", type=Path, default=root / "build" / "patch.ips", help="output IPS path")
     parser.add_argument("--patched-rom", type=Path, help="optional patched ROM output")
     parser.add_argument("--layout", type=Path, help="optional generated layout report")
-    parser.add_argument("--text", type=Path, default=root / "assets" / "opening_text.csv")
-    parser.add_argument("--credits", type=Path, default=root / "assets" / "opening_credits.csv")
     parser.add_argument("--font", type=Path, default=root / "assets" / "opening_font.png")
     args = parser.parse_args()
 
     src = args.rom
-    text_path = args.text
-    credits_path = args.credits
     font_path = args.font
     output_path = args.output
 
@@ -640,8 +628,18 @@ def main():
 
     validate_base_rom(original)
 
-    lines = read_lines(text_path)
-    credits = read_credits(credits_path)
+    source_document = load_opening_source(PROJECT_ROOT / "assets" / "opening_text.json")
+    try:
+        verify_opening_source(original, source_document)
+        translations = load_translation(
+            PROJECT_ROOT / "translations" / "opening_text_french.json",
+            source_document,
+            source_asset="opening_text.json",
+        )
+        lines = read_lines(source_document, translations)
+        credits = read_credits(source_document, translations)
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
     if any("z" in text.lower() for text in lines + credits):
         raise ValueError("Opening tile $7A is reserved for startup-credit É; literal Z is unavailable")
 

@@ -32,10 +32,28 @@ for the owning component even when the current generated payload is shorter.
 | intro skip | `0x00012C-0x00012F` | `$C0:012C-$012F` | runtime-validated event-engine hook and R trigger, gated to translated event `$0400` |
 | intro skip | `0x0000AC34-0x0000AC37` | `$C0:AC34-$AC37` | per-NMI R-release reset hook |
 | intro skip | `0x0AFFC0-0x0AFFC7` | `$CA:FFC0-$FFC7` | runtime-validated R-triggered end-of-intro cleanup + direct-waterfall event |
+| dialogue text relocation | `0x01E794-0x01E799` | `$C1:E794-$E799` | runtime-validated sparse-event resolver hook; installed only when relocation is used |
+| dialogue text relocation | `0x280000-0x2817FF` | `$E8:0000-$17FF` | sparse 2048-entry 24-bit relocation table |
+| dialogue text relocation | `0x281800-0x281FFF` | `$E8:1800-$1FFF` | reserved event-loader resolver helper |
+| dialogue text relocation | `0x282000-0x2CFFFF` | `$E8:2000-$EC:FFFF` | reserved deterministic relocated-event pool |
 | dialogue VWF | `0x2D7340-0x2D73AA` | `$ED:7340-$73AA` | runtime-validated generic interrupted-chunk physical-cell commit/snapshot helpers |
 | dialogue VWF | `0x2D73B0-0x2D73B8` | `$ED:73B0-$73B8` | runtime-validated renderer-active scope helper |
 | intro skip | `0x2D7400-0x2D74FF` | `$ED:7400-$74FF` | reserved intro-skip input helper region |
 | dialogue VWF | `0x2D7500-0x2D77FF` | `$ED:7500-$77FF` | pixel-aware parser preflight, glyph-fit helper and framed-right-edge table; gaps reserved to component 06 |
+
+
+`08_dialogue_text` keeps in-place reinsertion for rebuilt events that still fit
+their clean-USA span. Growth is now handled by a sparse 24-bit relocation table
+and the reserved `$E8-$EC` pool above. Unrelocated IDs still read the live stock
+pointer tables, preserving component 05's ownership of `$0400-$040F`. The
+relocation path is runtime-validated: unchanged event `$0107` executed from
+`$E8:2000` with normal dynamic-name insertion, VWF rendering, line breaks and
+WAIT behavior. The temporary force probe has been removed; normal builds
+relocate only translated events that genuinely outgrow their clean-USA span.
+
+Components 05/06 contain the minimal validated extension needed to accept
+`$E8-$EC` under their existing structural event-parser / renderer caller gates.
+Their validated `$C9/$CA` behavior is otherwise unchanged.
 
 The GAME FILE relocation uses the stock-`$FF` gap after the intro VWF DTE allocation and ends before the Name Entry layout at `C7:4E00`. GAME SELECT's relocated label block ends before the intro VWF width table. New allocations
 must be checked against both the reserved ranges above and the actual IPS write
@@ -43,7 +61,7 @@ maps produced by all components.
 
 `04_french_opening` also repurposes tile `$7A` inside its existing opening-font resource as a one-cell `É` for startup credits. This is a font-slot convention rather than a new ROM or WRAM allocation; the scrolling-text accent tiles `$7D-$7F` remain unchanged.
 
-GAME FILE also keeps its CSV-backed stock label fields synchronized in place at `C7:7340-C7:73BB`, because runtime validation showed that one menu path still reads them even after the two table pointers are redirected to `C7:4D40`. The four-cell stock FILE field contains the `Fich` prefix; the relocated resource contains full `Fichier`. Additional in-place edits at ROM `0x0753C9` / `$C7:53C9` and `0x075AF1` / `$C7:5AF1` change the dynamic level prefix from `L` to `N` (`$A6 -> $A8`), and ROM `0x077585` / `$C7:7585` changes the FILE-frame descriptor from `$03` (6 text cells) to `$04` (8 text cells). These are not new allocations.
+GAME FILE also keeps its translation-JSON-backed stock label fields synchronized in place at `C7:7340-C7:73BB`, because runtime validation showed that one menu path still reads them even after the two table pointers are redirected to `C7:4D40`. The four-cell stock FILE field contains the `Fich` prefix; the relocated resource contains full `Fichier`. Additional in-place edits at ROM `0x0753C9` / `$C7:53C9` and `0x075AF1` / `$C7:5AF1` change the dynamic level prefix from `L` to `N` (`$A6 -> $A8`), and ROM `0x077585` / `$C7:7585` changes the FILE-frame descriptor from `$03` (6 text cells) to `$04` (8 text cells). These are not new allocations.
 
 ## 06_dialogue_vwf — global allocation view
 
@@ -55,7 +73,7 @@ uses `$7E:9390-$93BB` for private VWF decoding. Component-owned config bytes at
 
 Component 06 uses renderer hooks in bank `$C0` and helper/table space in the
 `$ED:7040-$73B8` area. Its renderer scratch is `$7E:9382-$938F` only for
-caller-tagged event-render invocations in stock banks `$C9/$CA`. Component 05
+caller-tagged event-render invocations in stock banks `$C9/$CA` and, for the relocation candidate, reserved banks `$E8-$EC`. Component 05
 intercepts translated intro event `$0400` before component 06 reaches its entry
 hook, so their overlapping WRAM scratch remains mutually exclusive.
 

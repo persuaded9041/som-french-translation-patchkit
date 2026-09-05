@@ -1,0 +1,58 @@
+{
+  "format_version": 1,
+  "language": "fr",
+  "source_asset": "interface_text.json",
+  "groups": [
+    {
+      "group": "game_select.welcome",
+      "entries": [
+        {
+          "id": "C0:33F0",
+          "text": "Bienvenue dans Secret of Mana."
+        },
+        {
+          "id": "C0:340C",
+          "text": "Choisissez \"Nouveau\" pour commencer une nouvelle partie."
+        },
+        {
+          "id": "C0:343B",
+          "text": "Choisissez \"Continuer\" pour reprendre une partie."
+        },
+        {
+          "id": "C0:3472",
+          "text": "Appuyez sur le bouton B pour commencer."
+        }
+      ]
+    },
+    {
+      "group": "game_file.save_help",
+      "entries": [
+        {
+          "id": "C0:348D",
+          "text": "Sauvegarder sur un fichier utilisé efface ses données."
+        },
+        {
+          "id": "C0:34BE",
+          "text": "Appuyez sur B pour sauvegarder, ou sur Y pour annuler."
+        }
+      ]
+    },
+    {
+      "group": "name_entry.help",
+      "entries": [
+        {
+          "id": "C0:3584",
+          "text": "Choisissez une lettre avec la Croix Directionnelle."
+        },
+        {
+          "id": "C0:35BF",
+          "text": "Appuyez sur B pour valider. Le nom peut faire"
+        },
+        {
+          "id": "C0:35FB",
+          "text": "9 lettres maximum. Appuyez sur Start pour continuer."
+        }
+      ]
+    }
+  ]
+}

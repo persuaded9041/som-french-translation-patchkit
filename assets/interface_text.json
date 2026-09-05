@@ -1,0 +1,169 @@
+{
+  "format_version": 3,
+  "description": "Stock help/status source rows referenced by the C0:33B5 24-bit interface pointer table. ROM pointers, terminators and layout framing are derived from the clean USA ROM.",
+  "source_rom_sha256": "4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f",
+  "groups": [
+    {
+      "group": "game_select.welcome",
+      "category": "game_select_help",
+      "entries": [
+        {
+          "id": "C0:33F0",
+          "source": "WELCOME TO SECRET OF MANA."
+        },
+        {
+          "id": "C0:340C",
+          "source": "CHOOSE “NEW GAME” TO START FROM THE BEGINNING."
+        },
+        {
+          "id": "C0:343B",
+          "source": "CHOOSE “GAME FILE” TO START FROM WHERE YOU LAST SAVED."
+        },
+        {
+          "id": "C0:3472",
+          "source": "PRESS B-BUTTON TO START."
+        }
+      ]
+    },
+    {
+      "group": "game_file.save_help",
+      "category": "game_file_help",
+      "entries": [
+        {
+          "id": "C0:348D",
+          "source": "SAVING OVER AN OLD FILE WILL ERASE THE OLD DATA."
+        },
+        {
+          "id": "C0:34BE",
+          "source": "PUSH “ATTACK” BUTTON TO SAVE.  PUSH “ICON” BUTTON TO EXIT."
+        }
+      ]
+    },
+    {
+      "group": "window_settings.help",
+      "category": "window_settings_help",
+      "entries": [
+        {
+          "id": "C0:34F9",
+          "source": "SELECT A WINDOW WITH THE DIRECTION KEY."
+        },
+        {
+          "id": "C0:3521",
+          "source": "CHANGE THE COLOR GAUGE BY PRESSING A/Y/X DOWN."
+        },
+        {
+          "id": "C0:3550",
+          "source": "PUSH B-BUTTON TO SET.  PUSH SELECT BUTTON TO EXIT."
+        }
+      ]
+    },
+    {
+      "group": "name_entry.help",
+      "category": "name_entry_help",
+      "entries": [
+        {
+          "id": "C0:3584",
+          "source": "SELECT A LETTER USING THE CONTROL PAD. PRESS THE “ATTACK”"
+        },
+        {
+          "id": "C0:35BF",
+          "source": "(OR B BUTTON) TO ENTER. NAMES CAN BE UP TO 6 LETTERS LONG."
+        },
+        {
+          "id": "C0:35FB",
+          "source": "PRESS THE START BUTTON TO CONTINUE."
+        }
+      ]
+    },
+    {
+      "group": "action_settings.help",
+      "category": "action_settings_help",
+      "entries": [
+        {
+          "id": "C0:3620",
+          "source": "PLACE FOR ACTION TYPE. PUSH “ATTACK” BUTTON TO SET."
+        },
+        {
+          "id": "C0:3654",
+          "source": "KEEP GAUGE UP TO WHICH LEVEL? PUSH “ATTACK” BUTTON TO SET."
+        },
+        {
+          "id": "C0:368F",
+          "source": " 0 1 2 3 4 5 6 7 8"
+        }
+      ]
+    },
+    {
+      "group": "weapon_skill.help",
+      "category": "weapon_skill_help",
+      "entries": [
+        {
+          "id": "C7:784C",
+          "source": "CHECK THE WEAPON SKILL/LEVEL DATA HERE."
+        },
+        {
+          "id": "C7:7874",
+          "source": "PUSH “ATTACK” BUTTON TO START. CHOOSE A WEAPON WITH"
+        },
+        {
+          "id": "C7:78A8",
+          "source": "THE CONTROL PAD. PUSH “ATTACK” TO SEE DATA."
+        }
+      ]
+    },
+    {
+      "group": "magic_skill.help",
+      "category": "magic_skill_help",
+      "entries": [
+        {
+          "id": "C7:78D4",
+          "source": "CHECK THE MAGIC SKILL/LEVEL DATA HERE."
+        },
+        {
+          "id": "C7:78FB",
+          "source": "PUSH “ATTACK” BUTTON TO START. CHOOSE AN ELEVENTAL WITH"
+        },
+        {
+          "id": "C7:7933",
+          "source": "THE CONTROL PAD. PUSH “ATTACK” TO SEE DATA."
+        }
+      ]
+    },
+    {
+      "group": "controller_edit.help",
+      "category": "controller_edit_help",
+      "entries": [
+        {
+          "id": "C7:795F",
+          "source": "TO CHANGE THE BUTTON ASSIGNMENT, KEEP THE BUTTON DOWN,AND"
+        },
+        {
+          "id": "C7:7999",
+          "source": "PUSH RIGHT/LEFT ON THE CONTROL PAD. RELEASE TO SET."
+        },
+        {
+          "id": "C7:79CD",
+          "source": "PUSH L OR R-BUTTON TO CHANGE THE CONTROLLER TYPE."
+        },
+        {
+          "id": "C7:79FF",
+          "source": "PUSH START TO SET.  PUSH SELECT TO EXIT."
+        }
+      ]
+    },
+    {
+      "group": "status.labels",
+      "category": "status_labels",
+      "entries": [
+        {
+          "id": "C7:7A28",
+          "source": "STRENGTH  AGILITY   CONSTITUTIINTELLIGENWISDOM    ATTACK    "
+        },
+        {
+          "id": "C7:7A65",
+          "source": "HIT %     DEFENSE   EVADE %   MAGIC DEF "
+        }
+      ]
+    }
+  ]
+}

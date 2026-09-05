@@ -1,0 +1,6 @@
+{
+  "id": "08_dialogue_text",
+  "short_name": "dialogue-text",
+  "name": "Editable stock dialogue extraction/reinsertion",
+  "shared_charset_profile": "full_french"
+}

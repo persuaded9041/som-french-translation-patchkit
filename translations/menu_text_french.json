@@ -1,0 +1,73 @@
+{
+  "format_version": 1,
+  "language": "fr",
+  "source_asset": "menu_text.json",
+  "groups": [
+    {
+      "group": "menu.game_select",
+      "entries": [
+        {
+          "id": "C7:7314",
+          "text": "Choisir"
+        },
+        {
+          "id": "C7:731C",
+          "text": "Votre choix"
+        },
+        {
+          "id": "C7:732A",
+          "text": "Nouveau"
+        },
+        {
+          "id": "C7:7334",
+          "text": "Continuer"
+        }
+      ]
+    },
+    {
+      "group": "menu.game_file",
+      "entries": [
+        {
+          "id": "C7:7341",
+          "text": "Choisir"
+        },
+        {
+          "id": "C7:7349",
+          "text": "Fichier"
+        },
+        {
+          "id": "C7:7350",
+          "text": "Lieu"
+        },
+        {
+          "id": "C7:7374",
+          "text": "Argent"
+        },
+        {
+          "id": "C7:7394",
+          "text": "PO"
+        },
+        {
+          "id": "C7:7398",
+          "text": "Compteur"
+        },
+        {
+          "id": "C7:73AA",
+          "text": "Force Mana"
+        },
+        {
+          "id": "C7:7805",
+          "text": "Vide"
+        },
+        {
+          "id": "C7:53C9",
+          "text": "N"
+        },
+        {
+          "id": "C7:5AF1",
+          "text": "N"
+        }
+      ]
+    }
+  ]
+}

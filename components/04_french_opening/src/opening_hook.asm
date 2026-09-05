@@ -1,8 +1,8 @@
 ; Secret of Mana (USA) - French opening renderer helper
 ;
 ; This file documents the helper emitted byte-for-byte by build_patch.py.
-; The startup-credit É does not require helper code: opening_credits.csv maps
-; it to tile $7A, whose artwork lives directly in assets/opening_font.png.
+; The startup-credit É does not require helper code: the root French
+; translation JSON maps it to tile $7A, whose artwork lives in assets/opening_font.png.
 ; $7A was the opening font's Z slot and is reserved by this component.
 
 hirom

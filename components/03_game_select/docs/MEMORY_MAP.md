@@ -25,7 +25,7 @@ These locations are both extraction sources and active runtime mirrors. The full
 | `0x0033B8` | pointer to save-help text (`$C0:348D`) | 3 bytes |
 | `0x00348D-0x0034F8` | two-line save help block | 108 bytes |
 
-The builder preserves every validated stock field boundary above and mirrors the CSV-backed values there. `FILE_LABEL` is the exception only in content length: the stock field receives its first four encoded cells (`Fich` currently), while its segment is expanded inside the relocated resource to full `Fichier`. The save-help payload is separately relocated to `ED:8400` and is no longer limited by the 108-byte stock block.
+The builder preserves every validated stock field boundary above and mirrors the translation-JSON-backed values there. `FILE_LABEL` is the exception only in content length: the stock field receives its first four encoded cells (`Fich` currently), while its segment is expanded inside the relocated resource to full `Fichier`. The save-help payload is separately relocated to `ED:8400` and is no longer limited by the 108-byte stock block.
 
 ## GAME FILE relocation hooks
 

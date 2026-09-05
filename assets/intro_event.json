@@ -1,0 +1,39 @@
+{
+  "format_version": 3,
+  "description": "Stock source text from event $0400. The event itself remains owned by 05_intro_vwf_french and is intentionally excluded from component-08 dialogues.json.",
+  "source_rom_sha256": "4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f",
+  "entries": [
+    {
+      "id": "CA:0C0D",
+      "source": " Using the power of Mana,\n a civilization had grown\n strong..."
+    },
+    {
+      "id": "CA:0C59",
+      "source": " In time, Mana was used to\n create the ultimate weapon: the Mana Fortress..."
+    },
+    {
+      "id": "CA:0CB3",
+      "source": " This angered the gods.\n They sent their beasts to\n destroy the Fortress..."
+    },
+    {
+      "id": "CA:0D0C",
+      "source": " A violent war rocked the\n world, and Mana seemed to\n disappear..."
+    },
+    {
+      "id": "CA:0D5C",
+      "source": " Before all was lost, a hero with the Mana Sword smashed the Fortress..."
+    },
+    {
+      "id": "CA:0DAB",
+      "source": " Though the civilization had been destroyed, the world\n was peaceful again."
+    },
+    {
+      "id": "CA:0DFF",
+      "source": " But time flows like a\n river..."
+    },
+    {
+      "id": "CA:0E21",
+      "source": "and history\n repeats..."
+    }
+  ]
+}
