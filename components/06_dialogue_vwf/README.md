@@ -1,177 +1,32 @@
-# 06 — Dialogue VWF
+# Dialogue VWF
 
-Runtime-validated proportional rendering for normal in-game event dialogue.
+Adds variable-width rendering to stock event dialogue while leaving GAME SELECT and other users of the shared stock renderer fixed-width.
 
-The stock text renderer at `$C0:1664` is shared by the event engine, GAME SELECT
-and another non-event caller. Component 06 therefore does **not** identify
-conversation text from `$001D03` alone. At its renderer-entry hook it inspects
-the actual `JSR $1664` return address on the stack and enables the VWF only for
-the event-engine call from `$C0:1150` (stacked return `$1152`), then accepts the
-two stock event banks `$C9` and `$CA`.
+## Runtime-validated scope
 
-This caller-based scope is runtime-validated: `$CA` story dialogue that previously
-fell back to fixed width now uses the VWF, while GAME SELECT remains on its
-original fixed-width path.
+- VWF activates only for the real event-engine renderer call `$C0:1150 -> $C0:1664` in banks `$C9/$CA`.
+- The parser bridge activates structurally for the event-parser caller `$114B`; GAME SELECT remains stock.
+- The shared private buffer allows up to 38 logical decoded characters while physical output remains limited to the stock 32-cell / 256-pixel bitmap.
+- `$C0:168A-$C0:16B0` remains intact.
+- Interruptions/WAIT use generic VWF-width-to-physical-cell conversion.
+- The post-outline repair is runtime-validated for tagged `$C9/$CA` dialogue.
+- Pixel-aware preflight prevents source glyphs from being consumed past the physical right edge; the `You have a sword` clipping case is runtime-validated as repaired.
 
-Component `05_intro_vwf_french` still owns translated intro event `$0400`: its
-hook at `$C0:1664` intercepts that event and exits before component 06's
-`$C0:167D` entry point, so the two VWF renderers remain isolated.
+One presentation improvement remains deliberately deferred: when no safe word boundary is available, a word may still be split across lines. A future pass should move the whole next word to a fresh line when it fits there.
 
-## Current status
+## Component-specific behavior
 
-The 38-character private-buffer parser/renderer checkpoint is runtime-validated.
-The shared-compositor refactoring is runtime-validated. The already validated row
-shift/merge/spill sequence now lives in a byte-identical helper shared with component 05.
-The framing/advance policy is factored into `../../shared/vwf_metrics.py`, and
-the stock-font/framing path shared with component 05 is runtime-validated.
+Component 06 keeps its event-engine gating, dialogue parser integration, interruption handling, pixel-aware right-edge protection and post-outline repair. Charset, metrics/framing, text-buffer bridge, compositor, stock-font row renderer and outline preparation are shared with component 05.
 
-Runtime-validated:
+The post-outline repair is gated by the exact component-06 renderer tag `$9385 == $01`, which excludes component 05's intro use of the same scratch byte.
 
-- caller-based event-render scope: `$C0:1150 -> $C0:1664`, banks `$C9/$CA`;
-- GAME SELECT/non-event uses of `$C0:1664` remain fixed-width;
-- stock `$C0:168A-$C0:16B0` glyph lookup / `×12` addressing / `$D2:DC00` reads;
-- continuous pixel cursor with no forced 8 px realignment;
-- cross-cell merge + spill composition;
-- 128-entry advance table at `$ED:7200-$ED:727F`;
-- actual glyph advances from 3 through 8 px;
-- lowercase, uppercase, punctuation and French direct-glyph framing/metrics;
-- post-stock outline-boundary repair on ordinary tagged `$C9/$CA` dialogue;
-- standalone installation of the canonical shared French charset `$D4-$E5` with
-  direct/DTE threshold `$E6`;
-- generic event-interruption handling for interrupted chunks;
-- shared 44-byte parser buffer and 38-character logical dialogue capacity;
-- pixel-aware parser preflight that prevents source glyphs from being consumed
-  past the physical right edge; the known `You have a sword` clipping case is
-  runtime-validated as repaired.
+## Technical documentation
 
-The post-outline repair is gated by the exact component-06 tag
-`$9385 == $01`. This scope is runtime-validated for ordinary `$C9/$CA` dialogue
-and excludes component 05 intro, where `$9385` is a validated glyph advance in
-the range `3..8`.
+Detailed implementation notes intentionally live outside this README:
 
-The interruption path snapshots the cumulative VWF width exactly when the useful
-decoded characters end, converts that width to physical 8 px cells, and commits
-that cell count through `$A1CE` before stock progression. No event address,
-movement command or WAIT opcode is special-cased.
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): renderer design, scope and invariants.
+- [`docs/MEMORY_MAP.md`](docs/MEMORY_MAP.md): ROM/WRAM hooks and scratch allocations.
+- [`docs/EVENT_INTERRUPTION_NOTES.md`](docs/EVENT_INTERRUPTION_NOTES.md): interrupted-chunk/event hand-off behavior.
+- [`docs/NEXT_STEPS.md`](docs/NEXT_STEPS.md): current handoff and remaining work.
 
-Runtime validation covers both `" Wait "` = 30 px -> 4 cells -> `up!` and a
-dynamic-name `"A:Hey! "` = 44 px -> 6 cells -> `Guys!` boundary. See
-`docs/EVENT_INTERRUPTION_NOTES.md`.
-
-
-Runtime-validated 38-character extension:
-
-- components 05 and 06 install the same parser-buffer bridge generated by
-  `../../shared/vwf_text_buffer.py`;
-- the bridge activates only for the real event-parser caller (`$114B`), so GAME
-  SELECT's `$235B` parser call remains stock;
-- dialogue decoding uses the shared 44-byte private buffer `$7E:9390-$93BB`;
-- a fresh dialogue line receives 39 parser units = up to 38 decoded glyphs plus
-  the following control;
-- tagged dialogue rendering processes 38 logical slots while physical output
-  remains the stock 32-cell / 256-pixel bitmap;
-- 33-38-character line-break chunks are converted to physical cells before
-  stock progression.
-
-The shared VWF primitives are installed byte-identically by components 05 and
-06. Component 06 keeps `$C0:168A-$16B0` intact and delegates only the tagged
-per-row stock-font load/framing/composition path to the shared `$C7:4560` helper.
-
-## Pixel-aware right-edge wrapping
-
-The 38-character logical parser capacity is intentionally larger than the stock
-32-cell bitmap. Component 06 therefore hooks the dialogue source fetch at
-`$C0:16EA` only while shared parser mode 2 is active. Before advancing the source
-pointer, it preflights direct glyphs and DTE pairs against the true remaining
-physical pixel budget using the validated advance table plus a generated framed
-right-edge table.
-
-If the next token would clip visible ink, the parser ends the chunk before that
-token. When a safe source-space checkpoint exists it can rewind to that boundary,
-clear discarded private-buffer slots and resume from the following word. Dynamic
-name temporary sources are never rewound, and DTE tokens remain atomic. DTEs whose
-second decoded glyph is a space can provide a source-aligned checkpoint.
-
-Runtime validation confirms that the earlier `You have a sword` case no longer
-consumes and loses `a s` at the physical right edge.
-
-One presentation improvement is deliberately deferred: a long word can still be
-split when there is no usable space before the physical boundary. A future pass
-should pre-wrap the whole next word to a fresh line when that word fits there,
-rather than changing the currently validated clipping-safety behavior now.
-
-## Charset / metrics checkpoint
-
-Validated lowercase framing:
-
-- `a-h`, `k`, `m-s`, `u-z`: shift left 1 px;
-- `i`, `l`: shift left 3 px;
-- `j`, `t`: shift left 2 px.
-
-Validated lowercase advances:
-
-- `a-h/k/m-q/s/u-z = 7`;
-- `i/l = 3`;
-- `j = 4`;
-- `r = 6`;
-- `t = 5`;
-- space = 4.
-
-Other validated glyph groups:
-
-- uppercase `A-H/J-Z = shift 1 / advance 7`, `I = shift 3 / advance 3`;
-- `$B5-$BE` are `0-9`; their stock/generic widths are satisfactory and remain
-  intentionally unspecialized;
-- `. , / '` (`$BF-$C2`): shifts `0/0/0/0`, advances `4/4/7/4`;
-- paired quotes `$C3/$C4`: shifts `0/1`, advances `7/7`;
-- `:` `$C5`: shift `1`, advance `7`;
-- `- % & ?` (`$C6/$C7/$C9/$CA`): shift `0`, advance `8`;
-- `! ( )` (`$C8/$CB/$CC`): shifts `2/2/1`, advances `5/5/5`;
-- French `$D4-$E3`: shift `1`, advance `7`;
-- French `$E4/$E5` (`Œ/œ`): shift `0`, advance `8`.
-
-`$CD` is deliberately excluded from special handling and remains on the generic
-conservative path.
-
-## Documentation
-
-Component-specific technical information lives here rather than in the global
-project documents:
-
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — renderer design, scope and invariants;
-- [`docs/MEMORY_MAP.md`](docs/MEMORY_MAP.md) — ROM/WRAM hooks and private scratch;
-- [`docs/EVENT_INTERRUPTION_NOTES.md`](docs/EVENT_INTERRUPTION_NOTES.md) — stock event/text hand-off and interrupted-chunk solution;
-- [`docs/NEXT_STEPS.md`](docs/NEXT_STEPS.md) — current handoff and remaining work.
-
-Cross-component charset and collision policy remains in the root `docs/` folder.
-
-## Build
-
-From the repository root:
-
-```bash
-python3 components/06_dialogue_vwf/build_patch.py "Secret of Mana (USA).sfc" \
-  -o build/06_dialogue_vwf.ips
-```
-
-Or rebuild only this component and refresh the global patch from the other stored component IPS files:
-
-```bash
-python3 build.py "Secret of Mana (USA).sfc" dialogue-vwf --combine
-```
-
-The commercial ROM is a local build input only and must never be committed or
-included in release archives.
-
-## Shared VWF primitives and policy
-
-The builder uses `../../shared/vwf_geometry.py` for renderer-neutral 8×12 glyph
-ink-bound measurement, `../../shared/vwf_metrics.py` for the canonical validated
-framing/advance policy, `../../shared/vwf_framing.py` for the shared runtime
-selector, `../../shared/vwf_text_buffer.py` for the byte-identical private
-parser-buffer bridge, `../../shared/vwf_compositor.py` for row shift/merge/spill,
-`../../shared/vwf_row_renderer.py` for the common stock-row load + framing +
-composition path, and `../../shared/vwf_outline.py` for the shared stock-outline
-`ROL -> ASL` preparation. The stock `$C0:168A-$16B0` code-to-glyph addressing remains
-intact; only the hooked row load at `$C0:16A4` delegates to the shared helper on
-tagged dialogue invocations.
+`build_patch.py` is the executable source of truth; ASM files are readable references for generated code.
