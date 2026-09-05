@@ -6,8 +6,9 @@ This project was developed with assistance from ChatGPT by OpenAI for code revie
 documentation, reverse-engineering analysis, and implementation support.
 
 Every component targets the same clean, unheadered USA ROM and can be
-built alone. `build.py` rebuilds selected components from their editable
-sources, audits their writes, and emits a combined IPS.
+built alone. `build.py` can rebuild only the components currently being worked
+on, stores their standalone IPS files under `patches/`, and can combine those
+reusable patches into `patches/all.ips` without rebuilding unchanged components.
 
 ## Required base ROM
 
@@ -31,9 +32,10 @@ Component metadata lives in `components/*/component.json`. The aggregate builder
 discovers components from these manifests; adding a component does not require a
 hard-coded component list in the root scripts.
 
-No generated `.ips` file is stored in this repository. Each `build_patch.py`
-reconstructs its standalone IPS from the clean USA ROM plus the component's
-editable sources/assets.
+Standalone component IPS files may be kept in `patches/` as reusable build
+snapshots. Each `build_patch.py` can still reconstruct its patch from the clean
+USA ROM plus the component's editable sources/assets. The aggregate builder
+never needs to rebuild an unchanged component when its stored IPS is available.
 
 ## Shared code and charset
 
@@ -73,22 +75,52 @@ Install the Python dependency:
 python3 -m pip install -r requirements.txt
 ```
 
-Build all components into one IPS:
+The normal incremental workflow keeps one standalone patch per component in
+`patches/`, named after the component directory. For example:
 
-```bash
-python3 build.py "Secret of Mana (USA).sfc" all -o build/all.ips
+```text
+patches/05_intro_vwf_french.ips
+patches/06_dialogue_vwf.ips
 ```
 
-The explicit `all` is optional:
+Rebuild only the components currently being modified:
 
 ```bash
-python3 build.py "Secret of Mana (USA).sfc" -o build/all.ips
+python3 build.py "Secret of Mana (USA).sfc" intro-vwf dialogue-vwf
 ```
 
-Build a subset:
+The same command accepts component IDs instead of short names. To rebuild every
+component patch:
 
 ```bash
-python3 build.py "Secret of Mana (USA).sfc" tree names game-select -o build/custom.ips
+python3 build.py "Secret of Mana (USA).sfc" all
+```
+
+Once all component IPS files exist, combine the stored patches without
+rebuilding any component:
+
+```bash
+python3 build.py "Secret of Mana (USA).sfc" --combine
+```
+
+This writes `patches/all.ips`. During normal development, rebuild one or more
+components and refresh the global patch in a single command:
+
+```bash
+python3 build.py "Secret of Mana (USA).sfc" dialogue-vwf --combine
+```
+
+Only `06_dialogue_vwf.ips` is rebuilt; all other component patches are reused.
+The compatibility audit is then run over the complete stored set before
+`all.ips` is produced. This also catches shared-code changes that require a
+second component to be rebuilt: incompatible stale overlaps abort instead of
+being silently merged.
+
+A different patch directory or combined output may be selected when needed:
+
+```bash
+python3 build.py "Secret of Mana (USA).sfc" dialogue-vwf \
+  --patch-dir /tmp/som-patches --combine -o /tmp/all.ips
 ```
 
 List discovered component names:
@@ -97,21 +129,22 @@ List discovered component names:
 python3 build.py --list
 ```
 
-Optionally emit a patched ROM for local testing:
+Optionally emit a patched ROM while combining:
 
 ```bash
-python3 build.py "Secret of Mana (USA).sfc" all \
-  -o build/all.ips \
+python3 build.py "Secret of Mana (USA).sfc" --combine \
   --patched-rom "build/Secret of Mana (USA) - French.sfc"
 ```
 
-Generated ROMs and IPS files are build products only and must not be committed.
+ROM files remain local build products and must never be committed or
+redistributed. The `patches/` directory is intentionally not ignored so its IPS
+files can be versioned when desired.
 
 ## Compatibility policy
 
 Components remain standalone, so byte-identical writes can be intentional. The
-aggregate builder reconstructs every selected component in a temporary directory
-and audits the resulting IPS write maps before combining them.
+aggregate builder audits the stored standalone IPS write maps before combining
+them. Component builders still target the clean base ROM independently.
 
 Allowed overlaps are:
 

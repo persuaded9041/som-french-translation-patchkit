@@ -154,10 +154,10 @@ python3 components/06_dialogue_vwf/build_patch.py "Secret of Mana (USA).sfc" \
   -o build/06_dialogue_vwf.ips
 ```
 
-Or build it together with every component:
+Or rebuild only this component and refresh the global patch from the other stored component IPS files:
 
 ```bash
-python3 build.py "Secret of Mana (USA).sfc" all -o build/all.ips
+python3 build.py "Secret of Mana (USA).sfc" dialogue-vwf --combine
 ```
 
 The commercial ROM is a local build input only and must never be committed or
