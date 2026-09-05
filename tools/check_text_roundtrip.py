@@ -8,11 +8,9 @@ from pathlib import Path
 import sys
 
 ROOT = Path(__file__).resolve().parent.parent
-COMPONENT_08 = ROOT / "components" / "08_dialogue_text"
 sys.path.insert(0, str(ROOT))
-sys.path.insert(0, str(COMPONENT_08))
 
-from dialogue_codec import (  # noqa: E402
+from shared.dialogue_codec import (  # noqa: E402
     EVENT_COUNT,
     load_document as load_dialogues,
     parse_event,

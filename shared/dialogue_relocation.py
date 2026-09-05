@@ -1,4 +1,4 @@
-"""Extended-bank relocation support for edited event scripts.
+"""Extended-bank relocation support for edited stock event scripts.
 
 The stock event dispatcher resolves IDs $0000-$07FF to a 16-bit pointer in
 bank $C9 or $CA.  Component 08 leaves that path untouched unless at least one

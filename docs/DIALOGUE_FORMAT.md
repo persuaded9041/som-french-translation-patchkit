@@ -91,7 +91,7 @@ Text-command layouts currently represented include:
 - `$5D-$5F`: one byte.
 
 Other event command lengths required by the stock scripts are encoded in
-`dialogue_codec.py`, including the variable `$2D` form. Unsupported opcodes still
+`shared/dialogue_codec.py`, including the variable `$2D` form. Unsupported opcodes still
 abort extraction. The codec does not infer a length from surrounding bytes.
 
 With these layouts, every event `$0000-$07FF` in the clean USA ROM parses

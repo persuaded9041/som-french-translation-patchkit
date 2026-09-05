@@ -1,0 +1,13 @@
+{
+  "include": [
+    "build.py",
+    "shared",
+    "tools",
+    "components"
+  ],
+  "exclude": [
+    "**/__pycache__",
+    "**/build"
+  ],
+  "extraPaths": ["."]
+}

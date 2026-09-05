@@ -113,6 +113,7 @@ shared stock-font row load + framing + compositor helper used by both VWF paths;
 owns the common stock-outline `ROL -> ASL` preparation installed by both VWF
 components; `shared/vwf_outline.asm` documents that one-byte fix.
 `shared/translation_json.py` binds sparse language files to canonical source IDs.
+`shared/dialogue_codec.py` owns the stock event/dialogue parser and deterministic serializer used by root text tools and components 05/08. `shared/dialogue_relocation.py` owns the validated sparse expanded-ROM event relocation mechanism consumed by component 08. Keeping these modules under `shared/` avoids cross-component Python imports.
 `shared/text_ids.py` defines the position-based source-ID scheme. `shared/components.py` discovers component
 manifests and `shared/compatibility.py` owns cross-component merge rules.
 
@@ -122,6 +123,8 @@ each standalone IPS still writes the bytes required for independent operation.
 See `docs/SHARED_CHARSET.md`.
 
 ## Build
+
+For VS Code/Pylance, the repository includes `pyrightconfig.json` so root `shared.*` imports resolve without editor-specific path settings.
 
 Install the Python dependency:
 

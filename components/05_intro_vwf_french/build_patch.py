@@ -29,13 +29,11 @@ FONT_BASE = 0x12DC00
 ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
-COMPONENT_08 = PROJECT_ROOT / "components" / "08_dialogue_text"
-sys.path.insert(0, str(COMPONENT_08))
 from shared.rom import validate_base_rom, update_checksum  # noqa: E402
 from shared.ips import make_ips  # noqa: E402
 from shared.intro_event_text import load_document as load_intro_source, make_document as make_intro_source  # noqa: E402
 from shared.translation_json import load_translation, require  # noqa: E402
-from dialogue_codec import parse_event  # noqa: E402
+from shared.dialogue_codec import parse_event  # noqa: E402
 from shared.asm65816 import MiniAssembler, lo16, lo24  # noqa: E402
 from shared.vwf_geometry import left_compact_glyph  # noqa: E402
 from shared.vwf_metrics import apply_validated_framing, validated_advance  # noqa: E402

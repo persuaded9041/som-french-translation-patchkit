@@ -19,9 +19,8 @@ import sys
 ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
-sys.path.insert(0, str(ROOT))
 
-from dialogue_codec import (  # noqa: E402
+from shared.dialogue_codec import (  # noqa: E402
     count_edited_text_tokens,
     load_document,
     read_event,
@@ -29,7 +28,7 @@ from dialogue_codec import (  # noqa: E402
     verify_source_roundtrip,
     verify_unedited_reinsertion,
 )
-from relocation import (  # noqa: E402
+from shared.dialogue_relocation import (  # noqa: E402
     install as install_relocation,
     pack_events,
     validate_stock as validate_relocation_stock,

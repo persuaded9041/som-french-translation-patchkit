@@ -3,6 +3,7 @@
 Deterministic extraction/reinsertion of stock event dialogue. Component 06 owns
 the runtime VWF renderer; component 08 owns event text data and reconstruction.
 No VWF metric, framing rule or compositor is defined here.
+The stock event codec and relocation helper live in `shared/dialogue_codec.py` and `shared/dialogue_relocation.py`; component 08 consumes them rather than exposing Python modules for other components to import.
 
 ## Validated base
 

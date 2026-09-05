@@ -1,4 +1,4 @@
-"""Deterministic stock event/dialogue codec used by component 08.
+"""Deterministic stock event/dialogue codec shared by extraction and builders.
 
 The codec is deliberately structural. The canonical source JSON stores only semantic
 command data and readable clean-ROM text; all ROM addresses and exact unchanged text
@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import struct
 from pathlib import Path
+from typing import Any
 
 from shared.stock_text import decode_text_unit, encode_text
 from shared.rom import BASE_SHA256, validate_base_rom
@@ -254,7 +255,8 @@ def _glyph_byte(token: dict) -> bytes:
 
 def parse_event(rom: bytes, event_id: int, *, include_source_bytes: bool = False) -> dict:
     data, file_start, pointer = read_event(rom, event_id)
-    tokens: list[dict] = []
+    tokens: list[dict[str, Any]] = []
+    token: dict[str, Any]
     pos = 0
 
     while pos < len(data):
