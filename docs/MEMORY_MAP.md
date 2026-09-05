@@ -20,6 +20,10 @@ for the owning component even when the current generated payload is shorter.
 | intro VWF | `0x0744C0-0x074CBF` | `$C7:44C0-$4CBF` | 128 × 12-byte compact glyph table |
 | intro VWF | `0x074D00-0x074D31` | `$C7:4D00-$4D31` | 25-pair private DTE table |
 | intro VWF | WRAM | `$7E:9390-$93BB` | 44-byte private parser buffer |
+| intro skip | `0x00012C-0x00012F` | `$C0:012C-$012F` | runtime-validated event-engine hook and R trigger, gated to translated event `$0400` |
+| intro skip | `0x0000AC34-0x0000AC37` | `$C0:AC34-$AC37` | per-NMI R-release reset hook |
+| intro skip | `0x0AFFC0-0x0AFFC7` | `$CA:FFC0-$FFC7` | runtime-validated R-triggered end-of-intro cleanup + direct-waterfall event |
+| intro skip | `0x2D7400-0x2D74FF` | `$ED:7400-$74FF` | reserved intro-skip input helper region |
 
 The GAME FILE relocation uses the stock-`$FF` gap after the intro VWF DTE allocation and ends before the Name Entry layout at `C7:4E00`. GAME SELECT's relocated label block ends before the intro VWF width table. New allocations
 must be checked against both the reserved ranges above and the actual IPS write
@@ -39,3 +43,5 @@ mutually exclusive `$CA` intro scope.
 The complete hook-by-hook allocation, fixed addresses and scratch ownership are
 documented in `components/06_dialogue_vwf/docs/MEMORY_MAP.md`. This root map
 intentionally avoids duplicating renderer status and calibration details.
+
+`07_intro_skip` runtime checkpoint reuses `$7E:938A-$938B` only during the `$CA` intro scope for a non-blocking R-hold timer. Component 06 uses the same bytes only under mutually exclusive `$C9` dialogue scope. A 4-byte NMI hook at `$C0:AC34-$AC37` clears the active-hold flag on physical R release so separate presses cannot accumulate. Both helpers remain inside the existing `$ED:7400-$74FF` reserve.

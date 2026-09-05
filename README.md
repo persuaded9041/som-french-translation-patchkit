@@ -25,6 +25,7 @@ The ROM itself is deliberately not included.
 4. `04_french_opening` - French startup credits/opening text.
 5. `05_intro_vwf_french` - French new-game introduction with VWF, private DTE and accented glyphs.
 6. `06_dialogue_vwf` - development component for variable-width normal in-game dialogue rendering; technical status and handoff live inside the component.
+7. `07_intro_skip` - hold R for about two seconds during the introduction to skip directly to the waterfall scene.
 
 Component metadata lives in `components/*/component.json`. The aggregate builder
 discovers components from these manifests; adding a component does not require a

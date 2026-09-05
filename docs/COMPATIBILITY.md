@@ -34,6 +34,14 @@ The principal ROM/WRAM allocations are documented in `docs/MEMORY_MAP.md` and
 in each component's technical documentation. New code/data must be placed only
 after checking those ranges against all existing components.
 
+
+## Intro skip compatibility
+
+`07_intro_skip` hooks `$C0:012C-$012F`, a runtime-validated execution point during the translated new-game introduction. While event `$0400` is in live event bank `$CA` and pointer range `$0C02-$0E8A`, holding R (`$4218` bit `$10`) continuously for 120 NMI frames redirects the live event pointer to `$CA:FFC0-$FFC7`. That private script mirrors the stock end of `$0400` while omitting only the `$1D $7F` Mode 7 world-map flyover. Runtime testing confirms the non-blocking hold, reset on release, direct arrival at the waterfall, and correct dialogue-frame transitions.
+
+The component reserves `$ED:7400-$74FF` for its input and NMI helpers, between the extended-ROM allocations of components 06 and 03. It samples the stock frame counter at `$7E:00F4` and reuses `$7E:938A-$938B` only under the `$CA` intro scope; component 06 uses those bytes only under mutually exclusive `$C9` dialogue scope. The NMI hook at `$C0:AC34-$AC37` clears the active-hold flag whenever R is released so separate presses cannot accumulate if the event-engine hook misses the release interval.
+
+
 ## Header/checksum writes
 
 Standalone builders may write ROM-size/header metadata and their own SNES

@@ -121,15 +121,10 @@ def make_entry_helper() -> bytes:
 
 
 def make_char_start_helper() -> bytes:
-    # For $C9, every character uses the true cumulative pixel cursor. No
-    # diagnostic realignment is performed: Y is always derived from
+    # For $C9, every character uses the true cumulative pixel cursor: Y is
     # floor(pixel_cursor / 8) * 12 while the stock glyph lookup remains intact.
-    #
-    # IMPORTANT: keep branch targets symbolic. An earlier continuous-cursor
-    # candidate hard-coded BNE +$1D here; after the diagnostic code was
-    # shortened, replay had moved and that branch landed on the stock INX in
-    # the middle of `LDA $A1A4,X / INX`, corrupting every non-$C9 renderer
-    # (most visibly GAME SELECT).
+    # Keep branch targets symbolic so the non-$C9 path always lands at the
+    # beginning of the stock `LDA $A1A4,X / INX` replay.
     code = bytearray()
     labels: dict[str, int] = {}
     branches: list[tuple[int, str]] = []
@@ -168,9 +163,8 @@ def make_char_end_helper() -> bytes:
     # current decoded byte, zero-extend its 7-bit glyph index through two bytes
     # of private WRAM scratch, then load the 8-bit advance from extended ROM.
     #
-    # IMPORTANT: do not change accumulator width here. The stock row loop uses
-    # the hidden B byte of the 65816 accumulator, and an earlier REP/SEP-based
-    # table candidate caused severe runtime corruption.
+    # Keep A in 8-bit mode here: the stock row loop relies on the hidden B byte
+    # of the 65816 accumulator.
     code = bytearray()
     labels: dict[str, int] = {}
     branches: list[tuple[int, str]] = []
@@ -472,9 +466,8 @@ FONT_ROW_HELPER = make_font_row_helper()
 def make_outline_post_helper() -> bytes:
     """Repair horizontal outline pixels lost across 8-pixel cell boundaries.
 
-    This runtime-validated helper is entered at $C0:1168, *after* the stock
-    JSR $162C has returned. The rejected first probe hooked $C0:1165 and
-    accidentally skipped that JSR, suppressing most of the stock outline.
+    This runtime-validated helper is entered at $C0:1168, after the stock
+    JSR $162C has returned; that call must remain intact for the stock outline.
 
     For $C9 only, scan the already rendered $9000-$917F bitmap. If ink touches
     the left/right edge of a source cell, add the corresponding one-pixel outline
