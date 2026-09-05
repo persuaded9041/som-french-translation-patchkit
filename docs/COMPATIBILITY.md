@@ -72,6 +72,6 @@ private VWF state under `$CA`. Their current WRAM scratch reuse is therefore
 mutually exclusive, but **broadening component 06 beyond `$C9` requires a new
 compatibility audit** before that assumption can be kept.
 
-Renderer architecture, metrics, rejected experiments and the deferred event
-interruption investigation belong to `components/06_dialogue_vwf/docs/`, not to
-this cross-component compatibility document.
+Renderer architecture, metrics and the runtime-validated generic event-interruption
+handling belong to `components/06_dialogue_vwf/docs/`, not to this cross-component
+compatibility document.

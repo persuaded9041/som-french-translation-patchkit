@@ -34,8 +34,7 @@ org $C77816
     dw $4D40
 
 ; Expand the FILE/Fichier frame from 6 cells ($03) to 8 cells ($04).
-; This width is runtime-validated. A $05 / 10-cell frame was rejected because
-; it pulled the following dynamic L into the frame.
+; This width is runtime-validated and keeps the following dynamic slot text outside the frame.
 org $C77585
     db $04
 

@@ -1,4 +1,5 @@
 ; Secret of Mana (USA) - skippable new-game introduction
+; Documentation/source-map reference; build_patch.py is the canonical emitter.
 ; Hold R for 120 NMI frames (~2 s) to skip directly to the waterfall with
 ; the stock end-of-intro cleanup minus the Mode 7 world-map flyover. The hold
 ; is non-blocking, so the introduction continues while R is held.

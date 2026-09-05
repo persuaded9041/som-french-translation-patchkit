@@ -442,7 +442,7 @@ def assemble_vwf(intro_end_ptr: int) -> bytes:
     a.emit(0x8A)                       # TXA
     a.emit(0x0A)
     a.emit(0x0A)
-    a.emit(0x8D, *lo16(0x9386))        # temporary glyph_index * 4
+    a.emit(0x8D, *lo16(0x9386))        # glyph_index * 4 scratch
     a.emit(0x0A)                       # * 8
     a.emit(0x18)
     a.emit(0x6D, *lo16(0x9386))        # + *4 = *12

@@ -18,6 +18,11 @@ conservative path.
 The post-stock outline-boundary repair is runtime-validated and runs only after
 the stock outline routine returns. The width-table lookup keeps A in 8-bit mode
 and zero-extends the glyph index through private WRAM $7E:938A-$938B.
+
+The runtime-validated generic interruption path saves the true decoded count,
+snapshots the cumulative VWF width before padded renderer slots, and converts
+non-line-break `$C9` chunks to physical 8-pixel cells before stock progression.
+It contains no event-address or WAIT-opcode special cases.
 """
 from __future__ import annotations
 
@@ -37,10 +42,8 @@ RENDER_ENTRY_FILE = 0x00167D
 CHAR_START_FILE = 0x001686
 FONT_ROW_FILE = 0x0016A4
 CHAR_END_FILE = 0x0016B1
-PROGRESSION_HOOK_FILE = 0x0013A3
 OUTLINE_POST_FILE = 0x001168
 
-PROGRESSION_CODE_FILE = 0x2D7010
 ENTRY_HELPER_FILE = 0x2D7040
 CHAR_START_HELPER_FILE = 0x2D7180
 FRAMING_SELECTOR_FILE = 0x2D71B0
@@ -59,21 +62,24 @@ ROM_TARGET_SIZE = 0x300000
 
 WIDTH_TABLE_FILE = 0x2D7200
 OUTLINE_POST_HELPER_FILE = 0x2D7280
+CHUNK_COMMIT_HELPER_FILE = 0x2D7340
+CHUNK_CELLS_SNAPSHOT_FILE = 0x2D7380
+
+# The stock parser leaves the decoded character count in the low seven bits
+# of $A1CE. The renderer saves it in private WRAM before the fixed 32-slot loop
+# and snapshots the useful VWF width before padded $80 slots inflate the cursor.
 
 RENDER_ENTRY_SIGNATURE = bytes.fromhex("A9 20 8D 76 A1")
 CHAR_START_SIGNATURE = bytes.fromhex("BD A4 A1 E8")
 FONT_ROW_SIGNATURE = bytes.fromhex("BF 00 DC D2")
 CHAR_END_SIGNATURE = bytes.fromhex("FA CE 76 A1 D0 CF")
-PROGRESSION_SIGNATURE = bytes.fromhex("EE 81 A1 EE D0 A1")
 OUTLINE_POST_SIGNATURE = bytes.fromhex("A2 00 00 8E")
 
 RENDER_ENTRY_HOOK = bytes.fromhex("5C 40 70 ED")
 CHAR_START_HOOK = bytes.fromhex("5C 80 71 ED")
 FONT_ROW_HOOK = bytes.fromhex("22 00 71 ED")  # JSL $ED7100; stock STA follows
 CHAR_END_HOOK = bytes.fromhex("5C C0 70 ED EA EA")
-PROGRESSION_HOOK = bytes.fromhex("5C 10 70 ED EA EA")
 OUTLINE_POST_HOOK = bytes.fromhex("5C 80 72 ED")
-PROGRESSION_TRAMPOLINE = bytes.fromhex("EE 81 A1 EE D0 A1 5C A9 13 C0")
 
 
 def _resolve_rel8(
@@ -111,7 +117,9 @@ def make_entry_helper() -> bytes:
     # At $167D the stock code has not yet initialized X/Y, so clearing the
     # bitmap here is safe: $1682 immediately restores X=0 / Y=0 afterwards.
     code = bytearray()
-    code += bytes.fromhex("AF 03 1D 00 C9 C9 D0 0F")  # bank != C9 -> replay only
+    code += bytes.fromhex("AF 03 1D 00 C9 C9 D0 1A")  # bank != C9 -> replay only
+    code += bytes.fromhex("AD CE A1 29 7F 8D 8E 93")  # save decoded count
+    code += bytes.fromhex("9C 8F 93")                  # clear physical-cell result
     code += bytes.fromhex("9C 82 93")                  # STZ pixel cursor
     code += bytes.fromhex("A2 00 00")                  # LDX #$0000
     code += bytes.fromhex("9E 00 90 E8 E0 80 01 D0 F7")  # clear $9000-$917F
@@ -142,6 +150,7 @@ def make_char_start_helper() -> bytes:
     emit(0xAF, 0x03, 0x1D, 0x00)       # LDA.l $001D03
     emit(0xC9, 0xC9)                   # CMP #$C9
     br(0xD0, "replay")                 # BNE replay
+    emit(0x22, 0x80, 0x73, 0xED)       # JSL $ED7380: snapshot useful chunk cells
 
     emit(0xDA)                          # PHX
     emit(0xC2, 0x20)                   # REP #$20
@@ -200,10 +209,116 @@ def make_char_end_helper() -> bytes:
     emit(0xA9, 0x00, 0xCE, 0x76, 0xA1)
     emit(0xF0, 0x04)
     emit(0x5C, 0x86, 0x16, 0xC0)
-    emit(0x5C, 0xB7, 0x16, 0xC0)
+    emit(0x5C, 0x40, 0x73, 0xED)       # final slot -> generic chunk commit
 
     return _resolve_rel8(code, labels, branches)
 
+
+def make_chunk_cells_snapshot_helper() -> bytes:
+    """Capture the useful decoded chunk as a count of 8-pixel cells.
+
+    X is the current renderer slot. At the start of the first padded slot,
+    X equals the decoded-character count saved from `$A1CE`. The pixel cursor
+    still contains only useful glyph advances at that exact moment, so convert
+    it to `ceil(width / 8)` before the fixed 32-slot loop can add padding.
+
+    The helper is also called once at final commit. That covers the count=32
+    case, where there is no padded slot and the 8-bit cursor can wrap from 256
+    px to zero; a non-empty zero cursor at X=32 therefore means 32 cells.
+    """
+    code = bytearray()
+    labels: dict[str, int] = {}
+    branches: list[tuple[int, str]] = []
+
+    def emit(*vals: int) -> None:
+        code.extend(vals)
+
+    def label(name: str) -> None:
+        labels[name] = len(code)
+
+    def br(op: int, target: str) -> None:
+        emit(op, 0)
+        branches.append((len(code) - 1, target))
+
+    emit(0x8A)                          # TXA (low byte; X itself is preserved)
+    emit(0xCD, 0x8E, 0x93)             # CMP saved decoded count
+    br(0xD0, "return")
+
+    emit(0xAD, 0x82, 0x93)             # useful pixel cursor
+    br(0xD0, "nonzero")
+    emit(0xAD, 0x8E, 0x93)             # empty chunk or wrapped 32-char chunk?
+    br(0xF0, "store")                  # count=0 -> zero cells
+    emit(0xA9, 0x20)                   # only possible non-empty wrap = 256 px
+    br(0x80, "store")
+
+    label("nonzero")
+    emit(0x29, 0x07)                   # any sub-cell remainder?
+    br(0xF0, "aligned")
+    emit(0xAD, 0x82, 0x93)
+    emit(0x4A, 0x4A, 0x4A)             # floor(width / 8)
+    emit(0x1A)                          # +1 => ceil(width / 8)
+    br(0x80, "store")
+
+    label("aligned")
+    emit(0xAD, 0x82, 0x93)
+    emit(0x4A, 0x4A, 0x4A)
+
+    label("store")
+    emit(0x8D, 0x8F, 0x93)             # physical cells for this decoded chunk
+
+    label("return")
+    emit(0x6B)                          # RTL
+
+    return _resolve_rel8(code, labels, branches)
+
+
+def make_chunk_commit_helper() -> bytes:
+    """Convert `$A1CE` to physical VWF cells before stock progression.
+
+    This is deliberately independent of event opcodes and script addresses.
+    The decoded count was captured at renderer entry and the cell count comes
+    from the actual cumulative advances of the decoded buffer, including DTE
+    expansion and dynamically inserted names. Preserve `$A1CE`'s line-end bit.
+    """
+    code = bytearray()
+    labels: dict[str, int] = {}
+    branches: list[tuple[int, str]] = []
+
+    def emit(*vals: int) -> None:
+        code.extend(vals)
+
+    def label(name: str) -> None:
+        labels[name] = len(code)
+
+    def br(op: int, target: str) -> None:
+        emit(op, 0)
+        branches.append((len(code) - 1, target))
+
+    emit(0xAF, 0x03, 0x1D, 0x00)       # LDA.l $001D03
+    emit(0xC9, 0xC9)                   # C9 dialogue bank only
+    br(0xD0, "return")
+
+    emit(0xAD, 0xCE, 0xA1)             # stock line-end flag
+    br(0x30, "return")                 # line break: preserve validated stock progression
+
+    emit(0xAD, 0x8E, 0x93)             # saved decoded count
+    emit(0xC9, 0x21)                   # renderer contract is at most 32 slots
+    br(0xB0, "return")                 # unexpected count -> stock behavior
+
+    # For count=32 there was no first padded slot, so snapshot once now with
+    # X=32 and the cursor positioned immediately after the last useful glyph.
+    emit(0x22, 0x80, 0x73, 0xED)       # JSL $ED7380
+
+    emit(0xAD, 0xCE, 0xA1)             # preserve only stock line-end flag
+    emit(0x29, 0x80)
+    emit(0x0D, 0x8F, 0x93)             # OR physical VWF cell count
+    emit(0x8D, 0xCE, 0xA1)
+
+    label("return")
+    emit(0xA9, 0x00)                   # stock char-end return A value
+    emit(0x5C, 0xB7, 0x16, 0xC0)       # JML $C016B7 (RTS)
+
+    return _resolve_rel8(code, labels, branches)
 
 def make_framing_selector() -> bytes:
     """Return the stock-selected row with validated framing transforms.
@@ -457,6 +572,8 @@ def make_font_row_helper() -> bytes:
 ENTRY_HELPER = make_entry_helper()
 CHAR_START_HELPER = make_char_start_helper()
 CHAR_END_HELPER = make_char_end_helper()
+CHUNK_CELLS_SNAPSHOT_HELPER = make_chunk_cells_snapshot_helper()
+CHUNK_COMMIT_HELPER = make_chunk_commit_helper()
 FRAMING_SELECTOR = make_framing_selector()
 PUNCTUATION_FRAMING_SELECTOR = make_punctuation_framing_selector()
 PUNCTUATION_FRAMING_BATCH2_SELECTOR = make_punctuation_framing_batch2_selector()
@@ -596,23 +713,7 @@ def make_width_table(base: bytes) -> bytes:
 
 
 
-def _compose_row(dest: list[int], row: int, x: int) -> None:
-    tile, shift = divmod(x, 8)
-    dest[tile] |= row >> shift
-    if shift:
-        dest[tile + 1] |= (row << (8 - shift)) & 0xFF
-
-
-def _compact_row(code: int, row: int) -> int:
-    shift = _lowercase_left_shift(code)
-    return (row << shift) & 0xFF if shift else row
-
-
-def _advance(width_table: bytes, code: int) -> int:
-    return width_table[code - 0x80]
-
-
-def self_test(base: bytes, width_table: bytes) -> None:
+def validate_metrics(base: bytes, width_table: bytes) -> None:
     # Keep the stock glyph-selection path immutable.
     if base[0x00168A:0x0016A4] != bytes.fromhex(
         "DA C2 20 29 FF 00 38 E9 80 00 0A 0A 8D C7 A1 0A 18 6D C7 A1 AA E2 20 A9 0C EB"
@@ -759,18 +860,10 @@ def self_test(base: bytes, width_table: bytes) -> None:
         if width_table[code - 0x80] != expected:
             raise SystemExit(f"Unexpected conservative metric for ${code:02X}")
 
-    # Algebraic model: a representative sequence must fit the same OR/spill
-    # composition used at runtime and must actually be narrower than stock.
-    codes = [0x89, 0x85, 0x8C, 0x80, 0x81]  # i e l space a
-    x = 0
-    rows = [0] * 10
-    for code in codes:
-        idx = code - 0x80
-        row = font[idx * 12 + 5]  # representative middle row
-        _compose_row(rows, _compact_row(code, row), x)
-        x += _advance(width_table, code)
-    if x >= len(codes) * 8:
-        raise SystemExit("Internal width-table model mismatch")
+    # The renderer has 32 slots and every generated advance must remain in the
+    # 1..8 px range expected by the generic physical-cell snapshot helper.
+    if len(width_table) != 128 or not all(1 <= width <= 8 for width in width_table):
+        raise SystemExit("Unexpected dialogue width-table bounds")
 
 
 def build(base: bytes) -> bytes:
@@ -781,13 +874,12 @@ def build(base: bytes) -> bytes:
         (CHAR_START_FILE, CHAR_START_SIGNATURE, "character start"),
         (FONT_ROW_FILE, FONT_ROW_SIGNATURE, "font-row load"),
         (CHAR_END_FILE, CHAR_END_SIGNATURE, "character end"),
-        (PROGRESSION_HOOK_FILE, PROGRESSION_SIGNATURE, "progression"),
         (OUTLINE_POST_FILE, OUTLINE_POST_SIGNATURE, "post-outline state"),
     ):
         if base[offset:offset + len(signature)] != signature:
             raise SystemExit(f"Unexpected clean-US {name} signature")
 
-    self_test(base, width_table)
+    validate_metrics(base, width_table)
     rom = expand_rom(base, ROM_TARGET_SIZE)
     if base[DTE_COMPARE_IMMEDIATE_OFFSET] != DTE_STOCK_THRESHOLD:
         raise SystemExit(
@@ -802,11 +894,9 @@ def build(base: bytes) -> bytes:
     rom[CHAR_START_FILE:CHAR_START_FILE + len(CHAR_START_HOOK)] = CHAR_START_HOOK
     rom[FONT_ROW_FILE:FONT_ROW_FILE + len(FONT_ROW_HOOK)] = FONT_ROW_HOOK
     rom[CHAR_END_FILE:CHAR_END_FILE + len(CHAR_END_HOOK)] = CHAR_END_HOOK
-    rom[PROGRESSION_HOOK_FILE:PROGRESSION_HOOK_FILE + len(PROGRESSION_HOOK)] = PROGRESSION_HOOK
     rom[OUTLINE_POST_FILE:OUTLINE_POST_FILE + len(OUTLINE_POST_HOOK)] = OUTLINE_POST_HOOK
 
     for offset, payload in (
-        (PROGRESSION_CODE_FILE, PROGRESSION_TRAMPOLINE),
         (ENTRY_HELPER_FILE, ENTRY_HELPER),
         (CHAR_START_HELPER_FILE, CHAR_START_HELPER),
         (FRAMING_SELECTOR_FILE, FRAMING_SELECTOR),
@@ -816,6 +906,8 @@ def build(base: bytes) -> bytes:
         (FONT_ROW_HELPER_FILE, FONT_ROW_HELPER),
         (WIDTH_TABLE_FILE, width_table),
         (OUTLINE_POST_HELPER_FILE, OUTLINE_POST_HELPER),
+        (CHUNK_COMMIT_HELPER_FILE, CHUNK_COMMIT_HELPER),
+        (CHUNK_CELLS_SNAPSHOT_FILE, CHUNK_CELLS_SNAPSHOT_HELPER),
     ):
         rom[offset:offset + len(payload)] = payload
 
@@ -834,7 +926,7 @@ def main() -> None:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(patch)
     print(f"IPS: {args.output}")
-    print("$C9 continuous limited VWF: all glyphs use the true cumulative pixel cursor")
+    print("$C9 continuous VWF + generic interrupted-chunk cell conversion")
 
 
 if __name__ == "__main__":

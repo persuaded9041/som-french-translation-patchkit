@@ -15,14 +15,20 @@ for the owning component even when the current generated payload is shorter.
 | French opening | `0x2E9000-0x2EFFFF` | `$EE:9000-$FFFF` | reserved opening-helper region |
 | Mana Tree | `0x2FC000-0x2FF5FF` | `$EF:C000-$F5FF` | Japanese Mana Tree resource |
 | Mana Tree | `0x2FF800-0x2FF89F` | `$EF:F800-$F89F` | 160-byte resource-loader helper |
-| intro VWF | `0x074285-0x0743FE` | `$C7:4285-$43FE` | reserved VWF renderer/parser code region |
+| intro VWF | `0x074285-0x0743B8` | `$C7:4285-$43B8` | intro VWF renderer |
+| intro VWF | `0x0743D0-0x0743FE` | `$C7:43D0-$43FE` | parser private-write helper |
 | intro VWF | `0x074440-0x0744BF` | `$C7:4440-$44BF` | 128-byte width table |
-| intro VWF | `0x0744C0-0x074CBF` | `$C7:44C0-$4CBF` | 128 × 12-byte compact glyph table |
+| intro VWF | `0x0744C0-0x074ABF` | `$C7:44C0-$4ABF` | 128 × 12-byte compact glyph table |
+| intro VWF | `0x074AC0-0x074C6B` | `$C7:4AC0-$4C6B` | intro-only VWF helper blocks (with intentional internal gaps) |
 | intro VWF | `0x074D00-0x074D31` | `$C7:4D00-$4D31` | 25-pair private DTE table |
+| intro VWF | `0x0A0C02-0x0A0E8A` | `$CA:0C02-$0E8A` | rebuilt translated event `$0400` in the current generated build |
+| intro VWF | `0x0AFF70-0x0AFFB7` | `$CA:FF70-$FFB7` | relocated unchanged stock events `$0401-$040F` |
+| intro VWF | WRAM | `$7E:9380-$9389` | intro-only VWF scratch state |
 | intro VWF | WRAM | `$7E:9390-$93BB` | 44-byte private parser buffer |
 | intro skip | `0x00012C-0x00012F` | `$C0:012C-$012F` | runtime-validated event-engine hook and R trigger, gated to translated event `$0400` |
 | intro skip | `0x0000AC34-0x0000AC37` | `$C0:AC34-$AC37` | per-NMI R-release reset hook |
 | intro skip | `0x0AFFC0-0x0AFFC7` | `$CA:FFC0-$FFC7` | runtime-validated R-triggered end-of-intro cleanup + direct-waterfall event |
+| dialogue VWF | `0x2D7340-0x2D73AA` | `$ED:7340-$73AA` | runtime-validated generic interrupted-chunk physical-cell commit/snapshot helpers |
 | intro skip | `0x2D7400-0x2D74FF` | `$ED:7400-$74FF` | reserved intro-skip input helper region |
 
 The GAME FILE relocation uses the stock-`$FF` gap after the intro VWF DTE allocation and ends before the Name Entry layout at `C7:4E00`. GAME SELECT's relocated label block ends before the intro VWF width table. New allocations
@@ -36,7 +42,7 @@ GAME FILE also uses three in-place code/data edits: ROM `0x0753C9` / `$C7:53C9` 
 ## 06_dialogue_vwf — global allocation view
 
 Component 06 uses in-place hooks in bank `$C0` and helper/table space in the
-`$ED:7000-$733F` area. Its current WRAM scratch is `$7E:9382-$938D` under the
+`$ED:7040-$73AA` area. Its current WRAM scratch is `$7E:9382-$938F` under the
 `$C9` dialogue scope. Component 05 reuses part of that WRAM area only under its
 mutually exclusive `$CA` intro scope.
 

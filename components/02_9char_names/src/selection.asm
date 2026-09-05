@@ -13,9 +13,3 @@ db $0C
 org $C750A6
 db $CC,$00,$BD,$00,$90,$DA,$38,$E9,$4E,$20,$4A,$AA,$E2,$20,$BF,$00,$40,$E4
 
-; Selection-map origin. The visual grid was moved upward by one 16-pixel row.
-; Keeping subtraction #$48 with selector states $50-$80 makes the selected
-; character match the visible cursor row. #$38 caused A->a, a->accents, etc.
-; ROM $0750E8 / SNES $C7:50E8
-org $C750E8
-db $48

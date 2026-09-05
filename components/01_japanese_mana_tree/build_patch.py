@@ -37,12 +37,6 @@ HOOK_PATCHED = bytes.fromhex("5c 00 f8 ef")
 
 FF_START = 0x2FF5E3
 FF_LENGTH = 29
-ZERO_START = 0x2FF600
-ZERO_LENGTH = 512
-POST_ROUTINE_ZERO_START = 0x2FF8A0
-POST_ROUTINE_ZERO_LENGTH = 1888
-
-
 
 def build(us_rom_path: Path, tree_path: Path, output_path: Path, patched_rom: Path | None = None):
     original = bytearray(us_rom_path.read_bytes())
@@ -71,14 +65,7 @@ def build(us_rom_path: Path, tree_path: Path, output_path: Path, patched_rom: Pa
 
     # Preserve the resource layout expected by the helper.
     rom[FF_START:FF_START+FF_LENGTH] = b"\xFF" * FF_LENGTH
-    rom[ZERO_START:ZERO_START+ZERO_LENGTH] = b"\x00" * ZERO_LENGTH
-
     rom[ROUTINE_ROM:ROUTINE_ROM+len(ROUTINE)] = ROUTINE
-
-    rom[
-        POST_ROUTINE_ZERO_START:
-        POST_ROUTINE_ZERO_START+POST_ROUTINE_ZERO_LENGTH
-    ] = b"\x00" * POST_ROUTINE_ZERO_LENGTH
 
     rom[HOOK_ROM:HOOK_ROM+4] = HOOK_PATCHED
 

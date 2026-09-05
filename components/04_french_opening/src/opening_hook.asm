@@ -8,8 +8,6 @@
 hirom
 
 !COMPACT_E_SPACE = $02
-!CREDIT_E_ACUTE  = $7A ; data/font convention, not consumed by this helper
-
 org $EE9000
 opening_char:
     cmp #!COMPACT_E_SPACE

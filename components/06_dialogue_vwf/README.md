@@ -21,9 +21,17 @@ Runtime-validated:
 - standalone installation of the canonical shared French charset `$D4-$E5` with
   direct/DTE threshold `$E6`.
 
-The known event-interruption spacing issue in the first dialogue remains
-**intentionally unresolved**. The clean component contains no diagnostic or
-resume experiment for it.
+Generic event-interruption handling is also runtime-validated. For any `$C9`
+chunk interrupted before a normal line break, the renderer snapshots the
+cumulative VWF width exactly when the useful decoded characters end, converts
+that width to physical 8 px cells, and commits that cell count through `$A1CE`
+before stock progression. No event address, `$32` movement command or `$08` wait
+opcode is special-cased.
+
+Runtime validation covers both `" Wait "` = 30 px -> 4 cells -> `up!` and a
+dynamic-name `"A:Hey! "` = 44 px -> 6 cells -> `Guys!` boundary, confirming that
+the mechanism follows the actual decoded buffer rather than literal script bytes.
+See `docs/EVENT_INTERRUPTION_NOTES.md`.
 
 ## Charset / metrics checkpoint
 
@@ -55,22 +63,18 @@ Other validated glyph groups:
 - French `$D4-$E3`: shift `1`, advance `7`;
 - French `$E4/$E5` (`Œ/œ`): shift `0`, advance `8`.
 
-`$CD` is deliberately excluded from special handling. Do not add a framing rule,
-dedicated metric, self-test or diagnostic text for it unless a future task is
-explicitly dedicated to that glyph.
+`$CD` is deliberately excluded from special handling and remains on the generic
+conservative path.
 
 ## Documentation
 
 Component-specific technical information lives here rather than in the global
 project documents:
 
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — validated renderer design,
-  invariants and rejected implementation patterns;
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — validated renderer design and invariants;
 - [`docs/MEMORY_MAP.md`](docs/MEMORY_MAP.md) — ROM/WRAM hooks and private scratch;
-- [`docs/EVENT_INTERRUPTION_NOTES.md`](docs/EVENT_INTERRUPTION_NOTES.md) — complete
-  deferred `Wait ... up!` / event-boundary investigation, including the
-  **Secret of Mana: Relocalized** v1.7 comparison;
-- [`docs/NEXT_STEPS.md`](docs/NEXT_STEPS.md) — clean handoff and planned work.
+- [`docs/EVENT_INTERRUPTION_NOTES.md`](docs/EVENT_INTERRUPTION_NOTES.md) — stock event/text hand-off and the generic interrupted-chunk solution;
+- [`docs/NEXT_STEPS.md`](docs/NEXT_STEPS.md) — current handoff and planned work.
 
 Cross-component charset and collision policy remains in the root `docs/` folder.
 

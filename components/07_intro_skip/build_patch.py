@@ -91,7 +91,7 @@ def build_helper() -> bytes:
     a.rel8(0x90, "done8")           # BCC
 
     # Threshold reached: disarm local state, then use the runtime-validated
-    # Runtime-validated event-pointer redirect.
+    # event-pointer redirect.
     a.emit(0xA9, 0x00)
     a.emit(0x8F, *lo24(HOLD_ACTIVE_WRAM))
     a.emit(0xC2, 0x20)              # REP #$20

@@ -1,97 +1,97 @@
 # Dialogue VWF architecture
 
-This document records the runtime-validated architecture and the invariants that
-must be preserved while component `06_dialogue_vwf` is still scoped to `$C9`.
-Historical event-resume experiments are intentionally kept out of this file; see
-`EVENT_INTERRUPTION_NOTES.md`.
+This document is the authoritative technical description of the runtime-validated
+`$C9` dialogue renderer. Event-interruption control flow is detailed separately in
+`EVENT_INTERRUPTION_NOTES.md`; ROM/WRAM ownership is in `MEMORY_MAP.md`.
 
-## Renderer contract
+## Scope
 
-Keep the stock block `$C0:168A-$C0:16B0` intact. It remains responsible for:
+Component 06 is active only when `$001D03 == $C9`. Outside that bank every hook
+falls back to the original renderer behavior.
+
+The component keeps the stock block `$C0:168A-$C0:16B0` intact. Stock code remains
+responsible for:
 
 1. decoded character code to glyph index;
 2. `$80`-based index normalization;
-3. multiply-by-12 addressing;
+3. multiply-by-12 glyph addressing;
 4. reading the 12-row glyph from `$D2:DC00`.
 
-Component 06 only changes where the already selected row is composed.
+Component 06 changes placement/composition of the already selected glyph row.
+
+## Continuous pixel cursor
 
 For `$C9` text:
 
 - `pixel_cursor` is continuous in pixels;
 - destination `Y = floor(pixel_cursor / 8) * 12`;
 - each row is composed at `pixel_cursor & 7`;
-- pixels are merged into the current 12-byte cell and spilled into the next one;
-- no forced 8 px realignment is allowed.
+- pixels are ORed into the current 12-byte cell and spilled into the next cell;
+- the full `$7E:9000-$917F` bitmap is cleared before rendering because adjacent
+  glyphs can share cells;
+- no forced 8 px realignment is used between glyphs.
 
-The per-character start helper must stay at **`$ED:7180`**. A previous move to
-`$ED:7190` caused almost all dialogue to disappear.
+The per-character start helper is fixed at `$ED:7180`; the punctuation dispatcher
+keeps its fixed trampoline at `$ED:71F4`. The builder asserts the latter layout.
 
-## Width table
+## Width table and framing
 
 The 128-entry table at `$ED:7200-$ED:727F` contains advances for decoded codes
-`$80-$FF`.
+`$80-$FF`. The lookup zero-extends the glyph index through `$7E:938A-$938B` while
+keeping accumulator A in 8-bit mode, which preserves the stock row-loop contract.
 
-The table index is zero-extended through `$7E:938A-$938B` while accumulator A
-stays in its existing width. This detail is runtime-critical:
+Runtime-validated advances span 3 through 8 px. Lowercase, uppercase, supported
+punctuation, and the shared French `$D4-$E5` glyphs use the framing/metrics listed
+in the component README. `$CD` remains on the generic conservative path.
 
-- using X without explicitly clearing its high byte caused selective glyph loss;
-- using `REP/SEP` in `dialogue_char_end` disturbed the hidden B byte of A and
-  caused severe rendering loss.
-
-Runtime tests have exercised drawn advances of 3, 4, 5, 6, 7 and 8 px.
-
-## Framing selection
-
-Lowercase framing is selected at `$ED:71B0-$ED:71E7`. The punctuation dispatch
-starts at `$ED:71E8`.
-
-The punctuation batch-2 `JML` trampoline is pinned at **`$ED:71F4`**. The builder
-asserts this exact address. A previous one-byte shortening moved it to
-`$ED:71F3` while dispatch still entered at `$ED:71F4`, preventing the ROM from
-starting.
-
-Always generate 65816 relative branches from labels/resolution logic. A stale
-hard-coded `BNE` once landed in the middle of `LDA $A1A4,X / INX` and broke GAME
-SELECT.
-
-The extended selector at `$ED:72F0-$ED:733F` handles validated uppercase,
-punctuation and French framing while leaving `$B5-$BE` and `$CD-$D3` on the
-generic path unless explicitly handled elsewhere.
+Lowercase framing is selected at `$ED:71B0-$71E7`; post-lowercase dispatch starts
+at `$ED:71E8`; the extended uppercase/punctuation/French selector is at
+`$ED:72F0-$733F`.
 
 ## Outline repair
 
-The stock outline routine `JSR $162C` must execute normally. The validated repair
-hooks **after** it at `$C0:1168` and uses `$ED:7280-$ED:72E9`.
+The stock outline routine `JSR $162C` remains untouched. Component 06 hooks after
+it at `$C0:1168` and uses `$ED:7280-$72E9` to restore outline pixels lost where a
+VWF glyph touches an 8-pixel cell boundary.
 
-Do not hook `$C0:1165`: that replaces the stock outline call and removes most of
-the black contour.
+## Interrupted chunks and physical progression
 
-## Progression hook
+Stock dialogue uses `$A1CE` first as a decoded-character count and later as the
+number of physical 8-pixel columns to transfer/allocate. Those quantities are
+equivalent in the original fixed-width renderer but not in a VWF.
 
-`$C0:13A3` remains a stock-equivalent trampoline:
+The generic runtime-validated path therefore converts only interrupted,
+non-line-break `$C9` chunks before stock progression:
 
-```text
-INC $A181
-INC $A1D0
-```
+1. renderer entry saves `$A1CE & $7F` in `$7E:938E` and clears `$7E:938F`;
+2. the fixed 32-slot renderer continues normally;
+3. at the start of the first padded slot, when `X == saved_decoded_count`,
+   `$ED:7380` captures `ceil(useful_pixel_width / 8)` in `$7E:938F`;
+4. at renderer completion, `$ED:7340` replaces the low count in `$A1CE` with
+   that physical-cell count only when the stock line-break bit is clear;
+5. normal stock transfer/allocation then runs unchanged.
 
-It currently contains no event-resume logic. Attempts to use it as an ad-hoc
-bridge for interrupted text have caused regressions and belong only in the event
-investigation notes.
+The snapshot is based on the actual decoded buffer, so DTE expansion and dynamic
+name insertion are included automatically. No event address, movement opcode, or
+WAIT opcode is recognized by component 06.
 
-## Rejected renderer approaches
+A 32-character chunk has no padded slot. Final commit therefore invokes the same
+snapshot helper once with `X=32`; an exact 256 px 8-bit cursor wrap is mapped to
+32 physical cells.
 
-Do not reintroduce these without a new, evidence-based investigation:
+The stock progression code at `$C0:13A3` is no longer hooked. This is intentional:
+all VWF-specific correction is complete before the original progression path
+runs.
 
-- relocating the entire stock renderer;
-- replacing the stock glyph lookup;
-- custom-to-stock handoff in the middle of a line;
-- forced tile-boundary realignment;
-- the old generic `left_shift[128]` implementation;
-- treating an old `i=7/l=7` crash as a renderer limit (a clean rebuild worked);
-- direct manipulation of stock progression/tile state merely to repair the
-  event-interruption gap.
+## Invariants
 
-The current architecture was chosen because it preserves the stock glyph path
-while giving the compositor an independent cumulative pixel coordinate.
+When changing this component, preserve these constraints unless a new runtime
+investigation proves otherwise:
+
+- keep `$C0:168A-$C0:16B0` intact;
+- keep the stock outline call at `$C0:1165` intact;
+- keep A in 8-bit mode through the width-table lookup and stock row loop;
+- resolve generated relative branches from labels rather than hard-coded offsets;
+- do not reintroduce a progression hook for interrupted chunks;
+- do not special-case event addresses or WAIT/movement opcodes;
+- audit WRAM ownership before broadening scope beyond `$C9`.

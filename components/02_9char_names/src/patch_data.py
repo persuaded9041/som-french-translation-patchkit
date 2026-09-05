@@ -74,7 +74,6 @@ STATIC_EDITS = (
         CHARACTER_LOOKUP_CODE,
         "selected character lookup -> E4:4000",
     ),
-    PatchEdit(0x0750E8, hx("48"), hx("48"), "selection-map origin remains aligned with raised grid"),
     PatchEdit(
         0x07759D,
         hx("04 06 1E 81 C0 02 02 1E 81 90 00 02 07"),

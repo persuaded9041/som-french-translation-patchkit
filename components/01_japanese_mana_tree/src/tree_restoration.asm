@@ -1,4 +1,5 @@
 ; Secret of Mana (USA) - Japanese Mana Tree restoration
+; Documentation/source-map reference; build_patch.py is the canonical builder.
 
 hirom
 

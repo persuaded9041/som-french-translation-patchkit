@@ -44,7 +44,7 @@ GRAVE_TILE_CODE = 0x7E
 CIRC_TILE_CODE = 0x7F
 BLANK_TILE_CODE = 0x60
 COMPACT_E_SPACE_MARKER = 0x02
-CREDIT_E_ACUTE_TILE_CODE = 0x7A  # Z slot, unused by the current French opening
+CREDIT_E_ACUTE_TILE_CODE = 0x7A  # former Z slot, reserved for startup-credit É
 
 COMPRESSION_TYPES = {
     0: 0x1F, 1: 0x0F, 2: 0x07,

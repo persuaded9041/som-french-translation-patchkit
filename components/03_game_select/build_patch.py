@@ -58,8 +58,7 @@ GAME_FILE_RELOC_OFFSET = 0x074D40             # C7:4D40, stock $FF free space
 GAME_FILE_RELOC_PTR = 0x4D40
 GAME_FILE_POINTER_OFFSETS = (0x077810, 0x077816)
 # FILE label frame descriptor: stock width $03 = 6 cells.  Fichier needs
-# 7 visible cells plus the native margin; use $04 = 8 cells.  A $05 test
-# was runtime-rejected because it pulled the following dynamic "L" into the frame.
+# 7 visible cells plus the native margin; use the runtime-validated $04 = 8 cells.
 GAME_FILE_FILE_FRAME_WIDTH_OFFSET = 0x077585
 GAME_FILE_FILE_FRAME_STOCK_WIDTH = 0x03
 GAME_FILE_FILE_FRAME_NEW_WIDTH = 0x04
@@ -89,7 +88,6 @@ GAME_FILE_EXTERNAL_FIELDS = {
 SAVE_HELP_POINTER_OFFSET = 0x0033B8     # stock pointer = C0:348D
 SAVE_HELP_STOCK_PTR = 0xC0348D
 SAVE_HELP_STOCK_OFFSET = 0x00348D
-SAVE_HELP_STOCK_SIZE = 108              # stock extraction size only
 SAVE_HELP_RELOC_OFFSET = 0x2D8400        # SNES ED:8400
 SAVE_HELP_RELOC_SNES = 0xED8400
 SAVE_HELP_RELOC_LIMIT = 0x2E0000         # end of component reserved bank
