@@ -15,6 +15,7 @@ ALLOWED_COMPONENT_TEXTLIKE_FILES = {
     "components/05_intro_vwf_french/assets/text/intro_layout.json",
 }
 
+# These names are retired only as component-local translation inputs.
 RETIRED_NAMES = {
     "game_select_text.csv",
     "game_file_text.csv",
@@ -80,7 +81,8 @@ def main() -> None:
 
     print("Text-source hygiene OK")
     print("  - no component CSV translation sources")
-    print("  - no retired prose BIN/CSV paths")
+    print("  - no retired component-local prose BIN/CSV paths")
+    print("  - upstream Android prose is isolated under sources/android/")
     print("  - components 01/06/07 own no translation-JSON dependencies")
     print("  - remaining component-local .bin/.txt assets are explicit non-prose data")
     return 0

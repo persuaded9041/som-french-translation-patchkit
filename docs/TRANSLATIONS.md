@@ -111,7 +111,49 @@ all canonical assets.
 
 ## Legacy source formats
 
-The component audit found no remaining CSV or translated-prose BIN input. The
-remaining component-local `.bin`/`.txt` files are non-prose resources (Mana Tree
-graphics and the naming-screen character repertoire). Run
+The component audit found no remaining CSV or component-local translated-prose
+BIN input. Original upstream translation resources may live under
+`sources/<platform>/` (currently `sources/android/scrtxt_fr.bin`). The remaining
+component-local `.bin`/`.txt` files are non-prose resources (Mana Tree graphics
+and the naming-screen character repertoire). Run
 `python3 tools/check_text_source_hygiene.py` to enforce this separation.
+
+## Android upstream sources
+
+Where an original French Android resource is available, it lives under
+`sources/android/` and is treated as an **upstream translation source**, not as a
+component-local build asset.
+
+The intended flow is:
+
+```text
+sources/android/*
+        ↓  tools/import_android_text.py
+translations/*_french.json
+        ↓  component builders
+SNES IPS patches
+```
+
+The first implemented mapping is the new-game intro. Android
+`sources/android/scrtxt_fr.bin` IDs 3445-3452 map, in order, to the eight
+position-derived IDs in `assets/intro_event.json`. Android line breaks and
+incidental leading/trailing whitespace are normalized because SNES page/line
+layout is owned separately by
+`components/05_intro_vwf_french/assets/text/intro_layout.json`.
+
+Regenerate it with:
+
+```bash
+python3 tools/import_android_text.py --only intro
+```
+
+or verify synchronization with:
+
+```bash
+python3 tools/import_android_text.py --only intro --check
+```
+
+The `scrtxt` parser is intentionally generic; only the ID-to-SNES mapping is
+intro-specific for now. Additional Android dialogue/script mappings should be
+added incrementally after their correspondence with the SNES source inventory is
+established.
