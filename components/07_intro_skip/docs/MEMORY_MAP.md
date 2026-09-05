@@ -11,8 +11,10 @@
 
 The timer samples stock NMI frame counter `$7E:00F4`. `$7E:938A-$938B` are
 unused by component 05's intro VWF renderer, whose local scratch occupies
-`$7E:9380-$9389` and whose parser buffer is `$7E:9390-$93BB`. Component 06
-uses `$7E:938A-$938B` only under mutually exclusive `$C9` dialogue scope.
+`$7E:9380-$9389` and whose parser buffer is `$7E:9390-$93BB`. Component 06 also uses `$7E:938A-$938B` for its width-table index, including
+ordinary `$CA` event dialogue. During translated intro event `$0400`, component
+05 intercepts the renderer before component 06 reaches its entry hook, keeping
+the lifetimes mutually exclusive.
 
 The NMI release helper lives at `$ED:7490+`. It only clears `$7E:938B` when a
 hold is active and R is no longer held, then restores the overwritten stock

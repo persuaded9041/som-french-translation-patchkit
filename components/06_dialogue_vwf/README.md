@@ -1,37 +1,47 @@
 # 06 — Dialogue VWF
 
-Development component for proportional rendering of normal in-game event text.
+Runtime-validated proportional rendering for normal in-game event dialogue.
 
-The current checkpoint is deliberately limited to event-text bank `$C9`. It keeps
-Secret of Mana's stock character-to-glyph lookup and replaces only the placement
-and composition needed for a continuous pixel cursor.
+The stock text renderer at `$C0:1664` is shared by the event engine, GAME SELECT
+and another non-event caller. Component 06 therefore does **not** identify
+conversation text from `$001D03` alone. At its renderer-entry hook it inspects
+the actual `JSR $1664` return address on the stack and enables the VWF only for
+the event-engine call from `$C0:1150` (stacked return `$1152`), then accepts the
+two stock event banks `$C9` and `$CA`.
+
+This caller-based scope is runtime-validated: `$CA` story dialogue that previously
+fell back to fixed width now uses the VWF, while GAME SELECT remains on its
+original fixed-width path.
+
+Component `05_intro_vwf_french` still owns translated intro event `$0400`: its
+hook at `$C0:1664` intercepts that event and exits before component 06's
+`$C0:167D` entry point, so the two VWF renderers remain isolated.
 
 ## Current status
 
 Runtime-validated:
 
-- `$001D03 == $C9` development scope;
+- caller-based event-render scope: `$C0:1150 -> $C0:1664`, banks `$C9/$CA`;
+- GAME SELECT/non-event uses of `$C0:1664` remain fixed-width;
 - stock `$C0:168A-$C0:16B0` glyph lookup / `×12` addressing / `$D2:DC00` reads;
 - continuous pixel cursor with no forced 8 px realignment;
 - cross-cell merge + spill composition;
 - 128-entry advance table at `$ED:7200-$ED:727F`;
 - actual glyph advances from 3 through 8 px;
 - lowercase, uppercase, punctuation and French direct-glyph framing/metrics;
-- post-stock outline-boundary repair;
+- post-stock outline-boundary repair on the validated `$C9` path;
 - standalone installation of the canonical shared French charset `$D4-$E5` with
-  direct/DTE threshold `$E6`.
+  direct/DTE threshold `$E6`;
+- generic event-interruption handling for interrupted chunks.
 
-Generic event-interruption handling is also runtime-validated. For any `$C9`
-chunk interrupted before a normal line break, the renderer snapshots the
-cumulative VWF width exactly when the useful decoded characters end, converts
-that width to physical 8 px cells, and commits that cell count through `$A1CE`
-before stock progression. No event address, `$32` movement command or `$08` wait
-opcode is special-cased.
+The interruption path snapshots the cumulative VWF width exactly when the useful
+decoded characters end, converts that width to physical 8 px cells, and commits
+that cell count through `$A1CE` before stock progression. No event address,
+movement command or WAIT opcode is special-cased.
 
 Runtime validation covers both `" Wait "` = 30 px -> 4 cells -> `up!` and a
-dynamic-name `"A:Hey! "` = 44 px -> 6 cells -> `Guys!` boundary, confirming that
-the mechanism follows the actual decoded buffer rather than literal script bytes.
-See `docs/EVENT_INTERRUPTION_NOTES.md`.
+dynamic-name `"A:Hey! "` = 44 px -> 6 cells -> `Guys!` boundary. See
+`docs/EVENT_INTERRUPTION_NOTES.md`.
 
 ## Charset / metrics checkpoint
 
@@ -71,10 +81,10 @@ conservative path.
 Component-specific technical information lives here rather than in the global
 project documents:
 
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — validated renderer design and invariants;
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — renderer design, scope and invariants;
 - [`docs/MEMORY_MAP.md`](docs/MEMORY_MAP.md) — ROM/WRAM hooks and private scratch;
-- [`docs/EVENT_INTERRUPTION_NOTES.md`](docs/EVENT_INTERRUPTION_NOTES.md) — stock event/text hand-off and the generic interrupted-chunk solution;
-- [`docs/NEXT_STEPS.md`](docs/NEXT_STEPS.md) — current handoff and planned work.
+- [`docs/EVENT_INTERRUPTION_NOTES.md`](docs/EVENT_INTERRUPTION_NOTES.md) — stock event/text hand-off and interrupted-chunk solution;
+- [`docs/NEXT_STEPS.md`](docs/NEXT_STEPS.md) — current handoff and remaining work.
 
 Cross-component charset and collision policy remains in the root `docs/` folder.
 

@@ -24,7 +24,7 @@ The ROM itself is deliberately not included.
 3. `03_game_select` - French GAME SELECT and GAME FILE text pipeline, dynamic frame widths and French accented glyphs.
 4. `04_french_opening` - French startup credits/opening text.
 5. `05_intro_vwf_french` - French new-game introduction with VWF, private DTE and accented glyphs.
-6. `06_dialogue_vwf` - development component for variable-width normal in-game dialogue rendering; technical status and handoff live inside the component.
+6. `06_dialogue_vwf` - runtime-validated variable-width renderer for stock event dialogue in banks `$C9/$CA`, gated by the event-engine renderer caller so menus remain fixed-width.
 7. `07_intro_skip` - hold R for about two seconds during the introduction to skip directly to the waterfall scene.
 
 Component metadata lives in `components/*/component.json`. The aggregate builder

@@ -39,7 +39,7 @@ after checking those ranges against all existing components.
 
 `07_intro_skip` hooks `$C0:012C-$012F`, a runtime-validated execution point during the translated new-game introduction. While event `$0400` is in live event bank `$CA` and pointer range `$0C02-$0E8A`, holding R (`$4218` bit `$10`) continuously for 120 NMI frames redirects the live event pointer to `$CA:FFC0-$FFC7`. That private script mirrors the stock end of `$0400` while omitting only the `$1D $7F` Mode 7 world-map flyover. Runtime testing confirms the non-blocking hold, reset on release, direct arrival at the waterfall, and correct dialogue-frame transitions.
 
-The component reserves `$ED:7400-$74FF` for its input and NMI helpers, between the extended-ROM allocations of components 06 and 03. It samples the stock frame counter at `$7E:00F4` and reuses `$7E:938A-$938B` only under the `$CA` intro scope; component 06 uses those bytes only under mutually exclusive `$C9` dialogue scope. The NMI hook at `$C0:AC34-$AC37` clears the active-hold flag whenever R is released so separate presses cannot accumulate if the event-engine hook misses the release interval.
+The component reserves `$ED:7400-$74FF` for its input and NMI helpers, between the extended-ROM allocations of components 06 and 03. It samples the stock frame counter at `$7E:00F4` and reuses `$7E:938A-$938B` only during translated intro event `$0400`. Component 05 intercepts that event before component 06 reaches its renderer-entry hook, so component 06 does not use its overlapping width-index scratch during the intro. The NMI hook at `$C0:AC34-$AC37` clears the active-hold flag whenever R is released so separate presses cannot accumulate if the event-engine hook misses the release interval.
 
 
 ## Header/checksum writes
@@ -67,11 +67,17 @@ compatibility concern justifies them.
 depend on component 05. In aggregate builds those glyph writes are byte-identical
 and the threshold is resolved by the shared charset profile.
 
-Its current runtime scope is `$C9`; component `05_intro_vwf_french` uses its
-private VWF state under `$CA`. Their current WRAM scratch reuse is therefore
-mutually exclusive, but **broadening component 06 beyond `$C9` requires a new
-compatibility audit** before that assumption can be kept.
+Component 06 enables its core VWF only when the shared `$C0:1664` renderer was
+called by the event engine at `$C0:1150` and the live event bank is `$C9` or
+`$CA`. This caller-based gate is runtime-validated and is required because GAME
+SELECT also calls `$C0:1664`; bank/state checks alone are not safe discriminators.
 
-Renderer architecture, metrics and the runtime-validated generic event-interruption
-handling belong to `components/06_dialogue_vwf/docs/`, not to this cross-component
-compatibility document.
+Component 05 still owns translated intro event `$0400`: it intercepts that event
+at `$C0:1664` and exits before component 06 reaches `$C0:167D`. This keeps the
+shared `$7E:9380+` scratch mutually exclusive even though component 06 now also
+handles ordinary `$CA` event dialogue. Component 07's `$938A-$938B` intro timer
+is protected by the same early interception.
+
+Renderer architecture, metrics, caller discrimination and generic event-
+interruption handling belong to `components/06_dialogue_vwf/docs/`, not to this
+cross-component compatibility document.

@@ -29,6 +29,7 @@ for the owning component even when the current generated payload is shorter.
 | intro skip | `0x0000AC34-0x0000AC37` | `$C0:AC34-$AC37` | per-NMI R-release reset hook |
 | intro skip | `0x0AFFC0-0x0AFFC7` | `$CA:FFC0-$FFC7` | runtime-validated R-triggered end-of-intro cleanup + direct-waterfall event |
 | dialogue VWF | `0x2D7340-0x2D73AA` | `$ED:7340-$73AA` | runtime-validated generic interrupted-chunk physical-cell commit/snapshot helpers |
+| dialogue VWF | `0x2D73B0-0x2D73B8` | `$ED:73B0-$73B8` | runtime-validated renderer-active scope helper |
 | intro skip | `0x2D7400-0x2D74FF` | `$ED:7400-$74FF` | reserved intro-skip input helper region |
 
 The GAME FILE relocation uses the stock-`$FF` gap after the intro VWF DTE allocation and ends before the Name Entry layout at `C7:4E00`. GAME SELECT's relocated label block ends before the intro VWF width table. New allocations
@@ -42,12 +43,13 @@ GAME FILE also uses three in-place code/data edits: ROM `0x0753C9` / `$C7:53C9` 
 ## 06_dialogue_vwf — global allocation view
 
 Component 06 uses in-place hooks in bank `$C0` and helper/table space in the
-`$ED:7040-$73AA` area. Its current WRAM scratch is `$7E:9382-$938F` under the
-`$C9` dialogue scope. Component 05 reuses part of that WRAM area only under its
-mutually exclusive `$CA` intro scope.
+`$ED:7040-$73B8` area. Its renderer scratch is `$7E:9382-$938F` only for
+caller-tagged event-render invocations in stock banks `$C9/$CA`. Component 05
+intercepts translated intro event `$0400` before component 06 reaches its entry
+hook, so their overlapping WRAM scratch remains mutually exclusive.
 
 The complete hook-by-hook allocation, fixed addresses and scratch ownership are
 documented in `components/06_dialogue_vwf/docs/MEMORY_MAP.md`. This root map
 intentionally avoids duplicating renderer status and calibration details.
 
-`07_intro_skip` runtime checkpoint reuses `$7E:938A-$938B` only during the `$CA` intro scope for a non-blocking R-hold timer. Component 06 uses the same bytes only under mutually exclusive `$C9` dialogue scope. A 4-byte NMI hook at `$C0:AC34-$AC37` clears the active-hold flag on physical R release so separate presses cannot accumulate. Both helpers remain inside the existing `$ED:7400-$74FF` reserve.
+`07_intro_skip` runtime checkpoint reuses `$7E:938A-$938B` only during translated intro event `$0400` for a non-blocking R-hold timer. Component 05 intercepts that event before component 06's renderer entry, so component 06 does not use its overlapping width-index scratch during the intro. A 4-byte NMI hook at `$C0:AC34-$AC37` clears the active-hold flag on physical R release so separate presses cannot accumulate. Both helpers remain inside the existing `$ED:7400-$74FF` reserve.

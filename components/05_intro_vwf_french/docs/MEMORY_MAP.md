@@ -41,4 +41,4 @@ The current generated event `$0400` ends at pointer `$0E8B`; the last occupied b
 | `$7E:9380-$9389` | intro-only VWF scratch state |
 | `$7E:9390-$93BB` | private 44-byte parser buffer |
 
-These WRAM ranges are used only while the translated intro runs under bank `$CA`. Any overlap documented for `06_dialogue_vwf` is safe because that component uses its scratch only under the mutually exclusive `$C9` dialogue scope.
+These WRAM ranges are used only while translated intro event `$0400` runs. Component 06 now also supports ordinary `$CA` event dialogue, but the overlap remains safe: component 05 intercepts event `$0400` at `$C0:1664` and exits before component 06 reaches its `$C0:167D` renderer-entry hook.

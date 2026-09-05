@@ -6,8 +6,7 @@ interruption resumes the same dialogue window.
 
 ## Reference event
 
-Event `$0106` contains two useful runtime-validation boundaries. Around the second
-one:
+Event `$0106` contains two runtime-validation boundaries. Around the second one:
 
 ```text
 C9:28CB  80 B1 81 89 94 80    " Wait "
@@ -63,8 +62,7 @@ differ. With current validated metrics:
 
 If stock progression receives the decoded counts (6 and 7 respectively), the
 persistent tile/window position advances too far before the next text invocation.
-
-The correction must therefore happen before progression. Rewinding placement
+The correction must therefore happen before progression; rewinding placement
 after transfer/allocation would separate already-written graphics from the
 associated tilemap state.
 
@@ -79,9 +77,9 @@ The generic solution saves the real decoded count at renderer entry and captures
 the cursor exactly when the slot index first reaches that count, before padding
 can affect the saved width.
 
-## Generic runtime-validated solution
+## Generic solution
 
-Component 06 uses no event-specific address or opcode checks:
+For a renderer invocation already tagged by the caller-based event scope:
 
 ```text
 renderer entry:
@@ -92,7 +90,7 @@ first slot where X == $938E:
     $938F = ceil(useful_pixel_cursor / 8)
 
 renderer completion:
-    if bank == $C9 and line-break bit is clear:
+    if line-break bit is clear:
         $A1CE = $938F
 ```
 
@@ -106,6 +104,10 @@ Runtime validation in event `$0106` confirms that the same generic mechanism:
 - aligns `Wait up!` correctly at 30 px -> 4 cells;
 - preserves the movement and `$08` wait timing;
 - preserves the surrounding dialogue and line-break behavior in the tested scene.
+
+The code now applies this mechanism to tagged stock event-render invocations in
+both `$C9` and `$CA`; the explicit WAIT runtime checkpoints above are from `$C9`.
+No per-event correction remains in the component.
 
 Component 05 uses the same architectural principle for its intro-specific `$28`
 WAIT: convert VWF pixel width to physical cells after rendering and before stock

@@ -2,13 +2,19 @@
 
 ## Current checkpoint
 
-The `$C9` continuous-cursor renderer, framing/metrics, outline-boundary repair,
-shared French charset, and generic interrupted-chunk physical-cell conversion are
+The continuous-cursor renderer, framing/metrics, caller-based stock event scope,
+shared French charset and generic interrupted-chunk physical-cell conversion are
 runtime-validated.
+
+The core VWF is enabled only for the real event-engine call to the shared
+`$C0:1664` renderer (caller `$C0:1150`, stacked return `$1152`) and only for stock
+event banks `$C9/$CA`. GAME SELECT remains fixed-width. Component 05 still owns
+translated intro event `$0400` because it intercepts that event before component
+06's renderer-entry hook.
 
 The interruption solution is data-driven: it measures the actual decoded VWF
 chunk and commits `ceil(useful_width / 8)` before stock progression. It contains
-no event-address, movement-command, or WAIT-command exceptions. The stock
+no event-address, movement-command or WAIT-command exceptions. The stock
 progression path at `$C0:13A3` is unmodified.
 
 Before changing the component, read:
@@ -21,12 +27,15 @@ Before changing the component, read:
 
 ## Planned work
 
-1. Audit whether dialogue rendering should remain scoped to `$C9` or can safely be
-   broadened, including event-bank selection and WRAM scratch lifetime.
-2. Once scope is stable, implement English dialogue extraction to an editable
-   text format.
-3. Implement deterministic reinsertion from that format.
-4. Integrate the French dialogue translation later.
+1. Exercise representative `$CA` dialogues beyond the first validated scene,
+   especially glyphs that touch 8-pixel boundaries.
+2. Audit the post-outline repair, which is still intentionally `$C9`-only, and
+   extend it to `$CA` only if a runtime case demonstrates the need and intro
+   isolation can be preserved cleanly.
+3. Once dialogue-render coverage is considered stable, implement English
+   dialogue extraction to an editable text format.
+4. Implement deterministic reinsertion from that format, then integrate the
+   French dialogue translation.
 
 Behavior-preserving refactoring is welcome when it has a clear maintenance
 benefit, but runtime-validated helpers should not be rewritten merely to save a

@@ -13,7 +13,8 @@
 ;   $7E:938B = hold-active flag
 ;
 ; These bytes are unused by component 05's $CA intro renderer. Component 06
-; uses the same scratch neighborhood only under mutually exclusive $C9 scope.
+; also uses them for ordinary event dialogue, including $CA, but component 05
+; intercepts translated event $0400 before component 06 reaches its entry hook.
 ; State is explicitly initialized at the start of event $0400 and cleared when
 ; R is released or the skip fires. A tiny NMI hook also clears HOLD_ACTIVE on
 ; release every frame so a release missed by the event-engine hook cannot make

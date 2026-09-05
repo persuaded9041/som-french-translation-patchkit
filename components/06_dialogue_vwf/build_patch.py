@@ -21,7 +21,7 @@ and zero-extends the glyph index through private WRAM $7E:938A-$938B.
 
 The runtime-validated generic interruption path saves the true decoded count,
 snapshots the cumulative VWF width before padded renderer slots, and converts
-non-line-break `$C9` chunks to physical 8-pixel cells before stock progression.
+non-line-break event-render `$C9/$CA` chunks to physical 8-pixel cells before stock progression.
 It contains no event-address or WAIT-opcode special cases.
 """
 from __future__ import annotations
@@ -64,6 +64,7 @@ WIDTH_TABLE_FILE = 0x2D7200
 OUTLINE_POST_HELPER_FILE = 0x2D7280
 CHUNK_COMMIT_HELPER_FILE = 0x2D7340
 CHUNK_CELLS_SNAPSHOT_FILE = 0x2D7380
+EVENT_RENDER_SCOPE_HELPER_FILE = 0x2D73B0
 
 # The stock parser leaves the decoded character count in the low seven bits
 # of $A1CE. The renderer saves it in private WRAM before the fixed 32-slot loop
@@ -113,25 +114,86 @@ def _ink_bounds(rows: bytes) -> tuple[int, int] | None:
     return min(columns), max(columns)
 
 
+def make_event_render_scope_helper() -> bytes:
+    """Return carry set only for the renderer invocation tagged as event text.
+
+    The renderer at $C0:1664 is shared by the event engine, GAME SELECT and a
+    third non-event caller.  The entry helper tags only the exact event-engine
+    caller ($C0:1150, whose JSR return address on the stack is $1152) and only
+    for stock event banks $C9/$CA.  Internal hooks then consume this private
+    flag instead of guessing from shared global state.
+    """
+    return bytes.fromhex(
+        "AD 85 93 F0 02 38 6B 18 6B"  # LDA $9385 / BEQ no / SEC RTL / CLC RTL
+    )
+
+
+EVENT_RENDER_SCOPE_HELPER = make_event_render_scope_helper()
+
+
 def make_entry_helper() -> bytes:
-    # At $167D the stock code has not yet initialized X/Y, so clearing the
-    # bitmap here is safe: $1682 immediately restores X=0 / Y=0 afterwards.
+    """Initialize VWF state only for the exact event-engine renderer caller.
+
+    $C0:1664 has three stock JSR callers. At $C0:167D no renderer-local value
+    has been pushed yet, so the original JSR return address is still at 1,S:
+
+      $1152 = event engine ($C0:1150)
+      $235E = GAME SELECT ($C0:235C)
+      $CB3E = other non-event caller ($C0:CB3C)
+
+    Tag only $1152 and then accept event banks $C9/$CA. Component 05 intercepts
+    its translated intro before this point, so its private $CA renderer remains
+    isolated. $9385 is shared with component 05 only under mutually exclusive
+    scopes (intro glyph-advance scratch there, renderer-active flag here).
+    """
     code = bytearray()
-    code += bytes.fromhex("AF 03 1D 00 C9 C9 D0 1A")  # bank != C9 -> replay only
-    code += bytes.fromhex("AD CE A1 29 7F 8D 8E 93")  # save decoded count
-    code += bytes.fromhex("9C 8F 93")                  # clear physical-cell result
-    code += bytes.fromhex("9C 82 93")                  # STZ pixel cursor
-    code += bytes.fromhex("A2 00 00")                  # LDX #$0000
-    code += bytes.fromhex("9E 00 90 E8 E0 80 01 D0 F7")  # clear $9000-$917F
-    code += bytes.fromhex("A9 20 8D 76 A1")            # replay stock LDA/STA
-    code += bytes.fromhex("5C 82 16 C0")               # JML $C01682
-    return bytes(code)
+    labels: dict[str, int] = {}
+    branches: list[tuple[int, str]] = []
+
+    def emit(*vals: int) -> None:
+        code.extend(vals)
+
+    def label(name: str) -> None:
+        labels[name] = len(code)
+
+    def br(op: int, target: str) -> None:
+        emit(op, 0)
+        branches.append((len(code) - 1, target))
+
+    emit(0x9C, 0x85, 0x93)             # STZ $9385: renderer-active flag
+
+    # No renderer-local pushes have happened yet. Read the 16-bit return
+    # address left by the caller's JSR $1664 without altering the stack.
+    emit(0xC2, 0x20)                   # REP #$20
+    emit(0xA3, 0x01)                   # LDA 1,S
+    emit(0xC9, 0x52, 0x11)             # event-engine JSR stores $1152
+    emit(0xE2, 0x20)                   # SEP #$20
+    br(0xD0, "replay")
+
+    emit(0xAF, 0x03, 0x1D, 0x00)       # LDA.l $001D03
+    emit(0xC9, 0xC9)
+    br(0xF0, "activate")
+    emit(0xC9, 0xCA)
+    br(0xD0, "replay")
+
+    label("activate")
+    emit(0xA9, 0x01, 0x8D, 0x85, 0x93) # active = 1
+    emit(0xAD, 0xCE, 0xA1, 0x29, 0x7F, 0x8D, 0x8E, 0x93)  # save count
+    emit(0x9C, 0x8F, 0x93)             # clear physical-cell result
+    emit(0x9C, 0x82, 0x93)             # STZ pixel cursor
+    emit(0xA2, 0x00, 0x00)             # LDX #$0000
+    emit(0x9E, 0x00, 0x90, 0xE8, 0xE0, 0x80, 0x01, 0xD0, 0xF7)  # clear bitmap
+
+    label("replay")
+    emit(0xA9, 0x20, 0x8D, 0x76, 0xA1) # replay stock LDA/STA
+    emit(0x5C, 0x82, 0x16, 0xC0)       # JML $C01682
+    return _resolve_rel8(code, labels, branches)
 
 
 def make_char_start_helper() -> bytes:
-    # For $C9, every character uses the true cumulative pixel cursor: Y is
+    # For a tagged event-render invocation, every character uses the true cumulative pixel cursor: Y is
     # floor(pixel_cursor / 8) * 12 while the stock glyph lookup remains intact.
-    # Keep branch targets symbolic so the non-$C9 path always lands at the
+    # Keep branch targets symbolic so the stock fallback always lands at the
     # beginning of the stock `LDA $A1A4,X / INX` replay.
     code = bytearray()
     labels: dict[str, int] = {}
@@ -147,9 +209,8 @@ def make_char_start_helper() -> bytes:
         emit(op, 0)
         branches.append((len(code) - 1, target))
 
-    emit(0xAF, 0x03, 0x1D, 0x00)       # LDA.l $001D03
-    emit(0xC9, 0xC9)                   # CMP #$C9
-    br(0xD0, "replay")                 # BNE replay
+    emit(0x22, 0xB0, 0x73, 0xED)       # tagged event-render scope: exact caller + C9/CA
+    br(0x90, "replay")                 # BCC replay
     emit(0x22, 0x80, 0x73, 0xED)       # JSL $ED7380: snapshot useful chunk cells
 
     emit(0xDA)                          # PHX
@@ -168,7 +229,7 @@ def make_char_start_helper() -> bytes:
 
 
 def make_char_end_helper() -> bytes:
-    # PLX restores the decoded-character index *after* INX. For C9, read the
+    # PLX restores the decoded-character index *after* INX. When tagged active, read the
     # current decoded byte, zero-extend its 7-bit glyph index through two bytes
     # of private WRAM scratch, then load the 8-bit advance from extended ROM.
     #
@@ -189,9 +250,8 @@ def make_char_end_helper() -> bytes:
         branches.append((len(code) - 1, target))
 
     emit(0xFA)                          # stock PLX
-    emit(0xAF, 0x03, 0x1D, 0x00)       # LDA.l $001D03
-    emit(0xC9, 0xC9)                   # CMP #$C9
-    br(0xD0, "stock_tail")             # non-C9 -> stock loop tail
+    emit(0x22, 0xB0, 0x73, 0xED)       # tagged event-render scope: exact caller + C9/CA
+    br(0x90, "stock_tail")             # BCC -> stock loop tail
 
     emit(0xBD, 0xA3, 0xA1)             # current decoded byte
     emit(0x29, 0x7F)                   # glyph index 0..127, A stays 8-bit
@@ -294,9 +354,8 @@ def make_chunk_commit_helper() -> bytes:
         emit(op, 0)
         branches.append((len(code) - 1, target))
 
-    emit(0xAF, 0x03, 0x1D, 0x00)       # LDA.l $001D03
-    emit(0xC9, 0xC9)                   # C9 dialogue bank only
-    br(0xD0, "return")
+    emit(0x22, 0xB0, 0x73, 0xED)       # tagged event-render scope: exact caller + C9/CA
+    br(0x90, "return")
 
     emit(0xAD, 0xCE, 0xA1)             # stock line-end flag
     br(0x30, "return")                 # line break: preserve validated stock progression
@@ -519,9 +578,8 @@ def make_font_row_helper() -> bytes:
     # Reproduce the overwritten stock load first. B remains untouched.
     emit(0xBF, 0x00, 0xDC, 0xD2)       # LDA.l $D2DC00,X
     emit(0x48)                          # PHA source row
-    emit(0xAF, 0x03, 0x1D, 0x00)       # bank
-    emit(0xC9, 0xC9)
-    br(0xD0, "stock")
+    emit(0x22, 0xB0, 0x73, 0xED)       # tagged event-render scope: exact caller + C9/CA
+    br(0x90, "stock")
 
     emit(0x68)                          # source row
     # Selection is factored out only to recover ROM space. The selector
@@ -586,7 +644,8 @@ def make_outline_post_helper() -> bytes:
     This runtime-validated helper is entered at $C0:1168, after the stock
     JSR $162C has returned; that call must remain intact for the stock outline.
 
-    For $C9 only, scan the already rendered $9000-$917F bitmap. If ink touches
+    For the currently validated $C9 outline path, scan the already rendered
+    $9000-$917F bitmap. If ink touches
     the left/right edge of a source cell, add the corresponding one-pixel outline
     contribution to the neighboring output tile. Then replay the stock tail.
     """
@@ -908,6 +967,7 @@ def build(base: bytes) -> bytes:
         (OUTLINE_POST_HELPER_FILE, OUTLINE_POST_HELPER),
         (CHUNK_COMMIT_HELPER_FILE, CHUNK_COMMIT_HELPER),
         (CHUNK_CELLS_SNAPSHOT_FILE, CHUNK_CELLS_SNAPSHOT_HELPER),
+        (EVENT_RENDER_SCOPE_HELPER_FILE, EVENT_RENDER_SCOPE_HELPER),
     ):
         rom[offset:offset + len(payload)] = payload
 
@@ -926,7 +986,7 @@ def main() -> None:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(patch)
     print(f"IPS: {args.output}")
-    print("$C9 continuous VWF + generic interrupted-chunk cell conversion")
+    print("Caller-gated $C9/$CA event-dialogue VWF + generic interrupted-chunk cell conversion")
 
 
 if __name__ == "__main__":

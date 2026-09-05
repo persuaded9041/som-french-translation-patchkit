@@ -18,8 +18,10 @@ frames where the event-engine hook does not run.
 
 The timer samples the stock frame counter at `$7E:00F4` and stores its starting
 frame plus an active flag in `$7E:938A-$938B`. Component 05 does not use those
-bytes during its `$CA` intro scope; component 06 uses them only under mutually
-exclusive `$C9` dialogue scope. A small hook at `$C0:AC34` clears the active
+bytes during its intro renderer. Component 06 can use the same addresses for
+ordinary `$C9/$CA` dialogue, but translated event `$0400` is intercepted by
+component 05 before component 06 reaches its renderer entry, so the lifetimes
+remain mutually exclusive. A small hook at `$C0:AC34` clears the active
 flag on NMI when R is released, preventing separate presses from accumulating.
 
 After 120 continuous frames, the live event pointer is redirected to

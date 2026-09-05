@@ -186,7 +186,7 @@ def main() -> None:
     print("NMI release hook: C0:AC34 -> JML $ED7490; restore stock LDA/AND then return C0:AC3A")
     print("Intro gate: CA:0C02-0E8A")
     print("Input: hold $4218 bit $10 (runtime-validated as R) for 120 NMI frames")
-    print("Timer state: $7E:938A-$938B under $CA intro scope; overlaps component 06 only under mutually exclusive $C9 scope")
+    print("Timer state: $7E:938A-$938B during translated event $0400; component 05 intercepts that intro before component 06 renderer entry")
     print(f"Skip script: CA:FFC0-${0xFFC0 + len(SKIP_SCRIPT) - 1:04X}")
     print(f"Input helper: ED:7400-${0x7400 + len(INPUT_HELPER) - 1:04X}")
     print(f"NMI release helper: ED:7490-${0x7490 + len(NMI_RELEASE_HELPER) - 1:04X}")
