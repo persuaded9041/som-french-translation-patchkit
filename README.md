@@ -40,7 +40,24 @@ editable sources/assets.
 `shared/rom.py` contains the canonical base-ROM identity and common SNES checksum
 helpers. `shared/ips.py` contains the generic IPS reader/writer used for aggregate
 builds. `shared/asm65816.py` provides the tiny label-aware emitter used by Python
-builders that generate 65C816 routines. `shared/components.py` discovers component
+builders that generate 65C816 routines. `shared/vwf_geometry.py` contains the
+renderer-neutral 8×12 glyph measurement/left-compaction primitives shared by
+the intro and dialogue VWF builders. `shared/vwf_metrics.py` contains the
+canonical validated framing/advance policy used by both VWF builders.
+`shared/vwf_framing.py` is the common runtime-selector source; its readable
+65816 reference is `shared/vwf_framing.asm`. Both VWF components install the
+same selector bundle at `$C7:44C0-$4557`.
+`shared/vwf_text_buffer.py` generates the
+byte-identical private decoded-text buffer bridge used by components 05 and 06;
+its readable 65816 reference is `shared/vwf_text_buffer.asm`.
+`shared/vwf_compositor.py` generates the byte-identical 8x12 shift/merge/spill
+primitive now shared by both VWF renderers; its readable reference is
+`shared/vwf_compositor.asm`. `shared/vwf_row_renderer.py` adds the runtime-validated
+shared stock-font row load + framing + compositor helper used by both VWF paths;
+`shared/vwf_row_renderer.asm` is its readable reference. `shared/vwf_outline.py`
+owns the common stock-outline `ROL -> ASL` preparation installed by both VWF
+components; `shared/vwf_outline.asm` documents that one-byte fix.
+`shared/components.py` discovers component
 manifests and `shared/compatibility.py` owns cross-component merge rules.
 
 `shared/french_charset/` is the canonical source for French direct-glyph codes

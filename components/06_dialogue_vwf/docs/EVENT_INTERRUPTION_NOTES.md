@@ -68,10 +68,10 @@ associated tilemap state.
 
 ## Why the final `$9382` cursor cannot be used directly
 
-The stock renderer still processes 32 slots. Unused decoded-buffer slots contain
-`$80` spaces, so the private pixel cursor continues advancing after useful text.
-For `" Wait "`, the useful width is 30 px but the remaining 26 padded spaces add
-104 px.
+The validated dialogue renderer processes 38 logical slots from the private buffer.
+Unused slots contain `$80` spaces, so the private pixel cursor still continues
+after useful text. For `" Wait "`, the useful width is still captured at 30 px
+before the remaining 32 padded spaces can affect the cursor.
 
 The generic solution saves the real decoded count at renderer entry and captures
 the cursor exactly when the slot index first reaches that count, before padding
@@ -94,9 +94,11 @@ renderer completion:
         $A1CE = $938F
 ```
 
-Normal line-break chunks retain their stock progression count. Counts outside the
-32-slot renderer contract also fall back to stock behavior. A full 32-character /
-256-pixel chunk is handled explicitly when the 8-bit pixel cursor wraps to zero.
+Normal line-break chunks retain their stock progression count. Counts above the new 38-slot contract still fall back to stock behavior. A full
+38-character chunk is snapshotted at final commit; an exact 256-pixel useful
+width is handled explicitly when the 8-bit pixel cursor wraps to zero. Newly
+possible 33-38-character line-break chunks are converted as well so the stock
+progression loop cannot request more than the 32 physical bitmap cells.
 
 Runtime validation in event `$0106` confirms that the same generic mechanism:
 

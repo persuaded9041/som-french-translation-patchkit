@@ -18,12 +18,10 @@ hirom
 !INTRO_START       = $0C02
 !INTRO_END         = $0E8B      ; current generated build value
 !PRIVATE_BUFFER    = $9390
-!PRIVATE_BUF_SIZE  = $002C      ; 44 bytes
-!STOCK_BUFFER      = $A1A4
 !VWF_BITMAP        = $9000
 
 !WIDTH_TABLE       = $C74440
-!GLYPH_TABLE       = $C744C0
+!SHARED_ROW_RENDER  = $C74560
 !CUSTOM_DTE        = $C74D00
 !STOCK_DTE         = $C77299
 
@@ -31,11 +29,10 @@ hirom
 !COUNT              = $9380
 !LINE_END_FLAG      = $9381
 !PIXEL_CURSOR       = $9382
-!BIT_SHIFT          = $9383
-!ROWS_LEFT          = $9384
 !GLYPH_ADVANCE      = $9385
-!TEMP16             = $9386
-!SHIFTED_ROW        = $9388
+!TEMP16_ROWS        = $9386      ; multiply scratch, then 12-row counter
+
+; $9383/$9384/$9388/$9389 are owned transiently by the shared compositor.
 
 ; ---------------------------------------------------------------------------
 ; Stock hooks
@@ -44,17 +41,19 @@ hirom
 org $C01664
     jml vwf_entry
 
+; Shared private-buffer parser hooks. The executable canonical source is
+; ../../shared/vwf_text_buffer.py; see ../../shared/vwf_text_buffer.asm.
 org $C017CE
-    jml parser_private_write
+    jml shared_vwf_parser_write
 
 org $C016B8
-    jml private_buffer_init
+    jml shared_vwf_buffer_init
 
 org $C018DE
-    jml previous_char_read
+    jml shared_vwf_previous_char
 
 org $C016C6
-    jsl intro_capacity
+    jsl shared_vwf_capacity
     nop #6
 
 org $C01719
@@ -147,18 +146,14 @@ vwf_entry:
     txa
     asl
     asl
-    sta !TEMP16
+    sta !TEMP16_ROWS
     asl
     clc
-    adc !TEMP16
+    adc !TEMP16_ROWS
     tax
 
-    ; Compute destination cell and shift from the current pixel cursor.
-    sep #$20
-    lda !PIXEL_CURSOR
-    and #$07
-    sta !BIT_SHIFT
-
+    ; Compute the tile-major destination from the current pixel cursor.
+    ; The shared compositor derives cursor&7 itself.
     rep #$20
     lda !PIXEL_CURSOR
     and #$00FF
@@ -167,55 +162,23 @@ vwf_entry:
     lsr
     asl
     asl
-    sta !TEMP16
+    sta !TEMP16_ROWS
     asl
     clc
-    adc !TEMP16
+    adc !TEMP16_ROWS
     tay
 
     sep #$20
     lda #$0C
-    sta !ROWS_LEFT
+    sta !TEMP16_ROWS
 
 .row:
-    lda.l !GLYPH_TABLE,x
+    jsl !SHARED_ROW_RENDER
     inx
-    rep #$20
-    and #$00FF
-    xba
-    sta !SHIFTED_ROW
-    phx
-
-    sep #$20
-    lda !BIT_SHIFT
-    rep #$20
-    and #$00FF
-    tax
-    lda !SHIFTED_ROW
-
-.shift:
-    cpx #$0000
-    beq .shift_done
-    lsr
-    dex
-    bra .shift
-
-.shift_done:
-    sta !SHIFTED_ROW
-    sep #$20
-
-    ; Right-side spill goes to the next 12-byte cell.
-    lda !SHIFTED_ROW+1
-    ora !VWF_BITMAP,y
+    nop #8                  ; preserve runtime-validated code layout
     sta !VWF_BITMAP,y
-
-    lda !SHIFTED_ROW
-    ora !VWF_BITMAP+$0C,y
-    sta !VWF_BITMAP+$0C,y
-
-    plx
     iny
-    dec !ROWS_LEFT
+    dec !TEMP16_ROWS
     bne .row
 
     plx
@@ -251,133 +214,58 @@ vwf_entry:
     jml $C016B7
 
 ; ---------------------------------------------------------------------------
-; Parser destination: private buffer during event $0400
+; Shared stock-font row renderer
 ; ---------------------------------------------------------------------------
-
-org $C743D0
-
-parser_private_write:
-    pha
-
-    lda.l $001D03
-    cmp #$CA
-    bne .stock8
-
-    rep #$20
-    lda.l $001D01
-    cmp #!INTRO_START
-    bcc .stock16
-    cmp #!INTRO_END
-    bcs .stock16
-
-    sep #$20
-    pla
-    sta !PRIVATE_BUFFER,x
-    inx
-    jml $C017D2
-
-.stock16:
-    sep #$20
-.stock8:
-    pla
-    sta !STOCK_BUFFER,x
-    inx
-    jml $C017D2
+;
+; The 13-byte helper at $C7:4560 is emitted by
+; ../../shared/vwf_row_renderer.py. It performs the stock font-row load, calls
+; the shared framing selector, then calls the shared compositor. Component 06
+; installs/calls the same bytes.
 
 ; ---------------------------------------------------------------------------
-; Buffer initialization
+; Shared row compositor
 ; ---------------------------------------------------------------------------
-
-org $C74AC0
-
-private_buffer_init:
-    lda.l $001D03
-    cmp #$CA
-    bne .stock
-
-    rep #$20
-    lda.l $001D01
-    cmp #!INTRO_START
-    bcc .stock16
-    cmp #!INTRO_END
-    bcs .stock16
-
-    sep #$20
-    ldx #$0000
-    lda #$80
-.private_loop:
-    sta !PRIVATE_BUFFER,x
-    inx
-    cpx #!PRIVATE_BUF_SIZE
-    bne .private_loop
-    jml $C016C6
-
-.stock16:
-    sep #$20
-.stock:
-    ldx #$0000
-    lda #$80
-.stock_loop:
-    sta !STOCK_BUFFER,x
-    inx
-    cpx #$0021
-    bne .stock_loop
-    jml $C016C6
+;
+; The byte-identical helper at $C7:4C90 is emitted by
+; ../../shared/vwf_compositor.py; see ../../shared/vwf_compositor.asm. It owns
+; only row shift/current-cell merge/right-side spill. The intro now reads the
+; stock font directly; width lookup, cursor advance and event-specific behavior
+; remain local.
 
 ; ---------------------------------------------------------------------------
-; Previous-character read
+; Shared runtime framing selector
 ; ---------------------------------------------------------------------------
-
-org $C74B40
-
-previous_char_read:
-    sep #$20
-    lda.l $001D03
-    cmp #$CA
-    bne .stock_from_8
-
-    rep #$20
-    lda.l $001D01
-    cmp #!INTRO_START
-    bcc .stock_from_16
-    cmp #!INTRO_END
-    bcs .stock_from_16
-
-    lda.l $7E9390,x
-    jml $C018E2
-
-.stock_from_8:
-    rep #$20
-.stock_from_16:
-    lda.l $7EA1A4,x
-    jml $C018E2
+;
+; The selector bundle at $C7:44C0-$4557 is generated by
+; ../../shared/vwf_framing.py from the same logic used by component 06. It
+; receives a stock row in A and its 12-byte stock-font offset in X, then returns
+; the runtime-validated framed row without changing X or accumulator width.
 
 ; ---------------------------------------------------------------------------
-; Intro logical capacity
+; Shared private decoded-text buffer bridge
 ; ---------------------------------------------------------------------------
-
-org $C74BC0
-
-intro_capacity:
-    rep #$20
-    lda.l $001D01
-    cmp #!INTRO_START
-    bcc .stock
-    cmp #!INTRO_END
-    bcs .stock
-
-    sep #$20
-    lda #$27              ; 39 parser units: 38 glyphs + following control
-    sta $A1CA
-    rtl
-
-.stock:
-    sep #$20
-    lda $A16A
-    sec
-    sbc $A181
-    sta $A1CA
-    rtl
+;
+; Components 05 and 06 install the same parser hooks/helpers byte-for-byte.
+; Their executable source is ../../shared/vwf_text_buffer.py and the readable
+; 65816 reference is ../../shared/vwf_text_buffer.asm.
+;
+; Component 05 writes its runtime config at $C7:4C80:
+;   $05, then the generated exclusive end pointer of translated event $0400.
+; The shared initializer then selects parser mode 1 only for the real event-
+; engine caller of $C0:16B8 (stacked return $114B), bank $CA, and pointers in
+; $0C02..!INTRO_END. GAME SELECT's $235B caller remains stock.
+;
+; Mode 1 preserves the validated intro behavior exactly:
+;   - decode to $7E:9390-$93BB;
+;   - fixed capacity $27 = 38 glyphs + following control;
+;   - previous-character reads come from the private buffer.
+;
+; Shared helper locations:
+;   $C7:43D0  parser private/stock write
+;   $C7:4AC0  caller-gated buffer initializer
+;   $C7:4B40  previous-character source selector
+;   $C7:4BC0  intro/dialogue/stock capacity selector
+;   $C7:4C80  component-05 intro config
 
 ; ---------------------------------------------------------------------------
 ; Intro-private DTE table loader
@@ -418,13 +306,14 @@ intro_dte_load:
 ; ---------------------------------------------------------------------------
 ;
 ; $C7:4440-$44BF  128-byte glyph advance table
-; $C7:44C0-$4ABF  128 x 12-byte left-compacted 8x12 font
+; $C7:44C0-$4557  shared runtime framing selector bundle
 ; $C7:4D00-$4D31  private intro DTE pair table
 ; $CA:0C02-$0E8A  rebuilt event $0400 (current generated build)
 ; $CA:FF70-$FFB7  relocated unchanged stock events $0401-$040F
 ;
-; The French glyph bitmaps are injected into the stock 8x12 font address space
-; before the compact VWF font is generated. Their editable source is:
+; The French glyph bitmaps are injected into the stock 8x12 font address space.
+; The intro renderer reads those stock rows directly and applies the canonical
+; runtime framing policy from shared/vwf_framing.py. Their editable source is:
 ;   ../../../shared/french_charset/french_glyphs.png (mapping: ../../../shared/french_charset/charset.json)
 ;
 ; The translated event itself is rebuilt by Python from:

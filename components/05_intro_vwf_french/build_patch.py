@@ -18,14 +18,6 @@ import argparse
 CODE_FILE = 0x074285
 CODE_CPU = 0xC74285
 WIDTH_CPU = 0xC74440
-GLYPH_CPU = 0xC744C0
-PARSER_HELPER_CPU = 0xC743D0
-BUFFER_INIT_HELPER_CPU = 0xC74AC0
-BUFFER_INIT_HELPER_FILE = CODE_FILE + (BUFFER_INIT_HELPER_CPU - CODE_CPU)
-PREV_CHAR_HELPER_CPU = 0xC74B40
-PREV_CHAR_HELPER_FILE = CODE_FILE + (PREV_CHAR_HELPER_CPU - CODE_CPU)
-CAPACITY_HELPER_CPU = 0xC74BC0
-CAPACITY_HELPER_FILE = CODE_FILE + (CAPACITY_HELPER_CPU - CODE_CPU)
 
 # Stock text/font locations.
 DTE_COMPARE_IMMEDIATE_OFFSET = 0x0016F6
@@ -39,6 +31,33 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from shared.rom import validate_base_rom, update_checksum  # noqa: E402
 from shared.ips import make_ips  # noqa: E402
 from shared.asm65816 import MiniAssembler, lo16, lo24  # noqa: E402
+from shared.vwf_geometry import left_compact_glyph  # noqa: E402
+from shared.vwf_metrics import apply_validated_framing, validated_advance  # noqa: E402
+from shared.vwf_framing import (  # noqa: E402
+    SHARED_FRAMING_CPU,
+    validate_stock as validate_shared_framing_stock,
+    install as install_shared_framing,
+)
+from shared.vwf_compositor import (  # noqa: E402
+    validate_stock as validate_shared_compositor_stock,
+    install as install_shared_compositor,
+)
+from shared.vwf_row_renderer import (  # noqa: E402
+    ROW_RENDERER_CALL,
+    validate_stock as validate_shared_row_renderer_stock,
+    install as install_shared_row_renderer,
+)
+from shared.vwf_outline import (  # noqa: E402
+    validate_stock as validate_shared_outline_stock,
+    install as install_shared_outline,
+)
+from shared.vwf_text_buffer import (  # noqa: E402
+    PARSER_WRITE_CPU,
+    PARSER_WRITE_HELPER,
+    validate_stock as validate_shared_text_buffer_stock,
+    install_common as install_shared_text_buffer,
+    enable_intro as enable_intro_private_buffer,
+)
 from shared.french_charset import (
     CHAR_TO_CODE,
     FIRST_CODE,
@@ -56,6 +75,7 @@ ASCII_TO_SOM.update({chr(ord("a") + i): 0x81 + i for i in range(26)})
 ASCII_TO_SOM.update({chr(ord("A") + i): 0x9B + i for i in range(26)})
 ASCII_TO_SOM.update({".": 0xBF, ",": 0xC0, "'": 0xC2})
 ASCII_TO_SOM.update(CHAR_TO_CODE)
+INTRO_RENDER_CODES = frozenset(ASCII_TO_SOM.values())
 
 SCRTXT_FILE = ROOT / "assets" / "text" / "scrtxt_fr.bin"
 INTRO_ANDROID_IDS = tuple(range(3445, 3453))
@@ -425,7 +445,7 @@ def assemble_vwf(intro_end_ptr: int) -> bytes:
     a.emit(0xE8)                       # INX
     a.emit(0xDA)                       # PHX: save character index
 
-    # Convert direct text code ($80-based) to compact-font glyph index.
+    # Convert direct text code ($80-based) to stock-font glyph index.
     a.emit(0xC2, 0x20)                 # REP #$20
     a.emit(0x29, *lo16(0x00FF))
     a.emit(0x38)                       # SEC
@@ -448,12 +468,8 @@ def assemble_vwf(intro_end_ptr: int) -> bytes:
     a.emit(0x6D, *lo16(0x9386))        # + *4 = *12
     a.emit(0xAA)                       # X = glyph row pointer
 
-    # Convert pixel cursor into tile-major destination + bit shift.
-    a.emit(0xE2, 0x20)
-    a.emit(0xAD, *lo16(0x9382))
-    a.emit(0x29, 0x07)
-    a.emit(0x8D, *lo16(0x9383))        # $9383 = cursor & 7
-
+    # Convert pixel cursor into the tile-major destination. The shared row
+    # compositor derives the sub-cell shift directly from $9382.
     a.emit(0xC2, 0x20)
     a.emit(0xAD, *lo16(0x9382))
     a.emit(0x29, *lo16(0x00FF))
@@ -470,49 +486,17 @@ def assemble_vwf(intro_end_ptr: int) -> bytes:
 
     a.emit(0xE2, 0x20)
     a.emit(0xA9, 0x0C)
-    a.emit(0x8D, *lo16(0x9384))        # $9384 = 12 rows
+    # $9384 belongs to the shared compositor as shift-count scratch. The
+    # intro can safely reuse $9386 as its 12-row counter after Y is computed.
+    a.emit(0x8D, *lo16(0x9386))        # $9386 = 12 rows
 
     a.label("row_loop")
-    # Build a 16-bit row stream, shift it by the current pixel offset, then OR
-    # its left/right halves into the current tile and the next tile.
-    a.emit(0xBF, *lo24(GLYPH_CPU))      # LDA compact_font,X
+    a.emit(*ROW_RENDERER_CALL)          # shared stock row + framing + compositor
     a.emit(0xE8)
-    a.emit(0xC2, 0x20)
-    a.emit(0x29, *lo16(0x00FF))
-    a.emit(0xEB)                       # XBA: glyph row becomes high byte
-    a.emit(0x8D, *lo16(0x9388))        # $9388/$9389 = shifted row word
-    a.emit(0xDA)                       # PHX: save glyph pointer
-
-    a.emit(0xE2, 0x20)
-    a.emit(0xAD, *lo16(0x9383))
-    a.emit(0xC2, 0x20)
-    a.emit(0x29, *lo16(0x00FF))
-    a.emit(0xAA)                       # X = shift count
-    a.emit(0xAD, *lo16(0x9388))
-
-    a.label("shift_loop")
-    a.emit(0xE0, *lo16(0x0000))
-    a.rel8(0xF0, "shift_done")
-    a.emit(0x4A)
-    a.emit(0xCA)
-    a.rel8(0x80, "shift_loop")
-
-    a.label("shift_done")
-    a.emit(0x8D, *lo16(0x9388))
-    a.emit(0xE2, 0x20)
-
-    # The bitmap is tile-major: each tile stores 12 consecutive row bytes.
-    # Therefore right-side spill belongs at +$0C, not +1.
-    a.emit(0xAD, *lo16(0x9389))
-    a.emit(0x19, *lo16(0x9000))
-    a.emit(0x99, *lo16(0x9000))
-    a.emit(0xAD, *lo16(0x9388))
-    a.emit(0x19, *lo16(0x900C))
-    a.emit(0x99, *lo16(0x900C))
-
-    a.emit(0xFA)                       # PLX: restore glyph pointer
-    a.emit(0xC8)                       # INY: next row in current tile
-    a.emit(0xCE, *lo16(0x9384))
+    a.emit(*([0xEA] * 8))               # preserve validated renderer layout
+    a.emit(0x99, *lo16(0x9000))         # shared helper returns current-cell half
+    a.emit(0xC8)                        # INY: next row in current tile
+    a.emit(0xCE, *lo16(0x9386))
     a.rel8(0xD0, "row_loop")
 
     a.emit(0xFA)                       # PLX: restore character index
@@ -554,189 +538,34 @@ def assemble_vwf(intro_end_ptr: int) -> bytes:
 
 
 
-def assemble_parser_private_write(intro_end_ptr: int) -> bytes:
-    """Redirect decoded intro bytes to the private $7E:9390 buffer.
+def make_vwf_font(rom: bytearray) -> tuple[bytes, bytes]:
+    """Build advances plus the expected framed rows used for static validation.
 
-    During event $0400, the intercepted parser store writes only to $7E:9390,X.
-    Outside the intro, the stock $7E:A1A4,X destination is reproduced exactly.
+    The framed rows are no longer installed as a private runtime glyph table.
+    Component 05 now reads the stock font directly and calls the shared runtime
+    framing selector; this generated copy exists only to prove byte-equivalent
+    row geometry for every intro-emittable code.
     """
-    a = MiniAssembler(PARSER_HELPER_CPU)
-
-    # Preserve the decoded byte while we test whether event $0400 is active.
-    a.emit(0x48)                       # PHA
-
-    a.emit(0xAF, *lo24(0x001D03))      # LDA.l event text bank
-    a.emit(0xC9, 0xCA)                 # CMP #$CA
-    a.rel8(0xD0, "stock_only")
-
-    a.emit(0xC2, 0x20)                 # REP #$20
-    a.emit(0xAF, *lo24(0x001D01))      # LDA.l event text pointer
-    a.emit(0xC9, *lo16(0x0C02))
-    a.rel8(0x90, "stock_only_16")      # BCC
-    a.emit(0xC9, *lo16(intro_end_ptr))
-    a.rel8(0xB0, "stock_only_16")      # BCS
-
-    # Intro path: restore the decoded byte and write ONLY to the private buffer.
-    a.emit(0xE2, 0x20)                 # SEP #$20
-    a.emit(0x68)                       # PLA
-    a.emit(0x9D, *lo16(0x9390))        # STA $9390,X
-    a.emit(0xE8)                       # INX (overwritten stock instruction)
-    a.emit(0x5C, *lo24(0xC017D2))      # JML after original INX
-
-    # Non-intro path: reproduce the stock store exactly.
-    a.label("stock_only_16")
-    a.emit(0xE2, 0x20)                 # SEP #$20
-    a.label("stock_only")
-    a.emit(0x68)                       # PLA
-    a.emit(0x9D, *lo16(0xA1A4))        # STA $A1A4,X
-    a.emit(0xE8)                       # INX
-    a.emit(0x5C, *lo24(0xC017D2))
-
-    return a.resolve()
-
-def assemble_buffer_init_private(intro_end_ptr: int) -> bytes:
-    """Initialize the private 44-byte decoded-text buffer for event $0400.
-
-    During the intro, $7E:9390-$93BB is filled with $80. Outside the intro, the
-    original 33-byte $7E:A1A4-$A1C4 initialization is reproduced exactly.
-    """
-    a = MiniAssembler(BUFFER_INIT_HELPER_CPU)
-
-    # Detect event $0400 by bank and pointer range.
-    a.emit(0xAF, *lo24(0x001D03))      # LDA.l event text bank
-    a.emit(0xC9, 0xCA)                 # CMP #$CA
-    a.rel8(0xD0, "stock_init")
-
-    a.emit(0xC2, 0x20)                 # REP #$20
-    a.emit(0xAF, *lo24(0x001D01))      # LDA.l event text pointer
-    a.emit(0xC9, *lo16(0x0C02))
-    a.rel8(0x90, "stock_init_16")      # BCC
-    a.emit(0xC9, *lo16(intro_end_ptr))
-    a.rel8(0xB0, "stock_init_16")      # BCS
-
-    # Intro: initialize the full private 44-byte area.
-    a.emit(0xE2, 0x20)                 # SEP #$20
-    a.emit(0xA2, *lo16(0x0000))        # LDX #$0000
-    a.emit(0xA9, 0x80)                 # LDA #$80
-    a.label("private_loop")
-    a.emit(0x9D, *lo16(0x9390))        # STA $9390,X
-    a.emit(0xE8)                       # INX
-    a.emit(0xE0, *lo16(0x002C))        # CPX #$002C (44 bytes)
-    a.rel8(0xD0, "private_loop")
-    a.emit(0x5C, *lo24(0xC016C6))      # continue after stock init loop
-
-    # Non-intro: reproduce the original 33-byte initialization exactly.
-    a.label("stock_init_16")
-    a.emit(0xE2, 0x20)                 # SEP #$20
-    a.label("stock_init")
-    a.emit(0xA2, *lo16(0x0000))        # LDX #$0000
-    a.emit(0xA9, 0x80)                 # LDA #$80
-    a.label("stock_loop")
-    a.emit(0x9D, *lo16(0xA1A4))
-    a.emit(0xE8)
-    a.emit(0xE0, *lo16(0x0021))
-    a.rel8(0xD0, "stock_loop")
-    a.emit(0x5C, *lo24(0xC016C6))
-
-    return a.resolve()
-
-
-
-def assemble_previous_char_private_read(intro_end_ptr: int) -> bytes:
-    """Read the previous decoded intro byte from the private buffer.
-
-    Event $0400 reads from $7E:9390,X; all other events keep the original
-    $7E:A1A4,X source.
-    """
-    a = MiniAssembler(PREV_CHAR_HELPER_CPU)
-
-    # The overwritten stock LDA is 16-bit at this point. Temporarily switch to
-    # 8-bit A only for the event-bank test, then restore 16-bit A before the
-    # actual character load.
-    a.emit(0xE2, 0x20)                 # SEP #$20
-    a.emit(0xAF, *lo24(0x001D03))      # LDA.l event text bank
-    a.emit(0xC9, 0xCA)                 # CMP #$CA
-    a.rel8(0xD0, "stock_from_8")
-
-    a.emit(0xC2, 0x20)                 # REP #$20
-    a.emit(0xAF, *lo24(0x001D01))      # LDA.l event text pointer
-    a.emit(0xC9, *lo16(0x0C02))
-    a.rel8(0x90, "stock_from_16")      # BCC
-    a.emit(0xC9, *lo16(intro_end_ptr))
-    a.rel8(0xB0, "stock_from_16")      # BCS
-
-    # Intro: source the previous decoded character from the private buffer.
-    a.emit(0xBF, *lo24(0x7E9390))      # LDA.l $7E9390,X
-    a.emit(0x5C, *lo24(0xC018E2))      # resume after stock LDA
-
-    a.label("stock_from_8")
-    a.emit(0xC2, 0x20)                 # REP #$20
-    a.label("stock_from_16")
-    a.emit(0xBF, *lo24(0x7EA1A4))      # LDA.l $7EA1A4,X
-    a.emit(0x5C, *lo24(0xC018E2))
-
-    return a.resolve()
-
-def assemble_intro_capacity(intro_end_ptr: int) -> bytes:
-    """Use 38-visible-character capacity throughout intro event $0400.
-
-    A1CA is set to 39 parser units: up to 38 stored glyph bytes plus a following
-    explicit $7F newline control in the same pass. Shorter lines terminate on
-    their explicit newline before the capacity is exhausted. Outside the intro,
-    reproduce the original stock calculation exactly.
-    """
-    a = MiniAssembler(CAPACITY_HELPER_CPU)
-
-    a.emit(0xC2, 0x20)                 # REP #$20
-    a.emit(0xAF, *lo24(0x001D01))      # LDA.l event text pointer
-    a.emit(0xC9, *lo16(INTRO_EVENT_START))
-    a.rel8(0x90, "stock16")
-    a.emit(0xC9, *lo16(intro_end_ptr))
-    a.rel8(0xB0, "stock16")
-
-    a.emit(0xE2, 0x20)                 # SEP #$20
-    a.emit(0xA9, 0x27)                 # LDA #39 = 38 glyphs + newline control
-    a.emit(0x8D, *lo16(0xA1CA))
-    a.emit(0x6B)                       # RTL
-
-    a.label("stock16")
-    a.emit(0xE2, 0x20)                 # SEP #$20
-    a.emit(0xAD, *lo16(0xA16A))
-    a.emit(0x38)                       # SEC
-    a.emit(0xED, *lo16(0xA181))
-    a.emit(0x8D, *lo16(0xA1CA))
-    a.emit(0x6B)                       # RTL
-    return a.resolve()
-
-
-def make_compact_font(rom: bytearray) -> tuple[bytes, bytes]:
-    """Build proportional advances + left-compacted 8×12 glyph data."""
     font = rom[FONT_BASE : FONT_BASE + 128 * 12]
-    compact = bytearray()
+    framed = bytearray()
     advances = bytearray()
 
     for glyph_index in range(128):
+        code = glyph_index + 0x80
         rows = font[glyph_index * 12 : (glyph_index + 1) * 12]
-        ink_columns = [
-            x
-            for row in rows
-            for x in range(8)
-            if row & (0x80 >> x)
-        ]
-
-        if ink_columns:
-            left = min(ink_columns)
-            right = max(ink_columns)
-            ink_width = right - left + 1
-            compact.extend(((row << left) & 0xFF) for row in rows)
-            advance = min(8, ink_width + 1)
+        if code in INTRO_RENDER_CODES:
+            # All glyphs the intro can actually emit follow the same canonical
+            # policy as component 06. Keep legacy data for unreachable table
+            # entries so this checkpoint changes the smallest possible runtime
+            # surface.
+            framed.extend(apply_validated_framing(code, rows))
+            advances.append(validated_advance(code, rows))
         else:
-            compact.extend(bytes(12))
-            advance = 4
+            compact_rows, ink_width = left_compact_glyph(rows)
+            framed.extend(compact_rows)
+            advances.append(min(8, ink_width + 1) if ink_width else 4)
 
-        advances.append(advance)
-
-    return bytes(advances), bytes(compact)
+    return bytes(advances), bytes(framed)
 
 
 
@@ -762,7 +591,7 @@ def main(source_rom: Path, output_path: Path, patched_rom: Path | None = None) -
     paragraph_pages = load_layout_metadata(android_texts)
 
     # Validate logical and pixel line widths.
-    check_advances, _check_font = make_compact_font(rom)
+    check_advances, _check_font = make_vwf_font(rom)
     for text_id, pages in zip(INTRO_ANDROID_IDS, paragraph_pages):
         for page in pages:
             if len(page.split("\n")) > 3:
@@ -828,38 +657,53 @@ def main(source_rom: Path, output_path: Path, patched_rom: Path | None = None) -
 
     rom[INTRO_EVENT_FILE : INTRO_EVENT_FILE + len(new_event)] = new_event
 
-    # Build the intro-only private-buffer VWF pipeline.
+    # Build the intro-only VWF renderer plus the shared private-buffer parser bridge.
     code = assemble_vwf(intro_end_ptr)
-    parser_helper = assemble_parser_private_write(intro_end_ptr)
-    buffer_init_helper = assemble_buffer_init_private(intro_end_ptr)
-    prev_char_helper = assemble_previous_char_private_read(intro_end_ptr)
-    capacity_helper = assemble_intro_capacity(intro_end_ptr)
     dte_loader = assemble_dte_loader(intro_end_ptr)
-    advances, compact_font = make_compact_font(rom)
+    advances, expected_framed_font = make_vwf_font(rom)
 
-    if CODE_CPU + len(code) > PARSER_HELPER_CPU:
-        raise SystemExit(f"VWF code overlaps parser helper: {len(code):#x} bytes")
-    if PARSER_HELPER_CPU + len(parser_helper) > WIDTH_CPU:
-        raise SystemExit(f"Parser helper is too large: {len(parser_helper):#x} bytes")
+    # Component 06 uses exact value $01 as its persistent renderer-active tag.
+    # During translated intro rendering this same mutually-exclusive byte stores
+    # a glyph advance. The validated post-outline gate depends on these scopes
+    # remaining distinguishable: every intro-emittable glyph must stay >= 2 px.
+    if any(advances[code - 0x80] == 1 for code in INTRO_RENDER_CODES):
+        raise SystemExit("Intro glyph advance collides with component-06 active tag value $01")
+
+    if CODE_CPU + len(code) > PARSER_WRITE_CPU:
+        raise SystemExit(f"VWF code overlaps shared parser helper: {len(code):#x} bytes")
+    if PARSER_WRITE_CPU + len(PARSER_WRITE_HELPER) > WIDTH_CPU:
+        raise SystemExit(f"Shared parser helper is too large: {len(PARSER_WRITE_HELPER):#x} bytes")
 
     payload = code
-    payload += bytes([0xFF]) * (PARSER_HELPER_CPU - (CODE_CPU + len(code)))
-    payload += parser_helper
-    payload += bytes([0xFF]) * (WIDTH_CPU - (PARSER_HELPER_CPU + len(parser_helper)))
+    payload += bytes([0xFF]) * (PARSER_WRITE_CPU - (CODE_CPU + len(code)))
+    payload += PARSER_WRITE_HELPER
+    payload += bytes([0xFF]) * (WIDTH_CPU - (PARSER_WRITE_CPU + len(PARSER_WRITE_HELPER)))
     payload += advances
-    payload += bytes([0xFF]) * (GLYPH_CPU - (WIDTH_CPU + len(advances)))
-    payload += compact_font
+
+    if WIDTH_CPU + len(advances) != SHARED_FRAMING_CPU:
+        raise SystemExit("Intro width table no longer ends at shared framing selector")
+
+    # The old private preframed 128x12 glyph table is no longer installed.
+    # Verify that the stock-font + shared runtime framing path is byte-equivalent
+    # for every character code the intro can emit.
+    stock_font = rom[FONT_BASE : FONT_BASE + 128 * 12]
+    for code_value in INTRO_RENDER_CODES:
+        glyph_index = code_value - 0x80
+        start = glyph_index * 12
+        expected = expected_framed_font[start:start + 12]
+        actual = apply_validated_framing(code_value, stock_font[start:start + 12])
+        if actual != expected:
+            raise SystemExit(f"Shared runtime framing mismatch for intro code ${code_value:02X}")
 
     if any(value != 0xFF for value in rom[CODE_FILE : CODE_FILE + len(payload)]):
         raise SystemExit("Expected VWF free-space area at $C7:4285 to be empty")
-    for file_offset, helper, label in (
-        (BUFFER_INIT_HELPER_FILE, buffer_init_helper, "buffer-init helper"),
-        (PREV_CHAR_HELPER_FILE, prev_char_helper, "previous-char helper"),
-        (CAPACITY_HELPER_FILE, capacity_helper, "capacity helper"),
-        (DTE_LOADER_FILE, dte_loader, "DTE loader"),
-    ):
-        if any(value != 0xFF for value in rom[file_offset : file_offset + len(helper)]):
-            raise SystemExit(f"Expected free space for {label} is not empty")
+    validate_shared_text_buffer_stock(base)
+    validate_shared_framing_stock(base)
+    validate_shared_compositor_stock(base)
+    validate_shared_row_renderer_stock(base)
+    validate_shared_outline_stock(base)
+    if any(value != 0xFF for value in rom[DTE_LOADER_FILE : DTE_LOADER_FILE + len(dte_loader)]):
+        raise SystemExit("Expected free space for DTE loader is not empty")
     if any(value != 0xFF for value in rom[CUSTOM_DTE_FILE : CUSTOM_DTE_FILE + len(custom_dte)]):
         raise SystemExit("Expected free space for private DTE table is not empty")
 
@@ -868,35 +712,17 @@ def main(source_rom: Path, output_path: Path, patched_rom: Path | None = None) -
         raise SystemExit("Stock renderer signature mismatch at ROM $001664")
     rom[0x1664:0x1668] = bytes.fromhex("5c 85 42 c7")
 
-    if rom[0x17CE:0x17D2] != bytes.fromhex("9d a4 a1 e8"):
-        raise SystemExit("Stock parser write signature mismatch at ROM $0017CE")
-    rom[0x17CE:0x17D2] = bytes([0x5C, *lo24(PARSER_HELPER_CPU)])
-
-    if rom[0x16B8:0x16BC] != bytes.fromhex("a2 00 00 a9"):
-        raise SystemExit("Stock buffer-init signature mismatch at ROM $0016B8")
-    rom[0x16B8:0x16BC] = bytes([0x5C, *lo24(BUFFER_INIT_HELPER_CPU)])
-
-    if rom[0x18DE:0x18E2] != bytes.fromhex("bf a4 a1 7e"):
-        raise SystemExit("Stock previous-character read signature mismatch at ROM $0018DE")
-    rom[0x18DE:0x18E2] = bytes([0x5C, *lo24(PREV_CHAR_HELPER_CPU)])
-
-    if rom[0x16C6:0x16D0] != bytes.fromhex("ad 6a a1 38 ed 81 a1 8d ca a1"):
-        raise SystemExit("Stock decoder-capacity signature mismatch at ROM $0016C6")
-    rom[0x16C6:0x16D0] = bytes([0x22, *lo24(CAPACITY_HELPER_CPU), 0xEA, 0xEA, 0xEA, 0xEA, 0xEA, 0xEA])
-
     if rom[0x1719:0x171D] != bytes.fromhex("bf 99 72 c7"):
         raise SystemExit("Stock DTE table-load signature mismatch at ROM $001719")
     rom[0x1719:0x171D] = bytes([0x22, *lo24(DTE_LOADER_CPU)])
 
-    # Prevent row-to-row carry injection in the stock outline shift.
-    if rom[0x163D] != 0x2A:
-        raise SystemExit("Stock outline ROL signature mismatch at ROM $00163D")
-    rom[0x163D] = 0x0A
-
     rom[CODE_FILE : CODE_FILE + len(payload)] = payload
-    rom[BUFFER_INIT_HELPER_FILE : BUFFER_INIT_HELPER_FILE + len(buffer_init_helper)] = buffer_init_helper
-    rom[PREV_CHAR_HELPER_FILE : PREV_CHAR_HELPER_FILE + len(prev_char_helper)] = prev_char_helper
-    rom[CAPACITY_HELPER_FILE : CAPACITY_HELPER_FILE + len(capacity_helper)] = capacity_helper
+    install_shared_text_buffer(rom)
+    install_shared_framing(rom)
+    install_shared_compositor(rom)
+    install_shared_row_renderer(rom)
+    install_shared_outline(rom)
+    enable_intro_private_buffer(rom, intro_end_ptr)
     rom[DTE_LOADER_FILE : DTE_LOADER_FILE + len(dte_loader)] = dte_loader
     rom[CUSTOM_DTE_FILE : CUSTOM_DTE_FILE + len(custom_dte)] = custom_dte
 

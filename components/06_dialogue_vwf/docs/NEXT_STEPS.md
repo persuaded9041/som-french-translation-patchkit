@@ -1,56 +1,43 @@
-# Dialogue VWF handoff / next steps
+# Next steps
 
-## Current checkpoint
+Component 06 is at a runtime-validated VWF checkpoint. The renderer scope covers
+ordinary event dialogue in `$C9/$CA`; GAME SELECT remains stock. The shared
+44-byte parser buffer supports 38 logical glyphs, the pixel-aware preflight
+prevents right-edge clipping, interruption/WAIT progression is converted to
+physical cells, and the exact-tag post-outline repair is validated on `$C9/$CA`.
 
-The continuous-cursor renderer, framing/metrics, caller-based stock event scope,
-shared French charset and generic interrupted-chunk physical-cell conversion are
-runtime-validated.
+The stock glyph-addressing block `$C0:168A-$16B0` remains intentionally intact.
+Shared VWF primitives and their ownership are documented at repository level and
+in `ARCHITECTURE.md`; do not duplicate those descriptions here.
 
-The core VWF is enabled only for the real event-engine call to the shared
-`$C0:1664` renderer (caller `$C0:1150`, stacked return `$1152`) and only for stock
-event banks `$C9/$CA`. GAME SELECT remains fixed-width. Component 05 still owns
-translated intro event `$0400` because it intercepts that event before component
-06's renderer-entry hook.
+## Immediate next work
 
-The interruption solution is data-driven: it measures the actual decoded VWF
-chunk and commits `ceil(useful_width / 8)` before stock progression. It contains
-no event-address, movement-command or WAIT-command exceptions. The stock
-progression path at `$C0:13A3` is unmodified.
+1. Build an editable, deterministic extraction/reinsertion pipeline for stock
+   dialogue text. Preserve control codes, DTE semantics, dynamic names and event
+   structure byte-exactly unless a source text is intentionally changed.
+2. Start with extraction and round-trip verification against the clean USA ROM
+   before translating or relocating dialogue data. A no-edit round trip must be
+   demonstrably deterministic.
+3. Keep renderer/VWF changes separate from text-pipeline changes so failures can
+   be isolated and runtime-tested in small checkpoints.
 
-Before changing the component, read:
+## Deferred presentation improvement
 
-- `README.md`;
-- `docs/ARCHITECTURE.md`;
-- `docs/MEMORY_MAP.md`;
-- `docs/EVENT_INTERRUPTION_NOTES.md`;
-- root `docs/COMPATIBILITY.md`, `docs/MEMORY_MAP.md` and `docs/SHARED_CHARSET.md`.
+The clipping-safety wrap is validated, but a word can still be split when the
+remaining physical width ends inside it. Later, add word-aware pre-wrap: when the
+next whole word does not fit in the remaining pixels but does fit on a fresh
+line, break before the word. Do not weaken the current pre-consumption clipping
+safety or split/rewind dynamic temporary sources or DTE tokens to implement it.
 
-## Planned work
+## Build discipline
 
-1. Exercise representative `$CA` dialogues beyond the first validated scene,
-   especially glyphs that touch 8-pixel boundaries.
-2. Audit the post-outline repair, which is still intentionally `$C9`-only, and
-   extend it to `$CA` only if a runtime case demonstrates the need and intro
-   isolation can be preserved cleanly.
-3. Once dialogue-render coverage is considered stable, implement English
-   dialogue extraction to an editable text format.
-4. Implement deterministic reinsertion from that format, then integrate the
-   French dialogue translation.
+All components are normal discovered components of the root aggregate builder. T
 
-Behavior-preserving refactoring is welcome when it has a clear maintenance
-benefit, but runtime-validated helpers should not be rewritten merely to save a
-few bytes.
+If a future investigation intentionally reuses a previously
+validated global instead of rebuilding a component, that is a test procedure,
+not repository behavior and should not be encoded in component documentation.
 
-## Validation workflow
-
-For each meaningful change:
-
-1. build component 06 independently;
-2. rebuild it and compare output for reproducibility;
-3. build all components and audit collisions;
-4. runtime-test any change that affects rendering or event flow;
-5. update component-local documentation and remove temporary diagnostics before
-   keeping the checkpoint.
-
-The commercial ROM is a local build input only and must never be committed or
-included in release archives.
+Any runtime-affecting change still requires an independent component build and a
+combined-build/runtime check before becoming a checkpoint. The commercial ROM is
+a local build input only and must never be committed or included in release
+archives.
