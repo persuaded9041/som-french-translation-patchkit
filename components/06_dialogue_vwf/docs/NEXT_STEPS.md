@@ -61,7 +61,7 @@ For each meaningful change:
 
 1. build component 06 independently;
 2. rebuild it a second time and compare output for reproducibility;
-3. build all six components together and audit collisions;
+3. build all components together and audit collisions;
 4. runtime-test the candidate;
 5. after validation, remove diagnostics and update component-local docs;
 6. deliver only the complete project ZIP and one combined IPS.

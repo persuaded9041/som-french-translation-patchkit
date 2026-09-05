@@ -42,4 +42,5 @@ python3 build_patch.py "Secret of Mana (USA).sfc"
 ## Sources
 
 - `src/intro_skip.asm`: readable 65C816 representation;
+- `../../shared/asm65816.py`: shared minimal label/branch emitter used by the Python builder;
 - `docs/MEMORY_MAP.md`: component-local ROM/WRAM allocations.

@@ -30,7 +30,7 @@ python3 build_patch.py "Secret of Mana (USA).sfc" -o build/patch.ips
 - `src/*.asm`: readable 65C816/data representation of the same changes.
 - `docs/MEMORY_MAP.md`: ROM allocations and hooks.
 
-The Python builder does not require an external 65C816 assembler; the ASM files are maintained as readable source maps of the emitted changes.
+The Python builder does not require an external 65C816 assembler; the ASM files are maintained as readable source maps of the emitted changes. Before applying each fixed code/data edit, the builder also verifies the corresponding stock USA-ROM bytes.
 
 ## French charset
 

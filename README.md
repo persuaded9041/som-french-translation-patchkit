@@ -39,8 +39,9 @@ editable sources/assets.
 
 `shared/rom.py` contains the canonical base-ROM identity and common SNES checksum
 helpers. `shared/ips.py` contains the generic IPS reader/writer used for aggregate
-builds. `shared/components.py` discovers component manifests and
-`shared/compatibility.py` owns cross-component merge rules.
+builds. `shared/asm65816.py` provides the tiny label-aware emitter used by Python
+builders that generate 65C816 routines. `shared/components.py` discovers component
+manifests and `shared/compatibility.py` owns cross-component merge rules.
 
 `shared/french_charset/` is the canonical source for French direct-glyph codes
 and artwork. Name Entry, GAME SELECT, intro VWF and dialogue VWF consume this definition while

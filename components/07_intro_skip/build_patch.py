@@ -12,6 +12,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from shared.ips import make_ips  # noqa: E402
 from shared.rom import ROM_SIZE_OFFSET, expand_rom, update_checksum, validate_base_rom  # noqa: E402
+from shared.asm65816 import MiniAssembler, lo24  # noqa: E402
 
 EVENT_HOOK_FILE = 0x00012C
 EVENT_HOOK_STOCK = bytes.fromhex("08 E2 20 C2")
@@ -33,41 +34,6 @@ HOLD_ACTIVE_WRAM = 0x7E938B
 
 SKIP_SCRIPT = bytes.fromhex("51 18 00 2A F8 11 06 00")
 
-
-class MiniAssembler:
-    def __init__(self, origin: int):
-        self.origin = origin
-        self.data = bytearray()
-        self.labels: dict[str, int] = {}
-        self.fixups: list[tuple[int, str]] = []
-
-    @property
-    def pc(self) -> int:
-        return self.origin + len(self.data)
-
-    def emit(self, *values: int) -> None:
-        self.data.extend(values)
-
-    def label(self, name: str) -> None:
-        self.labels[name] = self.pc
-
-    def rel8(self, opcode: int, label: str) -> None:
-        self.emit(opcode, 0)
-        self.fixups.append((len(self.data) - 1, label))
-
-    def resolve(self) -> bytes:
-        for pos, label in self.fixups:
-            target = self.labels[label]
-            operand_cpu = self.origin + pos
-            displacement = target - (operand_cpu + 1)
-            if not -128 <= displacement <= 127:
-                raise ValueError(f"8-bit branch to {label} is out of range: {displacement}")
-            self.data[pos] = displacement & 0xFF
-        return bytes(self.data)
-
-
-def lo24(value: int) -> tuple[int, int, int]:
-    return value & 0xFF, (value >> 8) & 0xFF, (value >> 16) & 0xFF
 
 
 def build_helper() -> bytes:

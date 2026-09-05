@@ -16,6 +16,7 @@ python3 build_patch.py "Secret of Mana (USA).sfc" -o build/patch.ips
 - `assets/`: component-specific intro text/layout inputs used by the builder.
 - `../../shared/french_charset/`: canonical French character mapping and 18-glyph atlas.
 - `src/intro_vwf.asm`: readable 65C816 representation of the code/data emitted by Python.
+- `../../shared/asm65816.py`: shared minimal label/branch emitter used by the Python builder.
 - `docs/MEMORY_MAP.md`: component ROM/WRAM allocations and hooks.
 
 ## Compatibility

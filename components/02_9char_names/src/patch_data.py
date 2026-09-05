@@ -12,6 +12,7 @@ from dataclasses import dataclass
 @dataclass(frozen=True)
 class PatchEdit:
     offset: int
+    expected: bytes
     payload: bytes
     description: str
 
@@ -55,18 +56,43 @@ LAYOUT_POINTER_TRIO = hx("EA 74 00 4E EA 74")
 CHARACTER_LOOKUP_CODE = hx("CC 00 BD 00 90 DA 38 E9 4E 20 4A AA E2 20 BF 00 40 E4")
 
 STATIC_EDITS = (
-    PatchEdit(0x00319C, hx("09"), "maximum name length = 9"),
-    PatchEdit(0x00334D, hx("83 35"), "Name Edit Up handler -> C0:3583"),
-    PatchEdit(0x003363, hx("95 35"), "Name Edit Down handler -> C0:3595"),
-    PatchEdit(0x0033BE, hx("00 40 E4"), "Name Entry resource pointer -> E4:4000"),
-    PatchEdit(0x003583, NAVIGATION_CODE, "four-row naming navigation"),
-    PatchEdit(0x075019, hx("50"), "initial cursor vertical state = first row"),
-    PatchEdit(0x07502A, hx("0C"), "naming grid/lookup parameter"),
-    PatchEdit(0x0750A6, CHARACTER_LOOKUP_CODE, "selected character lookup -> E4:4000"),
-    PatchEdit(0x0750E8, hx("48"), "selection-map origin aligned with raised grid"),
-    PatchEdit(0x07759D, LAYOUT_CONTROL, "naming layout/control data"),
-    PatchEdit(0x074E00, FOUR_ROW_LAYOUT_SCRIPT, "private four-row Name Entry layout script"),
-    PatchEdit(0x07781C, LAYOUT_POINTER_TRIO, "Name Entry layout pointer -> C7:4E00"),
+    PatchEdit(0x00319C, hx("06"), hx("09"), "maximum name length = 9"),
+    PatchEdit(0x00334D, hx("96 32"), hx("83 35"), "Name Edit Up handler -> C0:3583"),
+    PatchEdit(0x003363, hx("96 32"), hx("95 35"), "Name Edit Down handler -> C0:3595"),
+    PatchEdit(0x0033BE, hx("83 35 C0"), hx("00 40 E4"), "Name Entry resource pointer -> E4:4000"),
+    PatchEdit(
+        0x003583,
+        hx("80 AD 9F A6 9F 9D AE 80 9B 80 A6 9F AE AE 9F AC 80 AF AD A3 A8 A1 80 AE A2 9F 80 9D A9 A8 AE AC A9 A6 80 AA 9B 9E BF 80 AA AC 9F AD"),
+        NAVIGATION_CODE,
+        "four-row naming navigation",
+    ),
+    PatchEdit(0x075019, hx("60"), hx("50"), "initial cursor vertical state = first row"),
+    PatchEdit(0x07502A, hx("12"), hx("0C"), "naming grid/lookup parameter"),
+    PatchEdit(
+        0x0750A6,
+        hx("D2 00 BD 00 90 DA 38 E9 58 20 4A AA E2 20 BF B2 74 C7"),
+        CHARACTER_LOOKUP_CODE,
+        "selected character lookup -> E4:4000",
+    ),
+    PatchEdit(0x0750E8, hx("48"), hx("48"), "selection-map origin remains aligned with raised grid"),
+    PatchEdit(
+        0x07759D,
+        hx("04 06 1E 81 C0 02 02 1E 81 90 00 02 07"),
+        LAYOUT_CONTROL,
+        "naming layout/control data",
+    ),
+    PatchEdit(
+        0x074E00,
+        bytes((0xFF,)) * len(FOUR_ROW_LAYOUT_SCRIPT),
+        FOUR_ROW_LAYOUT_SCRIPT,
+        "private four-row Name Entry layout script",
+    ),
+    PatchEdit(
+        0x07781C,
+        hx("AD 74 9B 75 EC 74"),
+        LAYOUT_POINTER_TRIO,
+        "Name Entry layout pointer -> C7:4E00",
+    ),
 )
 
 assert len(NAVIGATION_CODE) == 0x2C

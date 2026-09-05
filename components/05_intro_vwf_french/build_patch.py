@@ -38,6 +38,7 @@ PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 from shared.rom import validate_base_rom, update_checksum  # noqa: E402
 from shared.ips import make_ips  # noqa: E402
+from shared.asm65816 import MiniAssembler, lo16, lo24  # noqa: E402
 from shared.french_charset import (
     CHAR_TO_CODE,
     FIRST_CODE,
@@ -75,57 +76,6 @@ STOCK_DTE_CPU = 0xC77299
 LINE_CHAR_LIMIT = 38
 LAYOUT_METADATA_FILE = ROOT / "assets" / "text" / "intro_layout.json"
 
-
-class MiniAssembler:
-    """Small label-aware assembler used by the generated 65816 routines."""
-
-    def __init__(self, origin: int):
-        self.origin = origin
-        self.data = bytearray()
-        self.labels: dict[str, int] = {}
-        self.fixups: list[tuple[int, str, int]] = []
-
-    @property
-    def pc(self) -> int:
-        return self.origin + len(self.data)
-
-    def emit(self, *values: int) -> None:
-        self.data.extend(values)
-
-    def label(self, name: str) -> None:
-        self.labels[name] = self.pc
-
-    def rel8(self, opcode: int, label: str) -> None:
-        self.emit(opcode, 0)
-        self.fixups.append((len(self.data) - 1, label, 1))
-
-    def rel16(self, opcode: int, label: str) -> None:
-        self.emit(opcode, 0, 0)
-        self.fixups.append((len(self.data) - 2, label, 2))
-
-    def resolve(self) -> bytes:
-        for pos, label, size in self.fixups:
-            target = self.labels[label]
-            operand_cpu = self.origin + pos
-            next_cpu = operand_cpu + size
-            displacement = target - next_cpu
-            if size == 1:
-                if not -128 <= displacement <= 127:
-                    raise ValueError(f"8-bit branch to {label} is out of range: {displacement}")
-                self.data[pos] = displacement & 0xFF
-            else:
-                if not -32768 <= displacement <= 32767:
-                    raise ValueError(f"16-bit branch to {label} is out of range: {displacement}")
-                self.data[pos : pos + 2] = struct.pack("<h", displacement)
-        return bytes(self.data)
-
-
-def lo16(value: int) -> tuple[int, int]:
-    return value & 0xFF, (value >> 8) & 0xFF
-
-
-def lo24(value: int) -> tuple[int, int, int]:
-    return value & 0xFF, (value >> 8) & 0xFF, (value >> 16) & 0xFF
 
 
 def load_android_intro_texts() -> list[str]:

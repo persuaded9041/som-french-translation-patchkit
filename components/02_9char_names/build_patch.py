@@ -187,6 +187,12 @@ def apply_source_edits(base: bytes, resource: bytes) -> bytearray:
     rom = expand_rom(base)
 
     for edit in STATIC_EDITS:
+        actual = base[edit.offset:edit.offset + len(edit.expected)]
+        if actual != edit.expected:
+            raise SystemExit(
+                f"Unexpected stock bytes for {edit.description} at {edit.offset:#08x}: "
+                f"expected {edit.expected.hex(' ')}, got {actual.hex(' ')}"
+            )
         rom[edit.offset:edit.offset + len(edit.payload)] = edit.payload
 
     # Install the shared naming-safe French glyph range $D4-$E0.
