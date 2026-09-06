@@ -46,13 +46,15 @@ def render_page_png(lines: list[SimLine], font: DialogueFont, *, scale: int = 2)
         base_y = 3 + line_index * 14
         cursor = 0
         ink_pixels: list[tuple[int, int]] = []
-        for glyph in line.glyphs:
+        fixed_cells = bool(line.glyphs) and all(glyph.fixed_cell for glyph in line.glyphs)
+        for slot, glyph in enumerate(line.glyphs):
             rows = font.rows[glyph.code]
+            glyph_cursor = slot * 8 if fixed_cells else cursor
             for y, row in enumerate(rows):
                 for x in range(8):
                     if row & (0x80 >> x):
-                        ink_pixels.append((base_x + cursor + x, base_y + y))
-            cursor += font.advances[glyph.code]
+                        ink_pixels.append((base_x + glyph_cursor + x, base_y + y))
+            cursor = (slot + 1) * 8 if fixed_cells else cursor + font.advances[glyph.code]
         # Approximate the game's black outline first, then white ink.
         outline = set()
         for x, y in ink_pixels:

@@ -59,6 +59,7 @@ class Glyph:
     dynamic_name: bool = False
     player_index: int | None = None
     layout_padding: bool = False
+    fixed_cell: bool = False
 
 
 @dataclass
@@ -198,6 +199,9 @@ class _Simulator:
         self.line_control_epoch = 0
         self.line_dynamic_blocks = 0
         self.last_wait: str | None = None
+        self.choice_active = False
+        self.choice_starts: list[int] = []
+        self.choice_finished = False
 
     def issue(self, severity: str, code: str, message: str, *, line: int | None = None) -> None:
         self.issues.append(
@@ -232,11 +236,13 @@ class _Simulator:
         dynamic_keys: list[tuple[int | None, int]] = []
         in_dynamic = False
         previous_index: int | None = None
-        for glyph in glyphs:
+        fixed_cells = bool(glyphs) and all(glyph.fixed_cell for glyph in glyphs)
+        for slot, glyph in enumerate(glyphs):
+            glyph_cursor = slot * 8 if fixed_cells else cursor
             edge = self.font.right_edges[glyph.code]
             if edge >= 0:
-                visible = max(visible, cursor + edge + 1)
-            cursor += self.font.advances[glyph.code]
+                visible = max(visible, glyph_cursor + edge + 1)
+            cursor = (slot + 1) * 8 if fixed_cells else cursor + self.font.advances[glyph.code]
             if glyph.dynamic_name:
                 key = glyph.player_index
                 if not in_dynamic or key != previous_index:
@@ -279,6 +285,9 @@ class _Simulator:
         self.line_glyphs.append(glyph)
 
     def add_glyph(self, glyph: Glyph) -> None:
+        if self.choice_finished:
+            self.issue("error", "CHOICE_POST_TEXT_UNSUPPORTED", "Text after CHOICE_END requires branch-aware simulation and remains review-only.")
+            self.choice_finished = False  # avoid duplicate diagnostics for the same continuation
         self.ensure_box(implicit=True)
         candidate = self.line_glyphs + [glyph]
         fits, reason = self._fits_runtime(candidate)
@@ -504,6 +513,77 @@ class _Simulator:
             self._append_without_wrap(Glyph(TEXT_TO_CODE[" "], " ", layout_padding=True))
         self._reset_checkpoint()
 
+    def choice_begin(self) -> None:
+        """Begin a stock horizontal choice list on the current decoded line."""
+        self.ensure_box(implicit=True)
+        if self.choice_active:
+            self.issue("error", "CHOICE_NESTED", "Nested CHOICE_BEGIN is not supported by the stock choice model.")
+            return
+        self.choice_active = True
+        self.choice_starts = []
+        self._reset_checkpoint()
+
+    def choice_option(self, position: int) -> None:
+        """Apply CHOICE_OPTION's absolute decoded-buffer X and record its span start."""
+        self.ensure_box(implicit=True)
+        if not self.choice_active:
+            self.issue("error", "CHOICE_OPTION_WITHOUT_BEGIN", f"CHOICE_OPTION ${position:02X} occurs outside CHOICE_BEGIN/CHOICE_END.")
+            return
+        if position >= 32:
+            self.issue("error", "CHOICE_POSITION_OVERFLOW", f"CHOICE_OPTION ${position:02X} starts outside the stock 32-cell selectable row.")
+        current = len(self.line_glyphs)
+        if position < current:
+            self.issue(
+                "error",
+                "CHOICE_OPTION_OVERLAP",
+                f"CHOICE_OPTION ${position:02X} rewinds over {current - position} already-decoded cell(s); translated option text would be overwritten.",
+            )
+            # Reproduce the parser's absolute X reset so later diagnostics see
+            # the same final buffer shape, but keep the event rejected.
+            self.line_glyphs = self.line_glyphs[:position]
+        elif position > current:
+            for _ in range(position - current):
+                self._append_without_wrap(Glyph(TEXT_TO_CODE[" "], " ", layout_padding=True))
+        self.choice_starts.append(position)
+        self._reset_checkpoint()
+
+    def choice_end(self) -> None:
+        """Finalize the stock choice row and model its user-visible pause.
+
+        $5B stores one terminal boundary after the option starts. If the last
+        decoded glyph is the stock closing parenthesis ($CC), that boundary is
+        decremented by one. Component 06's runtime-validated choice fallback sends
+        this one row through the stock 8-pixel-cell renderer so the stock $A1D7[]
+        selection/highlight spans remain aligned.
+        """
+        self.ensure_box(implicit=True)
+        if not self.choice_active:
+            self.issue("error", "CHOICE_END_WITHOUT_BEGIN", "CHOICE_END occurs outside CHOICE_BEGIN/CHOICE_END.")
+            return
+        if not self.choice_starts:
+            self.issue("error", "CHOICE_EMPTY", "CHOICE_END has no CHOICE_OPTION entries.")
+        terminal = len(self.line_glyphs)
+        if self.line_glyphs and self.line_glyphs[-1].code == 0xCC:
+            terminal -= 1
+        boundaries = self.choice_starts + [terminal]
+        for start, end in zip(boundaries, boundaries[1:]):
+            if end <= start:
+                self.issue("error", "CHOICE_EMPTY_OR_OVERLAPPED_OPTION", f"Choice span {start}..{end} is empty or reversed.")
+        if terminal > 32:
+            self.issue("error", "CHOICE_LOGICAL_OVERFLOW", f"Choice terminal cell {terminal} exceeds the stock 32-cell selectable row.")
+        # The runtime choice-safe path is deliberately fixed-cell only for this
+        # line. Mark all decoded cells before computing final page metrics.
+        for glyph in self.line_glyphs:
+            glyph.fixed_cell = True
+        self.choice_active = False
+        self.choice_finished = True
+        self.finish_line("choice")
+        self._snapshot("CHOICE", force=not (self.box and self.box.pages))
+        self.line_advances_since_pause = 0
+        self.content_lines_since_pause = 0
+        self.last_wait = None
+        self._reset_checkpoint()
+
     def unsupported_layout(self, name: str, args: bytes) -> None:
         self.issue("error", "UNSUPPORTED_LAYOUT_COMMAND", f"Simulator does not yet model {name} {args.hex(' ').upper()}; event must remain review-only.")
         self._reset_checkpoint()
@@ -575,9 +655,12 @@ class _Simulator:
                 # ordinary dialogue text stream. Keep it as a control boundary
                 # for word-rewind purposes, but consume no dialogue geometry.
                 self._reset_checkpoint()
-            elif name in {"CHOICE_BEGIN", "CHOICE_OPTION", "CHOICE_END"}:
-                # Choice geometry needs a dedicated model. Do not guess.
-                self.unsupported_layout(name, args)
+            elif name == "CHOICE_BEGIN":
+                self.choice_begin()
+            elif name == "CHOICE_OPTION":
+                self.choice_option(args[0] if args else 0)
+            elif name == "CHOICE_END":
+                self.choice_end()
             elif name == "END":
                 self.close_box("END")
             else:

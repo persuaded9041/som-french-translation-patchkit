@@ -1024,9 +1024,11 @@ def strip_proven_structural_android_markers(
     Android sign strings sometimes include ``←``/``→`` in the localized text
     even though the SNES event emits the same arrow as a separate structural
     glyph immediately before the editable text area.  In that exact case the
-    marker must not be encoded a second time as dialogue prose.  Choice marker
-    ``▽`` is intentionally *not* handled here: those events still require a
-    dedicated, conservative choice-layout model.
+    marker must not be encoded a second time as dialogue prose.  Android also
+    uses ``▽`` as a presentation marker immediately before some interactive
+    choice prompts.  Once the event itself proves a CHOICE_BEGIN/CHOICE_END
+    structure, that marker is structural too: keep any stock $CE glyph already
+    present in the SNES event, but never encode the Android marker as prose.
     """
     event_id = mapping.get("event_id")
     if not event_id:
@@ -1059,6 +1061,18 @@ def strip_proven_structural_android_markers(
             continue
         text = text.replace(marker, "")
         removed.append(marker)
+
+    has_choice = any(
+        token.get("type") == "command" and token.get("name") == "CHOICE_BEGIN"
+        for token in event.get("tokens", [])
+    ) and any(
+        token.get("type") == "command" and token.get("name") == "CHOICE_END"
+        for token in event.get("tokens", [])
+    )
+    if has_choice and text.count("▽") == 1:
+        text = text.replace("▽", "")
+        removed.append("▽")
+
     return text, removed
 
 
@@ -1520,6 +1534,39 @@ def format_mapping(
         inserted_page_breaks = len(page_line_counts) - 1
 
     translations = bind_wrapped_markup(slots, wrapped)
+
+    # The stock choice UI often stores its closing parenthesis inside the last
+    # option text token rather than as a separate control/glyph token. Android
+    # choice labels intentionally omit that SNES presentation delimiter. Keep
+    # the exact stock whitespace + `)` suffix only when this text token is
+    # immediately followed by CHOICE_END; this preserves the stock frame and
+    # CHOICE_END terminal-boundary semantics without translating or inventing
+    # prose.
+    preserved_choice_terminal_suffix_ids: list[str] = []
+    _, by_event = event_text_index(document)
+    event = by_event.get(mapping.get("event_id", ""))
+    if event is not None:
+        token_index_by_id = {
+            token.get("id"): index
+            for index, token in enumerate(event.get("tokens", []))
+            if token.get("type") in {"text", "ending_text"}
+        }
+        for slot in text_slots:
+            match = re.search(r"(\s*\))$", slot.source)
+            if not match:
+                continue
+            token_index = token_index_by_id.get(slot.text_id)
+            if token_index is None or token_index + 1 >= len(event["tokens"]):
+                continue
+            following = event["tokens"][token_index + 1]
+            if not (following.get("type") == "command" and following.get("name") == "CHOICE_END"):
+                continue
+            if translations.get(slot.text_id, "").rstrip().endswith(")"):
+                continue
+            suffix = match.group(1)
+            translations[slot.text_id] = translations[slot.text_id].rstrip() + suffix
+            preserved_choice_terminal_suffix_ids.append(slot.text_id)
+
     first_id = text_slots[0].text_id
     last_id = text_slots[-1].text_id
     translations[first_id] = "\n" * lead + translations[first_id]
@@ -1549,6 +1596,7 @@ def format_mapping(
         "source_display": source_display,
         "android_french_raw": french_raw,
         "structural_markers_removed": structural_markers_removed,
+        "preserved_choice_terminal_suffix_ids": preserved_choice_terminal_suffix_ids or None,
         "adjacent_nonsemantic_carrier_ids": adjacent_nonsemantic_carrier_ids or None,
         "adjacent_player_carrier_indexes": adjacent_player_carrier_indexes or None,
         "ignored_alignment_trailing_player_context": ignored_alignment_trailing_player_context or None,

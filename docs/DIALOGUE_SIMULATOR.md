@@ -54,11 +54,16 @@ is accepted only at a fresh-line position whose behavior is established; a
 mid-line `TEXT_X` remains unsupported because it resets an absolute text
 position/count. `MONEY_PRINT` (`$5F`) is modeled as consuming no dialogue-buffer
 geometry: static event-engine analysis shows that it redraws the separate money
-window rather than appending dialogue glyphs. Choice-layout commands and dynamic
-item/enemy/weapon/magic/list-value rendering remain unsupported until their geometry
-is modeled with the same certainty. Choice commands are deliberately still rejected
-because their stored X positions also drive the interactive selection cursor, whose
-visual relationship to component 06's compacted VWF text has not been proven.
+window rather than appending dialogue glyphs. Interactive choice geometry is now modeled conservatively. `CHOICE_OPTION $xx` resets
+the decoded-buffer X to the stock absolute cell and records the same boundary later
+used by the selection/highlight code; `CHOICE_END` supplies the terminal boundary,
+excluding the stock closing `)` when present. Component 06 therefore sends only a parsed `CHOICE_BEGIN` row through the complete
+stock fixed-width renderer. The simulator
+rejects any translation that would be overwritten by a later option anchor or exceed
+the 32-cell selectable row. Dynamic item/enemy/weapon/magic/list-value rendering and
+other unproven geometry remain unsupported. The stock-rendered choice-row path is
+runtime-validated on event `$0331`; the simulator remains a static guardrail for the
+rest of the corpus rather than a substitute for playthrough validation.
 
 The source comparison column is informational only; it is not fed back into the
 formatter or simulator. The simulator cannot prove timing, animation interaction or compositor pixel
@@ -78,11 +83,11 @@ component-06 follow-up.
 
 ## Current mass-pass result
 
-The simulator-filtered generator currently accepts 392 complete events / 675
-translated source IDs (692 JSON entries). Re-running the simulator on the committed mass translation
-produces **0 errors, 0 warnings and 0 implicit runtime wraps**. The 23
-formatter-compatible events still rejected by the simulator all contain interactive
-choice layout and remain intentionally excluded. The HTML remains a static guardrail
+The simulator-filtered generator currently accepts **404 complete events / 719
+translated source IDs (737 JSON entries)**. Re-running the simulator on the candidate
+mass translation produces **0 errors, 0 warnings and 0 implicit runtime wraps**. The
+13 formatter-compatible events still rejected by the simulator are choices whose
+French text would overlap a stock option anchor or overflow the selectable row. The HTML remains a static guardrail
 rather than a substitute for the planned full-game
 playthrough. Representative runtime tests have validated the simulator-driven layout
 repairs used by the mass formatter, including clean WAIT-separated pages and exact

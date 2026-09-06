@@ -10,6 +10,19 @@ metrics, interrupted-chunk physical-cell progression, right-edge preflight and
 post-outline repair are the current stable base. The stock glyph-addressing block
 `$C0:168A-$16B0` remains intentionally intact.
 
+## Remaining interactive-choice work
+
+The stock-rendered `CHOICE_BEGIN` fallback is runtime-validated on event `$0331`: the
+complete `(Yes  No)` row renders through the original 32-cell path and its selected-color
+span stays aligned. The fallback is intentionally local to the parser chunk containing
+`CHOICE_BEGIN`; ordinary dialogue remains VWF.
+
+Do not move `$5A` option anchors without separate analysis. The simulator still rejects
+13 choice events whose French labels would overlap the next stock anchor or overflow the
+32-cell row. During the full playthrough, keep asymmetric accepted choices such as
+`Accepter / Refuser` as additional regression coverage, but do not broaden the runtime
+rule merely to increase corpus coverage.
+
 ## Deferred renderer work
 
 The clipping-safety wrap is validated, but a word can still be split when the

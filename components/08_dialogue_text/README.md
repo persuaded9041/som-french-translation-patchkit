@@ -69,8 +69,9 @@ A translation remains separate and needs only the translated subset:
 Commands, arguments, dynamic names, choices, WAITs and unmapped direct glyphs
 remain structural source tokens and are not duplicated in translation files.
 Android `←` / `→` sign markers are likewise removed from localized prose only
-when the same event already emits the matching stock `$CF` / `$D0` glyph; `▽`
-choice markers remain deferred with the unsupported choice-layout structures.
+when the same event already emits the matching stock `$CF` / `$D0` glyph. Android `▽`
+is removed only when the event itself proves a `CHOICE_BEGIN` / `CHOICE_END` structure;
+otherwise the marker remains unsupported rather than being guessed.
 Two generated layout controls are supported for formatter output: a form-feed
 (`\f`) inside translated ordinary text compiles to stock `WAIT $00` +
 `TEXT_CLEAR`; a vertical-tab (`\v`, represented as `\u000b` in JSON) at the
@@ -150,9 +151,10 @@ python3 tools/import_android_text.py --only dialogue-format-mass \
   --rom <clean-USA-ROM>
 ```
 
-The current deterministic result is **392 simulator-clean events / 675 translated
-semantic source tokens / 692 JSON entries**. Of 704 semantic text events, 431 are
-completely aligned, 415 pass the formatter, and 392 pass the independent simulator.
+The current deterministic choice-aware mass pass is **404 simulator-clean events /
+719 translated semantic source tokens / 737 JSON entries**. Of 704 semantic text
+events, 431 are completely aligned, 417 pass the formatter, and 404 pass the
+independent simulator.
 Excluded events remain stock English and are listed in
 `mappings/android/dialogues_format_mass_excluded.csv`.
 
@@ -173,12 +175,15 @@ The formatter is intentionally conservative:
   the transformation. Dynamic-name commands are never invented or moved;
 - `MONEY_PRINT` consumes no dialogue-buffer geometry because it redraws the separate
   money window;
-- interactive choices, mid-line `TEXT_X` and other unproven geometry remain rejected.
+- interactive choices are accepted only when every stock `CHOICE_OPTION` anchor remains
+  compatible with the translated labels; overlapping/overflowing choices, mid-line
+  `TEXT_X` and other unproven geometry remain rejected.
 
 The mass pass serializes each candidate event and runs the independent simulator. An
 error, warning, implicit runtime wrap or unsupported structure excludes the whole event.
-The committed 392-event corpus simulates with **0 errors, 0 warnings and 0 implicit
-runtime wraps** and remains a full-game playthrough candidate.
+The 404-event corpus simulates with **0 errors, 0 warnings and 0 implicit runtime
+wraps**. Its admitted choice rows use component 06's stock-rendered choice fallback,
+which is runtime-validated on `$0331`; the full corpus still requires playthrough.
 
 The post-format interactive-WAIT cleanup is also simulator-gated. It repairs only exact
 line overlap after `WAIT $00`, never timed `WAIT $04/$08`, and the current corpus uses

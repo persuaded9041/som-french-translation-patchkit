@@ -150,10 +150,11 @@ insertion, line breaks and WAIT sequencing. The canonical `assets/dialogues.json
 The runtime-validated pagination baseline includes `$010F`: dynamic-name lines
 reserve one parser safety unit, and its four safe lines use a sentence-aware
 3+1 split with generated `WAIT $00` + `TEXT_CLEAR`. The current simulator-filtered
-mass output contains **392 complete events / 675 translated semantic source tokens /
-692 JSON entries** and resimulates with 0 errors, 0 warnings and 0 implicit wraps.
-Layout refinements have representative runtime validation; the complete mass corpus
-remains a full-game playthrough candidate.
+mass pass contains **404 complete events / 719 translated semantic source tokens /
+737 JSON entries** and resimulates with 0 errors, 0 warnings and 0 implicit wraps.
+The stock-rendered `CHOICE_BEGIN` fallback is runtime-validated on event `$0331`, where
+the complete `(Yes  No)` row and selection highlight remain aligned. The full mass
+corpus still requires the planned playthrough.
 
 Growth has a runtime-validated relocation path. Component 08 can install a sparse
 24-bit event-address table and dispatcher hook, then pack only overlong rebuilt

@@ -142,6 +142,28 @@ This is a clipping-safety mechanism, not yet full typographic word wrapping. If 
 word itself reaches the boundary with no usable preceding checkpoint, it may still
 be split. Whole-word pre-wrap is intentionally deferred.
 
+## Stock-rendered interactive choice rows
+
+Stock choice geometry is cell-based. The `$58` handler clears the option count; `$5A xx`
+applies an absolute decoded-buffer position and stores the same `xx` in the
+`$7E:A1D7[]` boundary table. `$5B` appends the terminal boundary, excluding a final stock
+`)` glyph. The selection/highlight routine later reads adjacent `$A1D7[]` boundaries and
+toggles tile attributes over exactly that cell span.
+
+Because `TEXT_X` and `CHOICE_OPTION` can create intentional holes in the decoded row, the
+normal sequential VWF chunk accounting is not equivalent to stock choice rendering.
+Parser preflight therefore tags `$7E:9381` only when the exact current chunk reads
+`CHOICE_BEGIN ($58)`. At renderer entry, after the exact `$1152` caller and dialogue-bank
+gates have passed, the final 32 cells from `$7E:9390-$93AF` are copied to the stock
+`$7E:A1A4-$A1C3` buffer. The choice tag is consumed and `$9385` remains zero, so every
+downstream component-06 hook naturally takes its stock fallback for that invocation.
+Ordinary dialogue remains fully VWF.
+
+This path is runtime-validated on event `$0331`: the complete `(Yes  No)` row renders and
+the stock selected-color span stays aligned. Choice relayout remains deliberately out of
+scope; translated options that would cross the next stock `$5A` anchor are rejected by
+the simulator rather than having their coordinates guessed.
+
 ## Outline repair
 
 The stock outline routine `JSR $162C` remains untouched. Component 06 hooks after

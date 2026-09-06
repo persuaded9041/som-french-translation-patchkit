@@ -20,6 +20,9 @@
 ;   lowercase a-z => framed ink width + 1 px black separator;
 ;   uppercase/punctuation/French framing and metrics as documented in README.md;
 ;   continuous cumulative pixel cursor with cross-cell merge/spill;
+;   runtime-validated exception: a parser chunk containing CHOICE_BEGIN ($58)
+;   is copied from the private decoded buffer to the stock 32-cell buffer at renderer
+;   entry, then uses the complete stock fixed-width renderer/accounting for that chunk;
 ;   generic interrupted-chunk conversion before stock progression.
 ;
 ; $7E:9385 is the per-invocation component-06 active tag. It overlaps the intro
@@ -94,9 +97,12 @@ dialogue_font_row:
 org $ED7180
 dialogue_char_start:
     ; For a tagged event-render invocation, snapshot physical chunk cells when
-    ; X reaches the saved decoded count, derive Y=floor(pixel_cursor/8)*12,
-    ; load the decoded byte from $9390,X, then enter the untouched stock glyph
-    ; normalization/addressing code at $C0:168A. Non-event callers load A1A4,X.
+    ; X reaches the saved decoded count. Ordinary dialogue derives
+    ; Y=floor(pixel_cursor/8)*12 for active component-06 dialogue. The
+    ; CHOICE_BEGIN chunks are intercepted earlier at renderer entry
+    ; and therefore reaches this hook only through the ordinary stock fallback.
+    ; Then load $9390,X and enter the untouched stock
+    ; glyph normalization/addressing code at $C0:168A. Non-event callers load A1A4,X.
 
 org $ED7200
 dialogue_width_table:
@@ -111,7 +117,8 @@ dialogue_outline_post:
 
 org $ED7340
 dialogue_chunk_commit:
-    ; Non-line-break chunks keep the validated physical-cell conversion.
+    ; Clear the current-line choice tag, then keep the validated physical-cell
+    ; conversion behavior. Non-line-break chunks keep the validated conversion.
     ; Existing <=32-character line-break chunks keep their validated stock
     ; progression; newly possible 33-38-character line-break chunks are
     ; converted too so stock transfer never requests >32 physical cells.

@@ -435,7 +435,8 @@ remain subject to zero-error, zero-warning and zero-implicit-wrap simulation.
 Representative runtime testing validates the semantic line-placement rules (fresh
 speaker turns, punctuation attachment, sentence-first reflow, weak single-comma
 balancing and dash attribution) and the clear-only cleanup of legacy blank lines after
-interactive WAITs. The complete 392-event corpus still requires full-game playthrough
+interactive WAITs. Component 06's stock-rendered choice fallback is runtime-validated
+on event `$0331`; the 404-event corpus as a whole still requires full-game playthrough
 validation.
 
 ## 8.5 Independent HTML simulation
@@ -459,8 +460,10 @@ independent simulator also understands `TEXT_X $nn` only at the start of a fresh
 line, where component 06 renders the `nn` prefilled `$80` cells before the text.
 The formatter now reserves those same proven padding cells against the first
 generated line's 38-unit and 240-pixel budgets; following wrapped lines return to
-the normal full budget. `▽`, choices and mid-line `TEXT_X` remain excluded rather than inferred. A trailing
-`PLAYER_NAME` placeholder accidentally absorbed by alignment lookahead may be ignored
+the normal full budget. Android `▽` is removed only when the event itself proves a
+`CHOICE_BEGIN` / `CHOICE_END` block. Such choices are accepted only when translated
+labels remain inside the stock option anchors; mid-line `TEXT_X` remains excluded rather
+than inferred. A trailing `PLAYER_NAME` placeholder accidentally absorbed by alignment lookahead may be ignored
 for binding only when the actual future event tokens prove the same `PLAYER_NAME`
 after linear `WAIT`/`TEXT_CLEAR`/`OP_32`/`COMPLETE_ACTIONS` controls; the command itself
 stays in its original SNES position.
@@ -508,11 +511,12 @@ Selection is deliberately two-stage and event-complete:
    geometry therefore excludes the whole event instead of being guessed.
 
 Current deterministic result: 704 semantic text events -> 431 completely aligned
--> 415 formatter candidates -> **392 simulator-clean events / 675 translated
-source IDs** (692 JSON entries). The excluded-event split is 273 incomplete
-alignments, 16 formatter rejects and 23 simulator rejects; every remaining simulator
-reject contains unsupported choice layout. Sixty-two generated page transitions
-occur in the accepted corpus. The current layout refinement also replaces legacy leading blank
+-> 417 formatter candidates -> **404 simulator-clean events / 719 translated
+source IDs** (737 JSON entries). The excluded-event split is 273 incomplete
+alignments, 14 formatter rejects and 13 simulator rejects. Choice rows are admitted
+only when their translated labels remain within the stock `CHOICE_OPTION` anchors;
+all 13 simulator rejects are incompatible choices. Sixty-five generated page
+transitions occur in the accepted corpus. The current layout refinement also replaces legacy leading blank
 scroll lines with clear-only `TEXT_CLEAR` transitions when the structure is proven.
 After the historical compact-wrapper fallback has failed, events whose **only**
 remaining simulator defect is `UNPAUSED_SCROLL` may try one additional page at a
@@ -529,7 +533,7 @@ Five accepted mappings contain speaker-after-sentence hard-line hints and one
 contains a dash-attribution hint. The current semantic reflow changes line
 placement in many accepted mappings; event `$0101` is presently the only event
 that needs the automatic compact-layout fallback after simulator rejection.
-Component 08 relocates 347 growing events; the final relocated payload still
+Component 08 relocates 358 growing events; the final relocated payload still
 fits entirely in the first `$E8` relocation bank in the current candidate.
 
 `mappings/android/dialogues_format_mass.json` records every accepted/rejected

@@ -95,6 +95,18 @@
           "text": "Niccolo : Humpf.\nJ'ai du travail, alors sois gentil,\nlaisse-moi, miaou !"
         },
         {
+          "id": "C9:11F3",
+          "text": "C'est 30 pièces d'or la nuit.\nVeux-tu rester dormir, miaou ?\n"
+        },
+        {
+          "id": "C9:1221",
+          "text": "Oui"
+        },
+        {
+          "id": "C9:1226",
+          "text": "Non  )"
+        },
+        {
           "id": "C9:139B",
           "text": "Gestahl : Brave petit !"
         },
@@ -195,6 +207,22 @@
           "text": "Vraiment ? Comme tu voudras ! Si tu\npréfères marcher jusqu'au Temple de\nl'Eau, va vers l'ouest, hé hé hé."
         },
         {
+          "id": "C9:23AB",
+          "text": "Hé hé hé. Bonjour, bienvenue chez\nles Frères Canon, connus pour leur\nréseau mondial de transport aérien !\fHé hé hé."
+        },
+        {
+          "id": "C9:23F4",
+          "text": "Tu vas au Temple de l'Eau, pas\nvrai ? Gemma t'a précédé, hé hé hé.\nUn coup de canon, et hop, tu y seras !\fGemma a payé d'avance pour toi.\nAlors, tu montes dans le canon ?"
+        },
+        {
+          "id": "C9:244D",
+          "text": "\u000bAccepter"
+        },
+        {
+          "id": "C9:2459",
+          "text": "Refuser )"
+        },
+        {
           "id": "C9:258F",
           "text": " : Aïe... Pfiouh.\n"
         },
@@ -267,6 +295,18 @@
           "text": "Je serai triste de ne plus te voir,\nmais on n'a pas le choix.\nTout ça est de ta faute, après tout !"
         },
         {
+          "id": "C9:37CE",
+          "text": "Équipez-vous bien pour être fin\nprêts !\n"
+        },
+        {
+          "id": "C9:37EE",
+          "text": "Oui"
+        },
+        {
+          "id": "C9:37F3",
+          "text": "Non  )"
+        },
+        {
           "id": "C9:3871",
           "text": "Dépêche-toi de préparer tes affaires\net quitte le village au plus vite !"
         },
@@ -297,6 +337,22 @@
         {
           "id": "C9:3BFA",
           "text": "Rusalka : Ho ho, alors c'est toi qui\nas retiré l'Épée sacrée !\nIntéressant..."
+        },
+        {
+          "id": "C9:3CEB",
+          "text": "Rusalka : Je vais t'aider à recouvrer\ntes forces."
+        },
+        {
+          "id": "C9:3D08",
+          "text": "Veux-tu aussi sauvegarder ?\n"
+        },
+        {
+          "id": "C9:3D25",
+          "text": "Oui"
+        },
+        {
+          "id": "C9:3D2A",
+          "text": "Non  )"
         },
         {
           "id": "C9:3DBE",
@@ -771,6 +827,18 @@
           "text": "Watts : Je vous attendais.\nUne arme à me faire forger ?"
         },
         {
+          "id": "C9:6EDB",
+          "text": " : Hé, où tu vas, comme ça ?\nC'est pas par là,\nle Château de la sorcière !"
+        },
+        {
+          "id": "C9:6F28",
+          "text": "\u000bContinuer"
+        },
+        {
+          "id": "C9:6F3C",
+          "text": "Sortir)"
+        },
+        {
           "id": "C9:6F5B",
           "text": " : Qu-qu'est-ce que..."
         },
@@ -845,6 +913,22 @@
         {
           "id": "C9:749A",
           "text": "Chef : Je suis navré...\nJe vous rends votre argent."
+        },
+        {
+          "id": "C9:751C",
+          "text": "Bienvenue à la “Maison de l'étrange”\ndu Village des nains !"
+        },
+        {
+          "id": "C9:7579",
+          "text": "Ça ne vous coûtera que 50 pièces !\n"
+        },
+        {
+          "id": "C9:7590",
+          "text": "Payer"
+        },
+        {
+          "id": "C9:7595",
+          "text": "Refuser )"
         },
         {
           "id": "C9:75A7",
@@ -941,6 +1025,22 @@
         {
           "id": "C9:8C47",
           "text": "\u000bMoi, je veux aller au Château de la\nsorcière, dans la Forêt hantée.\nCompris ?"
+        },
+        {
+          "id": "C9:8D25",
+          "text": " : Mais...\nPourquoi moi ?"
+        },
+        {
+          "id": "C9:8D3E",
+          "text": "Rusalka : Je l'ignore.\nMais tu as retiré l'Épée ; ton destin\nest désormais de la restaurer."
+        },
+        {
+          "id": "C9:8D7A",
+          "text": "Compris."
+        },
+        {
+          "id": "C9:8D87",
+          "text": "Non ! )"
         },
         {
           "id": "C9:8E17",
@@ -1109,6 +1209,22 @@
         {
           "id": "C9:9F44",
           "text": "Les mogs vont pouvoir retourner dans\nleur village, maintenant."
+        },
+        {
+          "id": "C9:A082",
+          "text": "Je vais restaurer votre énergie...\n"
+        },
+        {
+          "id": "C9:A0A1",
+          "text": "Voulez-vous sauvegarder ?\n"
+        },
+        {
+          "id": "C9:A0C0",
+          "text": "Oui"
+        },
+        {
+          "id": "C9:A0C5",
+          "text": "Non  )"
         },
         {
           "id": "C9:A0EA",
@@ -1417,6 +1533,22 @@
         {
           "id": "C9:B54B",
           "text": "Après cette histoire, l'amiral Meleria\nva sûrement redevenir le grand\nchevalier qu'il était autrefois."
+        },
+        {
+          "id": "C9:B615",
+          "text": "Rien à signaler !\nVoulez-vous inscrire quelque chose au\njournal de bord ?"
+        },
+        {
+          "id": "C9:B635",
+          "text": "\u000b"
+        },
+        {
+          "id": "C9:B63C",
+          "text": "Oui"
+        },
+        {
+          "id": "C9:B641",
+          "text": "Non  )"
         },
         {
           "id": "C9:B652",
@@ -1811,6 +1943,18 @@
           "text": "Même au cœur du plus violent blizzard,\ncet endroit reste chaud ! Quel luxe !\nOhoho !"
         },
         {
+          "id": "C9:DA8C",
+          "text": "Il y a un drôle de bruit à\nl'intérieur. On l'ouvre ?\n"
+        },
+        {
+          "id": "C9:DAB9",
+          "text": "Oui"
+        },
+        {
+          "id": "C9:DABE",
+          "text": "Non  )"
+        },
+        {
           "id": "C9:DC30",
           "text": "La chef nous fait trimer\ncomme des damnés !\fElle nous hurle dessus\nau moindre écart...\n"
         },
@@ -2089,6 +2233,30 @@
         {
           "id": "C9:EC54",
           "text": "Zico : Passons aux choses sérieuses !\nSi vous arrivez à les vaincre,\nl'épreuve sera réussie."
+        },
+        {
+          "id": "C9:EC89",
+          "text": "Jach : Zxyndra, qr..."
+        },
+        {
+          "id": "C9:EC9F",
+          "text": "Maître Jach parle la langue des\nanciens !\nPermettez-moi de traduire !"
+        },
+        {
+          "id": "C9:ECD2",
+          "text": "\u000b“Dans cette grotte se trouvent les\nMéandres de l'initiation, qui servent\nà éprouver le courage des braves.”\f“Si vous triomphez des adversaires\nqui vous attendent au bout, alors vous\ndécouvrirez le véritable courage.”"
+        },
+        {
+          "id": "C9:ED25",
+          "text": "Voulez-vous essayer ?\n"
+        },
+        {
+          "id": "C9:ED3A",
+          "text": "Oui"
+        },
+        {
+          "id": "C9:ED3F",
+          "text": "Non  )"
         },
         {
           "id": "C9:EDD2",
@@ -2673,6 +2841,18 @@
         {
           "id": "CA:771B",
           "text": "Allons-y...\nNous n'avons pas une minute à perdre !"
+        },
+        {
+          "id": "CA:78A1",
+          "text": "Vous pouvez passer.\nVoulez-vous sauvegarder ?\n"
+        },
+        {
+          "id": "CA:78CE",
+          "text": "Oui"
+        },
+        {
+          "id": "CA:78D3",
+          "text": "Non  )"
         },
         {
           "id": "CA:78E3",
