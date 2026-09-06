@@ -1,0 +1,302 @@
+{
+  "format_version": 1,
+  "status": "runtime_validated",
+  "source_alignment": "mappings/android/dialogues_auto.json (regenerated from Android EN/FR)",
+  "batch_events": [
+    "0107",
+    "010E",
+    "0116",
+    "0117",
+    "0118",
+    "011D"
+  ],
+  "policy": {
+    "alignment_must_already_be_accepted": true,
+    "existing_event_commands_only": true,
+    "player_name_placeholders_must_match_exactly": true,
+    "android_presentation_wraps_are_discarded": true,
+    "snes_vwf_wrap_pixels": 240,
+    "snes_parser_max_decoded_characters": 38,
+    "dynamic_player_name_width_assumption": "9 characters at worst-case validated glyph advance",
+    "dynamic_player_name_character_assumption": "9 visible characters plus 1 conservative parser-safety unit per PLAYER_NAME",
+    "source_explicit_visible_line_budget_is_not_exceeded": true,
+    "extra_page_events": [],
+    "generated_page_break_encoding": "WAIT $00 + TEXT_CLEAR"
+  },
+  "translation_entry_count": 8,
+  "formatted_mappings": [
+    {
+      "event_id": "0107",
+      "snes_ids": [
+        "C9:2B09",
+        "C9:2B1D"
+      ],
+      "android_ids": [
+        29
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "Did you see that, %S(0,0)?\nA minute ago something lit\nup the sky near the falls.",
+      "android_french_raw": "Oh, c'est toi, %S(0,0). Tout à l'heure, j'ai vu une grande lumière dans le ciel, du côté de la cascade. ",
+      "android_french_normalized": "Oh, c'est toi, %S(0,0). Tout à l'heure, j'ai vu une grande lumière dans le ciel, du côté de la cascade.",
+      "formatted_markup": "Oh, c'est toi, %S(0,0). Tout à\nl'heure, j'ai vu une grande lumière\ndans le ciel, du côté de la cascade.",
+      "line_widths_pixels": [
+        196,
+        199,
+        207
+      ],
+      "line_decoded_character_counts": [
+        32,
+        35,
+        36
+      ],
+      "line_parser_unit_counts": [
+        33,
+        35,
+        36
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        3
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "formatted_entries": [
+        {
+          "id": "C9:2B09",
+          "text": "Oh, c'est toi, "
+        },
+        {
+          "id": "C9:2B1D",
+          "text": ". Tout à\nl'heure, j'ai vu une grande lumière\ndans le ciel, du côté de la cascade."
+        }
+      ]
+    },
+    {
+      "event_id": "0107",
+      "snes_ids": [
+        "C9:2B56"
+      ],
+      "android_ids": [
+        30
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "\nI have a real bad feeling\nabout this...",
+      "android_french_raw": "J'ai comme un mauvais pressentiment. Touchons du bois...",
+      "android_french_normalized": "J'ai comme un mauvais pressentiment. Touchons du bois...",
+      "formatted_markup": "\nJ'ai comme un mauvais pressentiment.\nTouchons du bois...",
+      "line_widths_pixels": [
+        217,
+        114
+      ],
+      "line_decoded_character_counts": [
+        36,
+        19
+      ],
+      "line_parser_unit_counts": [
+        36,
+        19
+      ],
+      "source_visible_line_budget": 2,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "formatted_entries": [
+        {
+          "id": "C9:2B56",
+          "text": "\nJ'ai comme un mauvais pressentiment.\nTouchons du bois..."
+        }
+      ]
+    },
+    {
+      "event_id": "010E",
+      "snes_ids": [
+        "C9:323A"
+      ],
+      "android_ids": [
+        41
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "TIMOTHY:Get going!",
+      "android_french_raw": "Ness : Dépêche-toi un peu !",
+      "android_french_normalized": "Ness : Dépêche-toi un peu !",
+      "formatted_markup": "Ness : Dépêche-toi un peu !",
+      "line_widths_pixels": [
+        167
+      ],
+      "line_decoded_character_counts": [
+        27
+      ],
+      "line_parser_unit_counts": [
+        27
+      ],
+      "source_visible_line_budget": 1,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "formatted_entries": [
+        {
+          "id": "C9:323A",
+          "text": "Ness : Dépêche-toi un peu !"
+        }
+      ]
+    },
+    {
+      "event_id": "0116",
+      "snes_ids": [
+        "C9:36FB"
+      ],
+      "android_ids": [],
+      "confidence": "very_high_equivalent_duplicate",
+      "source_display": "We're in danger as long as\nyou're here.\nPlease leave!",
+      "android_french_raw": "Tant que tu resteras ici, le malheur s'abattra sur notre village...\nPars, je t'en prie. ",
+      "android_french_normalized": "Tant que tu resteras ici, le malheur s'abattra sur notre village... Pars, je t'en prie.",
+      "formatted_markup": "Tant que tu resteras ici, le malheur\ns'abattra sur notre village... Pars,\nje t'en prie.",
+      "line_widths_pixels": [
+        206,
+        203,
+        69
+      ],
+      "line_decoded_character_counts": [
+        36,
+        36,
+        13
+      ],
+      "line_parser_unit_counts": [
+        36,
+        36,
+        13
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        3
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "formatted_entries": [
+        {
+          "id": "C9:36FB",
+          "text": "Tant que tu resteras ici, le malheur\ns'abattra sur notre village... Pars,\nje t'en prie."
+        }
+      ]
+    },
+    {
+      "event_id": "0117",
+      "snes_ids": [
+        "C9:3734"
+      ],
+      "android_ids": [
+        96
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "So that's why I felt\nsomething awful was going\nto happen!",
+      "android_french_raw": "Je sentais bien qu'un événement terrible allait se produire !",
+      "android_french_normalized": "Je sentais bien qu'un événement terrible allait se produire !",
+      "formatted_markup": "Je sentais bien qu'un événement\nterrible allait se produire !",
+      "line_widths_pixels": [
+        190,
+        157
+      ],
+      "line_decoded_character_counts": [
+        31,
+        29
+      ],
+      "line_parser_unit_counts": [
+        31,
+        29
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "formatted_entries": [
+        {
+          "id": "C9:3734",
+          "text": "Je sentais bien qu'un événement\nterrible allait se produire !"
+        }
+      ]
+    },
+    {
+      "event_id": "0118",
+      "snes_ids": [
+        "C9:3771"
+      ],
+      "android_ids": [],
+      "confidence": "very_high_equivalent_duplicate",
+      "source_display": "I feel sad, but there's\nnothing I can do.\nIt's YOUR fault!",
+      "android_french_raw": "Je serai triste de ne plus te voir, mais on n'a pas le choix.\nTout ça est de ta faute, après tout ! ",
+      "android_french_normalized": "Je serai triste de ne plus te voir, mais on n'a pas le choix. Tout ça est de ta faute, après tout !",
+      "formatted_markup": "Je serai triste de ne plus te voir,\nmais on n'a pas le choix. Tout ça est\nde ta faute, après tout !",
+      "line_widths_pixels": [
+        196,
+        213,
+        146
+      ],
+      "line_decoded_character_counts": [
+        35,
+        37,
+        25
+      ],
+      "line_parser_unit_counts": [
+        35,
+        37,
+        25
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        3
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "formatted_entries": [
+        {
+          "id": "C9:3771",
+          "text": "Je serai triste de ne plus te voir,\nmais on n'a pas le choix. Tout ça est\nde ta faute, après tout !"
+        }
+      ]
+    },
+    {
+      "event_id": "011D",
+      "snes_ids": [
+        "C9:3871"
+      ],
+      "android_ids": [
+        36
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "Hurry up and finish your\nbusiness here.",
+      "android_french_raw": "Dépêche-toi de préparer tes affaires et quitte le village au plus vite !",
+      "android_french_normalized": "Dépêche-toi de préparer tes affaires et quitte le village au plus vite !",
+      "formatted_markup": "Dépêche-toi de préparer tes affaires\net quitte le village au plus vite !",
+      "line_widths_pixels": [
+        225,
+        186
+      ],
+      "line_decoded_character_counts": [
+        36,
+        35
+      ],
+      "line_parser_unit_counts": [
+        36,
+        35
+      ],
+      "source_visible_line_budget": 2,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "formatted_entries": [
+        {
+          "id": "C9:3871",
+          "text": "Dépêche-toi de préparer tes affaires\net quitte le village au plus vite !"
+        }
+      ]
+    }
+  ]
+}

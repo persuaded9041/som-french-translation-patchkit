@@ -83,8 +83,14 @@ container address plus decompressed offset (`C7:B480+09F9`).
 French text lives separately under `translations/` in sparse `*_french.json`
 files. The validated translations formerly stored in component CSV/BIN inputs
 for components 02-05 have been migrated there, and component 08 is ready to use
-`translations/dialogues_french.json`; the current file contains only the first
-runtime-validated Android-derived `$0107` SNES-formatting checkpoint.
+`translations/dialogues_french.json`. The runtime-validated baseline contains 8
+translated text tokens across `$0107`, `$010E`, `$0116`, `$0117`, `$0118` and
+`$011D`. `$010F` additionally uses the runtime-validated generated stock
+`WAIT $00` + `TEXT_CLEAR` transition. Its current sentence-aware layout is a
+3-line first page ending on a complete sentence followed by a 1-line second page.
+The checked-in `translations/dialogues_french.json` is currently the larger
+**batch-2 runtime candidate** (27 complete events / 37 translated source tokens);
+that expansion has not yet been accepted as a runtime checkpoint.
 
 See `docs/TEXT_INVENTORY.md` for coverage, `docs/TRANSLATIONS.md` for the source/translation
 model and ID scheme, `docs/ANDROID_TEXT_ALIGNMENT.md` for the Android English/French alignment method and conservative whole-dialogue mapping, `docs/TEXT_COMPONENT_AUDIT.md` for component
@@ -114,7 +120,7 @@ shared stock-font row load + framing + compositor helper used by both VWF paths;
 owns the common stock-outline `ROL -> ASL` preparation installed by both VWF
 components; `shared/vwf_outline.asm` documents that one-byte fix.
 `shared/translation_json.py` binds sparse language files to canonical source IDs.
-`shared/dialogue_codec.py` owns the stock event/dialogue parser and deterministic serializer used by root text tools and components 05/08. `shared/dialogue_relocation.py` owns the validated sparse expanded-ROM event relocation mechanism consumed by component 08. Keeping these modules under `shared/` avoids cross-component Python imports.
+`shared/dialogue_codec.py` owns the stock event/dialogue parser and deterministic serializer used by root text tools and components 05/08. `shared/dialogue_relocation.py` owns the validated sparse expanded-ROM event relocation mechanism consumed by component 08. `shared/dialogue_translation.py` owns the conservative Android-French normalization, PLAYER_NAME rebinding and dual-limit VWF/38-character offline formatter. Keeping these modules under `shared/` avoids cross-component Python imports.
 `shared/text_ids.py` defines the position-based source-ID scheme. `shared/components.py` discovers component
 manifests and `shared/compatibility.py` owns cross-component merge rules.
 

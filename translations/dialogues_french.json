@@ -4,7 +4,7 @@
   "source_asset": "dialogues.json",
   "groups": [
     {
-      "group": "dialogues.android_format_pilot.event_0107",
+      "group": "dialogues.android_format_batch2",
       "entries": [
         {
           "id": "C9:2B09",
@@ -17,6 +17,142 @@
         {
           "id": "C9:2B56",
           "text": "\nJ'ai comme un mauvais pressentiment.\nTouchons du bois..."
+        },
+        {
+          "id": "C9:2C02",
+          "text": "Voyons, "
+        },
+        {
+          "id": "C9:2C09",
+          "text": ", ne joue\npas avec cette épée, ou tu\nvas blesser quelqu'un !\fJe vais le dire au chef du village !"
+        },
+        {
+          "id": "C9:323A",
+          "text": "Ness : Dépêche-toi un peu !"
+        },
+        {
+          "id": "C9:325A",
+          "text": "Te voilà, "
+        },
+        {
+          "id": "C9:326A",
+          "text": " !\nBob et Ness sont revenus\ntout pâles tout à l'heure.\fIl s'est passé quelque chose ?"
+        },
+        {
+          "id": "C9:36FB",
+          "text": "Tant que tu resteras ici, le malheur\ns'abattra sur notre village... Pars,\nje t'en prie."
+        },
+        {
+          "id": "C9:3734",
+          "text": "Je sentais bien qu'un événement\nterrible allait se produire !"
+        },
+        {
+          "id": "C9:3771",
+          "text": "Je serai triste de ne plus te voir,\nmais on n'a pas le choix. Tout ça est\nde ta faute, après tout !"
+        },
+        {
+          "id": "C9:3871",
+          "text": "Dépêche-toi de préparer tes affaires\net quitte le village au plus vite !"
+        },
+        {
+          "id": "C9:3BA1",
+          "text": "Nous sommes l'expédition chargée\nd'éliminer la sorcière. Son château se\ntrouve au fond de la forêt."
+        },
+        {
+          "id": "C9:3BFA",
+          "text": "Rusalka : Ho ho, alors c'est toi qui\nas retiré l'Épée sacrée !\nIntéressant..."
+        },
+        {
+          "id": "C9:3DBE",
+          "text": "Rusalka : Commence par te rendre au\nNombril de Gaïa, où se trouve le\nTemple souterrain."
+        },
+        {
+          "id": "C9:3E14",
+          "text": "Pour l'atteindre, traverse le Royaume\nde Pandora, au sud."
+        },
+        {
+          "id": "C9:3E59",
+          "text": "Rusalka : La force de la Graine dans\nle Temple souterrain faiblit. Fais\nvite !"
+        },
+        {
+          "id": "C9:3F9B",
+          "text": "Rusalka : Tu pourras solidifier la\nlave du Temple souterrain grâce à la\nmagie d'Ondine."
+        },
+        {
+          "id": "C9:3FE2",
+          "text": "\nLes orbes de cristal réagissent à la\nmagie d'un certain élément."
+        },
+        {
+          "id": "C9:4179",
+          "text": "Rusalka : C'est terrible ! On a volé\nla Graine de l'Eau !"
+        },
+        {
+          "id": "C9:41C5",
+          "text": "\nPourtant, je n'ai pas l'impression que\nl'Empire soit responsable, cette fois."
+        },
+        {
+          "id": "C9:420D",
+          "text": "\nQuelqu'un a dû s'introduire ici\nlorsqu'Ondine était affaiblie..."
+        },
+        {
+          "id": "C9:4250",
+          "text": "\nCette Graine ne doit surtout pas\ntomber aux mains de personnes\nmalintentionnées ! Attends... Oui !\fJe sens que la Graine se trouve\nen dessous du Nombril de Gaïa !"
+        },
+        {
+          "id": "C9:42A5",
+          "text": "Rusalka : Utilise l'Épée pour\nrestaurer le sceau de la Graine."
+        },
+        {
+          "id": "C9:445A",
+          "text": "Tu n'es pas d'ici ! J'ai ordre de ne\npas laisser entrer les étrangers !\nOuste !"
+        },
+        {
+          "id": "C9:44AA",
+          "text": "J'ai l'impression d'avoir rêvé..."
+        },
+        {
+          "id": "C9:44D3",
+          "text": "Merci pour tout."
+        },
+        {
+          "id": "C9:4536",
+          "text": "Tous les citadins sont redevenus\nnormaux. Merci !"
+        },
+        {
+          "id": "C9:4756",
+          "text": "Si c'est ça, je vais partir\nà la recherche de Durac moi-même !\fEt je ne reviendrai pas tant\nque je ne l'aurai pas retrouvé !"
+        },
+        {
+          "id": "C9:47A1",
+          "text": "Apparemment, on présente aujourd'hui\nson fiancé à Mademoiselle... Hi hi hi."
+        },
+        {
+          "id": "C9:47F4",
+          "text": "Oh, Mademoiselle ! Comment s'est\npassée la rencontre avec votre\nprétendant ?"
+        },
+        {
+          "id": "C9:4844",
+          "text": "Quoi qu'il arrive, je dois protéger ma\nfamille."
+        },
+        {
+          "id": "C9:48B9",
+          "text": "Papa et maman sont tout bizarres !"
+        },
+        {
+          "id": "C9:48EB",
+          "text": "Ouiiin..."
+        },
+        {
+          "id": "C9:4905",
+          "text": "Je ne sais rien ! Laisse-moi\ntranquille !"
+        },
+        {
+          "id": "C9:4944",
+          "text": "Ma femme est devenue bizarre, elle ne\ndit plus un mot..."
+        },
+        {
+          "id": "C9:4979",
+          "text": "Ma petite-fille Pamela est bizarre,\nces derniers temps. Je ne sais que\nfaire..."
         }
       ]
     }

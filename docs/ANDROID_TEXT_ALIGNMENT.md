@@ -487,10 +487,11 @@ python3 tools/import_android_text.py --only dialogue-format-pilot \
   --rom "Secret of Mana (USA).sfc" --check
 ```
 
-This generates only the three `$0107` entries in
-`translations/dialogues_french.json` plus the reproducible formatting report in
-`mappings/android/dialogues_format_pilot.json`. The first formatting checkpoint
-is intentionally restricted to event `$0107`.
+The historical pilot now writes its three translated entries to
+`mappings/android/dialogues_format_pilot_translation.json` plus the reproducible
+trace report `dialogues_format_pilot.json`, so rerunning the pilot cannot overwrite
+the current translation batch. The runtime validation remains restricted to
+event `$0107`.
 The formatter:
 
 - regenerates the accepted alignment from the original Android EN/FR sources;
@@ -501,8 +502,9 @@ The formatter:
 - reflows against **two independent runtime constraints**: a conservative
   240-pixel VWF target and component 06's validated 38-decoded-character parser
   capacity;
-- budgets a dynamic player name as both the worst-case 9-character VWF width and
-  nine decoded visible characters;
+- budgets a dynamic player name as the worst-case 9-character VWF width and,
+  after batch-1 runtime testing, reserves one additional parser-safety unit on
+  any line containing `PLAYER_NAME`;
 - refuses a candidate if it needs more explicit visible lines than the source
   span exposes.
 
@@ -518,3 +520,31 @@ and relocates it deterministically to `$E8:2000`. **The Android correspondence
 and the revised dual-limit French presentation are runtime-validated.** The next
 expansion step is therefore charset/structural normalization, documented in
 `DIALOGUE_CHARSET_AUDIT.md`, rather than further tuning of this pilot.
+### First complete-event expansion
+
+After charset/structural normalization was established, the formatter was expanded
+to the first deliberately small complete-event batch:
+
+```bash
+python3 tools/import_android_text.py --only dialogue-format-batch1 \
+  --rom "Secret of Mana (USA).sfc"
+python3 tools/import_android_text.py --only dialogue-format-batch1 \
+  --rom "Secret of Mana (USA).sfc" --check
+```
+
+The first batch runtime test validated `$010E`, `$0116`, `$0117`, `$0118` and
+`$011D` in addition to the already validated `$0107`. Event `$010F` was rejected:
+with a 9-character dynamic name, the exact-capacity first line (`38` visible
+characters in the original offline model) split in game. The formatter now
+reserves one additional parser-safety unit on any line containing `PLAYER_NAME`.
+Under that conservative rule the unmodified Android French for `$010F` needs four
+lines while the stock span exposes only three, so `$010F` is deliberately left
+untranslated until a separately validated extra-page mechanism exists.
+
+The corrected batch therefore contains `$0107`, `$010E`, `$0116`, `$0117`, `$0118`
+and `$011D`, producing 8 sparse translation entries. A selected event is accepted
+only when **all** of its semantic source text IDs are already in the conservative
+Android alignment and every mapping passes existing-command binding, exact
+PLAYER_NAME rebinding and the conservative layout rules. This complete-event gate
+deliberately prevents mixed English/French runtime test scenes.
+

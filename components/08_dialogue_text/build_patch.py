@@ -64,6 +64,7 @@ def build(base: bytes, dialogue_file: Path = DIALOGUE_FILE, translation_file: Pa
     ]
 
     edits = count_edited_text_tokens(document, translations)
+    generated_page_breaks = sum(text.count("\f") for text in translations.values())
     if edits == 0:
         no_op_events, no_op_bytes = verify_unedited_reinsertion(base, document)
         reports.append(
@@ -72,6 +73,11 @@ def build(base: bytes, dialogue_file: Path = DIALOGUE_FILE, translation_file: Pa
         )
     else:
         reports.append(f"Editable text tokens changed: {edits}")
+        if generated_page_breaks:
+            reports.append(
+                f"Generated explicit dialogue page break(s): {generated_page_breaks} "
+                "(WAIT $00 + TEXT_CLEAR)"
+            )
 
     rebuilt_events: list[tuple[dict, bytes, bytes, int, int]] = []
     relocation_inputs: list[tuple[int, bytes]] = []

@@ -4,8 +4,12 @@
 The Android ``scrtxt`` binary reader is generic. Translation generation remains
 restricted to mappings that have already been established with very high
 confidence. Alignment reports never modify translations; the separate
-``dialogue-format-pilot`` mode currently generates only the runtime-validated checkpoint for
-event $0107 after rebinding existing SNES commands and VWF-aware reflow.
+``dialogue-format-pilot`` reproduces the historical runtime-validated $0107
+checkpoint, ``dialogue-format-batch1`` reproduces the first runtime-validated
+complete-event batch, ``dialogue-format-page-pilot`` reproduces the
+runtime-validated sentence-aware extra-page checkpoint, and
+``dialogue-format-batch2`` generates the first larger explicit expansion after
+rebinding existing SNES commands and VWF-aware reflow.
 """
 from __future__ import annotations
 
@@ -939,9 +943,31 @@ def make_dialogue_review_round5_report(
 
 DEFAULT_DIALOGUE_AUTO_OUTPUT = ROOT / "mappings" / "android" / "dialogues_auto.json"
 DEFAULT_DIALOGUE_UNMAPPED_CSV = ROOT / "mappings" / "android" / "dialogues_unmapped.csv"
-DEFAULT_DIALOGUE_FORMAT_PILOT_OUTPUT = ROOT / "translations" / "dialogues_french.json"
+DEFAULT_DIALOGUE_FORMAT_PILOT_OUTPUT = ROOT / "mappings" / "android" / "dialogues_format_pilot_translation.json"
 DEFAULT_DIALOGUE_FORMAT_PILOT_REPORT = ROOT / "mappings" / "android" / "dialogues_format_pilot.json"
+DEFAULT_DIALOGUE_FORMAT_BATCH1_OUTPUT = ROOT / "translations" / "dialogues_french.json"
+DEFAULT_DIALOGUE_FORMAT_BATCH1_REPORT = ROOT / "mappings" / "android" / "dialogues_format_batch1.json"
+DEFAULT_DIALOGUE_FORMAT_PAGE_PILOT_OUTPUT = ROOT / "mappings" / "android" / "dialogues_format_page_pilot_translation.json"
+DEFAULT_DIALOGUE_FORMAT_PAGE_PILOT_REPORT = ROOT / "mappings" / "android" / "dialogues_format_page_pilot.json"
+DEFAULT_DIALOGUE_FORMAT_BATCH2_OUTPUT = ROOT / "translations" / "dialogues_french.json"
+DEFAULT_DIALOGUE_FORMAT_BATCH2_REPORT = ROOT / "mappings" / "android" / "dialogues_format_batch2.json"
 DIALOGUE_FORMAT_PILOT_EVENTS = ("0107",)
+# First post-pilot runtime batch. Every selected event is complete: all of its
+# semantic SNES text IDs are accepted by the Android aligner and pass the
+# conservative structural formatter. This prevents mixed EN/FR test scenes.
+DIALOGUE_FORMAT_BATCH1_EVENTS = ("0107", "010E", "0116", "0117", "0118", "011D")
+DIALOGUE_FORMAT_PAGE_PILOT_EVENTS = ("0107", "010E", "010F", "0116", "0117", "0118", "011D")
+DIALOGUE_FORMAT_EXTRA_PAGE_EVENTS = frozenset({"010F"})
+# First larger explicit expansion after the pagination rule was runtime-validated.
+# The list is intentionally frozen rather than discovered dynamically: future
+# formatter changes must not silently change which events enter the patch.
+DIALOGUE_FORMAT_BATCH2_EVENTS = (
+    "0107", "010A", "010E", "010F", "0116", "0117", "0118", "011D",
+    "012F", "0130", "0136", "0137", "0139", "013C", "013D", "0140",
+    "0141", "0142", "0144", "014B", "014C", "014D", "0150", "0152",
+    "0153", "0154", "0155",
+)
+DIALOGUE_FORMAT_BATCH2_EXTRA_PAGE_EVENTS = frozenset({"010A", "010F", "013C", "014B"})
 
 # These two stress-test sources were explicitly reviewed and have no confident
 # standalone Android-English equivalent. Automatic passes must never force them.
@@ -2032,19 +2058,26 @@ def make_dialogue_auto_alignment(
 
 
 
-def make_dialogue_format_pilot(
+def make_dialogue_format_selection(
     english: dict[int, str],
     french: dict[int, str],
     *,
     english_path: Path,
     french_path: Path,
     base_rom: bytes,
+    selected_events: tuple[str, ...],
+    group: str,
+    status: str,
+    report_event_key: str,
+    extra_page_events: frozenset[str] = frozenset(),
 ) -> tuple[dict, dict]:
-    """Generate the first runtime-testable SNES dialogue translation checkpoint.
+    """Format a conservative, explicit set of complete SNES dialogue events.
 
-    The complete conservative alignment is regenerated from the original Android
-    EN/FR containers, then only the explicitly selected pilot event(s) are bound
-    to existing SNES text tokens. No event command is inserted, removed or moved.
+    Alignment is regenerated from the original Android sources. Every semantic
+    text token in each selected event must be covered by an accepted mapping;
+    mappings that cross unsupported commands, exceed the validated line budget,
+    or cannot bind PLAYER_NAME exactly abort generation instead of producing a
+    partially localized scene.
     """
     validate_base_rom(base_rom)
     alignment = make_dialogue_auto_alignment(
@@ -2059,18 +2092,42 @@ def make_dialogue_format_pilot(
     selected = [
         mapping
         for mapping in alignment["mappings"]
-        if mapping["event_id"] in DIALOGUE_FORMAT_PILOT_EVENTS
+        if mapping["event_id"] in selected_events
     ]
     if not selected:
-        raise ValueError("Dialogue format pilot selected no accepted mappings")
+        raise ValueError("Dialogue format selection selected no accepted mappings")
+
+    by_event = {event["event_id"]: event for event in source_document["events"]}
+    mapped_ids_by_event: dict[str, set[str]] = {event_id: set() for event_id in selected_events}
+    for mapping in selected:
+        mapped_ids_by_event[mapping["event_id"]].update(mapping["snes_ids"])
+    for event_id in selected_events:
+        event = by_event.get(event_id)
+        if event is None:
+            raise ValueError(f"Unknown selected dialogue event ${event_id}")
+        semantic_ids = {
+            token["id"]
+            for token in event["tokens"]
+            if token.get("type") == "text" and _auto_semantic(token.get("source", ""))
+        }
+        missing = sorted(semantic_ids - mapped_ids_by_event[event_id])
+        if missing:
+            raise ValueError(
+                f"Selected event ${event_id} is not completely aligned; semantic IDs missing: {missing}"
+            )
 
     translations: dict[str, str] = {}
     formatted: list[dict] = []
     for mapping in selected:
-        values, report = format_dialogue_mapping(source_document, mapping, advances)
+        values, report = format_dialogue_mapping(
+            source_document,
+            mapping,
+            advances,
+            allow_one_extra_page=mapping["event_id"] in extra_page_events,
+        )
         for text_id, text in values.items():
             if text_id in translations:
-                raise ValueError(f"Dialogue format pilot generated duplicate translation ID {text_id}")
+                raise ValueError(f"Dialogue formatter generated duplicate translation ID {text_id}")
             translations[text_id] = text
         formatted.append(report)
 
@@ -2084,30 +2141,121 @@ def make_dialogue_format_pilot(
         )
     }
     ordered_entries = sorted(translations.items(), key=lambda item: source_order[item[0]])
-    translation_document = make_dialogue_translation_document(
-        ordered_entries,
-        group="dialogues.android_format_pilot.event_0107",
-    )
+    translation_document = make_dialogue_translation_document(ordered_entries, group=group)
     report_document = {
         "format_version": 1,
-        "status": "runtime_validated",
+        "status": status,
         "source_alignment": "mappings/android/dialogues_auto.json (regenerated from Android EN/FR)",
-        "pilot_events": list(DIALOGUE_FORMAT_PILOT_EVENTS),
+        report_event_key: list(selected_events),
         "policy": {
             "alignment_must_already_be_accepted": True,
-            "existing_event_commands_only": True,
+            "existing_event_commands_only": not bool(extra_page_events),
             "player_name_placeholders_must_match_exactly": True,
             "android_presentation_wraps_are_discarded": True,
             "snes_vwf_wrap_pixels": DIALOGUE_WRAP_PIXELS,
             "snes_parser_max_decoded_characters": DIALOGUE_WRAP_CHARS,
             "dynamic_player_name_width_assumption": "9 characters at worst-case validated glyph advance",
-            "dynamic_player_name_character_assumption": "9 decoded visible characters",
-            "source_explicit_visible_line_budget_is_not_exceeded": True,
+            "dynamic_player_name_character_assumption": "9 visible characters plus 1 conservative parser-safety unit per PLAYER_NAME",
+            "source_explicit_visible_line_budget_is_not_exceeded": not bool(extra_page_events),
+            "extra_page_events": sorted(extra_page_events),
+            "generated_page_break_encoding": "WAIT $00 + TEXT_CLEAR",
         },
         "translation_entry_count": len(ordered_entries),
         "formatted_mappings": formatted,
     }
+    if status != "runtime_validated":
+        report_document["policy"]["selected_events_must_be_semantically_complete"] = True
     return translation_document, report_document
+
+
+def make_dialogue_format_pilot(
+    english: dict[int, str],
+    french: dict[int, str],
+    *,
+    english_path: Path,
+    french_path: Path,
+    base_rom: bytes,
+) -> tuple[dict, dict]:
+    """Regenerate the runtime-validated $0107 formatting checkpoint."""
+    return make_dialogue_format_selection(
+        english,
+        french,
+        english_path=english_path,
+        french_path=french_path,
+        base_rom=base_rom,
+        selected_events=DIALOGUE_FORMAT_PILOT_EVENTS,
+        group="dialogues.android_format_pilot.event_0107",
+        status="runtime_validated",
+        report_event_key="pilot_events",
+    )
+
+
+def make_dialogue_format_batch1(
+    english: dict[int, str],
+    french: dict[int, str],
+    *,
+    english_path: Path,
+    french_path: Path,
+    base_rom: bytes,
+) -> tuple[dict, dict]:
+    """Generate the first complete-event expansion beyond the validated pilot."""
+    return make_dialogue_format_selection(
+        english,
+        french,
+        english_path=english_path,
+        french_path=french_path,
+        base_rom=base_rom,
+        selected_events=DIALOGUE_FORMAT_BATCH1_EVENTS,
+        group="dialogues.android_format_batch1",
+        status="runtime_validated",
+        report_event_key="batch_events",
+    )
+
+
+def make_dialogue_format_page_pilot(
+    english: dict[int, str],
+    french: dict[int, str],
+    *,
+    english_path: Path,
+    french_path: Path,
+    base_rom: bytes,
+) -> tuple[dict, dict]:
+    """Reproduce the runtime-validated sentence-aware $010F page checkpoint."""
+    return make_dialogue_format_selection(
+        english,
+        french,
+        english_path=english_path,
+        french_path=french_path,
+        base_rom=base_rom,
+        selected_events=DIALOGUE_FORMAT_PAGE_PILOT_EVENTS,
+        group="dialogues.android_format_page_pilot",
+        status="runtime_validated",
+        report_event_key="page_pilot_events",
+        extra_page_events=DIALOGUE_FORMAT_EXTRA_PAGE_EVENTS,
+    )
+
+
+def make_dialogue_format_batch2(
+    english: dict[int, str],
+    french: dict[int, str],
+    *,
+    english_path: Path,
+    french_path: Path,
+    base_rom: bytes,
+) -> tuple[dict, dict]:
+    """Generate the first larger frozen event set using validated pagination."""
+    return make_dialogue_format_selection(
+        english,
+        french,
+        english_path=english_path,
+        french_path=french_path,
+        base_rom=base_rom,
+        selected_events=DIALOGUE_FORMAT_BATCH2_EVENTS,
+        group="dialogues.android_format_batch2",
+        status="runtime_candidate",
+        report_event_key="batch2_events",
+        extra_page_events=DIALOGUE_FORMAT_BATCH2_EXTRA_PAGE_EVENTS,
+    )
 
 
 def dialogue_unmapped_csv(document: dict) -> str:
@@ -2191,9 +2339,12 @@ def main() -> None:
             "dialogue-review-round5",
             "dialogue-auto",
             "dialogue-format-pilot",
+            "dialogue-format-batch1",
+            "dialogue-format-page-pilot",
+            "dialogue-format-batch2",
         ),
         default="intro",
-        help="generate the intro translation or one of the reproducible dialogue alignment reports",
+        help="generate the intro translation, dialogue alignment reports, or a gated SNES-formatting batch",
     )
     parser.add_argument(
         "--scrtxt",
@@ -2220,12 +2371,12 @@ def main() -> None:
     parser.add_argument(
         "--rom",
         type=Path,
-        help="clean unheadered USA ROM; required for dialogue-format-pilot VWF metrics",
+        help="clean unheadered USA ROM; required for dialogue-format-* VWF metrics",
     )
     parser.add_argument(
         "--format-report",
         type=Path,
-        help="dialogue-format-pilot report destination (default: mappings/android/dialogues_format_pilot.json)",
+        help="dialogue-format report destination; default depends on the selected formatting mode",
     )
     parser.add_argument(
         "--check",
@@ -2284,19 +2435,47 @@ def main() -> None:
                     french_path=french_path,
                 )
                 output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND5_OUTPUT).resolve()
-            elif args.only == "dialogue-format-pilot":
+            elif args.only in ("dialogue-format-pilot", "dialogue-format-batch1", "dialogue-format-page-pilot", "dialogue-format-batch2"):
                 if args.rom is None:
-                    raise ValueError("--rom is required for dialogue-format-pilot")
+                    raise ValueError(f"--rom is required for {args.only}")
                 rom_path = args.rom.resolve()
                 base_rom = rom_path.read_bytes()
-                document, format_report = make_dialogue_format_pilot(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                    base_rom=base_rom,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_FORMAT_PILOT_OUTPUT).resolve()
+                if args.only == "dialogue-format-pilot":
+                    document, format_report = make_dialogue_format_pilot(
+                        english,
+                        french,
+                        english_path=english_path,
+                        french_path=french_path,
+                        base_rom=base_rom,
+                    )
+                    output = (args.output or DEFAULT_DIALOGUE_FORMAT_PILOT_OUTPUT).resolve()
+                elif args.only == "dialogue-format-batch1":
+                    document, format_report = make_dialogue_format_batch1(
+                        english,
+                        french,
+                        english_path=english_path,
+                        french_path=french_path,
+                        base_rom=base_rom,
+                    )
+                    output = (args.output or DEFAULT_DIALOGUE_FORMAT_BATCH1_OUTPUT).resolve()
+                elif args.only == "dialogue-format-page-pilot":
+                    document, format_report = make_dialogue_format_page_pilot(
+                        english,
+                        french,
+                        english_path=english_path,
+                        french_path=french_path,
+                        base_rom=base_rom,
+                    )
+                    output = (args.output or DEFAULT_DIALOGUE_FORMAT_PAGE_PILOT_OUTPUT).resolve()
+                else:
+                    document, format_report = make_dialogue_format_batch2(
+                        english,
+                        french,
+                        english_path=english_path,
+                        french_path=french_path,
+                        base_rom=base_rom,
+                    )
+                    output = (args.output or DEFAULT_DIALOGUE_FORMAT_BATCH2_OUTPUT).resolve()
             else:
                 document = make_dialogue_auto_alignment(
                     english,
@@ -2310,8 +2489,16 @@ def main() -> None:
         raise SystemExit(str(exc)) from exc
 
     write_or_check(output, serialized(document), check=args.check, source_label=source_label)
-    if args.only == "dialogue-format-pilot":
-        report_output = (args.format_report or DEFAULT_DIALOGUE_FORMAT_PILOT_REPORT).resolve()
+    if args.only in ("dialogue-format-pilot", "dialogue-format-batch1", "dialogue-format-page-pilot", "dialogue-format-batch2"):
+        if args.only == "dialogue-format-pilot":
+            default_report = DEFAULT_DIALOGUE_FORMAT_PILOT_REPORT
+        elif args.only == "dialogue-format-batch1":
+            default_report = DEFAULT_DIALOGUE_FORMAT_BATCH1_REPORT
+        elif args.only == "dialogue-format-page-pilot":
+            default_report = DEFAULT_DIALOGUE_FORMAT_PAGE_PILOT_REPORT
+        else:
+            default_report = DEFAULT_DIALOGUE_FORMAT_BATCH2_REPORT
+        report_output = (args.format_report or default_report).resolve()
         write_or_check(
             report_output,
             serialized(format_report),
@@ -2352,11 +2539,19 @@ def main() -> None:
                 f"semantic source IDs mapped ({coverage['mapped_semantic_percent']}%); "
                 f"{coverage['unmapped_semantic_source_id_count']} unresolved; no translation JSON changed"
             )
-        elif args.only == "dialogue-format-pilot":
+        elif args.only in ("dialogue-format-pilot", "dialogue-format-batch1", "dialogue-format-page-pilot", "dialogue-format-batch2"):
+            if args.only == "dialogue-format-pilot":
+                event_key, label = "pilot_events", "pilot"
+            elif args.only == "dialogue-format-batch1":
+                event_key, label = "batch_events", "batch 1"
+            elif args.only == "dialogue-format-page-pilot":
+                event_key, label = "page_pilot_events", "extra-page pilot"
+            else:
+                event_key, label = "batch2_events", "batch 2"
             print(
-                "Dialogue format pilot: "
+                f"Dialogue format {label}: "
                 f"{format_report['translation_entry_count']} formatted source token(s) in event(s) "
-                + ", ".join(format_report["pilot_events"])
+                + ", ".join(format_report[event_key])
             )
         else:
             units = sum(len(scene["units"]) for scene in document["scenes"])

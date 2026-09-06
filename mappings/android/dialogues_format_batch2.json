@@ -1,0 +1,1441 @@
+{
+  "format_version": 1,
+  "status": "runtime_candidate",
+  "source_alignment": "mappings/android/dialogues_auto.json (regenerated from Android EN/FR)",
+  "batch2_events": [
+    "0107",
+    "010A",
+    "010E",
+    "010F",
+    "0116",
+    "0117",
+    "0118",
+    "011D",
+    "012F",
+    "0130",
+    "0136",
+    "0137",
+    "0139",
+    "013C",
+    "013D",
+    "0140",
+    "0141",
+    "0142",
+    "0144",
+    "014B",
+    "014C",
+    "014D",
+    "0150",
+    "0152",
+    "0153",
+    "0154",
+    "0155"
+  ],
+  "policy": {
+    "alignment_must_already_be_accepted": true,
+    "existing_event_commands_only": false,
+    "player_name_placeholders_must_match_exactly": true,
+    "android_presentation_wraps_are_discarded": true,
+    "snes_vwf_wrap_pixels": 240,
+    "snes_parser_max_decoded_characters": 38,
+    "dynamic_player_name_width_assumption": "9 characters at worst-case validated glyph advance",
+    "dynamic_player_name_character_assumption": "9 visible characters plus 1 conservative parser-safety unit per PLAYER_NAME",
+    "source_explicit_visible_line_budget_is_not_exceeded": false,
+    "extra_page_events": [
+      "010A",
+      "010F",
+      "013C",
+      "014B"
+    ],
+    "generated_page_break_encoding": "WAIT $00 + TEXT_CLEAR",
+    "selected_events_must_be_semantically_complete": true
+  },
+  "translation_entry_count": 37,
+  "formatted_mappings": [
+    {
+      "event_id": "0107",
+      "snes_ids": [
+        "C9:2B09",
+        "C9:2B1D"
+      ],
+      "android_ids": [
+        29
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "Did you see that, %S(0,0)?\nA minute ago something lit\nup the sky near the falls.",
+      "android_french_raw": "Oh, c'est toi, %S(0,0). Tout à l'heure, j'ai vu une grande lumière dans le ciel, du côté de la cascade. ",
+      "android_french_normalized": "Oh, c'est toi, %S(0,0). Tout à l'heure, j'ai vu une grande lumière dans le ciel, du côté de la cascade.",
+      "formatted_markup": "Oh, c'est toi, %S(0,0). Tout à\nl'heure, j'ai vu une grande lumière\ndans le ciel, du côté de la cascade.",
+      "line_widths_pixels": [
+        196,
+        199,
+        207
+      ],
+      "line_decoded_character_counts": [
+        32,
+        35,
+        36
+      ],
+      "line_parser_unit_counts": [
+        33,
+        35,
+        36
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        3
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:2B09",
+          "text": "Oh, c'est toi, "
+        },
+        {
+          "id": "C9:2B1D",
+          "text": ". Tout à\nl'heure, j'ai vu une grande lumière\ndans le ciel, du côté de la cascade."
+        }
+      ]
+    },
+    {
+      "event_id": "0107",
+      "snes_ids": [
+        "C9:2B56"
+      ],
+      "android_ids": [
+        30
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "\nI have a real bad feeling\nabout this...",
+      "android_french_raw": "J'ai comme un mauvais pressentiment. Touchons du bois...",
+      "android_french_normalized": "J'ai comme un mauvais pressentiment. Touchons du bois...",
+      "formatted_markup": "\nJ'ai comme un mauvais pressentiment.\nTouchons du bois...",
+      "line_widths_pixels": [
+        217,
+        114
+      ],
+      "line_decoded_character_counts": [
+        36,
+        19
+      ],
+      "line_parser_unit_counts": [
+        36,
+        19
+      ],
+      "source_visible_line_budget": 2,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:2B56",
+          "text": "\nJ'ai comme un mauvais pressentiment.\nTouchons du bois..."
+        }
+      ]
+    },
+    {
+      "event_id": "010A",
+      "snes_ids": [
+        "C9:2C02",
+        "C9:2C09"
+      ],
+      "android_ids": [
+        107
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "Hey, %S(0,0)! Stop playing\nwith that sword before you\nhurt someone!",
+      "android_french_raw": "Voyons, %S(0,0), ne joue pas avec cette épée, ou tu vas blesser quelqu'un !\nJe vais le dire au chef du village ! ",
+      "android_french_normalized": "Voyons, %S(0,0), ne joue pas avec cette épée, ou tu vas blesser quelqu'un ! Je vais le dire au chef du village !",
+      "formatted_markup": "Voyons, %S(0,0), ne joue\npas avec cette épée, ou tu\nvas blesser quelqu'un !\fJe vais le dire au chef du village !",
+      "line_widths_pixels": [
+        173,
+        158,
+        138,
+        201
+      ],
+      "line_decoded_character_counts": [
+        26,
+        26,
+        23,
+        36
+      ],
+      "line_parser_unit_counts": [
+        27,
+        26,
+        23,
+        36
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        3,
+        1
+      ],
+      "inserted_page_break_count": 1,
+      "page_break_encoding": "WAIT $00 + TEXT_CLEAR",
+      "page_break_strategy": "sentence_boundary",
+      "formatted_entries": [
+        {
+          "id": "C9:2C02",
+          "text": "Voyons, "
+        },
+        {
+          "id": "C9:2C09",
+          "text": ", ne joue\npas avec cette épée, ou tu\nvas blesser quelqu'un !\fJe vais le dire au chef du village !"
+        }
+      ]
+    },
+    {
+      "event_id": "010E",
+      "snes_ids": [
+        "C9:323A"
+      ],
+      "android_ids": [
+        41
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "TIMOTHY:Get going!",
+      "android_french_raw": "Ness : Dépêche-toi un peu !",
+      "android_french_normalized": "Ness : Dépêche-toi un peu !",
+      "formatted_markup": "Ness : Dépêche-toi un peu !",
+      "line_widths_pixels": [
+        167
+      ],
+      "line_decoded_character_counts": [
+        27
+      ],
+      "line_parser_unit_counts": [
+        27
+      ],
+      "source_visible_line_budget": 1,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:323A",
+          "text": "Ness : Dépêche-toi un peu !"
+        }
+      ]
+    },
+    {
+      "event_id": "010F",
+      "snes_ids": [
+        "C9:325A",
+        "C9:326A"
+      ],
+      "android_ids": [
+        102
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "Oh, it's you, %S(0,0).\nElliott was pale and about\nto faint. What happened?",
+      "android_french_raw": "Te voilà, %S(0,0) !\nBob et Ness sont revenus tout pâles tout à l'heure. Il s'est passé quelque chose ?",
+      "android_french_normalized": "Te voilà, %S(0,0) ! Bob et Ness sont revenus tout pâles tout à l'heure. Il s'est passé quelque chose ?",
+      "formatted_markup": "Te voilà, %S(0,0) !\nBob et Ness sont revenus\ntout pâles tout à l'heure.\fIl s'est passé quelque chose ?",
+      "line_widths_pixels": [
+        134,
+        151,
+        147,
+        179
+      ],
+      "line_decoded_character_counts": [
+        21,
+        24,
+        26,
+        30
+      ],
+      "line_parser_unit_counts": [
+        22,
+        24,
+        26,
+        30
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        3,
+        1
+      ],
+      "inserted_page_break_count": 1,
+      "page_break_encoding": "WAIT $00 + TEXT_CLEAR",
+      "page_break_strategy": "sentence_boundary",
+      "formatted_entries": [
+        {
+          "id": "C9:325A",
+          "text": "Te voilà, "
+        },
+        {
+          "id": "C9:326A",
+          "text": " !\nBob et Ness sont revenus\ntout pâles tout à l'heure.\fIl s'est passé quelque chose ?"
+        }
+      ]
+    },
+    {
+      "event_id": "0116",
+      "snes_ids": [
+        "C9:36FB"
+      ],
+      "android_ids": [],
+      "confidence": "very_high_equivalent_duplicate",
+      "source_display": "We're in danger as long as\nyou're here.\nPlease leave!",
+      "android_french_raw": "Tant que tu resteras ici, le malheur s'abattra sur notre village...\nPars, je t'en prie. ",
+      "android_french_normalized": "Tant que tu resteras ici, le malheur s'abattra sur notre village... Pars, je t'en prie.",
+      "formatted_markup": "Tant que tu resteras ici, le malheur\ns'abattra sur notre village... Pars,\nje t'en prie.",
+      "line_widths_pixels": [
+        206,
+        203,
+        69
+      ],
+      "line_decoded_character_counts": [
+        36,
+        36,
+        13
+      ],
+      "line_parser_unit_counts": [
+        36,
+        36,
+        13
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        3
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:36FB",
+          "text": "Tant que tu resteras ici, le malheur\ns'abattra sur notre village... Pars,\nje t'en prie."
+        }
+      ]
+    },
+    {
+      "event_id": "0117",
+      "snes_ids": [
+        "C9:3734"
+      ],
+      "android_ids": [
+        96
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "So that's why I felt\nsomething awful was going\nto happen!",
+      "android_french_raw": "Je sentais bien qu'un événement terrible allait se produire !",
+      "android_french_normalized": "Je sentais bien qu'un événement terrible allait se produire !",
+      "formatted_markup": "Je sentais bien qu'un événement\nterrible allait se produire !",
+      "line_widths_pixels": [
+        190,
+        157
+      ],
+      "line_decoded_character_counts": [
+        31,
+        29
+      ],
+      "line_parser_unit_counts": [
+        31,
+        29
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:3734",
+          "text": "Je sentais bien qu'un événement\nterrible allait se produire !"
+        }
+      ]
+    },
+    {
+      "event_id": "0118",
+      "snes_ids": [
+        "C9:3771"
+      ],
+      "android_ids": [],
+      "confidence": "very_high_equivalent_duplicate",
+      "source_display": "I feel sad, but there's\nnothing I can do.\nIt's YOUR fault!",
+      "android_french_raw": "Je serai triste de ne plus te voir, mais on n'a pas le choix.\nTout ça est de ta faute, après tout ! ",
+      "android_french_normalized": "Je serai triste de ne plus te voir, mais on n'a pas le choix. Tout ça est de ta faute, après tout !",
+      "formatted_markup": "Je serai triste de ne plus te voir,\nmais on n'a pas le choix. Tout ça est\nde ta faute, après tout !",
+      "line_widths_pixels": [
+        196,
+        213,
+        146
+      ],
+      "line_decoded_character_counts": [
+        35,
+        37,
+        25
+      ],
+      "line_parser_unit_counts": [
+        35,
+        37,
+        25
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        3
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:3771",
+          "text": "Je serai triste de ne plus te voir,\nmais on n'a pas le choix. Tout ça est\nde ta faute, après tout !"
+        }
+      ]
+    },
+    {
+      "event_id": "011D",
+      "snes_ids": [
+        "C9:3871"
+      ],
+      "android_ids": [
+        36
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "Hurry up and finish your\nbusiness here.",
+      "android_french_raw": "Dépêche-toi de préparer tes affaires et quitte le village au plus vite !",
+      "android_french_normalized": "Dépêche-toi de préparer tes affaires et quitte le village au plus vite !",
+      "formatted_markup": "Dépêche-toi de préparer tes affaires\net quitte le village au plus vite !",
+      "line_widths_pixels": [
+        225,
+        186
+      ],
+      "line_decoded_character_counts": [
+        36,
+        35
+      ],
+      "line_parser_unit_counts": [
+        36,
+        35
+      ],
+      "source_visible_line_budget": 2,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:3871",
+          "text": "Dépêche-toi de préparer tes affaires\net quitte le village au plus vite !"
+        }
+      ]
+    },
+    {
+      "event_id": "012F",
+      "snes_ids": [
+        "C9:3BA1"
+      ],
+      "android_ids": [],
+      "confidence": "very_high_equivalent_duplicate",
+      "source_display": "We came from Pandora to\nfight Elinee, the witch in\nthe Haunted Forest!",
+      "android_french_raw": "Nous sommes l'expédition chargée d'éliminer la sorcière. Son château se trouve au fond de la forêt.",
+      "android_french_normalized": "Nous sommes l'expédition chargée d'éliminer la sorcière. Son château se trouve au fond de la forêt.",
+      "formatted_markup": "Nous sommes l'expédition chargée\nd'éliminer la sorcière. Son château se\ntrouve au fond de la forêt.",
+      "line_widths_pixels": [
+        197,
+        220,
+        161
+      ],
+      "line_decoded_character_counts": [
+        32,
+        38,
+        27
+      ],
+      "line_parser_unit_counts": [
+        32,
+        38,
+        27
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        3
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:3BA1",
+          "text": "Nous sommes l'expédition chargée\nd'éliminer la sorcière. Son château se\ntrouve au fond de la forêt."
+        }
+      ]
+    },
+    {
+      "event_id": "0130",
+      "snes_ids": [
+        "C9:3BFA"
+      ],
+      "android_ids": [
+        861
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "LUKA:My, my...looks like\n you have the Mana Sword!\n How interesting. Ho ho ho!",
+      "android_french_raw": "Rusalka : Ho ho, alors c'est toi qui as retiré l'Épée sacrée ! Intéressant...",
+      "android_french_normalized": "Rusalka : Ho ho, alors c'est toi qui as retiré l'Épée sacrée ! Intéressant...",
+      "formatted_markup": "Rusalka : Ho ho, alors c'est toi qui\nas retiré l'Épée sacrée !\nIntéressant...",
+      "line_widths_pixels": [
+        204,
+        145,
+        80
+      ],
+      "line_decoded_character_counts": [
+        36,
+        25,
+        14
+      ],
+      "line_parser_unit_counts": [
+        36,
+        25,
+        14
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        3
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:3BFA",
+          "text": "Rusalka : Ho ho, alors c'est toi qui\nas retiré l'Épée sacrée !\nIntéressant..."
+        }
+      ]
+    },
+    {
+      "event_id": "0136",
+      "snes_ids": [
+        "C9:3DBE"
+      ],
+      "android_ids": [
+        866
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "LUKA:First, head for Gaia's\n Navel like Jema said. Look\n for the Underground Palace.",
+      "android_french_raw": "Rusalka : Commence par te rendre au Nombril de Gaïa, où se trouve le Temple souterrain.",
+      "android_french_normalized": "Rusalka : Commence par te rendre au Nombril de Gaïa, où se trouve le Temple souterrain.",
+      "formatted_markup": "Rusalka : Commence par te rendre au\nNombril de Gaïa, où se trouve le\nTemple souterrain.",
+      "line_widths_pixels": [
+        218,
+        187,
+        108
+      ],
+      "line_decoded_character_counts": [
+        35,
+        32,
+        18
+      ],
+      "line_parser_unit_counts": [
+        35,
+        32,
+        18
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        3
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:3DBE",
+          "text": "Rusalka : Commence par te rendre au\nNombril de Gaïa, où se trouve le\nTemple souterrain."
+        }
+      ]
+    },
+    {
+      "event_id": "0136",
+      "snes_ids": [
+        "C9:3E14"
+      ],
+      "android_ids": [
+        867
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": " To reach Gaia's Navel head\n south through the realm of\n Pandora.",
+      "android_french_raw": "Pour l'atteindre, traverse le Royaume de Pandora, au sud.",
+      "android_french_normalized": "Pour l'atteindre, traverse le Royaume de Pandora, au sud.",
+      "formatted_markup": "Pour l'atteindre, traverse le Royaume\nde Pandora, au sud.",
+      "line_widths_pixels": [
+        219,
+        117
+      ],
+      "line_decoded_character_counts": [
+        37,
+        19
+      ],
+      "line_parser_unit_counts": [
+        37,
+        19
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:3E14",
+          "text": "Pour l'atteindre, traverse le Royaume\nde Pandora, au sud."
+        }
+      ]
+    },
+    {
+      "event_id": "0137",
+      "snes_ids": [
+        "C9:3E59"
+      ],
+      "android_ids": [
+        868
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "LUKA:The power of the seed\n in the Underground Palace\n is growing weak. Hurry!",
+      "android_french_raw": "Rusalka : La force de la Graine dans le Temple souterrain faiblit. Fais vite !",
+      "android_french_normalized": "Rusalka : La force de la Graine dans le Temple souterrain faiblit. Fais vite !",
+      "formatted_markup": "Rusalka : La force de la Graine dans\nle Temple souterrain faiblit. Fais\nvite !",
+      "line_widths_pixels": [
+        217,
+        189,
+        31
+      ],
+      "line_decoded_character_counts": [
+        36,
+        34,
+        6
+      ],
+      "line_parser_unit_counts": [
+        36,
+        34,
+        6
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        3
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:3E59",
+          "text": "Rusalka : La force de la Graine dans\nle Temple souterrain faiblit. Fais\nvite !"
+        }
+      ]
+    },
+    {
+      "event_id": "0139",
+      "snes_ids": [
+        "C9:3F9B"
+      ],
+      "android_ids": [
+        872
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "LUKA:Use Undine's power to\n stop the lava in the\n underground palace.",
+      "android_french_raw": "Rusalka : Tu pourras solidifier la lave du Temple souterrain grâce à la magie d'Ondine.",
+      "android_french_normalized": "Rusalka : Tu pourras solidifier la lave du Temple souterrain grâce à la magie d'Ondine.",
+      "formatted_markup": "Rusalka : Tu pourras solidifier la\nlave du Temple souterrain grâce à la\nmagie d'Ondine.",
+      "line_widths_pixels": [
+        196,
+        213,
+        88
+      ],
+      "line_decoded_character_counts": [
+        34,
+        36,
+        15
+      ],
+      "line_parser_unit_counts": [
+        34,
+        36,
+        15
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        3
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:3F9B",
+          "text": "Rusalka : Tu pourras solidifier la\nlave du Temple souterrain grâce à la\nmagie d'Ondine."
+        }
+      ]
+    },
+    {
+      "event_id": "0139",
+      "snes_ids": [
+        "C9:3FE2"
+      ],
+      "android_ids": [
+        873
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "\n Crystal Orbs are made to\n respond or react to an\n Elemental's power.",
+      "android_french_raw": "Les orbes de cristal réagissent à la magie d'un certain élément. ",
+      "android_french_normalized": "Les orbes de cristal réagissent à la magie d'un certain élément.",
+      "formatted_markup": "\nLes orbes de cristal réagissent à la\nmagie d'un certain élément.",
+      "line_widths_pixels": [
+        211,
+        157
+      ],
+      "line_decoded_character_counts": [
+        36,
+        27
+      ],
+      "line_parser_unit_counts": [
+        36,
+        27
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:3FE2",
+          "text": "\nLes orbes de cristal réagissent à la\nmagie d'un certain élément."
+        }
+      ]
+    },
+    {
+      "event_id": "013C",
+      "snes_ids": [
+        "C9:4179"
+      ],
+      "android_ids": [
+        876
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "LUKA:The Mana Seed of Water\n was stolen! I couldn't do\n anything about it.",
+      "android_french_raw": "Rusalka : C'est terrible ! On a volé la Graine de l'Eau !",
+      "android_french_normalized": "Rusalka : C'est terrible ! On a volé la Graine de l'Eau !",
+      "formatted_markup": "Rusalka : C'est terrible ! On a volé\nla Graine de l'Eau !",
+      "line_widths_pixels": [
+        204,
+        110
+      ],
+      "line_decoded_character_counts": [
+        36,
+        20
+      ],
+      "line_parser_unit_counts": [
+        36,
+        20
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:4179",
+          "text": "Rusalka : C'est terrible ! On a volé\nla Graine de l'Eau !"
+        }
+      ]
+    },
+    {
+      "event_id": "013C",
+      "snes_ids": [
+        "C9:41C5"
+      ],
+      "android_ids": [
+        877
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "\n They must have done it\n when Undine was in danger\n and out of power.",
+      "android_french_raw": "Pourtant, je n'ai pas l'impression que l'Empire soit responsable, cette fois. ",
+      "android_french_normalized": "Pourtant, je n'ai pas l'impression que l'Empire soit responsable, cette fois.",
+      "formatted_markup": "\nPourtant, je n'ai pas l'impression que\nl'Empire soit responsable, cette fois.",
+      "line_widths_pixels": [
+        217,
+        217
+      ],
+      "line_decoded_character_counts": [
+        38,
+        38
+      ],
+      "line_parser_unit_counts": [
+        38,
+        38
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:41C5",
+          "text": "\nPourtant, je n'ai pas l'impression que\nl'Empire soit responsable, cette fois."
+        }
+      ]
+    },
+    {
+      "event_id": "013C",
+      "snes_ids": [
+        "C9:420D"
+      ],
+      "android_ids": [
+        878
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "\n The water tells me they\n took it to Gaia's Navel,\n or...deeper.",
+      "android_french_raw": "Quelqu'un a dû s'introduire ici lorsqu'Ondine était affaiblie...",
+      "android_french_normalized": "Quelqu'un a dû s'introduire ici lorsqu'Ondine était affaiblie...",
+      "formatted_markup": "\nQuelqu'un a dû s'introduire ici\nlorsqu'Ondine était affaiblie...",
+      "line_widths_pixels": [
+        175,
+        177
+      ],
+      "line_decoded_character_counts": [
+        31,
+        32
+      ],
+      "line_parser_unit_counts": [
+        31,
+        32
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:420D",
+          "text": "\nQuelqu'un a dû s'introduire ici\nlorsqu'Ondine était affaiblie..."
+        }
+      ]
+    },
+    {
+      "event_id": "013C",
+      "snes_ids": [
+        "C9:4250"
+      ],
+      "android_ids": [
+        879,
+        880
+      ],
+      "confidence": "very_high_lexical",
+      "source_display": "\n I don't think they are\n from the Empire. Please!\n Hurry and bring it back!",
+      "android_french_raw": "Cette Graine ne doit surtout pas tomber aux mains de personnes malintentionnées ! Attends... Oui ! Je sens que la Graine se trouve en dessous du Nombril de Gaïa !",
+      "android_french_normalized": "Cette Graine ne doit surtout pas tomber aux mains de personnes malintentionnées ! Attends... Oui ! Je sens que la Graine se trouve en dessous du Nombril de Gaïa !",
+      "formatted_markup": "\nCette Graine ne doit surtout pas\ntomber aux mains de personnes\nmalintentionnées ! Attends... Oui !\fJe sens que la Graine se trouve\nen dessous du Nombril de Gaïa !",
+      "line_widths_pixels": [
+        189,
+        183,
+        196,
+        187,
+        188
+      ],
+      "line_decoded_character_counts": [
+        32,
+        29,
+        35,
+        31,
+        31
+      ],
+      "line_parser_unit_counts": [
+        32,
+        29,
+        35,
+        31,
+        31
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        3,
+        2
+      ],
+      "inserted_page_break_count": 1,
+      "page_break_encoding": "WAIT $00 + TEXT_CLEAR",
+      "page_break_strategy": "sentence_boundary",
+      "formatted_entries": [
+        {
+          "id": "C9:4250",
+          "text": "\nCette Graine ne doit surtout pas\ntomber aux mains de personnes\nmalintentionnées ! Attends... Oui !\fJe sens que la Graine se trouve\nen dessous du Nombril de Gaïa !"
+        }
+      ]
+    },
+    {
+      "event_id": "013D",
+      "snes_ids": [
+        "C9:42A5"
+      ],
+      "android_ids": [
+        881
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "LUKA:Now! Use your sword to\n restore the seal put on\n the seed!",
+      "android_french_raw": "Rusalka : Utilise l'Épée pour restaurer le sceau de la Graine.",
+      "android_french_normalized": "Rusalka : Utilise l'Épée pour restaurer le sceau de la Graine.",
+      "formatted_markup": "Rusalka : Utilise l'Épée pour\nrestaurer le sceau de la Graine.",
+      "line_widths_pixels": [
+        165,
+        188
+      ],
+      "line_decoded_character_counts": [
+        29,
+        32
+      ],
+      "line_parser_unit_counts": [
+        29,
+        32
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:42A5",
+          "text": "Rusalka : Utilise l'Épée pour\nrestaurer le sceau de la Graine."
+        }
+      ]
+    },
+    {
+      "event_id": "0140",
+      "snes_ids": [
+        "C9:445A"
+      ],
+      "android_ids": [
+        236
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "You're a stranger!\nAn official notice says we\ncan't allow outsiders in!",
+      "android_french_raw": "Tu n'es pas d'ici ! J'ai ordre de ne pas laisser entrer les étrangers !\nOuste !",
+      "android_french_normalized": "Tu n'es pas d'ici ! J'ai ordre de ne pas laisser entrer les étrangers ! Ouste !",
+      "formatted_markup": "Tu n'es pas d'ici ! J'ai ordre de ne\npas laisser entrer les étrangers !\nOuste !",
+      "line_widths_pixels": [
+        203,
+        200,
+        42
+      ],
+      "line_decoded_character_counts": [
+        36,
+        34,
+        7
+      ],
+      "line_parser_unit_counts": [
+        36,
+        34,
+        7
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        3
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:445A",
+          "text": "Tu n'es pas d'ici ! J'ai ordre de ne\npas laisser entrer les étrangers !\nOuste !"
+        }
+      ]
+    },
+    {
+      "event_id": "0141",
+      "snes_ids": [
+        "C9:44AA"
+      ],
+      "android_ids": [
+        243
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "Feels like I just had\na dream...",
+      "android_french_raw": "J'ai l'impression d'avoir rêvé... ",
+      "android_french_normalized": "J'ai l'impression d'avoir rêvé...",
+      "formatted_markup": "J'ai l'impression d'avoir rêvé...",
+      "line_widths_pixels": [
+        181
+      ],
+      "line_decoded_character_counts": [
+        33
+      ],
+      "line_parser_unit_counts": [
+        33
+      ],
+      "source_visible_line_budget": 2,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:44AA",
+          "text": "J'ai l'impression d'avoir rêvé..."
+        }
+      ]
+    },
+    {
+      "event_id": "0142",
+      "snes_ids": [
+        "C9:44D3"
+      ],
+      "android_ids": [
+        248
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "Thank you very much!",
+      "android_french_raw": "Merci pour tout. ",
+      "android_french_normalized": "Merci pour tout.",
+      "formatted_markup": "Merci pour tout.",
+      "line_widths_pixels": [
+        93
+      ],
+      "line_decoded_character_counts": [
+        16
+      ],
+      "line_parser_unit_counts": [
+        16
+      ],
+      "source_visible_line_budget": 1,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:44D3",
+          "text": "Merci pour tout."
+        }
+      ]
+    },
+    {
+      "event_id": "0144",
+      "snes_ids": [
+        "C9:4536"
+      ],
+      "android_ids": [
+        250
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "Everyone's back to normal.\nThank you!",
+      "android_french_raw": "Tous les citadins sont redevenus normaux. Merci ! ",
+      "android_french_normalized": "Tous les citadins sont redevenus normaux. Merci !",
+      "formatted_markup": "Tous les citadins sont redevenus\nnormaux. Merci !",
+      "line_widths_pixels": [
+        195,
+        95
+      ],
+      "line_decoded_character_counts": [
+        32,
+        16
+      ],
+      "line_parser_unit_counts": [
+        32,
+        16
+      ],
+      "source_visible_line_budget": 2,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:4536",
+          "text": "Tous les citadins sont redevenus\nnormaux. Merci !"
+        }
+      ]
+    },
+    {
+      "event_id": "014B",
+      "snes_ids": [
+        "C9:4756"
+      ],
+      "android_ids": [
+        258
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "GIRL:I can't stand this!\n I'm going to find Dyluck\n all by myself!",
+      "android_french_raw": "Si c'est ça, je vais partir à la recherche de Durac moi-même !\nEt je ne reviendrai pas tant que je ne l'aurai pas retrouvé ! ",
+      "android_french_normalized": "Si c'est ça, je vais partir à la recherche de Durac moi-même ! Et je ne reviendrai pas tant que je ne l'aurai pas retrouvé !",
+      "formatted_markup": "Si c'est ça, je vais partir\nà la recherche de Durac moi-même !\fEt je ne reviendrai pas tant\nque je ne l'aurai pas retrouvé !",
+      "line_widths_pixels": [
+        147,
+        208,
+        162,
+        185
+      ],
+      "line_decoded_character_counts": [
+        27,
+        34,
+        28,
+        32
+      ],
+      "line_parser_unit_counts": [
+        27,
+        34,
+        28,
+        32
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        2,
+        2
+      ],
+      "inserted_page_break_count": 1,
+      "page_break_encoding": "WAIT $00 + TEXT_CLEAR",
+      "page_break_strategy": "sentence_boundary",
+      "formatted_entries": [
+        {
+          "id": "C9:4756",
+          "text": "Si c'est ça, je vais partir\nà la recherche de Durac moi-même !\fEt je ne reviendrai pas tant\nque je ne l'aurai pas retrouvé !"
+        }
+      ]
+    },
+    {
+      "event_id": "014C",
+      "snes_ids": [
+        "C9:47A1"
+      ],
+      "android_ids": [
+        261
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "The master and his daughter\nare at the castle arranging\nher marriage.",
+      "android_french_raw": "Apparemment, on présente aujourd'hui son fiancé à Mademoiselle... Hi hi hi. ",
+      "android_french_normalized": "Apparemment, on présente aujourd'hui son fiancé à Mademoiselle... Hi hi hi.",
+      "formatted_markup": "Apparemment, on présente aujourd'hui\nson fiancé à Mademoiselle... Hi hi hi.",
+      "line_widths_pixels": [
+        223,
+        208
+      ],
+      "line_decoded_character_counts": [
+        36,
+        38
+      ],
+      "line_parser_unit_counts": [
+        36,
+        38
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:47A1",
+          "text": "Apparemment, on présente aujourd'hui\nson fiancé à Mademoiselle... Hi hi hi."
+        }
+      ]
+    },
+    {
+      "event_id": "014D",
+      "snes_ids": [
+        "C9:47F4"
+      ],
+      "android_ids": [
+        262
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "Oh, you're back!\nHow did you like your\nhusband to be, miss?",
+      "android_french_raw": "Oh, Mademoiselle ! Comment s'est passée la rencontre avec votre prétendant ? ",
+      "android_french_normalized": "Oh, Mademoiselle ! Comment s'est passée la rencontre avec votre prétendant ?",
+      "formatted_markup": "Oh, Mademoiselle ! Comment s'est\npassée la rencontre avec votre\nprétendant ?",
+      "line_widths_pixels": [
+        188,
+        187,
+        77
+      ],
+      "line_decoded_character_counts": [
+        32,
+        30,
+        12
+      ],
+      "line_parser_unit_counts": [
+        32,
+        30,
+        12
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        3
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:47F4",
+          "text": "Oh, Mademoiselle ! Comment s'est\npassée la rencontre avec votre\nprétendant ?"
+        }
+      ]
+    },
+    {
+      "event_id": "0150",
+      "snes_ids": [
+        "C9:4844"
+      ],
+      "android_ids": [
+        309
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "No matter what happens,\nI have to protect my family!",
+      "android_french_raw": "Quoi qu'il arrive, je dois protéger ma famille. ",
+      "android_french_normalized": "Quoi qu'il arrive, je dois protéger ma famille.",
+      "formatted_markup": "Quoi qu'il arrive, je dois protéger ma\nfamille.",
+      "line_widths_pixels": [
+        213,
+        41
+      ],
+      "line_decoded_character_counts": [
+        38,
+        8
+      ],
+      "line_parser_unit_counts": [
+        38,
+        8
+      ],
+      "source_visible_line_budget": 2,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:4844",
+          "text": "Quoi qu'il arrive, je dois protéger ma\nfamille."
+        }
+      ]
+    },
+    {
+      "event_id": "0152",
+      "snes_ids": [
+        "C9:48B9"
+      ],
+      "android_ids": [
+        312
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "Waaaah! What's happened\nto Mama and Papa?",
+      "android_french_raw": "Papa et maman sont tout bizarres !",
+      "android_french_normalized": "Papa et maman sont tout bizarres !",
+      "formatted_markup": "Papa et maman sont tout bizarres !",
+      "line_widths_pixels": [
+        204
+      ],
+      "line_decoded_character_counts": [
+        34
+      ],
+      "line_parser_unit_counts": [
+        34
+      ],
+      "source_visible_line_budget": 2,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:48B9",
+          "text": "Papa et maman sont tout bizarres !"
+        }
+      ]
+    },
+    {
+      "event_id": "0153",
+      "snes_ids": [
+        "C9:48EB"
+      ],
+      "android_ids": [
+        314
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "Help my Mama and Papa!",
+      "android_french_raw": "Ouiiin... ",
+      "android_french_normalized": "Ouiiin...",
+      "formatted_markup": "Ouiiin...",
+      "line_widths_pixels": [
+        42
+      ],
+      "line_decoded_character_counts": [
+        9
+      ],
+      "line_parser_unit_counts": [
+        9
+      ],
+      "source_visible_line_budget": 1,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:48EB",
+          "text": "Ouiiin..."
+        }
+      ]
+    },
+    {
+      "event_id": "0154",
+      "snes_ids": [
+        "C9:4905"
+      ],
+      "android_ids": [
+        280
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "Why are you talking to me?\nI don't know anything!",
+      "android_french_raw": "Je ne sais rien ! Laisse-moi tranquille ! ",
+      "android_french_normalized": "Je ne sais rien ! Laisse-moi tranquille !",
+      "formatted_markup": "Je ne sais rien ! Laisse-moi\ntranquille !",
+      "line_widths_pixels": [
+        163,
+        64
+      ],
+      "line_decoded_character_counts": [
+        28,
+        12
+      ],
+      "line_parser_unit_counts": [
+        28,
+        12
+      ],
+      "source_visible_line_budget": 2,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:4905",
+          "text": "Je ne sais rien ! Laisse-moi\ntranquille !"
+        }
+      ]
+    },
+    {
+      "event_id": "0155",
+      "snes_ids": [
+        "C9:4944"
+      ],
+      "android_ids": [
+        297
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "Grandma has grown senile\nand won't say a thing.",
+      "android_french_raw": "Ma femme est devenue bizarre, elle ne dit plus un mot... ",
+      "android_french_normalized": "Ma femme est devenue bizarre, elle ne dit plus un mot...",
+      "formatted_markup": "Ma femme est devenue bizarre, elle ne\ndit plus un mot...",
+      "line_widths_pixels": [
+        222,
+        96
+      ],
+      "line_decoded_character_counts": [
+        37,
+        18
+      ],
+      "line_parser_unit_counts": [
+        37,
+        18
+      ],
+      "source_visible_line_budget": 2,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:4944",
+          "text": "Ma femme est devenue bizarre, elle ne\ndit plus un mot..."
+        }
+      ]
+    },
+    {
+      "event_id": "0155",
+      "snes_ids": [
+        "C9:4979"
+      ],
+      "android_ids": [
+        298
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "Now my granddaughter Phanna\nis acting funny too!\nWhat's wrong with them?",
+      "android_french_raw": "Ma petite-fille Pamela est bizarre, ces derniers temps. Je ne sais que faire... ",
+      "android_french_normalized": "Ma petite-fille Pamela est bizarre, ces derniers temps. Je ne sais que faire...",
+      "formatted_markup": "Ma petite-fille Pamela est bizarre,\nces derniers temps. Je ne sais que\nfaire...",
+      "line_widths_pixels": [
+        199,
+        205,
+        42
+      ],
+      "line_decoded_character_counts": [
+        35,
+        34,
+        8
+      ],
+      "line_parser_unit_counts": [
+        35,
+        34,
+        8
+      ],
+      "source_visible_line_budget": 3,
+      "page_line_counts": [
+        3
+      ],
+      "inserted_page_break_count": 0,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "formatted_entries": [
+        {
+          "id": "C9:4979",
+          "text": "Ma petite-fille Pamela est bizarre,\nces derniers temps. Je ne sais que\nfaire..."
+        }
+      ]
+    }
+  ]
+}

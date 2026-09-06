@@ -147,10 +147,11 @@ cross-component compatibility document.
 VWF renderer itself. The first edited-event checkpoint (`$0107`) was
 runtime-validated with the existing dialogue VWF, including dynamic player-name
 insertion, line breaks and WAIT sequencing. The canonical `assets/dialogues.json` contains clean-USA source only.
-`translations/dialogues_french.json` currently contains only the three-token
-Android-derived `$0107` formatting checkpoint. Its dual 240-pixel / 38-character
-SNES layout is runtime-validated; expansion to additional events is now gated by
-the explicit charset/structural-normalization audit rather than by this pilot.
+The runtime-validated pagination baseline includes `$010F`: dynamic-name lines
+reserve one parser safety unit, and its four safe lines use a sentence-aware
+3+1 split with generated `WAIT $00` + `TEXT_CLEAR`. The current batch-2 candidate
+expands the same rules to 27 complete events / 37 translated source tokens; only
+`$010A`, `$010F`, `$013C` and `$014B` insert one extra page.
 
 Growth has a runtime-validated relocation path. Component 08 can install a sparse
 24-bit event-address table and dispatcher hook, then pack only overlong rebuilt

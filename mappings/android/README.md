@@ -22,11 +22,13 @@ Current files:
 - `dialogues_review_round5.json`: user-validated 55-unit stress-test batch, plus explicit unmatched-source observations;
 - `dialogues_auto.json`: conservative whole-dialogue correspondence output;
 - `dialogues_unmapped.csv`: unresolved semantic SNES phrases with the best Android-English candidates for review;
-- `dialogue_charset_audit.csv`: unsupported-character inventory for the accepted Android-French mappings, after layout/placeholder normalization.
+- `dialogue_charset_audit.csv`: unsupported-character inventory for the accepted Android-French mappings, after layout/placeholder normalization;
+- `dialogues_format_pilot_translation.json` / `dialogues_format_pilot.json`: reproducible historical `$0107` runtime checkpoint;
+- `dialogues_format_batch1.json`: trace report for the current seven-event formatting candidate.
 
-The whole-game mapping is not consumed wholesale by component 08. Only the
-runtime-validated `$0107` formatting pilot is currently generated from it into
-`translations/dialogues_french.json`. Android English is the primary identity
+The whole-game mapping is not consumed wholesale by component 08. The current
+`translations/dialogues_french.json` contains only seven semantically complete,
+formatter-compatible events selected from it. Android English is the primary identity
 layer; French wording may be adapted or redistributed across adjacent slots.
 The automatic pass currently resolves 1,471 / 1,838 semantic dialogue source
 IDs (80.0%) and deliberately leaves 367 unresolved.
@@ -41,4 +43,6 @@ python3 tools/import_android_text.py --only dialogue-review-round4 --check
 python3 tools/import_android_text.py --only dialogue-review-round5 --check
 python3 tools/import_android_text.py --only dialogue-auto --check
 python3 tools/audit_android_dialogue_charset.py --check
+python3 tools/import_android_text.py --only dialogue-format-pilot --rom <clean-USA-ROM> --check
+python3 tools/import_android_text.py --only dialogue-format-batch1 --rom <clean-USA-ROM> --check
 ```

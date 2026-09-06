@@ -5,9 +5,27 @@ This document records the mechanisms currently used by
 goal is to preserve the stock event structure exactly while exposing translatable
 source text under `assets/` and keeping French edits separately under `translations/`.
 
-The first edited-event experiment (`$0107`) has been runtime-validated. The
-current checkpoint deliberately removes that translation again and concentrates
-on broad no-edit extraction/reinsertion coverage.
+The first edited-event experiment (`$0107`) is runtime-validated. The first
+complete-event batch also runtime-validated `$010E`, `$0116`, `$0117`, `$0118` and
+`$011D`. `$010F` exposed an exact-capacity `PLAYER_NAME` parser edge case; its
+generated sentence-aware extra page is now runtime-validated and forms the basis
+for the larger batch-2 candidate.
+
+## Runtime layout rule for dynamic names
+
+Component 06 has a 38-unit private parser contract, but batch-1 runtime testing
+showed that a line modeled as exactly 38 visible characters with a maximum
+9-character `PLAYER_NAME` can still split. The offline formatter therefore treats
+each dynamic-name placeholder as nine visible characters **plus one conservative
+parser-safety unit** for line-capacity decisions. Pixel width is still budgeted
+separately using the worst-case 9-character name width.
+
+This rule makes `$010F` require four safe lines while the original SNES span
+exposes three. The runtime-validated batch-1 generator therefore rejects it rather
+than shortening the translation or relying on an implicit fourth-line scroll. The
+separate extra-page path handles this case by inserting an explicit stock page
+transition; both the transition and its sentence-aware placement are runtime-validated
+on `$010F`.
 
 ## 1. Event pointer tables and exact spans
 
@@ -199,7 +217,7 @@ Current committed asset:
 | `ending_text` blocks | 19 |
 | bytes in committed event spans | 87,487 |
 | unmapped raw direct-glyph tokens | 20 |
-| current Android-derived formatting-candidate tokens | 3 |
+| current Android-derived formatted tokens | 37 |
 
 The 713 figure is therefore a count of **event scripts containing text**, not a
 count of dialogue lines or speech boxes. One event can contain many independent
@@ -234,7 +252,8 @@ The original edited-event checkpoint used event `$0107`, kept its source pointer
 - compatibility with the existing dialogue VWF;
 - normal continuation after the dialogue.
 
-That test translation was removed after validation. `assets/dialogues.json` is now permanently source-only; future dialogue work belongs in `translations/dialogues_french.json`.
+`assets/dialogues.json` remains permanently source-only. The validated `$0107`
+translation and later runtime candidates live only in `translations/dialogues_french.json`.
 
 ## 7.1 Offline wrapping constraints
 
@@ -297,6 +316,76 @@ With no dialogue translations, no dialogue-charset writes are emitted by compone
 Once at least one translation changes source text, the builder installs the
 `dialogue_french` `$D3-$E7` glyph span plus the same context-sensitive DTE router
 as component 06.
+
+## 8.1 First complete-event formatting batch
+
+`tools/import_android_text.py --only dialogue-format-batch1 --rom <clean-USA-ROM>`
+regenerates the current sparse French dialogue file from the original Android
+EN/FR sources and the accepted whole-game alignment. The selected events are:
+
+- `$0107` — existing runtime-validated waterfall-village pilot;
+- `$010E` — early village dialogue;
+- `$0116`, `$0117`, `$0118`, `$011D` — complete early village NPC speeches.
+
+Every semantic source text token in a selected event must be covered by an
+accepted mapping. This is stricter than merely formatting whichever mappings
+happen to pass: the generator aborts instead of creating a half-translated event.
+The 8 translated text tokens across these six events have been runtime-tested
+successfully. They grow and are relocated deterministically in ascending event
+order from `$E8:2000`.
+
+`$010F` was part of the first runtime attempt but is not part of the validated
+batch-1 baseline. With a 9-character hero name its line
+`Te voilà, <nom> ! Bob et Ness sont` hit the exact capacity boundary and split in
+game. The conservative dynamic-name parser reserve therefore makes the Android
+French require four safe lines.
+
+## 8.2 Explicit extra-page formatting
+
+`tools/import_android_text.py --only dialogue-format-page-pilot --rom <clean-USA-ROM>`
+keeps the six runtime-validated batch-1 events and adds `$010F`. The generated
+page transition itself is **runtime-validated**: a form-feed marker `\f` in the
+translation compiles to the stock `WAIT $00` + `TEXT_CLEAR` sequence, waits for
+player input, clears the box, renders the next page and then continues the event
+normally. Canonical `assets/dialogues.json` remains structurally unchanged.
+Leading, trailing or repeated page-break markers are rejected.
+
+The first validated `$010F` checkpoint used a mechanically balanced 2+2 layout.
+The later sentence-aware placement is also **runtime-validated** and is now the
+reference rule. When prose needs an additional page, it now searches for a complete
+sentence boundary (`.`, `!`, `?`, or ellipsis) for which both sides fit within
+three safe lines. It chooses the latest such boundary, so a complete sentence
+may use all three lines of the current page rather than being split merely to
+avoid a one-line following page. Each page is then balanced internally while
+respecting the same 240-pixel and 38-parser-unit limits. If no safe sentence
+boundary exists, the previous deterministic balanced distribution remains a
+conservative fallback. Only one generated extra page is supported for now.
+
+For `$010F`, the runtime-validated sentence-aware layout is:
+
+```text
+Te voilà, <nom> !
+Bob et Ness sont revenus
+tout pâles tout à l'heure.
+
+[WAIT $00 + TEXT_CLEAR]
+
+Il s'est passé quelque chose ?
+```
+
+The four lines measure 134 / 151 / 147 / 179 pixels and use 22 / 24 / 26 / 30
+parser units under the conservative nine-character dynamic-name assumption. Both
+the transition and this 3+1 sentence-boundary placement are runtime-validated.
+
+## 8.3 Batch 2 expansion
+
+`tools/import_android_text.py --only dialogue-format-batch2 --rom <clean-USA-ROM>`
+freezes the first larger event selection that reuses the validated formatter. It
+contains 27 complete events / 37 translated source tokens between `$0107` and
+`$0155`. Four mappings need one explicit extra page: `$010A`, `$010F`, `$013C`
+and `$014B`; all use the validated sentence-boundary strategy. The remaining
+selected mappings stay within their existing source-line budget. This batch is a
+runtime candidate until exercised in game.
 
 ## 9. Deliberately deferred work
 

@@ -13,7 +13,7 @@
     "snes_vwf_wrap_pixels": 240,
     "snes_parser_max_decoded_characters": 38,
     "dynamic_player_name_width_assumption": "9 characters at worst-case validated glyph advance",
-    "dynamic_player_name_character_assumption": "9 decoded visible characters",
+    "dynamic_player_name_character_assumption": "9 visible characters plus 1 conservative parser-safety unit per PLAYER_NAME",
     "source_explicit_visible_line_budget_is_not_exceeded": true
   },
   "translation_entry_count": 3,
@@ -39,6 +39,11 @@
       ],
       "line_decoded_character_counts": [
         32,
+        35,
+        36
+      ],
+      "line_parser_unit_counts": [
+        33,
         35,
         36
       ],
@@ -72,6 +77,10 @@
         114
       ],
       "line_decoded_character_counts": [
+        36,
+        19
+      ],
+      "line_parser_unit_counts": [
         36,
         19
       ],
