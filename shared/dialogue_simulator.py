@@ -58,6 +58,7 @@ class Glyph:
     char: str
     dynamic_name: bool = False
     player_index: int | None = None
+    layout_padding: bool = False
 
 
 @dataclass
@@ -268,7 +269,12 @@ class _Simulator:
         # A source space is a safe rewind checkpoint only in ordinary event
         # text. Dynamic PLAYER_NAME bytes are a temporary source and are never
         # rewound by component 06.
-        if glyph.char == " " and not glyph.dynamic_name and self.line_glyphs:
+        if (
+            glyph.char == " "
+            and not glyph.dynamic_name
+            and not glyph.layout_padding
+            and self.line_glyphs
+        ):
             self.last_safe_split = len(self.line_glyphs)
         self.line_glyphs.append(glyph)
 
@@ -472,6 +478,32 @@ class _Simulator:
             self.add_glyph(Glyph(code, char, dynamic_name=True, player_index=index))
         self._reset_checkpoint()
 
+    def add_text_x(self, position: int) -> None:
+        """Model the validated component-06 line-start TEXT_X behavior.
+
+        Stock command $59 writes its argument to both the decoded-text count
+        and text X position. On a fresh line the private decoded buffer is
+        already padded with $80, so component 06 renders exactly ``position``
+        leading space glyphs before the following text. Mid-line TEXT_X is an
+        absolute cursor/count reset and remains deliberately unsupported.
+        """
+        self.ensure_box(implicit=True)
+        if self.line_glyphs:
+            self.unsupported_layout("TEXT_X", bytes([position]))
+            return
+        if position > RUNTIME_MAX_DECODED:
+            self.issue(
+                "error",
+                "TEXT_X_RUNTIME_OVERFLOW",
+                f"TEXT_X ${position:02X} exceeds the {RUNTIME_MAX_DECODED}-glyph decoded-line capacity.",
+            )
+            self._reset_checkpoint()
+            return
+        self._reset_checkpoint()
+        for _ in range(position):
+            self._append_without_wrap(Glyph(TEXT_TO_CODE[" "], " ", layout_padding=True))
+        self._reset_checkpoint()
+
     def unsupported_layout(self, name: str, args: bytes) -> None:
         self.issue("error", "UNSUPPORTED_LAYOUT_COMMAND", f"Simulator does not yet model {name} {args.hex(' ').upper()}; event must remain review-only.")
         self._reset_checkpoint()
@@ -533,9 +565,16 @@ class _Simulator:
             elif name == "PLAYER_NAME":
                 self.add_player_name(args[0] if args else 0)
             elif name == "TEXT_X":
+                self.add_text_x(args[0] if args else 0)
+            elif name in {"ENEMY_NAME", "WEAPON_NAME", "MAGIC_NAME", "TEXT_LIST_VALUE"}:
                 self.unsupported_layout(name, args)
-            elif name in {"ENEMY_NAME", "WEAPON_NAME", "MAGIC_NAME", "TEXT_LIST_VALUE", "MONEY_PRINT"}:
-                self.unsupported_layout(name, args)
+            elif name == "MONEY_PRINT":
+                # MONEY_PRINT updates the separate money display rather than
+                # appending glyphs to the component-06 dialogue buffer. Event
+                # $01CF executes it before TEXT_OPEN, proving it is outside the
+                # ordinary dialogue text stream. Keep it as a control boundary
+                # for word-rewind purposes, but consume no dialogue geometry.
+                self._reset_checkpoint()
             elif name in {"CHOICE_BEGIN", "CHOICE_OPTION", "CHOICE_END"}:
                 # Choice geometry needs a dedicated model. Do not guess.
                 self.unsupported_layout(name, args)

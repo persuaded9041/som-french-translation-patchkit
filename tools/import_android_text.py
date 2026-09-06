@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
 """Import or analyze French translations from original Android text resources.
 
-The Android ``scrtxt`` binary reader is generic. Translation generation remains
-restricted to mappings that have already been established with very high
-confidence. Alignment reports never modify translations; the separate
-``dialogue-format-pilot`` reproduces the historical runtime-validated $0107
-checkpoint, ``dialogue-format-batch1`` reproduces the first runtime-validated
-complete-event batch, ``dialogue-format-page-pilot`` reproduces the
-runtime-validated sentence-aware extra-page checkpoint, and
-``dialogue-format-batch2`` generates the first larger explicit expansion after
-rebinding existing SNES commands and VWF-aware reflow.
+The Android ``scrtxt`` reader is generic, but dialogue generation remains limited
+to already-established high-confidence SNES/Android mappings. The authoritative
+dialogue output is ``dialogue-format-mass``, which formats complete events and
+filters them through the independent simulator. Focused pilot/batch modes remain
+available only to reproduce earlier runtime-validated checkpoints.
 """
 from __future__ import annotations
 
@@ -32,9 +28,16 @@ from shared.dialogue_translation import (  # noqa: E402
     DIALOGUE_WRAP_CHARS,
     DIALOGUE_WRAP_PIXELS,
     format_mapping as format_dialogue_mapping,
+    format_mapping_across_existing_wait_boundaries,
+    format_mapping_across_existing_timed_wait_boundary,
+    format_mapping_across_existing_action_boundary,
+    event_text_index,
+    normalize_android_french,
+    _sentence_boundary_positions,
     make_dialogue_advances,
     make_translation_document as make_dialogue_translation_document,
 )
+from shared.dialogue_codec import parse_event  # noqa: E402
 from shared.rom import validate_base_rom  # noqa: E402
 
 DEFAULT_SCRTXT_EN = ROOT / "sources" / "android" / "scrtxt_en.bin"
@@ -2444,6 +2447,904 @@ def _repair_wait00_page_overlaps(
     return current, simulation, repairs
 
 
+def _repair_pure_unpaused_scroll(
+    *,
+    base_rom: bytes,
+    source_document: dict,
+    event: dict,
+    event_mappings: list[dict],
+    translations: dict[str, str],
+    reports: list[dict],
+    advances: dict[str, int],
+    font,
+    simulation,
+):
+    """Try one semantic extra page when the only failure is four-line scroll.
+
+    Complete events can overflow the rolling three-line window even though
+    each Android/SNES mapping is independently within its own line budget.  Do
+    not invent a cross-mapping split: only retry one existing mapping with the
+    already validated WAIT $00 + TEXT_CLEAR pagination, and only when that
+    mapping has a real sentence/semantic boundary.  Keep a candidate solely if
+    the independently serialized event resimulates with no errors, warnings or
+    implicit wraps.
+
+    This deliberately ignores events that also contain unsupported layout
+    commands or runtime wraps; those need separate structural work.
+    """
+    from shared.dialogue_simulator import simulate_event
+
+    blocking = [
+        issue for issue in simulation.issues
+        if issue.severity in {"error", "warning"}
+    ]
+    wraps = sum(
+        line.implicit_wrap
+        for box in simulation.boxes
+        for page in box.pages
+        for line in page.lines
+    )
+    if wraps or not blocking or {issue.code for issue in blocking} != {"UNPAUSED_SCROLL"}:
+        return translations, reports, simulation, []
+
+    clean_candidates: list[tuple[tuple[int, int, int], dict, list[dict], object, dict]] = []
+    for mapping_index, mapping in enumerate(event_mappings):
+        try:
+            values, mapping_report = format_dialogue_mapping(
+                source_document,
+                mapping,
+                advances,
+                allow_one_extra_page=True,
+                use_physical_page_capacity=True,
+                prefer_semantic_line_breaks=True,
+                force_one_extra_page=True,
+            )
+        except ValueError:
+            continue
+        if mapping_report.get("page_break_strategy") not in {
+            "semantic_hard_boundary",
+            "sentence_boundary",
+        }:
+            continue
+
+        candidate = dict(translations)
+        candidate.update(values)
+        candidate_simulation = simulate_event(
+            base_rom,
+            event,
+            candidate,
+            font=font,
+            player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+        )
+        candidate_blocking = [
+            issue for issue in candidate_simulation.issues
+            if issue.severity in {"error", "warning"}
+        ]
+        candidate_wraps = sum(
+            line.implicit_wrap
+            for box in candidate_simulation.boxes
+            for page in box.pages
+            for line in page.lines
+        )
+        if candidate_blocking or candidate_wraps:
+            continue
+
+        content_counts = [
+            sum(bool(line.text.strip()) for line in page.lines)
+            for box in candidate_simulation.boxes
+            for page in box.pages
+        ]
+        nonempty_counts = [count for count in content_counts if count]
+        final_fullness = nonempty_counts[-1] if nonempty_counts else 0
+        minimum_fullness = min(nonempty_counts) if nonempty_counts else 0
+        # Prefer a fuller final page (avoid a one-line orphan tail), then the
+        # best minimum page fill, then the earliest safe mapping boundary.
+        score = (final_fullness, minimum_fullness, -mapping_index)
+
+        candidate_reports = [
+            mapping_report if report.get("snes_ids") == mapping.get("snes_ids") else report
+            for report in reports
+        ]
+        repair = {
+            "snes_ids": list(mapping.get("snes_ids", [])),
+            "android_ids": list(mapping.get("android_ids", [])),
+            "strategy": mapping_report.get("page_break_strategy"),
+            "page_line_counts": mapping_report.get("page_line_counts", []),
+        }
+        clean_candidates.append(
+            (score, candidate, candidate_reports, candidate_simulation, repair)
+        )
+
+    if not clean_candidates:
+        return translations, reports, simulation, []
+    _, candidate, candidate_reports, candidate_simulation, repair = max(
+        clean_candidates, key=lambda item: item[0]
+    )
+    return candidate, candidate_reports, candidate_simulation, [repair]
+
+
+def _repair_cross_mapping_sentence_overflow(
+    *,
+    base_rom: bytes,
+    source_document: dict,
+    event: dict,
+    event_mappings: list[dict],
+    translations: dict[str, str],
+    reports: list[dict],
+    advances: dict[str, int],
+    font,
+    simulation,
+):
+    """Repair one proven sentence boundary spanning adjacent mappings.
+
+    A few complete Android mappings correspond to consecutive SNES text tokens
+    that the runtime concatenates on the same parser line even though the first
+    localized mapping ends a complete sentence and the next starts a new one.
+    Only handle the narrow failure signature where that concatenation causes an
+    implicit parser wrap (soft or decoded-capacity hard wrap) plus a four-line
+    unpaused scroll.  The candidate must:
+
+    * begin at an adjacent mapping boundary separated only by proven
+      ``OP_32``/``OP_34`` actor actions and ``COMPLETE_ACTIONS``;
+    * follow terminal sentence punctuation in the previous localized mapping;
+    * add exactly one explicit newline before the next localized mapping;
+    * paginate that next mapping only at a proven semantic/sentence boundary;
+    * independently resimulate with no errors, warnings, or implicit wraps.
+
+    Unsupported commands or any other simulator defect keep the event excluded.
+    """
+    from shared.dialogue_simulator import simulate_event
+
+    blocking = [
+        issue for issue in simulation.issues
+        if issue.severity in {"error", "warning"}
+    ]
+    codes = {issue.code for issue in blocking}
+    if codes not in ({
+        "IMPLICIT_RUNTIME_WRAP",
+        "UNPAUSED_SCROLL",
+    }, {
+        "IMPLICIT_RUNTIME_HARD_WRAP",
+        "UNPAUSED_SCROLL",
+    }):
+        return translations, reports, simulation, []
+
+    clean_candidates: list[tuple[tuple[int, int, int], dict, list[dict], object, dict]] = []
+    for mapping_index in range(1, len(event_mappings)):
+        previous = event_mappings[mapping_index - 1]
+        mapping = event_mappings[mapping_index]
+
+        # The validated cross-mapping repair is only safe across the same
+        # event-interruption family already proven for component 06: actor
+        # actions followed by COMPLETE_ACTIONS. Do not bridge arbitrary event
+        # commands merely because a candidate happens to resimulate.
+        by_id, by_event = event_text_index(source_document)
+        previous_indexes = [by_id[text_id]["token_index"] for text_id in previous.get("snes_ids", [])]
+        mapping_indexes = [by_id[text_id]["token_index"] for text_id in mapping.get("snes_ids", [])]
+        if not previous_indexes or not mapping_indexes:
+            continue
+        previous_last = max(previous_indexes)
+        mapping_first = min(mapping_indexes)
+        if mapping_first <= previous_last:
+            continue
+        bridge = event["tokens"][previous_last + 1:mapping_first]
+        if not bridge:
+            continue
+        bridge_names = []
+        bridge_safe = True
+        for token in bridge:
+            if token.get("type") != "command":
+                bridge_safe = False
+                break
+            name = token.get("name")
+            if name not in {"OP_32", "OP_34", "COMPLETE_ACTIONS"}:
+                bridge_safe = False
+                break
+            bridge_names.append(name)
+        if not bridge_safe or not ({"OP_32", "OP_34"} & set(bridge_names)):
+            continue
+
+        previous_text = "".join(
+            translations.get(text_id, "") for text_id in previous.get("snes_ids", [])
+        ).rstrip(" \n\f\v")
+        if not previous_text or previous_text[-1] not in ".!?…":
+            continue
+
+        try:
+            values, mapping_report = format_dialogue_mapping(
+                source_document,
+                mapping,
+                advances,
+                allow_one_extra_page=True,
+                use_physical_page_capacity=True,
+                prefer_semantic_line_breaks=True,
+                force_one_extra_page=True,
+            )
+        except ValueError:
+            continue
+        if mapping_report.get("page_break_strategy") not in {
+            "semantic_hard_boundary",
+            "sentence_boundary",
+        }:
+            continue
+
+        first_id = next(
+            (text_id for text_id in mapping.get("snes_ids", []) if text_id in values),
+            None,
+        )
+        if first_id is None or values[first_id].startswith(("\n", "\f", "\v")):
+            continue
+
+        values = dict(values)
+        values[first_id] = "\n" + values[first_id]
+        candidate = dict(translations)
+        candidate.update(values)
+        candidate_simulation = simulate_event(
+            base_rom,
+            event,
+            candidate,
+            font=font,
+            player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+        )
+        candidate_blocking = [
+            issue for issue in candidate_simulation.issues
+            if issue.severity in {"error", "warning"}
+        ]
+        candidate_wraps = sum(
+            line.implicit_wrap
+            for box in candidate_simulation.boxes
+            for page in box.pages
+            for line in page.lines
+        )
+        if candidate_blocking or candidate_wraps:
+            continue
+
+        mapping_report = dict(mapping_report)
+        mapping_report["formatted_markup"] = "\n" + mapping_report["formatted_markup"]
+        mapping_report["inserted_cross_mapping_sentence_break"] = True
+        mapping_report["formatted_entries"] = [
+            {
+                "id": entry["id"],
+                "text": values.get(entry["id"], entry["text"]),
+            }
+            for entry in mapping_report.get("formatted_entries", [])
+        ]
+
+        content_counts = [
+            sum(bool(line.text.strip()) for line in page.lines)
+            for box in candidate_simulation.boxes
+            for page in box.pages
+        ]
+        nonempty_counts = [count for count in content_counts if count]
+        final_fullness = nonempty_counts[-1] if nonempty_counts else 0
+        minimum_fullness = min(nonempty_counts) if nonempty_counts else 0
+        score = (final_fullness, minimum_fullness, -mapping_index)
+
+        candidate_reports = [
+            mapping_report if report.get("snes_ids") == mapping.get("snes_ids") else report
+            for report in reports
+        ]
+        repair = {
+            "previous_snes_ids": list(previous.get("snes_ids", [])),
+            "snes_ids": list(mapping.get("snes_ids", [])),
+            "android_ids": list(mapping.get("android_ids", [])),
+            "strategy": mapping_report.get("page_break_strategy"),
+            "page_line_counts": mapping_report.get("page_line_counts", []),
+            "inserted_leading_newline": True,
+            "boundary_commands": bridge_names,
+        }
+        clean_candidates.append(
+            (score, candidate, candidate_reports, candidate_simulation, repair)
+        )
+
+    if not clean_candidates:
+        return translations, reports, simulation, []
+    _, candidate, candidate_reports, candidate_simulation, repair = max(
+        clean_candidates, key=lambda item: item[0]
+    )
+    return candidate, candidate_reports, candidate_simulation, [repair]
+
+
+
+
+def _is_safe_text_free_returning_call(base_rom: bytes, token: dict) -> bool:
+    """Prove one OP_20..OP_27 call is linear, text-free and returning."""
+    name = token.get("name", "")
+    match = re.fullmatch(r"OP_2([0-7])", name)
+    if match is None:
+        return False
+    args = token.get("args", "").split()
+    if len(args) != 1:
+        return False
+    target_event_id = (int(match.group(1), 16) << 8) | int(args[0], 16)
+    try:
+        called = parse_event(base_rom, target_event_id)
+    except ValueError:
+        return False
+    if any(item.get("type") == "text" for item in called.get("tokens", [])):
+        return False
+    allowed = {"OP_31", "OP_32", "OP_34", "COMPLETE_ACTIONS", "WAIT", "RETURN", "END"}
+    names = [
+        item.get("name")
+        for item in called.get("tokens", [])
+        if item.get("type") == "command"
+    ]
+    if any(item not in allowed for item in names):
+        return False
+    return len(names) >= 2 and names[-2:] == ["RETURN", "END"]
+
+
+def _is_safe_sound_only_returning_call(base_rom: bytes, token: dict) -> bool:
+    """Prove one OP_20..OP_27 call only plays sound and returns."""
+    name = token.get("name", "")
+    match = re.fullmatch(r"OP_2([0-7])", name)
+    if match is None:
+        return False
+    args = token.get("args", "").split()
+    if len(args) != 1:
+        return False
+    target_event_id = (int(match.group(1), 16) << 8) | int(args[0], 16)
+    try:
+        called = parse_event(base_rom, target_event_id)
+    except ValueError:
+        return False
+    if any(item.get("type") == "text" for item in called.get("tokens", [])):
+        return False
+    names = [
+        item.get("name")
+        for item in called.get("tokens", [])
+        if item.get("type") == "command"
+    ]
+    return names == ["PLAY_SOUND", "RETURN", "END"]
+
+
+def _format_mapping_across_shake_effect_boundary(
+    source_document: dict,
+    mapping: dict,
+    advances: dict[str, int],
+    *,
+    base_rom: bytes,
+    prefer_semantic_line_breaks: bool,
+) -> tuple[dict[str, str], dict]:
+    """Split two sentences around the stock timed shake-effect sequence.
+
+    This deliberately recognizes only the exact linear shape already present
+    in event $01C3: sound call, vertical-shake effect, timed WAIT, stop-shake
+    effect, sound call. The commands are preserved byte-for-byte; only the two
+    mapped text slots are formatted independently around the existing effect.
+    """
+    snes_ids = mapping.get("snes_ids", [])
+    if len(snes_ids) != 2:
+        raise ValueError("Shake-effect boundary requires exactly two SNES text IDs")
+    if "%S(" in mapping.get("source_display", "") or "%S(" in mapping.get("french_display", ""):
+        raise ValueError("Shake-effect boundary does not handle PLAYER_NAME")
+
+    by_id, by_event = event_text_index(source_document)
+    metas = [by_id.get(text_id) for text_id in snes_ids]
+    if any(meta is None for meta in metas):
+        raise ValueError("Shake-effect boundary references an unknown SNES text ID")
+    assert all(meta is not None for meta in metas)
+    if len({meta["event_id"] for meta in metas}) != 1:
+        raise ValueError("Shake-effect boundary cannot cross events")
+    indexes = [meta["token_index"] for meta in metas]
+    if indexes != sorted(indexes):
+        raise ValueError("Shake-effect boundary IDs are not in token order")
+
+    event = by_event[metas[0]["event_id"]]
+    if any(
+        token.get("type") == "command"
+        and token.get("name") in {"CHOICE_BEGIN", "CHOICE_OPTION", "CHOICE_END"}
+        for token in event["tokens"]
+    ):
+        raise ValueError("Shake-effect boundary stays disabled in choice events")
+
+    bridge = event["tokens"][indexes[0] + 1:indexes[1]]
+    if len(bridge) != 5 or any(token.get("type") != "command" for token in bridge):
+        raise ValueError("Shake-effect boundary does not match the proven five-command shape")
+    first_call, shake_on, wait, shake_off, second_call = bridge
+    if not _is_safe_sound_only_returning_call(base_rom, first_call):
+        raise ValueError("Shake-effect boundary first call is not a proven sound-only return")
+    if shake_on.get("name") != "OP_2D" or shake_on.get("args") != "02":
+        raise ValueError("Shake-effect boundary does not start the proven vertical-shake effect")
+    if wait.get("name") != "WAIT" or wait.get("args") in {None, "00"}:
+        raise ValueError("Shake-effect boundary requires its existing timed WAIT")
+    if shake_off.get("name") != "OP_2D" or shake_off.get("args") != "04":
+        raise ValueError("Shake-effect boundary does not stop the proven shake effect")
+    if not _is_safe_sound_only_returning_call(base_rom, second_call):
+        raise ValueError("Shake-effect boundary second call is not a proven sound-only return")
+
+    def complete_source(text: str) -> bool:
+        compact = re.sub(r"\s+", " ", text.strip())
+        return re.search(r"(?:\.{3}|[.!?…])[”\"»')\]]*$", compact) is not None
+
+    if not complete_source(by_id[snes_ids[0]]["source"]):
+        raise ValueError("Shake-effect boundary requires a complete source sentence before the effect")
+
+    french = normalize_android_french(mapping.get("french_display", ""))
+    boundaries = _sentence_boundary_positions(french)
+    if not boundaries:
+        raise ValueError("Shake-effect boundary requires a complete French sentence boundary")
+
+    candidates = []
+    for boundary in boundaries:
+        pieces = [french[:boundary].strip(), french[boundary:].strip()]
+        if any(not piece for piece in pieces):
+            continue
+        translations: dict[str, str] = {}
+        reports: list[dict] = []
+        valid = True
+        for text_id, piece in zip(snes_ids, pieces, strict=True):
+            local = dict(mapping)
+            local["snes_ids"] = [text_id]
+            local["source_display"] = by_id[text_id]["source"]
+            local["french_display"] = piece
+            try:
+                values, report = format_dialogue_mapping(
+                    source_document,
+                    local,
+                    advances,
+                    allow_one_extra_page=True,
+                    use_physical_page_capacity=True,
+                    prefer_semantic_line_breaks=prefer_semantic_line_breaks,
+                    allow_two_extra_pages=True,
+                )
+            except ValueError:
+                valid = False
+                break
+            translations.update(values)
+            reports.append(report)
+        if not valid:
+            continue
+        line_counts = [sum(report.get("page_line_counts", [])) for report in reports]
+        score = (max(line_counts, default=0), abs(line_counts[0] - line_counts[1]), boundary)
+        candidates.append((score, pieces, translations, reports))
+
+    if not candidates:
+        raise ValueError("Shake-effect boundary found no clean sentence distribution")
+    _, pieces, translations, reports = min(candidates, key=lambda item: item[0])
+    return translations, {
+        "event_id": mapping["event_id"],
+        "snes_ids": snes_ids,
+        "android_ids": mapping.get("android_ids", []),
+        "confidence": mapping.get("confidence"),
+        "source_display": mapping.get("source_display", ""),
+        "android_french_raw": mapping.get("french_display", ""),
+        "android_french_normalized": french,
+        "existing_shake_effect_sentence_distribution": True,
+        "preserved_wait_arg": wait.get("args"),
+        "boundary_proof": [
+            {"name": token.get("name"), "args": token.get("args")}
+            for token in bridge
+        ],
+        "distributed_french_parts": pieces,
+        "shake_effect_parts": reports,
+        "formatted_entries": [
+            {"id": text_id, "text": translations[text_id]}
+            for text_id in snes_ids
+        ],
+    }
+
+
+def _format_reviewed_sequence_block_with_android_extra(
+    source_document: dict,
+    mapping: dict,
+    advances: dict[str, int],
+    *,
+    french: dict[int, str],
+    prefer_semantic_line_breaks: bool,
+) -> tuple[dict[str, str], dict]:
+    """Rebind the reviewed 4-anchor/3-statement sequence-block shape.
+
+    The reviewed mapping explicitly records an Android-only extra anchor and a
+    stock SNES newline carrier. This fallback is intentionally shape-driven:
+    four SNES IDs must be ``semantic / layout-only / semantic / semantic``, the
+    three intervening command bridges must be exactly WAIT $00, actor action,
+    and WAIT $00 + TEXT_CLEAR, and the first French Android unit must be only a
+    speaker hesitation. In that proven shape, the first two Android French
+    units form the first SNES statement, while units three and four populate
+    the remaining two semantic slots. The stock layout-only token is untouched.
+    """
+    if mapping.get("confidence") != "user_validated":
+        raise ValueError("Reviewed sequence-block fallback requires user-validated alignment")
+    if mapping.get("relation") != "sequence_block_with_android_extra":
+        raise ValueError("Reviewed sequence-block fallback requires its explicit relation")
+    snes_ids = mapping.get("snes_ids", [])
+    android_ids = mapping.get("android_ids", [])
+    if len(snes_ids) != 4 or len(android_ids) != 4:
+        raise ValueError("Reviewed sequence-block fallback requires four SNES and Android IDs")
+    if "%S(" in mapping.get("source_display", "") or "%S(" in mapping.get("french_display", ""):
+        raise ValueError("Reviewed sequence-block fallback does not handle PLAYER_NAME")
+
+    by_id, by_event = event_text_index(source_document)
+    metas = [by_id.get(text_id) for text_id in snes_ids]
+    if any(meta is None for meta in metas):
+        raise ValueError("Reviewed sequence-block fallback references an unknown SNES text ID")
+    assert all(meta is not None for meta in metas)
+    if len({meta["event_id"] for meta in metas}) != 1:
+        raise ValueError("Reviewed sequence-block fallback cannot cross events")
+    indexes = [meta["token_index"] for meta in metas]
+    if indexes != sorted(indexes):
+        raise ValueError("Reviewed sequence-block fallback IDs are not in token order")
+    if re.search(r"[A-Za-z0-9À-ÖØ-öø-ÿŒœ]", by_id[snes_ids[1]]["source"]):
+        raise ValueError("Reviewed sequence-block fallback middle token must be layout-only")
+
+    event = by_event[metas[0]["event_id"]]
+    if any(
+        token.get("type") == "command"
+        and token.get("name") in {"CHOICE_BEGIN", "CHOICE_OPTION", "CHOICE_END"}
+        for token in event["tokens"]
+    ):
+        raise ValueError("Reviewed sequence-block fallback stays disabled in choice events")
+
+    bridges = [event["tokens"][a + 1:b] for a, b in zip(indexes, indexes[1:])]
+    signatures = [
+        [(token.get("name"), token.get("args")) for token in bridge]
+        for bridge in bridges
+    ]
+    expected = [
+        [("WAIT", "00")],
+        [("OP_32", "04 4C"), ("COMPLETE_ACTIONS", None)],
+        [("WAIT", "00"), ("TEXT_CLEAR", None)],
+    ]
+    if signatures != expected:
+        raise ValueError("Reviewed sequence-block fallback does not match its proven stock command shape")
+
+    def complete_sentence(text: str) -> bool:
+        compact = re.sub(r"\s+", " ", text.strip())
+        return re.search(r"(?:\.{3}|[.!?…])[”\"»')\]]*$", compact) is not None
+
+    for text_id in (snes_ids[0], snes_ids[2], snes_ids[3]):
+        if not complete_sentence(by_id[text_id]["source"]):
+            raise ValueError("Reviewed sequence-block fallback requires complete source statements")
+
+    chunks = [normalize_android_french(french[text_id]) for text_id in android_ids]
+    if any(not chunk for chunk in chunks):
+        raise ValueError("Reviewed sequence-block fallback requires four non-empty French anchors")
+    if re.fullmatch(r"[^:\n]{1,30}\s*:\s*(?:\.{3}|…)", chunks[0]) is None:
+        raise ValueError("Reviewed sequence-block fallback requires a speaker-only hesitation first anchor")
+    if any(not complete_sentence(chunk) for chunk in chunks[1:]):
+        raise ValueError("Reviewed sequence-block fallback requires complete remaining French anchors")
+
+    pieces = [f"{chunks[0]} {chunks[1]}", chunks[2], chunks[3]]
+    semantic_ids = [snes_ids[0], snes_ids[2], snes_ids[3]]
+    translations: dict[str, str] = {}
+    reports: list[dict] = []
+    for text_id, piece in zip(semantic_ids, pieces, strict=True):
+        local = dict(mapping)
+        local["snes_ids"] = [text_id]
+        local["source_display"] = by_id[text_id]["source"]
+        local["french_display"] = piece
+        values, report = format_dialogue_mapping(
+            source_document,
+            local,
+            advances,
+            allow_one_extra_page=True,
+            use_physical_page_capacity=True,
+            prefer_semantic_line_breaks=prefer_semantic_line_breaks,
+            allow_two_extra_pages=True,
+        )
+        translations.update(values)
+        reports.append(report)
+
+    return translations, {
+        "event_id": mapping["event_id"],
+        "snes_ids": snes_ids,
+        "android_ids": android_ids,
+        "confidence": mapping.get("confidence"),
+        "relation": mapping.get("relation"),
+        "source_display": mapping.get("source_display", ""),
+        "android_french_raw": mapping.get("french_display", ""),
+        "reviewed_sequence_block_distribution": True,
+        "preserved_stock_carrier_id": snes_ids[1],
+        "boundary_proof": signatures,
+        "distributed_french_parts": pieces,
+        "reviewed_sequence_block_parts": reports,
+        "formatted_entries": [
+            {"id": text_id, "text": translations[text_id]}
+            for text_id in semantic_ids
+        ],
+    }
+
+
+def _format_mapping_across_nonsemantic_action_carrier(
+    source_document: dict,
+    mapping: dict,
+    advances: dict[str, int],
+    *,
+    base_rom: bytes,
+    prefer_semantic_line_breaks: bool,
+) -> tuple[dict[str, str], dict]:
+    """Split two complete localized sentences around one stock layout carrier.
+
+    This is for the narrow three-slot shape ``semantic / layout-only / semantic``.
+    The middle source token is preserved stock and untranslated. Boundaries may
+    contain only proven actor-action commands plus a clean-ROM call whose callee
+    is independently text-free, branch-free and returning. No WAIT, PLAYER_NAME
+    or choice command is accepted here.
+    """
+    snes_ids = mapping.get("snes_ids", [])
+    if len(snes_ids) != 3:
+        raise ValueError("Nonsemantic-action carrier requires exactly three SNES text IDs")
+    if "%S(" in mapping.get("source_display", "") or "%S(" in mapping.get("french_display", ""):
+        raise ValueError("Nonsemantic-action carrier does not handle PLAYER_NAME")
+
+    by_id, by_event = event_text_index(source_document)
+    metas = [by_id.get(text_id) for text_id in snes_ids]
+    if any(meta is None for meta in metas):
+        raise ValueError("Nonsemantic-action carrier references an unknown SNES text ID")
+    assert all(meta is not None for meta in metas)
+    if len({meta["event_id"] for meta in metas}) != 1:
+        raise ValueError("Nonsemantic-action carrier cannot cross events")
+    indexes = [meta["token_index"] for meta in metas]
+    if indexes != sorted(indexes):
+        raise ValueError("Nonsemantic-action carrier IDs are not in token order")
+    if re.search(r"[A-Za-z0-9À-ÖØ-öø-ÿŒœ]", by_id[snes_ids[1]]["source"]):
+        raise ValueError("Nonsemantic-action carrier middle token is semantic text")
+
+    event = by_event[metas[0]["event_id"]]
+    if any(
+        token.get("type") == "command"
+        and token.get("name") in {"CHOICE_BEGIN", "CHOICE_OPTION", "CHOICE_END"}
+        for token in event["tokens"]
+    ):
+        raise ValueError("Nonsemantic-action carrier stays disabled in choice events")
+
+    boundary_proof: list[list[dict]] = []
+    saw_action = False
+    for first, second in zip(indexes, indexes[1:]):
+        bridge = event["tokens"][first + 1:second]
+        if not bridge:
+            raise ValueError("Nonsemantic-action carrier found an empty command boundary")
+        proof: list[dict] = []
+        for token in bridge:
+            if token.get("type") != "command":
+                raise ValueError("Nonsemantic-action carrier crosses non-command event data")
+            name = token.get("name")
+            if name in {"OP_32", "OP_34", "COMPLETE_ACTIONS"}:
+                if name in {"OP_32", "OP_34"}:
+                    saw_action = True
+                proof.append({"name": name, "args": token.get("args")})
+            elif _is_safe_text_free_returning_call(base_rom, token):
+                saw_action = True
+                proof.append({"name": name, "args": token.get("args"), "text_free_returning_call": True})
+            else:
+                raise ValueError(f"Nonsemantic-action carrier crosses unsupported command {name!r}")
+        boundary_proof.append(proof)
+    if not saw_action:
+        raise ValueError("Nonsemantic-action carrier requires a proven actor action")
+
+    def complete_source(text: str) -> bool:
+        compact = re.sub(r"\s+", " ", text.strip())
+        return re.search(r"(?:\.{3}|[.!?…])[”\"»')\]]*$", compact) is not None
+
+    if not complete_source(by_id[snes_ids[0]]["source"]) or not complete_source(by_id[snes_ids[2]]["source"]):
+        raise ValueError("Nonsemantic-action carrier requires complete source sentences on both semantic slots")
+
+    french = normalize_android_french(mapping.get("french_display", ""))
+    boundaries = _sentence_boundary_positions(french)
+    if not boundaries:
+        raise ValueError("Nonsemantic-action carrier requires a complete French sentence boundary")
+
+    candidates = []
+    for boundary in boundaries:
+        pieces = [french[:boundary].strip(), french[boundary:].strip()]
+        if any(not piece for piece in pieces):
+            continue
+        translations: dict[str, str] = {}
+        reports: list[dict] = []
+        valid = True
+        for text_id, piece in zip((snes_ids[0], snes_ids[2]), pieces, strict=True):
+            local = dict(mapping)
+            local["snes_ids"] = [text_id]
+            local["source_display"] = by_id[text_id]["source"]
+            local["french_display"] = piece
+            try:
+                values, report = format_dialogue_mapping(
+                    source_document,
+                    local,
+                    advances,
+                    allow_one_extra_page=True,
+                    use_physical_page_capacity=True,
+                    prefer_semantic_line_breaks=prefer_semantic_line_breaks,
+                    allow_two_extra_pages=True,
+                )
+            except ValueError:
+                valid = False
+                break
+            translations.update(values)
+            reports.append(report)
+        if not valid:
+            continue
+        line_counts = [sum(report.get("page_line_counts", [])) for report in reports]
+        score = (max(line_counts, default=0), abs(line_counts[0] - line_counts[1]), boundary)
+        candidates.append((score, pieces, translations, reports))
+
+    if not candidates:
+        raise ValueError("Nonsemantic-action carrier found no clean sentence distribution")
+    _, pieces, translations, reports = min(candidates, key=lambda item: item[0])
+    report = {
+        "event_id": mapping["event_id"],
+        "snes_ids": snes_ids,
+        "android_ids": mapping.get("android_ids", []),
+        "confidence": mapping.get("confidence"),
+        "source_display": mapping.get("source_display", ""),
+        "android_french_raw": mapping.get("french_display", ""),
+        "android_french_normalized": french,
+        "nonsemantic_action_carrier_distribution": True,
+        "preserved_stock_carrier_id": snes_ids[1],
+        "boundary_proof": boundary_proof,
+        "distributed_french_parts": pieces,
+        "nonsemantic_action_carrier_parts": reports,
+        "formatted_entries": [
+            {"id": text_id, "text": translations[text_id]}
+            for text_id in (snes_ids[0], snes_ids[2])
+            if text_id in translations
+        ],
+    }
+    return translations, report
+
+def _strip_duplicated_trailing_player_context(
+    event: dict,
+    event_mappings: list[dict],
+    *,
+    base_rom: bytes,
+) -> tuple[list[dict], list[dict]]:
+    """Drop only a PLAYER_NAME placeholder duplicated by the next mapping.
+
+    The aligner's ``source_display`` may use a dynamic name between two text
+    tokens as context for *both* neighboring mappings. When the canonical event
+    contains only that PLAYER_NAME command between the two mapped token ranges,
+    and both source displays prove the same suffix/prefix placeholder, the first
+    mapping may ignore the duplicate context if its French does not contain it.
+    The actual SNES PLAYER_NAME remains owned by the following mapping and is
+    never edited. A bridge may also contain an event call only when the clean-ROM
+    callee is independently proven text-free, branch-free and returning.
+    """
+    if len(event_mappings) < 2:
+        return event_mappings, []
+    token_index_by_id = {
+        token["id"]: index
+        for index, token in enumerate(event.get("tokens", []))
+        if token.get("type") == "text"
+    }
+    ordered = sorted(
+        event_mappings,
+        key=lambda mapping: min(token_index_by_id[text_id] for text_id in mapping["snes_ids"]),
+    )
+    result = [dict(mapping) for mapping in ordered]
+    repairs: list[dict] = []
+
+
+    def bridge_player_context(bridge: list[dict]) -> tuple[str, list[dict]] | None:
+        placeholders: list[str] = []
+        proof: list[dict] = []
+        all_player = True
+        proved_call = False
+        for token in bridge:
+            if token.get("type") != "command":
+                return None
+            name = token.get("name")
+            if name == "PLAYER_NAME":
+                args = token.get("args", "00").split()
+                if not args:
+                    return None
+                placeholders.append(f"%S({int(args[0], 16)},0)")
+                proof.append({"name": name, "args": token.get("args")})
+                continue
+            all_player = False
+            if name in {"WAIT", "TEXT_CLEAR", "OP_32", "OP_34", "COMPLETE_ACTIONS"}:
+                proof.append({"name": name, "args": token.get("args")})
+            elif _is_safe_text_free_returning_call(base_rom, token):
+                proved_call = True
+                proof.append({"name": name, "args": token.get("args"), "text_free_returning_call": True})
+            else:
+                return None
+        if not placeholders or (not all_player and not proved_call):
+            return None
+        return "".join(placeholders), proof
+
+    for index in range(len(result) - 1):
+        current = result[index]
+        following = result[index + 1]
+        current_last = max(token_index_by_id[text_id] for text_id in current["snes_ids"])
+        following_first = min(token_index_by_id[text_id] for text_id in following["snes_ids"])
+        if following_first <= current_last:
+            continue
+        bridge = event["tokens"][current_last + 1:following_first]
+        if not bridge:
+            continue
+        bridge_context = bridge_player_context(bridge)
+        if bridge_context is None:
+            continue
+        suffix, bridge_proof = bridge_context
+        current_source = current.get("source_display", "")
+        following_source = following.get("source_display", "")
+        if not current_source.endswith(suffix) or not following_source.startswith(suffix):
+            continue
+        if current.get("french_display", "").rstrip().endswith(suffix):
+            continue
+        current["source_display"] = current_source[:-len(suffix)]
+        current["ignored_duplicated_trailing_player_context"] = suffix
+        repairs.append(
+            {
+                "snes_ids": current.get("snes_ids", []),
+                "following_snes_ids": following.get("snes_ids", []),
+                "player_context": suffix,
+                "bridge_proof": bridge_proof,
+            }
+        )
+    return result, repairs
+
+
+
+def _format_mass_mapping(
+    source_document: dict,
+    mapping: dict,
+    advances: dict[str, int],
+    *,
+    base_rom: bytes,
+    french: dict[int, str],
+    prefer_semantic_line_breaks: bool,
+) -> tuple[dict[str, str], dict]:
+    """Format one mass-pass mapping through the conservative fallback chain.
+
+    The first formatter error remains the public rejection reason when no
+    structural fallback applies. Each fallback is independently narrow and
+    raises ``ValueError`` when its proof requirements are not met.
+    """
+    common = {
+        "allow_one_extra_page": True,
+        "use_physical_page_capacity": True,
+        "prefer_semantic_line_breaks": prefer_semantic_line_breaks,
+        "allow_two_extra_pages": True,
+    }
+    primary_message: str | None = None
+    try:
+        return format_dialogue_mapping(source_document, mapping, advances, **common)
+    except ValueError as exc:
+        primary_message = str(exc)
+
+    attempts = (
+        lambda: format_mapping_across_existing_wait_boundaries(
+            source_document, mapping, advances, **common
+        ),
+        lambda: format_mapping_across_existing_timed_wait_boundary(
+            source_document, mapping, advances, **common
+        ),
+        lambda: format_mapping_across_existing_action_boundary(
+            source_document, mapping, advances, **common
+        ),
+        lambda: _format_mapping_across_nonsemantic_action_carrier(
+            source_document,
+            mapping,
+            advances,
+            base_rom=base_rom,
+            prefer_semantic_line_breaks=prefer_semantic_line_breaks,
+        ),
+        lambda: _format_mapping_across_shake_effect_boundary(
+            source_document,
+            mapping,
+            advances,
+            base_rom=base_rom,
+            prefer_semantic_line_breaks=prefer_semantic_line_breaks,
+        ),
+        lambda: _format_reviewed_sequence_block_with_android_extra(
+            source_document,
+            mapping,
+            advances,
+            french=french,
+            prefer_semantic_line_breaks=prefer_semantic_line_breaks,
+        ),
+    )
+    for attempt in attempts:
+        try:
+            return attempt()
+        except ValueError:
+            continue
+    assert primary_message is not None
+    raise ValueError(primary_message)
+
+
 def make_dialogue_format_mass(
     english: dict[int, str],
     french: dict[int, str],
@@ -2458,8 +3359,10 @@ def make_dialogue_format_mass(
     in an event must already have an accepted Android alignment and every
     mapping must format without crossing an unsupported structural command.
     The formatter may use the full validated three-line physical page capacity
-    even when the shorter English source used fewer explicit lines, and may add
-    at most one validated WAIT $00 + TEXT_CLEAR page transition per mapping.
+    even when the shorter English source used fewer explicit lines. Ordinary
+    overflow may add one validated WAIT $00 + TEXT_CLEAR transition; a longer
+    mapping may add two only when both transitions land on complete-sentence
+    boundaries and all three pages independently stay within three lines.
 
     Second, the final serialized event bytes are passed through the independent
     dialogue simulator. Any error, warning, or implicit runtime wrap excludes
@@ -2487,6 +3390,9 @@ def make_dialogue_format_mass(
     translations_by_event: dict[str, dict[str, str]] = {}
     reports_by_event: dict[str, list[dict]] = {}
     wait00_repairs_by_event: dict[str, list[dict]] = {}
+    unpaused_scroll_repairs_by_event: dict[str, list[dict]] = {}
+    cross_mapping_sentence_repairs_by_event: dict[str, list[dict]] = {}
+    duplicated_player_context_repairs_by_event: dict[str, list[dict]] = {}
     accepted_events: list[str] = []
     excluded_events: list[dict] = []
     complete_aligned_count = 0
@@ -2503,6 +3409,14 @@ def make_dialogue_format_mass(
             continue
 
         event_mappings = mappings_by_event.get(event_id, [])
+        event_mappings, duplicated_player_context_repairs = (
+            _strip_duplicated_trailing_player_context(
+                event, event_mappings, base_rom=base_rom
+            )
+        )
+        duplicated_player_context_repairs_by_event[event_id] = (
+            duplicated_player_context_repairs
+        )
         mapped_ids: set[str] = set()
         for mapping in event_mappings:
             mapped_ids.update(mapping["snes_ids"])
@@ -2532,12 +3446,12 @@ def make_dialogue_format_mass(
         formatter_errors: list[dict] = []
         for mapping in event_mappings:
             try:
-                values, mapping_report = format_dialogue_mapping(
+                values, mapping_report = _format_mass_mapping(
                     source_document,
                     mapping,
                     advances,
-                    allow_one_extra_page=True,
-                    use_physical_page_capacity=True,
+                    base_rom=base_rom,
+                    french=french,
                     prefer_semantic_line_breaks=True,
                 )
             except ValueError as exc:
@@ -2581,6 +3495,8 @@ def make_dialogue_format_mass(
             translations=event_translations,
             font=font,
         )
+        unpaused_scroll_repairs: list[dict] = []
+        cross_mapping_sentence_repairs: list[dict] = []
         blocking_issues = [
             issue
             for issue in simulation.issues
@@ -2602,12 +3518,12 @@ def make_dialogue_format_mass(
             compact_errors: list[dict] = []
             for mapping in event_mappings:
                 try:
-                    values, mapping_report = format_dialogue_mapping(
+                    values, mapping_report = _format_mass_mapping(
                         source_document,
                         mapping,
                         advances,
-                        allow_one_extra_page=True,
-                        use_physical_page_capacity=True,
+                        base_rom=base_rom,
+                        french=french,
                         prefer_semantic_line_breaks=False,
                     )
                 except ValueError as exc:
@@ -2643,7 +3559,65 @@ def make_dialogue_format_mass(
                     translations_by_event[event_id] = compact_translations
                     reports_by_event[event_id] = compact_reports
                     wait00_repairs_by_event[event_id] = compact_wait00_repairs
+                    unpaused_scroll_repairs_by_event[event_id] = []
+                    cross_mapping_sentence_repairs_by_event[event_id] = []
                     continue
+
+            # Preserve every event that the historical compact fallback can
+            # already save byte-for-byte. Only after that path fails may a
+            # pure four-line rolling-window overflow receive one additional
+            # semantic page break.
+            (
+                repaired_translations,
+                repaired_reports,
+                repaired_simulation,
+                unpaused_scroll_repairs,
+            ) = _repair_pure_unpaused_scroll(
+                base_rom=base_rom,
+                source_document=source_document,
+                event=event,
+                event_mappings=event_mappings,
+                translations=event_translations,
+                reports=event_reports,
+                advances=advances,
+                font=font,
+                simulation=simulation,
+            )
+            if unpaused_scroll_repairs:
+                accepted_events.append(event_id)
+                translations_by_event[event_id] = repaired_translations
+                reports_by_event[event_id] = repaired_reports
+                wait00_repairs_by_event[event_id] = wait00_repairs
+                unpaused_scroll_repairs_by_event[event_id] = unpaused_scroll_repairs
+                cross_mapping_sentence_repairs_by_event[event_id] = []
+                continue
+
+            (
+                repaired_translations,
+                repaired_reports,
+                repaired_simulation,
+                cross_mapping_sentence_repairs,
+            ) = _repair_cross_mapping_sentence_overflow(
+                base_rom=base_rom,
+                source_document=source_document,
+                event=event,
+                event_mappings=event_mappings,
+                translations=event_translations,
+                reports=event_reports,
+                advances=advances,
+                font=font,
+                simulation=simulation,
+            )
+            if cross_mapping_sentence_repairs:
+                accepted_events.append(event_id)
+                translations_by_event[event_id] = repaired_translations
+                reports_by_event[event_id] = repaired_reports
+                wait00_repairs_by_event[event_id] = wait00_repairs
+                unpaused_scroll_repairs_by_event[event_id] = []
+                cross_mapping_sentence_repairs_by_event[event_id] = (
+                    cross_mapping_sentence_repairs
+                )
+                continue
 
             details = [
                 {
@@ -2682,6 +3656,8 @@ def make_dialogue_format_mass(
         translations_by_event[event_id] = event_translations
         reports_by_event[event_id] = event_reports
         wait00_repairs_by_event[event_id] = wait00_repairs
+        unpaused_scroll_repairs_by_event[event_id] = unpaused_scroll_repairs
+        cross_mapping_sentence_repairs_by_event[event_id] = cross_mapping_sentence_repairs
 
     translations: dict[str, str] = {}
     formatted: list[dict] = []
@@ -2734,7 +3710,8 @@ def make_dialogue_format_mass(
             "snes_parser_max_decoded_characters": DIALOGUE_WRAP_CHARS,
             "dynamic_player_name_width_assumption": "9 characters at worst-case validated glyph advance",
             "dynamic_player_name_character_assumption": "9 visible characters plus 1 conservative parser-safety unit per PLAYER_NAME",
-            "maximum_generated_extra_pages_per_mapping": 1,
+            "maximum_generated_extra_pages_per_mapping": 2,
+            "two_extra_pages_policy": "only two complete-sentence boundaries producing three independently <=3-line pages",
             "generated_page_break_encoding": "WAIT $00 + TEXT_CLEAR",
             "simulator_player_name": "000000000",
             "simulator_rejects_errors": True,
@@ -2743,6 +3720,21 @@ def make_dialogue_format_mass(
             "simulator_unsupported_structures_are_rejected": True,
             "semantic_line_break_preferences": "sentence boundaries strong; commas weak when materially better balanced",
             "semantic_layout_simulator_fallback": "retry whole event with compact wrapper before excluding",
+            "line_start_text_x_formatter_reservation": "proven fresh-line TEXT_X padding reduces only the first formatted line's pixel/parser capacity",
+            "android_leading_player_label_policy": "drop only an exact leading %S(n,0) speaker label when the mapped SNES source has no PLAYER_NAME; localized prose is otherwise unchanged",
+            "adjacent_nonsemantic_player_carrier_policy": "a punctuation/whitespace-only SNES text token immediately outside an existing PLAYER_NAME binding may carry localized literal text; no PLAYER_NAME command is moved or created",
+            "adjacent_player_through_carrier_policy": "one existing PLAYER_NAME immediately before a punctuation/whitespace carrier may join a binding only when Android French proves that exact extra leading placeholder",
+            "duplicated_player_context_policy": "a trailing PLAYER_NAME duplicated as the next mapping's leading alignment context may be ignored only across a proven linear bridge; any called clean-ROM event must be text-free, branch-free and returning, and the SNES PLAYER_NAME remains with the following mapping",
+            "existing_wait_sentence_distribution_policy": "multi-slot mappings may be redistributed across existing WAIT $00 + optional TEXT_CLEAR boundaries only at complete French sentence boundaries; timed WAITs and PLAYER_NAME remain excluded and stock commands stay unchanged",
+            "existing_timed_wait_sentence_distribution_policy": "exactly one existing WAIT $04/$08 may separate two complete source/French sentences; the timed WAIT is preserved byte-for-byte and no other boundary command is accepted",
+            "existing_wait_weak_clause_policy": "for one two-slot WAIT $00 mapping whose source slots are each complete sentences, a French comma may be the split only before an explicit discourse connector such as alors/mais/donc/pourtant/cependant",
+            "existing_action_boundary_policy": "two text slots from one Android unit may be redistributed only at a complete sentence boundary across proven OP_32 walk / OP_34 loop-action / COMPLETE_ACTIONS commands, with a complete source sentence before the action; choice events remain excluded and commands remain unchanged",
+            "nonsemantic_action_carrier_policy": "one three-slot semantic/layout-only/semantic mapping may preserve the stock middle carrier while distributing two complete French sentences across action-only boundaries and clean-ROM text-free returning calls",
+            "shake_effect_boundary_policy": "one two-slot mapping may cross only the proven sound-call + OP_2D $02 + timed WAIT + OP_2D $04 + sound-call sequence; both sound callees must be sound-only returning scripts and every stock effect byte stays unchanged",
+            "reviewed_sequence_block_policy": "a user-validated sequence_block_with_android_extra mapping may redistribute four Android French anchors over three semantic SNES slots only in the exact reviewed semantic/layout/action/semantic/WAIT+clear shape; the stock layout carrier remains untouched",
+            "cross_mapping_action_sentence_overflow_policy": "one leading newline plus semantic pagination may repair a soft or decoded-capacity parser wrap only across an adjacent OP_32/OP_34 + COMPLETE_ACTIONS boundary after a complete localized sentence; accept only after clean resimulation",
+            "pure_unpaused_scroll_policy": "after compact fallback fails, one semantic-boundary extra page may be tried only when UNPAUSED_SCROLL is the sole simulator defect; accept only after clean resimulation",
+            "cross_mapping_sentence_overflow_policy": "after all earlier fallbacks fail, a parser-wrap + unpaused-scroll event may add one newline at a proven adjacent sentence boundary and one semantic page break; accept only after clean resimulation",
             "wait00_exact_overlap_policy": "simulator-proven targeted TEXT_CLEAR/drop-layout repair; timed WAITs unchanged",
         },
         "coverage": {
@@ -2761,6 +3753,55 @@ def make_dialogue_format_mass(
             "translation_entry_count": len(ordered_entries),
             "wait00_overlap_repaired_event_count": sum(bool(value) for value in wait00_repairs_by_event.values()),
             "wait00_overlap_repair_count": sum(len(value) for value in wait00_repairs_by_event.values()),
+            "unpaused_scroll_repaired_event_count": sum(bool(value) for value in unpaused_scroll_repairs_by_event.values()),
+            "unpaused_scroll_repair_count": sum(len(value) for value in unpaused_scroll_repairs_by_event.values()),
+            "cross_mapping_sentence_repaired_event_count": sum(bool(value) for value in cross_mapping_sentence_repairs_by_event.values()),
+            "cross_mapping_sentence_repair_count": sum(len(value) for value in cross_mapping_sentence_repairs_by_event.values()),
+            "android_leading_player_label_removed_mapping_count": sum(
+                any("%S(" in marker for marker in (entry.get("structural_markers_removed") or []))
+                for entry in formatted
+            ),
+            "adjacent_nonsemantic_player_carrier_mapping_count": sum(
+                bool(entry.get("adjacent_nonsemantic_carrier_ids")) for entry in formatted
+            ),
+            "adjacent_nonsemantic_player_carrier_entry_count": sum(
+                len(entry.get("adjacent_nonsemantic_carrier_ids") or []) for entry in formatted
+            ),
+            "adjacent_player_through_carrier_mapping_count": sum(
+                bool(entry.get("adjacent_player_carrier_indexes")) for entry in formatted
+            ),
+            "duplicated_player_context_repaired_event_count": sum(
+                bool(duplicated_player_context_repairs_by_event.get(event_id))
+                for event_id in accepted_events
+            ),
+            "duplicated_player_context_repair_count": sum(
+                len(duplicated_player_context_repairs_by_event.get(event_id, []))
+                for event_id in accepted_events
+            ),
+            "existing_wait_sentence_distribution_mapping_count": sum(
+                bool(entry.get("existing_wait_sentence_distribution")) for entry in formatted
+            ),
+            "existing_timed_wait_sentence_distribution_mapping_count": sum(
+                bool(entry.get("existing_timed_wait_sentence_distribution")) for entry in formatted
+            ),
+            "existing_wait_weak_clause_boundary_mapping_count": sum(
+                bool(entry.get("existing_wait_weak_clause_boundary")) for entry in formatted
+            ),
+            "existing_action_sentence_split_mapping_count": sum(
+                bool(entry.get("existing_action_sentence_split")) for entry in formatted
+            ),
+            "nonsemantic_action_carrier_mapping_count": sum(
+                bool(entry.get("nonsemantic_action_carrier_distribution")) for entry in formatted
+            ),
+            "shake_effect_sentence_distribution_mapping_count": sum(
+                bool(entry.get("existing_shake_effect_sentence_distribution")) for entry in formatted
+            ),
+            "reviewed_sequence_block_distribution_mapping_count": sum(
+                bool(entry.get("reviewed_sequence_block_distribution")) for entry in formatted
+            ),
+            "action_boundary_line_break_count": sum(
+                bool(entry.get("inserted_action_boundary_line_break")) for entry in formatted
+            ),
             "excluded_event_count": len(excluded_events),
             "excluded_stage_counts": stage_counts,
         },
@@ -2770,6 +3811,21 @@ def make_dialogue_format_mass(
             {"event_id": event_id, **repair}
             for event_id in accepted_events
             for repair in wait00_repairs_by_event.get(event_id, [])
+        ],
+        "unpaused_scroll_repairs": [
+            {"event_id": event_id, **repair}
+            for event_id in accepted_events
+            for repair in unpaused_scroll_repairs_by_event.get(event_id, [])
+        ],
+        "cross_mapping_sentence_repairs": [
+            {"event_id": event_id, **repair}
+            for event_id in accepted_events
+            for repair in cross_mapping_sentence_repairs_by_event.get(event_id, [])
+        ],
+        "duplicated_player_context_repairs": [
+            {"event_id": event_id, **repair}
+            for event_id in accepted_events
+            for repair in duplicated_player_context_repairs_by_event.get(event_id, [])
         ],
         "excluded_events": excluded_events,
     }
@@ -2848,7 +3904,13 @@ def dialogue_unmapped_csv(document: dict) -> str:
         "deuxieme_score_lexical",
         "commentaire_utilisateur",
     ]
-    writer = csv.DictWriter(output, fieldnames=fieldnames, delimiter=";", quoting=csv.QUOTE_MINIMAL)
+    writer = csv.DictWriter(
+        output,
+        fieldnames=fieldnames,
+        delimiter=";",
+        quoting=csv.QUOTE_MINIMAL,
+        lineterminator="\n",
+    )
     writer.writeheader()
     for entry in document["unmapped"]:
         candidates = entry.get("top_candidates", [])

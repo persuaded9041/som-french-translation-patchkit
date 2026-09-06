@@ -359,7 +359,10 @@ may use all three lines of the current page rather than being split merely to
 avoid a one-line following page. Each page is then balanced internally while
 respecting the same 240-pixel and 38-parser-unit limits. If no safe sentence
 boundary exists, the previous deterministic balanced distribution remains a
-conservative fallback. Only one generated extra page is supported for now.
+conservative fallback. The runtime-validated pilot itself uses one generated extra
+page. The mass generator may use a second transition only for the stricter case where
+two complete-sentence boundaries yield three independently safe pages; it never
+creates an arbitrary three-page split.
 
 For `$010F`, the runtime-validated sentence-aware layout is:
 
@@ -432,7 +435,7 @@ remain subject to zero-error, zero-warning and zero-implicit-wrap simulation.
 Representative runtime testing validates the semantic line-placement rules (fresh
 speaker turns, punctuation attachment, sentence-first reflow, weak single-comma
 balancing and dash attribution) and the clear-only cleanup of legacy blank lines after
-interactive WAITs. The complete 331-event corpus still requires full-game playthrough
+interactive WAITs. The complete 392-event corpus still requires full-game playthrough
 validation.
 
 ## 8.5 Independent HTML simulation
@@ -444,9 +447,56 @@ validation.
 `tools/import_android_text.py --only dialogue-format-mass --rom <clean-USA-ROM>`
 is the current large-corpus generator. It does not use the number of explicit
 English source lines as a hard layout budget: ordinary prose may use the full
-validated three-line physical dialogue page. Mappings that need four to six safe
-lines may insert at most one already-validated `WAIT $00 + TEXT_CLEAR` page
-transition, with sentence-boundary pagination preferred.
+validated three-line physical dialogue page. Mappings that need four to six safe lines may insert one already-validated
+`WAIT $00 + TEXT_CLEAR` page transition, with sentence-boundary pagination preferred.
+A second transition is permitted only when two complete-sentence boundaries produce
+three independently safe pages of at most three lines each.
+
+Before that selection, two narrow structural cases are handled without changing
+localized wording. Android `←` / `→` sign markers are removed only when the same
+SNES event already carries the corresponding direct `$CF` / `$D0` glyph. The
+independent simulator also understands `TEXT_X $nn` only at the start of a fresh
+line, where component 06 renders the `nn` prefilled `$80` cells before the text.
+The formatter now reserves those same proven padding cells against the first
+generated line's 38-unit and 240-pixel budgets; following wrapped lines return to
+the normal full budget. `▽`, choices and mid-line `TEXT_X` remain excluded rather than inferred. A trailing
+`PLAYER_NAME` placeholder accidentally absorbed by alignment lookahead may be ignored
+for binding only when the actual future event tokens prove the same `PLAYER_NAME`
+after linear `WAIT`/`TEXT_CLEAR`/`OP_32`/`COMPLETE_ACTIONS` controls; the command itself
+stays in its original SNES position.
+
+Two additional `PLAYER_NAME` presentation mismatches are normalized only when the
+SNES structure proves that no event command needs to be invented or moved. An exact
+leading Android-French `%S(n,0) :` speaker label is removed when the mapped SNES
+source contains no `PLAYER_NAME` at all; the remaining localized prose is unchanged.
+Conversely, if Android French places literal text on both sides of an existing
+`PLAYER_NAME`, a directly adjacent source text token may act as a carrier only when
+it is punctuation/whitespace-only and therefore non-semantic. The current accepted corpus uses the first rule in 21 mappings and the carrier
+rule in 8 mappings. One additional carrier case exposes a physically adjacent
+`PLAYER_NAME` already present immediately before the punctuation-only token; it is
+accepted only when Android French proves that exact extra leading placeholder.
+
+Several conservative event-interruption fallbacks extend coverage without editing
+stock control flow. Seven mappings spanning existing interactive `WAIT $00` boundaries
+may redistribute French only at complete sentence boundaries; each boundary must
+contain exactly one `WAIT $00` plus optional `TEXT_CLEAR`. `$0192` is the sole weak
+clause exception: its two source slots are independently complete sentences and the
+French comma is accepted only because it is followed by the explicit continuation
+connector `alors`. `$016E` separately crosses exactly one existing timed `WAIT $08`
+at a complete sentence boundary; that timed wait remains byte-for-byte unchanged.
+
+Three two-text mappings from a single Android unit cross only proven `OP_32`/`OP_34`
+actor actions and `COMPLETE_ACTIONS`, with a complete source sentence before the action
+and a complete French sentence at the split. `$066D` adds one narrow
+semantic/layout-only/semantic form: the middle newline carrier remains stock while the
+two complete French sentences are bound around actor actions and a clean-ROM call whose
+callee is independently proven text-free, branch-free and returning. `$01C3` recognizes
+only its exact sound-call -> vertical-shake -> timed `WAIT $10` -> stop-shake ->
+sound-call sequence; both callees are independently sound-only returning scripts and no
+effect byte is changed. Finally, the already user-validated `$0511`
+`sequence_block_with_android_extra` mapping uses its exact four-anchor/three-statement
+shape to redistribute the existing Android French over three semantic SNES slots while
+preserving the stock layout carrier. Commands remain byte-for-byte in place.
 
 Selection is deliberately two-stage and event-complete:
 
@@ -458,42 +508,36 @@ Selection is deliberately two-stage and event-complete:
    geometry therefore excludes the whole event instead of being guessed.
 
 Current deterministic result: 704 semantic text events -> 431 completely aligned
--> 366 formatter candidates -> **331 simulator-clean events / 454 translated
-source IDs**. Thirty-six generated page transitions occur across 35 accepted
-events. The current layout refinement also replaces 42 legacy leading blank
-scroll lines across 30 accepted events with clear-only `TEXT_CLEAR` transitions.
-Four accepted mappings contain speaker-after-sentence hard-line hints and one
+-> 415 formatter candidates -> **392 simulator-clean events / 675 translated
+source IDs** (692 JSON entries). The excluded-event split is 273 incomplete
+alignments, 16 formatter rejects and 23 simulator rejects; every remaining simulator
+reject contains unsupported choice layout. Sixty-two generated page transitions
+occur in the accepted corpus. The current layout refinement also replaces legacy leading blank
+scroll lines with clear-only `TEXT_CLEAR` transitions when the structure is proven.
+After the historical compact-wrapper fallback has failed, events whose **only**
+remaining simulator defect is `UNPAUSED_SCROLL` may try one additional page at a
+proven sentence/semantic boundary inside an existing mapping. The candidate is
+kept only after a completely clean event resimulation; this currently admits
+`$0277`, `$0289`, `$02D2` and `$038E`. A separate narrowly gated repair admits `$02FD` and `$059B`: only after all
+earlier fallbacks fail with a parser wrap plus unpaused scroll does it insert one
+line break at an adjacent complete-sentence boundary and one semantic page transition.
+The canonical boundary must contain only proven `OP_32`/`OP_34` actor actions and
+`COMPLETE_ACTIONS`, and the whole event must then resimulate cleanly. Soft parser
+wraps and decoded-capacity hard wraps use the same final proof. Events with unsupported
+commands are not eligible.
+Five accepted mappings contain speaker-after-sentence hard-line hints and one
 contains a dash-attribution hint. The current semantic reflow changes line
 placement in many accepted mappings; event `$0101` is presently the only event
 that needs the automatic compact-layout fallback after simulator rejection.
-Component 08 relocates 289 growing events; the final relocated payload
-still fits entirely in the first `$E8` relocation bank in the current candidate.
+Component 08 relocates 347 growing events; the final relocated payload still
+fits entirely in the first `$E8` relocation bank in the current candidate.
 
 `mappings/android/dialogues_format_mass.json` records every accepted/rejected
 stage and `mappings/android/dialogues_format_mass_excluded.csv` gives a reviewable
 row for every semantic source phrase belonging to an excluded event. This mass
 output is a runtime candidate until a full playthrough is completed.
 
-## 9. Deliberately deferred work
-
-The following are not yet generalized:
-
-- DTE compression/optimization for newly translated text;
-- relocation/repacking policy for *translated and growing* non-event `$CA` text
-  resources; extraction and byte-identical no-op reinsertion are already covered
-  by `assets/text_resources.json`;
-- semantic names for opcodes whose byte lengths are known but whose role is not
-  needed for safe round-trip;
-- textual mappings for raw direct slots `$CE-$D2`.
-
-These should be added from engine/ROM evidence, not inferred from local examples.
-
-
-## Charset audit
-
-See `DIALOGUE_CHARSET_AUDIT.md` before expanding Android-derived formatting.
-
-### 8.7 Exact rolling-window overlap cleanup
+## 8.7 Exact rolling-window overlap cleanup
 
 A later visual audit of the side-by-side simulator found a distinct layout case:
 a stock interactive `WAIT $00` can leave one or two lines from the previous
@@ -513,7 +557,25 @@ reduces the duplicated-line count and still has zero errors, zero warnings and
 zero implicit wraps. Timed waits such as `WAIT $04` / `WAIT $08` are never
 changed.
 
-The rule is runtime-validated. The current mass output applies 6 repairs in events
-`$0136`, `$0263`, `$0265`, `$026A`, `$03EE`, and `$04AC`; the simulator reports
-zero remaining exact carry-over after `WAIT $00`. Timed waits such as `WAIT $04` /
-`WAIT $08` remain deliberately untouched.
+The rule is runtime-validated. The current mass output applies eight repairs in
+`$0136`, `$016D`, `$0263`, `$0265`, `$026A`, `$03EE`, `$04AC` and `$0511`; the
+simulator reports zero remaining exact carry-over after `WAIT $00`.
+
+## 9. Deliberately deferred work
+
+The following are not yet generalized:
+
+- DTE compression/optimization for newly translated text;
+- relocation/repacking policy for *translated and growing* non-event `$CA` text
+  resources; extraction and byte-identical no-op reinsertion are already covered
+  by `assets/text_resources.json`;
+- semantic names for opcodes whose byte lengths are known but whose role is not
+  needed for safe round-trip;
+- textual mappings for raw direct slots `$CE-$D2`.
+
+These should be added from engine/ROM evidence, not inferred from local examples.
+
+
+## 10. Charset audit
+
+See `DIALOGUE_CHARSET_AUDIT.md` before expanding Android-derived formatting.

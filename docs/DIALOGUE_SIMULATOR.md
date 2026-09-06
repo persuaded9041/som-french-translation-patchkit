@@ -33,6 +33,9 @@ works from the resulting **encoded event byte stream**. It independently:
 - checks the conservative formatter target of 240 pixels separately;
 - follows explicit `$7F` line breaks, `WAIT`, `TEXT_CLEAR`, `TEXT_OPEN` and
   `TEXT_CLOSE`;
+- models `TEXT_X $nn` only when it starts a fresh line: the command's absolute
+  decoded-text position becomes `nn` leading `$80` padding cells, matching the
+  private-buffer path used by component 06;
 - models the stock three-line rolling window: `WAIT` snapshots a readable state, while a fourth line generated **before** a WAIT is reported as unpaused scroll;
 - renders the resulting pages with the actual 8x12 glyph bitmaps in a standalone
   HTML report;
@@ -46,11 +49,16 @@ also checked independently from the visible glyph count.
 ## Conservative limitations
 
 This is not a 65816/event-engine emulator. Commands whose dialogue geometry is
-not established are **reported as unsupported rather than guessed**. The first
-version intentionally rejects/flags `TEXT_X`, choice-layout commands and dynamic
-item/enemy/weapon/magic/list-value rendering when they occur in a simulated
-translated event. These can be reverse-engineered incrementally before such
-structures are accepted for mass automatic insertion.
+not established are **reported as unsupported rather than guessed**. `TEXT_X`
+is accepted only at a fresh-line position whose behavior is established; a
+mid-line `TEXT_X` remains unsupported because it resets an absolute text
+position/count. `MONEY_PRINT` (`$5F`) is modeled as consuming no dialogue-buffer
+geometry: static event-engine analysis shows that it redraws the separate money
+window rather than appending dialogue glyphs. Choice-layout commands and dynamic
+item/enemy/weapon/magic/list-value rendering remain unsupported until their geometry
+is modeled with the same certainty. Choice commands are deliberately still rejected
+because their stored X positions also drive the interactive selection cursor, whose
+visual relationship to component 06's compacted VWF text has not been proven.
 
 The source comparison column is informational only; it is not fed back into the
 formatter or simulator. The simulator cannot prove timing, animation interaction or compositor pixel
@@ -70,9 +78,12 @@ component-06 follow-up.
 
 ## Current mass-pass result
 
-The simulator-filtered generator currently accepts 331 complete events / 454
-translated source IDs. Re-running the simulator on the committed mass translation
-produces **0 errors, 0 warnings and 0 implicit runtime wraps**. The HTML remains a static guardrail rather than a substitute for the planned full-game
+The simulator-filtered generator currently accepts 392 complete events / 675
+translated source IDs (692 JSON entries). Re-running the simulator on the committed mass translation
+produces **0 errors, 0 warnings and 0 implicit runtime wraps**. The 23
+formatter-compatible events still rejected by the simulator all contain interactive
+choice layout and remain intentionally excluded. The HTML remains a static guardrail
+rather than a substitute for the planned full-game
 playthrough. Representative runtime tests have validated the simulator-driven layout
 repairs used by the mass formatter, including clean WAIT-separated pages and exact
 interactive-WAIT overlap removal.

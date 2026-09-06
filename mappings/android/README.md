@@ -26,10 +26,12 @@ formatting checkpoint reports are not committed; their historical CLI modes can 
 them when needed. Component 08 consumes only `translations/dialogues_french.json`.
 
 The accepted alignment resolves 1,471 / 1,838 semantic source IDs (80.0%) and leaves
-367 unresolved rather than forcing weak matches. The current mass formatter then accepts
-331 complete simulator-clean events / 454 translated source IDs; excluded events remain
-entirely stock/English. Android English is the primary identity layer, while Android French
-may adapt or redistribute wording across adjacent localization slots.
+367 unresolved rather than forcing weak matches. Of 704 semantic text events, 431 are
+completely aligned, 415 pass the formatter, and 392 pass the simulator, covering 675
+semantic source IDs. The remaining 16 formatter rejects and 23 simulator rejects stay
+stock English; every current simulator reject contains unsupported interactive choice
+layout. Android English is the primary identity layer, while Android French may adapt or
+redistribute wording across adjacent localization slots.
 
 Regenerate/check the current authoritative stages with:
 

@@ -1,23 +1,19 @@
 """Deterministic Android-French -> SNES dialogue formatting helpers.
 
-Alignment and layout are intentionally separate.  This module accepts only an
-already-established Android/SNES mapping and converts the localized prose into
-existing SNES text-token slots. The normal path preserves every event command.
-A separately gated extra-page path may insert only the stock WAIT $00 +
-TEXT_CLEAR transition when a validated translation needs one additional page.
+Alignment and layout are intentionally separate. This module accepts only an
+already-established Android/SNES mapping and binds localized prose to existing
+SNES text-token slots. Event commands are preserved unless a narrowly validated
+layout rule explicitly emits the stock ``WAIT $00 + TEXT_CLEAR`` page transition.
 
-The first runtime checkpoint was deliberately narrow (event $0107); later
-complete-event batches reuse the same binding and VWF primitives. The explicit
-extra-page transition and sentence-aware boundary placement are runtime-validated
-on $010F; later batches reuse that rule and prefer page boundaries after complete
-sentences.
-The offline formatter uses a conservative 240-pixel VWF target and also enforces
-component 06's runtime-validated 38-decoded-character parser capacity. The renderer bitmap itself is 32 cells / 256 pixels; that physical
-capacity is a separate runtime concern, not the only offline wrapping limit.
+The formatter enforces the runtime-validated 240-pixel target, 38-parser-unit
+capacity and three-line page limit. Dynamic names and structural boundaries are
+handled only when the canonical event stream proves their placement; unsupported
+structures are rejected rather than inferred.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
+from itertools import combinations
 import re
 from typing import Iterable
 
@@ -217,6 +213,8 @@ def wrap_markup(
     *,
     max_pixels: int = DIALOGUE_WRAP_PIXELS,
     max_chars: int = DIALOGUE_WRAP_CHARS,
+    first_line_prefix_pixels: int = 0,
+    first_line_prefix_units: int = 0,
     placeholder_width: int | None = None,
     placeholder_chars: int = MAX_PLAYER_NAME_CHARS,
     placeholder_parser_safety_units: int = PLAYER_NAME_PARSER_SAFETY_UNITS,
@@ -238,6 +236,7 @@ def wrap_markup(
     line_widths: list[int] = []
     line_char_counts: list[int] = []
     line_parser_unit_counts: list[int] = []
+    first_output_line = True
 
     for segment in text.split("\n"):
         atoms = _wrap_atoms(segment)
@@ -253,7 +252,7 @@ def wrap_markup(
         line_parser_units = 0
 
         def flush() -> None:
-            nonlocal line_atoms, line_width, line_chars, line_parser_units
+            nonlocal line_atoms, line_width, line_chars, line_parser_units, first_output_line
             if not line_atoms:
                 return
             lines.append(" ".join(line_atoms))
@@ -264,6 +263,7 @@ def wrap_markup(
             line_width = 0
             line_chars = 0
             line_parser_units = 0
+            first_output_line = False
 
         for atom in atoms:
             atom_width = _markup_width(atom, advances, placeholder_width)
@@ -285,7 +285,20 @@ def wrap_markup(
             candidate_units = (
                 atom_parser_units if not line_atoms else line_parser_units + 1 + atom_parser_units
             )
-            if line_atoms and (candidate_width > max_pixels or candidate_units > max_chars):
+            prefix_pixels = first_line_prefix_pixels if first_output_line else 0
+            prefix_units = first_line_prefix_units if first_output_line else 0
+            if not line_atoms and (
+                candidate_width + prefix_pixels > max_pixels
+                or candidate_units + prefix_units > max_chars
+            ):
+                raise ValueError(
+                    "First dialogue word does not fit after preserved line-start layout padding: "
+                    f"{atom!r}"
+                )
+            if line_atoms and (
+                candidate_width + prefix_pixels > max_pixels
+                or candidate_units + prefix_units > max_chars
+            ):
                 flush()
             if line_atoms:
                 line_width += space_width
@@ -331,6 +344,8 @@ def _balanced_wrap_markup(
     page_line_counts: tuple[int, ...],
     max_pixels: int = DIALOGUE_WRAP_PIXELS,
     max_chars: int = DIALOGUE_WRAP_CHARS,
+    first_line_prefix_pixels: int = 0,
+    first_line_prefix_units: int = 0,
     placeholder_width: int | None = None,
     placeholder_chars: int = MAX_PLAYER_NAME_CHARS,
     placeholder_parser_safety_units: int = PLAYER_NAME_PARSER_SAFETY_UNITS,
@@ -412,12 +427,14 @@ def _balanced_wrap_markup(
         best_path: tuple[tuple[str, int, int, int], ...] = ()
         for end in range(atom_index + 1, max_end + 1):
             value, width, chars, parser_units = metrics(atom_index, end)
-            if width > max_pixels or parser_units > max_chars:
+            prefix_pixels = first_line_prefix_pixels if line_index == 0 else 0
+            prefix_units = first_line_prefix_units if line_index == 0 else 0
+            if width + prefix_pixels > max_pixels or parser_units + prefix_units > max_chars:
                 break
 
             first_atom = atoms[atom_index]
             last_atom = atoms[end - 1]
-            cost = (width - target_width) ** 2
+            cost = (width + prefix_pixels - target_width) ** 2
             if _PUNCTUATION_ATOM_RE.fullmatch(first_atom):
                 cost += 100_000
             if weak_key(last_atom) in weak_end_words:
@@ -523,6 +540,8 @@ def _semantic_wrap_plain_segment(
     *,
     max_pixels: int = DIALOGUE_WRAP_PIXELS,
     max_chars: int = DIALOGUE_WRAP_CHARS,
+    first_line_prefix_pixels: int = 0,
+    first_line_prefix_units: int = 0,
 ) -> tuple[str, list[int], list[int], list[int]]:
     """Wrap one segment while preferring natural French clause boundaries.
 
@@ -533,12 +552,28 @@ def _semantic_wrap_plain_segment(
     sentence that needs exactly two lines, a comma may be used as a weaker
     boundary when it yields a substantially better-balanced pair of lines.
     """
-    baseline = wrap_markup(text, advances, max_pixels=max_pixels, max_chars=max_chars)
+    baseline = wrap_markup(
+        text,
+        advances,
+        max_pixels=max_pixels,
+        max_chars=max_chars,
+        first_line_prefix_pixels=first_line_prefix_pixels,
+        first_line_prefix_units=first_line_prefix_units,
+    )
     if not text.strip() or "\n" in text:
         return baseline
 
-    def wrap_one_sentence(sentence: str):
-        result = wrap_markup(sentence, advances, max_pixels=max_pixels, max_chars=max_chars)
+    def wrap_one_sentence(sentence: str, *, preserve_prefix: bool):
+        prefix_pixels = first_line_prefix_pixels if preserve_prefix else 0
+        prefix_units = first_line_prefix_units if preserve_prefix else 0
+        result = wrap_markup(
+            sentence,
+            advances,
+            max_pixels=max_pixels,
+            max_chars=max_chars,
+            first_line_prefix_pixels=prefix_pixels,
+            first_line_prefix_units=prefix_units,
+        )
         if len(result[1]) != 2:
             return result
         baseline_balance = abs(result[1][0] - result[1][1])
@@ -555,7 +590,14 @@ def _semantic_wrap_plain_segment(
             second = sentence[boundary:].strip()
             if not first or not second:
                 continue
-            first_result = wrap_markup(first, advances, max_pixels=max_pixels, max_chars=max_chars)
+            first_result = wrap_markup(
+                first,
+                advances,
+                max_pixels=max_pixels,
+                max_chars=max_chars,
+                first_line_prefix_pixels=prefix_pixels,
+                first_line_prefix_units=prefix_units,
+            )
             second_result = wrap_markup(second, advances, max_pixels=max_pixels, max_chars=max_chars)
             if len(first_result[1]) != 1 or len(second_result[1]) != 1:
                 continue
@@ -584,11 +626,13 @@ def _semantic_wrap_plain_segment(
         starts = (0,) + boundaries
         ends = boundaries + (len(text),)
         sentence_results = []
-        for start, end in zip(starts, ends, strict=True):
+        for sentence_index, (start, end) in enumerate(zip(starts, ends, strict=True)):
             sentence = text[start:end].strip()
             if not sentence:
                 continue
-            sentence_results.append(wrap_one_sentence(sentence))
+            sentence_results.append(
+                wrap_one_sentence(sentence, preserve_prefix=sentence_index == 0)
+            )
         semantic_line_count = sum(len(result[1]) for result in sentence_results)
         # Never create an extra page just for aesthetics. Within an already
         # available three-line page, however, preserving sentence starts is a
@@ -605,7 +649,7 @@ def _semantic_wrap_plain_segment(
                 units.extend(part_units)
             return "\n".join(lines), widths, chars, units
 
-    return wrap_one_sentence(text)
+    return wrap_one_sentence(text, preserve_prefix=True)
 
 
 def semantic_wrap_markup(
@@ -614,6 +658,8 @@ def semantic_wrap_markup(
     *,
     max_pixels: int = DIALOGUE_WRAP_PIXELS,
     max_chars: int = DIALOGUE_WRAP_CHARS,
+    first_line_prefix_pixels: int = 0,
+    first_line_prefix_units: int = 0,
 ) -> tuple[str, list[int], list[int], list[int]]:
     """Wrap localized prose with semantic sentence/clause line preferences.
 
@@ -623,19 +669,31 @@ def semantic_wrap_markup(
     """
     if "\n" not in text:
         return _semantic_wrap_plain_segment(
-            text, advances, max_pixels=max_pixels, max_chars=max_chars
+            text,
+            advances,
+            max_pixels=max_pixels,
+            max_chars=max_chars,
+            first_line_prefix_pixels=first_line_prefix_pixels,
+            first_line_prefix_units=first_line_prefix_units,
         )
 
     all_lines: list[str] = []
     widths: list[int] = []
     chars: list[int] = []
     units: list[int] = []
+    emitted_segment = False
     for segment in text.split("\n"):
         if not segment.strip():
             continue
         wrapped, part_widths, part_chars, part_units = _semantic_wrap_plain_segment(
-            segment, advances, max_pixels=max_pixels, max_chars=max_chars
+            segment,
+            advances,
+            max_pixels=max_pixels,
+            max_chars=max_chars,
+            first_line_prefix_pixels=first_line_prefix_pixels if not emitted_segment else 0,
+            first_line_prefix_units=first_line_prefix_units if not emitted_segment else 0,
         )
+        emitted_segment = True
         all_lines.extend(wrapped.split("\n"))
         widths.extend(part_widths)
         chars.extend(part_chars)
@@ -649,6 +707,8 @@ def _sentence_aware_extra_page_wrap(
     max_pixels: int = DIALOGUE_WRAP_PIXELS,
     max_chars: int = DIALOGUE_WRAP_CHARS,
     prefer_semantic_line_breaks: bool = True,
+    first_line_prefix_pixels: int = 0,
+    first_line_prefix_units: int = 0,
 ) -> tuple[str, list[int], list[int], list[int], tuple[int, int], str]:
     """Wrap one overflowing prose block onto at most two pages.
 
@@ -659,9 +719,18 @@ def _sentence_aware_extra_page_wrap(
     fallback remains only for prose without a usable semantic boundary.
     """
 
-    def wrap_piece(piece: str) -> tuple[str, list[int], list[int], list[int]]:
+    def wrap_piece(
+        piece: str, *, preserve_prefix: bool
+    ) -> tuple[str, list[int], list[int], list[int]]:
         wrapper = semantic_wrap_markup if prefer_semantic_line_breaks else wrap_markup
-        return wrapper(piece, advances, max_pixels=max_pixels, max_chars=max_chars)
+        return wrapper(
+            piece,
+            advances,
+            max_pixels=max_pixels,
+            max_chars=max_chars,
+            first_line_prefix_pixels=first_line_prefix_pixels if preserve_prefix else 0,
+            first_line_prefix_units=first_line_prefix_units if preserve_prefix else 0,
+        )
 
     # First honor explicit semantic line boundaries inserted by the formatter.
     hard_candidates: list[tuple[int, str, str, tuple, tuple]] = []
@@ -673,8 +742,8 @@ def _sentence_aware_extra_page_wrap(
         if not first or not second:
             continue
         try:
-            first_result = wrap_piece(first)
-            second_result = wrap_piece(second)
+            first_result = wrap_piece(first, preserve_prefix=True)
+            second_result = wrap_piece(second, preserve_prefix=False)
         except ValueError:
             continue
         if not (1 <= len(first_result[1]) <= DIALOGUE_PAGE_LINES):
@@ -705,8 +774,8 @@ def _sentence_aware_extra_page_wrap(
         if not first or not second:
             continue
         try:
-            first_result = wrap_piece(first)
-            second_result = wrap_piece(second)
+            first_result = wrap_piece(first, preserve_prefix=True)
+            second_result = wrap_piece(second, preserve_prefix=False)
         except ValueError:
             continue
         if not (1 <= len(first_result[1]) <= DIALOGUE_PAGE_LINES):
@@ -718,7 +787,12 @@ def _sentence_aware_extra_page_wrap(
     if candidates:
         boundary, first, second, first_result, second_result = max(candidates, key=lambda item: item[0])
 
-        def balanced_or_greedy(piece: str, result: tuple[str, list[int], list[int], list[int]]):
+        def balanced_or_greedy(
+            piece: str,
+            result: tuple[str, list[int], list[int], list[int]],
+            *,
+            preserve_prefix: bool,
+        ):
             wrapped, widths, chars, units = result
             if "\n" in piece:
                 return wrapped, widths, chars, units
@@ -729,10 +803,16 @@ def _sentence_aware_extra_page_wrap(
                 page_line_counts=(len(widths),),
                 max_pixels=max_pixels,
                 max_chars=max_chars,
+                first_line_prefix_pixels=first_line_prefix_pixels if preserve_prefix else 0,
+                first_line_prefix_units=first_line_prefix_units if preserve_prefix else 0,
             )
 
-        first_wrapped, first_widths, first_chars, first_units = balanced_or_greedy(first, first_result)
-        second_wrapped, second_widths, second_chars, second_units = balanced_or_greedy(second, second_result)
+        first_wrapped, first_widths, first_chars, first_units = balanced_or_greedy(
+            first, first_result, preserve_prefix=True
+        )
+        second_wrapped, second_widths, second_chars, second_units = balanced_or_greedy(
+            second, second_result, preserve_prefix=False
+        )
         return (
             first_wrapped + "\f" + second_wrapped,
             first_widths + second_widths,
@@ -742,7 +822,7 @@ def _sentence_aware_extra_page_wrap(
             "sentence_boundary",
         )
 
-    greedy, widths, chars, units = wrap_piece(text)
+    greedy, widths, chars, units = wrap_piece(text, preserve_prefix=True)
     page_line_counts = _page_line_counts(len(widths))
     if len(page_line_counts) != 2:
         raise ValueError("Extra-page formatter inserts exactly one additional page")
@@ -771,9 +851,93 @@ def _sentence_aware_extra_page_wrap(
         page_line_counts=page_line_counts,
         max_pixels=max_pixels,
         max_chars=max_chars,
+        first_line_prefix_pixels=first_line_prefix_pixels,
+        first_line_prefix_units=first_line_prefix_units,
     )
     return wrapped, widths, chars, units, page_line_counts, "balanced_fallback"
 
+
+
+def _sentence_aware_three_page_wrap(
+    text: str,
+    advances: dict[str, int],
+    *,
+    max_pixels: int = DIALOGUE_WRAP_PIXELS,
+    max_chars: int = DIALOGUE_WRAP_CHARS,
+    prefer_semantic_line_breaks: bool = True,
+    first_line_prefix_pixels: int = 0,
+    first_line_prefix_units: int = 0,
+) -> tuple[str, list[int], list[int], list[int], tuple[int, int, int], str]:
+    """Wrap one long prose block onto exactly three sentence-bounded pages.
+
+    This is deliberately narrower than the two-page fallback: both generated
+    transitions must coincide with complete-sentence boundaries, and every
+    resulting page must independently fit the validated three-line capacity.
+    No balanced arbitrary split is permitted.
+    """
+    wrapper = semantic_wrap_markup if prefer_semantic_line_breaks else wrap_markup
+    candidates = []
+    boundaries = _sentence_boundary_positions(text)
+    for first_boundary_index, first_boundary in enumerate(boundaries):
+        for second_boundary in boundaries[first_boundary_index + 1:]:
+            pieces = (
+                text[:first_boundary].strip(),
+                text[first_boundary:second_boundary].strip(),
+                text[second_boundary:].strip(),
+            )
+            if not all(pieces):
+                continue
+            results = []
+            valid = True
+            for piece_index, piece in enumerate(pieces):
+                try:
+                    result = wrapper(
+                        piece,
+                        advances,
+                        max_pixels=max_pixels,
+                        max_chars=max_chars,
+                        first_line_prefix_pixels=(
+                            first_line_prefix_pixels if piece_index == 0 else 0
+                        ),
+                        first_line_prefix_units=(
+                            first_line_prefix_units if piece_index == 0 else 0
+                        ),
+                    )
+                except ValueError:
+                    valid = False
+                    break
+                if not (1 <= len(result[1]) <= DIALOGUE_PAGE_LINES):
+                    valid = False
+                    break
+                results.append(result)
+            if not valid:
+                continue
+            counts = tuple(len(result[1]) for result in results)
+            # Prefer the most even valid page distribution; then retain as much
+            # complete prose as possible on earlier pages.
+            score = (max(counts) - min(counts), -min(counts), -first_boundary, -second_boundary)
+            candidates.append((score, results))
+
+    if not candidates:
+        raise ValueError(
+            "Three-page formatter requires two complete-sentence boundaries "
+            "that keep every page within 3 lines"
+        )
+
+    _, results = min(candidates, key=lambda item: item[0])
+    wrapped_parts = [result[0] for result in results]
+    widths = [value for result in results for value in result[1]]
+    chars = [value for result in results for value in result[2]]
+    units = [value for result in results for value in result[3]]
+    counts = tuple(len(result[1]) for result in results)
+    return (
+        "\f".join(wrapped_parts),
+        widths,
+        chars,
+        units,
+        counts,
+        "sentence_boundaries_three_pages",
+    )
 
 def event_text_index(document: dict) -> tuple[dict[str, dict], dict[str, dict]]:
     """Return ``(text-id -> token metadata, event-id -> event)``."""
@@ -794,6 +958,108 @@ def event_text_index(document: dict) -> tuple[dict[str, dict], dict[str, dict]]:
                 "source": token["source"],
             }
     return by_id, by_event
+
+
+def mapping_leading_text_x_position(document: dict, mapping: dict) -> int:
+    """Return a proven line-start ``TEXT_X`` padding before this mapping.
+
+    The independent simulator validates ``TEXT_X $nn`` only when the command
+    starts a fresh decoded line.  Keep the formatter equally conservative: a
+    mapping receives a first-line capacity reservation only when its first
+    source text token immediately follows ``TEXT_X`` and the canonical token
+    immediately before that command proves a fresh line (TEXT_OPEN/CLEAR/WAIT
+    or a text token ending in an explicit newline).
+
+    Other placements remain unmodeled here and are left to the simulator's
+    unsupported-structure gate rather than inferred.
+    """
+    by_id, by_event = event_text_index(document)
+    source_ids = mapping.get("snes_ids", [])
+    if not source_ids:
+        return 0
+    first = by_id.get(source_ids[0])
+    if first is None:
+        return 0
+    event = by_event[first["event_id"]]
+    token_index = first["token_index"]
+    tokens = event.get("tokens", [])
+    if token_index <= 0:
+        return 0
+    text_token = tokens[token_index]
+    if text_token.get("source", "").startswith("\n"):
+        return 0
+    text_x = tokens[token_index - 1]
+    if not (
+        text_x.get("type") == "command"
+        and text_x.get("name") == "TEXT_X"
+    ):
+        return 0
+    if token_index < 2:
+        return 0
+    before = tokens[token_index - 2]
+    fresh_line = False
+    if before.get("type") == "text":
+        fresh_line = before.get("source", "").endswith("\n")
+    elif before.get("type") == "command":
+        fresh_line = before.get("name") in {"TEXT_OPEN", "TEXT_CLEAR", "WAIT"}
+    if not fresh_line:
+        return 0
+    args = text_x.get("args", "").strip().split()
+    if len(args) != 1:
+        return 0
+    try:
+        position = int(args[0], 16)
+    except ValueError:
+        return 0
+    if not 0 <= position <= DIALOGUE_WRAP_CHARS:
+        return 0
+    return position
+
+
+def strip_proven_structural_android_markers(
+    document: dict, mapping: dict, text: str
+) -> tuple[str, list[str]]:
+    """Remove Android-only arrow markers only when the SNES event proves them.
+
+    Android sign strings sometimes include ``←``/``→`` in the localized text
+    even though the SNES event emits the same arrow as a separate structural
+    glyph immediately before the editable text area.  In that exact case the
+    marker must not be encoded a second time as dialogue prose.  Choice marker
+    ``▽`` is intentionally *not* handled here: those events still require a
+    dedicated, conservative choice-layout model.
+    """
+    event_id = mapping.get("event_id")
+    if not event_id:
+        return text, []
+    _, by_event = event_text_index(document)
+    event = by_event.get(event_id)
+    if event is None:
+        return text, []
+
+    # Android French occasionally adds a leading dynamic speaker label even
+    # though the matched SNES text span has no PLAYER_NAME command at all.
+    # In that exact presentation-only case, drop only the leading ``%S(n,0) :``
+    # label. The prose is kept verbatim and no SNES command is invented.
+    leading_speaker = re.match(r"^\s*(%S\(\d+,0\))\s*:\s*", text)
+    if leading_speaker and not PLAYER_PLACEHOLDER_RE.search(mapping.get("source_display", "")):
+        removed_label = leading_speaker.group(0).strip()
+        text = text[leading_speaker.end():]
+        removed = [removed_label]
+    else:
+        removed = []
+
+    glyph_codes = {
+        token.get("code", "").upper()
+        for token in event.get("tokens", [])
+        if token.get("type") == "glyph"
+    }
+    marker_codes = {"←": "CF", "→": "D0"}
+    for marker, code in marker_codes.items():
+        if code not in glyph_codes or text.count(marker) != 1:
+            continue
+        text = text.replace(marker, "")
+        removed.append(marker)
+    return text, removed
 
 
 def binding_slots(document: dict, mapping: dict) -> list[BindingSlot]:
@@ -881,8 +1147,56 @@ def binding_slots(document: dict, mapping: dict) -> list[BindingSlot]:
                 matches.append((span_start, span_end, slots))
 
     if not matches:
-        # Preserve the old diagnostic when the canonical structure no longer
-        # reproduces the established alignment.
+        # The semantic aligner can carry the next speaker placeholder at the
+        # end of ``source_display`` even when that PLAYER_NAME command lies
+        # beyond a WAIT/TEXT_CLEAR or other event-side-effect boundary and is
+        # therefore outside the mapped SNES text IDs.  Accept that suffix only
+        # when the canonical event tokens prove the exact same PLAYER_NAME
+        # lookahead before the next text token.  The command itself remains in
+        # its original event position and is never rebound into this mapping.
+        for span_start in starts:
+            span_end = token_indexes[-1]
+            slots = slots_for_span(span_start, span_end)
+            if slots is None:
+                continue
+            rendered = "".join(
+                slot.source if isinstance(slot, TextSlot) else f"%S({slot.index},0)"
+                for slot in slots
+            )
+            if not expected.startswith(rendered):
+                continue
+            suffix = expected[len(rendered):]
+            if not suffix or re.fullmatch(r"(?:%S\(\d+,0\))+", suffix) is None:
+                continue
+
+            context: list[str] = []
+            context_valid = True
+            # Only tolerate the proven linear lookahead shapes seen in the
+            # alignment corpus. Branching/choice/unknown commands must never
+            # make a future PLAYER_NAME look adjacent to the current mapping.
+            safe_context_commands = {"WAIT", "TEXT_CLEAR", "OP_32", "COMPLETE_ACTIONS"}
+            for token in tokens[span_end + 1:]:
+                if token.get("type") == "text":
+                    break
+                if token.get("type") != "command":
+                    context_valid = False
+                    break
+                name = token.get("name")
+                if name == "PLAYER_NAME":
+                    args = token.get("args", "00").split()
+                    if not args:
+                        context_valid = False
+                        break
+                    context.append(f"%S({int(args[0], 16)},0)")
+                elif name not in safe_context_commands:
+                    context_valid = False
+                    break
+            if context_valid and "".join(context) == suffix:
+                matches.append((span_start, span_end, slots))
+
+    if not matches:
+        # Keep structural failures specific when the canonical event stream no
+        # longer reproduces the established alignment.
         base_slots = slots_for_span(token_indexes[0], token_indexes[-1])
         if base_slots is None:
             for token in tokens[token_indexes[0]:token_indexes[-1] + 1]:
@@ -905,7 +1219,38 @@ def binding_slots(document: dict, mapping: dict) -> list[BindingSlot]:
     narrow = [entry for entry in matches if entry[1] - entry[0] == width]
     if len(narrow) != 1:
         raise ValueError(f"Ambiguous adjacent PLAYER_NAME binding for {snes_ids}")
-    return narrow[0][2]
+    span_start, span_end, slots = narrow[0]
+
+    def nonsemantic_text_carrier(index: int) -> TextSlot | None:
+        if not (0 <= index < len(tokens)):
+            return None
+        token = tokens[index]
+        if token.get("type") != "text" or token.get("id") in selected:
+            return None
+        source = token.get("source", "")
+        # These carrier slots are punctuation/layout fragments, never prose.
+        # They already exist in the canonical event and can safely hold a
+        # localized literal run moved across an adjacent PLAYER_NAME command.
+        if re.search(r"[A-Za-z0-9À-ÖØ-öø-ÿŒœ]", source):
+            return None
+        return TextSlot(token["id"], source)
+
+    # The semantic aligner deliberately excludes punctuation-only text tokens
+    # from ``snes_ids``.  If such a token sits immediately outside a mapped
+    # PLAYER_NAME boundary, retain it as a carrier so Android FR
+    # may place literal text on both sides of the *existing* dynamic-name
+    # command without moving or creating any event command.
+    if slots and isinstance(slots[0], PlayerSlot):
+        carrier = nonsemantic_text_carrier(span_start - 1)
+        if carrier is not None:
+            slots = [carrier, *slots]
+    if slots and isinstance(slots[-1], PlayerSlot):
+        carrier = nonsemantic_text_carrier(span_end + 1)
+        if carrier is not None:
+            slots = [*slots, carrier]
+
+    return slots
+
 
 
 def _leading_newlines(text: str) -> int:
@@ -996,6 +1341,54 @@ def bind_wrapped_markup(slots: list[BindingSlot], wrapped: str) -> dict[str, str
     return translations
 
 
+
+def _extend_slots_through_adjacent_nonsemantic_player_carrier(
+    document: dict,
+    mapping: dict,
+    slots: list[BindingSlot],
+    french_placeholders: tuple[int, ...],
+) -> tuple[list[BindingSlot], list[int]]:
+    """Expose an existing speaker PLAYER_NAME through one punctuation carrier.
+
+    Some SNES scripts encode ``PLAYER_NAME(a)`` + punctuation-only text +
+    ``PLAYER_NAME(b)`` + mapped prose, while the semantic aligner intentionally
+    starts the mapping at ``PLAYER_NAME(b)``. Android French may retain both
+    dynamic names. If the already-bound slots begin with exactly that
+    punctuation carrier followed by ``PLAYER_NAME(b)``, allow the immediately
+    preceding canonical ``PLAYER_NAME(a)`` to participate as well. No command
+    is created, removed, reordered, or moved.
+    """
+    current = tuple(slot.index for slot in slots if isinstance(slot, PlayerSlot))
+    if len(french_placeholders) != len(current) + 1:
+        return slots, []
+    if french_placeholders[1:] != current:
+        return slots, []
+    if len(slots) < 2 or not isinstance(slots[0], TextSlot) or not isinstance(slots[1], PlayerSlot):
+        return slots, []
+    carrier = slots[0]
+    if re.search(r"[A-Za-z0-9À-ÖØ-öø-ÿŒœ]", carrier.source):
+        return slots, []
+
+    by_id, by_event = event_text_index(document)
+    meta = by_id.get(carrier.text_id)
+    if meta is None:
+        return slots, []
+    tokens = by_event[meta["event_id"]]["tokens"]
+    index = meta["token_index"]
+    if index <= 0:
+        return slots, []
+    previous = tokens[index - 1]
+    if previous.get("type") != "command" or previous.get("name") != "PLAYER_NAME":
+        return slots, []
+    args = previous.get("args", "00").split()
+    if not args:
+        return slots, []
+    player_index = int(args[0], 16)
+    if player_index != french_placeholders[0]:
+        return slots, []
+    return [PlayerSlot(player_index), *slots], [player_index]
+
+
 def format_mapping(
     document: dict,
     mapping: dict,
@@ -1005,6 +1398,8 @@ def format_mapping(
     allow_one_extra_page: bool = False,
     use_physical_page_capacity: bool = False,
     prefer_semantic_line_breaks: bool = True,
+    force_one_extra_page: bool = False,
+    allow_two_extra_pages: bool = False,
 ) -> tuple[dict[str, str], dict]:
     """Format one already accepted mapping into existing SNES text-token values."""
     slots = binding_slots(document, mapping)
@@ -1014,9 +1409,31 @@ def format_mapping(
         raise ValueError("Accepted dialogue mapping has no French Android text")
 
     source_placeholders = tuple(slot.index for slot in slots if isinstance(slot, PlayerSlot))
-    french_normalized = normalize_android_french(french_raw)
+    bound_source_display = "".join(
+        slot.source if isinstance(slot, TextSlot) else f"%S({slot.index},0)"
+        for slot in slots
+    )
+    ignored_alignment_trailing_player_context = (
+        source_display[len(bound_source_display):]
+        if source_display.startswith(bound_source_display)
+        else ""
+    )
+    french_without_structural_markers, structural_markers_removed = (
+        strip_proven_structural_android_markers(document, mapping, french_raw)
+    )
+    french_normalized = normalize_android_french(french_without_structural_markers)
     french_layout, layout_hints = apply_semantic_layout_hints(french_normalized)
     french_placeholders = placeholder_sequence(french_layout)
+    adjacent_player_carrier_indexes: list[int] = []
+    if source_placeholders != french_placeholders:
+        slots, adjacent_player_carrier_indexes = (
+            _extend_slots_through_adjacent_nonsemantic_player_carrier(
+                document, mapping, slots, french_placeholders
+            )
+        )
+        source_placeholders = tuple(
+            slot.index for slot in slots if isinstance(slot, PlayerSlot)
+        )
     if source_placeholders != french_placeholders:
         raise ValueError(
             f"French PLAYER_NAME sequence {french_placeholders} does not match SNES {source_placeholders}"
@@ -1032,16 +1449,24 @@ def format_mapping(
     if inserted_leading_clear:
         lead = 0
 
+    leading_text_x_position = mapping_leading_text_x_position(document, mapping)
+    first_line_prefix_pixels = leading_text_x_position * advances[" "]
+    first_line_prefix_units = leading_text_x_position
+
     wrapper = semantic_wrap_markup if prefer_semantic_line_breaks else wrap_markup
     wrapped, widths, char_counts, parser_unit_counts = wrapper(
-        french_layout, advances, max_pixels=max_pixels
+        french_layout,
+        advances,
+        max_pixels=max_pixels,
+        first_line_prefix_pixels=first_line_prefix_pixels,
+        first_line_prefix_units=first_line_prefix_units,
     )
     source_line_budget = source_visible_line_budget(source_display)
     line_budget = DIALOGUE_PAGE_LINES if use_physical_page_capacity else source_line_budget
     inserted_page_breaks = 0
     page_line_counts = (len(widths),)
     page_break_strategy: str | None = None
-    if len(widths) > line_budget:
+    if len(widths) > line_budget or force_one_extra_page:
         if not allow_one_extra_page:
             raise ValueError(
                 f"French VWF needs {len(widths)} line(s), available page budget is {line_budget}: {mapping['snes_ids']}"
@@ -1051,21 +1476,48 @@ def format_mapping(
                 f"Extra-page pilot requires a {DIALOGUE_PAGE_LINES}-line source page; "
                 f"source span exposes {line_budget}: {mapping['snes_ids']}"
             )
-        (
-            wrapped,
-            widths,
-            char_counts,
-            parser_unit_counts,
-            page_line_counts,
-            page_break_strategy,
-        ) = _sentence_aware_extra_page_wrap(
-            french_layout,
-            advances,
-            max_pixels=max_pixels,
-            max_chars=DIALOGUE_WRAP_CHARS,
-            prefer_semantic_line_breaks=prefer_semantic_line_breaks,
-        )
-        inserted_page_breaks = 1
+        if len(widths) > DIALOGUE_PAGE_LINES * 2 and allow_two_extra_pages:
+            (
+                wrapped,
+                widths,
+                char_counts,
+                parser_unit_counts,
+                page_line_counts,
+                page_break_strategy,
+            ) = _sentence_aware_three_page_wrap(
+                french_layout,
+                advances,
+                max_pixels=max_pixels,
+                max_chars=DIALOGUE_WRAP_CHARS,
+                prefer_semantic_line_breaks=prefer_semantic_line_breaks,
+                first_line_prefix_pixels=first_line_prefix_pixels,
+                first_line_prefix_units=first_line_prefix_units,
+            )
+        else:
+            (
+                wrapped,
+                widths,
+                char_counts,
+                parser_unit_counts,
+                page_line_counts,
+                page_break_strategy,
+            ) = _sentence_aware_extra_page_wrap(
+                french_layout,
+                advances,
+                max_pixels=max_pixels,
+                max_chars=DIALOGUE_WRAP_CHARS,
+                prefer_semantic_line_breaks=prefer_semantic_line_breaks,
+                first_line_prefix_pixels=first_line_prefix_pixels,
+                first_line_prefix_units=first_line_prefix_units,
+            )
+        if force_one_extra_page and page_break_strategy not in {
+            "semantic_hard_boundary",
+            "sentence_boundary",
+        }:
+            raise ValueError(
+                "Forced event-level pagination requires a proven semantic sentence boundary"
+            )
+        inserted_page_breaks = len(page_line_counts) - 1
 
     translations = bind_wrapped_markup(slots, wrapped)
     first_id = text_slots[0].text_id
@@ -1083,6 +1535,12 @@ def format_mapping(
             if char not in TEXT_TO_CODE:
                 raise ValueError(f"{text_id}: unsupported formatted character {char!r}")
 
+    adjacent_nonsemantic_carrier_ids = [
+        slot.text_id
+        for slot in text_slots
+        if slot.text_id not in set(mapping["snes_ids"])
+    ]
+
     report = {
         "event_id": mapping["event_id"],
         "snes_ids": mapping["snes_ids"],
@@ -1090,6 +1548,10 @@ def format_mapping(
         "confidence": mapping.get("confidence"),
         "source_display": source_display,
         "android_french_raw": french_raw,
+        "structural_markers_removed": structural_markers_removed,
+        "adjacent_nonsemantic_carrier_ids": adjacent_nonsemantic_carrier_ids or None,
+        "adjacent_player_carrier_indexes": adjacent_player_carrier_indexes or None,
+        "ignored_alignment_trailing_player_context": ignored_alignment_trailing_player_context or None,
         "android_french_normalized": french_normalized,
         "layout_markup_before_wrap": french_layout,
         "layout_hints": layout_hints,
@@ -1097,6 +1559,9 @@ def format_mapping(
         "line_widths_pixels": widths,
         "line_decoded_character_counts": char_counts,
         "line_parser_unit_counts": parser_unit_counts,
+        "leading_text_x_position": leading_text_x_position or None,
+        "leading_text_x_padding_pixels": first_line_prefix_pixels,
+        "leading_text_x_parser_units": first_line_prefix_units,
         "source_visible_line_budget": source_line_budget,
         "effective_line_budget": line_budget,
         "physical_page_capacity_mode": use_physical_page_capacity,
@@ -1106,8 +1571,526 @@ def format_mapping(
         "inserted_leading_clear": inserted_leading_clear,
         "page_break_encoding": "WAIT $00 + TEXT_CLEAR" if inserted_page_breaks else None,
         "page_break_strategy": page_break_strategy,
+        "event_level_forced_page_break": force_one_extra_page,
         "formatted_entries": [
             {"id": text_id, "text": translations[text_id]} for text_id in mapping["snes_ids"]
+        ],
+    }
+    return translations, report
+
+
+
+def format_mapping_across_existing_wait_boundaries(
+    document: dict,
+    mapping: dict,
+    advances: dict[str, int],
+    *,
+    max_pixels: int = DIALOGUE_WRAP_PIXELS,
+    allow_one_extra_page: bool = True,
+    use_physical_page_capacity: bool = True,
+    prefer_semantic_line_breaks: bool = True,
+    allow_two_extra_pages: bool = True,
+) -> tuple[dict[str, str], dict]:
+    """Distribute localized sentences across proven stock WAIT $00 boundaries.
+
+    This fallback is intentionally structural rather than editorial. It applies
+    only when one accepted Android mapping owns two or more existing SNES text
+    tokens separated *exclusively* by interactive ``WAIT $00`` and optional
+    ``TEXT_CLEAR`` commands. No PLAYER_NAME may be involved. The existing event
+    commands remain byte-for-byte in place; French is cut only at complete
+    sentence boundaries and each resulting piece is formatted independently by
+    the normal validated formatter.
+
+    Timed WAITs are deliberately rejected. A candidate is chosen to preserve
+    the source token's sentence distribution first, then to minimize local
+    layout pressure. If no complete-sentence distribution formats cleanly, the
+    mapping stays excluded.
+    """
+    snes_ids = mapping.get("snes_ids", [])
+    if len(snes_ids) < 2:
+        raise ValueError("Existing-WAIT distribution requires at least two SNES text IDs")
+    if PLAYER_PLACEHOLDER_RE.search(mapping.get("source_display", "")):
+        raise ValueError("Existing-WAIT distribution does not handle source PLAYER_NAME")
+    if PLAYER_PLACEHOLDER_RE.search(mapping.get("french_display", "")):
+        raise ValueError("Existing-WAIT distribution does not handle French PLAYER_NAME")
+
+    by_id, by_event = event_text_index(document)
+    metas = []
+    for text_id in snes_ids:
+        meta = by_id.get(text_id)
+        if meta is None:
+            raise ValueError(f"Existing-WAIT distribution references unknown SNES text ID {text_id}")
+        metas.append(meta)
+    event_ids = {meta["event_id"] for meta in metas}
+    if len(event_ids) != 1:
+        raise ValueError("Existing-WAIT distribution cannot cross events")
+    token_indexes = [meta["token_index"] for meta in metas]
+    if token_indexes != sorted(token_indexes) or len(set(token_indexes)) != len(token_indexes):
+        raise ValueError("Existing-WAIT distribution IDs are not in strict token order")
+
+    event = by_event[metas[0]["event_id"]]
+    boundary_commands: list[list[dict]] = []
+    for first_index, second_index in zip(token_indexes, token_indexes[1:]):
+        between = event["tokens"][first_index + 1:second_index]
+        if not between:
+            raise ValueError("Existing-WAIT distribution found no command at a mapped boundary")
+        wait00_count = 0
+        rendered_commands: list[dict] = []
+        for token in between:
+            if token.get("type") != "command":
+                raise ValueError("Existing-WAIT distribution crosses non-command event data")
+            name = token.get("name")
+            if name == "WAIT":
+                if token.get("args", "").strip().upper() != "00":
+                    raise ValueError("Existing-WAIT distribution never crosses timed WAITs")
+                wait00_count += 1
+            elif name != "TEXT_CLEAR":
+                raise ValueError(
+                    f"Existing-WAIT distribution crosses unsupported command {name!r}"
+                )
+            rendered_commands.append({"name": name, "args": token.get("args")})
+        if wait00_count != 1:
+            raise ValueError("Existing-WAIT distribution requires exactly one WAIT $00 per boundary")
+        boundary_commands.append(rendered_commands)
+
+    french_without_structural_markers, structural_markers_removed = (
+        strip_proven_structural_android_markers(document, mapping, mapping.get("french_display", ""))
+    )
+    french_normalized = normalize_android_french(french_without_structural_markers)
+    if not french_normalized:
+        raise ValueError("Existing-WAIT distribution has no French prose")
+    boundaries = _sentence_boundary_positions(french_normalized)
+    split_count = len(snes_ids) - 1
+    weak_clause_boundary = False
+    if len(boundaries) < split_count:
+        # Android FR occasionally merges the two complete source sentences on
+        # either side of an existing interactive WAIT into one sentence joined
+        # by a discourse conjunction (for example ``, alors ...``). Reuse that
+        # stock pause without editing it only for the exact two-slot shape and
+        # only at such an explicit comma+connector boundary. A bare internal
+        # comma is never enough.
+        if len(snes_ids) == 2 and split_count == 1:
+            connector_boundaries = []
+            for boundary in _comma_boundary_positions(french_normalized):
+                following = french_normalized[boundary:].lstrip()
+                if re.match(r"(?:alors|mais|donc|pourtant|cependant)\b", following, re.IGNORECASE):
+                    connector_boundaries.append(boundary)
+            source_complete = all(
+                re.search(r"(?:\.{3}|[.!?…])[”\"»')\]]*$", re.sub(r"\s+", " ", by_id[text_id]["source"].strip()))
+                for text_id in snes_ids
+            )
+            if source_complete and connector_boundaries:
+                boundaries = tuple(connector_boundaries)
+                weak_clause_boundary = True
+        if len(boundaries) < split_count:
+            raise ValueError(
+                "Existing-WAIT distribution requires enough complete-sentence boundaries for every stock WAIT"
+            )
+
+    def sentence_count(text: str) -> int:
+        compact = re.sub(r"\\s+", " ", text.strip())
+        if not compact:
+            return 0
+        return len(_sentence_boundary_positions(compact)) + 1
+
+    source_sentence_counts = [sentence_count(by_id[text_id]["source"]) for text_id in snes_ids]
+    candidates = []
+    for chosen in combinations(boundaries, split_count):
+        positions = (0, *chosen, len(french_normalized))
+        pieces = [
+            french_normalized[positions[index]:positions[index + 1]].strip()
+            for index in range(len(snes_ids))
+        ]
+        if any(not piece for piece in pieces):
+            continue
+
+        translations: dict[str, str] = {}
+        local_reports: list[dict] = []
+        valid = True
+        for text_id, french_piece in zip(snes_ids, pieces, strict=True):
+            local_mapping = dict(mapping)
+            local_mapping["snes_ids"] = [text_id]
+            local_mapping["source_display"] = by_id[text_id]["source"]
+            local_mapping["french_display"] = french_piece
+            try:
+                values, report = format_mapping(
+                    document,
+                    local_mapping,
+                    advances,
+                    max_pixels=max_pixels,
+                    allow_one_extra_page=allow_one_extra_page,
+                    use_physical_page_capacity=use_physical_page_capacity,
+                    prefer_semantic_line_breaks=prefer_semantic_line_breaks,
+                    allow_two_extra_pages=allow_two_extra_pages,
+                )
+            except ValueError:
+                valid = False
+                break
+            if set(values) & set(translations):
+                valid = False
+                break
+            translations.update(values)
+            local_reports.append(report)
+        if not valid:
+            continue
+
+        french_sentence_counts = [sentence_count(piece) for piece in pieces]
+        sentence_mismatch = sum(
+            abs(source_count - french_count)
+            for source_count, french_count in zip(
+                source_sentence_counts, french_sentence_counts, strict=True
+            )
+        )
+        page_breaks = sum(report.get("inserted_page_break_count", 0) for report in local_reports)
+        line_counts = [sum(report.get("page_line_counts", [])) for report in local_reports]
+        score = (
+            sentence_mismatch,
+            page_breaks,
+            max(line_counts, default=0),
+            max(line_counts, default=0) - min(line_counts, default=0),
+            chosen,
+        )
+        candidates.append((score, pieces, translations, local_reports))
+
+    if not candidates:
+        raise ValueError(
+            "Existing-WAIT distribution found no complete-sentence split whose parts format cleanly"
+        )
+
+    _, pieces, translations, local_reports = min(candidates, key=lambda item: item[0])
+    report = {
+        "event_id": mapping["event_id"],
+        "snes_ids": snes_ids,
+        "android_ids": mapping.get("android_ids", []),
+        "confidence": mapping.get("confidence"),
+        "source_display": mapping.get("source_display", ""),
+        "android_french_raw": mapping.get("french_display", ""),
+        "structural_markers_removed": structural_markers_removed,
+        "android_french_normalized": french_normalized,
+        "existing_wait_sentence_distribution": True,
+        "existing_wait_weak_clause_boundary": weak_clause_boundary,
+        "existing_wait_boundary_commands": boundary_commands,
+        "source_sentence_counts": source_sentence_counts,
+        "distributed_french_parts": pieces,
+        "existing_wait_parts": local_reports,
+        "formatted_entries": [
+            {"id": text_id, "text": translations[text_id]}
+            for text_id in snes_ids
+            if text_id in translations
+        ],
+    }
+    return translations, report
+
+
+
+def format_mapping_across_existing_timed_wait_boundary(
+    document: dict,
+    mapping: dict,
+    advances: dict[str, int],
+    *,
+    max_pixels: int = DIALOGUE_WRAP_PIXELS,
+    allow_one_extra_page: bool = True,
+    use_physical_page_capacity: bool = True,
+    prefer_semantic_line_breaks: bool = True,
+    allow_two_extra_pages: bool = True,
+) -> tuple[dict[str, str], dict]:
+    """Distribute one mapping across one existing timed WAIT without editing it.
+
+    This path is intentionally narrower than the interactive-WAIT distributor.
+    It accepts exactly two mapped SNES text tokens separated only by one stock
+    ``WAIT $04`` or ``WAIT $08``.  Both the first source token and the chosen
+    first French piece must end at a complete sentence boundary.  Dynamic names,
+    choices and every other intervening command remain excluded.  The timed WAIT
+    is preserved byte-for-byte; this function only chooses which already-mapped
+    localized sentence is emitted on each side of it.
+    """
+    snes_ids = mapping.get("snes_ids", [])
+    if len(snes_ids) != 2:
+        raise ValueError("Existing timed-WAIT distribution requires exactly two SNES text IDs")
+    if PLAYER_PLACEHOLDER_RE.search(mapping.get("source_display", "")):
+        raise ValueError("Existing timed-WAIT distribution does not handle source PLAYER_NAME")
+    if PLAYER_PLACEHOLDER_RE.search(mapping.get("french_display", "")):
+        raise ValueError("Existing timed-WAIT distribution does not handle French PLAYER_NAME")
+
+    by_id, by_event = event_text_index(document)
+    first_meta = by_id.get(snes_ids[0])
+    second_meta = by_id.get(snes_ids[1])
+    if first_meta is None or second_meta is None:
+        raise ValueError("Existing timed-WAIT distribution references an unknown SNES text ID")
+    if first_meta["event_id"] != second_meta["event_id"]:
+        raise ValueError("Existing timed-WAIT distribution cannot cross events")
+    first_index = first_meta["token_index"]
+    second_index = second_meta["token_index"]
+    if first_index >= second_index:
+        raise ValueError("Existing timed-WAIT distribution IDs are not in token order")
+
+    event = by_event[first_meta["event_id"]]
+    if any(
+        token.get("type") == "command"
+        and token.get("name") in {"CHOICE_BEGIN", "CHOICE_OPTION", "CHOICE_END"}
+        for token in event["tokens"]
+    ):
+        raise ValueError("Existing timed-WAIT distribution stays disabled in events containing choices")
+    between = event["tokens"][first_index + 1:second_index]
+    if len(between) != 1 or between[0].get("type") != "command" or between[0].get("name") != "WAIT":
+        raise ValueError("Existing timed-WAIT distribution requires one WAIT and no other boundary command")
+    wait_arg = between[0].get("args", "").strip().upper()
+    if wait_arg not in {"04", "08"}:
+        raise ValueError("Existing timed-WAIT distribution handles only stock WAIT $04/$08")
+
+    first_source = re.sub(r"\s+", " ", first_meta["source"].strip())
+    if not re.search(r"(?:\.{3}|[.!?…])[”\"»')\]]*$", first_source):
+        raise ValueError("Existing timed-WAIT distribution requires a complete source sentence before the WAIT")
+
+    french_without_structural_markers, structural_markers_removed = (
+        strip_proven_structural_android_markers(document, mapping, mapping.get("french_display", ""))
+    )
+    french_normalized = normalize_android_french(french_without_structural_markers)
+    boundaries = _sentence_boundary_positions(french_normalized)
+    if not boundaries:
+        raise ValueError("Existing timed-WAIT distribution requires a complete French sentence boundary")
+
+    candidates = []
+    for boundary in boundaries:
+        pieces = [french_normalized[:boundary].strip(), french_normalized[boundary:].strip()]
+        if any(not piece for piece in pieces):
+            continue
+        translations: dict[str, str] = {}
+        local_reports: list[dict] = []
+        valid = True
+        for text_id, french_piece in zip(snes_ids, pieces, strict=True):
+            local_mapping = dict(mapping)
+            local_mapping["snes_ids"] = [text_id]
+            local_mapping["source_display"] = by_id[text_id]["source"]
+            local_mapping["french_display"] = french_piece
+            try:
+                values, report = format_mapping(
+                    document,
+                    local_mapping,
+                    advances,
+                    max_pixels=max_pixels,
+                    allow_one_extra_page=allow_one_extra_page,
+                    use_physical_page_capacity=use_physical_page_capacity,
+                    prefer_semantic_line_breaks=prefer_semantic_line_breaks,
+                    allow_two_extra_pages=allow_two_extra_pages,
+                )
+            except ValueError:
+                valid = False
+                break
+            if set(values) & set(translations):
+                valid = False
+                break
+            translations.update(values)
+            local_reports.append(report)
+        if not valid:
+            continue
+        line_counts = [sum(report.get("page_line_counts", [])) for report in local_reports]
+        page_breaks = sum(report.get("inserted_page_break_count", 0) for report in local_reports)
+        score = (
+            page_breaks,
+            max(line_counts, default=0),
+            abs(line_counts[0] - line_counts[1]),
+            boundary,
+        )
+        candidates.append((score, pieces, translations, local_reports))
+
+    if not candidates:
+        raise ValueError("Existing timed-WAIT distribution found no clean sentence-boundary split")
+    _, pieces, translations, local_reports = min(candidates, key=lambda item: item[0])
+    report = {
+        "event_id": mapping["event_id"],
+        "snes_ids": snes_ids,
+        "android_ids": mapping.get("android_ids", []),
+        "confidence": mapping.get("confidence"),
+        "source_display": mapping.get("source_display", ""),
+        "android_french_raw": mapping.get("french_display", ""),
+        "structural_markers_removed": structural_markers_removed,
+        "android_french_normalized": french_normalized,
+        "existing_timed_wait_sentence_distribution": True,
+        "existing_timed_wait_arg": wait_arg,
+        "distributed_french_parts": pieces,
+        "existing_timed_wait_parts": local_reports,
+        "formatted_entries": [
+            {"id": text_id, "text": translations[text_id]}
+            for text_id in snes_ids
+            if text_id in translations
+        ],
+    }
+    return translations, report
+
+def format_mapping_across_existing_action_boundary(
+    document: dict,
+    mapping: dict,
+    advances: dict[str, int],
+    *,
+    max_pixels: int = DIALOGUE_WRAP_PIXELS,
+    allow_one_extra_page: bool = True,
+    use_physical_page_capacity: bool = True,
+    prefer_semantic_line_breaks: bool = True,
+    allow_two_extra_pages: bool = True,
+) -> tuple[dict[str, str], dict]:
+    """Split one localized Android unit across a proven stock action boundary.
+
+    Component-06 runtime work established the event interruption sequence where
+    ``OP_32`` schedules actor movement/action and ``COMPLETE_ACTIONS`` waits for
+    scheduled actions to finish before text parsing resumes in the same box.
+    This formatter fallback therefore handles only two mapped text tokens from
+    one Android localization unit, separated exclusively by ``OP_32`` walk,
+    ``OP_34`` loop-action and ``COMPLETE_ACTIONS`` commands. The source token
+    before the action must already end a complete sentence, and French is split
+    only at a complete-sentence boundary. Events containing interactive choice
+    commands, PLAYER_NAME, WAIT, or any other boundary command remain excluded.
+    """
+    snes_ids = mapping.get("snes_ids", [])
+    if len(snes_ids) != 2:
+        raise ValueError("Existing-action split requires exactly two SNES text IDs")
+    if len(mapping.get("android_ids", [])) != 1:
+        raise ValueError("Existing-action split requires one Android localization unit")
+    source_player_indexes = placeholder_sequence(mapping.get("source_display", ""))
+    french_player_indexes = placeholder_sequence(mapping.get("french_display", ""))
+    if source_player_indexes != french_player_indexes or len(source_player_indexes) > 1:
+        raise ValueError("Existing-action split requires at most one unchanged PLAYER_NAME")
+
+    by_id, by_event = event_text_index(document)
+    first_meta = by_id.get(snes_ids[0])
+    second_meta = by_id.get(snes_ids[1])
+    if first_meta is None or second_meta is None:
+        raise ValueError("Existing-action split references an unknown SNES text ID")
+    if first_meta["event_id"] != second_meta["event_id"]:
+        raise ValueError("Existing-action split cannot cross events")
+    first_index = first_meta["token_index"]
+    second_index = second_meta["token_index"]
+    if first_index >= second_index:
+        raise ValueError("Existing-action split IDs are not in token order")
+
+    event = by_event[first_meta["event_id"]]
+    leading_player_prefix = ""
+    if source_player_indexes:
+        player_index = source_player_indexes[0]
+        if first_index <= 0:
+            raise ValueError("Existing-action split cannot prove the leading PLAYER_NAME")
+        previous = event["tokens"][first_index - 1]
+        args = previous.get("args", "00").split() if previous.get("type") == "command" else []
+        if (
+            previous.get("name") != "PLAYER_NAME"
+            or not args
+            or int(args[0], 16) != player_index
+        ):
+            raise ValueError("Existing-action split PLAYER_NAME is not immediately before the first text")
+        leading_player_prefix = f"%S({player_index},0)"
+        if not mapping.get("source_display", "").startswith(leading_player_prefix):
+            raise ValueError("Existing-action split source PLAYER_NAME is not a leading placeholder")
+
+    if any(
+        token.get("type") == "command"
+        and token.get("name") in {"CHOICE_BEGIN", "CHOICE_OPTION", "CHOICE_END"}
+        for token in event["tokens"]
+    ):
+        raise ValueError("Existing-action split stays disabled in events containing choices")
+    between = event["tokens"][first_index + 1:second_index]
+    if not between:
+        raise ValueError("Existing-action split found no event command")
+    names = []
+    for token in between:
+        if token.get("type") != "command":
+            raise ValueError("Existing-action split crosses non-command event data")
+        name = token.get("name")
+        if name not in {"OP_32", "OP_34", "COMPLETE_ACTIONS"}:
+            raise ValueError(f"Existing-action split crosses unsupported command {name!r}")
+        names.append(name)
+    if not ({"OP_32", "OP_34"} & set(names)):
+        raise ValueError("Existing-action split requires at least one actor action command")
+
+    first_source = re.sub(r"\s+", " ", first_meta["source"].strip())
+    if not re.search(r"(?:\.{3}|[.!?…])[”\"»')\]]*$", first_source):
+        raise ValueError("Existing-action split requires a complete source sentence before the action")
+
+    french_without_structural_markers, structural_markers_removed = (
+        strip_proven_structural_android_markers(document, mapping, mapping.get("french_display", ""))
+    )
+    french_normalized = normalize_android_french(french_without_structural_markers)
+    boundaries = _sentence_boundary_positions(french_normalized)
+    if not boundaries:
+        raise ValueError("Existing-action split requires a complete French sentence boundary")
+
+    candidates = []
+    for boundary in boundaries:
+        pieces = [french_normalized[:boundary].strip(), french_normalized[boundary:].strip()]
+        if any(not piece for piece in pieces):
+            continue
+        translations: dict[str, str] = {}
+        local_reports: list[dict] = []
+        valid = True
+        for text_id, french_piece in zip(snes_ids, pieces, strict=True):
+            local_mapping = dict(mapping)
+            local_mapping["snes_ids"] = [text_id]
+            local_mapping["source_display"] = (
+                leading_player_prefix + by_id[text_id]["source"]
+                if text_id == snes_ids[0] else by_id[text_id]["source"]
+            )
+            local_mapping["french_display"] = french_piece
+            try:
+                values, report = format_mapping(
+                    document,
+                    local_mapping,
+                    advances,
+                    max_pixels=max_pixels,
+                    allow_one_extra_page=allow_one_extra_page,
+                    use_physical_page_capacity=use_physical_page_capacity,
+                    prefer_semantic_line_breaks=prefer_semantic_line_breaks,
+                    allow_two_extra_pages=allow_two_extra_pages,
+                )
+            except ValueError:
+                valid = False
+                break
+            if set(values) & set(translations):
+                valid = False
+                break
+            translations.update(values)
+            local_reports.append(report)
+        if not valid:
+            continue
+        inserted_boundary_newline = False
+        if not by_id[snes_ids[0]]["source"].endswith("\n"):
+            first_value = translations.get(snes_ids[0], "")
+            if first_value and not first_value.endswith(("\n", "\f", TRANSLATION_CLEAR)):
+                translations[snes_ids[0]] = first_value + "\n"
+                inserted_boundary_newline = True
+        line_counts = [sum(report.get("page_line_counts", [])) for report in local_reports]
+        page_breaks = sum(report.get("inserted_page_break_count", 0) for report in local_reports)
+        score = (
+            page_breaks,
+            max(line_counts, default=0),
+            abs(line_counts[0] - line_counts[1]),
+            boundary,
+        )
+        candidates.append((score, pieces, translations, local_reports, inserted_boundary_newline))
+
+    if not candidates:
+        raise ValueError("Existing-action split found no clean sentence-boundary distribution")
+    _, pieces, translations, local_reports, inserted_boundary_newline = min(
+        candidates, key=lambda item: item[0]
+    )
+    report = {
+        "event_id": mapping["event_id"],
+        "snes_ids": snes_ids,
+        "android_ids": mapping.get("android_ids", []),
+        "confidence": mapping.get("confidence"),
+        "source_display": mapping.get("source_display", ""),
+        "android_french_raw": mapping.get("french_display", ""),
+        "structural_markers_removed": structural_markers_removed,
+        "android_french_normalized": french_normalized,
+        "existing_action_sentence_split": True,
+        "existing_action_boundary_commands": [
+            {"name": token.get("name"), "args": token.get("args")} for token in between
+        ],
+        "inserted_action_boundary_line_break": inserted_boundary_newline,
+        "distributed_french_parts": pieces,
+        "existing_action_parts": local_reports,
+        "formatted_entries": [
+            {"id": text_id, "text": translations[text_id]}
+            for text_id in snes_ids
+            if text_id in translations
         ],
     }
     return translations, report

@@ -85,7 +85,13 @@ def make_csv(mapping: dict) -> tuple[bytes, int, int]:
         "proposed_action",
         "examples",
     ]
-    writer = csv.DictWriter(output, fieldnames=fields, delimiter=";", quoting=csv.QUOTE_MINIMAL)
+    writer = csv.DictWriter(
+        output,
+        fieldnames=fields,
+        delimiter=";",
+        quoting=csv.QUOTE_MINIMAL,
+        lineterminator="\n",
+    )
     writer.writeheader()
     for char in sorted(occurrences, key=lambda value: (-occurrences[value], ord(value))):
         classification, action = ACTIONS.get(char, ("unclassified", "Review manually before formatting."))
