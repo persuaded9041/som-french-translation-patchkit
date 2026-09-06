@@ -377,15 +377,102 @@ The four lines measure 134 / 151 / 147 / 179 pixels and use 22 / 24 / 26 / 30
 parser units under the conservative nine-character dynamic-name assumption. Both
 the transition and this 3+1 sentence-boundary placement are runtime-validated.
 
-## 8.3 Batch 2 expansion
+## 8.3 Historical batch checkpoints
 
-`tools/import_android_text.py --only dialogue-format-batch2 --rom <clean-USA-ROM>`
-freezes the first larger event selection that reuses the validated formatter. It
-contains 27 complete events / 37 translated source tokens between `$0107` and
-`$0155`. Four mappings need one explicit extra page: `$010A`, `$010F`, `$013C`
-and `$014B`; all use the validated sentence-boundary strategy. The remaining
-selected mappings stay within their existing source-line budget. This batch is a
-runtime candidate until exercised in game.
+The earlier pilot/batch CLI modes remain available to reproduce focused runtime
+checkpoints, but their generated reports are no longer committed. The canonical
+current output is the simulator-filtered mass pass described below.
+
+## 8.4 Semantic line-layout refinements
+
+The mass formatter now applies several deterministic layout-only rules to the
+Android French prose before VWF wrapping. They never rewrite translated words:
+
+- after a completed sentence, a new capitalized speaker label ending in `:`
+  starts on a fresh physical line (`... Pamela :` -> newline before `Pamela :`);
+- a dash attribution after a completed quoted sentence starts on a fresh line
+  (`.” - Transports Canon.` -> newline before `-`);
+- standalone punctuation tokens such as `!`, `?`, `;` or `:` are attached to
+  the preceding word as one unbreakable wrap atom, so punctuation cannot become
+  an orphan third line;
+- when a canonical source chunk begins with a newline immediately after an
+  existing stock `WAIT`, that legacy rolling-window blank line is removed and
+  the translated chunk emits a clear-only marker (`\v`, serialized as JSON
+  `\u000b`). Component 08 compiles it to stock `TEXT_CLEAR` only. The existing
+  `WAIT` therefore remains the player pause while the following localized page
+  starts cleanly at its first content line.
+
+Speaker/attribution hard-line boundaries are also preferred as page boundaries
+when the block no longer fits within three lines. If both sides fit on one page,
+the boundary remains only a line break.
+
+The formatter also applies a soft semantic reflow inside an otherwise valid
+three-line page:
+
+- complete sentences (`.`, `!`, `?`, ellipsis) are kept on fresh lines whenever
+  each sentence can be wrapped independently and the whole block still fits in
+  at most three physical lines. This may deliberately use a third line instead
+  of packing the start of the next sentence onto the previous line;
+- a single comma inside one two-line sentence is a weaker candidate. It is used
+  only when both clauses independently fit on one line, both retain substantial
+  visual width, and the comma split materially improves line balance. Sentences
+  with multiple commas are left to the normal wrapper rather than guessing which
+  comma is semantic.
+
+These are presentation preferences, not new safety requirements. If semantic
+reflow makes an otherwise valid complete event fail the independent simulator,
+the mass generator retries that whole event with the previous compact wrapper.
+Only a simulator-clean result is accepted. This preserves coverage while making
+semantic layout strictly opportunistic.
+
+These refinements are downstream of semantic Android matching and upstream of
+the independent byte-stream simulator. They never rewrite translated prose and
+remain subject to zero-error, zero-warning and zero-implicit-wrap simulation.
+
+Representative runtime testing validates the semantic line-placement rules (fresh
+speaker turns, punctuation attachment, sentence-first reflow, weak single-comma
+balancing and dash attribution) and the clear-only cleanup of legacy blank lines after
+interactive WAITs. The complete 331-event corpus still requires full-game playthrough
+validation.
+
+## 8.5 Independent HTML simulation
+
+`tools/simulate_dialogues.py` provides a downstream audit of the final serialized event bytes. It independently reapplies the dialogue `$E8` decoder, PLAYER_NAME expansion, validated VWF metrics, 38-glyph capacity, 256-pixel visible-ink preflight, explicit page controls and the three-line page limit. The standalone HTML renders the actual 8x12 glyph bitmaps and flags implicit runtime wraps or unsupported layout commands. See `docs/DIALOGUE_SIMULATOR.md`.
+
+## 8.6 Simulator-filtered mass generation
+
+`tools/import_android_text.py --only dialogue-format-mass --rom <clean-USA-ROM>`
+is the current large-corpus generator. It does not use the number of explicit
+English source lines as a hard layout budget: ordinary prose may use the full
+validated three-line physical dialogue page. Mappings that need four to six safe
+lines may insert at most one already-validated `WAIT $00 + TEXT_CLEAR` page
+transition, with sentence-boundary pagination preferred.
+
+Selection is deliberately two-stage and event-complete:
+
+1. every semantic source ID in the event must already have an accepted Android
+   alignment, and every mapping must bind/format without crossing an unsupported
+   structural command;
+2. the fully serialized candidate event must pass `tools/simulate_dialogues.py`
+   with zero error, zero warning and zero implicit runtime wrap. Unsupported
+   geometry therefore excludes the whole event instead of being guessed.
+
+Current deterministic result: 704 semantic text events -> 431 completely aligned
+-> 366 formatter candidates -> **331 simulator-clean events / 454 translated
+source IDs**. Thirty-six generated page transitions occur across 35 accepted
+events. The current layout refinement also replaces 42 legacy leading blank
+scroll lines across 30 accepted events with clear-only `TEXT_CLEAR` transitions.
+Four accepted mappings contain speaker-after-sentence hard-line hints and one
+contains a dash-attribution hint. The current semantic reflow changes line
+placement in many accepted mappings; event `$0101` is presently the only event
+that needs the automatic compact-layout fallback after simulator rejection.
+Component 08 relocates 289 growing events; the final relocated payload
+still fits entirely in the first `$E8` relocation bank in the current candidate.
+
+`mappings/android/dialogues_format_mass.json` records every accepted/rejected
+stage and `mappings/android/dialogues_format_mass_excluded.csv` gives a reviewable
+row for every semantic source phrase belonging to an excluded event. This mass
+output is a runtime candidate until a full playthrough is completed.
 
 ## 9. Deliberately deferred work
 
@@ -405,3 +492,28 @@ These should be added from engine/ROM evidence, not inferred from local examples
 ## Charset audit
 
 See `DIALOGUE_CHARSET_AUDIT.md` before expanding Android-derived formatting.
+
+### 8.7 Exact rolling-window overlap cleanup
+
+A later visual audit of the side-by-side simulator found a distinct layout case:
+a stock interactive `WAIT $00` can leave one or two lines from the previous
+three-line rolling window visible at the start of the next simulated state. This
+is normal stock engine behavior, but after French reflow it can produce visually
+redundant pages such as `Temple souterrain.` or two `dragon blanc...` lines
+appearing unchanged in both states.
+
+The mass generator now performs a conservative post-format pass driven by the
+independent simulator. It only acts when the next state after an **interactive
+`WAIT $00`** begins with an exact non-empty suffix of the previous state. It then
+tries one source-structure-preserving repair: either a clear-only `TEXT_CLEAR`
+before the next translated chunk, replacement of a newline-only stock scroll
+token with `TEXT_CLEAR`, or removal of a trailing newline-only token when no
+further prose follows. The repair is retained only if resimulation strictly
+reduces the duplicated-line count and still has zero errors, zero warnings and
+zero implicit wraps. Timed waits such as `WAIT $04` / `WAIT $08` are never
+changed.
+
+The rule is runtime-validated. The current mass output applies 6 repairs in events
+`$0136`, `$0263`, `$0265`, `$026A`, `$03EE`, and `$04AC`; the simulator reports
+zero remaining exact carry-over after `WAIT $00`. Timed waits such as `WAIT $04` /
+`WAIT $08` remain deliberately untouched.

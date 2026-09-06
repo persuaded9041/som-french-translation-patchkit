@@ -28,6 +28,7 @@ sys.path.insert(0, str(ROOT))
 
 from shared.intro_event_text import load_document as load_intro_source  # noqa: E402
 from shared.dialogue_translation import (  # noqa: E402
+    DIALOGUE_PAGE_LINES,
     DIALOGUE_WRAP_CHARS,
     DIALOGUE_WRAP_PIXELS,
     format_mapping as format_dialogue_mapping,
@@ -951,6 +952,9 @@ DEFAULT_DIALOGUE_FORMAT_PAGE_PILOT_OUTPUT = ROOT / "mappings" / "android" / "dia
 DEFAULT_DIALOGUE_FORMAT_PAGE_PILOT_REPORT = ROOT / "mappings" / "android" / "dialogues_format_page_pilot.json"
 DEFAULT_DIALOGUE_FORMAT_BATCH2_OUTPUT = ROOT / "translations" / "dialogues_french.json"
 DEFAULT_DIALOGUE_FORMAT_BATCH2_REPORT = ROOT / "mappings" / "android" / "dialogues_format_batch2.json"
+DEFAULT_DIALOGUE_FORMAT_MASS_OUTPUT = ROOT / "translations" / "dialogues_french.json"
+DEFAULT_DIALOGUE_FORMAT_MASS_REPORT = ROOT / "mappings" / "android" / "dialogues_format_mass.json"
+DEFAULT_DIALOGUE_FORMAT_MASS_EXCLUDED_CSV = ROOT / "mappings" / "android" / "dialogues_format_mass_excluded.csv"
 DIALOGUE_FORMAT_PILOT_EVENTS = ("0107",)
 # First post-pilot runtime batch. Every selected event is complete: all of its
 # semantic SNES text IDs are accepted by the Android aligner and pass the
@@ -2258,6 +2262,571 @@ def make_dialogue_format_batch2(
     )
 
 
+
+def _wait00_page_overlap_count(simulation) -> int:
+    """Count exact visible-line carry-over after interactive WAIT $00 pauses.
+
+    The stock dialogue box is a rolling three-line window, so WAIT $00 alone
+    can leave the suffix of the previous state visible when later text starts.
+    For the localized layout this is undesirable only when the *exact same
+    rendered line(s)* appear again at the start of the next simulated state.
+    Timed waits such as WAIT $04/$08 are deliberately ignored.
+    """
+    count = 0
+    for box in simulation.boxes:
+        pages = box.pages
+        for index in range(1, len(pages)):
+            previous_page = pages[index - 1]
+            if previous_page.transition != "WAIT $00":
+                continue
+            previous = [line.text for line in previous_page.lines]
+            current = [line.text for line in pages[index].lines]
+            best = 0
+            for size in range(1, min(len(previous), len(current), DIALOGUE_PAGE_LINES) + 1):
+                overlap = previous[-size:]
+                if overlap == current[:size] and any(line.strip() for line in overlap):
+                    best = size
+            count += best
+    return count
+
+
+def _wait00_repair_variants(event: dict, translations: dict[str, str]):
+    """Yield conservative source-WAIT repairs for rolling-window duplicates.
+
+    A candidate is never accepted merely from source shape: the caller must
+    reserialize and resimulate it, and keep it only when the exact WAIT $00
+    carry-over count decreases with no simulator regression.
+
+    Two stock patterns are handled:
+    - WAIT $00 -> later translated prose: clear before that prose;
+    - WAIT $00 -> newline-only layout token -> end/close: suppress the orphan
+      newline so it cannot create one final repeated rolling-window state.
+
+    Intervening non-layout event commands are preserved in place. If a
+    newline-only token exists before later prose, it becomes a clear-only text
+    chunk so TEXT_CLEAR occurs at the original layout position.
+    """
+    tokens = event["tokens"]
+    boundaries = {"WAIT", "TEXT_CLEAR", "TEXT_OPEN", "TEXT_CLOSE", "END"}
+    for index, token in enumerate(tokens):
+        if not (
+            token.get("type") == "command"
+            and token.get("name") == "WAIT"
+            and token.get("args", "").strip().upper() == "00"
+        ):
+            continue
+
+        layout_ids: list[str] = []
+        next_text_id: str | None = None
+        blocked = False
+        for following in tokens[index + 1:]:
+            kind = following.get("type")
+            if kind == "command" and following.get("name") in boundaries:
+                blocked = True
+                break
+            if kind != "text":
+                continue
+            text_id = following["id"]
+            source = following.get("source", "")
+            value = translations.get(text_id)
+            if not source.strip():
+                layout_ids.append(text_id)
+                continue
+            if value is not None and value.strip("\n\v\f "):
+                next_text_id = text_id
+                break
+            # A semantic source token with no local translated bytes means the
+            # binding is not simple enough for this layout-only cleanup.
+            if _auto_semantic(source):
+                blocked = True
+                break
+
+        if blocked and not next_text_id and not layout_ids:
+            continue
+
+        candidate = dict(translations)
+        description: dict[str, object] = {
+            "wait_token_index": index,
+            "layout_text_ids": list(layout_ids),
+            "next_text_id": next_text_id,
+        }
+        changed = False
+
+        if next_text_id is not None:
+            # Remove any newline-only rolling-scroll bytes. When such a token
+            # exists, put the clear exactly there; otherwise prefix the next
+            # translated prose chunk with the clear-only marker.
+            if layout_ids:
+                for layout_id in layout_ids:
+                    candidate[layout_id] = ""
+                candidate[layout_ids[0]] = "\v"
+                description["strategy"] = "replace_layout_newline_with_text_clear"
+                changed = True
+            else:
+                value = candidate[next_text_id]
+                if not value.startswith("\v"):
+                    candidate[next_text_id] = "\v" + value
+                    description["strategy"] = "clear_before_next_translated_chunk"
+                    changed = True
+        elif layout_ids:
+            # No later prose before the dialogue boundary: a newline after the
+            # pause can only create a trailing rolling-window state. Drop it.
+            for layout_id in layout_ids:
+                if candidate.get(layout_id) != "":
+                    candidate[layout_id] = ""
+                    changed = True
+            description["strategy"] = "drop_trailing_layout_newline"
+
+        if changed:
+            yield candidate, description
+
+
+def _repair_wait00_page_overlaps(
+    *,
+    base_rom: bytes,
+    event: dict,
+    translations: dict[str, str],
+    font,
+):
+    """Greedily keep only simulator-proven reductions of WAIT $00 overlap."""
+    from shared.dialogue_simulator import simulate_event
+
+    current = dict(translations)
+    simulation = simulate_event(
+        base_rom,
+        event,
+        current,
+        font=font,
+        player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+    )
+    current_overlap = _wait00_page_overlap_count(simulation)
+    repairs: list[dict] = []
+    if not current_overlap:
+        return current, simulation, repairs
+
+    # Rebuild candidate variants after every accepted repair because adding a
+    # clear can change the simulated page sequence for later WAITs.
+    progress = True
+    while current_overlap and progress:
+        progress = False
+        for candidate, description in _wait00_repair_variants(event, current):
+            candidate_simulation = simulate_event(
+                base_rom,
+                event,
+                candidate,
+                font=font,
+                player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+            )
+            blocking = [
+                issue
+                for issue in candidate_simulation.issues
+                if issue.severity in {"error", "warning"}
+            ]
+            wraps = sum(
+                line.implicit_wrap
+                for box in candidate_simulation.boxes
+                for page in box.pages
+                for line in page.lines
+            )
+            candidate_overlap = _wait00_page_overlap_count(candidate_simulation)
+            if blocking or wraps or candidate_overlap >= current_overlap:
+                continue
+            description = dict(description)
+            description["overlap_lines_before"] = current_overlap
+            description["overlap_lines_after"] = candidate_overlap
+            repairs.append(description)
+            current = candidate
+            simulation = candidate_simulation
+            current_overlap = candidate_overlap
+            progress = True
+            break
+
+    return current, simulation, repairs
+
+
+def make_dialogue_format_mass(
+    english: dict[int, str],
+    french: dict[int, str],
+    *,
+    english_path: Path,
+    french_path: Path,
+    base_rom: bytes,
+) -> tuple[dict, dict]:
+    """Generate the largest conservative complete-event set accepted by the simulator.
+
+    This is deliberately a two-stage gate.  First, every semantic source text
+    in an event must already have an accepted Android alignment and every
+    mapping must format without crossing an unsupported structural command.
+    The formatter may use the full validated three-line physical page capacity
+    even when the shorter English source used fewer explicit lines, and may add
+    at most one validated WAIT $00 + TEXT_CLEAR page transition per mapping.
+
+    Second, the final serialized event bytes are passed through the independent
+    dialogue simulator. Any error, warning, or implicit runtime wrap excludes
+    the whole event. Unsupported layout commands therefore remain English until
+    the simulator models them explicitly.
+    """
+    from shared.dialogue_simulator import make_dialogue_font, simulate_event
+
+    validate_base_rom(base_rom)
+    alignment = make_dialogue_auto_alignment(
+        english,
+        french,
+        english_path=english_path,
+        french_path=french_path,
+    )
+    source_document = json.loads(DIALOGUE_SOURCE.read_text(encoding="utf-8"))
+    advances = make_dialogue_advances(base_rom)
+    font = make_dialogue_font(base_rom)
+
+    mappings_by_event: dict[str, list[dict]] = {}
+    for mapping in alignment["mappings"]:
+        mappings_by_event.setdefault(mapping["event_id"], []).append(mapping)
+    unmapped_by_id = {entry["snes_id"]: entry for entry in alignment["unmapped"]}
+
+    translations_by_event: dict[str, dict[str, str]] = {}
+    reports_by_event: dict[str, list[dict]] = {}
+    wait00_repairs_by_event: dict[str, list[dict]] = {}
+    accepted_events: list[str] = []
+    excluded_events: list[dict] = []
+    complete_aligned_count = 0
+    formatter_candidate_count = 0
+
+    for event in source_document["events"]:
+        event_id = event["event_id"]
+        semantic_ids = [
+            token["id"]
+            for token in event["tokens"]
+            if token.get("type") == "text" and _auto_semantic(token.get("source", ""))
+        ]
+        if not semantic_ids:
+            continue
+
+        event_mappings = mappings_by_event.get(event_id, [])
+        mapped_ids: set[str] = set()
+        for mapping in event_mappings:
+            mapped_ids.update(mapping["snes_ids"])
+        missing_ids = [text_id for text_id in semantic_ids if text_id not in mapped_ids]
+        if missing_ids:
+            excluded_events.append(
+                {
+                    "event_id": event_id,
+                    "stage": "alignment_incomplete",
+                    "semantic_ids": semantic_ids,
+                    "missing_semantic_ids": missing_ids,
+                    "details": [
+                        {
+                            "snes_id": text_id,
+                            "reason": unmapped_by_id.get(text_id, {}).get("reason", "no accepted automatic mapping"),
+                            "note": unmapped_by_id.get(text_id, {}).get("note", ""),
+                        }
+                        for text_id in missing_ids
+                    ],
+                }
+            )
+            continue
+        complete_aligned_count += 1
+
+        event_translations: dict[str, str] = {}
+        event_reports: list[dict] = []
+        formatter_errors: list[dict] = []
+        for mapping in event_mappings:
+            try:
+                values, mapping_report = format_dialogue_mapping(
+                    source_document,
+                    mapping,
+                    advances,
+                    allow_one_extra_page=True,
+                    use_physical_page_capacity=True,
+                    prefer_semantic_line_breaks=True,
+                )
+            except ValueError as exc:
+                formatter_errors.append(
+                    {
+                        "snes_ids": mapping.get("snes_ids", []),
+                        "android_ids": mapping.get("android_ids", []),
+                        "message": str(exc),
+                    }
+                )
+                continue
+            duplicate = sorted(set(values) & set(event_translations))
+            if duplicate:
+                formatter_errors.append(
+                    {
+                        "snes_ids": mapping.get("snes_ids", []),
+                        "android_ids": mapping.get("android_ids", []),
+                        "message": f"formatter generated duplicate translated source IDs: {duplicate}",
+                    }
+                )
+                continue
+            event_translations.update(values)
+            event_reports.append(mapping_report)
+
+        if formatter_errors:
+            excluded_events.append(
+                {
+                    "event_id": event_id,
+                    "stage": "formatter_rejected",
+                    "semantic_ids": semantic_ids,
+                    "missing_semantic_ids": [],
+                    "details": formatter_errors,
+                }
+            )
+            continue
+        formatter_candidate_count += 1
+
+        event_translations, simulation, wait00_repairs = _repair_wait00_page_overlaps(
+            base_rom=base_rom,
+            event=event,
+            translations=event_translations,
+            font=font,
+        )
+        blocking_issues = [
+            issue
+            for issue in simulation.issues
+            if issue.severity in {"error", "warning"}
+        ]
+        implicit_wraps = sum(
+            line.implicit_wrap
+            for box in simulation.boxes
+            for page in box.pages
+            for line in page.lines
+        )
+        if blocking_issues or implicit_wraps:
+            # Semantic wrapping is a presentation preference, never a reason to
+            # lose an otherwise safe translated event. Retry the whole event
+            # with the compact validated wrapper; accept that fallback only if
+            # the independent simulator is completely clean.
+            compact_translations: dict[str, str] = {}
+            compact_reports: list[dict] = []
+            compact_errors: list[dict] = []
+            for mapping in event_mappings:
+                try:
+                    values, mapping_report = format_dialogue_mapping(
+                        source_document,
+                        mapping,
+                        advances,
+                        allow_one_extra_page=True,
+                        use_physical_page_capacity=True,
+                        prefer_semantic_line_breaks=False,
+                    )
+                except ValueError as exc:
+                    compact_errors.append({"message": str(exc)})
+                    break
+                duplicate = sorted(set(values) & set(compact_translations))
+                if duplicate:
+                    compact_errors.append({"message": f"compact fallback duplicate IDs: {duplicate}"})
+                    break
+                compact_translations.update(values)
+                mapping_report["semantic_layout_fallback"] = True
+                compact_reports.append(mapping_report)
+
+            if not compact_errors:
+                compact_translations, compact_simulation, compact_wait00_repairs = _repair_wait00_page_overlaps(
+                    base_rom=base_rom,
+                    event=event,
+                    translations=compact_translations,
+                    font=font,
+                )
+                compact_blocking = [
+                    issue for issue in compact_simulation.issues
+                    if issue.severity in {"error", "warning"}
+                ]
+                compact_wraps = sum(
+                    line.implicit_wrap
+                    for box in compact_simulation.boxes
+                    for page in box.pages
+                    for line in page.lines
+                )
+                if not compact_blocking and not compact_wraps:
+                    accepted_events.append(event_id)
+                    translations_by_event[event_id] = compact_translations
+                    reports_by_event[event_id] = compact_reports
+                    wait00_repairs_by_event[event_id] = compact_wait00_repairs
+                    continue
+
+            details = [
+                {
+                    "severity": issue.severity,
+                    "code": issue.code,
+                    "message": issue.message,
+                    "box": issue.box,
+                    "page": issue.page,
+                    "line": issue.line,
+                }
+                for issue in blocking_issues
+            ]
+            if implicit_wraps and not any(
+                detail.get("code") in {"IMPLICIT_RUNTIME_WRAP", "IMPLICIT_RUNTIME_HARD_WRAP"}
+                for detail in details
+            ):
+                details.append(
+                    {
+                        "severity": "error",
+                        "code": "IMPLICIT_RUNTIME_WRAP_SUMMARY",
+                        "message": f"simulator recorded {implicit_wraps} implicit runtime wrap(s)",
+                    }
+                )
+            excluded_events.append(
+                {
+                    "event_id": event_id,
+                    "stage": "simulator_rejected",
+                    "semantic_ids": semantic_ids,
+                    "missing_semantic_ids": [],
+                    "details": details,
+                }
+            )
+            continue
+
+        accepted_events.append(event_id)
+        translations_by_event[event_id] = event_translations
+        reports_by_event[event_id] = event_reports
+        wait00_repairs_by_event[event_id] = wait00_repairs
+
+    translations: dict[str, str] = {}
+    formatted: list[dict] = []
+    for event_id in accepted_events:
+        for text_id, value in translations_by_event[event_id].items():
+            if text_id in translations:
+                raise ValueError(f"Mass formatter generated duplicate translation ID {text_id}")
+            translations[text_id] = value
+        formatted.extend(reports_by_event[event_id])
+
+    source_order = {
+        token["id"]: order
+        for order, token in enumerate(
+            token
+            for event in source_document["events"]
+            for token in event["tokens"]
+            if token.get("type") == "text"
+        )
+    }
+    ordered_entries = sorted(translations.items(), key=lambda item: source_order[item[0]])
+    translation_document = make_dialogue_translation_document(
+        ordered_entries,
+        group="dialogues.android_format_mass_simulator_filtered",
+    )
+
+    stage_counts: dict[str, int] = {}
+    for entry in excluded_events:
+        stage_counts[entry["stage"]] = stage_counts.get(entry["stage"], 0) + 1
+    accepted_semantic_ids = sum(
+        len(
+            [
+                token
+                for token in next(event for event in source_document["events"] if event["event_id"] == event_id)["tokens"]
+                if token.get("type") == "text" and _auto_semantic(token.get("source", ""))
+            ]
+        )
+        for event_id in accepted_events
+    )
+    report_document = {
+        "format_version": 1,
+        "status": "simulator_filtered_runtime_candidate",
+        "source_alignment": "mappings/android/dialogues_auto.json (regenerated from Android EN/FR)",
+        "policy": {
+            "event_selection": "complete semantic events only",
+            "alignment_must_already_be_accepted": True,
+            "all_semantic_ids_in_event_must_be_mapped": True,
+            "physical_page_capacity_lines": DIALOGUE_PAGE_LINES,
+            "source_english_line_count_is_not_a_layout_limit": True,
+            "snes_vwf_wrap_pixels": DIALOGUE_WRAP_PIXELS,
+            "snes_parser_max_decoded_characters": DIALOGUE_WRAP_CHARS,
+            "dynamic_player_name_width_assumption": "9 characters at worst-case validated glyph advance",
+            "dynamic_player_name_character_assumption": "9 visible characters plus 1 conservative parser-safety unit per PLAYER_NAME",
+            "maximum_generated_extra_pages_per_mapping": 1,
+            "generated_page_break_encoding": "WAIT $00 + TEXT_CLEAR",
+            "simulator_player_name": "000000000",
+            "simulator_rejects_errors": True,
+            "simulator_rejects_warnings": True,
+            "simulator_rejects_implicit_wraps": True,
+            "simulator_unsupported_structures_are_rejected": True,
+            "semantic_line_break_preferences": "sentence boundaries strong; commas weak when materially better balanced",
+            "semantic_layout_simulator_fallback": "retry whole event with compact wrapper before excluding",
+            "wait00_exact_overlap_policy": "simulator-proven targeted TEXT_CLEAR/drop-layout repair; timed WAITs unchanged",
+        },
+        "coverage": {
+            "semantic_source_event_count": sum(
+                1
+                for event in source_document["events"]
+                if any(
+                    token.get("type") == "text" and _auto_semantic(token.get("source", ""))
+                    for token in event["tokens"]
+                )
+            ),
+            "complete_aligned_event_count": complete_aligned_count,
+            "formatter_candidate_event_count": formatter_candidate_count,
+            "accepted_event_count": len(accepted_events),
+            "accepted_semantic_source_id_count": accepted_semantic_ids,
+            "translation_entry_count": len(ordered_entries),
+            "wait00_overlap_repaired_event_count": sum(bool(value) for value in wait00_repairs_by_event.values()),
+            "wait00_overlap_repair_count": sum(len(value) for value in wait00_repairs_by_event.values()),
+            "excluded_event_count": len(excluded_events),
+            "excluded_stage_counts": stage_counts,
+        },
+        "accepted_events": accepted_events,
+        "formatted_mappings": formatted,
+        "wait00_overlap_repairs": [
+            {"event_id": event_id, **repair}
+            for event_id in accepted_events
+            for repair in wait00_repairs_by_event.get(event_id, [])
+        ],
+        "excluded_events": excluded_events,
+    }
+    return translation_document, report_document
+
+
+def dialogue_format_mass_excluded_csv(report: dict, source_document: dict) -> str:
+    """Render one row per semantic source phrase in an event excluded from mass output."""
+    import csv
+    import io
+
+    by_event = {event["event_id"]: event for event in source_document["events"]}
+    output = io.StringIO(newline="")
+    fields = [
+        "event_id",
+        "stage",
+        "snes_id",
+        "texte_source_snes_usa",
+        "est_non_mappe_alignement",
+        "raison_evenement_exclu",
+        "commentaire_utilisateur",
+    ]
+    writer = csv.DictWriter(output, fieldnames=fields, delimiter=";", quoting=csv.QUOTE_MINIMAL)
+    writer.writeheader()
+    for excluded in report.get("excluded_events", []):
+        event_id = excluded["event_id"]
+        event = by_event[event_id]
+        missing = set(excluded.get("missing_semantic_ids", []))
+        detail_messages: list[str] = []
+        for detail in excluded.get("details", []):
+            if "message" in detail:
+                prefix = detail.get("code") or "+".join(detail.get("snes_ids", []))
+                detail_messages.append(f"{prefix}: {detail['message']}" if prefix else detail["message"])
+            elif "reason" in detail:
+                text_id = detail.get("snes_id", "")
+                detail_messages.append(f"{text_id}: {detail['reason']}")
+        reason = " | ".join(detail_messages)
+        semantic = [
+            token
+            for token in event["tokens"]
+            if token.get("type") == "text" and _auto_semantic(token.get("source", ""))
+        ]
+        for token in semantic:
+            writer.writerow(
+                {
+                    "event_id": event_id,
+                    "stage": excluded["stage"],
+                    "snes_id": token["id"],
+                    "texte_source_snes_usa": token["source"].replace("\r", "").replace("\n", " ⏎ ").strip(),
+                    "est_non_mappe_alignement": "oui" if token["id"] in missing else "non",
+                    "raison_evenement_exclu": reason,
+                    "commentaire_utilisateur": "",
+                }
+            )
+    return output.getvalue()
+
+
 def dialogue_unmapped_csv(document: dict) -> str:
     """Render the automatic alignment's unresolved semantic source phrases."""
     import csv
@@ -2342,6 +2911,7 @@ def main() -> None:
             "dialogue-format-batch1",
             "dialogue-format-page-pilot",
             "dialogue-format-batch2",
+            "dialogue-format-mass",
         ),
         default="intro",
         help="generate the intro translation, dialogue alignment reports, or a gated SNES-formatting batch",
@@ -2435,7 +3005,7 @@ def main() -> None:
                     french_path=french_path,
                 )
                 output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND5_OUTPUT).resolve()
-            elif args.only in ("dialogue-format-pilot", "dialogue-format-batch1", "dialogue-format-page-pilot", "dialogue-format-batch2"):
+            elif args.only in ("dialogue-format-pilot", "dialogue-format-batch1", "dialogue-format-page-pilot", "dialogue-format-batch2", "dialogue-format-mass"):
                 if args.rom is None:
                     raise ValueError(f"--rom is required for {args.only}")
                 rom_path = args.rom.resolve()
@@ -2467,7 +3037,7 @@ def main() -> None:
                         base_rom=base_rom,
                     )
                     output = (args.output or DEFAULT_DIALOGUE_FORMAT_PAGE_PILOT_OUTPUT).resolve()
-                else:
+                elif args.only == "dialogue-format-batch2":
                     document, format_report = make_dialogue_format_batch2(
                         english,
                         french,
@@ -2476,6 +3046,15 @@ def main() -> None:
                         base_rom=base_rom,
                     )
                     output = (args.output or DEFAULT_DIALOGUE_FORMAT_BATCH2_OUTPUT).resolve()
+                else:
+                    document, format_report = make_dialogue_format_mass(
+                        english,
+                        french,
+                        english_path=english_path,
+                        french_path=french_path,
+                        base_rom=base_rom,
+                    )
+                    output = (args.output or DEFAULT_DIALOGUE_FORMAT_MASS_OUTPUT).resolve()
             else:
                 document = make_dialogue_auto_alignment(
                     english,
@@ -2489,15 +3068,17 @@ def main() -> None:
         raise SystemExit(str(exc)) from exc
 
     write_or_check(output, serialized(document), check=args.check, source_label=source_label)
-    if args.only in ("dialogue-format-pilot", "dialogue-format-batch1", "dialogue-format-page-pilot", "dialogue-format-batch2"):
+    if args.only in ("dialogue-format-pilot", "dialogue-format-batch1", "dialogue-format-page-pilot", "dialogue-format-batch2", "dialogue-format-mass"):
         if args.only == "dialogue-format-pilot":
             default_report = DEFAULT_DIALOGUE_FORMAT_PILOT_REPORT
         elif args.only == "dialogue-format-batch1":
             default_report = DEFAULT_DIALOGUE_FORMAT_BATCH1_REPORT
         elif args.only == "dialogue-format-page-pilot":
             default_report = DEFAULT_DIALOGUE_FORMAT_PAGE_PILOT_REPORT
-        else:
+        elif args.only == "dialogue-format-batch2":
             default_report = DEFAULT_DIALOGUE_FORMAT_BATCH2_REPORT
+        else:
+            default_report = DEFAULT_DIALOGUE_FORMAT_MASS_REPORT
         report_output = (args.format_report or default_report).resolve()
         write_or_check(
             report_output,
@@ -2505,6 +3086,23 @@ def main() -> None:
             check=args.check,
             source_label=source_label + " + clean USA ROM VWF metrics",
         )
+    if args.only == "dialogue-format-mass":
+        excluded_csv_output = DEFAULT_DIALOGUE_FORMAT_MASS_EXCLUDED_CSV.resolve()
+        source_document = json.loads(DIALOGUE_SOURCE.read_text(encoding="utf-8"))
+        excluded_csv_bytes = ("\ufeff" + dialogue_format_mass_excluded_csv(format_report, source_document)).encode("utf-8")
+        if args.check:
+            try:
+                existing_csv = excluded_csv_output.read_bytes()
+            except OSError as exc:
+                raise SystemExit(f"Cannot read {excluded_csv_output}: {exc}") from exc
+            if existing_csv != excluded_csv_bytes:
+                raise SystemExit(f"{excluded_csv_output} is not up to date with mass dialogue formatting")
+            print(f"Dialogue mass exclusion CSV check OK: {excluded_csv_output}")
+        else:
+            excluded_csv_output.parent.mkdir(parents=True, exist_ok=True)
+            excluded_csv_output.write_bytes(excluded_csv_bytes)
+            print(f"Generated {excluded_csv_output} from mass dialogue formatting")
+
     if args.only == "dialogue-auto":
         csv_output = (args.unmapped_csv or DEFAULT_DIALOGUE_UNMAPPED_CSV).resolve()
         csv_text = "\ufeff" + dialogue_unmapped_csv(document)
@@ -2539,20 +3137,35 @@ def main() -> None:
                 f"semantic source IDs mapped ({coverage['mapped_semantic_percent']}%); "
                 f"{coverage['unmapped_semantic_source_id_count']} unresolved; no translation JSON changed"
             )
-        elif args.only in ("dialogue-format-pilot", "dialogue-format-batch1", "dialogue-format-page-pilot", "dialogue-format-batch2"):
+        elif args.only in ("dialogue-format-pilot", "dialogue-format-batch1", "dialogue-format-page-pilot", "dialogue-format-batch2", "dialogue-format-mass"):
             if args.only == "dialogue-format-pilot":
                 event_key, label = "pilot_events", "pilot"
             elif args.only == "dialogue-format-batch1":
                 event_key, label = "batch_events", "batch 1"
             elif args.only == "dialogue-format-page-pilot":
                 event_key, label = "page_pilot_events", "extra-page pilot"
-            else:
+            elif args.only == "dialogue-format-batch2":
                 event_key, label = "batch2_events", "batch 2"
-            print(
-                f"Dialogue format {label}: "
-                f"{format_report['translation_entry_count']} formatted source token(s) in event(s) "
-                + ", ".join(format_report[event_key])
-            )
+                print(
+                    f"Dialogue format {label}: "
+                    f"{format_report['translation_entry_count']} formatted source token(s) in event(s) "
+                    + ", ".join(format_report[event_key])
+                )
+            else:
+                coverage = format_report["coverage"]
+                print(
+                    "Dialogue format mass: "
+                    f"{coverage['accepted_event_count']} simulator-clean complete event(s), "
+                    f"{coverage['translation_entry_count']} translated source token(s); "
+                    f"{coverage['excluded_event_count']} event(s) excluded"
+                )
+                event_key = None
+            if args.only != "dialogue-format-mass" and args.only != "dialogue-format-batch2":
+                print(
+                    f"Dialogue format {label}: "
+                    f"{format_report['translation_entry_count']} formatted source token(s) in event(s) "
+                    + ", ".join(format_report[event_key])
+                )
         else:
             units = sum(len(scene["units"]) for scene in document["scenes"])
             state = "user-validated" if document["status"].endswith("user_validated") else "candidate review"

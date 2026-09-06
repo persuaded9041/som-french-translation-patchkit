@@ -149,9 +149,12 @@ runtime-validated with the existing dialogue VWF, including dynamic player-name
 insertion, line breaks and WAIT sequencing. The canonical `assets/dialogues.json` contains clean-USA source only.
 The runtime-validated pagination baseline includes `$010F`: dynamic-name lines
 reserve one parser safety unit, and its four safe lines use a sentence-aware
-3+1 split with generated `WAIT $00` + `TEXT_CLEAR`. The current batch-2 candidate
-expands the same rules to 27 complete events / 37 translated source tokens; only
-`$010A`, `$010F`, `$013C` and `$014B` insert one extra page.
+3+1 split with generated `WAIT $00` + `TEXT_CLEAR`. The current simulator-filtered
+mass output contains 331 complete events / 454 translated source tokens. Layout
+refinements for speaker turns, sentence-aware wrapping, orphan punctuation, blank
+WAIT-separated scroll lines and exact `WAIT $00` rolling-window carry-over have
+representative runtime validation; the complete mass corpus remains a playthrough
+candidate.
 
 Growth has a runtime-validated relocation path. Component 08 can install a sparse
 24-bit event-address table and dispatcher hook, then pack only overlong rebuilt

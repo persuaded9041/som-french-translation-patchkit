@@ -33,8 +33,25 @@ DIALOGUE_WRAP_CHARS = 38
 DIALOGUE_PAGE_LINES = 3
 MAX_PLAYER_NAME_CHARS = 9
 PLAYER_NAME_PARSER_SAFETY_UNITS = 1
+TRANSLATION_CLEAR = "\v"
 
 PLAYER_PLACEHOLDER_RE = re.compile(r"%S\((\d+),0\)")
+
+# Formatting-only semantic boundaries inferred from the localized prose. They
+# never rewrite words: they only mark places where a speaker/attribution should
+# begin on a fresh physical line.
+_STRONG_SENTENCE_END = r"(?:\.{3}|[.!?…])[”\"»')\]]*"
+_SPEAKER_LABEL = (
+    r"(?:%S\(\d+,0\)|[A-ZÀ-ÖØ-ÞŒ][A-Za-zÀ-ÖØ-öø-ÿŒœ'’.-]*)"
+    r"(?:\s+[A-ZÀ-ÖØ-ÞŒ][A-Za-zÀ-ÖØ-öø-ÿŒœ'’.-]*){0,2}\s*:"
+)
+_SPEAKER_AFTER_SENTENCE_RE = re.compile(
+    rf"(?P<end>{_STRONG_SENTENCE_END})\s+(?P<label>{_SPEAKER_LABEL})"
+)
+_ATTRIBUTION_AFTER_QUOTE_RE = re.compile(
+    rf"(?P<end>{_STRONG_SENTENCE_END})\s+-\s+"
+)
+_PUNCTUATION_ATOM_RE = re.compile(r"^[!?;:,.…]+[”\"»')\]]*$")
 
 
 @dataclass(frozen=True)
@@ -82,20 +99,85 @@ def player_placeholder_width(advances: dict[str, int]) -> int:
     return MAX_PLAYER_NAME_CHARS * max_advance
 
 
+def _normalize_android_quotes(text: str) -> str:
+    """Convert Android ASCII quotes to the two stock SNES quote glyphs.
+
+    Android uses straight quotes as presentation punctuation, while the stock
+    SNES dialogue font exposes distinct opening/closing quote characters.  The
+    conversion is deterministic and alternates within each localized string;
+    it never changes apostrophes.
+    """
+    out: list[str] = []
+    opening = True
+    for char in text:
+        if char != '"':
+            out.append(char)
+            continue
+        out.append("“" if opening else "”")
+        opening = not opening
+    return "".join(out)
+
+
 def normalize_android_french(text: str) -> str:
     """Discard Android presentation whitespace without rewriting the prose.
 
     ``_`` and U+3000 are presentation/layout separators in the Android assets;
     they are not SNES glyphs. Android hard line breaks likewise belong to the
     source presentation and are reflowed against the validated SNES VWF.
+    Straight Android quotes are rebound to the stock SNES opening/closing quote
+    glyphs. Square brackets are presentation-only choice delimiters and map to
+    the stock parentheses used by the SNES interface.
     """
     text = text.replace("\r", " ").replace("\n", " ")
     text = text.replace("_", " ").replace("\u3000", " ")
+    text = text.replace("[", "(").replace("]", ")")
+    text = _normalize_android_quotes(text)
     return " ".join(text.split())
+
+
+def apply_semantic_layout_hints(text: str) -> tuple[str, list[str]]:
+    """Insert deterministic hard-line hints without changing localized prose.
+
+    Android sometimes flattens speaker changes or attribution lines into one
+    string. A new capitalized ``Name :`` label immediately after a completed
+    sentence is a new spoken turn and must start on a new SNES line. Likewise,
+    a dash attribution after a completed quoted sentence starts on its own
+    line. These are line hints only; pagination remains a separate decision.
+    """
+    hints: list[str] = []
+
+    def speaker(match: re.Match[str]) -> str:
+        hints.append("speaker_after_sentence")
+        return f"{match.group('end')}\n{match.group('label')}"
+
+    def attribution(match: re.Match[str]) -> str:
+        hints.append("attribution_after_quote")
+        return f"{match.group('end')}\n- "
+
+    text = _SPEAKER_AFTER_SENTENCE_RE.sub(speaker, text)
+    text = _ATTRIBUTION_AFTER_QUOTE_RE.sub(attribution, text)
+    return text, hints
 
 
 def placeholder_sequence(text: str) -> tuple[int, ...]:
     return tuple(int(match.group(1)) for match in PLAYER_PLACEHOLDER_RE.finditer(text))
+
+
+def _wrap_atoms(text: str) -> list[str]:
+    """Return unbreakable word atoms for one semantic line segment.
+
+    French Android strings often store a space before ``! ? ; :``. Treat a
+    standalone punctuation token as part of the preceding word so wrapping can
+    never strand punctuation on a line by itself (``loin`` / ``!``). The space
+    remains inside the atom and therefore still contributes its real VWF width.
+    """
+    atoms: list[str] = []
+    for token in text.split():
+        if atoms and _PUNCTUATION_ATOM_RE.fullmatch(token):
+            atoms[-1] += " " + token
+        else:
+            atoms.append(token)
+    return atoms
 
 
 def _markup_width(text: str, advances: dict[str, int], placeholder_width: int) -> int:
@@ -139,76 +221,83 @@ def wrap_markup(
     placeholder_chars: int = MAX_PLAYER_NAME_CHARS,
     placeholder_parser_safety_units: int = PLAYER_NAME_PARSER_SAFETY_UNITS,
 ) -> tuple[str, list[int], list[int], list[int]]:
-    """Word-wrap text containing ``%S(index,0)`` placeholders.
+    """Word-wrap markup while preserving semantic hard-line hints.
 
-    Wrapping is performed only at ordinary spaces. A line must satisfy both the
-    conservative pixel budget and the runtime-validated 38-unit parser
-    capacity. Dynamic names are measured as unbreakable 9-character worst-case
-    spans. Runtime batch-1 testing showed that an exact-capacity line containing
-    PLAYER_NAME is not safe, so each placeholder reserves one additional parser
-    safety unit for the temporary-source switch. The returned markup still
-    contains the placeholders; callers bind them back to existing PLAYER_NAME
-    commands.
+    Ordinary spaces are wrap opportunities. Newlines inserted by
+    :func:`apply_semantic_layout_hints` are mandatory line boundaries and are
+    never collapsed. Standalone French punctuation tokens are attached to the
+    preceding word atom so punctuation cannot become an orphan line.
     """
     if placeholder_width is None:
         placeholder_width = player_placeholder_width(advances)
-    words = text.split()
-    if not words:
+    if not text.strip():
         return "", [], [], []
 
     space_width = advances[" "]
     lines: list[str] = []
-    line_words: list[str] = []
-    line_width = 0
-    line_chars = 0
-    line_parser_units = 0
     line_widths: list[int] = []
     line_char_counts: list[int] = []
     line_parser_unit_counts: list[int] = []
 
-    for word in words:
-        word_width = _markup_width(word, advances, placeholder_width)
-        word_chars = _markup_chars(word, placeholder_chars)
-        placeholder_count = len(PLAYER_PLACEHOLDER_RE.findall(word))
-        word_parser_units = word_chars + placeholder_count * placeholder_parser_safety_units
-        if word_width > max_pixels:
-            raise ValueError(
-                f"Unbreakable dialogue word exceeds {max_pixels}px: {word!r} ({word_width}px)"
-            )
-        if word_parser_units > max_chars:
-            raise ValueError(
-                f"Unbreakable dialogue word exceeds {max_chars} parser units: "
-                f"{word!r} ({word_parser_units})"
-            )
-        candidate_width = word_width if not line_words else line_width + space_width + word_width
-        candidate_chars = word_chars if not line_words else line_chars + 1 + word_chars
-        candidate_parser_units = (
-            word_parser_units if not line_words else line_parser_units + 1 + word_parser_units
-        )
-        if line_words and (candidate_width > max_pixels or candidate_parser_units > max_chars):
-            lines.append(" ".join(line_words))
+    for segment in text.split("\n"):
+        atoms = _wrap_atoms(segment)
+        if not atoms:
+            # Semantic layout hints never intentionally generate blank lines.
+            # Ignore an accidental empty segment rather than creating vertical
+            # motion that was not present in the localized prose.
+            continue
+
+        line_atoms: list[str] = []
+        line_width = 0
+        line_chars = 0
+        line_parser_units = 0
+
+        def flush() -> None:
+            nonlocal line_atoms, line_width, line_chars, line_parser_units
+            if not line_atoms:
+                return
+            lines.append(" ".join(line_atoms))
             line_widths.append(line_width)
             line_char_counts.append(line_chars)
             line_parser_unit_counts.append(line_parser_units)
-            line_words = [word]
-            line_width = word_width
-            line_chars = word_chars
-            line_parser_units = word_parser_units
-        else:
-            if line_words:
+            line_atoms = []
+            line_width = 0
+            line_chars = 0
+            line_parser_units = 0
+
+        for atom in atoms:
+            atom_width = _markup_width(atom, advances, placeholder_width)
+            atom_chars = _markup_chars(atom, placeholder_chars)
+            placeholder_count = len(PLAYER_PLACEHOLDER_RE.findall(atom))
+            atom_parser_units = atom_chars + placeholder_count * placeholder_parser_safety_units
+            if atom_width > max_pixels:
+                raise ValueError(
+                    f"Unbreakable dialogue word exceeds {max_pixels}px: {atom!r} ({atom_width}px)"
+                )
+            if atom_parser_units > max_chars:
+                raise ValueError(
+                    f"Unbreakable dialogue word exceeds {max_chars} parser units: "
+                    f"{atom!r} ({atom_parser_units})"
+                )
+
+            candidate_width = atom_width if not line_atoms else line_width + space_width + atom_width
+            candidate_chars = atom_chars if not line_atoms else line_chars + 1 + atom_chars
+            candidate_units = (
+                atom_parser_units if not line_atoms else line_parser_units + 1 + atom_parser_units
+            )
+            if line_atoms and (candidate_width > max_pixels or candidate_units > max_chars):
+                flush()
+            if line_atoms:
                 line_width += space_width
                 line_chars += 1
                 line_parser_units += 1
-            line_words.append(word)
-            line_width += word_width
-            line_chars += word_chars
-            line_parser_units += word_parser_units
+            line_atoms.append(atom)
+            line_width += atom_width
+            line_chars += atom_chars
+            line_parser_units += atom_parser_units
 
-    if line_words:
-        lines.append(" ".join(line_words))
-        line_widths.append(line_width)
-        line_char_counts.append(line_chars)
-        line_parser_unit_counts.append(line_parser_units)
+        flush()
+
     return "\n".join(lines), line_widths, line_char_counts, line_parser_unit_counts
 
 
@@ -246,32 +335,30 @@ def _balanced_wrap_markup(
     placeholder_chars: int = MAX_PLAYER_NAME_CHARS,
     placeholder_parser_safety_units: int = PLAYER_NAME_PARSER_SAFETY_UNITS,
 ) -> tuple[str, list[int], list[int], list[int]]:
-    """Reflow into an exact number of balanced lines and explicit pages.
+    """Reflow plain prose into an exact number of balanced lines/pages.
 
-    This path is used only when the ordinary greedy wrapper proves that an
-    accepted Android translation needs one additional dialogue page. It keeps
-    the same validated pixel/parser constraints, but balances the fixed number
-    of lines to avoid pathological orphan lines such as a lone ``?``.
+    Semantic hard-line hints are intentionally not moved by this optimizer. If
+    ``text`` contains such a hint, callers must use :func:`wrap_markup` for the
+    relevant page piece instead.
     """
+    if "\n" in text:
+        raise ValueError("Balanced wrapper cannot move semantic hard-line hints")
     if placeholder_width is None:
         placeholder_width = player_placeholder_width(advances)
-    words = text.split()
-    if not words:
+    atoms = _wrap_atoms(text)
+    if not atoms:
         return "", [], [], []
-    if line_count < 1 or line_count > len(words):
-        raise ValueError(f"Cannot wrap {len(words)} word(s) into exactly {line_count} line(s)")
+    if line_count < 1 or line_count > len(atoms):
+        raise ValueError(f"Cannot wrap {len(atoms)} atom(s) into exactly {line_count} line(s)")
     if sum(page_line_counts) != line_count:
         raise ValueError("Page-line distribution does not equal requested line count")
 
-    # Page breaks occur after these 1-based line numbers.
     page_break_after: set[int] = set()
     running = 0
     for count in page_line_counts[:-1]:
         running += count
         page_break_after.add(running)
 
-    # Short French glue words make especially poor line/page endings. This is a
-    # layout heuristic only; it never changes, drops or rewrites source words.
     weak_end_words = {
         "à", "au", "aux", "de", "du", "des", "et", "ou", "un", "une",
         "le", "la", "les", "ce", "ces", "tout", "toute", "tous", "toutes",
@@ -279,11 +366,15 @@ def _balanced_wrap_markup(
         "se", "son", "sa", "ses", "mon", "ma", "mes", "ton", "ta", "tes",
         "notre", "votre",
     }
-    punctuation_only = {"?", "!", ";", ":", ",", ".", "…"}
 
-    # The average rendered width gives a deterministic balancing target. The
-    # dynamic-name width assumption is the same worst-case value used by the
-    # ordinary wrapper.
+    def weak_key(atom: str) -> str:
+        # Standalone punctuation may be attached inside an atom (``loin !``).
+        # The first lexical token is therefore the relevant weak-word test.
+        return atom.split()[0].strip(".,!?;:…“”\"'()[]").lower()
+
+    def ends_sentence(atom: str) -> bool:
+        return bool(re.search(r"(?:\.{3}|[.!?…])[”\"»')\]]*$", atom))
+
     total_width = _markup_width(text, advances, placeholder_width)
     target_width = min(max_pixels, total_width / line_count)
 
@@ -294,7 +385,7 @@ def _balanced_wrap_markup(
         cached = metrics_cache.get(key)
         if cached is not None:
             return cached
-        value = " ".join(words[start:end])
+        value = " ".join(atoms[start:end])
         width = _markup_width(value, advances, placeholder_width)
         chars = _markup_chars(value, placeholder_chars)
         placeholders = len(PLAYER_PLACEHOLDER_RE.findall(value))
@@ -303,44 +394,42 @@ def _balanced_wrap_markup(
         metrics_cache[key] = result
         return result
 
-    # Dynamic programming over word boundaries and exact line count.
     infinity = float("inf")
     memo: dict[tuple[int, int], tuple[float, tuple[tuple[str, int, int, int], ...]]] = {}
 
-    def solve(word_index: int, line_index: int):
-        key = (word_index, line_index)
+    def solve(atom_index: int, line_index: int):
+        key = (atom_index, line_index)
         if key in memo:
             return memo[key]
         if line_index == line_count:
-            result = (0.0, ()) if word_index == len(words) else (infinity, ())
+            result = (0.0, ()) if atom_index == len(atoms) else (infinity, ())
             memo[key] = result
             return result
 
         lines_left_after = line_count - line_index - 1
-        max_end = len(words) - lines_left_after
+        max_end = len(atoms) - lines_left_after
         best_cost = infinity
         best_path: tuple[tuple[str, int, int, int], ...] = ()
-        for end in range(word_index + 1, max_end + 1):
-            value, width, chars, parser_units = metrics(word_index, end)
+        for end in range(atom_index + 1, max_end + 1):
+            value, width, chars, parser_units = metrics(atom_index, end)
             if width > max_pixels or parser_units > max_chars:
-                # Adding more words cannot reduce either metric.
                 break
 
-            first_word = words[word_index]
-            last_word = words[end - 1]
+            first_atom = atoms[atom_index]
+            last_atom = atoms[end - 1]
             cost = (width - target_width) ** 2
-            if first_word in punctuation_only:
+            if _PUNCTUATION_ATOM_RE.fullmatch(first_atom):
                 cost += 100_000
-            if last_word.lower() in weak_end_words:
+            if weak_key(last_atom) in weak_end_words:
                 cost += 3_500
-            if last_word in punctuation_only or last_word.endswith((".", "!", "?", "…")):
+            if ends_sentence(last_atom):
                 cost -= 700
 
             one_based_line = line_index + 1
             if one_based_line in page_break_after:
-                if last_word.lower() in weak_end_words:
+                if weak_key(last_atom) in weak_end_words:
                     cost += 7_000
-                if last_word in punctuation_only or last_word.endswith((".", "!", "?", "…")):
+                if ends_sentence(last_atom):
                     cost -= 1_200
 
             child_cost, child_path = solve(end, line_index + 1)
@@ -363,9 +452,8 @@ def _balanced_wrap_markup(
 
     parts: list[str] = []
     cursor = 0
-    for page_index, count in enumerate(page_line_counts):
-        page = "\n".join(lines[cursor:cursor + count])
-        parts.append(page)
+    for count in page_line_counts:
+        parts.append("\n".join(lines[cursor:cursor + count]))
         cursor += count
     return "\f".join(parts), widths, char_counts, parser_units
 
@@ -412,79 +500,270 @@ def _sentence_boundary_positions(text: str) -> tuple[int, ...]:
     return tuple(positions)
 
 
+
+def _comma_boundary_positions(text: str) -> tuple[int, ...]:
+    """Return conservative weak clause boundaries immediately after commas."""
+    positions: list[int] = []
+    for index, char in enumerate(text):
+        if char != ",":
+            continue
+        end = index + 1
+        if end >= len(text) or not text[end].isspace():
+            continue
+        while end < len(text) and text[end].isspace():
+            end += 1
+        if end < len(text):
+            positions.append(end)
+    return tuple(positions)
+
+
+def _semantic_wrap_plain_segment(
+    text: str,
+    advances: dict[str, int],
+    *,
+    max_pixels: int = DIALOGUE_WRAP_PIXELS,
+    max_chars: int = DIALOGUE_WRAP_CHARS,
+) -> tuple[str, list[int], list[int], list[int]]:
+    """Wrap one segment while preferring natural French clause boundaries.
+
+    Strong sentence boundaries are preserved whenever each sentence can be
+    laid out independently without exceeding one three-line SNES page. This is
+    intentionally allowed to use an otherwise-unused third line: readability
+    takes precedence over packing unrelated sentences together. For a single
+    sentence that needs exactly two lines, a comma may be used as a weaker
+    boundary when it yields a substantially better-balanced pair of lines.
+    """
+    baseline = wrap_markup(text, advances, max_pixels=max_pixels, max_chars=max_chars)
+    if not text.strip() or "\n" in text:
+        return baseline
+
+    def wrap_one_sentence(sentence: str):
+        result = wrap_markup(sentence, advances, max_pixels=max_pixels, max_chars=max_chars)
+        if len(result[1]) != 2:
+            return result
+        baseline_balance = abs(result[1][0] - result[1][1])
+        best = None
+        comma_boundaries = _comma_boundary_positions(sentence)
+        # Multiple commas often encode discourse rhythm or parenthetical
+        # phrasing (``Pendant ce temps, toi, file...``). Do not guess which
+        # comma is semantic in that case; keep weak comma optimization limited
+        # to a single unambiguous clause boundary.
+        if len(comma_boundaries) != 1:
+            return result
+        for boundary in comma_boundaries:
+            first = sentence[:boundary].strip()
+            second = sentence[boundary:].strip()
+            if not first or not second:
+                continue
+            first_result = wrap_markup(first, advances, max_pixels=max_pixels, max_chars=max_chars)
+            second_result = wrap_markup(second, advances, max_pixels=max_pixels, max_chars=max_chars)
+            if len(first_result[1]) != 1 or len(second_result[1]) != 1:
+                continue
+            # Avoid turning a tiny tail/head into a decorative line. The comma
+            # boundary is only a soft preference when both clauses have enough
+            # visual substance and materially improve balance.
+            w1, w2 = first_result[1][0], second_result[1][0]
+            if min(w1, w2) < 72:
+                continue
+            balance = abs(w1 - w2)
+            improvement = baseline_balance - balance
+            if improvement < 24:
+                continue
+            candidate = (
+                first_result[0] + "\n" + second_result[0],
+                first_result[1] + second_result[1],
+                first_result[2] + second_result[2],
+                first_result[3] + second_result[3],
+            )
+            if best is None or balance < best[0]:
+                best = (balance, candidate)
+        return best[1] if best is not None else result
+
+    boundaries = _sentence_boundary_positions(text)
+    if boundaries:
+        starts = (0,) + boundaries
+        ends = boundaries + (len(text),)
+        sentence_results = []
+        for start, end in zip(starts, ends, strict=True):
+            sentence = text[start:end].strip()
+            if not sentence:
+                continue
+            sentence_results.append(wrap_one_sentence(sentence))
+        semantic_line_count = sum(len(result[1]) for result in sentence_results)
+        # Never create an extra page just for aesthetics. Within an already
+        # available three-line page, however, preserving sentence starts is a
+        # deliberate readability preference.
+        if sentence_results and semantic_line_count <= DIALOGUE_PAGE_LINES:
+            lines: list[str] = []
+            widths: list[int] = []
+            chars: list[int] = []
+            units: list[int] = []
+            for wrapped, part_widths, part_chars, part_units in sentence_results:
+                lines.extend(wrapped.split("\n"))
+                widths.extend(part_widths)
+                chars.extend(part_chars)
+                units.extend(part_units)
+            return "\n".join(lines), widths, chars, units
+
+    return wrap_one_sentence(text)
+
+
+def semantic_wrap_markup(
+    text: str,
+    advances: dict[str, int],
+    *,
+    max_pixels: int = DIALOGUE_WRAP_PIXELS,
+    max_chars: int = DIALOGUE_WRAP_CHARS,
+) -> tuple[str, list[int], list[int], list[int]]:
+    """Wrap localized prose with semantic sentence/clause line preferences.
+
+    Explicit hard-line hints (speaker changes and attributions) remain
+    mandatory. Each side of such a hint is optimized independently, then the
+    original hard boundary is restored.
+    """
+    if "\n" not in text:
+        return _semantic_wrap_plain_segment(
+            text, advances, max_pixels=max_pixels, max_chars=max_chars
+        )
+
+    all_lines: list[str] = []
+    widths: list[int] = []
+    chars: list[int] = []
+    units: list[int] = []
+    for segment in text.split("\n"):
+        if not segment.strip():
+            continue
+        wrapped, part_widths, part_chars, part_units = _semantic_wrap_plain_segment(
+            segment, advances, max_pixels=max_pixels, max_chars=max_chars
+        )
+        all_lines.extend(wrapped.split("\n"))
+        widths.extend(part_widths)
+        chars.extend(part_chars)
+        units.extend(part_units)
+    return "\n".join(all_lines), widths, chars, units
+
 def _sentence_aware_extra_page_wrap(
     text: str,
     advances: dict[str, int],
     *,
     max_pixels: int = DIALOGUE_WRAP_PIXELS,
     max_chars: int = DIALOGUE_WRAP_CHARS,
+    prefer_semantic_line_breaks: bool = True,
 ) -> tuple[str, list[int], list[int], list[int], tuple[int, int], str]:
     """Wrap one overflowing prose block onto at most two pages.
 
-    Prefer the latest complete-sentence boundary for which both the prefix and
-    suffix fit independently within the stock three-line page. Each page is then
-    balanced internally while preserving the same pixel/parser constraints. A
-    3+1 layout is therefore preferred over an artificial 2+2 split when the
-    first three lines end on a complete sentence. If no safe sentence boundary
-    exists, retain the earlier deterministic balanced fallback.
+    Semantic hard-line hints (speaker changes / dash attributions) are the
+    strongest page-boundary candidates: if the text cannot stay on one page and
+    one of those boundaries leaves both sides within three lines, page there.
+    Otherwise prefer the latest complete-sentence boundary. The old balanced
+    fallback remains only for prose without a usable semantic boundary.
     """
-    candidates: list[tuple[int, str, str, int, int]] = []
+
+    def wrap_piece(piece: str) -> tuple[str, list[int], list[int], list[int]]:
+        wrapper = semantic_wrap_markup if prefer_semantic_line_breaks else wrap_markup
+        return wrapper(piece, advances, max_pixels=max_pixels, max_chars=max_chars)
+
+    # First honor explicit semantic line boundaries inserted by the formatter.
+    hard_candidates: list[tuple[int, str, str, tuple, tuple]] = []
+    for index, char in enumerate(text):
+        if char != "\n":
+            continue
+        first = text[:index].strip()
+        second = text[index + 1:].strip()
+        if not first or not second:
+            continue
+        try:
+            first_result = wrap_piece(first)
+            second_result = wrap_piece(second)
+        except ValueError:
+            continue
+        if not (1 <= len(first_result[1]) <= DIALOGUE_PAGE_LINES):
+            continue
+        if not (1 <= len(second_result[1]) <= DIALOGUE_PAGE_LINES):
+            continue
+        hard_candidates.append((index, first, second, first_result, second_result))
+
+    if hard_candidates:
+        # Keep as much complete dialogue as possible on page 1 while ensuring
+        # the new speaker/attribution begins at the top of page 2.
+        _, first, second, first_result, second_result = max(hard_candidates, key=lambda item: item[0])
+        first_wrapped, first_widths, first_chars, first_units = first_result
+        second_wrapped, second_widths, second_chars, second_units = second_result
+        return (
+            first_wrapped + "\f" + second_wrapped,
+            first_widths + second_widths,
+            first_chars + second_chars,
+            first_units + second_units,
+            (len(first_widths), len(second_widths)),
+            "semantic_hard_boundary",
+        )
+
+    candidates: list[tuple[int, str, str, tuple, tuple]] = []
     for boundary in _sentence_boundary_positions(text):
         first = text[:boundary].strip()
         second = text[boundary:].strip()
         if not first or not second:
             continue
         try:
-            _, first_widths, _, _ = wrap_markup(
-                first, advances, max_pixels=max_pixels, max_chars=max_chars
-            )
-            _, second_widths, _, _ = wrap_markup(
-                second, advances, max_pixels=max_pixels, max_chars=max_chars
-            )
+            first_result = wrap_piece(first)
+            second_result = wrap_piece(second)
         except ValueError:
             continue
-        if not (1 <= len(first_widths) <= DIALOGUE_PAGE_LINES):
+        if not (1 <= len(first_result[1]) <= DIALOGUE_PAGE_LINES):
             continue
-        if not (1 <= len(second_widths) <= DIALOGUE_PAGE_LINES):
+        if not (1 <= len(second_result[1]) <= DIALOGUE_PAGE_LINES):
             continue
-        candidates.append((boundary, first, second, len(first_widths), len(second_widths)))
+        candidates.append((boundary, first, second, first_result, second_result))
 
     if candidates:
-        # The latest safe sentence boundary keeps as much complete prose as
-        # possible on the current page and minimizes unnecessary page changes.
-        boundary, first, second, first_lines, second_lines = max(candidates, key=lambda item: item[0])
-        first_wrapped, first_widths, first_chars, first_units = _balanced_wrap_markup(
-            first,
-            advances,
-            line_count=first_lines,
-            page_line_counts=(first_lines,),
-            max_pixels=max_pixels,
-            max_chars=max_chars,
-        )
-        second_wrapped, second_widths, second_chars, second_units = _balanced_wrap_markup(
-            second,
-            advances,
-            line_count=second_lines,
-            page_line_counts=(second_lines,),
-            max_pixels=max_pixels,
-            max_chars=max_chars,
-        )
+        boundary, first, second, first_result, second_result = max(candidates, key=lambda item: item[0])
+
+        def balanced_or_greedy(piece: str, result: tuple[str, list[int], list[int], list[int]]):
+            wrapped, widths, chars, units = result
+            if "\n" in piece:
+                return wrapped, widths, chars, units
+            return _balanced_wrap_markup(
+                piece,
+                advances,
+                line_count=len(widths),
+                page_line_counts=(len(widths),),
+                max_pixels=max_pixels,
+                max_chars=max_chars,
+            )
+
+        first_wrapped, first_widths, first_chars, first_units = balanced_or_greedy(first, first_result)
+        second_wrapped, second_widths, second_chars, second_units = balanced_or_greedy(second, second_result)
         return (
             first_wrapped + "\f" + second_wrapped,
             first_widths + second_widths,
             first_chars + second_chars,
             first_units + second_units,
-            (first_lines, second_lines),
+            (len(first_widths), len(second_widths)),
             "sentence_boundary",
         )
 
-    greedy, widths, chars, units = wrap_markup(
-        text, advances, max_pixels=max_pixels, max_chars=max_chars
-    )
-    del greedy
+    greedy, widths, chars, units = wrap_piece(text)
     page_line_counts = _page_line_counts(len(widths))
     if len(page_line_counts) != 2:
         raise ValueError("Extra-page formatter inserts exactly one additional page")
+
+    # If semantic hard-line hints exist but none can be used as a safe page
+    # boundary, never rebalance across them. Preserve the hinted lines and only
+    # divide the already-wrapped output into the deterministic 2-page fallback.
+    if "\n" in text:
+        greedy_lines = greedy.split("\n")
+        first_count, second_count = page_line_counts
+        first = "\n".join(greedy_lines[:first_count])
+        second = "\n".join(greedy_lines[first_count:first_count + second_count])
+        return greedy and (
+            first + "\f" + second,
+            widths,
+            chars,
+            units,
+            page_line_counts,
+            "semantic_preserving_fallback",
+        )
+
     wrapped, widths, chars, units = _balanced_wrap_markup(
         text,
         advances,
@@ -520,10 +799,14 @@ def event_text_index(document: dict) -> tuple[dict[str, dict], dict[str, dict]]:
 def binding_slots(document: dict, mapping: dict) -> list[BindingSlot]:
     """Recover the exact mapped text/PLAYER_NAME stream from canonical tokens.
 
-    The current formatter intentionally rejects mappings that cross any command
-    other than PLAYER_NAME. This prevents localized prose from being moved across
-    WAITs, animations, choices or other event side effects before that behavior
-    has been runtime-validated.
+    Mappings may begin or end immediately next to a ``PLAYER_NAME`` command.
+    The aligner includes that placeholder in ``source_display`` even when the
+    position-derived SNES text ID itself lies only on one side of the command.
+    Search only those adjacent PLAYER_NAME boundaries and accept a span only
+    when its canonical rendering equals the established alignment exactly.
+
+    Any other command, glyph, or unmapped text crossed by a mapping is still
+    rejected. This preserves the conservative structural contract.
     """
     by_id, by_event = event_text_index(document)
     snes_ids = mapping.get("snes_ids", [])
@@ -541,38 +824,88 @@ def binding_slots(document: dict, mapping: dict) -> list[BindingSlot]:
         )
 
     event = by_event[event_id]
+    tokens = event["tokens"]
     token_indexes = [by_id[text_id]["token_index"] for text_id in snes_ids]
     if token_indexes != sorted(token_indexes):
         raise ValueError(f"Dialogue mapping SNES IDs are not in token order: {snes_ids}")
     selected = set(snes_ids)
-    slots: list[BindingSlot] = []
-    for token in event["tokens"][token_indexes[0]:token_indexes[-1] + 1]:
-        kind = token.get("type")
-        if kind == "text":
-            if token["id"] not in selected:
-                raise ValueError(
-                    f"Mapping {snes_ids} crosses unmapped text token {token['id']}; defer structural binding"
-                )
-            slots.append(TextSlot(token["id"], token["source"]))
-        elif kind == "command" and token.get("name") == "PLAYER_NAME":
-            args = token.get("args", "00").split()
-            if not args:
-                raise ValueError("PLAYER_NAME command has no index")
-            slots.append(PlayerSlot(int(args[0], 16)))
-        else:
-            raise ValueError(
-                f"Mapping {snes_ids} crosses {kind} {token.get('name', '')!r}; defer structural binding"
-            )
 
-    rendered = "".join(
-        slot.source if isinstance(slot, TextSlot) else f"%S({slot.index},0)"
-        for slot in slots
-    )
-    if rendered != mapping.get("source_display", ""):
+    def is_player(index: int) -> bool:
+        if not (0 <= index < len(tokens)):
+            return False
+        token = tokens[index]
+        return token.get("type") == "command" and token.get("name") == "PLAYER_NAME"
+
+    starts = [token_indexes[0]]
+    cursor = token_indexes[0] - 1
+    while is_player(cursor):
+        starts.append(cursor)
+        cursor -= 1
+    ends = [token_indexes[-1]]
+    cursor = token_indexes[-1] + 1
+    while is_player(cursor):
+        ends.append(cursor)
+        cursor += 1
+
+    def slots_for_span(span_start: int, span_end: int) -> list[BindingSlot] | None:
+        slots: list[BindingSlot] = []
+        for token in tokens[span_start:span_end + 1]:
+            kind = token.get("type")
+            if kind == "text":
+                if token["id"] not in selected:
+                    return None
+                slots.append(TextSlot(token["id"], token["source"]))
+            elif kind == "command" and token.get("name") == "PLAYER_NAME":
+                args = token.get("args", "00").split()
+                if not args:
+                    raise ValueError("PLAYER_NAME command has no index")
+                slots.append(PlayerSlot(int(args[0], 16)))
+            else:
+                return None
+        return slots
+
+    expected = mapping.get("source_display", "")
+    matches: list[tuple[int, int, list[BindingSlot]]] = []
+    for span_start in starts:
+        for span_end in ends:
+            if span_start > token_indexes[0] or span_end < token_indexes[-1]:
+                continue
+            slots = slots_for_span(span_start, span_end)
+            if slots is None:
+                continue
+            rendered = "".join(
+                slot.source if isinstance(slot, TextSlot) else f"%S({slot.index},0)"
+                for slot in slots
+            )
+            if rendered == expected:
+                matches.append((span_start, span_end, slots))
+
+    if not matches:
+        # Preserve the old diagnostic when the canonical structure no longer
+        # reproduces the established alignment.
+        base_slots = slots_for_span(token_indexes[0], token_indexes[-1])
+        if base_slots is None:
+            for token in tokens[token_indexes[0]:token_indexes[-1] + 1]:
+                kind = token.get("type")
+                if kind == "text" and token.get("id") not in selected:
+                    raise ValueError(
+                        f"Mapping {snes_ids} crosses unmapped text token {token['id']}; defer structural binding"
+                    )
+                if kind != "text" and not (kind == "command" and token.get("name") == "PLAYER_NAME"):
+                    raise ValueError(
+                        f"Mapping {snes_ids} crosses {kind} {token.get('name', '')!r}; defer structural binding"
+                    )
         raise ValueError(
             f"Canonical binding stream for {snes_ids} no longer equals alignment source_display"
         )
-    return slots
+
+    # Prefer the narrowest exact canonical span. More than one equally narrow
+    # exact span would be structurally ambiguous and is therefore rejected.
+    width = min(end - start for start, end, _ in matches)
+    narrow = [entry for entry in matches if entry[1] - entry[0] == width]
+    if len(narrow) != 1:
+        raise ValueError(f"Ambiguous adjacent PLAYER_NAME binding for {snes_ids}")
+    return narrow[0][2]
 
 
 def _leading_newlines(text: str) -> int:
@@ -581,6 +914,24 @@ def _leading_newlines(text: str) -> int:
 
 def _trailing_newlines(text: str) -> int:
     return len(text) - len(text.rstrip("\n"))
+
+
+def _leading_newline_follows_wait(document: dict, text_id: str) -> bool:
+    """Return whether a text token starts immediately after an existing WAIT.
+
+    Stock scripts often combine ``WAIT`` with a leading newline in the next
+    text chunk to scroll the previous three-line window away. For localized
+    chunks we can keep the existing WAIT, emit one TEXT_CLEAR, and drop that
+    synthetic blank line instead.
+    """
+    by_id, by_event = event_text_index(document)
+    meta = by_id[text_id]
+    tokens = by_event[meta["event_id"]]["tokens"]
+    index = meta["token_index"]
+    if index <= 0:
+        return False
+    previous = tokens[index - 1]
+    return previous.get("type") == "command" and previous.get("name") == "WAIT"
 
 
 def source_visible_line_budget(source_display: str) -> int:
@@ -634,11 +985,14 @@ def bind_wrapped_markup(slots: list[BindingSlot], wrapped: str) -> dict[str, str
                     "Localized literal text exists where the SNES stream has no text token around PLAYER_NAME"
                 )
             continue
-        if len(text_slots) != 1:
-            raise ValueError(
-                "Localized literal run spans multiple SNES text tokens; defer deterministic distribution"
-            )
+        # Adjacent text tokens have no intervening event side effect: their
+        # serialized bytes are one continuous source stream. Put the localized
+        # literal run in the first token and explicitly empty the remaining
+        # contiguous tokens. This is byte-equivalent to concatenating them and
+        # avoids inventing an arbitrary sentence-to-token split.
         translations[text_slots[0].text_id] = run
+        for slot in text_slots[1:]:
+            translations[slot.text_id] = ""
     return translations
 
 
@@ -649,6 +1003,8 @@ def format_mapping(
     *,
     max_pixels: int = DIALOGUE_WRAP_PIXELS,
     allow_one_extra_page: bool = False,
+    use_physical_page_capacity: bool = False,
+    prefer_semantic_line_breaks: bool = True,
 ) -> tuple[dict[str, str], dict]:
     """Format one already accepted mapping into existing SNES text-token values."""
     slots = binding_slots(document, mapping)
@@ -659,7 +1015,8 @@ def format_mapping(
 
     source_placeholders = tuple(slot.index for slot in slots if isinstance(slot, PlayerSlot))
     french_normalized = normalize_android_french(french_raw)
-    french_placeholders = placeholder_sequence(french_normalized)
+    french_layout, layout_hints = apply_semantic_layout_hints(french_normalized)
+    french_placeholders = placeholder_sequence(french_layout)
     if source_placeholders != french_placeholders:
         raise ValueError(
             f"French PLAYER_NAME sequence {french_placeholders} does not match SNES {source_placeholders}"
@@ -671,20 +1028,25 @@ def format_mapping(
     text_slots = [slot for slot in slots if isinstance(slot, TextSlot)]
     lead = _leading_newlines(text_slots[0].source)
     trail = _trailing_newlines(text_slots[-1].source)
+    inserted_leading_clear = bool(lead and _leading_newline_follows_wait(document, text_slots[0].text_id))
+    if inserted_leading_clear:
+        lead = 0
 
-    wrapped, widths, char_counts, parser_unit_counts = wrap_markup(
-        french_normalized, advances, max_pixels=max_pixels
+    wrapper = semantic_wrap_markup if prefer_semantic_line_breaks else wrap_markup
+    wrapped, widths, char_counts, parser_unit_counts = wrapper(
+        french_layout, advances, max_pixels=max_pixels
     )
-    line_budget = source_visible_line_budget(source_display)
+    source_line_budget = source_visible_line_budget(source_display)
+    line_budget = DIALOGUE_PAGE_LINES if use_physical_page_capacity else source_line_budget
     inserted_page_breaks = 0
     page_line_counts = (len(widths),)
     page_break_strategy: str | None = None
     if len(widths) > line_budget:
         if not allow_one_extra_page:
             raise ValueError(
-                f"French VWF needs {len(widths)} line(s), source span exposes {line_budget}: {mapping['snes_ids']}"
+                f"French VWF needs {len(widths)} line(s), available page budget is {line_budget}: {mapping['snes_ids']}"
             )
-        if line_budget != DIALOGUE_PAGE_LINES:
+        if not use_physical_page_capacity and line_budget != DIALOGUE_PAGE_LINES:
             raise ValueError(
                 f"Extra-page pilot requires a {DIALOGUE_PAGE_LINES}-line source page; "
                 f"source span exposes {line_budget}: {mapping['snes_ids']}"
@@ -697,10 +1059,11 @@ def format_mapping(
             page_line_counts,
             page_break_strategy,
         ) = _sentence_aware_extra_page_wrap(
-            french_normalized,
+            french_layout,
             advances,
             max_pixels=max_pixels,
             max_chars=DIALOGUE_WRAP_CHARS,
+            prefer_semantic_line_breaks=prefer_semantic_line_breaks,
         )
         inserted_page_breaks = 1
 
@@ -708,12 +1071,14 @@ def format_mapping(
     first_id = text_slots[0].text_id
     last_id = text_slots[-1].text_id
     translations[first_id] = "\n" * lead + translations[first_id]
+    if inserted_leading_clear:
+        translations[first_id] = TRANSLATION_CLEAR + translations[first_id]
     translations[last_id] = translations[last_id] + "\n" * trail
 
     # Final byte-level charset check before the translation JSON reaches 08.
     for text_id, text in translations.items():
         for char in text:
-            if char in ("\n", "\f"):
+            if char in ("\n", "\f", TRANSLATION_CLEAR):
                 continue
             if char not in TEXT_TO_CODE:
                 raise ValueError(f"{text_id}: unsupported formatted character {char!r}")
@@ -726,13 +1091,19 @@ def format_mapping(
         "source_display": source_display,
         "android_french_raw": french_raw,
         "android_french_normalized": french_normalized,
+        "layout_markup_before_wrap": french_layout,
+        "layout_hints": layout_hints,
         "formatted_markup": "\n" * lead + wrapped + "\n" * trail,
         "line_widths_pixels": widths,
         "line_decoded_character_counts": char_counts,
         "line_parser_unit_counts": parser_unit_counts,
-        "source_visible_line_budget": line_budget,
+        "source_visible_line_budget": source_line_budget,
+        "effective_line_budget": line_budget,
+        "physical_page_capacity_mode": use_physical_page_capacity,
+        "semantic_line_break_preferences": prefer_semantic_line_breaks,
         "page_line_counts": list(page_line_counts),
         "inserted_page_break_count": inserted_page_breaks,
+        "inserted_leading_clear": inserted_leading_clear,
         "page_break_encoding": "WAIT $00 + TEXT_CLEAR" if inserted_page_breaks else None,
         "page_break_strategy": page_break_strategy,
         "formatted_entries": [

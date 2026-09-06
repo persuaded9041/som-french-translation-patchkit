@@ -6,9 +6,8 @@ were reviewed before whole-game formatting.
 
 ## Result
 
-After Android layout whitespace and `%S(n,0)` placeholders are removed, the
-original audit found nine unsupported Unicode characters. Their approved
-handling is now:
+The original audit found nine unsupported Unicode characters before the approved
+normalization/charset work. Their handling is now:
 
 | Character | Occurrences | Handling |
 |---|---:|---|
@@ -22,7 +21,11 @@ handling is now:
 | `[` / `]` | 1 pair | normalize the Android choice presentation to SNES `(` / `)` |
 
 The `▽ Que faire ?` case is user-validated: import only `Que faire ?` and keep
-the existing SNES `$CE` glyph token. No `▽` text glyph is allocated.
+the existing SNES `$CE` glyph token. No `▽` text glyph is allocated. After the
+implemented quote/bracket normalization and the validated `♪ ° ;` extension, the
+current machine audit reports only three unsupported character kinds / five
+occurrences: `→`, `←` and `▽`. All are structural markers handled by the event
+formatter rather than missing prose glyphs.
 
 ## Dialogue extension
 

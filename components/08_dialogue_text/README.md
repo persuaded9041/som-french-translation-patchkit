@@ -22,11 +22,9 @@ Canonical source text is repository-wide:
 - `assets/dialogues.json`: clean-USA source only;
 - `translations/dialogues_french.json`: sparse French translations. The
   sentence-aware `$010F` extra-page layout is runtime-validated. The current
-  batch-2 candidate expands this to 37 formatted text tokens across 27 explicit
-  complete events (`$0107-$0155` selection; see the generated batch report).
-  `$010A`, `$010F`, `$013C` and `$014B` use one generated `\f` page marker,
-  which component 08 compiles to the validated `WAIT $00` + `TEXT_CLEAR`
-  transition.
+  simulator-filtered mass candidate contains 331 complete events / 454 formatted
+  source tokens. Generated `\f` page markers compile to the validated
+  `WAIT $00` + `TEXT_CLEAR` transition.
 
 `dialogues.json` uses format version 4. The extractor parses all stock event
 scripts `$0000-$07FF`, selects every text-bearing event except `$0400` (owned by
@@ -70,11 +68,13 @@ A translation remains separate and needs only the translated subset:
 
 Commands, arguments, dynamic names, choices, WAITs and unmapped direct glyphs
 remain structural source tokens and are not duplicated in translation files. One
-generated layout exception is supported for extra-page formatting: a form-feed
-(`\f`) inside translated ordinary text compiles to the stock `WAIT $00` +
-`TEXT_CLEAR` page-transition sequence. The transition and sentence-aware placement are runtime-validated on `$010F`;
-the formatter prefers complete-sentence page boundaries. It is never treated as
-a printable glyph.
+generated layout controls are supported for formatter output: a form-feed
+(`\f`) inside translated ordinary text compiles to stock `WAIT $00` +
+`TEXT_CLEAR`; a vertical-tab (`\v`, represented as `\u000b` in JSON) at the
+start of a translated chunk compiles to `TEXT_CLEAR` only. The latter is used
+when a stock chunk already follows `WAIT` and its leading newline exists only to
+scroll the rolling three-line window. The validated `$010F` page transition
+keeps using `\f`. Neither marker is a printable glyph.
 Exact original text bytes are also not stored: unchanged tokens are reparsed
 from the clean USA ROM so stock DTE choices are preserved byte-for-byte.
 Translated ordinary text is encoded deterministically. The dialogue charset uses `♪=$D3`, the shared French `$D4-$E5` range, `°=$E6` and `;=$E7`; a context-sensitive parser router keeps the intro at `$E6` and uses `$E8` only for real event dialogue. DTE recompression is
@@ -179,14 +179,32 @@ It writes a historical translation snapshot under `mappings/android/`. Its
 `$010F` 3+1 placement is runtime-validated: the first page ends at
 `l'heure.`, then the final question is shown after `WAIT $00` + `TEXT_CLEAR`.
 
-The current larger candidate is generated with:
+The current large candidate is generated with:
 
 ```bash
-python3 tools/import_android_text.py --only dialogue-format-batch2 \
+python3 tools/import_android_text.py --only dialogue-format-mass \
   --rom <clean-USA-ROM>
 ```
 
-Batch 2 freezes 27 complete events and 37 formatted source tokens. Only `$010A`,
-`$010F`, `$013C` and `$014B` are authorized to insert one extra page. The other
-selected events must fit their existing line budget. Generation still aborts for
-unmapped semantic text, unsupported command crossings or placeholder mismatches.
+The mass pass accepts only complete semantic events, but uses the full validated
+three-line physical page rather than copying the English line count. Before VWF
+wrapping it also preserves semantic speaker turns on fresh lines, keeps standalone
+punctuation attached to the preceding word, moves dash attributions to their own
+line, and replaces legacy leading blank scroll lines after an existing WAIT with
+a clear-only `TEXT_CLEAR`. A mapping may
+insert at most one validated extra page when needed. Every formatted event is then
+serialized and passed through the independent, user-validated dialogue simulator;
+errors, warnings, implicit runtime wraps and unsupported layout commands exclude
+the whole event. The current output contains **331 events / 454 translated source
+tokens**. `mappings/android/dialogues_format_mass_excluded.csv` records everything
+left out for later work.
+
+### Interactive WAIT rolling-window cleanup
+
+The mass formatter also audits exact repeated visible lines across interactive
+`WAIT $00` states. When the independent simulator proves that a later state
+starts by repeating the exact suffix of the prior state, a targeted clear/drop
+repair is attempted and kept only if the duplicate disappears with a completely
+clean resimulation. Timed `WAIT $04/$08` pauses are not modified. The rule is runtime-validated. The current mass output applies six such repairs
+(`$0136`, `$0263`, `$0265`, `$026A`, `$03EE`, `$04AC`) and the simulator reports
+no remaining exact carry-over after interactive `WAIT $00`.
