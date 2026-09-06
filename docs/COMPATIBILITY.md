@@ -5,33 +5,52 @@ aggregate build. Their IPS write maps are then compared byte-for-byte.
 
 ## Shared French glyph writes
 
-`02_9char_names` and `03_game_select` install the naming-safe French range
-`$D4-$E0`. `05_intro_vwf_french` and `06_dialogue_vwf` install those same 13
-glyphs plus `$E1-$E5`. `08_dialogue_text` uses that same `full_french` range when a French
-translation differs from its canonical source token; with the current empty
-`translations/dialogues_french.json` it emits no glyph writes.
+`03_game_select` installs the naming-safe `$D4-$E0` subset. `02_9char_names`
+installs that same French subset plus the disjoint shared glyphs `$D3=♪`,
+`$E6=°` and `$E7=;`, while deliberately leaving `$E1-$E5` untouched because
+Name Entry uses those slots for graphics. `05_intro_vwf_french` installs the
+unchanged French `$D4-$E5` range. Components 06/08 use the full extended
+dialogue span `$D3-$E7`. Identical overlapping glyph bytes all come from
+`shared/french_charset/french_glyphs.png`.
 
-Whenever several standalone builders emit the same glyphs, the bytes are
-identical because they all consume `shared/french_charset`. Those duplicated
-writes are intentional so an edited component can remain usable on a clean USA
-ROM without requiring another component.
+## Direct-glyph / DTE routing
+
+Component 03 retains its historical standalone immediate `$E1` threshold and
+component 05 remains unchanged standalone with `$C0:16F6 = $E6`.
+
+Component 02 now uses the small `shared/name_dte.py` router standalone. Ordinary
+event sources still use `$E1`; the relocated Name Entry resource in bank `$E4`
+and the stock `PLAYER_NAME` scratch stream at `$7E:A22F` use `$E8`, allowing
+`$E6/$E7` on the character grid and inside a selected name without reinterpreting
+normal DTE bytes. This route is runtime-validated. If 02 is combined with a later legacy charset
+component but without 06/08, the root combiner stores the historical max
+threshold in the router's `$C7:4C86` base-config byte and restores its JML after
+all standalone patches have been applied.
+
+Components 06/08 replace the same stock four-byte decision at
+`$C0:16F5-$16F8` with the later, byte-identical full context router from
+`shared/dialogue_dte.py`:
+
+- non-dialogue parser callers: `$E6`;
+- event `$0400`: `$E6`;
+- ordinary event-engine dialogue when the dialogue profile is enabled: `$E8`;
+- component-02 Name Entry resource in bank `$E4`: `$E8`.
+
+The event-engine caller is identified by the established `$114B` stacked return
+address, so GAME SELECT does not enter the dialogue `$E8` path. Event `$0400`
+uses component 05's configured translated end when present and the clean-USA
+`$0E44` end otherwise. Thus `$E6/$E7` can be direct dialogue glyphs without
+changing the intro's 25 private DTE pairs.
+
+In aggregate builds containing 06/08, their full router supersedes both the
+legacy immediate-threshold byte and component 02's smaller name-only hook.
+Without 06/08, component 02's router preserves the historical max-threshold
+merge through its base-config byte. Without any router, the original immediate
+max-threshold merge remains unchanged.
 
 ## Opening-font local glyph
 
 `04_french_opening` reserves tile `$7A` of its own title-screen font for the one-cell startup-credit `É`. This is local to the opening font, does not consume a shared French charset code, and introduces no new ROM/WRAM allocation or cross-component merge rule. The component builder rejects literal `Z` text because that opening-font slot is no longer available as `Z`.
-
-## Direct-glyph threshold
-
-ROM `0x0016F6` is a declared merge point:
-
-- Name Entry standalone: `$E1` (`$D4-$E0` direct).
-- GAME SELECT standalone: `$E1` (`$D4-$E0` direct).
-- intro VWF standalone: `$E6` (`$D4-$E5` direct).
-- dialogue VWF standalone: `$E6` (`$D4-$E5` direct).
-- dialogue-text standalone: no threshold write while no translations are present;
-  `$E6` (`$D4-$E5` direct) automatically once translated dialogue text is added.
-
-The relevant `component.json` files declare a `shared_charset_profile`. Each profile owns its DTE threshold in `shared/french_charset/charset.json`. For an aggregate build, `shared/compatibility.py` applies the highest selected threshold, so any build containing a `full_french` consumer uses `$E6`.
 
 ## Allocations
 
@@ -58,7 +77,7 @@ merge rules have been applied.
 
 - byte-identical functional overlap required for standalone operation: allowed;
 - checksum overlap: allowed and recomputed;
-- declared direct-glyph threshold overlap: allowed and resolved;
+- legacy threshold-byte overlap with the context-sensitive dialogue router: allowed and resolved;
 - any other differing functional overlap: build failure.
 
 The normal maintenance target is the modified component by itself plus the full
@@ -103,10 +122,9 @@ aggregate builds use the same preparation.
 
 ## Dialogue VWF compatibility
 
-`06_dialogue_vwf` independently installs the canonical `full_french` range
-`$D4-$E5` and the `$E6` direct/DTE threshold so its standalone IPS does not
-depend on component 05. In aggregate builds those glyph writes are byte-identical
-and the threshold is resolved by the shared charset profile.
+`06_dialogue_vwf` independently installs the `dialogue_french` `$D3-$E7`
+span and the context-sensitive DTE router, so its standalone IPS does not depend
+on component 05. The shared `$D4-$E5` glyph bytes remain byte-identical.
 
 Component 06 enables its core VWF only when the shared `$C0:1664` renderer was
 called by the event engine at `$C0:1150` and the live event bank is `$C9` or
@@ -128,8 +146,11 @@ cross-component compatibility document.
 `08_dialogue_text` remains the owner of event-script source/reinsertion data, not of the
 VWF renderer itself. The first edited-event checkpoint (`$0107`) was
 runtime-validated with the existing dialogue VWF, including dynamic player-name
-insertion, line breaks and WAIT sequencing. The canonical `assets/dialogues.json` contains clean-USA source only, and
-`translations/dialogues_french.json` is currently empty.
+insertion, line breaks and WAIT sequencing. The canonical `assets/dialogues.json` contains clean-USA source only.
+`translations/dialogues_french.json` currently contains only the three-token
+Android-derived `$0107` formatting checkpoint. Its dual 240-pixel / 38-character
+SNES layout is runtime-validated; expansion to additional events is now gated by
+the explicit charset/structural-normalization audit rather than by this pilot.
 
 Growth has a runtime-validated relocation path. Component 08 can install a sparse
 24-bit event-address table and dispatcher hook, then pack only overlong rebuilt
@@ -148,9 +169,9 @@ insertion, VWF rendering, line breaks and WAIT behavior. The temporary force
 probe has now been removed: normal builds relocate only events that genuinely
 outgrow their source span.
 
-When a future French dialogue translation is added, component 08 still installs the same
-canonical `full_french` `$D4-$E5` glyph bytes and `$E6` direct/DTE threshold as
-components 05/06. The root extractor continues to structurally parse all 2048 stock event scripts
+When translated dialogue is present, component 08 installs the same
+`dialogue_french` `$D3-$E7` glyph span and context-sensitive router as component
+06; component 05 remains on its separate `$D4-$E5` / `$E6` intro profile. The root extractor continues to structurally parse all 2048 stock event scripts
 and commits the 713 text-bearing events excluding `$0400`. The 513 following
 `$CA` non-event resources are now extracted separately to
 `assets/text_resources.json` and are not owned by the dialogue VWF runtime.

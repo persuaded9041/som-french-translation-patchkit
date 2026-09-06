@@ -20,7 +20,9 @@ now occurs only when a translated event genuinely outgrows its clean-USA span.
 Canonical source text is repository-wide:
 
 - `assets/dialogues.json`: clean-USA source only;
-- `translations/dialogues_french.json`: sparse French translations, currently empty.
+- `translations/dialogues_french.json`: sparse French translations. It currently
+  contains only the three-token, runtime-validated Android-derived `$0107`
+  formatting checkpoint.
 
 `dialogues.json` uses format version 4. The extractor parses all stock event
 scripts `$0000-$07FF`, selects every text-bearing event except `$0400` (owned by
@@ -44,7 +46,7 @@ Example:
 }
 ```
 
-A future translation is separate and needs only the translated subset:
+A translation remains separate and needs only the translated subset:
 
 ```json
 {
@@ -66,7 +68,7 @@ Commands, arguments, dynamic names, choices, WAITs and unmapped direct glyphs
 remain structural source tokens and are not duplicated in translation files.
 Exact original text bytes are also not stored: unchanged tokens are reparsed
 from the clean USA ROM so stock DTE choices are preserved byte-for-byte.
-Translated ordinary text is encoded deterministically; DTE recompression is
+Translated ordinary text is encoded deterministically. The dialogue charset uses `♪=$D3`, the shared French `$D4-$E5` range, `°=$E6` and `;=$E7`; a context-sensitive parser router keeps the intro at `$E6` and uses `$E8` only for real event dialogue. DTE recompression is
 still intentionally deferred.
 
 ## Coverage and round-trip
@@ -126,3 +128,20 @@ caller gates; their stock `$C9/$CA` VWF behavior is unchanged.
 - Unknown command layouts fail rather than being guessed.
 - Dialogue DTE recompression is deferred; source/no-translation round-trips still
   preserve the original encoding exactly.
+
+## Android formatting pilot
+
+The validated Android-derived formatting checkpoint is intentionally limited to
+stock event `$0107`. `tools/import_android_text.py --only dialogue-format-pilot
+--rom <clean-USA-ROM>` regenerates its three sparse translation entries and a
+trace report from the accepted Android EN/FR alignment. `%S(0,0)` is rebound to
+the existing `PLAYER_NAME $00` command rather than encoded as prose, and Android
+presentation line breaks are replaced by VWF-aware wrapping with a conservative
+240-pixel dialogue-content target.
+
+With the current French source, `$0107` grows from 122 to 162 bytes and relocates
+to `$E8:2000`. The Android-derived wording/layout using the dual 240-pixel /
+38-decoded-character offline wrap is now **runtime-validated**, including the
+dynamic player name, WAIT transition and normal continuation. The charset/structural normalization rules are now explicit and audited; the
+next step is to expand the same conservative formatter beyond this pilot while
+leaving unresolved Android mappings untouched.

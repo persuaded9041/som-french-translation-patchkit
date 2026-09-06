@@ -33,16 +33,21 @@ from shared.dialogue_relocation import (  # noqa: E402
     pack_events,
     validate_stock as validate_relocation_stock,
 )
-from shared.french_charset import FIRST_CODE, FULL_DTE_THRESHOLD, FULL_FRENCH_CHARS, glyph_bytes  # noqa: E402
+from shared.french_charset import CHAR_TO_CODE, DIALOGUE_FRENCH_CHARS, glyph_bytes  # noqa: E402
+from shared.dialogue_dte import (  # noqa: E402
+    enable_extended_dialogue as enable_extended_dialogue_dte,
+    install as install_dialogue_dte_router,
+    validate_stock as validate_dialogue_dte_stock,
+)
 from shared.ips import make_ips  # noqa: E402
 from shared.rom import ROM_SIZE_OFFSET, expand_rom, update_checksum, validate_base_rom  # noqa: E402
 from shared.translation_json import load_translation  # noqa: E402
 
 DIALOGUE_FILE = PROJECT_ROOT / "assets" / "dialogues.json"
 TRANSLATION_FILE = PROJECT_ROOT / "translations" / "dialogues_french.json"
-DTE_COMPARE_IMMEDIATE_OFFSET = 0x0016F6
-DTE_STOCK_THRESHOLD = 0xD3
 FONT_BASE = 0x12DC00
+DIALOGUE_CHARS = DIALOGUE_FRENCH_CHARS
+GLYPH_FIRST = min(CHAR_TO_CODE[ch] for ch in DIALOGUE_CHARS)
 INTRO_EVENT_ID = 0x0400
 
 def build(base: bytes, dialogue_file: Path = DIALOGUE_FILE, translation_file: Path = TRANSLATION_FILE) -> tuple[bytes, bytearray, list[str]]:
@@ -100,19 +105,16 @@ def build(base: bytes, dialogue_file: Path = DIALOGUE_FILE, translation_file: Pa
     else:
         rom = bytearray(base)
 
-    # No translated dialogue means no French-font write. Once a future
-    # checkpoint changes at least one text token, standalone component 08 installs
-    # the same canonical full-French direct glyphs / threshold used by 05/06.
+    # No translated dialogue means no French-font write. Whenever at least one
+    # text token changes, standalone component 08 installs the same canonical
+    # full-French direct glyphs / threshold used by 05/06.
     if edits:
-        if base[DTE_COMPARE_IMMEDIATE_OFFSET] != DTE_STOCK_THRESHOLD:
-            raise SystemExit(
-                f"Unexpected stock DTE threshold at 0x{DTE_COMPARE_IMMEDIATE_OFFSET:06X}: "
-                f"${base[DTE_COMPARE_IMMEDIATE_OFFSET]:02X}"
-            )
-        rom[DTE_COMPARE_IMMEDIATE_OFFSET] = FULL_DTE_THRESHOLD
-        french_glyphs = glyph_bytes(FULL_FRENCH_CHARS)
-        glyph_start = FONT_BASE + (FIRST_CODE - 0x80) * 12
-        rom[glyph_start:glyph_start + len(french_glyphs)] = french_glyphs
+        validate_dialogue_dte_stock(base)
+        install_dialogue_dte_router(rom)
+        enable_extended_dialogue_dte(rom)
+        dialogue_glyphs = glyph_bytes(DIALOGUE_CHARS)
+        glyph_start = FONT_BASE + (GLYPH_FIRST - 0x80) * 12
+        rom[glyph_start:glyph_start + len(dialogue_glyphs)] = dialogue_glyphs
 
     edited_reports: list[str] = []
     for event, source_data, rebuilt, file_start, pointer in rebuilt_events:

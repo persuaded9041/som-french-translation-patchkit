@@ -22,6 +22,8 @@ DEFINITION = _load_definition()
 CHAR_TO_CODE = {entry["char"]: int(entry["code"], 16) for entry in DEFINITION["characters"]}
 CODE_TO_CHAR = {code: char for char, code in CHAR_TO_CODE.items()}
 FIRST_CODE = int(DEFINITION["first_code"], 16)
+
+
 def profile_chars(name: str) -> str:
     try:
         return "".join(DEFINITION["profiles"][name]["chars"])
@@ -36,11 +38,26 @@ def profile_threshold(name: str) -> int:
         raise KeyError(f"Unknown French charset profile: {name}") from exc
 
 
+def profile_first_code(name: str) -> int:
+    chars = profile_chars(name)
+    if not chars:
+        raise ValueError(f"French charset profile {name!r} is empty")
+    codes = [CHAR_TO_CODE[char] for char in chars]
+    first = min(codes)
+    if codes != list(range(first, first + len(codes))):
+        raise RuntimeError(f"French charset profile {name!r} must be contiguous and code-ordered")
+    return first
+
+
+ATLAS_CHARS = "".join(
+    entry["char"] for entry in sorted(DEFINITION["characters"], key=lambda entry: int(entry["code"], 16))
+)
 FULL_FRENCH_CHARS = profile_chars("full_french")
 BASIC_FRENCH_CHARS = profile_chars("basic_french")
+DIALOGUE_FRENCH_CHARS = profile_chars("dialogue_french")
 FULL_DTE_THRESHOLD = profile_threshold("full_french")
 BASIC_DTE_THRESHOLD = profile_threshold("basic_french")
-
+DIALOGUE_DTE_THRESHOLD = profile_threshold("dialogue_french")
 
 
 def profile_mapping(name: str) -> dict[str, int]:
@@ -50,9 +67,10 @@ def profile_mapping(name: str) -> dict[str, int]:
 def glyph_bytes(chars: str | None = None) -> bytes:
     """Return SNES 1bpp rows for the requested canonical glyph sequence.
 
-    The shared PNG is an 18-glyph 8x12 RGBA atlas in the exact order defined
-    by the full_french profile. Any non-transparent pixel is ink. Consumers may
-    request a subset, but every character must belong to the canonical atlas.
+    The shared PNG is one contiguous 8x12 atlas ordered by direct character
+    code. Profiles may request contiguous subsets (for example the legacy
+    French-only D4-E5 range or the dialogue D3-E7 range). Any non-transparent
+    PNG pixel is ink.
     """
     try:
         from PIL import Image
@@ -61,10 +79,9 @@ def glyph_bytes(chars: str | None = None) -> bytes:
             "Pillow is required to read shared/french_charset/french_glyphs.png"
         ) from exc
 
-    atlas_chars = FULL_FRENCH_CHARS
-    wanted = atlas_chars if chars is None else chars
+    wanted = ATLAS_CHARS if chars is None else chars
     image = Image.open(GLYPH_FILE).convert("RGBA")
-    expected = (len(atlas_chars) * 8, 12)
+    expected = (len(ATLAS_CHARS) * 8, 12)
     if image.size != expected:
         raise RuntimeError(
             f"{GLYPH_FILE} must be {expected[0]}x{expected[1]} pixels, got "
@@ -73,9 +90,9 @@ def glyph_bytes(chars: str | None = None) -> bytes:
 
     out = bytearray()
     for char in wanted:
-        if char not in CHAR_TO_CODE or char not in atlas_chars:
-            raise RuntimeError(f"No canonical French glyph for {char!r}")
-        glyph_index = atlas_chars.index(char)
+        if char not in CHAR_TO_CODE or char not in ATLAS_CHARS:
+            raise RuntimeError(f"No canonical direct glyph for {char!r}")
+        glyph_index = ATLAS_CHARS.index(char)
         for y in range(12):
             row = 0
             for x in range(8):

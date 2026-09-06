@@ -17,8 +17,17 @@ from src.patch_data import STATIC_EDITS
 ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
-from shared.french_charset import BASIC_FRENCH_CHARS, glyph_bytes, profile_mapping, profile_threshold  # noqa: E402
+from shared.french_charset import (  # noqa: E402
+    BASIC_FRENCH_CHARS,
+    CHAR_TO_CODE,
+    glyph_bytes,
+    profile_mapping,
+)
 from shared.rom import validate_base_rom, update_checksum, expand_rom  # noqa: E402
+from shared.name_dte import (  # noqa: E402
+    install as install_name_dte_router,
+    validate_stock as validate_name_dte_stock,
+)
 from shared.ips import make_ips  # noqa: E402
 from shared.interface_text import (  # noqa: E402
     NAME_HELP_GROUP,
@@ -32,11 +41,10 @@ from shared.translation_json import load_translation, require  # noqa: E402
 # extended $E1-$E5 slots are still used by graphics on this screen.
 FONT_BASE = 0x12DC00
 GLYPH_HEIGHT = 12
-DTE_COMPARE_IMMEDIATE_OFFSET = 0x0016F6
-DTE_NEW_THRESHOLD = profile_threshold("basic_french")
 ACCENT_TO_SOM = profile_mapping("basic_french")
 ACCENT_FIRST = ACCENT_TO_SOM[BASIC_FRENCH_CHARS[0]]
 ACCENT_FONT_OFFSET = FONT_BASE + (ACCENT_FIRST - 0x80) * GLYPH_HEIGHT
+EXTRA_NAME_CHARS = "♪°;"
 
 NAMED_CHARACTER_TOKENS = {
     "<QUOTE_OPEN>": 0xC3,
@@ -50,6 +58,7 @@ NAMED_CHARACTER_TOKENS = {
 
 ASCII_TO_SOM = {" ": 0x80}
 ASCII_TO_SOM.update(ACCENT_TO_SOM)
+ASCII_TO_SOM.update({char: CHAR_TO_CODE[char] for char in EXTRA_NAME_CHARS})
 ASCII_TO_SOM.update({chr(ord("a") + i): 0x81 + i for i in range(26)})
 ASCII_TO_SOM.update({chr(ord("A") + i): 0x9B + i for i in range(26)})
 ASCII_TO_SOM.update({str(i): 0xB5 + i for i in range(10)})
@@ -194,10 +203,21 @@ def apply_source_edits(base: bytes, resource: bytes) -> bytearray:
             )
         rom[edit.offset:edit.offset + len(edit.payload)] = edit.payload
 
-    # Install the shared naming-safe French glyph range $D4-$E0.
-    rom[DTE_COMPARE_IMMEDIATE_OFFSET] = DTE_NEW_THRESHOLD
+    # Install the shared naming-safe French range plus the three validated
+    # extended symbols. $E1-$E5 remain untouched because Name Entry uses those
+    # slots for its own graphics.
     accent_glyphs = glyph_bytes(BASIC_FRENCH_CHARS)
     rom[ACCENT_FONT_OFFSET:ACCENT_FONT_OFFSET + len(accent_glyphs)] = accent_glyphs
+    for char in EXTRA_NAME_CHARS:
+        code = CHAR_TO_CODE[char]
+        offset = FONT_BASE + (code - 0x80) * GLYPH_HEIGHT
+        rom[offset:offset + GLYPH_HEIGHT] = glyph_bytes(char)
+
+    # Ordinary event text keeps the historical $E1 boundary. Only the stock
+    # PLAYER_NAME temporary parser source uses $E8, allowing $E6/$E7 in names
+    # without reinterpreting normal DTE bytes.
+    validate_name_dte_stock(base)
+    install_name_dte_router(rom)
 
     # Expanded-ROM metadata and generated Name Entry resource.
     rom[0x00FFD7:0x00FFDC] = bytes.fromhex("0C0301C300")

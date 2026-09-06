@@ -2,5 +2,6 @@
   "id": "06_dialogue_vwf",
   "short_name": "dialogue-vwf",
   "name": "Dialogue VWF",
-  "shared_charset_profile": "full_french"
+  "shared_charset_profile": "dialogue_french",
+  "dialogue_dte_router": true
 }

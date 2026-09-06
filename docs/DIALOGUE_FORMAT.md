@@ -65,9 +65,11 @@ event scripts scanned in the reference ROM; the support is kept because the
 same stock text format uses DTE elsewhere and those non-event resources are a
 future extraction target.
 
-The patchkit's canonical `full_french` charset moves the direct/DTE boundary to
-`$E6`, making `$D4-$E5` direct French glyph codes for future translated text.
-Component 08 consumes that shared definition but does not alter the VWF renderer.
+The patchkit keeps `$D4-$E5` as the canonical 18-character French range.
+Ordinary translated dialogue uses the `dialogue_french` extension `$D3-$E7`
+(`♪`, French range, `°`, `;`) and a context-sensitive `$E8` event-dialogue DTE
+boundary. The translated intro remains at `$E6`. Component 08 consumes this
+shared encoding but does not own the VWF renderer.
 
 ## 3. Event/control commands
 
@@ -197,7 +199,7 @@ Current committed asset:
 | `ending_text` blocks | 19 |
 | bytes in committed event spans | 87,487 |
 | unmapped raw direct-glyph tokens | 20 |
-| currently translated dialogue tokens | 0 |
+| current Android-derived formatting-candidate tokens | 3 |
 
 The 713 figure is therefore a count of **event scripts containing text**, not a
 count of dialogue lines or speech boxes. One event can contain many independent
@@ -223,8 +225,8 @@ ROM produce byte-identical JSON.
 
 ## 7. Runtime checkpoint history
 
-The first checkpoint edited only event `$0107`, kept its source pointer
-`$C9:2B08`, and rebuilt it in place. Runtime testing validated:
+The original edited-event checkpoint used event `$0107`, kept its source pointer
+`$C9:2B08`, and rebuilt a short probe in place. Runtime testing validated:
 
 - edited text decoding/encoding;
 - the preserved `$57 00` dynamic player-name command;
@@ -233,6 +235,31 @@ The first checkpoint edited only event `$0107`, kept its source pointer
 - normal continuation after the dialogue.
 
 That test translation was removed after validation. `assets/dialogues.json` is now permanently source-only; future dialogue work belongs in `translations/dialogues_french.json`.
+
+## 7.1 Offline wrapping constraints
+
+Dialogue layout has **two independent limits** that the formatter must respect:
+
+1. a conservative VWF pixel target (currently **240 pixels**);
+2. the component-06 parser's runtime-validated capacity of **38 decoded
+   characters per chunk/line**.
+
+The second limit was exposed by the `$0107` runtime pilot. The initial generated
+line `Oh, c'est toi, <9-char name>. Tout à l'heure,` is 41 decoded visible
+characters with a maximum-length name; runtime split it despite its VWF width
+being only 245 pixels. After the first reflow, the line
+`l'heure, j'ai vu une grande lumière dans` measured only 231 pixels but contained
+40 decoded characters, and runtime moved `dans` to the next line. Both failures
+therefore match the known **38-character parser capacity**, rather than proving a
+smaller physical pixel width.
+
+The offline formatter now enforces both constraints before emitting a line.
+`PLAYER_NAME` is conservatively counted as nine visible characters as well as at
+its worst-case VWF pixel width. This prevents the runtime parser from creating a
+fourth physical line behind the formatter's back. The resulting 38-character
+checkpoint for `$0107` is **runtime-validated**: the three-line first box, the
+dynamic player name, WAIT transition and following text all display and progress
+correctly in game.
 
 ## 8. Current builder behavior
 
@@ -266,9 +293,10 @@ caller gate and renderer caller gate therefore retain their validated structural
 checks and add only the reserved relocation-bank range `$E8-$EC`. Existing `$C9/$CA` behavior is unchanged, and the added `$E8-$EC` bank range is
 runtime-validated.
 
-With no dialogue translations, no French charset writes are emitted by component 08. Once
-at least one translation entry changes source text, the builder installs the canonical
-`full_french` direct glyphs and `$E6` threshold as before.
+With no dialogue translations, no dialogue-charset writes are emitted by component 08.
+Once at least one translation changes source text, the builder installs the
+`dialogue_french` `$D3-$E7` glyph span plus the same context-sensitive DTE router
+as component 06.
 
 ## 9. Deliberately deferred work
 
@@ -283,3 +311,8 @@ The following are not yet generalized:
 - textual mappings for raw direct slots `$CE-$D2`.
 
 These should be added from engine/ROM evidence, not inferred from local examples.
+
+
+## Charset audit
+
+See `DIALOGUE_CHARSET_AUDIT.md` before expanding Android-derived formatting.

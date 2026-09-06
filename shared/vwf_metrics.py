@@ -61,6 +61,15 @@ def validated_advance(code: int, rows: bytes | bytearray) -> int:
     if 0x81 <= code <= 0xB4 or 0xD4 <= code <= 0xE5:
         return min(8, (right - left + 1) + 1)
 
+    # Dialogue-only direct glyphs are drawn in the canonical PNG with their
+    # intended bearings already baked in. The music note is compacted to a
+    # 7 px cell; degree and semicolon use the ordinary punctuation convention
+    # of one black pixel before and after the visible ink.
+    if code == 0xD3:  # ♪, framed PNG bounds 0..6
+        return 7
+    if code in (0xE6, 0xE7):  # ° ;, framed PNG bounds 1..5 / 1..2
+        return min(8, (right - left + 1) + 2)
+
     # Colon is the validated isolated 2-left / 3-right framing case.
     if code == 0xC5:
         return min(8, (right - left + 1) + 5)

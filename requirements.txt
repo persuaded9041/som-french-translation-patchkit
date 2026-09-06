@@ -1,1 +1,2 @@
 Pillow>=10.0
+RapidFuzz>=3.0

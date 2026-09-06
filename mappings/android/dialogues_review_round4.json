@@ -1,0 +1,1185 @@
+{
+  "format_version": 1,
+  "status": "round4_user_validated",
+  "source_asset": "dialogues.json",
+  "android_english": {
+    "path": "sources/android/scrtxt_en.bin",
+    "sha256": "4d4508560967b6ce4d6cf992f29e84e2775ed4accc74d87c3fd4269044b75ae5"
+  },
+  "android_french": {
+    "path": "sources/android/scrtxt_fr.bin",
+    "sha256": "cd837aaf53a7979d0e84910e8cda3bd67427f4a3cbddadc351811378d7e7d696"
+  },
+  "policy": {
+    "automatic_translation_generation": false,
+    "english_identity_is_primary": true,
+    "notes": [
+      "SNES PLAYER_NAME commands are represented explicitly as Android-style %S(index,0) placeholders for comparison only.",
+      "Android anchor intervals include following English-empty localization slots.",
+      "Very-high-confidence SNES-to-Android-English identity is not rejected merely because French wording is freely adapted.",
+      "When French or Android segmentation crosses individual anchors, preserve and review the complete local sequence block rather than forcing a per-ID translation."
+    ]
+  },
+  "scenes": [
+    {
+      "event_id": "022E",
+      "label": "Gnome joins the party after Tropicallo",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:98F3"
+          ],
+          "snes_parts": [
+            "C9:98F3"
+          ],
+          "source_display": "GNOME:Phew! Thanks! That\n oaf was ALWAYS bugging me.",
+          "android_anchor_ids": [
+            1034
+          ],
+          "android_unit_ids": [
+            1034
+          ],
+          "android_english_display": "Gnome: Phew! Thanks! That oaf was\nALWAYS bugging me.",
+          "french_nonempty_ids": [
+            1034
+          ],
+          "french_display": "Gnome : Oh, merci ! Vous êtes forts ! Il me persécutait, vous savez !",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Distinct Gnome introduction; exact ordered local anchor.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:992A"
+          ],
+          "snes_parts": [
+            "C9:992A"
+          ],
+          "source_display": " Forgive me. I used you to\n get some relief.",
+          "android_anchor_ids": [
+            1035
+          ],
+          "android_unit_ids": [
+            1035
+          ],
+          "android_english_display": "Forgive me. I used you to get some relief.",
+          "french_nonempty_ids": [
+            1035
+          ],
+          "french_display": "Et je me suis mis à me comporter comme lui... Pardonnez-moi.",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact ordered local anchor.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:995B"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              2
+            ],
+            "C9:995B"
+          ],
+          "source_display": "%S(2,0):Dolt! Serve ME and\n maybe I'll forgive you.",
+          "android_anchor_ids": [
+            1036
+          ],
+          "android_unit_ids": [
+            1036
+          ],
+          "android_english_display": "%S(2,0): Dolt! Serve ME and maybe I'll forgive you.",
+          "french_nonempty_ids": [
+            1036
+          ],
+          "french_display": "%S(2,0) : Pas question ! Si tu veux te faire pardonner, deviens mon esclave !",
+          "relation": "placeholder_join",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "SNES PLAYER_NAME(2) + text equals the Android speaker line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:998A",
+            "C9:99B7"
+          ],
+          "snes_parts": [
+            "C9:998A",
+            [
+              "player_name",
+              0
+            ],
+            "C9:99B7"
+          ],
+          "source_display": " Otherwise, I'll throw you\n to my servant, %S(0,0).",
+          "android_anchor_ids": [
+            1037
+          ],
+          "android_unit_ids": [
+            1037
+          ],
+          "android_english_display": "Otherwise, I'll throw you to my servant, %S(0,0).",
+          "french_nonempty_ids": [
+            1037
+          ],
+          "french_display": "Si tu n'obéis pas, mon larbin %S(0,0) va te donner une leçon...",
+          "relation": "placeholder_join",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "SNES splits the sentence around PLAYER_NAME(0); Android stores one anchor.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:99BB"
+          ],
+          "snes_parts": [
+            "C9:99BB"
+          ],
+          "source_display": "GNOME:Aieee! No!\n Let me be your servant!",
+          "android_anchor_ids": [
+            1038
+          ],
+          "android_unit_ids": [
+            1038
+          ],
+          "android_english_display": "Gnome: Aieee! No! Let me be your servant!",
+          "french_nonempty_ids": [
+            1038
+          ],
+          "french_display": "Gnome : Non ! Pardon ! Je me mettrai à votre service !",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact ordered local anchor.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:99E9"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              0
+            ],
+            "C9:99E9"
+          ],
+          "source_display": "%S(0,0):HEY! Who're YOU\n calling a servant?",
+          "android_anchor_ids": [
+            1039
+          ],
+          "android_unit_ids": [
+            1039
+          ],
+          "android_english_display": "%S(0,0): HEY! Who're YOU calling a servant?",
+          "french_nonempty_ids": [
+            1039
+          ],
+          "french_display": "%S(0,0) : Hé là ! Qui tu traites de larbin ?",
+          "relation": "placeholder_join",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "SNES PLAYER_NAME(0) + text equals the Android speaker line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:9A10"
+          ],
+          "snes_parts": [
+            "C9:9A10"
+          ],
+          "source_display": "GNOME:Oh dear! Anyway,\n call me anytime, anywhere.",
+          "android_anchor_ids": [
+            1040
+          ],
+          "android_unit_ids": [
+            1040
+          ],
+          "android_english_display": "Gnome: Oh dear! Anyway, call me anytime, anywhere.",
+          "french_nonempty_ids": [
+            1040
+          ],
+          "french_display": "Gnome : Bref, appelez-moi quand vous aurez besoin de moi !",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact ordered local anchor.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:9A45"
+          ],
+          "snes_parts": [
+            "C9:9A45"
+          ],
+          "source_display": " Now, close your eyes...",
+          "android_anchor_ids": [
+            1041
+          ],
+          "android_unit_ids": [
+            1041,
+            1042
+          ],
+          "android_english_display": "Now, close your eyes...",
+          "french_nonempty_ids": [
+            1041
+          ],
+          "french_display": "Je volerai à votre secours où que vous soyez ! Allez, fermez les yeux, chef !",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact ordered local anchor; next Android slot is empty.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:9A69"
+          ],
+          "snes_parts": [
+            "C9:9A69"
+          ],
+          "source_display": "GNOME:Both you and your\n wife may summon me.",
+          "android_anchor_ids": [
+            1043
+          ],
+          "android_unit_ids": [
+            1043
+          ],
+          "android_english_display": "Gnome: Both you and your wife may\nsummon me.",
+          "french_nonempty_ids": [
+            1043
+          ],
+          "french_display": "Gnome : Je vous donne ma magie, ainsi qu'à votre dame.",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact ordered local anchor after event animation.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:9A9A",
+            "C9:9AA9"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              1
+            ],
+            "C9:9A9A",
+            "C9:9AA9"
+          ],
+          "source_display": "%S(1,0):WHAT?! ME married\n to...THAT?!",
+          "android_anchor_ids": [
+            1044
+          ],
+          "android_unit_ids": [
+            1044
+          ],
+          "android_english_display": "%S(1,0): WHAT!? ME married to...THAT!?",
+          "french_nonempty_ids": [
+            1044
+          ],
+          "french_display": "%S(1,0) : Hein ?! Depuis quand on est mariés ?!",
+          "relation": "placeholder_plus_event_split",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "One Android line spans two SNES text tokens separated by character-action commands.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:9ACA"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              2
+            ],
+            "C9:9ACA"
+          ],
+          "source_display": "%S(2,0):I like your style,\n Gnome!",
+          "android_anchor_ids": [
+            1045
+          ],
+          "android_unit_ids": [
+            1045
+          ],
+          "android_english_display": "%S(2,0): I like your style, Gnome!",
+          "french_nonempty_ids": [
+            1045
+          ],
+          "french_display": "%S(2,0) : Ha ha ! Tu me plais, Gnome !",
+          "relation": "placeholder_join",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "SNES PLAYER_NAME(2) + text equals the Android speaker line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:9AE8"
+          ],
+          "snes_parts": [
+            "C9:9AE8"
+          ],
+          "source_display": "GNOME:Well, that's that!\n Be seeing you!",
+          "android_anchor_ids": [
+            1046
+          ],
+          "android_unit_ids": [
+            1046,
+            1047
+          ],
+          "android_english_display": "Gnome: Well, that's that! Be seeing you!",
+          "french_nonempty_ids": [
+            1046
+          ],
+          "french_display": "Gnome : Je me retire. À bientôt !",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact final anchor of the scene run.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "0581",
+      "label": "Undine grants magic and the Pole Dart",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:6BD6"
+          ],
+          "snes_parts": [
+            "CA:6BD6"
+          ],
+          "source_display": "UNDINE:Thank you!\n I am Undine.\n My power is your reward.",
+          "android_anchor_ids": [
+            956
+          ],
+          "android_unit_ids": [
+            956
+          ],
+          "android_english_display": "Undine: Thank you! I am Undine, the water elemental. My power is your reward.",
+          "french_nonempty_ids": [
+            956
+          ],
+          "french_display": "Merci ! Je suis Ondine, l'esprit de l'eau. Acceptez ma magie en gage de ma gratitude. ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 83.9,
+            "source_token_coverage": 100.0,
+            "lexical_score": 87.9
+          },
+          "note": "Same unique Undine introduction; Android expands 'Undine' to 'water elemental'.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:6C16"
+          ],
+          "snes_parts": [
+            "CA:6C16"
+          ],
+          "source_display": "\nUNDINE:I'll give you 2\n kinds of magic.",
+          "android_anchor_ids": [
+            957
+          ],
+          "android_unit_ids": [
+            957
+          ],
+          "android_english_display": "Undine: I'll give you two kinds of magic.",
+          "french_nonempty_ids": [
+            957
+          ],
+          "french_display": "Nous autres esprits pouvons vous accorder deux types de magie, selon celui qui nous invoque. ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 94.7,
+            "source_token_coverage": 88.9,
+            "lexical_score": 93.3
+          },
+          "note": "Unique ordered magic-introduction line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:6C41",
+            "CA:6C44"
+          ],
+          "snes_parts": [
+            "CA:6C41",
+            [
+              "player_name",
+              1
+            ],
+            "CA:6C44"
+          ],
+          "source_display": " %S(1,0) can use my recovery\n and defense magic.",
+          "android_anchor_ids": [
+            958
+          ],
+          "android_unit_ids": [
+            958,
+            959
+          ],
+          "android_english_display": "%S(1,0) can use my recovery and defense magic.",
+          "french_nonempty_ids": [
+            958
+          ],
+          "french_display": "%S(1,0) pourra vous soigner et vous protéger...",
+          "relation": "placeholder_join",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "SNES layout token + PLAYER_NAME(1) + continuation form one Android anchor.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:6C81",
+            "CA:6C84"
+          ],
+          "snes_parts": [
+            "CA:6C81",
+            [
+              "player_name",
+              2
+            ],
+            "CA:6C84"
+          ],
+          "source_display": " %S(2,0) can use my battle\n magic.",
+          "android_anchor_ids": [
+            960
+          ],
+          "android_unit_ids": [
+            960,
+            961
+          ],
+          "android_english_display": "%S(2,0) can use my battle magic.",
+          "french_nonempty_ids": [
+            960
+          ],
+          "french_display": "Et %S(2,0) pourra attaquer l'ennemi à l'aide de la puissance de l'eau et de la glace.",
+          "relation": "placeholder_join",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "SNES layout token + PLAYER_NAME(2) + continuation form one Android anchor.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:6CC7"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              0
+            ],
+            "CA:6CC7"
+          ],
+          "source_display": "%S(0,0):And me?",
+          "android_anchor_ids": [
+            962
+          ],
+          "android_unit_ids": [
+            962
+          ],
+          "android_english_display": "%S(0,0): And me?",
+          "french_nonempty_ids": [
+            962
+          ],
+          "french_display": "%S(0,0) : Et moi ?",
+          "relation": "placeholder_join",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact player-name question in ordered run.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:6CD2"
+          ],
+          "snes_parts": [
+            "CA:6CD2"
+          ],
+          "source_display": "UNDINE:Your Mana Sword will\n one day become more\n powerful than any magic.",
+          "android_anchor_ids": [
+            963
+          ],
+          "android_unit_ids": [
+            963
+          ],
+          "android_english_display": "Undine: Your Mana Sword will one day become more powerful than any magic.",
+          "french_nonempty_ids": [
+            963
+          ],
+          "french_display": "Ondine : Comme tu as retiré l'Épée, tu ne peux plus utiliser la magie. ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Unique Mana Sword explanation anchor.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:6D1E"
+          ],
+          "snes_parts": [
+            "CA:6D1E"
+          ],
+          "source_display": "\n You can receive an\n Elemental's power, such as\n Ice Saber, on your sword!",
+          "android_anchor_ids": [
+            964
+          ],
+          "android_unit_ids": [
+            964
+          ],
+          "android_english_display": "You can receive an elemental's power, such as Ice Saber, on your sword!",
+          "french_nonempty_ids": [
+            964
+          ],
+          "french_display": "Si tu essayais, cette dernière entrerait en conflit avec l'énergie de l'Épée, et tu pourrais en mourir. ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Unique Ice Saber explanation anchor; French localization rewrites the explanation.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:6D6B",
+            "CA:6D6F"
+          ],
+          "snes_parts": [
+            "CA:6D6B",
+            [
+              "player_name",
+              1
+            ],
+            "CA:6D6F"
+          ],
+          "source_display": "\n %S(1,0) can cast Ice Saber\n on your weapon to turn\n enemies into snowmen!",
+          "android_anchor_ids": [
+            965
+          ],
+          "android_unit_ids": [
+            965,
+            966
+          ],
+          "android_english_display": "%S(1,0) can cast Ice Saber on your weapon to turn enemies into snowmen!",
+          "french_nonempty_ids": [
+            965,
+            966
+          ],
+          "french_display": "Tu peux cependant bénéficier des sorts que %S(1,0) lancera sur ton arme, comme la Lame de glace. Une arme investie de ce pouvoir gèle celui qu'elle frappe et le change en bonhomme de neige !",
+          "relation": "placeholder_join_with_french_continuation",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Android English anchor 965 is followed by empty 966, which French uses to continue the localized explanation.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:6DB3"
+          ],
+          "snes_parts": [
+            "CA:6DB3"
+          ],
+          "source_display": "\n And this! Take this with\n you. It is one of the Mana\n weapons.",
+          "android_anchor_ids": [
+            967
+          ],
+          "android_unit_ids": [
+            967
+          ],
+          "android_english_display": "And this! Take this with you. It is one of the Mana weapons.",
+          "french_nonempty_ids": [
+            967
+          ],
+          "french_display": "Je vous offre aussi cette arme. Elle vous permettra d'atteindre les ennemis qui se trouvent en hauteur ou en contrebas. ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Unique weapon-gift line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:6DF9"
+          ],
+          "snes_parts": [
+            "CA:6DF9"
+          ],
+          "source_display": "Received Pole Dart!",
+          "android_anchor_ids": [
+            968
+          ],
+          "android_unit_ids": [
+            968
+          ],
+          "android_english_display": "Received Pole Dart!",
+          "french_nonempty_ids": [
+            968
+          ],
+          "french_display": "　Vous obtenez le Javelot !",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact item-receipt text; preceding SNES newline/TEXT_X are layout commands, not semantic prose.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:6E19"
+          ],
+          "snes_parts": [
+            "CA:6E19"
+          ],
+          "source_display": "UNDINE:Call me anytime!",
+          "android_anchor_ids": [
+            969
+          ],
+          "android_unit_ids": [
+            969,
+            970
+          ],
+          "android_english_display": "Undine: Call me anytime!",
+          "french_nonempty_ids": [
+            969
+          ],
+          "french_display": "N'hésitez pas à faire appel à moi si je peux vous aider.",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Unique Undine farewell anchor.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:6E50"
+          ],
+          "snes_parts": [
+            "CA:6E50"
+          ],
+          "source_display": "  Gained Undine's powers!",
+          "android_anchor_ids": [
+            971
+          ],
+          "android_unit_ids": [
+            971
+          ],
+          "android_english_display": "Gained Undine's powers!",
+          "french_nonempty_ids": [
+            971
+          ],
+          "french_display": "　Vous obtenez les pouvoirs d'Ondine !",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact power-acquisition notification; preceding SNES newline is layout-only.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:6E79"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              2
+            ],
+            "CA:6E79"
+          ],
+          "source_display": "%S(2,0):No one can stop\n ME now!",
+          "android_anchor_ids": [
+            972
+          ],
+          "android_unit_ids": [
+            972
+          ],
+          "android_english_display": "%S(2,0): No one can stop ME now!",
+          "french_nonempty_ids": [
+            972
+          ],
+          "french_display": "%S(2,0) : Hé hé hé ! J'suis un sorcier, maintenant !",
+          "relation": "placeholder_join",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact player-name boast at the end of the scene.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "04B3",
+      "label": "Emperor trap and Sheex / Dark Stalker reveal",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:1ECE"
+          ],
+          "snes_parts": [
+            "CA:1ECE"
+          ],
+          "source_display": "EMPEROR:So glad to see you!\n You're going to like this.",
+          "android_anchor_ids": [
+            2681
+          ],
+          "android_unit_ids": [
+            2681
+          ],
+          "android_english_display": "Emperor: So glad to see you! You're going to like this.",
+          "french_nonempty_ids": [
+            2681
+          ],
+          "french_display": "Empereur : Ha ha ha... tout droit dans la gueule du loup. Je ne vous laisserai pas me mettre des bâtons dans les roues, cette fois ! ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Unique Emperor opening line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:1F09"
+          ],
+          "snes_parts": [
+            "CA:1F09"
+          ],
+          "source_display": " The ancient continent will\n surface once I've broken\n all the palace seals.",
+          "android_anchor_ids": [
+            2682
+          ],
+          "android_unit_ids": [
+            2682
+          ],
+          "android_english_display": "The ancient continent will surface once I've broken all the palace seals.",
+          "french_nonempty_ids": [
+            2682
+          ],
+          "french_display": "Une fois les huit sceaux brisés, le continent ancien va refaire surface ! ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact ordered ancient-continent line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:1F57"
+          ],
+          "snes_parts": [
+            "CA:1F57"
+          ],
+          "source_display": "\n Once I break this last\n seal, the Mana Fortress\n will rise!",
+          "android_anchor_ids": [
+            2683
+          ],
+          "android_unit_ids": [
+            2683
+          ],
+          "android_english_display": "Once I break this last seal, the Mana Fortress will rise!",
+          "french_nonempty_ids": [
+            2683
+          ],
+          "french_display": "Il ne reste plus que ce sceau... ensuite, la Forteresse de Mana s'élèvera de nouveau ! ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact ordered Mana Fortress line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:1F97"
+          ],
+          "snes_parts": [
+            "CA:1F97"
+          ],
+          "source_display": " Too bad you won't be\n around!",
+          "android_anchor_ids": [
+            2684
+          ],
+          "android_unit_ids": [
+            2684
+          ],
+          "android_english_display": "Too bad you won't be around!_",
+          "french_nonempty_ids": [
+            2684
+          ],
+          "french_display": "Malheureusement, vous ne serez plus là pour y assister... Ha ha ha._",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact ordered threat; Android underscore is a presentation marker.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:1FBC"
+          ],
+          "snes_parts": [
+            "CA:1FBC"
+          ],
+          "source_display": " Who wants the job?",
+          "android_anchor_ids": [
+            2685
+          ],
+          "android_unit_ids": [
+            2685
+          ],
+          "android_english_display": "Who wants the job?",
+          "french_nonempty_ids": [
+            2685
+          ],
+          "french_display": "Qui veut commencer ? ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact short question in the same ordered run.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:1FE0"
+          ],
+          "snes_parts": [
+            "CA:1FE0"
+          ],
+          "source_display": "SHEEX:I owe them one\n since the Republic!\n Leave it to me!",
+          "android_anchor_ids": [
+            2686
+          ],
+          "android_unit_ids": [
+            2686,
+            2687,
+            2688
+          ],
+          "android_english_display": "Sheex: I've owed them one since the republic! Leave it to me!",
+          "french_nonempty_ids": [
+            2686,
+            2688
+          ],
+          "french_display": "Sheek : Votre Majesté, laissez-moi m'en charger. Partez en avant avec Faunach, et retrouvons-nous à l'autel.  Sheek : J'ai enfin ma chance de me venger de l'humiliation de Tasmanica ! ",
+          "relation": "one_to_one_with_french_continuation",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 96.4,
+            "source_token_coverage": 91.7,
+            "lexical_score": 95.2
+          },
+          "note": "English 2687-2688 are empty localization slots; French uses 2688 for extra Sheex detail.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:2033"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              0
+            ],
+            "CA:2033"
+          ],
+          "source_display": "%S(0,0):You?\n You're the Dark Stalker?!",
+          "android_anchor_ids": [
+            2689
+          ],
+          "android_unit_ids": [
+            2689
+          ],
+          "android_english_display": "%S(0,0): You? You're the Dark Stalker!?",
+          "french_nonempty_ids": [
+            2689
+          ],
+          "french_display": "%S(0,0) : C'était vous, l'assassin noir qui a tenté de tuer le roi ? ",
+          "relation": "placeholder_join",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact player-name Dark Stalker reveal.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:2056"
+          ],
+          "snes_parts": [
+            "CA:2056"
+          ],
+          "source_display": "SHEEX:Behold! Have a taste\n of my true power!",
+          "android_anchor_ids": [
+            2690
+          ],
+          "android_unit_ids": [
+            2690
+          ],
+          "android_english_display": "Sheex: Behold! Have a taste of my true power!",
+          "french_nonempty_ids": [
+            2690
+          ],
+          "french_display": "Sheek : Oui ! Mais quand je me serai transformé, vous ne ferez pas le poids contre moi ! ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact Sheex transformation challenge.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:208F"
+          ],
+          "snes_parts": [
+            "CA:208F"
+          ],
+          "source_display": "SHEEX:Ha! The underworld\n gives us its strength.\n I'll squash you!",
+          "android_anchor_ids": [
+            2723
+          ],
+          "android_unit_ids": [
+            2723,
+            2724
+          ],
+          "android_english_display": "Sheex: Ha! The underworld gives us its strength. I'll squash you!",
+          "french_nonempty_ids": [
+            2723,
+            2724
+          ],
+          "french_display": "Sheek : Mouahaha ! Des gamins comme vous ne pourront jamais battre la puissance des forces du mal !  %S(0,0) : Quoi ? Mais alors... vos pouvoirs... L'Empereur a réellement... ?!",
+          "relation": "one_to_one_with_french_continuation",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Post-battle scene resumes at Android 2723; empty English 2724 carries extra French reaction text.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:20D3"
+          ],
+          "snes_parts": [
+            "CA:20D3"
+          ],
+          "source_display": "\nSHEEX:The contract we signed with the underworld gives\n us control of THIS world!",
+          "android_anchor_ids": [
+            2725
+          ],
+          "android_unit_ids": [
+            2725
+          ],
+          "android_english_display": "Sheex: The contract we signed with the underworld gives us control of THIS world!",
+          "french_nonempty_ids": [
+            2725
+          ],
+          "french_display": "Sheek : Oui... Nous avons conclu un pacte avec les forces maléfiques, pour régner sur le monde ! ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Unique underworld-contract line after the Android-ID jump.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:2128"
+          ],
+          "snes_parts": [
+            "CA:2128"
+          ],
+          "source_display": " To keep humans under my\n control, we're reviving\n the Mana Fortress!",
+          "android_anchor_ids": [
+            2726
+          ],
+          "android_unit_ids": [
+            2726
+          ],
+          "android_english_display": "To keep humans under our control, we're reviving the Mana Fortress!",
+          "french_nonempty_ids": [
+            2726
+          ],
+          "french_display": "Et maintenant, nous allons rétablir la Forteresse de Mana, et plus personne ne pourra se dresser sur notre chemin !",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 96.1,
+            "source_token_coverage": 91.7,
+            "lexical_score": 95.0
+          },
+          "note": "Same Mana Fortress motive; minor pronoun wording difference does not affect identity.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:2170"
+          ],
+          "snes_parts": [
+            "CA:2170"
+          ],
+          "source_display": " Now your time is over...",
+          "android_anchor_ids": [
+            2727
+          ],
+          "android_unit_ids": [
+            2727
+          ],
+          "android_english_display": "Now your time is over...",
+          "french_nonempty_ids": [
+            2727
+          ],
+          "french_display": "Préparez-vous à mourir ! ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact final threat of the ordered scene run.",
+          "user_validation": "accepted"
+        }
+      ]
+    }
+  ]
+}

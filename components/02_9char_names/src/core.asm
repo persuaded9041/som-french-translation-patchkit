@@ -22,7 +22,6 @@ dw $3595
 org $C033BE
 dl $E44000
 
-; French direct-glyph range $D4-$E0; $E1 remains the first DTE code.
-; Glyph data itself is generated from shared/french_charset.
-org $C016F6
-    db $E1
+; Direct-glyph/DTE routing is documented in name_dte.asm. Ordinary text
+; still uses the $E1 base threshold; the relocated bank-$E4 Name Entry
+; resource and PLAYER_NAME scratch source use $E8 so ♪, ° and ; stay direct.

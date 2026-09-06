@@ -179,3 +179,12 @@ For any candidate, trace the runtime access path before adding it to a canonical
 asset. Record the pointer/reference mechanism, exact physical boundaries and
 round-trip invariant. This avoids reintroducing the false-positive problem caused
 by the game's dense DTE encoding.
+
+## Android alignment checkpoint
+
+Cross-version matching of the canonical USA inventory against the supplied
+Android English/French `scrtxt` resources is tracked separately in
+`docs/ANDROID_TEXT_ALIGNMENT.md`. The current pilot establishes local scene-order
+evidence and Android localization-slot behavior without adding any French
+dialogue to component 08.
+

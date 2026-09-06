@@ -1,8 +1,12 @@
 {
   "format_version": 1,
   "encoding": "Secret of Mana direct glyph codes",
-  "first_code": "D4",
+  "first_code": "D3",
   "characters": [
+    {
+      "char": "♪",
+      "code": "D3"
+    },
     {
       "char": "Ç",
       "code": "D4"
@@ -74,6 +78,14 @@
     {
       "char": "œ",
       "code": "E5"
+    },
+    {
+      "char": "°",
+      "code": "E6"
+    },
+    {
+      "char": ";",
+      "code": "E7"
     }
   ],
   "profiles": {
@@ -117,6 +129,32 @@
         "œ"
       ],
       "dte_threshold": "E6"
+    },
+    "dialogue_french": {
+      "chars": [
+        "♪",
+        "Ç",
+        "à",
+        "â",
+        "ç",
+        "é",
+        "è",
+        "ê",
+        "ë",
+        "î",
+        "ï",
+        "ô",
+        "ù",
+        "û",
+        "À",
+        "É",
+        "Î",
+        "Œ",
+        "œ",
+        "°",
+        ";"
+      ],
+      "dte_threshold": "E8"
     }
   }
 }

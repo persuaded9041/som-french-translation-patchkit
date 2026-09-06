@@ -1,0 +1,762 @@
+{
+  "format_version": 1,
+  "status": "round2_user_validated",
+  "source_asset": "dialogues.json",
+  "android_english": {
+    "path": "sources/android/scrtxt_en.bin",
+    "sha256": "4d4508560967b6ce4d6cf992f29e84e2775ed4accc74d87c3fd4269044b75ae5"
+  },
+  "android_french": {
+    "path": "sources/android/scrtxt_fr.bin",
+    "sha256": "cd837aaf53a7979d0e84910e8cda3bd67427f4a3cbddadc351811378d7e7d696"
+  },
+  "policy": {
+    "automatic_translation_generation": false,
+    "english_identity_is_primary": true,
+    "notes": [
+      "SNES PLAYER_NAME commands are represented explicitly as Android-style %S(index,0) placeholders for comparison only.",
+      "Android anchor intervals include following English-empty localization slots.",
+      "Very-high-confidence SNES-to-Android-English identity is not rejected merely because French wording is freely adapted.",
+      "When French or Android segmentation crosses individual anchors, preserve and review the complete local sequence block rather than forcing a per-ID translation."
+    ]
+  },
+  "scenes": [
+    {
+      "event_id": "010C",
+      "label": "Potos village - Mana Sword aftermath",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:2CBD",
+            "C9:2CC5"
+          ],
+          "snes_parts": [
+            "C9:2CBD",
+            [
+              "player_name",
+              0
+            ],
+            "C9:2CC5"
+          ],
+          "source_display": "ELDER:%S(0,0)! You're not\n hurt! They just told me\n what happened.",
+          "android_anchor_ids": [
+            42
+          ],
+          "android_unit_ids": [
+            42,
+            43
+          ],
+          "android_english_display": "Elder: %S(0,0)! You're all right! They just told me what happened.",
+          "french_nonempty_ids": [
+            42
+          ],
+          "french_display": "Chef : Oh ! Tu es sain et sauf, %S(0,0) !\nBob et Ness m'ont raconté ce qui s'est passé.",
+          "relation": "many_snes_parts_to_one_android",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 91.5,
+            "source_token_coverage": 83.3,
+            "lexical_score": 89.4
+          },
+          "note": "PLAYER_NAME is explicit between two SNES text tokens.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:2D10"
+          ],
+          "snes_parts": [
+            "C9:2D10"
+          ],
+          "source_display": "ELLIOTT:I thought you were\n a goner!",
+          "android_anchor_ids": [
+            44
+          ],
+          "android_unit_ids": [
+            44
+          ],
+          "android_english_display": "Elliott: I thought you were a goner!",
+          "french_nonempty_ids": [
+            44
+          ],
+          "french_display": "Bob : On a cru que t'étais mort, espèce d'idiot ! ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Distinct speaker and wording; ordered local block.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:2D37"
+          ],
+          "snes_parts": [
+            "C9:2D37"
+          ],
+          "source_display": "TIMOTHY:I told you it was\n stupid to bring someone\n like HIM along!",
+          "android_anchor_ids": [
+            45
+          ],
+          "android_unit_ids": [
+            45
+          ],
+          "android_english_display": "Timothy: I told you it was stupid to bring someone like HIM along!",
+          "french_nonempty_ids": [
+            45
+          ],
+          "french_display": "Ness : Je t'avais bien dit de pas emmener ce boulet avec nous. Pfff... ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Distinct speaker and wording; ordered local block.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:2D83"
+          ],
+          "snes_parts": [
+            "C9:2D83"
+          ],
+          "source_display": "ELDER:You idiots! Weren't\n you told not to go there?",
+          "android_anchor_ids": [
+            46
+          ],
+          "android_unit_ids": [
+            46
+          ],
+          "android_english_display": "Elder: You idiots! Weren't you told not to go there?",
+          "french_nonempty_ids": [
+            46
+          ],
+          "french_display": "Chef : Inconscients ! Vous saviez très bien qu'il est formellement interdit de pénétrer dans la forêt !! ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Distinct speaker and wording; ordered local block.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:2DE5",
+            "C9:2DF5"
+          ],
+          "snes_parts": [
+            "C9:2DE5",
+            [
+              "player_name",
+              0
+            ],
+            "C9:2DF5"
+          ],
+          "source_display": "ELDER:Huh? %S(0,0)!\n What's that you have?\n ...Oh, no! It couldn't be!",
+          "android_anchor_ids": [
+            47
+          ],
+          "android_unit_ids": [
+            47
+          ],
+          "android_english_display": "Elder: Huh? %S(0,0)! What's that you have?\n...Oh no! It couldn't be!",
+          "french_nonempty_ids": [
+            47
+          ],
+          "french_display": "Chef : Tiens ? Mais... %S(0,0), qu'est-ce que tu tiens là ?\nC'est... Non, ce n'est pas possible...",
+          "relation": "many_snes_parts_to_one_android",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Android combines speaker prefix, PLAYER_NAME and following SNES text.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:2E2F"
+          ],
+          "snes_parts": [
+            "C9:2E2F"
+          ],
+          "source_display": "ELLIOTT:Cool! Did you find\n the treasure?\nTIMOTHY:Way to go!",
+          "android_anchor_ids": [
+            48,
+            49
+          ],
+          "android_unit_ids": [
+            48,
+            49
+          ],
+          "android_english_display": "Elliott: Cool! Did you find the treasure? Timothy: Way to go!",
+          "french_nonempty_ids": [
+            48,
+            49
+          ],
+          "french_display": "Bob : Oh ! T'as trouvé le trésor ?!  Ness : Bien joué ! ",
+          "relation": "one_snes_to_many_android",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "One SNES text token contains two speaker lines that Android splits.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:2E70",
+            "C9:2EBD"
+          ],
+          "snes_parts": [
+            "C9:2E70",
+            "C9:2EBD"
+          ],
+          "source_display": "\nELDER:What have you done?!\n How could YOU have pulled\n out the Mana Sword?\n It's impossible!",
+          "android_anchor_ids": [
+            50
+          ],
+          "android_unit_ids": [
+            50
+          ],
+          "android_english_display": "Elder: What have you done!? How could YOU have pulled out the Mana Sword? It's impossible!",
+          "french_nonempty_ids": [
+            50
+          ],
+          "french_display": "Chef : Qu'as-tu fait ?! Tu as pris l'Épée sacrée ?!\nJe croyais pourtant que c'était impossible... ",
+          "relation": "many_snes_to_one_android",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Two SNES text tokens form one Android sentence.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:2ED2",
+            "C9:2EEE"
+          ],
+          "snes_parts": [
+            "C9:2ED2",
+            "C9:2EEE"
+          ],
+          "source_display": "TIMOTHY:THE Mana Sword?!\n Legend has it that our\n village is finished...",
+          "android_anchor_ids": [
+            51
+          ],
+          "android_unit_ids": [
+            51
+          ],
+          "android_english_display": "Timothy: THE Mana Sword!? Legend has it that our village will be no more...",
+          "french_nonempty_ids": [
+            51
+          ],
+          "french_display": "Ness : Ouah ! L'Épée sacrée ?! J'en ai entendu parler ! On dit que le village sera perdu si quelqu'un l'enlève de son rocher !",
+          "relation": "many_snes_to_one_android",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 86.6,
+            "source_token_coverage": 83.3,
+            "lexical_score": 85.8
+          },
+          "note": "Two SNES text tokens form one Android sentence.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:2F23"
+          ],
+          "snes_parts": [
+            "C9:2F23"
+          ],
+          "source_display": "ELDER:..If the sword is\n removed.\n And here it is!",
+          "android_anchor_ids": [
+            52
+          ],
+          "android_unit_ids": [
+            52
+          ],
+          "android_english_display": "Elder: ...If the sword is removed. And here it is!",
+          "french_nonempty_ids": [
+            52
+          ],
+          "french_display": "Chef : Et c'est précisément ce qu'a fait %S(0,0) ! Malheur sur nous !",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Ordered local block.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:2F5B"
+          ],
+          "snes_parts": [
+            "C9:2F5B"
+          ],
+          "source_display": " It is said that the Mana\n Sword has been protecting\n our village from disaster.",
+          "android_anchor_ids": [
+            53
+          ],
+          "android_unit_ids": [
+            53
+          ],
+          "android_english_display": "It is said that the Mana Sword protects our village from disaster.",
+          "french_nonempty_ids": [
+            53
+          ],
+          "french_display": "D'après la légende, l'Épée sacrée protège notre village. Du moins, tant qu'elle reste sur son socle. ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 90.8,
+            "source_token_coverage": 78.6,
+            "lexical_score": 87.7
+          },
+          "note": "Ordered local block.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:2FB3"
+          ],
+          "snes_parts": [
+            "C9:2FB3"
+          ],
+          "source_display": "ELLIOTT:So that's it!\n That's why all the monsters are attacking us now!",
+          "android_anchor_ids": [
+            54
+          ],
+          "android_unit_ids": [
+            54,
+            55
+          ],
+          "android_english_display": "Elliott: So that's it! That's why all the monsters are attacking us now!",
+          "french_nonempty_ids": [
+            54
+          ],
+          "french_display": "Bob : T'as vu ce que t'as fait, crétin ?\nC'est à cause de toi que les monstres nous attaquent !",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Ordered local block.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:3003"
+          ],
+          "snes_parts": [
+            "C9:3003"
+          ],
+          "source_display": " How could an outsider like\n you yank out the sword and\n bring doom to us all!!",
+          "android_anchor_ids": [
+            56
+          ],
+          "android_unit_ids": [
+            56,
+            57
+          ],
+          "android_english_display": "How could an outsider like you yank out the sword and bring doom to us all!?",
+          "french_nonempty_ids": [
+            56
+          ],
+          "french_display": "T'es même pas des nôtres et t'as mis le village en danger en prenant cette épée !\nTu vas nous le payer ! Prends ça ! ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Ordered local block; Android 55 is an empty localization slot.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:306A"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              0
+            ],
+            "C9:306A"
+          ],
+          "source_display": "%S(0,0):Hey! Stop it!\nELLIOTT:YOU did it!",
+          "android_anchor_ids": [
+            58,
+            59
+          ],
+          "android_unit_ids": [
+            58,
+            59,
+            60
+          ],
+          "android_english_display": "%S(0,0): Hey! Stop it! Elliott: YOU did it!",
+          "french_nonempty_ids": [
+            58,
+            59
+          ],
+          "french_display": "%S(0,0) : Hé ! Arrête !  Bob : Tais-toi ! Tout est de ta faute ! ",
+          "relation": "one_snes_with_placeholder_to_many_android",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "SNES embeds two speakers in one text token after PLAYER_NAME; Android splits them.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:30A8"
+          ],
+          "snes_parts": [
+            "C9:30A8"
+          ],
+          "source_display": "ELLIOTT:It's your fault!",
+          "android_anchor_ids": [
+            61
+          ],
+          "android_unit_ids": [
+            61
+          ],
+          "android_english_display": "Elliott: It's your fault!",
+          "french_nonempty_ids": [
+            61
+          ],
+          "french_display": "Bob : Reste là ! ",
+          "relation": "one_to_one",
+          "proposed_confidence": "manual_review_semantic",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "English is an exact match, but French slot 61 ('Reste là !') is not a literal/obvious translation; verify scene semantics.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:3104"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              0
+            ],
+            "C9:3104"
+          ],
+          "source_display": "%S(0,0):Please, stop!",
+          "android_anchor_ids": [
+            62
+          ],
+          "android_unit_ids": [
+            62
+          ],
+          "android_english_display": "%S(0,0): Please. Stop...",
+          "french_nonempty_ids": [
+            62
+          ],
+          "french_display": "%S(0,0) : Mais arrête ! ",
+          "relation": "placeholder_plus_snes_to_one_android",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Android omits the preceding standalone SNES 'ELLIOTT:You!' fragment; this unit covers only the player line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:311F"
+          ],
+          "snes_parts": [
+            "C9:311F"
+          ],
+          "source_display": "  Waaah!  Earthquake!..",
+          "android_anchor_ids": [
+            63
+          ],
+          "android_unit_ids": [
+            63,
+            64
+          ],
+          "android_english_display": "Waaah! Earthquake!",
+          "french_nonempty_ids": [
+            63
+          ],
+          "french_display": "Ah ! Un tremblement de terre !! ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Distinct earthquake line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:3162"
+          ],
+          "snes_parts": [
+            "C9:3162"
+          ],
+          "source_display": "  Aaaaaaah...",
+          "android_anchor_ids": [
+            65
+          ],
+          "android_unit_ids": [
+            65
+          ],
+          "android_english_display": "Aaaaaaah...",
+          "french_nonempty_ids": [
+            65
+          ],
+          "french_display": "Aaaaaaah !! ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Distinct scream; Android 64 is empty.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:317D",
+            "C9:319E"
+          ],
+          "snes_parts": [
+            "C9:317D",
+            "C9:319E"
+          ],
+          "source_display": "ELLIOTT:Help! A m...monster! You have a sword, don't\n you? Use it!",
+          "android_anchor_ids": [
+            117
+          ],
+          "android_unit_ids": [
+            117,
+            118
+          ],
+          "android_english_display": "Elliott: Help! A m-monster! You have a sword, don't you? Use it!",
+          "french_nonempty_ids": [
+            117
+          ],
+          "french_display": "Bob : Un monstre ! %S(0,0), t'as une épée ! Fais quelque chose ! ",
+          "relation": "many_snes_to_one_android",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Android merges the two SNES monster-warning text tokens.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:31D4"
+          ],
+          "snes_parts": [
+            "C9:31D4"
+          ],
+          "source_display": "MAN:Hey! Can you hear me?\n Watch how the monster\n moves before attacking!",
+          "android_anchor_ids": [
+            119
+          ],
+          "android_unit_ids": [
+            119,
+            120
+          ],
+          "android_english_display": "Man: Hey! Can you hear me? Watch how the monster moves before attacking!",
+          "french_nonempty_ids": [
+            119
+          ],
+          "french_display": "Voyageur : Hé, tu m'entends, mon garçon ? Reste calme et observe les mouvements de ton adversaire ! Puis guette le bon moment et frappe ! ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Distinct tutorial line; Android 120 is an empty localization slot.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "00B3",
+      "label": "Gold City - Light Palace / tower key NPC",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:16DD"
+          ],
+          "snes_parts": [
+            "C9:16DD"
+          ],
+          "source_display": "King Manmon sealed off the\nLight Palace, at the edge\nof town.",
+          "android_anchor_ids": [
+            2479
+          ],
+          "android_unit_ids": [
+            2479
+          ],
+          "android_english_display": "King Mammon sealed off the Light Palace at the edge of town.",
+          "french_nonempty_ids": [
+            2479
+          ],
+          "french_display": "Seul le roi peut entrer dans la tour à l'extérieur de la ville. On l'appelait jadis \"Temple de la Lumière\".",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 98.3,
+            "source_token_coverage": 91.7,
+            "lexical_score": 96.6
+          },
+          "note": "Three-line NPC speech begins an exact ordered run.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:171C"
+          ],
+          "snes_parts": [
+            "C9:171C"
+          ],
+          "source_display": "\nThe tower key was stolen by\na spy from Tasnica. Caught\nhim in Southtown.",
+          "android_anchor_ids": [
+            2480
+          ],
+          "android_unit_ids": [
+            2480
+          ],
+          "android_english_display": "The tower key was stolen by a spy from Tasnica. Caught him in Southtown.",
+          "french_nonempty_ids": [
+            2480
+          ],
+          "french_display": "Un espion de Tasmanica en a volé la clef il y a des années, mais il a été capturé à Méridia et exécuté.",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Second entry of the same ordered NPC run.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:1767"
+          ],
+          "snes_parts": [
+            "C9:1767"
+          ],
+          "source_display": "\nBut the key was never found!What's in that tower?",
+          "android_anchor_ids": [
+            2481
+          ],
+          "android_unit_ids": [
+            2481
+          ],
+          "android_english_display": "But the key was never found! What's in that tower?",
+          "french_nonempty_ids": [
+            2481
+          ],
+          "french_display": "On n'a cependant jamais retrouvé la clef... Je me demande bien ce qu'il y a dans cette tour.",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Third entry of the same ordered NPC run.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "0138",
+      "label": "Luka - Undine directions",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:3EB0",
+            "C9:3EFC",
+            "C9:3F48"
+          ],
+          "snes_parts": [
+            "C9:3EB0",
+            "C9:3EFC",
+            "C9:3F48"
+          ],
+          "source_display": "LUKA:Undine, the Elemental\n of water, lives in a cave\n behind a waterfall.\n It's east of the steps\n leading to this palace.\n You've got to find her!\n Her seal on this palace\n has failed, and I fear\n she is in great danger!",
+          "android_anchor_ids": [
+            869,
+            870,
+            871
+          ],
+          "android_unit_ids": [
+            869,
+            870,
+            871
+          ],
+          "android_english_display": "Luka: Undine, the elemental of water, lives in a cave behind a waterfall. It's east of the steps leading to this palace. You've got to find her! Her seal on this palace has failed, and I fear she is in great danger!",
+          "french_nonempty_ids": [
+            869,
+            870,
+            871
+          ],
+          "french_display": "Rusalka : Ondine, l'esprit de l'eau, vit dans une caverne derrière la cascade à l'est de ce temple. Le sceau qu'elle avait placé sur ce temple s'est soudain rompu. Je m'inquiète pour elle. Suis le chemin à l'est et va la voir !",
+          "relation": "block_redistribution",
+          "proposed_confidence": "block_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "English aligns 1:1 in order, but French redistributes the same scene content across the three slots; validate as a block, not per ID.",
+          "user_validation": "accepted"
+        }
+      ]
+    }
+  ]
+}

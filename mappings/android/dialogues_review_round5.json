@@ -1,0 +1,1791 @@
+{
+  "format_version": 1,
+  "status": "round5_user_validated",
+  "source_asset": "dialogues.json",
+  "android_english": {
+    "path": "sources/android/scrtxt_en.bin",
+    "sha256": "4d4508560967b6ce4d6cf992f29e84e2775ed4accc74d87c3fd4269044b75ae5"
+  },
+  "android_french": {
+    "path": "sources/android/scrtxt_fr.bin",
+    "sha256": "cd837aaf53a7979d0e84910e8cda3bd67427f4a3cbddadc351811378d7e7d696"
+  },
+  "policy": {
+    "automatic_translation_generation": false,
+    "english_identity_is_primary": true,
+    "notes": [
+      "SNES PLAYER_NAME commands are represented explicitly as Android-style %S(index,0) placeholders for comparison only.",
+      "Android anchor intervals include following English-empty localization slots.",
+      "Very-high-confidence SNES-to-Android-English identity is not rejected merely because French wording is freely adapted.",
+      "When French or Android segmentation crosses individual anchors, preserve and review the complete local sequence block rather than forcing a per-ID translation."
+    ]
+  },
+  "scenes": [
+    {
+      "event_id": "0112",
+      "label": "Mantis Ant rescue - isolated tutorial subscene",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:3300"
+          ],
+          "snes_parts": [
+            "C9:3300"
+          ],
+          "source_display": "MAN:You did it!\n Wait there, I'll pull\n you up.",
+          "android_anchor_ids": [
+            123
+          ],
+          "android_unit_ids": [
+            123
+          ],
+          "android_english_display": "Man: You did it! Wait there. I'll pull you up.",
+          "french_nonempty_ids": [
+            123
+          ],
+          "french_display": "Voyageur : Bien joué ! Attends, je vais vous remonter. ",
+          "relation": "one_to_one_subscene",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact unique rescue line. The enclosing SNES event later resets to Android ID 13 because it enters a different story subscene.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "0112",
+      "label": "Mana Sword explanation and Jema departure",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:333D"
+          ],
+          "snes_parts": [
+            "C9:333D"
+          ],
+          "source_display": "ELLIOTT:Waaaaaah!!!",
+          "android_anchor_ids": [
+            13
+          ],
+          "android_unit_ids": [
+            13,
+            14
+          ],
+          "android_english_display": "Elliott: Waaaaaah!!!",
+          "french_nonempty_ids": [
+            13
+          ],
+          "french_display": "Bob : Bah ! D'abord, j'y suis pour rien, moi !",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact Elliott scream; starts a new Android-local block after the rescue tutorial line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:3370"
+          ],
+          "snes_parts": [
+            "C9:3370"
+          ],
+          "source_display": "MAN:That appears to be the\n real Mana Sword.\n",
+          "android_anchor_ids": [
+            15
+          ],
+          "android_unit_ids": [
+            15
+          ],
+          "android_english_display": "Man: That appears to be the real Mana Sword. Well...this certainly is troubling...",
+          "french_nonempty_ids": [
+            15
+          ],
+          "french_display": "Voyageur : On dirait que cette épée est bel et bien la véritable Épée de Mana.\nL'heure est grave. Notre monde est en péril.",
+          "relation": "one_to_one_with_android_expansion",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 71.8,
+            "source_token_coverage": 100.0,
+            "lexical_score": 78.8
+          },
+          "note": "Distinct Mana Sword identification; Android adds a short concern sentence.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:339F"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              0
+            ],
+            "C9:339F"
+          ],
+          "source_display": "%S(0,0):Huh? What?",
+          "android_anchor_ids": [
+            16
+          ],
+          "android_unit_ids": [
+            16
+          ],
+          "android_english_display": "%S(0,0): Huh? What?",
+          "french_nonempty_ids": [
+            16
+          ],
+          "french_display": "%S(0,0) : Ah bon ?! Comment ça ?",
+          "relation": "placeholder_join",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "PLAYER_NAME + source fragment equals Android speaker line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:33AC"
+          ],
+          "snes_parts": [
+            "C9:33AC"
+          ],
+          "source_display": "\nMAN:It is supposed to be\n pulled out by a knight in\n times of great trouble.",
+          "android_anchor_ids": [
+            17
+          ],
+          "android_unit_ids": [
+            17
+          ],
+          "android_english_display": "Man: It is supposed to be pulled out by a knight in times of great trouble.",
+          "french_nonempty_ids": [
+            17
+          ],
+          "french_display": "Voyageur : D'après la légende, l'Épée doit être retirée par un brave lorsqu'un grand danger menace notre monde.",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact ordered lore line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:33FB"
+          ],
+          "snes_parts": [
+            "C9:33FB"
+          ],
+          "source_display": "\n Problem is, you're too\n young! Something must have\n happened to the Mana Sword.",
+          "android_anchor_ids": [
+            18
+          ],
+          "android_unit_ids": [
+            18
+          ],
+          "android_english_display": "Problem is, you're too young! Something must have happened to the Mana Sword.",
+          "french_nonempty_ids": [
+            18
+          ],
+          "french_display": "Mais tu es bien trop jeune. Il a dû arriver quelque chose à l'Épée.",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact ordered lore line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:3450"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              0
+            ],
+            "C9:3450"
+          ],
+          "source_display": "%S(0,0):Here! It's yours!",
+          "android_anchor_ids": [
+            19
+          ],
+          "android_unit_ids": [
+            19
+          ],
+          "android_english_display": "%S(0,0): Here! It's yours!",
+          "french_nonempty_ids": [
+            19
+          ],
+          "french_display": "%S(0,0) : Je... je vous la donne, alors ! ",
+          "relation": "placeholder_join",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact player response after placeholder reconstruction.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:3465"
+          ],
+          "snes_parts": [
+            "C9:3465"
+          ],
+          "source_display": "MAN:Sorry, but the sword is\n losing its power, and must\n be re-energized!",
+          "android_anchor_ids": [
+            20
+          ],
+          "android_unit_ids": [
+            20
+          ],
+          "android_english_display": "Man: No. The sword is losing its power and must be re-energized!",
+          "french_nonempty_ids": [
+            20
+          ],
+          "french_display": "Voyageur : Non ! Dans son état actuel, l'Épée a perdu toute sa puissance. Il est impératif de la restaurer. ",
+          "relation": "one_to_one_minor_wording",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 93.0,
+            "source_token_coverage": 85.7,
+            "lexical_score": 91.2
+          },
+          "note": "Same distinctive sword-reenergizing sentence; Android changes the opening interjection.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:34B0"
+          ],
+          "snes_parts": [
+            "C9:34B0"
+          ],
+          "source_display": "\n Only the person who pulled\n it free can do that.\n",
+          "android_anchor_ids": [
+            21
+          ],
+          "android_unit_ids": [
+            21
+          ],
+          "android_english_display": "Only the person who pulled it free can do that.",
+          "french_nonempty_ids": [
+            21
+          ],
+          "french_display": "Et seul celui qui l'a retirée peut le faire.",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact ordered line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:34E5"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              0
+            ],
+            "C9:34E5"
+          ],
+          "source_display": "%S(0,0):What should I do?",
+          "android_anchor_ids": [
+            22
+          ],
+          "android_unit_ids": [
+            22
+          ],
+          "android_english_display": "%S(0,0): What should I do?",
+          "french_nonempty_ids": [
+            22
+          ],
+          "french_display": "%S(0,0) : Euh... Qu'est-ce que je dois faire, alors ?",
+          "relation": "duplicate_resolved_by_local_order",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "The same English question also exists at Android 832; the surrounding 15-24 block uniquely selects 22 here.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:34F9"
+          ],
+          "snes_parts": [
+            "C9:34F9"
+          ],
+          "source_display": "\nMAN:Visit Sage Luka in the\n Water Palace.",
+          "android_anchor_ids": [
+            23
+          ],
+          "android_unit_ids": [
+            23
+          ],
+          "android_english_display": "Man: Visit Sage Luka in the Water Palace.",
+          "french_nonempty_ids": [
+            23
+          ],
+          "french_display": "Voyageur : Va voir la prêtresse Rusalka, au Temple de l'Eau.",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact ordered destination line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:3526"
+          ],
+          "snes_parts": [
+            "C9:3526"
+          ],
+          "source_display": " She's been protecting these lands for over 200 years.\n Listen to her advice.",
+          "android_anchor_ids": [
+            24
+          ],
+          "android_unit_ids": [
+            24,
+            25
+          ],
+          "android_english_display": "She's been protecting these lands for over two hundred years. Listen to her advice.",
+          "french_nonempty_ids": [
+            24
+          ],
+          "french_display": "Elle veille sur cette terre depuis plus de 200 ans. Elle saura sûrement te donner quelque avis éclairé.",
+          "relation": "one_to_one_minor_wording",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 90.9,
+            "source_token_coverage": 92.9,
+            "lexical_score": 91.4
+          },
+          "note": "Two hundred is numeric on SNES and written out on Android; otherwise same sentence.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:3590",
+            "C9:359A"
+          ],
+          "snes_parts": [
+            "C9:3590",
+            [
+              "player_name",
+              0
+            ],
+            "C9:359A"
+          ],
+          "source_display": "TIMOTHY:%S(0,0)! The Elder\n wants you in his house!",
+          "android_anchor_ids": [
+            26
+          ],
+          "android_unit_ids": [
+            26
+          ],
+          "android_english_display": "Timothy: %S(0,0)! The elder wants you in his house!",
+          "french_nonempty_ids": [
+            26
+          ],
+          "french_display": "Ness : Hé, le chef veut te voir ! Il dit d'aller chez lui !",
+          "relation": "placeholder_join",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "SNES splits Timothy's line around PLAYER_NAME; Android stores one line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:35C1",
+            "C9:35F9"
+          ],
+          "snes_parts": [
+            "C9:35C1",
+            "C9:35F9"
+          ],
+          "source_display": "MAN:Well, I have to be off.\n Oh, my name is Jema.JEMA:I'll wait for you\n inside the Water Palace!",
+          "android_anchor_ids": [
+            27
+          ],
+          "android_unit_ids": [
+            27,
+            28
+          ],
+          "android_english_display": "Man: Well, I have to be off. Oh, my name is Jema. I'll wait for you inside the Water Palace!",
+          "french_nonempty_ids": [
+            27
+          ],
+          "french_display": "Voyageur : Il est temps pour moi de reprendre mon chemin. À propos, mon nom est Gemma.\nRetrouvons-nous au Temple de l'Eau.",
+          "relation": "many_snes_to_one_android",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 97.2,
+            "source_token_coverage": 100.0,
+            "lexical_score": 97.9
+          },
+          "note": "Android merges Jema's introduction and Water Palace departure into one anchor.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "0204",
+      "label": "Water Palace Mana Seed ritual",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:8EFF"
+          ],
+          "snes_parts": [
+            "C9:8EFF"
+          ],
+          "source_display": " Enough! Hold the sword up\n to the seed!",
+          "android_anchor_ids": [
+            839
+          ],
+          "android_unit_ids": [
+            839,
+            840,
+            841
+          ],
+          "android_english_display": "Enough! Hold the Sword up to the Seed!",
+          "french_nonempty_ids": [
+            839,
+            841
+          ],
+          "french_display": "Rusalka : %S(0,0) ! Porte l'Épée à la Graine de Mana, sur l'autel !  %S(0,0) : Mais... Qu'est-ce que...",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact ritual instruction.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:8F73"
+          ],
+          "snes_parts": [
+            "C9:8F73"
+          ],
+          "source_display": " For a moment, the seed\n and the sword became one!",
+          "android_anchor_ids": [
+            842
+          ],
+          "android_unit_ids": [
+            842
+          ],
+          "android_english_display": "For a moment, the Seed and the Sword became one!",
+          "french_nonempty_ids": [
+            842
+          ],
+          "french_display": "Rusalka : Ton Épée s'est alignée sur la puissance de la Graine de Mana, et résonne désormais à l'unisson avec elle ! ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact post-animation line; Android IDs 840-841 are non-prose/empty localization slots.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:8FA8"
+          ],
+          "snes_parts": [
+            "C9:8FA8"
+          ],
+          "source_display": " You have sealed the Mana\n seed with your Mana sword.",
+          "android_anchor_ids": [
+            843
+          ],
+          "android_unit_ids": [
+            843
+          ],
+          "android_english_display": "You have sealed the Mana Seed with your Mana Sword.",
+          "french_nonempty_ids": [
+            843
+          ],
+          "french_display": "Où que tu sois, l'Épée recevra désormais le pouvoir de la Graine de Mana. ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact seed-sealing line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:8FE0"
+          ],
+          "snes_parts": [
+            "C9:8FE0"
+          ],
+          "source_display": " Now the Mana power from\n the seed will be sent only\n to you and your sword.",
+          "android_anchor_ids": [
+            844
+          ],
+          "android_unit_ids": [
+            844,
+            845
+          ],
+          "android_english_display": "Now the Mana power from the Seed will be sent only to you and your sword.",
+          "french_nonempty_ids": [
+            844
+          ],
+          "french_display": "Il existe sept autres temples comme celui-ci dans le monde. Trouve-les et reçois la force de leur Graine. ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact Mana-power line. French redistributes nearby explanatory detail.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "0204",
+      "label": "Water Palace instruction genuinely relocated in Android",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:9076"
+          ],
+          "snes_parts": [
+            "C9:9076"
+          ],
+          "source_display": " The world has 8 palaces.\n Visit them all and receive\n the power from them all!",
+          "android_anchor_ids": [
+            824
+          ],
+          "android_unit_ids": [
+            824
+          ],
+          "android_english_display": "The world has eight palaces. Visit them all and receive the power from them all!",
+          "french_nonempty_ids": [
+            824
+          ],
+          "french_display": "Rusalka : %S(0,0), si l'Empire réussit à réactiver la Forteresse, le pouvoir de Mana disparaîtra à tout jamais de ce monde. ",
+          "relation": "one_to_one_reordered",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 96.1,
+            "source_token_coverage": 93.3,
+            "lexical_score": 95.4
+          },
+          "note": "Exact unique English identity, but Android places this instruction before the ritual block (ID 824 versus 839-844) while SNES places it after. This is a genuine local reorder, not a fuzzy-match error.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "036A",
+      "label": "Scorpion Army boss aftermath",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:D39D"
+          ],
+          "snes_parts": [
+            "C9:D39D"
+          ],
+          "source_display": "BOSS:NUTS! Oh, well...\n See ya, bye!",
+          "android_anchor_ids": [
+            1154
+          ],
+          "android_unit_ids": [
+            1154
+          ],
+          "android_english_display": "Boss: NUTS! Oh, well... See ya, bye!",
+          "french_nonempty_ids": [
+            1154
+          ],
+          "french_display": "Scorpion : Grrr... Vous l'emportez cette fois ! Mais on se reverra, foi de Scorpion !",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact Scorpion boss exit line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "C9:D3D3"
+          ],
+          "snes_parts": [
+            "C9:D3D3"
+          ],
+          "source_display": "Recoverd Mana seed!",
+          "android_anchor_ids": [
+            1155
+          ],
+          "android_unit_ids": [
+            1155
+          ],
+          "android_english_display": "Recovered Mana Seed!",
+          "french_nonempty_ids": [
+            1155
+          ],
+          "french_display": "　Vous récupérez la Graine de Mana !",
+          "relation": "one_to_one_typo_normalization",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 97.3,
+            "source_token_coverage": 66.7,
+            "lexical_score": 89.6
+          },
+          "note": "SNES source has 'Recoverd'; Android corrects it to 'Recovered'.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "036A",
+      "label": "Water Palace follow-up after recovered seed",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:D3EE"
+          ],
+          "snes_parts": [
+            "C9:D3EE"
+          ],
+          "source_display": "Let's bring it back\nto the Water Palace!",
+          "android_anchor_ids": [
+            489
+          ],
+          "android_unit_ids": [
+            489
+          ],
+          "android_english_display": "Let's bring it back to the Water Palace!",
+          "french_nonempty_ids": [
+            489
+          ],
+          "french_display": "%S(0,0) : Ramenons-la au Temple de l'Eau ! ",
+          "relation": "one_to_one_subscene_reset",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact line after TEXT_CLOSE/TEXT_OPEN; Android stores this party follow-up in a different local block.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "04E4",
+      "label": "White dragon discovery",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:3914"
+          ],
+          "snes_parts": [
+            "CA:3914"
+          ],
+          "source_display": "THIS is the legendary\nwhite dragon?",
+          "android_anchor_ids": [
+            1448
+          ],
+          "android_unit_ids": [
+            1448
+          ],
+          "android_english_display": "THIS is the legendary white dragon?_",
+          "french_nonempty_ids": [
+            1448
+          ],
+          "french_display": "%S(0,0) : C'est toi, le dragon de la légende ? Tu m'as l'air bien jeune pour avoir connu ça._",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact distinctive white-dragon line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:3942"
+          ],
+          "snes_parts": [
+            "CA:3942"
+          ],
+          "source_display": "Its parents must have been\nbeaten by that serpent...",
+          "android_anchor_ids": [
+            1449
+          ],
+          "android_unit_ids": [
+            1449,
+            1450
+          ],
+          "android_english_display": "Its parents must have been beaten by that serpent...",
+          "french_nonempty_ids": [
+            1449
+          ],
+          "french_display": "Ah... sa mère a dû être tuée par le serpent. ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact serpent/parents line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:3988"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              1
+            ],
+            "CA:3988"
+          ],
+          "source_display": "%S(1,0):It won't make it\n if we leave it here.",
+          "android_anchor_ids": [
+            1451
+          ],
+          "android_unit_ids": [
+            1451
+          ],
+          "android_english_display": "%S(1,0): It won't make it if we leave it here.",
+          "french_nonempty_ids": [
+            1451
+          ],
+          "french_display": "%S(1,0) : On ne peut pas le laisser tout seul ici ! Il ne survivra pas ! Emmenons-le !",
+          "relation": "placeholder_join",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "PLAYER_NAME(1) + source fragment equals Android line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:39B2"
+          ],
+          "snes_parts": [
+            "CA:39B2"
+          ],
+          "source_display": " It's way too big for us to\n carry! Let's ask Truffle.",
+          "android_anchor_ids": [
+            1452
+          ],
+          "android_unit_ids": [
+            1452
+          ],
+          "android_english_display": "It's way too big for us to carry! Let's ask Truffle.",
+          "french_nonempty_ids": [
+            1452
+          ],
+          "french_display": "%S(0,0) : Il a beau être un bébé, il est trop gros pour qu'on le porte. Allons en parler au roi.",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact Truffle suggestion; ends the discovery subscene.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "04E4",
+      "label": "Truffle raises and names Flammie",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:3A05"
+          ],
+          "snes_parts": [
+            "CA:3A05"
+          ],
+          "source_display": "TRUFFLE:He'll only slow you\n down...so I'll raise him!",
+          "android_anchor_ids": [
+            1372
+          ],
+          "android_unit_ids": [
+            1372
+          ],
+          "android_english_display": "Truffle: He'll only slow you down...so I'll raise him!_",
+          "french_nonempty_ids": [
+            1372
+          ],
+          "french_display": "Truffaut : Alors comme ça, vous êtes arrivés trop tard pour sauver la mère... C'est bien triste._",
+          "relation": "one_to_one_with_android_french_expansion",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact Android-English identity; French expands the setup.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:3A42"
+          ],
+          "snes_parts": [
+            "CA:3A42"
+          ],
+          "source_display": "NOBLEMAN:K...King Truffle!\nTRUFFLE:QUIET, you!",
+          "android_anchor_ids": [
+            1374,
+            1375
+          ],
+          "android_unit_ids": [
+            1374,
+            1375
+          ],
+          "android_english_display": "Nobleman: K-king Truffle! Truffle: QUIET, you!",
+          "french_nonempty_ids": [
+            1374,
+            1375
+          ],
+          "french_display": "Ministre : Mais ! Votre Majesté ! Truffaut : Chut ! C'est décidé ! Point final !",
+          "relation": "one_snes_to_many_android",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "One SNES token contains Nobleman and Truffle lines that Android splits.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:3A76"
+          ],
+          "snes_parts": [
+            "CA:3A76"
+          ],
+          "source_display": " You three get going. I'll\n take good care of him!\n",
+          "android_anchor_ids": [
+            1376
+          ],
+          "android_unit_ids": [
+            1376
+          ],
+          "android_english_display": "You three get going. I'll take good care of him!",
+          "french_nonempty_ids": [
+            1376
+          ],
+          "french_display": "Vous avez à faire, on dirait. Je ne vous retiens pas plus ! Partez !",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact ordered line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:3AAD"
+          ],
+          "snes_parts": [
+            "CA:3AAD"
+          ],
+          "source_display": "By the way, how do you like the name “Flammie?”",
+          "android_anchor_ids": [
+            1377
+          ],
+          "android_unit_ids": [
+            1377
+          ],
+          "android_english_display": "By the way, how do you like the name \"Flammie\"?",
+          "french_nonempty_ids": [
+            1377
+          ],
+          "french_display": "Mais revenez voir le petit de temps en temps.\nJe pensais l'appeler \"Flammie\". Qu'en dites-vous ?",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact Flammie naming question.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:3AE1"
+          ],
+          "snes_parts": [
+            "CA:3AE1"
+          ],
+          "source_display": "( Ugh!  Not bad! )\n",
+          "android_anchor_ids": [
+            1378
+          ],
+          "android_unit_ids": [
+            1378
+          ],
+          "android_english_display": "[ Ugh!               Not bad! ]\n",
+          "french_nonempty_ids": [
+            1378
+          ],
+          "french_display": "　　　[ Beurk !　　D'accord ! ]\n\n",
+          "relation": "choice_text",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Same two choice labels; brackets/layout differ.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:3AF6",
+            "CA:3B23"
+          ],
+          "snes_parts": [
+            "CA:3AF6",
+            "CA:3B23"
+          ],
+          "source_display": "TRUFFLE:Hang on..!\n I sound like an idiot! You'd agree with me whether you liked the name or not!",
+          "android_anchor_ids": [
+            1379,
+            1380
+          ],
+          "android_unit_ids": [
+            1379,
+            1380
+          ],
+          "android_english_display": "Truffle: Hang on...! I sound like an idiot! You'd agree with me whether you liked the name or not!",
+          "french_nonempty_ids": [
+            1379,
+            1380
+          ],
+          "french_display": "Truffaut : Une minute !  Pourquoi je vous demande votre avis, moi ? Même si ça ne vous plaît pas, je ferai comme j'ai envie ! ",
+          "relation": "two_to_two_redistribution",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "SNES and Android split 'Hang on / I sound like an idiot / you'd agree...' at different boundaries; validate as one local block.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:3B5D"
+          ],
+          "snes_parts": [
+            "CA:3B5D"
+          ],
+          "source_display": " So let's call him “Flammie” and be done with it!",
+          "android_anchor_ids": [
+            1381
+          ],
+          "android_unit_ids": [
+            1381
+          ],
+          "android_english_display": "So let's call him \"Flammie\" and be done with it!",
+          "french_nonempty_ids": [
+            1381
+          ],
+          "french_display": "Bref, il s'appelle Flammie, c'est décidé ! Ça lui va bien, hein ? ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact naming conclusion.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:3B91"
+          ],
+          "snes_parts": [
+            "CA:3B91"
+          ],
+          "source_display": " Cannon Travel is open again in the forest to the south.",
+          "android_anchor_ids": [
+            1382
+          ],
+          "android_unit_ids": [
+            1382
+          ],
+          "android_english_display": "Cannon Travel is open again in the forest to the south.",
+          "french_nonempty_ids": [
+            1382
+          ],
+          "french_display": "Le Frère Canon de la forêt au sud est de retour. Et apparemment, le Temple du Feu se trouve dans le Désert de Kakkara. ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact Cannon Travel instruction; French combines some following Fire Palace detail.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:3BCC"
+          ],
+          "snes_parts": [
+            "CA:3BCC"
+          ],
+          "source_display": " You'll find the Fire Palace somewhere in the Desert of\n Kakkara.",
+          "android_anchor_ids": [
+            1383
+          ],
+          "android_unit_ids": [
+            1383
+          ],
+          "android_english_display": "You'll find the Fire Palace somewhere in the Desert of Kakkara.",
+          "french_nonempty_ids": [
+            1383
+          ],
+          "french_display": "Vous devriez lui demander de vous y envoyer, si vous allez au Temple. Allez, bonne chance !",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact Fire Palace destination line; French redistributes the instruction across 1382-1383.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "04E8",
+      "label": "Goblin capture and rescue",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:4261"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              0
+            ],
+            "CA:4261"
+          ],
+          "source_display": "%S(0,0):Heeelp!",
+          "android_anchor_ids": [
+            134
+          ],
+          "android_unit_ids": [
+            134
+          ],
+          "android_english_display": "%S(0,0): Heeelp!_",
+          "french_nonempty_ids": [
+            134
+          ],
+          "french_display": "%S(0,0) : Ah ! Des gobelins ! Au secours !!_",
+          "relation": "duplicate_resolved_by_scene_context",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Short 'Heeelp!' has other Android occurrences; the following 135/169+ goblin block resolves this one to 134.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:427A"
+          ],
+          "snes_parts": [
+            "CA:427A"
+          ],
+          "source_display": " Oooh!",
+          "android_anchor_ids": [
+            135
+          ],
+          "android_unit_ids": [
+            135
+          ],
+          "android_english_display": "Oooh!",
+          "french_nonempty_ids": [
+            135
+          ],
+          "french_display": "Ouah ! ",
+          "relation": "short_line_resolved_by_context",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Short exact 'Oooh!' immediately follows Android 134.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:42B8"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              0
+            ],
+            "CA:42B8"
+          ],
+          "source_display": "%S(0,0):Heeelp. Ouch!\n",
+          "android_anchor_ids": [
+            169
+          ],
+          "android_unit_ids": [
+            169
+          ],
+          "android_english_display": "%S(0,0): Heeelp. Ouch!",
+          "french_nonempty_ids": [
+            169
+          ],
+          "french_display": "%S(0,0) : Ouah ! C'est bouillant !",
+          "relation": "placeholder_join",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact player capture line after placeholder reconstruction.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:42CA"
+          ],
+          "snes_parts": [
+            "CA:42CA"
+          ],
+          "source_display": "GOBLINS:You! Do not move!\n Just stay still!",
+          "android_anchor_ids": [
+            170
+          ],
+          "android_unit_ids": [
+            170
+          ],
+          "android_english_display": "Goblin: You! Do not move! Just stay still!",
+          "french_nonempty_ids": [
+            170
+          ],
+          "french_display": "\"Ne bouge pas ! Reste là !\" ",
+          "relation": "one_to_one_minor_speaker",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 98.7,
+            "source_token_coverage": 87.5,
+            "lexical_score": 95.9
+          },
+          "note": "Goblin/Goblins speaker-number difference only.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:4300"
+          ],
+          "snes_parts": [
+            "CA:4300"
+          ],
+          "source_display": " You are very lucky! You're\n going to be our main dish!",
+          "android_anchor_ids": [
+            171
+          ],
+          "android_unit_ids": [
+            171
+          ],
+          "android_english_display": "You are very lucky! You're going to be our main dish!",
+          "french_nonempty_ids": [
+            171
+          ],
+          "french_display": "\"T'as de la chance ! T'es le plat principal de notre grande fête !\" \n",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact main-dish line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:433C"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              0
+            ],
+            "CA:433C"
+          ],
+          "source_display": "%S(0,0):Haaaalp! Let me go!",
+          "android_anchor_ids": [
+            172
+          ],
+          "android_unit_ids": [
+            172,
+            173
+          ],
+          "android_english_display": "%S(0,0): Haaaalp! Let me go!",
+          "french_nonempty_ids": [
+            172
+          ],
+          "french_display": "%S(0,0) : Au secours ! Laissez-moi partir ! ",
+          "relation": "placeholder_join",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact plea after placeholder reconstruction.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:435D"
+          ],
+          "snes_parts": [
+            "CA:435D"
+          ],
+          "source_display": "GOBLINS:You look delicious!",
+          "android_anchor_ids": [
+            174
+          ],
+          "android_unit_ids": [
+            174
+          ],
+          "android_english_display": "Goblin: You look delicious!",
+          "french_nonempty_ids": [
+            174
+          ],
+          "french_display": "\"T'as l'air délicieux !\" \n",
+          "relation": "one_to_one_minor_speaker",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 98.0,
+            "source_token_coverage": 75.0,
+            "lexical_score": 92.3
+          },
+          "note": "Goblin/Goblins speaker-number difference only.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:43BF"
+          ],
+          "snes_parts": [
+            "CA:43BF"
+          ],
+          "source_display": "GOBLINS:Hey! The dancing\n has already begun!\n Let's join in!",
+          "android_anchor_ids": [
+            176
+          ],
+          "android_unit_ids": [
+            176,
+            177
+          ],
+          "android_english_display": "Goblin: Hey! The dancing has already begun! Let's join in!",
+          "french_nonempty_ids": [
+            176
+          ],
+          "french_display": "\"Oh ! La danse a commencé ! Il faut qu'on y aille !\" \n",
+          "relation": "one_to_one_minor_speaker",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 99.1,
+            "source_token_coverage": 90.9,
+            "lexical_score": 97.0
+          },
+          "note": "Distinct dancing line in same ordered goblin block.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:442E"
+          ],
+          "snes_parts": [
+            "CA:442E"
+          ],
+          "source_display": "  Hey!",
+          "android_anchor_ids": [
+            178
+          ],
+          "android_unit_ids": [
+            178,
+            179
+          ],
+          "android_english_display": "Hey!",
+          "french_nonempty_ids": [
+            178
+          ],
+          "french_display": "Psss ! ",
+          "relation": "short_line_resolved_by_context",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Generic 'Hey!' accepted only because it sits between the goblin scene and the girl's next line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:4442"
+          ],
+          "snes_parts": [
+            "CA:4442"
+          ],
+          "source_display": "  Hey, you!",
+          "android_anchor_ids": [
+            180
+          ],
+          "android_unit_ids": [
+            180,
+            181
+          ],
+          "android_english_display": "Hey, you!",
+          "french_nonempty_ids": [
+            180
+          ],
+          "french_display": "Hé, toi ! ",
+          "relation": "short_line_resolved_by_context",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Generic 'Hey, you!' resolved by immediate local context.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:445F"
+          ],
+          "snes_parts": [
+            "CA:445F"
+          ],
+          "source_display": "GIRL:What on earth are you\n doing, you idiot?",
+          "android_anchor_ids": [
+            182
+          ],
+          "android_unit_ids": [
+            182
+          ],
+          "android_english_display": "Girl: What on earth are you doing, you idiot?",
+          "french_nonempty_ids": [
+            182
+          ],
+          "french_display": "Qu'est-ce que tu fais là, idiot ?! ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact distinctive girl line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:4491"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              0
+            ],
+            "CA:4491"
+          ],
+          "source_display": "%S(0,0):Please help me!",
+          "android_anchor_ids": [
+            183
+          ],
+          "android_unit_ids": [
+            183
+          ],
+          "android_english_display": "%S(0,0): Please help me!",
+          "french_nonempty_ids": [
+            183
+          ],
+          "french_display": "%S(0,0) : À l'aide ! ",
+          "relation": "placeholder_join",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact plea after placeholder reconstruction.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:44A6"
+          ],
+          "snes_parts": [
+            "CA:44A6"
+          ],
+          "source_display": "GIRL:Shhh. Quiet.",
+          "android_anchor_ids": [
+            184
+          ],
+          "android_unit_ids": [
+            184,
+            185
+          ],
+          "android_english_display": "Girl: Shhh. Quiet.",
+          "french_nonempty_ids": [
+            184
+          ],
+          "french_display": "Chut ! Pas si fort ! ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact quiet line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:44D6"
+          ],
+          "snes_parts": [
+            "CA:44D6"
+          ],
+          "source_display": "GIRL:Let's get out of here!",
+          "android_anchor_ids": [
+            186
+          ],
+          "android_unit_ids": [
+            186,
+            187
+          ],
+          "android_english_display": "Girl: Let's get out of here!",
+          "french_nonempty_ids": [
+            186
+          ],
+          "french_display": "Allez, on file ! ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact escape line; closes the capture/rescue Android block.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "04E8",
+      "label": "Girl post-rescue conversation",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:451B"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              0
+            ],
+            "CA:451B"
+          ],
+          "source_display": "%S(0,0):I owe you my life.\n But what are you doing\n here?",
+          "android_anchor_ids": [
+            125
+          ],
+          "android_unit_ids": [
+            125
+          ],
+          "android_english_display": "%S(0,0): I owe you my life. But what are you doing here?",
+          "french_nonempty_ids": [
+            125
+          ],
+          "french_display": "%S(0,0) : Merci ! Mais que faisais-tu ici ?",
+          "relation": "placeholder_join_subscene_reset",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact player line; Android ID order resets from 186 to 125 at the post-rescue subscene.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:454F"
+          ],
+          "snes_parts": [
+            "CA:454F"
+          ],
+          "source_display": "\nGIRL:I've been searching for someone. For a second I\n thought you were him...",
+          "android_anchor_ids": [
+            126
+          ],
+          "android_unit_ids": [
+            126
+          ],
+          "android_english_display": "Girl: I've been searching for someone. For a second I thought you were him...",
+          "french_nonempty_ids": [
+            126
+          ],
+          "french_display": "Je cherche quelqu'un.\nQuand j'ai vu qu'ils avaient un prisonnier, j'ai cru que c'était lui...",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact search/mistaken-person setup.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:459F"
+          ],
+          "snes_parts": [
+            "CA:459F"
+          ],
+          "source_display": "\n A case of mistaken\n identity, huh?\n I guess I lose...",
+          "android_anchor_ids": [
+            127
+          ],
+          "android_unit_ids": [
+            127
+          ],
+          "android_english_display": "A case of mistaken identity, huh? My loss, I guess...",
+          "french_nonempty_ids": [
+            127
+          ],
+          "french_display": "Mais je me suis trompée. \nSi j'avais su, je ne me serais pas bougée !",
+          "relation": "one_to_one_minor_wording",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 83.9,
+            "source_token_coverage": 90.0,
+            "lexical_score": 85.4
+          },
+          "note": "Same mistaken-identity sentence with minor word-order change.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:45DB",
+            "CA:461D"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              0
+            ],
+            "CA:45DB",
+            "CA:461D"
+          ],
+          "source_display": "%S(0,0):Now wait a minute!\nGIRL:I'm only joking.\n Look, I'm in a hurry.\n You'd better get back\n to your home. Later!",
+          "android_anchor_ids": [
+            128,
+            129
+          ],
+          "android_unit_ids": [
+            128,
+            129,
+            130
+          ],
+          "android_english_display": "%S(0,0): Now wait a minute! Girl: I'm only joking. Look, I'm in a hurry. You'd better get back to your home. Later!",
+          "french_nonempty_ids": [
+            128,
+            129
+          ],
+          "french_display": "%S(0,0) : Hé ! Oh !  Non, je plaisante !\nBon, je suis pressée, je file. Tu ferais mieux de rentrer en ville, toi aussi !",
+          "relation": "many_snes_to_many_android",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "SNES packs player interruption + girl's joke/hurry across two source tokens; Android splits at speaker boundary into 128-129.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:4665"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              0
+            ],
+            "CA:4665"
+          ],
+          "source_display": "%S(0,0):Hey, wait!",
+          "android_anchor_ids": [
+            131
+          ],
+          "android_unit_ids": [
+            131
+          ],
+          "android_english_display": "%S(0,0): Hey, wait!_",
+          "french_nonempty_ids": [
+            131
+          ],
+          "french_display": "%S(0,0) : Hé ! Attends !_",
+          "relation": "placeholder_join",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact 'Hey, wait!' line.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:4677"
+          ],
+          "snes_parts": [
+            "CA:4677"
+          ],
+          "source_display": " Left without even telling\n me her name...",
+          "android_anchor_ids": [
+            132
+          ],
+          "android_unit_ids": [
+            132,
+            133
+          ],
+          "android_english_display": "Left without even telling me her name...",
+          "french_nonempty_ids": [
+            132
+          ],
+          "french_display": "Super...\nElle est partie sans même me dire son nom. ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_candidate",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact closing observation.",
+          "user_validation": "accepted"
+        }
+      ]
+    }
+  ],
+  "stress_findings": [
+    "Four non-monotonic event-level anchor runs are explained by one SNES event spanning multiple Android subscene blocks.",
+    "Event 0204 contains a genuine local reorder: SNES C9:9076 appears after the Mana Seed ritual, while its unique Android-English equivalent is ID 824, before IDs 839-844.",
+    "Event-level monotonicity is therefore too coarse for automatic alignment; local dialogue/subscene order is the stronger signal.",
+    "Unmatched SNES prose must remain explicit rather than being forced onto a nearby Android anchor."
+  ],
+  "unmatched_snes_observations": [
+    {
+      "event_id": "0204",
+      "snes_id": "C9:902F",
+      "source": "You'll be able to gain power from the Mana seed wherever you are!",
+      "reason": "No confident standalone Android-English anchor was found in the local Water Palace block; nearby Android/French text compresses and redistributes this explanation."
+    },
+    {
+      "event_id": "04E8",
+      "snes_id": "CA:437D",
+      "source": "...SHRIEK!",
+      "reason": "No confident English Android equivalent; the nearby Android ID 175 is a different exclamation. Leave unmapped rather than forcing a short generic match."
+    }
+  ]
+}

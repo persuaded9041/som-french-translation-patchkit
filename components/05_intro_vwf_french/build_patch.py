@@ -64,21 +64,20 @@ from shared.vwf_text_buffer import (  # noqa: E402
 )
 from shared.french_charset import (
     CHAR_TO_CODE,
-    FIRST_CODE,
     FULL_DTE_THRESHOLD,
     FULL_FRENCH_CHARS,
     glyph_bytes,
 )
 
 DTE_NEW_THRESHOLD = FULL_DTE_THRESHOLD
-ACCENT_FIRST = FIRST_CODE
 FRENCH_CHARS = FULL_FRENCH_CHARS
+ACCENT_FIRST = min(CHAR_TO_CODE[ch] for ch in FRENCH_CHARS)
 
 ASCII_TO_SOM = {" ": 0x80}
 ASCII_TO_SOM.update({chr(ord("a") + i): 0x81 + i for i in range(26)})
 ASCII_TO_SOM.update({chr(ord("A") + i): 0x9B + i for i in range(26)})
 ASCII_TO_SOM.update({".": 0xBF, ",": 0xC0, "'": 0xC2})
-ASCII_TO_SOM.update(CHAR_TO_CODE)
+ASCII_TO_SOM.update({ch: CHAR_TO_CODE[ch] for ch in FRENCH_CHARS})
 INTRO_RENDER_CODES = frozenset(ASCII_TO_SOM.values())
 
 INTRO_EVENT_START = 0x0C02
@@ -320,7 +319,7 @@ def assemble_dte_loader(intro_end_ptr: int) -> bytes:
 
 
 def load_french_glyphs() -> bytes:
-    """Load the canonical shared 18-glyph French atlas as SNES 1bpp rows."""
+    """Load the canonical 18-glyph French subset from the shared atlas."""
     try:
         return glyph_bytes(FRENCH_CHARS)
     except RuntimeError as exc:

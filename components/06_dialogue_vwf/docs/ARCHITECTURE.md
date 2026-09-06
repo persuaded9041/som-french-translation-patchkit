@@ -27,7 +27,7 @@ A private flag at `$7E:9385` carries that decision through the internal renderer
 hooks. Every invocation reaching component 06 clears the flag before making the
 decision, so non-event calls always fall back to stock behavior.
 
-The `$C9/$CA` side of this gate is runtime-validated: `$CA` story dialogue uses the VWF and GAME SELECT remains fixed-width. The `$E8-$EC` extension is a narrow relocation candidate and must be runtime-validated before being treated as a checkpoint.
+Both sides of this gate are runtime-validated: `$CA` story dialogue uses the VWF while GAME SELECT remains fixed-width, and component-08 event `$0107` has been executed successfully after relocation to `$E8:2000`.
 
 The parser initializer at `$C0:16B8` is also shared: event engine calls it from
 `$C0:1149` (stacked return `$114B`) and GAME SELECT from `$C0:2359` (return

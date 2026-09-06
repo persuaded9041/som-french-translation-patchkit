@@ -1,31 +1,41 @@
 # Shared French character set
 
-This directory is the single source of truth for French direct-glyph codes used
-by text-oriented components.
+This directory is the single editable source for project-owned direct glyphs used
+by French text components.
 
-`charset.json` defines the canonical character-to-byte mapping.
-`french_glyphs.png` is the canonical editable 18-glyph 8×12 atlas.
-`charset.py` validates and exposes both to component builders.
-
-Canonical full range: `$D4-$E5`. When the full range is active, the direct-glyph
-/DTE threshold is `$E6`.
+`charset.json` defines the canonical character-to-byte mapping and named
+profiles. `french_glyphs.png` is an editable 21-glyph 8×12 atlas ordered by code
+from `$D3` through `$E7`; `charset.py` validates and converts it for builders.
 
 Profiles:
 
-- `basic_french`: `$D4-$E0` (13 glyphs), threshold `$E1`.
-- `full_french`: `$D4-$E5` (18 glyphs), threshold `$E6`.
+- `basic_french`: `$D4-$E0` (13 French glyphs), threshold `$E1`.
+- `full_french`: `$D4-$E5` (18 French glyphs), threshold `$E6`. This remains
+  component 05's runtime-validated intro profile.
+- `dialogue_french`: `$D3-$E7`, with `$D3=♪`, `$D4-$E5` unchanged French
+  glyphs, `$E6=°`, `$E7=;`, and an event-dialogue DTE threshold of `$E8`.
+
+The dialogue profile does **not** move the translated intro's DTE boundary.
+Components 06/08 install `shared/dialogue_dte.py`, which selects `$E8` only for
+real event-engine dialogue while the intro and non-dialogue parser callers retain
+`$E6`. In combined 06 builds it reuses the shared parser mode already selected
+by the VWF buffer initializer, avoiding a second fragile context inference in the
+middle of decoding. Component 05 therefore keeps all 25 of its private
+`$E6-$FF` DTE pairs.
 
 Current consumers:
 
-- `02_9char_names` uses the `basic_french`/naming-safe `$D4-$E0` subset.
-- `03_game_select` uses the same `$D4-$E0` subset.
-- `05_intro_vwf_french` uses the complete `$D4-$E5` range.
-- `06_dialogue_vwf` uses the same complete range and installs it independently for standalone builds.
+- `02_9char_names`: `basic_french` for ordinary text, plus the shared disjoint
+  `$D3/$E6/$E7` name glyphs and `shared/name_dte.py` for the relocated Name Entry
+  resource and temporary `PLAYER_NAME` parsing.
+- `03_game_select`: `basic_french`.
+- `05_intro_vwf_french`: `full_french`.
+- `06_dialogue_vwf`: `dialogue_french`.
+- `08_dialogue_text`: `dialogue_french` when translated event text is present.
 
-Name Entry intentionally stops at `$E0`: `$E1-$E5`
-are still used by graphics on that screen. This is a screen-specific limitation,
-not a different character mapping.
-
-Standalone components may install identical glyph bytes in ROM because each must
-work independently. The editable source remains centralized here so assignments
-and artwork cannot silently diverge.
+Name Entry still leaves `$E1-$E5` untouched because they are used by graphics
+on that screen, but it can safely use `$D3`, `$E6` and `$E7`. Its standalone
+router raises the boundary to `$E8` for the relocated bank-`$E4` naming resource
+and the temporary PLAYER_NAME source; ordinary event decoding keeps `$E1`. Standalone components may
+install identical glyph bytes because each must work independently; the artwork
+itself remains centralized here.

@@ -20,9 +20,11 @@ for the owning component even when the current generated payload is shorter.
 | intro VWF | `0x074440-0x0744BF` | `$C7:4440-$44BF` | 128-byte width table |
 | shared VWF framing | `0x0744C0-0x074557` | `$C7:44C0-$4557` | 152-byte runtime framing selector bundle shared by 05/06 |
 | shared VWF row renderer | `0x074560-0x07456C` | `$C7:4560-$456C` | 13-byte stock-font row load + framing + compositor helper installed byte-identically by 05/06 |
+| dialogue DTE router | `0x074570-0x0745EE` | `$C7:4570-$45EE` | 127-byte context-sensitive `$E6/$E8` direct/DTE decision helper installed byte-identically by 06/08; bank `$E4` Name Entry resource uses `$E8` |
+| Name Entry DTE router | `0x0745F0-0x07462F` | `$C7:45F0-$462F` | 64-byte reserved Name Entry / PLAYER_NAME helper region used by 02 standalone |
 | shared VWF parser | `0x074AC0-0x074BE9` | `$C7:4AC0-$4BE9` | shared caller-gated buffer init / previous-char / capacity helpers (with gaps) |
 | intro VWF | `0x074C40-0x074C6B` | `$C7:4C40-$4C6B` | intro-private DTE loader |
-| shared VWF config | `0x074C80-0x074C84` | `$C7:4C80-$4C84` | intro marker/end (`05`) and dialogue marker (`06`), component-owned bytes |
+| shared VWF/config | `0x074C80-0x074C86` | `$C7:4C80-$4C86` | intro marker/end (`05`), dialogue VWF marker (`06`), dialogue-DTE `$E8` marker, Name Entry base threshold (`02`) |
 | shared VWF compositor | `0x074C90-0x074CCE` | `$C7:4C90-$4CCE` | byte-identical 8×12 shift/merge/spill helper installed by 05/06 |
 | intro VWF | `0x074D00-0x074D31` | `$C7:4D00-$4D31` | 25-pair private DTE table |
 | intro VWF | `0x0A0C02-0x0A0E8A` | `$CA:0C02-$0E8A` | rebuilt translated event `$0400` in the current generated build |
@@ -73,7 +75,7 @@ uses `$7E:9390-$93BB` for private VWF decoding. Component-owned config bytes at
 
 Component 06 uses renderer hooks in bank `$C0` and helper/table space in the
 `$ED:7040-$73B8` area. Its renderer scratch is `$7E:9382-$938F` only for
-caller-tagged event-render invocations in stock banks `$C9/$CA` and, for the relocation candidate, reserved banks `$E8-$EC`. Component 05
+caller-tagged event-render invocations in stock banks `$C9/$CA` and validated reserved banks `$E8-$EC`. Component 05
 intercepts translated intro event `$0400` before component 06 reaches its entry
 hook, so their overlapping WRAM scratch remains mutually exclusive.
 

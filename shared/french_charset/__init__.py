@@ -1,13 +1,17 @@
 from .charset import (
+    ATLAS_CHARS,
     BASIC_DTE_THRESHOLD,
     BASIC_FRENCH_CHARS,
     CHAR_TO_CODE,
     CODE_TO_CHAR,
+    DIALOGUE_DTE_THRESHOLD,
+    DIALOGUE_FRENCH_CHARS,
     FIRST_CODE,
     FULL_DTE_THRESHOLD,
     FULL_FRENCH_CHARS,
     glyph_bytes,
     profile_chars,
+    profile_first_code,
     profile_mapping,
     profile_threshold,
 )

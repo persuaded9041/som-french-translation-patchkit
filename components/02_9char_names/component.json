@@ -1,6 +1,7 @@
 {
   "id": "02_9char_names",
   "short_name": "names",
-  "name": "9-character names + French accent row",
-  "shared_charset_profile": "basic_french"
+  "name": "9-character names + French/extended row",
+  "shared_charset_profile": "basic_french",
+  "name_dte_router": true
 }

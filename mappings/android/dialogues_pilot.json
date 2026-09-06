@@ -1,0 +1,337 @@
+{
+  "format_version": 1,
+  "status": "pilot_alignment_only",
+  "source_asset": "dialogues.json",
+  "parallel_slot_observations": {
+    "entry_count": 3500,
+    "english_nonempty_anchor_count": 2973,
+    "english_empty_slot_count": 527,
+    "english_anchor_interval_widths": {
+      "1": 2464,
+      "2": 493,
+      "3": 14,
+      "4": 2
+    },
+    "intervals_where_french_uses_following_english_empty_slot": 56,
+    "intervals_where_french_root_is_empty_but_following_slot_is_used": 1
+  },
+  "android_english": {
+    "path": "sources/android/scrtxt_en.bin",
+    "sha256": "4d4508560967b6ce4d6cf992f29e84e2775ed4accc74d87c3fd4269044b75ae5"
+  },
+  "android_french": {
+    "path": "sources/android/scrtxt_fr.bin",
+    "sha256": "cd837aaf53a7979d0e84910e8cda3bd67427f4a3cbddadc351811378d7e7d696"
+  },
+  "policy": {
+    "automatic_translation_generation": false,
+    "accepted_confidence": "very_high",
+    "notes": [
+      "Lexical similarity is only one signal.",
+      "Accepted pilot entries must also belong to a coherent ordered local scene run.",
+      "Duplicate and one-to-many cases remain manual-review items even with strong text matches.",
+      "French text may occupy following IDs that are empty in English; dialogue generation remains disabled until slot merging and SNES layout policy are validated."
+    ]
+  },
+  "scenes": [
+    {
+      "event_id": "0106",
+      "label": "waterfall conversation",
+      "confidence": "very_high",
+      "android_id_gaps": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "parallel_empty_bridge_ids": [
+        3483,
+        3485,
+        3487,
+        3489
+      ],
+      "entries": [
+        {
+          "snes_id": "C9:2900",
+          "android_id": 3482,
+          "confidence": "very_high",
+          "character_similarity": 94.9,
+          "source_token_coverage": 100.0,
+          "lexical_score": 96.2,
+          "next_candidate_margin": 57.2,
+          "android_unit_ids": [
+            3482,
+            3483
+          ],
+          "french_nonempty_ids": [
+            3482
+          ],
+          "requires_french_slot_merge": false
+        },
+        {
+          "snes_id": "C9:294C",
+          "android_id": 3484,
+          "confidence": "very_high",
+          "character_similarity": 100.0,
+          "source_token_coverage": 100.0,
+          "lexical_score": 100.0,
+          "next_candidate_margin": 56.2,
+          "android_unit_ids": [
+            3484,
+            3485
+          ],
+          "french_nonempty_ids": [
+            3484
+          ],
+          "requires_french_slot_merge": false
+        },
+        {
+          "snes_id": "C9:299C",
+          "android_id": 3486,
+          "confidence": "very_high",
+          "character_similarity": 96.3,
+          "source_token_coverage": 100.0,
+          "lexical_score": 97.2,
+          "next_candidate_margin": 51.7,
+          "android_unit_ids": [
+            3486,
+            3487
+          ],
+          "french_nonempty_ids": [
+            3486
+          ],
+          "requires_french_slot_merge": false
+        },
+        {
+          "snes_id": "C9:29E8",
+          "android_id": 3488,
+          "confidence": "very_high",
+          "character_similarity": 85.7,
+          "source_token_coverage": 100.0,
+          "lexical_score": 89.3,
+          "next_candidate_margin": 43.4,
+          "android_unit_ids": [
+            3488,
+            3489
+          ],
+          "french_nonempty_ids": [
+            3488
+          ],
+          "requires_french_slot_merge": false
+        },
+        {
+          "snes_id": "C9:2A3D",
+          "android_id": 3490,
+          "confidence": "very_high",
+          "character_similarity": 100.0,
+          "source_token_coverage": 100.0,
+          "lexical_score": 100.0,
+          "next_candidate_margin": 48.2,
+          "android_unit_ids": [
+            3490,
+            3491
+          ],
+          "french_nonempty_ids": [
+            3490
+          ],
+          "requires_french_slot_merge": false
+        }
+      ]
+    },
+    {
+      "event_id": "002C",
+      "label": "Sergo follow-up",
+      "confidence": "very_high",
+      "android_id_gaps": [
+        1
+      ],
+      "parallel_empty_bridge_ids": [],
+      "entries": [
+        {
+          "snes_id": "C9:0CCF",
+          "android_id": 2675,
+          "confidence": "very_high",
+          "character_similarity": 100.0,
+          "source_token_coverage": 100.0,
+          "lexical_score": 100.0,
+          "next_candidate_margin": 57.4,
+          "android_unit_ids": [
+            2675
+          ],
+          "french_nonempty_ids": [
+            2675
+          ],
+          "requires_french_slot_merge": false
+        },
+        {
+          "snes_id": "C9:0D06",
+          "android_id": 2676,
+          "confidence": "very_high",
+          "character_similarity": 100.0,
+          "source_token_coverage": 100.0,
+          "lexical_score": 100.0,
+          "next_candidate_margin": 60.0,
+          "android_unit_ids": [
+            2676,
+            2677,
+            2678
+          ],
+          "french_nonempty_ids": [
+            2676,
+            2677,
+            2678
+          ],
+          "requires_french_slot_merge": true
+        }
+      ]
+    }
+  ],
+  "ambiguous": [
+    {
+      "snes_id": "C9:089B",
+      "event_id": "000B",
+      "status": "manual_review",
+      "reason": "exact Android-English duplicate; text alone cannot choose between IDs 3314 and 3360",
+      "candidate_android_ids": [
+        3314,
+        3360
+      ],
+      "top_lexical_candidates": [
+        {
+          "android_id": 3360,
+          "character_similarity": 100.0,
+          "source_token_coverage": 100.0,
+          "lexical_score": 100.0
+        },
+        {
+          "android_id": 3314,
+          "character_similarity": 100.0,
+          "source_token_coverage": 100.0,
+          "lexical_score": 100.0
+        },
+        {
+          "android_id": 1155,
+          "character_similarity": 70.3,
+          "source_token_coverage": 33.3,
+          "lexical_score": 61.0
+        },
+        {
+          "android_id": 3030,
+          "character_similarity": 66.7,
+          "source_token_coverage": 33.3,
+          "lexical_score": 58.3
+        },
+        {
+          "android_id": 2610,
+          "character_similarity": 66.7,
+          "source_token_coverage": 33.3,
+          "lexical_score": 58.3
+        },
+        {
+          "android_id": 1444,
+          "character_similarity": 66.7,
+          "source_token_coverage": 33.3,
+          "lexical_score": 58.3
+        }
+      ]
+    },
+    {
+      "snes_id": "C9:0C19",
+      "event_id": "0029",
+      "status": "manual_review",
+      "reason": "exact Android-English duplicate in two distinct local blocks",
+      "candidate_android_ids": [
+        2667,
+        2793
+      ],
+      "top_lexical_candidates": [
+        {
+          "android_id": 2793,
+          "character_similarity": 100.0,
+          "source_token_coverage": 100.0,
+          "lexical_score": 100.0
+        },
+        {
+          "android_id": 2667,
+          "character_similarity": 100.0,
+          "source_token_coverage": 100.0,
+          "lexical_score": 100.0
+        },
+        {
+          "android_id": 545,
+          "character_similarity": 54.2,
+          "source_token_coverage": 33.3,
+          "lexical_score": 49.0
+        },
+        {
+          "android_id": 810,
+          "character_similarity": 43.0,
+          "source_token_coverage": 41.7,
+          "lexical_score": 42.6
+        },
+        {
+          "android_id": 783,
+          "character_similarity": 46.4,
+          "source_token_coverage": 16.7,
+          "lexical_score": 38.9
+        },
+        {
+          "android_id": 2051,
+          "character_similarity": 45.0,
+          "source_token_coverage": 16.7,
+          "lexical_score": 38.0
+        }
+      ]
+    },
+    {
+      "snes_id": "C9:0B03",
+      "event_id": "0024",
+      "status": "manual_review",
+      "reason": "one SNES text block corresponds to two adjacent Android strings, and that pair is duplicated",
+      "candidate_android_ids": [
+        2449,
+        2450,
+        2463,
+        2464
+      ],
+      "top_lexical_candidates": [
+        {
+          "android_id": 2463,
+          "character_similarity": 71.6,
+          "source_token_coverage": 58.3,
+          "lexical_score": 68.3
+        },
+        {
+          "android_id": 2449,
+          "character_similarity": 71.6,
+          "source_token_coverage": 58.3,
+          "lexical_score": 68.3
+        },
+        {
+          "android_id": 2464,
+          "character_similarity": 48.8,
+          "source_token_coverage": 50.0,
+          "lexical_score": 49.1
+        },
+        {
+          "android_id": 2450,
+          "character_similarity": 48.8,
+          "source_token_coverage": 50.0,
+          "lexical_score": 49.1
+        },
+        {
+          "android_id": 2333,
+          "character_similarity": 42.3,
+          "source_token_coverage": 41.7,
+          "lexical_score": 42.1
+        },
+        {
+          "android_id": 2277,
+          "character_similarity": 41.5,
+          "source_token_coverage": 33.3,
+          "lexical_score": 39.5
+        }
+      ]
+    }
+  ]
+}

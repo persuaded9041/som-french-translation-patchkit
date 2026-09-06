@@ -1,110 +1,84 @@
 # Shared French charset
 
-`shared/french_charset/` is the canonical source for the French direct-glyph
-codes and glyph artwork used by this patchkit.
+`shared/french_charset/` is the canonical editable source for project-owned
+direct glyph codes and artwork. The mapping is a patchkit convention, not a
+claim about every stock Secret of Mana font slot.
 
-It defines the character codes allocated by the project for French text. This
-is a patchkit convention: it is not intended to describe every character used
-by the original game or every character that could exist in a French charset.
+## Canonical direct-glyph assignments
 
-## Canonical patchkit mapping
+| Code | Character | Use |
+|---|---|---|
+| `$D3` | ♪ | dialogue profile |
+| `$D4` | Ç | shared French |
+| `$D5` | à | shared French |
+| `$D6` | â | shared French |
+| `$D7` | ç | shared French |
+| `$D8` | é | shared French |
+| `$D9` | è | shared French |
+| `$DA` | ê | shared French |
+| `$DB` | ë | shared French |
+| `$DC` | î | shared French |
+| `$DD` | ï | shared French |
+| `$DE` | ô | shared French |
+| `$DF` | ù | shared French |
+| `$E0` | û | shared French |
+| `$E1` | À | full/dialogue profiles |
+| `$E2` | É | full/dialogue profiles |
+| `$E3` | Î | full/dialogue profiles |
+| `$E4` | Œ | full/dialogue profiles |
+| `$E5` | œ | full/dialogue profiles |
+| `$E6` | ° | dialogue profile only |
+| `$E7` | ; | dialogue profile only |
 
-When the full French profile is active, the patchkit uses the direct-glyph
-range `$D4-$E5` as follows:
-
-| Code | Character | Code | Character |
-|---|---|---|---|
-| `$D4` | Ç | `$DD` | ï |
-| `$D5` | à | `$DE` | ô |
-| `$D6` | â | `$DF` | ù |
-| `$D7` | ç | `$E0` | û |
-| `$D8` | é | `$E1` | À |
-| `$D9` | è | `$E2` | É |
-| `$DA` | ê | `$E3` | Î |
-| `$DB` | ë | `$E4` | Œ |
-| `$DC` | î | `$E5` | œ |
-
-These 18 characters are the direct French glyphs currently required by the
-project. New characters should only be added when a component genuinely needs
-them and when the affected engine context has free direct-glyph codes available.
-
-With the complete `$D4-$E5` range enabled, `$E6` is the first code available to
-the DTE parser. Components that use a smaller direct-glyph profile may use an
-earlier DTE threshold.
+The 18 French assignments `$D4-$E5` are unchanged. `♪`, `°` and `;` are drawn
+in the same editable PNG. Their dialogue direct-code/DTE routing and compact VWF
+spacing are runtime-validated.
 
 ## Profiles
 
-The shared definition currently exposes two profiles.
-
 ### `basic_french`
 
-Direct-glyph range: `$D4-$E0`  
-DTE threshold: `$E1`
-
-| Code | Character |
-|---|---|
-| `$D4` | Ç |
-| `$D5` | à |
-| `$D6` | â |
-| `$D7` | ç |
-| `$D8` | é |
-| `$D9` | è |
-| `$DA` | ê |
-| `$DB` | ë |
-| `$DC` | î |
-| `$DD` | ï |
-| `$DE` | ô |
-| `$DF` | ù |
-| `$E0` | û |
-
-This profile deliberately stops at `$E0`. In the Name Entry screen, the
-original graphics stored in font slots `$E1-$E5` must be preserved; replacing
-them causes graphical corruption.
+Direct range `$D4-$E0`; threshold `$E1`. GAME SELECT uses this profile directly.
+Name Entry keeps the same ordinary-text threshold and the same `$D4-$E0` French
+range, but also installs the disjoint shared glyphs `$D3=♪`, `$E6=°`, `$E7=;`.
+It preserves the stock graphics occupying `$E1-$E5` and switches to `$E8` for
+the relocated bank-`$E4` Name Entry resource and the temporary `PLAYER_NAME`
+source.
 
 ### `full_french`
 
-Direct-glyph range: `$D4-$E5`  
-DTE threshold: `$E6`
+Direct range `$D4-$E5`; threshold `$E6`. Component 05 keeps this exact profile
+so its runtime-validated intro compression and 25 private DTE pairs remain
+unchanged.
 
-This profile contains all 18 characters from the canonical patchkit mapping and
-is used in contexts where `$E1-$E5` are available for French glyphs.
+### `dialogue_french`
+
+Direct range `$D3-$E7`; event-dialogue threshold `$E8`. Used by components 06
+and 08. The threshold is context-sensitive rather than global:
+
+- translated intro / ordinary non-dialogue parser contexts: `$E6`;
+- real event-engine dialogue: `$E8`;
+- component-02 Name Entry resource in reserved bank `$E4`: `$E8`.
+
+`shared/dialogue_dte.py` owns that routing. It uses the established event-parser
+caller discriminator and protects event `$0400`; GAME SELECT remains on the
+base `$E6` path. This lets `$E6/$E7` mean `°`/`;` in dialogue while they remain
+intro DTE codes during event `$0400`.
 
 ## Source files
 
-- `charset.json` - canonical character mapping and profiles, including each profile
-  DTE threshold.
-- `french_glyphs.png` - editable 18-glyph 8×12 atlas in the exact order of the
-  `full_french` profile.
-- `charset.py` - loading, validation, mapping, profile, and glyph-conversion
-  helpers used by component builders.
+- `charset.json` - character assignments and profiles.
+- `french_glyphs.png` - editable 21-glyph 8×12 atlas, code order `$D3-$E7`.
+- `charset.py` - mapping/profile/PNG conversion helpers.
+- `../dialogue_dte.py` - context-sensitive dialogue DTE router.
+- `../name_dte.py` - Name Entry / PLAYER_NAME router used by component 02 standalone.
 
-## Current consumers
+## Rules
 
-- `02_9char_names` - uses the `basic_french` profile (`$D4-$E0`) and a `$E1` DTE threshold.
-- `03_game_select` - uses the `basic_french` profile (`$D4-$E0`) and a `$E1` DTE
-  threshold.
-- `05_intro_vwf_french` - uses the `full_french` profile (`$D4-$E5`) and a
-  `$E6` DTE threshold.
-- `06_dialogue_vwf` - uses the same `full_french` profile and independently installs the canonical glyphs / `$E6` threshold so its standalone build does not depend on component 05.
-- `08_dialogue_text` - declares `full_french` for future directly encoded French event text; its builder installs the canonical glyphs / `$E6` threshold only when `translations/dialogues_french.json` contains an actual source-changing translation. The current empty translation is a no-op and it never modifies the VWF renderer.
-
-The same direct character codes are intentionally reused across components so
-that identical French characters keep the same encoding whenever the engine
-context permits it. Standalone components may therefore emit identical ROM
-writes derived from this shared definition.
-
-## Rules for future components
-
-1. Do not introduce a private French mapping that conflicts with this shared
-   definition.
-2. Reuse the canonical direct-glyph codes whenever the target engine context
-   makes those codes available.
-3. Reuse or derive glyph artwork from `french_glyphs.png` rather than creating
-   independent copies of the same glyphs.
-4. Add a named profile when a component needs only a subset of the canonical
-   mapping.
-5. Extend the canonical mapping only when a genuinely new character is needed,
-   after checking that the required direct-glyph code is safe in every affected
-   context.
-6. Keep standalone patches self-sufficient even when this requires identical
-   ROM writes generated from the shared source.
+1. Keep `$D4-$E5` assignments stable.
+2. Reuse the canonical PNG rather than creating private copies of shared glyphs.
+3. Do not force the dialogue `$E8` threshold onto the intro.
+4. Add new direct codes only after checking parser context, stock raw-byte usage,
+   renderer metrics and component overlap.
+5. Keep standalone patches self-sufficient even when this requires identical
+   font/router writes.

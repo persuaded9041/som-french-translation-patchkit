@@ -39,7 +39,12 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from shared.ips import make_ips  # noqa: E402
 from shared.asm65816 import MiniAssembler, lo24  # noqa: E402
 from shared.rom import ROM_SIZE_OFFSET, expand_rom, update_checksum, validate_base_rom  # noqa: E402
-from shared.french_charset import FIRST_CODE, FULL_DTE_THRESHOLD, FULL_FRENCH_CHARS, glyph_bytes  # noqa: E402
+from shared.french_charset import CHAR_TO_CODE, DIALOGUE_DTE_THRESHOLD, DIALOGUE_FRENCH_CHARS, glyph_bytes  # noqa: E402
+from shared.dialogue_dte import (  # noqa: E402
+    enable_extended_dialogue as enable_extended_dialogue_dte,
+    install as install_dialogue_dte_router,
+    validate_stock as validate_dialogue_dte_stock,
+)
 from shared.vwf_geometry import ink_bounds  # noqa: E402
 from shared.vwf_metrics import (  # noqa: E402
     apply_validated_framing,
@@ -77,11 +82,10 @@ OUTLINE_POST_FILE = 0x001168
 
 ENTRY_HELPER_FILE = 0x2D7040
 CHAR_START_HELPER_FILE = 0x2D7180
-DTE_COMPARE_IMMEDIATE_OFFSET = 0x0016F6
-DTE_STOCK_THRESHOLD = 0xD3
-DTE_NEW_THRESHOLD = FULL_DTE_THRESHOLD
+DTE_NEW_THRESHOLD = DIALOGUE_DTE_THRESHOLD
 FONT_BASE = 0x12DC00
-ACCENT_FIRST = FIRST_CODE
+DIALOGUE_CHARS = DIALOGUE_FRENCH_CHARS
+GLYPH_FIRST = min(CHAR_TO_CODE[ch] for ch in DIALOGUE_CHARS)
 
 CHAR_END_HELPER_FILE = 0x2D70C0
 FONT_ROW_HELPER_FILE = 0x2D7100
@@ -877,8 +881,8 @@ def make_width_table(base: bytes) -> bytes:
     """
     table = bytearray(128)
     font = bytearray(base[FONT_BASE:FONT_BASE + 128 * 12])
-    french = glyph_bytes(FULL_FRENCH_CHARS)
-    french_start = (ACCENT_FIRST - 0x80) * 12
+    french = glyph_bytes(DIALOGUE_CHARS)
+    french_start = (GLYPH_FIRST - 0x80) * 12
     font[french_start:french_start + len(french)] = french
 
     for code in range(0x80, 0x100):
@@ -896,8 +900,8 @@ def make_right_edge_table(base: bytes) -> bytes:
     not cause a premature wrap when the visible ink still fits exactly.
     """
     font = bytearray(base[FONT_BASE:FONT_BASE + 128 * 12])
-    french = glyph_bytes(FULL_FRENCH_CHARS)
-    french_start = (ACCENT_FIRST - 0x80) * 12
+    french = glyph_bytes(DIALOGUE_CHARS)
+    french_start = (GLYPH_FIRST - 0x80) * 12
     font[french_start:french_start + len(french)] = french
 
     table = bytearray()
@@ -941,8 +945,8 @@ def validate_metrics(base: bytes, width_table: bytes) -> None:
 
     # Verify the stock lowercase left bearings used by the validated framing selector.
     font = bytearray(base[FONT_BASE:FONT_BASE + 128 * 12])
-    french = glyph_bytes(FULL_FRENCH_CHARS)
-    french_start = (ACCENT_FIRST - 0x80) * 12
+    french = glyph_bytes(DIALOGUE_CHARS)
+    french_start = (GLYPH_FIRST - 0x80) * 12
     font[french_start:french_start + len(french)] = french
     for code in range(0x81, 0x9B):
         rows = font[(code - 0x80) * 12:(code - 0x80 + 1) * 12]
@@ -1043,6 +1047,31 @@ def validate_metrics(base: bytes, width_table: bytes) -> None:
             raise SystemExit(f"Missing punctuation right separator for ${code:02X}")
 
 
+    # Runtime-validated dialogue-only extended glyph metrics. These glyphs are authored
+    # directly in the shared PNG with their intended VWF bearings, so they do
+    # not need runtime framing-selector branches. Degree and semicolon follow
+    # the ordinary punctuation convention: one black pixel before/after ink.
+    extended_geometry = {
+        0xD3: ((0, 6), 7),  # ♪: compact 7 px advance
+        0xE6: ((1, 5), 7),  # °: 5 px ink + 1 px on each side
+        0xE7: ((1, 2), 4),  # ;: 2 px ink + 1 px on each side
+    }
+    for code, (expected_bounds, expected_width) in extended_geometry.items():
+        rows = font[(code - 0x80) * 12:(code - 0x80 + 1) * 12]
+        bounds = ink_bounds(rows)
+        if bounds != expected_bounds:
+            raise SystemExit(
+                f"Unexpected dialogue-only glyph geometry for ${code:02X}: {bounds}"
+            )
+        if validated_left_shift(code) != 0:
+            raise SystemExit(
+                f"Dialogue-only glyph ${code:02X} must keep PNG-authored framing"
+            )
+        if width_table[code - 0x80] != expected_width:
+            raise SystemExit(
+                f"Unexpected dialogue-only glyph metric for ${code:02X}"
+            )
+
     # Runtime-validated colon: stock ink occupies columns 3-4. Shift left by
     # one pixel to columns 2-3 and advance by 7, leaving 2 black pixels before
     # the ink and 3 after it.
@@ -1076,7 +1105,10 @@ def validate_metrics(base: bytes, width_table: bytes) -> None:
             raise SystemExit(f"Unexpected validated French metric for ${code:02X}")
 
     # Remaining non-lowercase glyphs retain the conservative stock-geometry baseline.
-    metric_specials = {0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC}
+    metric_specials = {
+        0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC,
+        0xD3, 0xE6, 0xE7,
+    }
     for code in list(range(0xB5, 0xBF)) + list(range(0xC3, 0x100)):
         if code in metric_specials or 0xD4 <= code <= 0xE5:
             continue
@@ -1119,14 +1151,11 @@ def build(base: bytes) -> bytes:
     validate_shared_row_renderer_stock(base)
     validate_shared_outline_stock(base)
     rom = expand_rom(base, ROM_TARGET_SIZE)
-    if base[DTE_COMPARE_IMMEDIATE_OFFSET] != DTE_STOCK_THRESHOLD:
-        raise SystemExit(
-            f"Unexpected stock DTE threshold at 0x{DTE_COMPARE_IMMEDIATE_OFFSET:06X}: "
-            f"${base[DTE_COMPARE_IMMEDIATE_OFFSET]:02X}"
-        )
-    rom[DTE_COMPARE_IMMEDIATE_OFFSET] = DTE_NEW_THRESHOLD
-    french_glyphs = glyph_bytes(FULL_FRENCH_CHARS)
-    glyph_start = FONT_BASE + (ACCENT_FIRST - 0x80) * 12
+    validate_dialogue_dte_stock(base)
+    install_dialogue_dte_router(rom)
+    enable_extended_dialogue_dte(rom)
+    french_glyphs = glyph_bytes(DIALOGUE_CHARS)
+    glyph_start = FONT_BASE + (GLYPH_FIRST - 0x80) * 12
     rom[glyph_start:glyph_start + len(french_glyphs)] = french_glyphs
     rom[RENDER_ENTRY_FILE:RENDER_ENTRY_FILE + len(RENDER_ENTRY_HOOK)] = RENDER_ENTRY_HOOK
     rom[CHAR_START_FILE:CHAR_START_FILE + len(CHAR_START_HOOK)] = CHAR_START_HOOK

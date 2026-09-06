@@ -21,7 +21,7 @@ The ROM itself is deliberately not included.
 ## Components
 
 1. `01_japanese_mana_tree` - restores the original Japanese Mana Tree artwork.
-2. `02_9char_names` - 9-character names, four character rows, French accent row and French help text.
+2. `02_9char_names` - 9-character names, four character rows, French/extended character row and French help text.
 3. `03_game_select` - French GAME SELECT and GAME FILE text pipeline, dynamic frame widths and French accented glyphs.
 4. `04_french_opening` - French startup credits/opening text.
 5. `05_intro_vwf_french` - French new-game introduction with VWF, private DTE and accented glyphs.
@@ -83,12 +83,13 @@ container address plus decompressed offset (`C7:B480+09F9`).
 French text lives separately under `translations/` in sparse `*_french.json`
 files. The validated translations formerly stored in component CSV/BIN inputs
 for components 02-05 have been migrated there, and component 08 is ready to use
-`translations/dialogues_french.json` when dialogue translation begins.
+`translations/dialogues_french.json`; the current file contains only the first
+runtime-validated Android-derived `$0107` SNES-formatting checkpoint.
 
 See `docs/TEXT_INVENTORY.md` for coverage, `docs/TRANSLATIONS.md` for the source/translation
-model and ID scheme, `docs/TEXT_COMPONENT_AUDIT.md` for component ownership and
-legacy-source cleanup, and `docs/TEXT_RESEARCH_NOTES.md` for the reverse-engineering
-trail behind the inventory.
+model and ID scheme, `docs/ANDROID_TEXT_ALIGNMENT.md` for the Android English/French alignment method and conservative whole-dialogue mapping, `docs/TEXT_COMPONENT_AUDIT.md` for component
+ownership and legacy-source cleanup, and `docs/TEXT_RESEARCH_NOTES.md` for the
+reverse-engineering trail behind the inventory.
 
 ## Shared code and charset
 
@@ -207,12 +208,12 @@ Allowed overlaps are:
 
 - byte-identical functional writes required by standalone components;
 - checksum bytes, which are recomputed once on the combined ROM;
-- the shared French direct-glyph threshold at ROM `0x0016F6`.
+- the legacy direct/DTE-threshold byte when a dialogue DTE router supersedes it.
 
-Name Entry and GAME SELECT declare the `basic_french` profile (`$E1` threshold);
-intro VWF, dialogue VWF and translated dialogue data declare `full_french` (`$E6`). Thresholds belong to the profiles in
-`shared/french_charset/charset.json`, and the aggregate builder selects the
-highest one required by the chosen components. Any other differing functional
-overlap aborts the build.
+Name Entry and GAME SELECT keep `basic_french`; the intro keeps the validated
+`full_french` `$E6` boundary. Dialogue VWF/text use `dialogue_french`, which adds
+`♪`, `°` and `;` and selects `$E8` only for real event-engine dialogue through
+`shared/dialogue_dte.py`. This avoids changing component 05's private DTE table.
+Any other differing functional overlap aborts the build.
 
 See `docs/COMPATIBILITY.md` and `docs/MEMORY_MAP.md`. Component-specific renderer notes stay under each component; for dialogue VWF start with `components/06_dialogue_vwf/README.md`. The stock event/dialogue format notes are in `docs/DIALOGUE_FORMAT.md`; the 513 non-event resources are documented in `docs/TEXT_RESOURCES.md`. The repository-wide text map is `docs/TEXT_INVENTORY.md`, with family details in `docs/INTERFACE_TEXT.md`, `docs/MENU_TEXT.md`, `docs/BATTLE_TEXT.md` and `docs/OPENING_TEXT.md`. Component-08 build details remain in `components/08_dialogue_text/README.md`.

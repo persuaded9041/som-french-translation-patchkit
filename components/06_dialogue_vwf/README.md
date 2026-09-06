@@ -5,7 +5,7 @@ Adds variable-width rendering to stock event dialogue while leaving GAME SELECT 
 ## Scope
 
 - The runtime-validated stock path activates only for the real event-engine renderer call `$C0:1150 -> $C0:1664` in banks `$C9/$CA`.
-- The current relocation candidate keeps the same caller gate and additionally accepts `$E8-$EC`, reserved exclusively for component-08 relocated event scripts. This added-bank path still requires runtime validation.
+- The same caller gate also accepts `$E8-$EC`, reserved exclusively for component-08 relocated event scripts; this relocated-dialogue path is runtime-validated with event `$0107` at `$E8:2000`.
 - The parser bridge activates structurally for the event-parser caller `$114B`; GAME SELECT remains stock.
 - The shared private buffer allows up to 38 logical decoded characters while physical output remains limited to the stock 32-cell / 256-pixel bitmap.
 - `$C0:168A-$C0:16B0` remains intact.

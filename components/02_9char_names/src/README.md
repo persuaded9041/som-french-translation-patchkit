@@ -8,6 +8,7 @@ not depend on an external assembler.
 The split is intentional:
 
 - `core.asm`: name length, handler hooks and relocated resource pointer.
+- `name_dte.asm`: Name Entry / PLAYER_NAME `$E8` direct/DTE routing for `♪`, `°`, `;`.
 - `navigation.asm`: four-row Up/Down states and initial cursor position.
 - `selection.asm`: selected-character lookup alignment and relocated resource read.
 - `layout.asm`: four-row window geometry and layout pointer redirection.
