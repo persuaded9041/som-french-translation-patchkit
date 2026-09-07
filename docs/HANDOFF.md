@@ -7,11 +7,11 @@ This file records the current working checkpoint. Historical reverse-engineering
 - Reference ROM: unheadered **Secret of Mana (USA)**. The ROM is never stored or redistributed.
 - Components 05 and 06 are runtime-validated and should not be refactored without a direct need.
 - Component 08 owns dialogue reinsertion/relocation. Relocation to `$E8-$EC` is runtime-validated.
-- Component 06's stock-rendered `CHOICE_BEGIN` fallback is runtime-validated on `$0331`; stock choice anchors must not be moved without dedicated analysis/runtime testing.
+- Component 06 ordinary dialogue VWF remains runtime-validated. Choice rows use that same VWF path with no `CHOICE_BEGIN` renderer special case; `$0331` runtime-validates the minimal `$A1D7[]` option-start synchronization and correct magenta selection.
 - Current semantic alignment: **1601 / 1838 (87.1%)**, with **237 unresolved**.
-- Current simulator-filtered corpus: **496 events**, **493 complete + 3 PARTIEL**, **1051 visible French semantic IDs / 1106 JSON entries**.
+- Current simulator-filtered corpus: **500 events**, **498 complete + 2 PARTIEL**, **1066 visible French semantic IDs / 1119 JSON entries**.
 - Static gate: **0 errors, 0 warnings, 0 implicit wraps**.
-- This is the clean pre-choice-VWF checkpoint intended for versioning.
+- Choice-row VWF is runtime-validated end-to-end on the Potos test path: option starts and the existing `CHOICE_END` terminal boundary are synchronized to stock `$A1D7[]` geometry, so the magenta selection remains aligned and a preserved closing parenthesis stays outside the final highlighted span. Component 08 may minimally move only a later choice anchor right when decoded French would otherwise be overwritten.
 
 ## Alignment rules
 
@@ -38,7 +38,7 @@ Semantic identity and layout safety are separate gates. A proven mapping may rem
 - Do not restore the old generic WAIT-overlap deduplication. Exact carry-over after `WAIT $00` can be normal rolling-window presentation.
 - The live-window guard prevents formatter-added aesthetic line breaks from pushing a line into the next rolling-window state. `$0083` (`Gestahl : Ha ! Imbécile !`) is the canonical example.
 - `$01DC` is user-validated as a complete Android adaptation: Android 729 starts the following Niccolo scene directly after 728, so the final SNES-only `PLAYER_NAME(0) + C9:804A` reaction is omitted as one unit. This is the only current structural command omission and is guarded by exact adjacency.
-- Choice labels must remain compatible with stock `CHOICE_OPTION` anchors. `$00DF` has a proven Android identity but remains PARTIEL/layout-deferred because `Temple de l'Eau` does not fit safely at the stock anchors.
+- Choice formatting remains conservative. The VWF/highlight primitive and terminal-boundary handling are runtime-validated; `$00DF` additionally runtime-validates the minimal `$11 -> $12` later-anchor shift required to preserve `Temple de l'Eau` without changing the first anchor or the magenta routine.
 - Long stock-rendered choice rows can overflow near the right edge; the `Impossible ! / Bon, d'accord...` stress-test limit remains deferred.
 
 ## Current review workflow
@@ -69,6 +69,15 @@ python3 tools/simulate_dialogues.py "Secret of Mana (USA).sfc" -o dialogue_previ
 
 ## Recommended next work
 
-Implement a dedicated **VWF path for interactive choice rows** in component 06. The current stock-rendered fallback remains the runtime-validated baseline and must stay available until the replacement is proven. Start from `$00DF`: its Android identity is already established, but `Temple de l'Eau` does not fit between the stock fixed-width `CHOICE_OPTION` anchors. The goal is to render choice labels with VWF while preserving the stock choice structure, option boundaries, selection/highlight behavior and event commands. Do not move `CHOICE_OPTION` anchors merely to make text fit unless a later dedicated analysis proves that safe. Keep component 05 untouched.
+Choice-row VWF is now runtime-validated on the Potos `$0331` test path: option starts are
+resynchronized to stock `$A1D7[]` boundaries, the magenta highlight follows the selection,
+and the CHOICE_END terminal boundary keeps a preserved closing `)` outside the final
+highlighted span. GAME SELECT remains stock-safe.
 
-The `Impossible ! / Bon, d'accord...` stress test is a known stock-fallback overflow limit and is a useful later regression case, but `$00DF` should be the first focused target. The remaining PARTIEL events and current `TO REVIEW` runtime candidates may stay deferred during this renderer step.
+Component 08 now owns the minimal decoded-row geometry fallback. It keeps the first
+`CHOICE_OPTION` stock and may move only a later option to the right when the preceding
+official-French label would otherwise be overwritten by the stock absolute decoded-cell
+reset. `$00DF` runtime-validates the concrete `$03/$11 -> $03/$12` case with
+`Temple de l'Eau / Pandora`. The full corpus gains four additional simulator-clean events
+(`$020F`, `$0310`, `$0314`, `$0319`); these four remain static candidates until ordinary
+playthrough/runtime review.

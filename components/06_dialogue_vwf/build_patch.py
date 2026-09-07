@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Build the runtime-validated dialogue VWF checkpoint.
 
-If the parser for the exact current chunk sees CHOICE_BEGIN ($58), renderer entry
-copies the final 32-cell private row to the stock decoded buffer and deliberately leaves
-component 06 inactive for that invocation. The original fixed-width renderer and its
-original chunk accounting then handle the interactive choice row. This stock fallback
-is runtime-validated on event $0331 and keeps the selection/highlight cell spans aligned.
+Interactive choice rows keep the same private-buffer, cumulative-cursor VWF path as
+ordinary event dialogue.  The runtime-validated choice-highlight compatibility rule
+resynchronizes the pixel cursor at each stock CHOICE_OPTION start from $A1D7[] while the
+choice-active bit is set.  The runtime-validated follow-up also recognizes the stock terminal
+boundary so a preserved closing parenthesis can begin outside the final highlighted span.
+Text remains VWF inside each span and the parser, option coordinates and stock palette/
+highlight routine remain untouched.
 
 The pixel-aware parser preflight that prevents right-edge glyph loss is
 runtime-validated on the known early-game overflow case. The stock
@@ -118,11 +120,6 @@ PARSER_FETCH_HOOK = bytes([0x5C, *lo24(PARSER_FETCH_HELPER_CPU)])
 
 # Parser-phase reuse of the renderer scratch range.  The parser and renderer
 # are never active at the same time; renderer entry reinitializes its own state.
-# $9381 is free in component-06 dialogue mode (component 05 uses it only in its
-# mutually exclusive intro renderer).  It records that the current decoded
-# line actually parsed CHOICE_BEGIN, avoiding any dependence on stale global
-# event/input flags when the renderer later chooses fixed-cell placement.
-CHOICE_FIXED_FLAG = 0x7E9381
 WRAP_CURSOR = 0x7E9382          # 16-bit cumulative VWF advance
 WRAP_BUDGET = 0x7E9384          # 16-bit physical pixels still available
 WRAP_LAST_VALID = 0x7E9386      # safe source-space checkpoint exists
@@ -281,10 +278,7 @@ def make_parser_fetch_helper() -> bytes:
 
     # New parser invocation: derive the real physical budget from the same
     # stock state that feeds $A1CA, but keep it in pixels instead of glyphs.
-    # Also clear the choice-row tag; it is set below only if this exact source
-    # line parses CHOICE_BEGIN ($58).
     a.emit(0xA9, 0x00)
-    a.emit(0x8F, *lo24(CHOICE_FIXED_FLAG))
     a.emit(0x8F, *lo24(WRAP_CURSOR))
     a.emit(0x8F, *lo24(WRAP_CURSOR + 1))
     a.emit(0x8F, *lo24(WRAP_LAST_VALID))
@@ -314,17 +308,9 @@ def make_parser_fetch_helper() -> bytes:
     a.rel8(0x90, "control")                 # BCC
     a.rel16(0x82, "dte_lower")
 
-    # Event/control token.
+    # Event/control token. Choice commands intentionally receive no special
+    # parser treatment; choice rows use the ordinary dialogue VWF path.
     a.label("control")
-    # CHOICE_BEGIN ($58) proves that this exact decoded line will later use the
-    # stock cell-based selection spans. Tag the line here while parsing rather
-    # than inferring it later from global $1D00/$A1D4 state, which can persist
-    # across unrelated event-engine pauses.
-    a.emit(0xC9, 0x58)
-    a.rel8(0xD0, "control_not_choice_begin")
-    a.emit(0xA9, 0x01)
-    a.emit(0x8F, *lo24(CHOICE_FIXED_FLAG))
-    a.label("control_not_choice_begin")
 
     # Do not ever rewind a later word across a control
     # that may alter parser source/state or have event-engine side effects.
@@ -547,28 +533,8 @@ def make_entry_helper() -> bytes:
     br(0xB0, "replay")
 
     label("event_dialogue")
-    # Interactive choices use absolute decoded-buffer positions (TEXT_X /
-    # CHOICE_OPTION), so their buffer can contain intentional holes.  The
-    # validated VWF chunk accounting assumes sequential decoded glyphs and is
-    # therefore not equivalent even when glyph starts are forced back to 8 px.
-    # If the parser proved CHOICE_BEGIN on this exact chunk, copy the final
-    # private 32-cell row into the stock buffer and leave $9385 clear.  All
-    # downstream hooks then replay the complete stock fixed-width renderer and
-    # its original chunk accounting for this one row only.
-    emit(0xAD, 0x81, 0x93)             # LDA $9381: exact-chunk CHOICE_BEGIN tag
-    emit(0xC9, 0x01)
-    br(0xD0, "activate")
-    emit(0xA2, 0x00, 0x00)             # LDX #$0000
-    label("choice_copy_loop")
-    emit(0xBD, 0x90, 0x93)             # LDA $9390,X
-    emit(0x9D, 0xA4, 0xA1)             # STA $A1A4,X
-    emit(0xE8)                         # INX
-    emit(0xE0, 0x20, 0x00)             # CPX #$0020
-    br(0xD0, "choice_copy_loop")
-    emit(0x9C, 0x81, 0x93)             # consume tag before stock replay
-    br(0x80, "replay")
-
-    label("activate")
+    # Every accepted event-render invocation, including CHOICE_BEGIN rows,
+    # enters the ordinary VWF path. No choice-only renderer state is kept.
     emit(0xA9, 0x01, 0x8D, 0x85, 0x93) # active = 1
     emit(0xAD, 0xCE, 0xA1, 0x29, 0x7F, 0x8D, 0x8E, 0x93)  # save count
     emit(0x9C, 0x8F, 0x93)             # clear physical-cell result
@@ -607,21 +573,47 @@ def make_char_start_helper() -> bytes:
     br(0x90, "replay")                 # BCC replay
     emit(0x22, 0x80, 0x73, 0xED)       # JSL $ED7380: snapshot useful chunk cells
 
-    # Defensive compatibility branch retained byte-for-byte from the pre-fallback
-    # choice experiment. The validated renderer-entry path now consumes $9381 and
-    # leaves component 06 inactive before a real CHOICE_BEGIN row can reach here.
-    # Keeping these emitted bytes unchanged preserves the exact runtime-tested IPS.
-    emit(0xAD, 0x81, 0x93)             # LDA $9381: current-line choice tag
-    emit(0xC9, 0x01)
-    br(0xD0, "vwf_position")
+    # Stock choice highlighting recolors whole 8-pixel cells between the
+    # CHOICE_OPTION boundaries in $A1D7[].  Keep the ordinary VWF renderer,
+    # but while the stock choice-active bit is set, resynchronize the pixel
+    # cursor at each option start.  Also scan the terminal boundary appended by
+    # CHOICE_END: when a stock closing parenthesis occupies that decoded slot,
+    # it starts at terminal*8 and therefore remains outside the final magenta
+    # span.  With no closing parenthesis there is no glyph at the terminal slot,
+    # so the extra boundary is inert. Parser state, coordinates and the stock
+    # highlight routine stay untouched. $9386 is safe transient scratch and is
+    # overwritten by
+    # the normal destination calculation immediately below.
+    emit(0xAF, 0x00, 0x1D, 0x00)       # LDA.l $001D00
+    br(0x10, "choice_sync_done")       # BPL: stock choice bit $80 clear
+    emit(0xDA)                          # PHX: preserve decoded-character X
+    emit(0x8A)                          # TXA (low byte; slots are 0..37)
+    emit(0x8D, 0x86, 0x93)             # save current decoded slot
+    emit(0xAF, 0xD4, 0xA1, 0x7E)       # LDA.l $7EA1D4: option count
+    br(0xF0, "choice_sync_restore")    # no option starts recorded
     emit(0xC2, 0x20)                   # REP #$20
-    emit(0x8A)                          # TXA: decoded slot index
-    emit(0x29, 0xFF, 0x00)             # keep low byte defensively
-    emit(0x0A, 0x0A, 0x0A)             # logical cell -> pixel X
-    emit(0x8D, 0x82, 0x93)             # pixel_cursor = X * 8
+    emit(0x29, 0xFF, 0x00)             # zero-extend option count
+    emit(0xEA)                          # NOP: keep count as terminal-boundary index (was DEC)
+    emit(0xAA)                          # TAX -> terminal boundary index; starts are below it
     emit(0xE2, 0x20)                   # SEP #$20
 
-    label("vwf_position")
+    label("choice_sync_scan")
+    emit(0xBF, 0xD7, 0xA1, 0x7E)       # LDA.l $7EA1D7,X
+    emit(0xCD, 0x86, 0x93)             # current decoded slot?
+    br(0xF0, "choice_sync_apply")
+    emit(0xCA)                          # DEX
+    br(0x10, "choice_sync_scan")       # BPL while index >= 0
+    br(0x80, "choice_sync_restore")
+
+    label("choice_sync_apply")
+    emit(0xAD, 0x86, 0x93)             # option's stock cell coordinate
+    emit(0x0A, 0x0A, 0x0A)             # *8 -> pixel coordinate
+    emit(0x8D, 0x82, 0x93)             # resync cumulative VWF cursor
+
+    label("choice_sync_restore")
+    emit(0xFA)                          # PLX
+    label("choice_sync_done")
+
     emit(0xDA)                          # PHX
     emit(0xC2, 0x20)                   # REP #$20
     # Y = floor(pixel_cursor/8)*12. Since cursor&$F8 is already tile*8,
@@ -771,9 +763,6 @@ def make_chunk_commit_helper() -> bytes:
 
     emit(0x22, 0xB0, 0x73, 0xED)       # tagged event-render scope
     br(0x90, "return")
-    # Defensive clear for active VWF chunks. Validated choice rows consume $9381
-    # earlier at renderer entry and therefore use stock replay instead of this path.
-    emit(0x9C, 0x81, 0x93)             # STZ $9381
 
     emit(0xAD, 0x8E, 0x93)             # saved decoded count
     emit(0xC9, 0x27)                   # at most 38 decoded glyphs
@@ -1265,7 +1254,7 @@ def main() -> None:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(patch)
     print(f"IPS: {args.output}")
-    print("Caller-gated dialogue VWF + stock-rendered CHOICE_BEGIN rows")
+    print("Caller-gated dialogue VWF; choice rows use the ordinary VWF path")
 
 
 if __name__ == "__main__":

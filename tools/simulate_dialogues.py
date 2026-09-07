@@ -29,6 +29,7 @@ from shared.dialogue_simulator import (  # noqa: E402
 from shared.rom import validate_base_rom  # noqa: E402
 from shared.translation_json import (  # noqa: E402
     load_structural_omission_token_indexes,
+    load_choice_option_position_overrides,
     load_translation,
 )
 
@@ -316,6 +317,9 @@ def main() -> None:
     structural_omissions = load_structural_omission_token_indexes(
         args.translation.resolve(), document, translations=translations
     )
+    choice_option_overrides = load_choice_option_position_overrides(
+        args.translation.resolve(), document
+    )
     translation_document = json.loads(args.translation.resolve().read_text(encoding="utf-8"))
     partial_events = {
         entry.get("event_id")
@@ -349,6 +353,7 @@ def main() -> None:
             font=font,
             player_names=player_names,
             omitted_command_token_indexes=structural_omissions.get(event["event_id"]),
+            choice_option_position_overrides=choice_option_overrides.get(event["event_id"]),
         )
         for event in events
     ]
@@ -370,6 +375,9 @@ def main() -> None:
         baseline_structural_omissions = load_structural_omission_token_indexes(
             baseline_path, document, translations=baseline_translations
         )
+        baseline_choice_option_overrides = load_choice_option_position_overrides(
+            baseline_path, document
+        )
         baseline_simulations = {
             event["event_id"]: simulate_event(
                 base,
@@ -378,6 +386,7 @@ def main() -> None:
                 font=font,
                 player_names=player_names,
                 omitted_command_token_indexes=baseline_structural_omissions.get(event["event_id"]),
+                choice_option_position_overrides=baseline_choice_option_overrides.get(event["event_id"]),
             )
             for event in events
             if any(token.get("id") in baseline_translations for token in event["tokens"] if token.get("id"))

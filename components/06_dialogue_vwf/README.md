@@ -13,25 +13,28 @@ Adds variable-width rendering to stock event dialogue while leaving GAME SELECT 
 - The post-outline repair remains runtime-validated for tagged `$C9/$CA` dialogue; the same exact renderer tag is used for relocated `$E8-$EC` scripts.
 - Pixel-aware preflight prevents source glyphs from being consumed past the physical right edge; the `You have a sword` clipping case is runtime-validated as repaired.
 
-## Stock-rendered interactive choice rows
+## Interactive choice rows
 
-Interactive choice rows deliberately use the original fixed-width renderer. Stock
-`CHOICE_OPTION $xx` anchors are reused by the selection/highlight code, and the decoded
-row may contain intentional holes created by `TEXT_X` / `CHOICE_OPTION`. The normal
-continuous VWF chunk accounting is therefore not equivalent to the stock sparse row.
+Choice rows keep the same private-buffer, continuous-cursor VWF renderer as ordinary
+event dialogue. The runtime-validated highlight fix does **not** add a second renderer, move
+`CHOICE_OPTION` coordinates, rewrite `$A1D7[]`, or hook the stock magenta routine.
 
-When the **current parser chunk itself** contains `CHOICE_BEGIN ($58)`, renderer entry
-copies the final 32-cell private decoded row to the stock `$A1A4` buffer, consumes the
-private choice tag, and leaves component 06 inactive for that invocation. The original
-stock renderer, 32-cell loop and chunk accounting handle the complete row; ordinary
-dialogue immediately returns to the VWF path.
+Component 06 uses the stock choice-active bit only at character start. When the current
+decoded slot exactly matches one of the option starts already stored in `$A1D7[]`, the
+cumulative VWF cursor is resynchronized to `slot * 8` pixels. Text remains fully VWF
+between option starts. Runtime testing on `$0331` confirms that this keeps `Oui / Non` VWF
+while the stock magenta selection follows the selected option.
 
-This fallback is runtime-validated on event `$0331`: `(Yes  No)` renders completely and
-the stock selected-color span stays aligned with the option text. The simulator still
-rejects translated choices whose labels would cross a stock option anchor or overflow
-the 32-cell selectable row; their coordinates are not guessed or moved.
+The runtime-validated follow-up also recognizes the terminal boundary appended by
+`CHOICE_END`. A preserved stock closing parenthesis therefore starts at the first cell
+outside the final highlighted span instead of sharing the last option's compact VWF tiles.
+When formatting removes the outer decoration for width, no glyph occupies that terminal
+slot and this extra boundary is inert.
 
-One presentation improvement remains deliberately deferred: when no safe word boundary is available, a word may still be split across lines. A future pass should move the whole next word to a fresh line when it fits there.
+The formatter/simulator remains conservative. Component 08 may now move only a later
+`CHOICE_OPTION` right to the minimum decoded-cell position needed to avoid overwriting the
+preceding VWF label; `$00DF` runtime-validates `$11 -> $12`. Component 06 needs no new
+choice mode for this: it consumes the resulting stock-format anchor table normally.
 
 ## Component-specific behavior
 

@@ -738,3 +738,21 @@ removal rule is introduced.
 The corpus remains **496 simulator-clean events** but becomes **493 complete + 3 PARTIEL**,
 with **1,051 visible French semantic IDs / 1,106 JSON entries**, 0 errors, 0 warnings and
 0 implicit wraps. The remaining PARTIEL events are `$00DF`, `$0278` and `$0331`.
+
+
+## Choice-VWF geometry follow-up
+
+After runtime validation of component 06's option-start and terminal-boundary synchronization,
+component 08 may preserve a long localized choice label by moving only a **later**
+`CHOICE_OPTION` to the right. The first anchor remains stock; the new coordinate is exactly
+the minimum decoded cell after the preceding label, must remain below 32, and the final event
+must still pass the independent zero-error / zero-warning / zero-wrap simulator gate. The
+Potos diagnostic using `Temple de l'Eau / Pandora` runtime-validates `$00DF`'s concrete
+`$03/$11 -> $03/$12` geometry. No manual French or runtime `$A1D7[]` rewrite is involved.
+
+This removes `$00DF` from PARTIEL and also admits four previously excluded complete events
+(`$020F`, `$0310`, `$0314`, `$0319`) under the same static gate. Semantic alignment remains
+**1,601 / 1,838 (87.1%)**, because this is a layout change rather than a new identity mapping.
+The current corpus is **500 simulator-clean events**, **498 complete + 2 PARTIEL**, with
+**1,066 visible French semantic IDs / 1,119 JSON entries**. The four newly admitted events
+remain runtime-unvalidated individually until ordinary playthrough review.

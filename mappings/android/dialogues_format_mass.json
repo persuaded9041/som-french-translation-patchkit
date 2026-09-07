@@ -9,6 +9,7 @@
     "partial_event_policy": "translate every already accepted mapping in an alignment-incomplete event; suppress every unmapped semantic source text token so PARTIEL events never mix visible stock English with French; preserve all structural commands/layout bytes; admit only direct formatter output with no partial-event compact/page/event-level repair and a clean independent simulation",
     "user_validated_visual_complete_policy": "events explicitly validated by the user as complete Android adaptations keep their simulator-clean French-only bytes and are removed from the PARTIEL badge without inventing mappings for omitted SNES-only fragments",
     "user_validated_structural_omission_policy": "a stock command may be omitted only when the user explicitly validates the Android adaptation omission and the command is proven by exact adjacency to an explicitly suppressed semantic ID; $01DC drops only PLAYER_NAME(0) immediately before C9:804A",
+    "user_validated_partial_layout_preservation_policy": "a suppressed PARTIEL semantic carrier is normally empty; $0331/C9:CEB3 is the sole runtime-validated exception and preserves only its two stock NEWLINEs (no visible prose) so the choice row remains on the stock selection/highlight line",
     "reviewed_fragment_spacing_policy": "event $0106 may insert only the two user-reported literal spaces between proven adjacent text fragments; no command or layout boundary changes",
     "physical_page_capacity_lines": 3,
     "source_english_line_count_is_not_a_layout_limit": true,
@@ -45,21 +46,24 @@
     "wait00_exact_overlap_policy": "no generic WAIT $00 carry-over cleanup; presentation changes require explicit per-event runtime validation; timed WAITs unchanged",
     "targeted_wait00_fresh_page_policy": "keep stock WAIT $00 bytes unchanged; $0106/C9:2994 is runtime-validated and the eight round13 detector matches are explicitly converted from newline-only carriers to TEXT_CLEAR as a single user-requested runtime-test batch; no generic WAIT carry-over cleanup",
     "wait_semantics_policy": "runtime-validated: WAIT pauses without advancing the text cursor; only explicit $7F NEWLINE or TEXT_CLEAR changes the physical line/page",
-    "explicit_post_wait_newline_policy": "materialize only reviewed formatter line boundaries that older simulation had implicitly attributed to WAIT; keep WAIT bytes unchanged; use TEXT_CLEAR instead of NEWLINE when a three-line window would otherwise scroll before the next pause"
+    "explicit_post_wait_newline_policy": "materialize only reviewed formatter line boundaries that older simulation had implicitly attributed to WAIT; keep WAIT bytes unchanged; use TEXT_CLEAR instead of NEWLINE when a three-line window would otherwise scroll before the next pause",
+    "adaptive_choice_anchor_policy": "keep the first CHOICE_OPTION stock; when a later stock coordinate would overwrite the preceding localized label in the decoded row, move only that later coordinate right to the minimum cell immediately after the label; accept only a rightward <32 coordinate whose whole event passes the independent zero-error/zero-warning/zero-wrap simulation; runtime validated by the $03/$11 -> $03/$12 Temple de l'Eau/Pandora diagnostic",
+    "adaptive_choice_decoration_policy": "preserve the canonical outer ( ... ) decoration whenever the normal choice event is simulator-clean; only after a width/layout rejection, retry by removing the proven opening/closing parenthesis pair plus its adjacent horizontal padding, without changing CHOICE_BEGIN/CHOICE_OPTION/CHOICE_END or their coordinates; accept the stripped form only if the whole event then passes the same zero-error/zero-warning/zero-wrap gate"
   },
   "coverage": {
     "semantic_source_event_count": 704,
     "complete_aligned_event_count": 528,
     "formatter_candidate_event_count": 511,
-    "accepted_event_count": 496,
-    "complete_accepted_event_count": 493,
-    "partial_accepted_event_count": 3,
+    "accepted_event_count": 500,
+    "complete_accepted_event_count": 498,
+    "partial_accepted_event_count": 2,
     "user_validated_visually_complete_event_count": 3,
     "user_validated_structural_omission_event_count": 1,
     "user_validated_structural_omitted_command_count": 1,
-    "partial_suppressed_semantic_id_count": 5,
-    "accepted_semantic_source_id_count": 1051,
-    "translation_entry_count": 1106,
+    "user_validated_partial_layout_preservation_count": 1,
+    "partial_suppressed_semantic_id_count": 3,
+    "accepted_semantic_source_id_count": 1066,
+    "translation_entry_count": 1119,
     "fragment_spacing_repaired_event_count": 1,
     "fragment_spacing_repair_count": 2,
     "explicit_post_wait_newline_repaired_event_count": 12,
@@ -89,10 +93,14 @@
     "shake_effect_sentence_distribution_mapping_count": 1,
     "reviewed_sequence_block_distribution_mapping_count": 1,
     "action_boundary_line_break_count": 1,
-    "excluded_event_count": 208,
+    "adaptive_choice_anchor_shifted_event_count": 5,
+    "adaptive_choice_anchor_shift_count": 5,
+    "adaptive_choice_decoration_stripped_event_count": 0,
+    "adaptive_choice_decoration_stripped_count": 0,
+    "excluded_event_count": 204,
     "excluded_stage_counts": {
       "alignment_incomplete": 171,
-      "simulator_rejected": 20,
+      "simulator_rejected": 16,
       "formatter_rejected": 17
     }
   },
@@ -299,6 +307,7 @@
     "0203",
     "0206",
     "020A",
+    "020F",
     "0210",
     "0211",
     "0213",
@@ -428,7 +437,10 @@
     "02F9",
     "02FD",
     "02FE",
+    "0310",
     "0311",
+    "0314",
+    "0319",
     "0331",
     "0337",
     "0363",
@@ -637,15 +649,15 @@
       "reason": "user_validated_android_adaptation_omission"
     }
   ],
-  "partial_accepted_events": [
+  "user_validated_partial_layout_preservations": [
     {
-      "event_id": "00DF",
-      "suppressed_semantic_ids": [
-        "C9:1DCF",
-        "C9:1DED"
-      ],
-      "suppression_reason": "mapped_but_layout_deferred"
-    },
+      "event_id": "0331",
+      "suppressed_semantic_id": "C9:CEB3",
+      "preserved_text": "\n\n",
+      "reason": "runtime_validated_choice_row_line_placement"
+    }
+  ],
+  "partial_accepted_events": [
     {
       "event_id": "0278",
       "suppressed_semantic_ids": [
@@ -4576,6 +4588,115 @@
     {
       "event_id": "00DF",
       "snes_ids": [
+        "C9:1DCF"
+      ],
+      "android_ids": [
+        420
+      ],
+      "confidence": "very_high_structural_review",
+      "source_display": " Air delivery for 50 GP!\n (",
+      "android_french_raw": "Hé hé hé, bienvenue !_Où veux-tu aller ? C'est 50 pièces par trajet ! ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Hé hé hé, bienvenue ! Où veux-tu aller ? C'est 50 pièces par trajet !",
+      "layout_markup_before_wrap": "Hé hé hé, bienvenue ! Où veux-tu aller ? C'est 50 pièces par trajet !",
+      "layout_hints": [],
+      "formatted_markup": "Hé hé hé, bienvenue ! Où veux-tu\naller ? C'est 50 pièces par trajet !\n (",
+      "line_widths_pixels": [
+        196,
+        205
+      ],
+      "line_decoded_character_counts": [
+        32,
+        36
+      ],
+      "line_parser_unit_counts": [
+        32,
+        36
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 2,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": false,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:1DCF",
+          "text": "Hé hé hé, bienvenue ! Où veux-tu\naller ? C'est 50 pièces par trajet !\n ("
+        }
+      ],
+      "structural_choice_prompt_split": true,
+      "choice_prompt_stock_shape": "embedded_parenthesis",
+      "preserved_choice_opening_suffix": "\n (",
+      "choice_row_transition": "stock_newline"
+    },
+    {
+      "event_id": "00DF",
+      "snes_ids": [
+        "C9:1DED"
+      ],
+      "android_ids": [
+        421
+      ],
+      "confidence": "very_high_structural_review",
+      "source_display": "Water Palace",
+      "android_french_raw": " Temple de l'Eau ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Temple de l'Eau",
+      "layout_markup_before_wrap": "Temple de l'Eau",
+      "layout_hints": [],
+      "formatted_markup": "Temple de l'Eau",
+      "line_widths_pixels": [
+        88
+      ],
+      "line_decoded_character_counts": [
+        15
+      ],
+      "line_parser_unit_counts": [
+        15
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:1DED",
+          "text": "Temple de l'Eau"
+        }
+      ]
+    },
+    {
+      "event_id": "00DF",
+      "snes_ids": [
         "C9:1DFB"
       ],
       "android_ids": [
@@ -4624,8 +4745,7 @@
           "id": "C9:1DFB",
           "text": "Pandora )"
         }
-      ],
-      "partial_event": true
+      ]
     },
     {
       "event_id": "00E0",
@@ -23705,6 +23825,161 @@
       ]
     },
     {
+      "event_id": "020F",
+      "snes_ids": [
+        "C9:92FB"
+      ],
+      "android_ids": [
+        541
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": " You don't mean that!\n Please help him!\n",
+      "android_french_raw": "Voyons, je vous en prie ! ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Voyons, je vous en prie !",
+      "layout_markup_before_wrap": "Voyons, je vous en prie !",
+      "layout_hints": [],
+      "formatted_markup": "Voyons, je vous en prie !\n",
+      "line_widths_pixels": [
+        147
+      ],
+      "line_decoded_character_counts": [
+        25
+      ],
+      "line_parser_unit_counts": [
+        25
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 2,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:92FB",
+          "text": "Voyons, je vous en prie !\n"
+        }
+      ]
+    },
+    {
+      "event_id": "020F",
+      "snes_ids": [
+        "C9:9329"
+      ],
+      "android_ids": [
+        836
+      ],
+      "confidence": "very_high_unique_exact",
+      "source_display": "Okay.",
+      "android_french_raw": "   Bon, d'accord...   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Bon, d'accord...",
+      "layout_markup_before_wrap": "Bon, d'accord...",
+      "layout_hints": [],
+      "formatted_markup": "Bon, d'accord...",
+      "line_widths_pixels": [
+        93
+      ],
+      "line_decoded_character_counts": [
+        16
+      ],
+      "line_parser_unit_counts": [
+        16
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:9329",
+          "text": "Bon, d'accord..."
+        }
+      ]
+    },
+    {
+      "event_id": "020F",
+      "snes_ids": [
+        "C9:9330"
+      ],
+      "android_ids": [
+        823
+      ],
+      "confidence": "very_high_unique_exact",
+      "source_display": "No way! )",
+      "android_french_raw": "   Non !   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": [
+        "C9:9330"
+      ],
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Non !",
+      "layout_markup_before_wrap": "Non !",
+      "layout_hints": [],
+      "formatted_markup": "Non !",
+      "line_widths_pixels": [
+        30
+      ],
+      "line_decoded_character_counts": [
+        5
+      ],
+      "line_parser_unit_counts": [
+        5
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:9330",
+          "text": "Non ! )"
+        }
+      ]
+    },
+    {
       "event_id": "0210",
       "snes_ids": [
         "C9:9342"
@@ -37580,6 +37855,155 @@
       ]
     },
     {
+      "event_id": "0310",
+      "snes_ids": [
+        "C9:CC8A"
+      ],
+      "android_ids": [],
+      "confidence": "very_high_equivalent_duplicate",
+      "source_display": " What'll it be?\n",
+      "android_french_raw": "Bonjour, qu'est-ce que ce sera ?",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Bonjour, qu'est-ce que ce sera ?",
+      "layout_markup_before_wrap": "Bonjour, qu'est-ce que ce sera ?",
+      "layout_hints": [],
+      "formatted_markup": "Bonjour, qu'est-ce que ce sera ?\n",
+      "line_widths_pixels": [
+        198
+      ],
+      "line_decoded_character_counts": [
+        32
+      ],
+      "line_parser_unit_counts": [
+        32
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:CC8A",
+          "text": "Bonjour, qu'est-ce que ce sera ?\n"
+        }
+      ]
+    },
+    {
+      "event_id": "0310",
+      "snes_ids": [
+        "C9:CCA0"
+      ],
+      "android_ids": [],
+      "confidence": "very_high_equivalent_duplicate",
+      "source_display": "Buy",
+      "android_french_raw": "   Acheter   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Acheter",
+      "layout_markup_before_wrap": "Acheter",
+      "layout_hints": [],
+      "formatted_markup": "Acheter",
+      "line_widths_pixels": [
+        46
+      ],
+      "line_decoded_character_counts": [
+        7
+      ],
+      "line_parser_unit_counts": [
+        7
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:CCA0",
+          "text": "Acheter"
+        }
+      ]
+    },
+    {
+      "event_id": "0310",
+      "snes_ids": [
+        "C9:CCA5"
+      ],
+      "android_ids": [],
+      "confidence": "very_high_equivalent_duplicate",
+      "source_display": "Sell )",
+      "android_french_raw": "   Vendre   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": [
+        "C9:CCA5"
+      ],
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Vendre",
+      "layout_markup_before_wrap": "Vendre",
+      "layout_hints": [],
+      "formatted_markup": "Vendre",
+      "line_widths_pixels": [
+        41
+      ],
+      "line_decoded_character_counts": [
+        6
+      ],
+      "line_parser_unit_counts": [
+        6
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:CCA5",
+          "text": "Vendre )"
+        }
+      ]
+    },
+    {
       "event_id": "0311",
       "snes_ids": [
         "C9:CCB9"
@@ -37625,6 +38049,368 @@
         {
           "id": "C9:CCB9",
           "text": "Merci, au revoir."
+        }
+      ]
+    },
+    {
+      "event_id": "0314",
+      "snes_ids": [
+        "C9:CD25"
+      ],
+      "android_ids": [],
+      "confidence": "very_high_equivalent_duplicate",
+      "source_display": " Anything else?\n",
+      "android_french_raw": "Autre chose ?",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Autre chose ?",
+      "layout_markup_before_wrap": "Autre chose ?",
+      "layout_hints": [],
+      "formatted_markup": "Autre chose ?\n",
+      "line_widths_pixels": [
+        83
+      ],
+      "line_decoded_character_counts": [
+        13
+      ],
+      "line_parser_unit_counts": [
+        13
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:CD25",
+          "text": "Autre chose ?\n"
+        }
+      ]
+    },
+    {
+      "event_id": "0314",
+      "snes_ids": [
+        "C9:CD3B"
+      ],
+      "android_ids": [],
+      "confidence": "very_high_equivalent_duplicate",
+      "source_display": "Buy",
+      "android_french_raw": "   Acheter   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Acheter",
+      "layout_markup_before_wrap": "Acheter",
+      "layout_hints": [],
+      "formatted_markup": "Acheter",
+      "line_widths_pixels": [
+        46
+      ],
+      "line_decoded_character_counts": [
+        7
+      ],
+      "line_parser_unit_counts": [
+        7
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:CD3B",
+          "text": "Acheter"
+        }
+      ]
+    },
+    {
+      "event_id": "0314",
+      "snes_ids": [
+        "C9:CD40"
+      ],
+      "android_ids": [],
+      "confidence": "very_high_equivalent_duplicate",
+      "source_display": "Sell )",
+      "android_french_raw": "   Vendre   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": [
+        "C9:CD40"
+      ],
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Vendre",
+      "layout_markup_before_wrap": "Vendre",
+      "layout_hints": [],
+      "formatted_markup": "Vendre",
+      "line_widths_pixels": [
+        41
+      ],
+      "line_decoded_character_counts": [
+        6
+      ],
+      "line_parser_unit_counts": [
+        6
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:CD40",
+          "text": "Vendre )"
+        }
+      ]
+    },
+    {
+      "event_id": "0319",
+      "snes_ids": [
+        "C9:CDD2"
+      ],
+      "android_ids": [
+        2668
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "NEKO:Finally on your way?\n Good luck!",
+      "android_french_raw": "Niccolo : Miaou ! Le combat décisif approche ? Bon courage ! ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Niccolo : Miaou ! Le combat décisif approche ? Bon courage !",
+      "layout_markup_before_wrap": "Niccolo : Miaou ! Le combat décisif approche ? Bon courage !",
+      "layout_hints": [],
+      "formatted_markup": "Niccolo : Miaou !\nLe combat décisif approche ?\nBon courage !",
+      "line_widths_pixels": [
+        96,
+        174,
+        82
+      ],
+      "line_decoded_character_counts": [
+        17,
+        28,
+        13
+      ],
+      "line_parser_unit_counts": [
+        17,
+        28,
+        13
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 2,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        3
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:CDD2",
+          "text": "Niccolo : Miaou !\nLe combat décisif approche ?\nBon courage !"
+        }
+      ]
+    },
+    {
+      "event_id": "0319",
+      "snes_ids": [
+        "C9:CDFE"
+      ],
+      "android_ids": [
+        2669
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": " Have everything you need?\n",
+      "android_french_raw": "Équipez-vous bien pour être fin prêts ! ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Équipez-vous bien pour être fin prêts !",
+      "layout_markup_before_wrap": "Équipez-vous bien pour être fin prêts !",
+      "layout_hints": [],
+      "formatted_markup": "Équipez-vous bien pour être fin\nprêts !\n",
+      "line_widths_pixels": [
+        190,
+        41
+      ],
+      "line_decoded_character_counts": [
+        31,
+        7
+      ],
+      "line_parser_unit_counts": [
+        31,
+        7
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:CDFE",
+          "text": "Équipez-vous bien pour être fin\nprêts !\n"
+        }
+      ]
+    },
+    {
+      "event_id": "0319",
+      "snes_ids": [
+        "C9:CE1F"
+      ],
+      "android_ids": [
+        2670
+      ],
+      "confidence": "very_high_short_bracketed",
+      "source_display": "Buy",
+      "android_french_raw": "   Acheter   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Acheter",
+      "layout_markup_before_wrap": "Acheter",
+      "layout_hints": [],
+      "formatted_markup": "Acheter",
+      "line_widths_pixels": [
+        46
+      ],
+      "line_decoded_character_counts": [
+        7
+      ],
+      "line_parser_unit_counts": [
+        7
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:CE1F",
+          "text": "Acheter"
+        }
+      ]
+    },
+    {
+      "event_id": "0319",
+      "snes_ids": [
+        "C9:CE24"
+      ],
+      "android_ids": [],
+      "confidence": "very_high_equivalent_duplicate",
+      "source_display": "Sell )",
+      "android_french_raw": "   Vendre   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": [
+        "C9:CE24"
+      ],
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Vendre",
+      "layout_markup_before_wrap": "Vendre",
+      "layout_hints": [],
+      "formatted_markup": "Vendre",
+      "line_widths_pixels": [
+        41
+      ],
+      "line_decoded_character_counts": [
+        6
+      ],
+      "line_parser_unit_counts": [
+        6
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:CE24",
+          "text": "Vendre )"
         }
       ]
     },
@@ -59419,6 +60205,59 @@
       ]
     }
   ],
+  "adaptive_choice_anchor_repairs": [
+    {
+      "event_id": "00DF",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 9,
+      "source_position": 17,
+      "translated_position": 18,
+      "previous_text_id": "C9:1DED",
+      "decoded_label_cells": 15,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "020F",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 7,
+      "source_position": 11,
+      "translated_position": 20,
+      "previous_text_id": "C9:9329",
+      "decoded_label_cells": 16,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "0310",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 10,
+      "source_position": 10,
+      "translated_position": 12,
+      "previous_text_id": "C9:CCA0",
+      "decoded_label_cells": 7,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "0314",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 7,
+      "source_position": 10,
+      "translated_position": 12,
+      "previous_text_id": "C9:CD3B",
+      "decoded_label_cells": 7,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "0319",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 13,
+      "source_position": 10,
+      "translated_position": 12,
+      "previous_text_id": "C9:CE1F",
+      "decoded_label_cells": 7,
+      "choice_commands_preserved_except_coordinate": true
+    }
+  ],
+  "adaptive_choice_decoration_repairs": [],
   "wait00_overlap_repairs": [],
   "unpaused_scroll_repairs": [
     {
@@ -61808,26 +62647,6 @@
       ]
     },
     {
-      "event_id": "020F",
-      "stage": "simulator_rejected",
-      "semantic_ids": [
-        "C9:92FB",
-        "C9:9329",
-        "C9:9330"
-      ],
-      "missing_semantic_ids": [],
-      "details": [
-        {
-          "severity": "error",
-          "code": "CHOICE_OPTION_OVERLAP",
-          "message": "CHOICE_OPTION $0B rewinds over 9 already-decoded cell(s); translated option text would be overwritten.",
-          "box": 1,
-          "page": 1,
-          "line": null
-        }
-      ]
-    },
-    {
       "event_id": "0212",
       "stage": "formatter_rejected",
       "semantic_ids": [
@@ -62605,46 +63424,6 @@
       ]
     },
     {
-      "event_id": "0310",
-      "stage": "simulator_rejected",
-      "semantic_ids": [
-        "C9:CC8A",
-        "C9:CCA0",
-        "C9:CCA5"
-      ],
-      "missing_semantic_ids": [],
-      "details": [
-        {
-          "severity": "error",
-          "code": "CHOICE_OPTION_OVERLAP",
-          "message": "CHOICE_OPTION $0A rewinds over 2 already-decoded cell(s); translated option text would be overwritten.",
-          "box": 1,
-          "page": 1,
-          "line": null
-        }
-      ]
-    },
-    {
-      "event_id": "0314",
-      "stage": "simulator_rejected",
-      "semantic_ids": [
-        "C9:CD25",
-        "C9:CD3B",
-        "C9:CD40"
-      ],
-      "missing_semantic_ids": [],
-      "details": [
-        {
-          "severity": "error",
-          "code": "CHOICE_OPTION_OVERLAP",
-          "message": "CHOICE_OPTION $0A rewinds over 2 already-decoded cell(s); translated option text would be overwritten.",
-          "box": 1,
-          "page": 1,
-          "line": null
-        }
-      ]
-    },
-    {
       "event_id": "0318",
       "stage": "simulator_rejected",
       "semantic_ids": [
@@ -62668,27 +63447,6 @@
           "severity": "error",
           "code": "CHOICE_OPTION_OVERLAP",
           "message": "CHOICE_OPTION $12 rewinds over 1 already-decoded cell(s); translated option text would be overwritten.",
-          "box": 1,
-          "page": 2,
-          "line": null
-        }
-      ]
-    },
-    {
-      "event_id": "0319",
-      "stage": "simulator_rejected",
-      "semantic_ids": [
-        "C9:CDD2",
-        "C9:CDFE",
-        "C9:CE1F",
-        "C9:CE24"
-      ],
-      "missing_semantic_ids": [],
-      "details": [
-        {
-          "severity": "error",
-          "code": "CHOICE_OPTION_OVERLAP",
-          "message": "CHOICE_OPTION $0A rewinds over 2 already-decoded cell(s); translated option text would be overwritten.",
           "box": 1,
           "page": 2,
           "line": null

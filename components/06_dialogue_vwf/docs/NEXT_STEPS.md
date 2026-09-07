@@ -10,27 +10,20 @@ metrics, interrupted-chunk physical-cell progression, right-edge preflight and
 post-outline repair are the current stable base. The stock glyph-addressing block
 `$C0:168A-$16B0` remains intentionally intact.
 
-## Remaining interactive-choice work
+## Interactive-choice checkpoint
 
-The stock-rendered `CHOICE_BEGIN` fallback is runtime-validated on event `$0331`: the
-complete `(Yes  No)` row renders through the original 32-cell path and its selected-color
-span stays aligned. The fallback is intentionally local to the parser chunk containing
-`CHOICE_BEGIN`; ordinary dialogue remains VWF.
+Choice rows now use the same VWF path as ordinary dialogue. Runtime validation on the Potos
+`$0331` path confirms that resynchronizing the cumulative pixel cursor at stock option starts
+from `$A1D7[]` keeps the magenta selection aligned. The terminal boundary appended by
+`CHOICE_END` is also scanned, keeping a preserved closing `)` outside the final highlighted
+span. GAME SELECT remains normal.
 
-Do not move `$5A` option anchors without separate analysis. The simulator still rejects
-13 choice events whose French labels would overlap the next stock anchor or overflow the
-32-cell row. During the full playthrough, keep asymmetric accepted choices such as
-`Accepter / Refuser` as additional regression coverage, but do not broaden the runtime
-rule merely to increase corpus coverage.
-
-A deliberate runtime stress test on `$0331` moved the anchors and replaced the stock
-labels with the longest real Android-FR two-option pair, `Impossible !` /
-`Bon, d'accord...`. Selection/highlighting still worked and the game did not crash, but
-the fixed-width row overran the visible right edge and corrupted the right side of the
-dialogue frame. Therefore **30 nominal 8-pixel cells / 240 px is not a proven safe
-choice-relayout boundary**. Keep the clean checkpoint's stock anchors; do not carry the
-diagnostic text/anchor patch forward. Revisit the exact frame/tile write limit only as a
-separate renderer investigation.
+Component 08 owns the remaining decoded-row geometry issue. It may move only a later
+`CHOICE_OPTION` right to the minimum cell required to prevent the preceding official-French
+label from being overwritten by the parser's absolute reset. The Potos diagnostic using
+`Temple de l'Eau / Pandora` runtime-validates `$03/$11 -> $03/$12`. Do not add a private
+choice renderer, rewrite `$A1D7[]` at runtime, or hook the magenta routine unless a future
+case proves this minimal shared geometry insufficient.
 
 ## Deferred renderer work
 

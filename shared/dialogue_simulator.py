@@ -644,9 +644,9 @@ class _Simulator:
 
         $5B stores one terminal boundary after the option starts. If the last
         decoded glyph is the stock closing parenthesis ($CC), that boundary is
-        decremented by one. Component 06's runtime-validated choice fallback sends
-        this one row through the stock 8-pixel-cell renderer so the stock $A1D7[]
-        selection/highlight spans remain aligned.
+        decremented by one. The simulator deliberately evaluates this row with
+        stock 8-pixel cells as a conservative selection/highlight safety gate,
+        even though component 06 currently draws the row through ordinary VWF.
         """
         self.ensure_box(implicit=True)
         if not self.choice_active:
@@ -663,8 +663,9 @@ class _Simulator:
                 self.issue("error", "CHOICE_EMPTY_OR_OVERLAPPED_OPTION", f"Choice span {start}..{end} is empty or reversed.")
         if terminal > 32:
             self.issue("error", "CHOICE_LOGICAL_OVERFLOW", f"Choice terminal cell {terminal} exceeds the stock 32-cell selectable row.")
-        # The runtime choice-safe path is deliberately fixed-cell only for this
-        # line. Mark all decoded cells before computing final page metrics.
+        # Conservative gate: keep stock-cell metrics for choice rows even after
+        # runtime validation of VWF/highlight synchronization. It is intentionally
+        # stricter than the renderer and prevents speculative width promotions.
         for glyph in self.line_glyphs:
             glyph.fixed_cell = True
         self.choice_active = False
@@ -779,6 +780,7 @@ def simulate_event(
     font: DialogueFont | None = None,
     player_names: dict[int, str] | None = None,
     omitted_command_token_indexes: frozenset[int] | set[int] | None = None,
+    choice_option_position_overrides: dict[int, int] | None = None,
 ) -> EventSimulation:
     font = font or make_dialogue_font(base_rom)
     player_names = player_names or {0: "000000000", 1: "000000000", 2: "000000000"}
@@ -793,6 +795,7 @@ def simulate_event(
         translations=translations,
         source=False,
         omitted_command_token_indexes=omitted_command_token_indexes,
+        choice_option_position_overrides=choice_option_position_overrides,
     )
     return _Simulator(
         event_id=event["event_id"],

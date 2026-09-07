@@ -1677,6 +1677,22 @@ DIALOGUE_USER_VALIDATED_STRUCTURAL_OMISSIONS = (
 )
 
 
+# $0331 remains semantically PARTIEL because the generic inn prompt carrier
+# C9:CEB3 has no single proven Android identity. Suppressing its visible stock
+# English must nevertheless preserve its two stock NEWLINEs: runtime testing
+# proved that the choice row must stay on its original third physical line for
+# the stock selection/highlight geometry to target the rendered Oui/Non row.
+# This is layout-only metadata, never localized prose.
+DIALOGUE_USER_VALIDATED_PARTIAL_LAYOUT_PRESERVATIONS = (
+    {
+        "event_id": "0331",
+        "suppressed_semantic_id": "C9:CEB3",
+        "preserved_text": "\n\n",
+        "reason": "runtime_validated_choice_row_line_placement",
+    },
+)
+
+
 def _auto_metrics(source: str, candidate: str) -> dict[str, float]:
     """Fast deterministic lexical metrics used only by the automatic aligner."""
     try:
@@ -5170,6 +5186,308 @@ def _apply_wait_semantics_layout_compat(event_id: str, translations: dict[str, s
     return repairs
 
 
+
+def _strip_canonical_choice_decoration(
+    event: dict,
+    translations: dict[str, str],
+) -> tuple[dict[str, str], dict | None]:
+    """Remove one stock outer ``( ... )`` decoration pair from a choice row.
+
+    This is a presentation-only fallback.  It never changes CHOICE_BEGIN,
+    CHOICE_OPTION, CHOICE_END, or their coordinates.  The opening/closing
+    delimiters are removed only when the canonical USA event proves both sides
+    of the pair.  If a delimiter lives in an untranslated punctuation-only
+    carrier, an explicit empty/layout-only override is emitted rather than
+    copying any stock English prose into the French output.
+    """
+    tokens = event.get("tokens", [])
+    begins = [
+        index for index, token in enumerate(tokens)
+        if token.get("type") == "command" and token.get("name") == "CHOICE_BEGIN"
+    ]
+    ends = [
+        index for index, token in enumerate(tokens)
+        if token.get("type") == "command" and token.get("name") == "CHOICE_END"
+    ]
+    if len(begins) != 1 or len(ends) != 1 or begins[0] >= ends[0]:
+        return translations, None
+    begin, end = begins[0], ends[0]
+    if not any(
+        token.get("type") == "command" and token.get("name") == "CHOICE_OPTION"
+        for token in tokens[begin + 1:end]
+    ):
+        return translations, None
+
+    opening_index = begin - 1
+    if opening_index < 0 or tokens[opening_index].get("type") not in {"text", "ending_text"}:
+        return translations, None
+    opening_token = tokens[opening_index]
+    opening_source = opening_token.get("source", "")
+    opening_source_match = re.search(r"([ \t]*\()$", opening_source)
+    if opening_source_match is None:
+        return translations, None
+
+    closing_index = end - 1
+    while closing_index > begin and tokens[closing_index].get("type") not in {"text", "ending_text"}:
+        closing_index -= 1
+    if closing_index <= begin:
+        return translations, None
+    closing_token = tokens[closing_index]
+    closing_source = closing_token.get("source", "")
+    closing_source_match = re.search(r"([ \t]*\)[ \t]*)$", closing_source)
+    if closing_source_match is None:
+        return translations, None
+
+    candidate = dict(translations)
+
+    def strip_token_suffix(token: dict, pattern: str) -> tuple[str, str] | None:
+        text_id = token["id"]
+        if text_id in candidate:
+            current = candidate[text_id]
+        else:
+            # Only a punctuation/layout-only canonical carrier may be overridden
+            # without an existing French value.  Never copy visible stock prose.
+            source_without_suffix = re.sub(pattern, "", token.get("source", ""))
+            if source_without_suffix.strip(" \t\r\n\f\v"):
+                return None
+            current = token.get("source", "")
+        match = re.search(pattern, current)
+        if match is None:
+            return None
+        removed = match.group(1)
+        candidate[text_id] = current[:match.start(1)]
+        return text_id, removed
+
+    opening = strip_token_suffix(opening_token, r"([ \t]*\()$")
+    if opening is None:
+        return translations, None
+    closing = strip_token_suffix(closing_token, r"([ \t]*\)[ \t]*)$")
+    if closing is None:
+        return translations, None
+
+    repair = {
+        "strategy": "strip_outer_choice_decoration_for_width",
+        "opening_text_id": opening[0],
+        "closing_text_id": closing[0],
+        "removed_opening_suffix": opening[1],
+        "removed_closing_suffix": closing[1],
+        "choice_commands_unchanged": True,
+    }
+    return candidate, repair
+
+
+def _choice_decoration_reports(
+    reports: list[dict],
+    translations: dict[str, str],
+    repair: dict,
+) -> list[dict]:
+    """Keep mapping reports synchronized with a stripped choice-decoration fallback."""
+    changed_ids = {repair["opening_text_id"], repair["closing_text_id"]}
+    updated_reports: list[dict] = []
+    for report in reports:
+        updated = dict(report)
+        entries = [dict(entry) for entry in report.get("formatted_entries", [])]
+        touched = False
+        for entry in entries:
+            text_id = entry.get("id")
+            if text_id in changed_ids and text_id in translations:
+                entry["text"] = translations[text_id]
+                touched = True
+        if touched:
+            updated["formatted_entries"] = entries
+            snes_ids = updated.get("snes_ids", [])
+            if len(snes_ids) == 1 and snes_ids[0] in translations:
+                updated["formatted_markup"] = translations[snes_ids[0]]
+            updated["choice_decoration_mode"] = "stripped_for_width"
+            terminal_ids = [
+                text_id
+                for text_id in (updated.get("preserved_choice_terminal_suffix_ids") or [])
+                if text_id != repair["closing_text_id"]
+            ]
+            updated["preserved_choice_terminal_suffix_ids"] = terminal_ids or None
+            if updated.get("preserved_choice_opening_suffix") is not None:
+                updated["removed_choice_opening_suffix"] = updated["preserved_choice_opening_suffix"]
+                updated["preserved_choice_opening_suffix"] = None
+        updated_reports.append(updated)
+    return updated_reports
+
+
+def _try_adaptive_choice_anchor_positions(
+    *,
+    base_rom: bytes,
+    event: dict,
+    translations: dict[str, str],
+    advances: dict[str, int],
+    font,
+    simulation,
+) -> tuple[object, dict[int, int], list[dict]]:
+    """Move only later CHOICE_OPTION anchors right to prevent parser overwrite.
+
+    The first option coordinate remains stock.  A later coordinate may move only
+    to the minimum decoded-cell position immediately after the previous localized
+    label.  The move is tried only for a simple canonical choice row and is kept
+    only when the independently serialized/simulated event becomes fully clean.
+    Component 06 and the stock highlight then consume the same moved coordinate,
+    matching the runtime-validated $03/$11 -> $03/$12 long-label diagnostic.
+    """
+    from shared.dialogue_simulator import simulate_event
+
+    if not any(
+        issue.code == "CHOICE_OPTION_OVERLAP" and issue.severity in {"error", "warning"}
+        for issue in simulation.issues
+    ):
+        return simulation, {}, []
+
+    tokens = event.get("tokens", [])
+    begins = [
+        index for index, token in enumerate(tokens)
+        if token.get("type") == "command" and token.get("name") == "CHOICE_BEGIN"
+    ]
+    ends = [
+        index for index, token in enumerate(tokens)
+        if token.get("type") == "command" and token.get("name") == "CHOICE_END"
+    ]
+    if len(begins) != 1 or len(ends) != 1 or begins[0] >= ends[0]:
+        return simulation, {}, []
+    begin, end = begins[0], ends[0]
+
+    options: list[tuple[int, int, dict]] = []
+    index = begin + 1
+    while index < end:
+        command = tokens[index]
+        if command.get("type") != "command" or command.get("name") != "CHOICE_OPTION":
+            return simulation, {}, []
+        args = command.get("args", "").split()
+        if len(args) != 1:
+            return simulation, {}, []
+        position = int(args[0], 16)
+        if index + 1 >= end:
+            return simulation, {}, []
+        text_token = tokens[index + 1]
+        if text_token.get("type") not in {"text", "ending_text"}:
+            return simulation, {}, []
+        options.append((index, position, text_token))
+        index += 2
+    if index != end or len(options) < 2:
+        return simulation, {}, []
+
+    positions = [position for _, position, _ in options]
+    overrides: dict[int, int] = {}
+    repairs: list[dict] = []
+    for option_index in range(1, len(options)):
+        previous_token = options[option_index - 1][2]
+        previous_text = translations.get(previous_token["id"], previous_token.get("source", ""))
+        # Choice labels are plain decoded text. Do not infer geometry across any
+        # formatter control markup or dynamic structure.
+        if any(control in previous_text for control in ("\n", "\f", "\v")):
+            return simulation, {}, []
+        required = positions[option_index - 1] + len(previous_text)
+        source_position = positions[option_index]
+        if required <= source_position:
+            continue
+        if required >= 32:
+            return simulation, {}, []
+        span_pixels = (required - positions[option_index - 1]) * 8
+        if _markup_width(previous_text, advances, 0) > span_pixels:
+            return simulation, {}, []
+        token_index = options[option_index][0]
+        overrides[token_index] = required
+        repairs.append({
+            "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+            "token_index": token_index,
+            "source_position": source_position,
+            "translated_position": required,
+            "previous_text_id": previous_token["id"],
+            "decoded_label_cells": len(previous_text),
+            "choice_commands_preserved_except_coordinate": True,
+        })
+        positions[option_index] = required
+
+    if not overrides:
+        return simulation, {}, []
+
+    try:
+        candidate = simulate_event(
+            base_rom,
+            event,
+            translations,
+            font=font,
+            player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+            choice_option_position_overrides=overrides,
+        )
+    except ValueError:
+        return simulation, {}, []
+    blocking = [issue for issue in candidate.issues if issue.severity in {"error", "warning"}]
+    wraps = sum(
+        line.implicit_wrap
+        for box in candidate.boxes
+        for page in box.pages
+        for line in page.lines
+    )
+    if blocking or wraps:
+        return simulation, {}, []
+    return candidate, overrides, repairs
+
+
+def _try_adaptive_choice_decoration(
+    *,
+    base_rom: bytes,
+    event: dict,
+    translations: dict[str, str],
+    reports: list[dict],
+    font,
+    simulation,
+) -> tuple[dict[str, str], list[dict], object, list[dict]]:
+    """Retry one rejected choice event without its outer stock decoration.
+
+    Decoration is preserved whenever the normal event is already simulator-clean.
+    The stripped form is selected only when removing the canonical outer pair is
+    sufficient to make the whole event pass the same zero-error/zero-warning/
+    zero-implicit-wrap gate.  This keeps the fallback width-driven and avoids a
+    global visual rewrite of short choices.
+    """
+    from shared.dialogue_simulator import simulate_event
+
+    blocking = [issue for issue in simulation.issues if issue.severity in {"error", "warning"}]
+    wraps = sum(
+        line.implicit_wrap
+        for box in simulation.boxes
+        for page in box.pages
+        for line in page.lines
+    )
+    if not blocking and not wraps:
+        return translations, reports, simulation, []
+
+    candidate, repair = _strip_canonical_choice_decoration(event, translations)
+    if repair is None:
+        return translations, reports, simulation, []
+    try:
+        candidate_simulation = simulate_event(
+            base_rom,
+            event,
+            candidate,
+            font=font,
+            player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+        )
+    except ValueError:
+        return translations, reports, simulation, []
+    candidate_blocking = [
+        issue for issue in candidate_simulation.issues
+        if issue.severity in {"error", "warning"}
+    ]
+    candidate_wraps = sum(
+        line.implicit_wrap
+        for box in candidate_simulation.boxes
+        for page in box.pages
+        for line in page.lines
+    )
+    if candidate_blocking or candidate_wraps:
+        return translations, reports, simulation, []
+
+    candidate_reports = _choice_decoration_reports(reports, candidate, repair)
+    return candidate, candidate_reports, candidate_simulation, [repair]
+
+
 def make_dialogue_format_mass(
     english: dict[int, str],
     french: dict[int, str],
@@ -5233,6 +5551,9 @@ def make_dialogue_format_mass(
     fragment_spacing_repairs_by_event: dict[str, list[dict]] = {}
     targeted_wait00_fresh_page_repairs_by_event: dict[str, list[dict]] = {}
     explicit_post_wait_newline_repairs_by_event: dict[str, list[dict]] = {}
+    adaptive_choice_decoration_repairs_by_event: dict[str, list[dict]] = {}
+    adaptive_choice_anchor_repairs_by_event: dict[str, list[dict]] = {}
+    choice_option_position_overrides_by_event: dict[str, dict[int, int]] = {}
     accepted_events: list[str] = []
     partial_accepted_events: list[str] = []
     partial_suppressed_semantic_ids_by_event: dict[str, list[str]] = {}
@@ -5380,6 +5701,43 @@ def make_dialogue_format_mass(
             for line in page.lines
         )
         if blocking_issues or implicit_wraps:
+            (
+                anchor_simulation,
+                anchor_overrides,
+                anchor_repairs,
+            ) = _try_adaptive_choice_anchor_positions(
+                base_rom=base_rom,
+                event=event,
+                translations=event_translations,
+                advances=advances,
+                font=font,
+                simulation=simulation,
+            )
+            if anchor_repairs:
+                simulation = anchor_simulation
+                choice_option_position_overrides_by_event[event_id] = anchor_overrides
+                adaptive_choice_anchor_repairs_by_event[event_id] = anchor_repairs
+                blocking_issues = []
+                implicit_wraps = 0
+        if blocking_issues or implicit_wraps:
+            (
+                event_translations,
+                event_reports,
+                simulation,
+                choice_decoration_repairs,
+            ) = _try_adaptive_choice_decoration(
+                base_rom=base_rom,
+                event=event,
+                translations=event_translations,
+                reports=event_reports,
+                font=font,
+                simulation=simulation,
+            )
+            if choice_decoration_repairs:
+                adaptive_choice_decoration_repairs_by_event[event_id] = choice_decoration_repairs
+                blocking_issues = []
+                implicit_wraps = 0
+        if blocking_issues or implicit_wraps:
             # Semantic wrapping is a presentation preference, never a reason to
             # lose an otherwise safe translated event. Retry the whole event
             # with the compact validated wrapper; accept that fallback only if
@@ -5430,6 +5788,43 @@ def make_dialogue_format_mass(
                     for page in box.pages
                     for line in page.lines
                 )
+                if compact_blocking or compact_wraps:
+                    (
+                        compact_anchor_simulation,
+                        compact_anchor_overrides,
+                        compact_anchor_repairs,
+                    ) = _try_adaptive_choice_anchor_positions(
+                        base_rom=base_rom,
+                        event=event,
+                        translations=compact_translations,
+                        advances=advances,
+                        font=font,
+                        simulation=compact_simulation,
+                    )
+                    if compact_anchor_repairs:
+                        compact_simulation = compact_anchor_simulation
+                        choice_option_position_overrides_by_event[event_id] = compact_anchor_overrides
+                        adaptive_choice_anchor_repairs_by_event[event_id] = compact_anchor_repairs
+                        compact_blocking = []
+                        compact_wraps = 0
+                if compact_blocking or compact_wraps:
+                    (
+                        compact_translations,
+                        compact_reports,
+                        compact_simulation,
+                        compact_choice_decoration_repairs,
+                    ) = _try_adaptive_choice_decoration(
+                        base_rom=base_rom,
+                        event=event,
+                        translations=compact_translations,
+                        reports=compact_reports,
+                        font=font,
+                        simulation=compact_simulation,
+                    )
+                    if compact_choice_decoration_repairs:
+                        adaptive_choice_decoration_repairs_by_event[event_id] = compact_choice_decoration_repairs
+                        compact_blocking = []
+                        compact_wraps = 0
                 if not compact_blocking and not compact_wraps:
                     accepted_events.append(event_id)
                     translations_by_event[event_id] = compact_translations
@@ -5714,7 +6109,26 @@ def make_dialogue_format_mass(
         for missing_id in missing_ids:
             if missing_id in event_translations:
                 raise AssertionError(f"partial event ${event_id}: missing ID unexpectedly translated: {missing_id}")
-            event_translations[missing_id] = ""
+            preservation = next((
+                entry
+                for entry in DIALOGUE_USER_VALIDATED_PARTIAL_LAYOUT_PRESERVATIONS
+                if entry["event_id"] == event_id
+                and entry["suppressed_semantic_id"] == missing_id
+            ), None)
+            if preservation is None:
+                event_translations[missing_id] = ""
+                continue
+            preserved_text = preservation["preserved_text"]
+            if preserved_text.strip():
+                raise AssertionError(
+                    f"partial event ${event_id}: layout preservation for {missing_id} contains visible text"
+                )
+            source_text = source_text_by_id.get(missing_id, "")
+            if preserved_text.count("\n") > source_text.count("\n"):
+                raise AssertionError(
+                    f"partial event ${event_id}: layout preservation for {missing_id} invents NEWLINEs"
+                )
+            event_translations[missing_id] = preserved_text
         if partial_errors or not event_translations:
             incomplete["partial_attempt"] = {
                 "status": "formatter_rejected",
@@ -5753,6 +6167,24 @@ def make_dialogue_format_mass(
             for page in box.pages
             for line in page.lines
         )
+        if blocking_issues or implicit_wraps:
+            (
+                event_translations,
+                event_reports,
+                simulation,
+                choice_decoration_repairs,
+            ) = _try_adaptive_choice_decoration(
+                base_rom=base_rom,
+                event=event,
+                translations=event_translations,
+                reports=event_reports,
+                font=font,
+                simulation=simulation,
+            )
+            if choice_decoration_repairs:
+                adaptive_choice_decoration_repairs_by_event[event_id] = choice_decoration_repairs
+                blocking_issues = []
+                implicit_wraps = 0
         if blocking_issues or implicit_wraps:
             incomplete["partial_attempt"] = {
                 "status": "simulator_rejected",
@@ -5840,6 +6272,14 @@ def make_dialogue_format_mass(
     translation_document["user_validated_structural_omissions"] = list(
         DIALOGUE_USER_VALIDATED_STRUCTURAL_OMISSIONS
     )
+    translation_document["user_validated_partial_layout_preservations"] = list(
+        DIALOGUE_USER_VALIDATED_PARTIAL_LAYOUT_PRESERVATIONS
+    )
+    translation_document["choice_option_position_overrides"] = [
+        {"event_id": event_id, **repair}
+        for event_id in accepted_events
+        for repair in adaptive_choice_anchor_repairs_by_event.get(event_id, [])
+    ]
 
     stage_counts: dict[str, int] = {}
     for entry in excluded_events:
@@ -5855,6 +6295,11 @@ def make_dialogue_format_mass(
             and _auto_semantic(token.get("source", ""))
             and token.get("id") in translations_by_event[event_id]
             and translations_by_event[event_id][token.get("id")] != ""
+            and not any(
+                preservation["event_id"] == event_id
+                and preservation["suppressed_semantic_id"] == token.get("id")
+                for preservation in DIALOGUE_USER_VALIDATED_PARTIAL_LAYOUT_PRESERVATIONS
+            )
         )
     )
     report_document = {
@@ -5868,6 +6313,7 @@ def make_dialogue_format_mass(
             "partial_event_policy": "translate every already accepted mapping in an alignment-incomplete event; suppress every unmapped semantic source text token so PARTIEL events never mix visible stock English with French; preserve all structural commands/layout bytes; admit only direct formatter output with no partial-event compact/page/event-level repair and a clean independent simulation",
             "user_validated_visual_complete_policy": "events explicitly validated by the user as complete Android adaptations keep their simulator-clean French-only bytes and are removed from the PARTIEL badge without inventing mappings for omitted SNES-only fragments",
             "user_validated_structural_omission_policy": "a stock command may be omitted only when the user explicitly validates the Android adaptation omission and the command is proven by exact adjacency to an explicitly suppressed semantic ID; $01DC drops only PLAYER_NAME(0) immediately before C9:804A",
+            "user_validated_partial_layout_preservation_policy": "a suppressed PARTIEL semantic carrier is normally empty; $0331/C9:CEB3 is the sole runtime-validated exception and preserves only its two stock NEWLINEs (no visible prose) so the choice row remains on the stock selection/highlight line",
             "reviewed_fragment_spacing_policy": "event $0106 may insert only the two user-reported literal spaces between proven adjacent text fragments; no command or layout boundary changes",
             "physical_page_capacity_lines": DIALOGUE_PAGE_LINES,
             "source_english_line_count_is_not_a_layout_limit": True,
@@ -5905,6 +6351,8 @@ def make_dialogue_format_mass(
             "targeted_wait00_fresh_page_policy": "keep stock WAIT $00 bytes unchanged; $0106/C9:2994 is runtime-validated and the eight round13 detector matches are explicitly converted from newline-only carriers to TEXT_CLEAR as a single user-requested runtime-test batch; no generic WAIT carry-over cleanup",
             "wait_semantics_policy": "runtime-validated: WAIT pauses without advancing the text cursor; only explicit $7F NEWLINE or TEXT_CLEAR changes the physical line/page",
             "explicit_post_wait_newline_policy": "materialize only reviewed formatter line boundaries that older simulation had implicitly attributed to WAIT; keep WAIT bytes unchanged; use TEXT_CLEAR instead of NEWLINE when a three-line window would otherwise scroll before the next pause",
+            "adaptive_choice_anchor_policy": "keep the first CHOICE_OPTION stock; when a later stock coordinate would overwrite the preceding localized label in the decoded row, move only that later coordinate right to the minimum cell immediately after the label; accept only a rightward <32 coordinate whose whole event passes the independent zero-error/zero-warning/zero-wrap simulation; runtime validated by the $03/$11 -> $03/$12 Temple de l'Eau/Pandora diagnostic",
+            "adaptive_choice_decoration_policy": "preserve the canonical outer ( ... ) decoration whenever the normal choice event is simulator-clean; only after a width/layout rejection, retry by removing the proven opening/closing parenthesis pair plus its adjacent horizontal padding, without changing CHOICE_BEGIN/CHOICE_OPTION/CHOICE_END or their coordinates; accept the stripped form only if the whole event then passes the same zero-error/zero-warning/zero-wrap gate",
         },
         "coverage": {
             "semantic_source_event_count": sum(
@@ -5924,6 +6372,9 @@ def make_dialogue_format_mass(
             "user_validated_structural_omission_event_count": len(structural_omission_indexes_by_event),
             "user_validated_structural_omitted_command_count": sum(
                 len(indexes) for indexes in structural_omission_indexes_by_event.values()
+            ),
+            "user_validated_partial_layout_preservation_count": len(
+                DIALOGUE_USER_VALIDATED_PARTIAL_LAYOUT_PRESERVATIONS
             ),
             "partial_suppressed_semantic_id_count": sum(
                 len(partial_suppressed_semantic_ids_by_event[event_id]) for event_id in visible_partial_events
@@ -5992,6 +6443,22 @@ def make_dialogue_format_mass(
             "action_boundary_line_break_count": sum(
                 bool(entry.get("inserted_action_boundary_line_break")) for entry in formatted
             ),
+            "adaptive_choice_anchor_shifted_event_count": sum(
+                bool(adaptive_choice_anchor_repairs_by_event.get(event_id))
+                for event_id in accepted_events
+            ),
+            "adaptive_choice_anchor_shift_count": sum(
+                len(adaptive_choice_anchor_repairs_by_event.get(event_id, []))
+                for event_id in accepted_events
+            ),
+            "adaptive_choice_decoration_stripped_event_count": sum(
+                bool(adaptive_choice_decoration_repairs_by_event.get(event_id))
+                for event_id in accepted_events
+            ),
+            "adaptive_choice_decoration_stripped_count": sum(
+                len(adaptive_choice_decoration_repairs_by_event.get(event_id, []))
+                for event_id in accepted_events
+            ),
             "excluded_event_count": len(excluded_events),
             "excluded_stage_counts": stage_counts,
         },
@@ -6005,6 +6472,9 @@ def make_dialogue_format_mass(
             for event_id in user_validated_complete_events
         ],
         "user_validated_structural_omissions": list(DIALOGUE_USER_VALIDATED_STRUCTURAL_OMISSIONS),
+        "user_validated_partial_layout_preservations": list(
+            DIALOGUE_USER_VALIDATED_PARTIAL_LAYOUT_PRESERVATIONS
+        ),
         "partial_accepted_events": [
             {
                 "event_id": event_id,
@@ -6014,6 +6484,16 @@ def make_dialogue_format_mass(
             for event_id in visible_partial_events
         ],
         "formatted_mappings": formatted,
+        "adaptive_choice_anchor_repairs": [
+            {"event_id": event_id, **repair}
+            for event_id in accepted_events
+            for repair in adaptive_choice_anchor_repairs_by_event.get(event_id, [])
+        ],
+        "adaptive_choice_decoration_repairs": [
+            {"event_id": event_id, **repair}
+            for event_id in accepted_events
+            for repair in adaptive_choice_decoration_repairs_by_event.get(event_id, [])
+        ],
         "wait00_overlap_repairs": [
             {"event_id": event_id, **repair}
             for event_id in accepted_events

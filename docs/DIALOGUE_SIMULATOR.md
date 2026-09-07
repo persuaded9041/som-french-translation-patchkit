@@ -59,13 +59,13 @@ geometry: static event-engine analysis shows that it redraws the separate money
 window rather than appending dialogue glyphs. Interactive choice geometry is now modeled conservatively. `CHOICE_OPTION $xx` resets
 the decoded-buffer X to the stock absolute cell and records the same boundary later
 used by the selection/highlight code; `CHOICE_END` supplies the terminal boundary,
-excluding the stock closing `)` when present. Component 06 therefore sends only a parsed `CHOICE_BEGIN` row through the complete
-stock fixed-width renderer. The simulator
-rejects any translation that would be overwritten by a later option anchor or exceed
-the 32-cell selectable row. Dynamic item/enemy/weapon/magic/list-value rendering and
-other unproven geometry remain unsupported. The stock-rendered choice-row path is
-runtime-validated on event `$0331`; the simulator remains a static guardrail for the
-rest of the corpus rather than a substitute for playthrough validation.
+excluding the stock closing `)` when present. Component 06 currently renders choice rows
+through the ordinary VWF path, but the simulator deliberately keeps the stricter stock
+anchor model as a safety gate: it rejects any translation that would be overwritten by a
+later option anchor or exceed the 32-cell selectable row. Dynamic item/enemy/weapon/magic/
+list-value rendering and other unproven geometry remain unsupported. The simulator remains
+a static guardrail rather than a substitute for runtime validation of selection/highlight
+behavior.
 
 The source comparison column is informational only; it is not fed back into the
 formatter or simulator. The simulator cannot prove timing, animation interaction or compositor pixel
@@ -85,15 +85,14 @@ component-06 follow-up.
 
 ## Current mass-pass result
 
-The simulator-filtered generator currently accepts **496 events / 1051 visible French
-semantic source IDs (1106 JSON entries)**: 493 events treated as complete plus 3
+The simulator-filtered generator currently accepts **500 events / 1066 visible French
+semantic source IDs (1119 JSON entries)**: 498 events treated as complete plus 2
 PARTIEL events. `$0103`, `$017F` and `$01DC` are user-validated visually complete Android
 adaptations and therefore have no PARTIEL badge despite retaining unmapped SNES-only
 fragments. `$01DC` additionally omits the exact final stock `PLAYER_NAME(0)` command tied
-to suppressed `C9:804A`. The 3 PARTIEL events suppress 3 still-unresolved semantic IDs plus 2
-mapped-but-layout-deferred IDs from the visible dialogue.
+to suppressed `C9:804A`. The 2 PARTIEL events suppress 3 still-unresolved semantic IDs from the visible dialogue.
 Re-running the simulator on the candidate mass translation produces **0 errors, 0 warnings
-and 0 implicit runtime wraps**. The HTML marks those 3 events with a `PARTIEL · français
+and 0 implicit runtime wraps**. The HTML marks those 2 events with a `PARTIEL · français
 incomplet` badge so incomplete scenes can be revisited during playthrough. When
 `--baseline-translation` points to the previous generated JSON, the preview also tags
 events as `NEW` when newly translated source IDs appear, `MODIFIED` when the final

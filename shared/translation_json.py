@@ -154,6 +154,69 @@ def load_structural_omission_token_indexes(
         document, source_document, translations=translations
     )
 
+
+def resolve_choice_option_position_overrides(
+    translation_document: dict,
+    source_document: dict,
+) -> dict[str, dict[int, int]]:
+    """Resolve generated, tightly-scoped CHOICE_OPTION position overrides.
+
+    The canonical source keeps every stock command byte unchanged.  A translated
+    build may move only an existing CHOICE_OPTION to the right, and only when the
+    generated translation metadata identifies the exact event/token/source
+    coordinate.  This supports VWF labels whose decoded character count exceeds
+    the stock cell span even though their rendered pixels still fit.
+    """
+    raw = translation_document.get("choice_option_position_overrides", [])
+    if not isinstance(raw, list):
+        raise ValueError("choice_option_position_overrides must be a list")
+
+    events = {event.get("event_id"): event for event in source_document.get("events", [])}
+    result: dict[str, dict[int, int]] = {}
+    for entry in raw:
+        if not isinstance(entry, dict):
+            raise ValueError("Every choice-option position override must be an object")
+        event_id = entry.get("event_id")
+        token_index = entry.get("token_index")
+        source_position = entry.get("source_position")
+        translated_position = entry.get("translated_position")
+        strategy = entry.get("strategy")
+        if not isinstance(event_id, str) or event_id not in events:
+            raise ValueError(f"Unknown choice-option override event ID: {event_id!r}")
+        if not isinstance(token_index, int):
+            raise ValueError(f"Choice-option override ${event_id}: token_index must be an integer")
+        if not isinstance(source_position, int) or not isinstance(translated_position, int):
+            raise ValueError(f"Choice-option override ${event_id}: positions must be integers")
+        if not isinstance(strategy, str) or not strategy:
+            raise ValueError(f"Choice-option override ${event_id}: strategy is required")
+        if not (0 <= source_position < 32 and 0 <= translated_position < 32):
+            raise ValueError(f"Choice-option override ${event_id}: positions must stay within 0..31")
+        if translated_position <= source_position:
+            raise ValueError(f"Choice-option override ${event_id}: only rightward moves are supported")
+
+        tokens = events[event_id].get("tokens", [])
+        if token_index < 0 or token_index >= len(tokens):
+            raise ValueError(f"Choice-option override ${event_id}: invalid token index {token_index}")
+        token = tokens[token_index]
+        if token.get("type") != "command" or token.get("name") != "CHOICE_OPTION":
+            raise ValueError(f"Choice-option override ${event_id}: token {token_index} is not CHOICE_OPTION")
+        args = token.get("args", "").split()
+        if len(args) != 1 or int(args[0], 16) != source_position:
+            raise ValueError(
+                f"Choice-option override ${event_id}: token {token_index} source coordinate does not match ${source_position:02X}"
+            )
+        event_result = result.setdefault(event_id, {})
+        if token_index in event_result:
+            raise ValueError(f"Choice-option override ${event_id}: duplicate token index {token_index}")
+        event_result[token_index] = translated_position
+
+    return result
+
+
+def load_choice_option_position_overrides(path: Path, source_document: dict) -> dict[str, dict[int, int]]:
+    document = json.loads(path.read_text(encoding="utf-8"))
+    return resolve_choice_option_position_overrides(document, source_document)
+
 def require(translations: dict[str, str], ids: list[str] | tuple[str, ...], *, context: str) -> list[str]:
     missing = [text_id for text_id in ids if text_id not in translations]
     if missing:

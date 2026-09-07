@@ -142,27 +142,39 @@ This is a clipping-safety mechanism, not yet full typographic word wrapping. If 
 word itself reaches the boundary with no usable preceding checkpoint, it may still
 be split. Whole-word pre-wrap is intentionally deferred.
 
-## Stock-rendered interactive choice rows
+## Interactive choice rows
 
-Stock choice geometry is cell-based. The `$58` handler clears the option count; `$5A xx`
-applies an absolute decoded-buffer position and stores the same `xx` in the
-`$7E:A1D7[]` boundary table. `$5B` appends the terminal boundary, excluding a final stock
-`)` glyph. The selection/highlight routine later reads adjacent `$A1D7[]` boundaries and
-toggles tile attributes over exactly that cell span.
+Stock choice selection geometry is cell-based. The `$58` handler clears the option
+count; `$5A xx` applies an absolute decoded-buffer position and stores the same `xx` in
+`$7E:A1D7[]`; `$5B` appends the terminal boundary. The selection/highlight routine at
+`$C0:1B55` later uses adjacent `$A1D7[]` values and flips palette bit `$08` on each whole
+text tile in that span. It therefore cannot independently highlight two options that have
+been compacted into the same 8-pixel tile.
 
-Because `TEXT_X` and `CHOICE_OPTION` can create intentional holes in the decoded row, the
-normal sequential VWF chunk accounting is not equivalent to stock choice rendering.
-Parser preflight therefore tags `$7E:9381` only when the exact current chunk reads
-`CHOICE_BEGIN ($58)`. At renderer entry, after the exact `$1152` caller and dialogue-bank
-gates have passed, the final 32 cells from `$7E:9390-$93AF` are copied to the stock
-`$7E:A1A4-$A1C3` buffer. The choice tag is consumed and `$9385` remains zero, so every
-downstream component-06 hook naturally takes its stock fallback for that invocation.
-Ordinary dialogue remains fully VWF.
+The runtime-validated fix keeps the ordinary component-06 renderer and the stock
+highlight code. At `$ED:7180`, after exact event-render scope has already been established,
+it checks the stock choice-active bit (`$001D00 & $80`). If active, the current decoded slot
+is compared with the option starts already present in `$A1D7[]`. On an exact match, the
+cumulative pixel cursor `$9382` is reset to `slot * 8`. Runtime testing on `$0331` confirms
+that the options remain VWF and the stock magenta selection follows the selected option.
 
-This path is runtime-validated on event `$0331`: the complete `(Yes  No)` row renders and
-the stock selected-color span stays aligned. Choice relayout remains deliberately out of
-scope; translated options that would cross the next stock `$5A` anchor are rejected by
-the simulator rather than having their coordinates guessed.
+The runtime-validated follow-up extends that same scan by one existing entry: `$5B` appends the
+terminal boundary at `$A1D7[option_count]`, so the renderer also recognizes that boundary.
+If the canonical closing parenthesis is present, its decoded slot equals that terminal
+boundary because stock `$5B` excludes the parenthesis from the selectable span; the glyph
+is therefore drawn starting at `terminal * 8`, outside the final magenta range. If no
+closing parenthesis is present, there is no glyph at that slot and the extra scan is inert.
+
+This makes the coordinate systems meet only at boundaries already owned by the stock
+selector: no parser pseudo-glyphs, no private choice buffer, no alternate render loop, no
+`$A1D7[]` rewrite and no magenta hook. Ordinary dialogue never enters the scan because the
+stock choice-active bit is clear; GAME SELECT already takes the non-event replay.
+
+`$0331` retains its formatting-side layout preservation: unresolved `C9:CEB3` contributes
+only its two stock newlines, with no invented prose, so the choice row remains on its stock
+physical line. Component 08 may additionally move only a later choice anchor right when
+the stock absolute decoded-cell reset would overwrite the preceding localized label. The
+Potos `Temple de l'Eau / Pandora` diagnostic runtime-validates the `$11 -> $12` case.
 
 ## Outline repair
 

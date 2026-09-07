@@ -43,6 +43,7 @@ from shared.ips import make_ips  # noqa: E402
 from shared.rom import ROM_SIZE_OFFSET, expand_rom, update_checksum, validate_base_rom  # noqa: E402
 from shared.translation_json import (  # noqa: E402
     load_structural_omission_token_indexes,
+    load_choice_option_position_overrides,
     load_translation,
 )
 
@@ -60,6 +61,9 @@ def build(base: bytes, dialogue_file: Path = DIALOGUE_FILE, translation_file: Pa
         translations = load_translation(translation_file, document, source_asset="dialogues.json")
         structural_omissions = load_structural_omission_token_indexes(
             translation_file, document, translations=translations
+        )
+        choice_option_overrides = load_choice_option_position_overrides(
+            translation_file, document
         )
     except ValueError as exc:
         raise SystemExit(str(exc)) from exc
@@ -85,10 +89,17 @@ def build(base: bytes, dialogue_file: Path = DIALOGUE_FILE, translation_file: Pa
                 "(WAIT $00 + TEXT_CLEAR)"
             )
     omitted_commands = sum(len(indexes) for indexes in structural_omissions.values())
+    choice_override_count = sum(len(indexes) for indexes in choice_option_overrides.values())
     if omitted_commands:
         reports.append(
             f"User-validated Android structural command omission(s): {omitted_commands} "
             f"across {len(structural_omissions)} event(s)"
+        )
+
+    if choice_override_count:
+        reports.append(
+            f"VWF-safe CHOICE_OPTION position override(s): {choice_override_count} "
+            f"across {len(choice_option_overrides)} event(s)"
         )
 
     rebuilt_events: list[tuple[dict, bytes, bytes, int, int]] = []
@@ -107,6 +118,7 @@ def build(base: bytes, dialogue_file: Path = DIALOGUE_FILE, translation_file: Pa
             translations=translations,
             source=False,
             omitted_command_token_indexes=structural_omissions.get(event["event_id"]),
+            choice_option_position_overrides=choice_option_overrides.get(event["event_id"]),
         )
         if not source_data or source_data[-1] != 0x00:
             raise SystemExit(

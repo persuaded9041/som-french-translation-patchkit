@@ -26,20 +26,19 @@ cross-component view.
 | ROM `$C0:16B1-$16B6` | 6 bytes | Cursor advance / stock loop termination hook | Runtime-validated |
 | ROM `$C0:16F5-$16F8` | 4 bytes | Context-sensitive direct/DTE router hook (`$E6` base, `$E8` dialogue) | Runtime-validated for `♪`, `°`, `;` and intro/dialogue separation |
 | ROM `$C0:16EA-$16ED` | 4 bytes | Dialogue-only source-fetch / pixel-wrap preflight hook | Runtime-validated on known right-edge overflow case; stock replay outside parser mode 2 |
-| ROM `$ED:7040-$70AD` | 110 bytes | Caller/bank gate; proven choice chunks copy 32 private cells to the stock buffer and replay stock, otherwise normal bitmap/decoded-count/38-slot VWF initialization | Runtime-validated, including the `$0331` stock-rendered choice fallback |
+| ROM `$ED:7040-$7092` | 83 bytes | Caller/bank gate + normal bitmap/decoded-count/38-slot VWF initialization for every accepted event-render invocation, including choices | Ordinary dialogue scope runtime-validated; choice rows intentionally use the same path |
 | ROM `$ED:70C0-$70F0` | 49 bytes | Table-driven cursor advance / termination helper | Runtime-validated |
 | ROM `$ED:7100-$710F` | 16 bytes | Dialogue scope wrapper; shared-row call or stock font-row fallback | Runtime-validated shared-row path |
-| ROM `$ED:7180-$71C1` | 66 bytes | Per-character Y helper + chunk-boundary snapshot + private-buffer load; choice chunks bypass this through renderer-entry stock fallback | Runtime-validated; choice rows bypass this helper through renderer-entry stock fallback |
+| ROM `$ED:7180-$71DE` | 95 bytes | Per-character Y helper + chunk-boundary snapshot + stock-choice option/terminal anchor resync + private-buffer load | Runtime-validated on `$0331`; GAME SELECT remains stock |
 | ROM `$ED:7200-$727F` | 128 bytes | Dialogue advance table | Runtime-validated |
 | ROM `$ED:7280-$72E9` | 106 bytes | Cross-cell outline-boundary repair | Runtime-validated exact-tag repair on stock and relocated dialogue |
-| ROM `$ED:7340-$7370` | 49 bytes | Generic physical-cell commit + >32 line-break safety conversion + defensive choice-tag clear on active VWF chunks | Runtime-validated; defensive choice-tag clear is part of the validated fallback |
+| ROM `$ED:7340-$736D` | 46 bytes | Generic physical-cell commit + >32 line-break safety conversion | Runtime-validated ordinary-dialogue path; no choice-only state remains |
 | ROM `$ED:7380-$73AA` | 43 bytes | Useful-width -> physical-cell snapshot helper | Runtime-validated |
 | ROM `$ED:73B0-$73B8` | 9 bytes | Test private renderer-active tag for internal hooks | Runtime-validated |
-| ROM `$ED:7500-$76B6` | 439 bytes | Dialogue parser pixel-budget preflight / safe-space rewind helper + exact-line `CHOICE_BEGIN` tag | Runtime-validated, including exact-line `CHOICE_BEGIN` tagging |
+| ROM `$ED:7500-$76A8` | 425 bytes | Dialogue parser pixel-budget preflight / safe-space rewind helper | Runtime-validated ordinary-dialogue path; choice commands receive no component-06 parser special case |
 | ROM `$ED:7700-$7760` | 97 bytes | Single-glyph visible-extent + advance preflight helper | Runtime-validated as part of right-edge fix |
 | ROM `$ED:7780-$77FF` | 128 bytes | Generated framed-right-edge table for decoded codes `$80-$FF` | Runtime-validated as part of right-edge fix |
 | WRAM `$7E:9380` | 1 byte | Shared parser mode (`2` during component-06 private dialogue decoding) | Runtime-validated; parser phase only |
-| WRAM `$7E:9381` | 1 byte | Current parser chunk contains `CHOICE_BEGIN`; renderer entry consumes it after copying the final 32-cell row to the stock buffer | Runtime-validated on `$0331`; overlaps only mutually-exclusive intro scratch |
 | WRAM `$7E:9390-$93BB` | 44 bytes | Shared decoded-text private buffer; up to 38 dialogue glyphs + control/padding | Runtime-validated |
 | WRAM `$7E:9382` | 1 byte | Private dialogue pixel cursor | Tagged event render (`$C9/$CA` or validated `$E8-$EC`) |
 | WRAM `$7E:9383-$9384` | 2 bytes | Row shift/composition scratch | Tagged event render (`$C9/$CA` or validated `$E8-$EC`) |

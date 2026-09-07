@@ -408,6 +408,7 @@ def serialize_event(
     translations: dict[str, str] | None = None,
     source: bool,
     omitted_command_token_indexes: frozenset[int] | set[int] | None = None,
+    choice_option_position_overrides: dict[int, int] | None = None,
 ) -> bytes:
     """Serialize one event against its canonical clean-ROM source and optional translations.
 
@@ -426,11 +427,23 @@ def serialize_event(
 
     translations = translations or {}
     omitted = frozenset(omitted_command_token_indexes or ())
+    choice_overrides = dict(choice_option_position_overrides or {})
     if source and omitted:
         raise ValueError(f"Event ${event_id:04X}: source serialization cannot omit commands")
+    if source and choice_overrides:
+        raise ValueError(f"Event ${event_id:04X}: source serialization cannot move CHOICE_OPTION commands")
     invalid_indexes = sorted(index for index in omitted if index < 0 or index >= len(event["tokens"]))
     if invalid_indexes:
         raise ValueError(f"Event ${event_id:04X}: invalid omitted command token indexes: {invalid_indexes}")
+    invalid_choice_indexes = sorted(index for index in choice_overrides if index < 0 or index >= len(event["tokens"]))
+    if invalid_choice_indexes:
+        raise ValueError(f"Event ${event_id:04X}: invalid CHOICE_OPTION override token indexes: {invalid_choice_indexes}")
+    for index, position in choice_overrides.items():
+        token = event["tokens"][index]
+        if token.get("type") != "command" or token.get("name") != "CHOICE_OPTION":
+            raise ValueError(f"Event ${event_id:04X}: token {index} is not CHOICE_OPTION")
+        if not isinstance(position, int) or not 0 <= position < 32:
+            raise ValueError(f"Event ${event_id:04X}: CHOICE_OPTION override at token {index} is outside 0..31")
 
     out = bytearray()
     for index, (token, original_token) in enumerate(zip(event["tokens"], canonical["tokens"])):
@@ -477,7 +490,10 @@ def serialize_event(
                 out += encode_ending_text(text)
                 out.append(0x7E)
         elif kind == "command":
-            out += _command_bytes(token)
+            if index in choice_overrides:
+                out += bytes((COMMAND_OPCODES["CHOICE_OPTION"], choice_overrides[index]))
+            else:
+                out += _command_bytes(token)
         elif kind == "glyph":
             out += _glyph_byte(token)
         else:

@@ -150,16 +150,19 @@ insertion, line breaks and WAIT sequencing. The canonical `assets/dialogues.json
 The runtime-validated pagination baseline includes `$010F`: dynamic-name lines
 reserve one parser safety unit, and its four safe lines use a sentence-aware
 3+1 split with generated `WAIT $00` + `TEXT_CLEAR`. The current simulator-filtered
-mass pass contains **496 simulator-clean events / 1051 visible French semantic source
-tokens / 1106 JSON entries** and resimulates with 0 errors, 0 warnings and 0 implicit
-wraps. Three events are PARTIEL: 3 still-unresolved semantic source IDs plus 2
-mapped-but-layout-deferred IDs are suppressed from visible dialogue. `$0103`, `$017F` and
+mass pass contains **500 simulator-clean events / 1066 visible French semantic source
+tokens / 1119 JSON entries** and resimulates with 0 errors, 0 warnings and 0 implicit
+wraps. Two events are PARTIEL: 3 still-unresolved semantic source IDs are suppressed from
+visible dialogue. `$00DF` is now complete through the runtime-validated minimal later-choice
+anchor shift. `$0103`, `$017F` and
 `$01DC` are separately user-validated as visually complete Android adaptations and no longer
 carry a PARTIEL badge. `$01DC` has one explicit structural exception: its final stock
 `PLAYER_NAME(0)` is omitted together with Android-absent `C9:804A`.
-The stock-rendered `CHOICE_BEGIN` fallback is runtime-validated on event `$0331`, where
-the complete `(Yes  No)` row and selection highlight remain aligned. The full mass
-corpus still requires the planned playthrough.
+Interactive choice rows use component 06's ordinary VWF path with stock `CHOICE_OPTION`
+/ `$A1D7[]` selection geometry untouched. Resynchronizing VWF option starts to those stock
+boundaries is runtime-validated on `$0331`; the current follow-up additionally uses the
+existing terminal boundary to keep a preserved closing parenthesis outside the final
+magenta span. The full mass corpus still requires the planned playthrough.
 
 Growth has a runtime-validated relocation path. Component 08 can install a sparse
 24-bit event-address table and dispatcher hook, then pack only overlong rebuilt

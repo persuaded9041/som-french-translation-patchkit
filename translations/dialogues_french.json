@@ -296,11 +296,11 @@
         },
         {
           "id": "C9:1DCF",
-          "text": ""
+          "text": "Hé hé hé, bienvenue ! Où veux-tu\naller ? C'est 50 pièces par trajet !\n ("
         },
         {
           "id": "C9:1DED",
-          "text": ""
+          "text": "Temple de l'Eau"
         },
         {
           "id": "C9:1DFB",
@@ -1787,6 +1787,18 @@
           "text": "\u000bNous ne pouvons qu'espérer un miracle,\nà présent."
         },
         {
+          "id": "C9:92FB",
+          "text": "Voyons, je vous en prie !\n"
+        },
+        {
+          "id": "C9:9329",
+          "text": "Bon, d'accord..."
+        },
+        {
+          "id": "C9:9330",
+          "text": "Non ! )"
+        },
+        {
           "id": "C9:9342",
           "text": "Chef : Je vous confie le petiot.\nPrenez soin de lui."
         },
@@ -2819,12 +2831,52 @@
           "text": "Il y a un orbe de cristal quelque\npart... Vous auriez dû chercher un peu\nmieux..."
         },
         {
+          "id": "C9:CC8A",
+          "text": "Bonjour, qu'est-ce que ce sera ?\n"
+        },
+        {
+          "id": "C9:CCA0",
+          "text": "Acheter"
+        },
+        {
+          "id": "C9:CCA5",
+          "text": "Vendre )"
+        },
+        {
           "id": "C9:CCB9",
           "text": "Merci, au revoir."
         },
         {
+          "id": "C9:CD25",
+          "text": "Autre chose ?\n"
+        },
+        {
+          "id": "C9:CD3B",
+          "text": "Acheter"
+        },
+        {
+          "id": "C9:CD40",
+          "text": "Vendre )"
+        },
+        {
+          "id": "C9:CDD2",
+          "text": "Niccolo : Miaou !\nLe combat décisif approche ?\nBon courage !"
+        },
+        {
+          "id": "C9:CDFE",
+          "text": "Équipez-vous bien pour être fin\nprêts !\n"
+        },
+        {
+          "id": "C9:CE1F",
+          "text": "Acheter"
+        },
+        {
+          "id": "C9:CE24",
+          "text": "Vendre )"
+        },
+        {
           "id": "C9:CEB3",
-          "text": ""
+          "text": "\n\n"
         },
         {
           "id": "C9:CECE",
@@ -4435,14 +4487,6 @@
   ],
   "partial_events": [
     {
-      "event_id": "00DF",
-      "suppressed_semantic_ids": [
-        "C9:1DCF",
-        "C9:1DED"
-      ],
-      "suppression_reason": "mapped_but_layout_deferred"
-    },
-    {
       "event_id": "0278",
       "suppressed_semantic_ids": [
         "C9:A730",
@@ -4499,6 +4543,66 @@
         }
       ],
       "reason": "user_validated_android_adaptation_omission"
+    }
+  ],
+  "user_validated_partial_layout_preservations": [
+    {
+      "event_id": "0331",
+      "suppressed_semantic_id": "C9:CEB3",
+      "preserved_text": "\n\n",
+      "reason": "runtime_validated_choice_row_line_placement"
+    }
+  ],
+  "choice_option_position_overrides": [
+    {
+      "event_id": "00DF",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 9,
+      "source_position": 17,
+      "translated_position": 18,
+      "previous_text_id": "C9:1DED",
+      "decoded_label_cells": 15,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "020F",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 7,
+      "source_position": 11,
+      "translated_position": 20,
+      "previous_text_id": "C9:9329",
+      "decoded_label_cells": 16,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "0310",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 10,
+      "source_position": 10,
+      "translated_position": 12,
+      "previous_text_id": "C9:CCA0",
+      "decoded_label_cells": 7,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "0314",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 7,
+      "source_position": 10,
+      "translated_position": 12,
+      "previous_text_id": "C9:CD3B",
+      "decoded_label_cells": 7,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "0319",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 13,
+      "source_position": 10,
+      "translated_position": 12,
+      "previous_text_id": "C9:CE1F",
+      "decoded_label_cells": 7,
+      "choice_commands_preserved_except_coordinate": true
     }
   ]
 }

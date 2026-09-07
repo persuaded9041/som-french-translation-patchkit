@@ -74,9 +74,9 @@ uses `$7E:9390-$93BB` for private VWF decoding. Component-owned config bytes at
 `$C7:4C80-$4C84` select intro mode 1 or dialogue mode 2.
 
 Component 06 uses renderer hooks in bank `$C0` and helper/table space in the
-`$ED:7040-$73B8` area. The runtime-validated choice-row fallback additionally uses
-`$7E:9381` as a one-chunk `CHOICE_BEGIN` stock-render tag; ordinary renderer scratch
-remains `$7E:9382-$938F`. These bytes are used only for caller-tagged event-render
+`$ED:7040-$73B8` area. Choice rows use the same renderer path as ordinary dialogue;
+there is no component-06 `$9381` choice tag. Renderer scratch remains `$7E:9382-$938F`.
+These bytes are used only for caller-tagged event-render
 invocations in stock banks `$C9/$CA` and validated reserved banks `$E8-$EC`. Component 05
 intercepts translated intro event `$0400` before component 06 reaches its entry
 hook, so their overlapping WRAM scratch remains mutually exclusive.
