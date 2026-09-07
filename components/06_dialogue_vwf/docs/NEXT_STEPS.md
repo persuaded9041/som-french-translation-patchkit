@@ -12,18 +12,16 @@ post-outline repair are the current stable base. The stock glyph-addressing bloc
 
 ## Interactive-choice checkpoint
 
-Choice rows now use the same VWF path as ordinary dialogue. Runtime validation on the Potos
-`$0331` path confirms that resynchronizing the cumulative pixel cursor at stock option starts
-from `$A1D7[]` keeps the magenta selection aligned. The terminal boundary appended by
-`CHOICE_END` is also scanned, keeping a preserved closing `)` outside the final highlighted
-span. GAME SELECT remains normal.
+Choice rows use the ordinary dialogue VWF renderer. The earlier stock-anchor synchronization and `CHOICE_END` terminal-boundary handling remain the fallback for decorated rows.
 
-Component 08 owns the remaining decoded-row geometry issue. It may move only a later
-`CHOICE_OPTION` right to the minimum cell required to prevent the preceding official-French
-label from being overwritten by the parser's absolute reset. The Potos diagnostic using
-`Temple de l'Eau / Pandora` runtime-validates `$03/$11 -> $03/$12`. Do not add a private
-choice renderer, rewrite `$A1D7[]` at runtime, or hook the magenta routine unless a future
-case proves this minimal shared geometry insufficient.
+A generic measured-end path is now runtime-validated for undecorated two-option rows. Logical `$A1D7[]` coordinates remain untouched for parser/storage; component 06 records the actual VWF endpoint and derives separate cell-aligned visual/highlight boundaries. The first option starts no farther left than `$03`, the second starts one full cell after the measured first-option end, and the terminal boundary is rounded up from the final VWF end. The magenta geometry hook consumes only these private bounds after they are complete.
+
+Runtime-validated wide cases: `$00CE`, `$00CF`, `$00D1`, `$0202`. Runtime-validated fallback controls: ordinary Potos `Acheter / Vendre` and `Oui / Non` retain the decorated stock-anchor path. Do not reintroduce the rejected first-anchor-left experiments or a special `CHOICE_BEGIN` renderer.
+
+Two follow-ups remain:
+
+1. `$00D0` (`Désert de Kakkara / Pays de glace`) still reaches too close to the right bitmap edge; highlighting can corrupt the frame. Keep it excluded until a right-edge safety margin is runtime-validated.
+2. Short decorated choices visually lack about one extra blank cell before the closing `)`. Treat this as a cosmetic follow-up, separate from the wide-choice geometry.
 
 ## Deferred renderer work
 

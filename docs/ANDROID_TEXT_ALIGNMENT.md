@@ -737,7 +737,7 @@ removal rule is introduced.
 
 The corpus remains **496 simulator-clean events** but becomes **493 complete + 3 PARTIEL**,
 with **1,051 visible French semantic IDs / 1,106 JSON entries**, 0 errors, 0 warnings and
-0 implicit wraps. The remaining PARTIEL events are `$00DF`, `$0278` and `$0331`.
+0 implicit wraps. The sole remaining PARTIEL event is `$0278`; `$00DF` and `$0331` are complete under the validated choice-anchor and parameterized-inn rules.
 
 
 ## Choice-VWF geometry follow-up
@@ -751,10 +751,15 @@ Potos diagnostic using `Temple de l'Eau / Pandora` runtime-validates `$00DF`'s c
 `$03/$11 -> $03/$12` geometry. No manual French or runtime `$A1D7[]` rewrite is involved.
 
 This removes `$00DF` from PARTIEL and also admits four previously excluded complete events
-(`$020F`, `$0310`, `$0314`, `$0319`) under the same static gate. Semantic alignment remains
-**1,601 / 1,838 (87.1%)**, because this is a layout change rather than a new identity mapping.
-The current corpus is **510 simulator-clean events**, **509 complete + 1 PARTIEL**, with
-**1,078 visible semantic IDs / 1,129 JSON entries**. `$0278` is the sole PARTIEL event because
+(`$020F`, `$0310`, `$0314`, `$0319`) under the same static gate. A later conservative choice-row
+recovery pass admits eleven more events without moving the first option anchor: it restores a
+stock `NEWLINE + (` row suffix lost by Android prose reflow, may materialize one newline before a
+standalone decorative `(` carrier, and may compose decoration stripping with the already validated
+later-anchor-only shift. Semantic alignment remains **1,601 / 1,838 (87.1%)**, because these are
+layout changes rather than new identity mappings.
+
+The current corpus is **521 simulator-clean events**, **520 complete + 1 PARTIEL**, with
+**1,122 visible semantic IDs / 1,179 JSON entries**. `$0278` is the sole PARTIEL event because
 its two SNES-only controller carriers are staged for manual translation; `$0331` is complete
-through the reviewed parameterized Android-ID-110 inn template. The four choice events newly
-admitted by anchor shifting remain runtime-unvalidated individually until ordinary playthrough review.
+through the reviewed parameterized Android-ID-110 inn template. Newly admitted choice events
+remain runtime-unvalidated individually until ordinary playthrough review.

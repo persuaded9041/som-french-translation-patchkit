@@ -35,9 +35,10 @@ implemented by the current formatter/simulator.
 
 The accepted alignment resolves 1,601 / 1,838 semantic source IDs (87.1%) and leaves
 237 unresolved rather than forcing weak matches. The established complete-event path
-contains 509 events treated as complete. A simulator-gated partial pass keeps only `$0278` PARTIEL; its two user-validated Android-absent controller carriers are staged in `translations/dialogues_manual_supplements.json` and remain exact USA text until manually translated. The current corpus therefore contains
-510 events / 1078 visible semantic source IDs / 1129 JSON entries. The remaining exclusions are 161 alignment-incomplete events, 17 formatter rejects and 16 simulator rejects. Unresolved choice geometry remains rejected rather
-than guessed; `$0202` remains separately rejected for visible-bitmap overflow.
+contains 520 events treated as complete. A simulator-gated partial pass keeps only `$0278` PARTIEL; its two user-validated Android-absent controller carriers are staged in `translations/dialogues_manual_supplements.json` and remain exact USA text until manually translated. The current corpus therefore contains
+521 events / 1122 visible semantic source IDs / 1179 JSON entries. The remaining exclusions are 161 alignment-incomplete events, 17 formatter rejects and 5 simulator rejects. Unresolved choice geometry remains rejected rather
+than guessed; the five remaining simulator rejects require a stronger, still-unvalidated first-anchor/width geometry rule.
+The current choice-layout recovery adds 11 simulator-clean complete events without changing semantic identity: six restore only a source-proven choice-row newline/opening suffix, `$00DB` restores one choice-row newline before its standalone decoration, and five width-limited rows compose decoration stripping with later-anchor-only shifts. Five simulator rejects remain excluded. A later Potos `$00CE` diagnostic showed that moving the first option left to `$00` or `$01` clips its leading glyphs, so that approach is explicitly rejected; the next geometry work should reclaim middle spacing instead of pushing the first label toward the left edge.
 Android English is the primary identity layer, while Android French may adapt or redistribute wording across adjacent localization slots. Manual supplements never count as Android alignment. The common inn flow is handled separately as a user-validated parameterized template derived from Android ID 110, with stock numeric price carriers retained as the dynamic value.
 
 

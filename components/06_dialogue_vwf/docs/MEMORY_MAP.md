@@ -25,6 +25,7 @@ cross-component view.
 | ROM `$C0:16A4-$16A7` | 4 bytes | Stock-selected font-row compositor hook | Runtime-validated |
 | ROM `$C0:16B1-$16B6` | 6 bytes | Cursor advance / stock loop termination hook | Runtime-validated |
 | ROM `$C0:16F5-$16F8` | 4 bytes | Context-sensitive direct/DTE router hook (`$E6` base, `$E8` dialogue) | Runtime-validated for `♪`, `°`, `;` and intro/dialogue separation |
+| ROM `$C0:1B5F-$1B6C` | 14 bytes | Choice highlight geometry hook; private measured-end bounds when valid, stock `$A1D7[]` otherwise | Runtime-validated on wide and decorated Potos choices |
 | ROM `$C0:16EA-$16ED` | 4 bytes | Dialogue-only source-fetch / pixel-wrap preflight hook | Runtime-validated on known right-edge overflow case; stock replay outside parser mode 2 |
 | ROM `$ED:7040-$7092` | 83 bytes | Caller/bank gate + normal bitmap/decoded-count/38-slot VWF initialization for every accepted event-render invocation, including choices | Ordinary dialogue scope runtime-validated; choice rows intentionally use the same path |
 | ROM `$ED:70C0-$70F0` | 49 bytes | Table-driven cursor advance / termination helper | Runtime-validated |
@@ -38,6 +39,9 @@ cross-component view.
 | ROM `$ED:7500-$76A8` | 425 bytes | Dialogue parser pixel-budget preflight / safe-space rewind helper | Runtime-validated ordinary-dialogue path; choice commands receive no component-06 parser special case |
 | ROM `$ED:7700-$7760` | 97 bytes | Single-glyph visible-extent + advance preflight helper | Runtime-validated as part of right-edge fix |
 | ROM `$ED:7780-$77FF` | 128 bytes | Generated framed-right-edge table for decoded codes `$80-$FF` | Runtime-validated as part of right-edge fix |
+| ROM `$ED:7800-$782D` | 46 bytes | Choice highlight geometry helper | Runtime-validated on `$00CE/$00CF/$00D1/$0202` and short-choice fallback |
+| ROM `$ED:7880-$78FD` | 126 bytes | Two-option visual-boundary helper with decorated-choice fallback | Runtime-validated v6 rule; `$00D0` right-edge limit remains open |
+| ROM `$ED:7900-$791A` | 27 bytes max reserved | Last non-space VWF endpoint tracker for active two-option rows | Runtime-validated as part of v6 |
 | WRAM `$7E:9380` | 1 byte | Shared parser mode (`2` during component-06 private dialogue decoding) | Runtime-validated; parser phase only |
 | WRAM `$7E:9390-$93BB` | 44 bytes | Shared decoded-text private buffer; up to 38 dialogue glyphs + control/padding | Runtime-validated |
 | WRAM `$7E:9382` | 1 byte | Private dialogue pixel cursor | Tagged event render (`$C9/$CA` or validated `$E8-$EC`) |
@@ -49,6 +53,9 @@ cross-component view.
 | WRAM `$7E:938C-$938D` | 2 bytes | Outline-repair scratch | Runtime-validated exact-tag post-outline repair on component-06 dialogue |
 | WRAM `$7E:938E` | 1 byte | Saved decoded-character count for current chunk | Tagged event render (`$C9/$CA` or validated `$E8-$EC`) |
 | WRAM `$7E:938F` | 1 byte | Saved physical-cell count for current useful chunk | Tagged event render (`$C9/$CA` or validated `$E8-$EC`) |
+| WRAM `$7E:93BC` | 1 byte | Last non-space VWF endpoint for active two-option row | Choice render only |
+| WRAM `$7E:93BD-$93BF` | 3 bytes | Private visual boundaries: first option, second option, terminal | Runtime-validated wide-choice geometry |
+| WRAM `$7E:93C0` | 1 byte | Private choice geometry valid flag | Choice render only |
 
 The shared parser buffer is activated only when the `$C0:16B8` caller return is
 `$114B`; GAME SELECT's `$235B` parser call stays on `$A1A4`. `$A1C5-$A1C7` are

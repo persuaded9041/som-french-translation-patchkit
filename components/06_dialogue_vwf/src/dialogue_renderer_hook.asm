@@ -22,7 +22,7 @@
 ;   continuous cumulative pixel cursor with cross-cell merge/spill;
 ;   interactive choice rows use the same private-buffer/cumulative-cursor VWF path;
 ;   runtime-validated choice fix resynchronizes that cursor at stock $A1D7[] option starts;
-;   CHOICE_OPTION selection/highlight geometry and palette toggling remain stock;
+;   decorated choices retain stock anchor/highlight geometry; undecorated two-option rows use private measured-end visual/highlight bounds while keeping $A1D7[] logical;
 ;   generic interrupted-chunk conversion before stock progression.
 ;
 ; $7E:9385 is the per-invocation component-06 active tag. It overlaps the intro
@@ -99,11 +99,10 @@ dialogue_char_start:
     ; For a tagged event-render invocation, snapshot physical chunk cells when
     ; X reaches the saved decoded count. Ordinary dialogue derives
     ; Y=floor(pixel_cursor/8)*12 for active component-06 dialogue. When the
-    ; stock choice-active bit is set, the runtime-validated path additionally
-    ; resynchronizes pixel_cursor to X*8 when X matches a stock $A1D7[]
-    ; option start. The validated follow-up also recognizes the CHOICE_END
-    ; terminal boundary so a preserved closing parenthesis begins outside the
-    ; final highlighted span. Between boundaries the same cumulative VWF path is used.
+    ; stock choice-active bit is set, matching $A1D7[] boundaries are routed
+    ; through the choice visual helper. Decorated rows retain stock anchor
+    ; synchronization. Undecorated two-option rows use runtime-measured private
+    ; visual boundaries while $A1D7[] remains the parser/storage geometry.
     ; Then load $9390,X and enter the untouched stock
     ; glyph normalization/addressing code at $C0:168A. Non-event callers load A1A4,X.
 
@@ -153,3 +152,23 @@ dialogue_wrap_glyph_fit:
 org $ED7780
 dialogue_framed_right_edges:
     ; 128 generated framed rightmost-ink columns ($FF = blank glyph).
+
+
+org $C01B5F
+    ; Generated build installs a JSL to the private choice-highlight geometry
+    ; helper. Stock $A1D7[] geometry is replayed unless private two-option
+    ; measured-end boundaries are complete and valid.
+
+org $ED7800
+dialogue_choice_geometry:
+    ; Private highlight bounds or exact stock geometry fallback.
+
+org $ED7880
+dialogue_choice_visual_boundary:
+    ; For undecorated two-option rows: first >= cell $03; second =
+    ; ceil(last_real_end/8)+1; terminal = ceil(final_end/8). Decorated rows
+    ; detected by decoded[terminal] == $CC replay stock anchor geometry.
+
+org $ED7900
+dialogue_choice_track_endpoint:
+    ; Record live cursor after each non-space glyph in an active two-option row.

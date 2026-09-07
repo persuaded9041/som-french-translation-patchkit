@@ -2,12 +2,10 @@
 """Build the runtime-validated dialogue VWF checkpoint.
 
 Interactive choice rows keep the same private-buffer, cumulative-cursor VWF path as
-ordinary event dialogue.  The runtime-validated choice-highlight compatibility rule
-resynchronizes the pixel cursor at each stock CHOICE_OPTION start from $A1D7[] while the
-choice-active bit is set.  The runtime-validated follow-up also recognizes the stock terminal
-boundary so a preserved closing parenthesis can begin outside the final highlighted span.
-Text remains VWF inside each span and the parser, option coordinates and stock palette/
-highlight routine remain untouched.
+ordinary event dialogue. Decorated rows retain the validated stock-anchor synchronization.
+Undecorated two-option rows keep $A1D7[] as logical parser/storage geometry but derive
+private measured-end visual/highlight boundaries. The stock palette work remains intact;
+only its boundary calculation is hooked when those private bounds are valid.
 
 The pixel-aware parser preflight that prevents right-edge glyph loss is
 runtime-validated on the known early-game overflow case. The stock
@@ -116,6 +114,19 @@ WRAP_GLYPH_HELPER_FILE = 0x2D7700
 WRAP_GLYPH_HELPER_CPU = 0xED7700
 RIGHT_EDGE_TABLE_FILE = 0x2D7780
 RIGHT_EDGE_TABLE_CPU = 0xED7780
+
+# Runtime-validated generic two-option visual geometry.  Logical parser/storage
+# anchors remain in $A1D7[]; these helpers maintain private visual boundaries.
+CHOICE_HIGHLIGHT_FILE = 0x001B5F
+CHOICE_HIGHLIGHT_SIGNATURE = bytes.fromhex("BD D7 A1 8D 73 A1 BD D8 A1 38 ED 73 A1 A8")
+CHOICE_GEOMETRY_HELPER_FILE = 0x2D7800
+CHOICE_GEOMETRY_HELPER_CPU = 0xED7800
+CHOICE_VISUAL_HELPER_FILE = 0x2D7880
+CHOICE_VISUAL_HELPER_CPU = 0xED7880
+CHOICE_TRACKER_HELPER_FILE = 0x2D7900
+CHOICE_TRACKER_HELPER_CPU = 0xED7900
+CHOICE_HIGHLIGHT_HOOK = bytes([0x22, *lo24(CHOICE_GEOMETRY_HELPER_CPU)]) + bytes([0xEA] * 10)
+
 PARSER_FETCH_HOOK = bytes([0x5C, *lo24(PARSER_FETCH_HELPER_CPU)])
 
 # Parser-phase reuse of the renderer scratch range.  The parser and renderer
@@ -551,10 +562,12 @@ def make_entry_helper() -> bytes:
 
 
 def make_char_start_helper() -> bytes:
-    # For a tagged event-render invocation, every character uses the true cumulative pixel cursor: Y is
-    # floor(pixel_cursor / 8) * 12 while the stock glyph lookup remains intact.
-    # Keep branch targets symbolic so the stock fallback always lands at the
-    # beginning of the stock `LDA $A1A4,X / INX` replay.
+    """Use ordinary cumulative VWF plus private visual geometry for wide choices.
+
+    The stock choice table `$A1D7[]` remains the parser/storage coordinate system.
+    At an exact option/terminal boundary, `$ED:7880` decides whether to keep the
+    stock anchor or use the runtime-validated private measured-end geometry.
+    """
     code = bytearray()
     labels: dict[str, int] = {}
     branches: list[tuple[int, str]] = []
@@ -569,70 +582,55 @@ def make_char_start_helper() -> bytes:
         emit(op, 0)
         branches.append((len(code) - 1, target))
 
-    emit(0x22, 0xB0, 0x73, 0xED)       # tagged event-render scope: exact caller + C9/CA/E8-EC
-    br(0x90, "replay")                 # BCC replay
-    emit(0x22, 0x80, 0x73, 0xED)       # JSL $ED7380: snapshot useful chunk cells
+    emit(0x22, 0xB0, 0x73, 0xED)       # exact component-06 event-render scope
+    br(0x90, "replay")
+    emit(0x22, 0x80, 0x73, 0xED)       # snapshot useful chunk cells
 
-    # Stock choice highlighting recolors whole 8-pixel cells between the
-    # CHOICE_OPTION boundaries in $A1D7[].  Keep the ordinary VWF renderer,
-    # but while the stock choice-active bit is set, resynchronize the pixel
-    # cursor at each option start.  Also scan the terminal boundary appended by
-    # CHOICE_END: when a stock closing parenthesis occupies that decoded slot,
-    # it starts at terminal*8 and therefore remains outside the final magenta
-    # span.  With no closing parenthesis there is no glyph at the terminal slot,
-    # so the extra boundary is inert. Parser state, coordinates and the stock
-    # highlight routine stay untouched. $9386 is safe transient scratch and is
-    # overwritten by
-    # the normal destination calculation immediately below.
-    emit(0xAF, 0x00, 0x1D, 0x00)       # LDA.l $001D00
-    br(0x10, "choice_sync_done")       # BPL: stock choice bit $80 clear
-    emit(0xDA)                          # PHX: preserve decoded-character X
-    emit(0x8A)                          # TXA (low byte; slots are 0..37)
-    emit(0x8D, 0x86, 0x93)             # save current decoded slot
-    emit(0xAF, 0xD4, 0xA1, 0x7E)       # LDA.l $7EA1D4: option count
-    br(0xF0, "choice_sync_restore")    # no option starts recorded
-    emit(0xC2, 0x20)                   # REP #$20
-    emit(0x29, 0xFF, 0x00)             # zero-extend option count
-    emit(0xEA)                          # NOP: keep count as terminal-boundary index (was DEC)
-    emit(0xAA)                          # TAX -> terminal boundary index; starts are below it
-    emit(0xE2, 0x20)                   # SEP #$20
+    # While a stock choice is active, find the exact option/terminal boundary
+    # matching the current decoded slot.  X becomes the boundary index 0..N.
+    emit(0xAF, 0x00, 0x1D, 0x00)
+    br(0x10, "choice_sync_done")
+    emit(0xDA)                          # preserve decoded-character X
+    emit(0x8A)
+    emit(0x8D, 0x86, 0x93)             # current decoded slot
+    emit(0xAF, 0xD4, 0xA1, 0x7E)       # option count
+    br(0xF0, "choice_sync_restore")
+    emit(0xC2, 0x20)
+    emit(0x29, 0xFF, 0x00)
+    emit(0xEA)                          # include terminal boundary index
+    emit(0xAA)
+    emit(0xE2, 0x20)
 
     label("choice_sync_scan")
-    emit(0xBF, 0xD7, 0xA1, 0x7E)       # LDA.l $7EA1D7,X
-    emit(0xCD, 0x86, 0x93)             # current decoded slot?
+    emit(0xBF, 0xD7, 0xA1, 0x7E)
+    emit(0xCD, 0x86, 0x93)
     br(0xF0, "choice_sync_apply")
-    emit(0xCA)                          # DEX
-    br(0x10, "choice_sync_scan")       # BPL while index >= 0
+    emit(0xCA)
+    br(0x10, "choice_sync_scan")
     br(0x80, "choice_sync_restore")
 
     label("choice_sync_apply")
-    emit(0xAD, 0x86, 0x93)             # option's stock cell coordinate
-    emit(0x0A, 0x0A, 0x0A)             # *8 -> pixel coordinate
-    emit(0x8D, 0x82, 0x93)             # resync cumulative VWF cursor
+    emit(0x22, *lo24(CHOICE_VISUAL_HELPER_CPU))
 
     label("choice_sync_restore")
-    emit(0xFA)                          # PLX
+    emit(0xFA)
     label("choice_sync_done")
 
-    emit(0xDA)                          # PHX
-    emit(0xC2, 0x20)                   # REP #$20
-    # Y = floor(pixel_cursor/8)*12. Since cursor&$F8 is already tile*8,
-    # tile*12 is simply masked_cursor + masked_cursor/2.
+    emit(0xDA)
+    emit(0xC2, 0x20)
     emit(0xAD, 0x82, 0x93, 0x29, 0xF8, 0x00)
-    emit(0x8D, 0x86, 0x93)             # masked cursor (tile*8) scratch
-    emit(0x4A, 0x18, 0x6D, 0x86, 0x93, 0xA8)  # tile*12 -> Y
-    emit(0xE2, 0x20, 0xFA)             # SEP #$20 / PLX
-    emit(0xBD, 0x90, 0x93, 0xE8)       # private decoded buffer / INX
+    emit(0x8D, 0x86, 0x93)
+    emit(0x4A, 0x18, 0x6D, 0x86, 0x93, 0xA8)
+    emit(0xE2, 0x20, 0xFA)
+    emit(0xBD, 0x90, 0x93, 0xE8)
     br(0x80, "loaded")
 
     label("replay")
-    emit(0xBD, 0xA4, 0xA1, 0xE8)       # non-event stock buffer / INX
+    emit(0xBD, 0xA4, 0xA1, 0xE8)
 
     label("loaded")
-    emit(0x5C, 0x8A, 0x16, 0xC0)       # untouched stock glyph path
-
+    emit(0x5C, 0x8A, 0x16, 0xC0)
     return _resolve_rel8(code, labels, branches)
-
 
 def make_char_end_helper() -> bytes:
     # PLX restores the decoded-character index *after* INX. When tagged active, read the
@@ -669,6 +667,7 @@ def make_char_end_helper() -> bytes:
     emit(0xFA)                          # PLX
     emit(0x18, 0x6D, 0x82, 0x93)       # cursor += A
     emit(0x8D, 0x82, 0x93)
+    emit(0x22, *lo24(CHOICE_TRACKER_HELPER_CPU))  # remember last real-glyph end for choices
 
     label("stock_tail")
     # Stock tail; leave final flags from DEC just like original.
@@ -677,6 +676,99 @@ def make_char_end_helper() -> bytes:
     emit(0x5C, 0x86, 0x16, 0xC0)
     emit(0x5C, 0x40, 0x73, 0xED)       # final slot -> generic chunk commit
 
+    return _resolve_rel8(code, labels, branches)
+
+
+def make_choice_geometry_helper() -> bytes:
+    """Return stock highlight geometry unless private two-option bounds are valid."""
+    code = bytearray(); labels = {}; branches = []
+    def emit(*v): code.extend(v)
+    def label(n): labels[n] = len(code)
+    def br(op,t): emit(op,0); branches.append((len(code)-1,t))
+
+    emit(0xAD,0xD4,0xA1,0xC9,0x02); br(0xD0,'stock')
+    emit(0xAD,0xC0,0x93,0xC9,0x01); br(0xD0,'stock')
+    emit(0xBF,0xBD,0x93,0x7E,0x8D,0x73,0xA1)
+    emit(0xBF,0xBE,0x93,0x7E,0x38,0xED,0x73,0xA1,0xA8,0x6B)
+    label('stock')
+    emit(0xBD,0xD7,0xA1,0x8D,0x73,0xA1)
+    emit(0xBD,0xD8,0xA1,0x38,0xED,0x73,0xA1,0xA8,0x6B)
+    return _resolve_rel8(code, labels, branches)
+
+
+def make_choice_visual_helper() -> bytes:
+    """Apply runtime-validated measured-end geometry to undecorated two-option rows.
+
+    Decorated short choices are detected structurally from the stock closing `)`
+    at decoded[terminal] and fall back to the pre-existing stock-anchor geometry.
+    """
+    code = bytearray(); labels = {}; branches = []
+    def emit(*v): code.extend(v)
+    def label(n): labels[n] = len(code)
+    def br(op,t): emit(op,0); branches.append((len(code)-1,t))
+
+    emit(0xAD,0xD4,0xA1,0xC9,0x02); br(0xD0,'stock')
+
+    # If decoded[terminal] is the stock closing parenthesis, keep the canonical
+    # decorated-choice path and invalidate private highlight geometry.
+    emit(0xDA)
+    emit(0xAE,0xD9,0xA1)              # terminal logical boundary
+    emit(0xBD,0x90,0x93)              # decoded[terminal]
+    emit(0xFA)
+    emit(0xC9,0xCC); br(0xD0,'nodecor')
+    emit(0x9C,0xC0,0x93)
+    br(0x80,'stock')
+
+    label('nodecor')
+    emit(0xE0,0x00,0x00); br(0xF0,'first')
+    emit(0xE0,0x01,0x00); br(0xF0,'second')
+    emit(0xE0,0x02,0x00); br(0xF0,'terminal')
+    br(0x80,'stock')
+
+    label('first')
+    # Never start farther left than cell $03; a larger logical first anchor is
+    # retained.  This avoids the runtime-observed left-edge clipping.
+    emit(0xAD,0x86,0x93,0xC9,0x03); br(0xB0,'first_ok')
+    emit(0xA9,0x03)
+    label('first_ok')
+    emit(0x8D,0xBD,0x93)
+    emit(0x0A,0x0A,0x0A,0x8D,0x82,0x93)
+    emit(0x9C,0xBC,0x93)              # no measured endpoint yet
+    emit(0x9C,0xC0,0x93)              # private highlight invalid until terminal
+    emit(0x6B)
+
+    label('second')
+    # One full blank cell after ceil(last real-glyph end / 8).
+    emit(0xAD,0xBC,0x93,0x18,0x69,0x07); br(0xB0,'stock')
+    emit(0x29,0xF8,0x18,0x69,0x08); br(0xB0,'stock')
+    emit(0x8D,0x82,0x93)
+    emit(0x4A,0x4A,0x4A,0x8D,0xBE,0x93)
+    emit(0x6B)
+
+    label('terminal')
+    emit(0xAD,0xBC,0x93,0x18,0x69,0x07); br(0xB0,'stock')
+    emit(0x29,0xF8,0x8D,0x82,0x93)
+    emit(0x4A,0x4A,0x4A,0x8D,0xBF,0x93)
+    emit(0xA9,0x01,0x8D,0xC0,0x93)
+    emit(0x6B)
+
+    label('stock')
+    emit(0xAD,0x86,0x93,0x0A,0x0A,0x0A,0x8D,0x82,0x93,0x6B)
+    return _resolve_rel8(code, labels, branches)
+
+
+def make_choice_tracker_helper() -> bytes:
+    """Record the end cursor after the most recent non-space glyph in a two-option row."""
+    code = bytearray(); labels = {}; branches = []
+    def emit(*v): code.extend(v)
+    def label(n): labels[n] = len(code)
+    def br(op,t): emit(op,0); branches.append((len(code)-1,t))
+
+    emit(0xAF,0x00,0x1D,0x00); br(0x10,'ret')
+    emit(0xAD,0xD4,0xA1,0xC9,0x02); br(0xD0,'ret')
+    emit(0xBD,0x8F,0x93,0xC9,0x80); br(0xF0,'ret')
+    emit(0xAD,0x82,0x93,0x8D,0xBC,0x93)
+    label('ret'); emit(0x6B)
     return _resolve_rel8(code, labels, branches)
 
 
@@ -831,6 +923,9 @@ def make_font_row_helper() -> bytes:
 ENTRY_HELPER = make_entry_helper()
 CHAR_START_HELPER = make_char_start_helper()
 CHAR_END_HELPER = make_char_end_helper()
+CHOICE_GEOMETRY_HELPER = make_choice_geometry_helper()
+CHOICE_VISUAL_HELPER = make_choice_visual_helper()
+CHOICE_TRACKER_HELPER = make_choice_tracker_helper()
 CHUNK_CELLS_SNAPSHOT_HELPER = make_chunk_cells_snapshot_helper()
 CHUNK_COMMIT_HELPER = make_chunk_commit_helper()
 FONT_ROW_HELPER = make_font_row_helper()
@@ -980,7 +1075,10 @@ def validate_helper_layout() -> None:
         ("event-render scope helper", EVENT_RENDER_SCOPE_HELPER_FILE, len(EVENT_RENDER_SCOPE_HELPER), 0x2D7400),
         ("parser-fetch helper", PARSER_FETCH_HELPER_FILE, len(PARSER_FETCH_HELPER), WRAP_GLYPH_HELPER_FILE),
         ("wrap-glyph helper", WRAP_GLYPH_HELPER_FILE, len(WRAP_GLYPH_HELPER), RIGHT_EDGE_TABLE_FILE),
-        ("right-edge table", RIGHT_EDGE_TABLE_FILE, 128, 0x2D8000),
+        ("right-edge table", RIGHT_EDGE_TABLE_FILE, 128, CHOICE_GEOMETRY_HELPER_FILE),
+        ("choice geometry helper", CHOICE_GEOMETRY_HELPER_FILE, len(CHOICE_GEOMETRY_HELPER), CHOICE_VISUAL_HELPER_FILE),
+        ("choice visual helper", CHOICE_VISUAL_HELPER_FILE, len(CHOICE_VISUAL_HELPER), CHOICE_TRACKER_HELPER_FILE),
+        ("choice tracker helper", CHOICE_TRACKER_HELPER_FILE, len(CHOICE_TRACKER_HELPER), 0x2D8000),
     )
     for label, start, size, next_start in blocks:
         if start + size > next_start:
@@ -1190,6 +1288,7 @@ def build(base: bytes) -> bytes:
         (CHAR_END_FILE, CHAR_END_SIGNATURE, "character end"),
         (OUTLINE_POST_FILE, OUTLINE_POST_SIGNATURE, "post-outline state"),
         (PARSER_FETCH_FILE, PARSER_FETCH_SIGNATURE, "parser source fetch"),
+        (CHOICE_HIGHLIGHT_FILE, CHOICE_HIGHLIGHT_SIGNATURE, "choice highlight geometry"),
     ):
         if base[offset:offset + len(signature)] != signature:
             raise SystemExit(f"Unexpected clean-US {name} signature")
@@ -1216,6 +1315,7 @@ def build(base: bytes) -> bytes:
     rom[CHAR_END_FILE:CHAR_END_FILE + len(CHAR_END_HOOK)] = CHAR_END_HOOK
     rom[OUTLINE_POST_FILE:OUTLINE_POST_FILE + len(OUTLINE_POST_HOOK)] = OUTLINE_POST_HOOK
     rom[PARSER_FETCH_FILE:PARSER_FETCH_FILE + len(PARSER_FETCH_HOOK)] = PARSER_FETCH_HOOK
+    rom[CHOICE_HIGHLIGHT_FILE:CHOICE_HIGHLIGHT_FILE + len(CHOICE_HIGHLIGHT_HOOK)] = CHOICE_HIGHLIGHT_HOOK
     install_shared_text_buffer(rom)
     install_shared_framing(rom)
     install_shared_compositor(rom)
@@ -1236,6 +1336,9 @@ def build(base: bytes) -> bytes:
         (PARSER_FETCH_HELPER_FILE, PARSER_FETCH_HELPER),
         (WRAP_GLYPH_HELPER_FILE, WRAP_GLYPH_HELPER),
         (RIGHT_EDGE_TABLE_FILE, right_edge_table),
+        (CHOICE_GEOMETRY_HELPER_FILE, CHOICE_GEOMETRY_HELPER),
+        (CHOICE_VISUAL_HELPER_FILE, CHOICE_VISUAL_HELPER),
+        (CHOICE_TRACKER_HELPER_FILE, CHOICE_TRACKER_HELPER),
     ):
         rom[offset:offset + len(payload)] = payload
 

@@ -15,26 +15,24 @@ Adds variable-width rendering to stock event dialogue while leaving GAME SELECT 
 
 ## Interactive choice rows
 
-Choice rows keep the same private-buffer, continuous-cursor VWF renderer as ordinary
-event dialogue. The runtime-validated highlight fix does **not** add a second renderer, move
-`CHOICE_OPTION` coordinates, rewrite `$A1D7[]`, or hook the stock magenta routine.
+Choice rows keep the same private-buffer, continuous-cursor VWF renderer as ordinary event dialogue; there is still no special `CHOICE_BEGIN` renderer.
 
-Component 06 uses the stock choice-active bit only at character start. When the current
-decoded slot exactly matches one of the option starts already stored in `$A1D7[]`, the
-cumulative VWF cursor is resynchronized to `slot * 8` pixels. Text remains fully VWF
-between option starts. Runtime testing on `$0331` confirms that this keeps `Oui / Non` VWF
-while the stock magenta selection follows the selected option.
+`$A1D7[]` remains the logical parser/storage geometry and is never rewritten. For ordinary decorated choices, detected structurally when the decoded terminal slot contains the stock closing `)` (`$CC`), component 06 keeps the previously validated stock-anchor VWF/highlight path.
 
-The runtime-validated follow-up also recognizes the terminal boundary appended by
-`CHOICE_END`. A preserved stock closing parenthesis therefore starts at the first cell
-outside the final highlighted span instead of sharing the last option's compact VWF tiles.
-When formatting removes the outer decoration for width, no glyph occupies that terminal
-slot and this extra boundary is inert.
+For undecorated two-option rows, component 06 uses the runtime-validated measured-end geometry:
 
-The formatter/simulator remains conservative. Component 08 may now move only a later
-`CHOICE_OPTION` right to the minimum decoded-cell position needed to avoid overwriting the
-preceding VWF label; `$00DF` runtime-validates `$11 -> $12`. Component 06 needs no new
-choice mode for this: it consumes the resulting stock-format anchor table normally.
+- the first visible option starts no farther left than cell `$03`;
+- after each non-space glyph is rendered, the live VWF endpoint is remembered;
+- the next option starts at `ceil(endpoint / 8) + 1` whole cell, preserving one blank 8-pixel cell;
+- the terminal visual boundary is `ceil(final_endpoint / 8)`;
+- private visual boundaries at `$93BD-$93BF` drive the stock magenta span through a small geometry hook at `$C0:1B5F`;
+- logical `$A1D7[]` anchors continue to serve decoded storage and parser resets.
+
+This separation is runtime-validated on Potos reproductions of `$00CE`, `$00CF`, `$00D1` and `$0202`, including both magenta selections. Ordinary decorated `Acheter / Vendre` and `Oui / Non` choices are also runtime-validated after the structural fallback was added.
+
+One wide case remains intentionally unresolved: `$00D0` (`Désert de Kakkara / Pays de glace`) fits as text but places the right option too near the bitmap edge; highlighting can corrupt the right frame. Keep that event excluded until a separately validated right-edge margin rule is added.
+
+A minor cosmetic issue is also deferred: short decorated choices could use one more blank cell before the closing `)`. This predates the compact wide-row path and is not part of the current fix.
 
 ## Component-specific behavior
 

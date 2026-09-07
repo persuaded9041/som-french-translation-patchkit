@@ -435,12 +435,14 @@ remain subject to zero-error, zero-warning and zero-implicit-wrap simulation.
 Representative runtime testing validates the semantic line-placement rules (fresh
 speaker turns, punctuation attachment, sentence-first reflow, weak single-comma
 balancing and dash attribution) and the clear-only cleanup of legacy blank lines after
-interactive WAITs. Component 06 sends choice rows through its ordinary VWF path; runtime
-testing on `$0331` validates resynchronizing each option start to its stock `$A1D7[]` cell
-while leaving the stock magenta routine untouched. Runtime testing also validates aligning a
-preserved closing parenthesis to the stock terminal boundary and the `$00DF`-style minimal
-rightward later-anchor shift needed to preserve a long decoded label. The 500-event corpus
-as a whole still requires full-game playthrough validation.
+interactive WAITs. Component 06 sends choice rows through its ordinary VWF path. Decorated
+rows retain the validated stock `$A1D7[]` anchor/terminal behavior; undecorated two-option
+rows can now use separately measured private visual/highlight boundaries while leaving
+`$A1D7[]` logical and untouched. Potos runtime tests validate this compact path on `$00CE`,
+`$00CF`, `$00D1` and `$0202`, while `$00D0` remains excluded because its right option can
+corrupt the frame during highlighting. The `$00DF` minimal rightward later-anchor shift also
+remains validated. The 500-event corpus as a whole still requires full-game playthrough
+validation.
 
 ## 8.5 Independent HTML simulation
 
@@ -527,13 +529,12 @@ Speaker-reattributed Joch reactions may receive a page boundary only across the 
 proven `OP_20` bridge and only after clean whole-event resimulation. Mapping identity
 never bypasses choice geometry.
 
-Current deterministic result: **510 simulator-clean events / 1078 visible semantic
-source IDs** (1129 JSON entries). This comprises 509 events treated as complete plus 1 PARTIEL event. `$0103`, `$017F` and `$01DC` are explicitly user-validated as complete Android adaptations while leaving their SNES-only fragments unmapped. `$01DC` additionally drops the exact final stock `PLAYER_NAME(0)` bound to suppressed `C9:804A`. `$0278` is the sole PARTIEL event; its two controller-specific SNES carriers are staged in the manual supplement JSON. `$00DF` is no longer layout-deferred: its second option moves minimally from `$11` to `$12`, a geometry change runtime-validated with `Temple de l'Eau / Pandora`; `$01EE` remains rendered through its structurally proven fresh-page choice carrier. The remaining
-excluded-event split is 161 incomplete alignments, 17 formatter rejects and 16
-simulator rejects. Choice rows keep their first stock anchor; a later anchor may move only
-right to the minimum decoded cell required to preserve the preceding official-French label,
-and only after clean whole-event simulation. Fifteen of the 16 remaining simulator rejects
-are still incompatible choice/layout cases; `$0202` is separately rejected for visible-bitmap overflow. One hundred generated page transitions occur in the accepted corpus. The
+Current deterministic result: **521 simulator-clean events / 1122 visible semantic
+source IDs** (1179 JSON entries). This comprises 520 events treated as complete plus 1 PARTIEL event. `$0103`, `$017F` and `$01DC` are explicitly user-validated as complete Android adaptations while leaving their SNES-only fragments unmapped. `$01DC` additionally drops the exact final stock `PLAYER_NAME(0)` bound to suppressed `C9:804A`. `$0278` is the sole PARTIEL event; its two controller-specific SNES carriers are staged in the manual supplement JSON. `$00DF` is no longer layout-deferred: its second option moves minimally from `$11` to `$12`, a geometry change runtime-validated with `Temple de l'Eau / Pandora`; `$01EE` remains rendered through its structurally proven fresh-page choice carrier.
+
+The current conservative choice-row recovery adds 11 complete events (`$0062`, `$0081`, `$00DB`, `$00DC`, `$00E2`, `$01B0`, `$01B3`, `$01DF`, `$0200`, `$0318`, `$065F`) without moving a first option anchor. It may restore a source-proven final `NEWLINE + (` suffix lost by Android prose reflow, materialize one newline before a standalone decorative `(` carrier when dynamic stock output consumed the choice row, and compose outer-decoration stripping with the already validated later-anchor-only shift. Every candidate still has to pass clean whole-event simulation.
+
+The remaining excluded-event split is still 161 incomplete alignments, 17 formatter rejects and 5 simulator rejects because component 08 has not yet been taught the new measured-end choice geometry. Runtime work has now validated that geometry on `$00CE`, `$00CF`, `$00D1` and `$0202`: `$A1D7[]` stays logical for storage while component 06 derives private VWF/highlight boundaries with a safe first visual cell and one blank cell between options. `$00D0` remains genuinely unresolved because `Pays de glace` reaches too close to the right bitmap edge and highlighting can corrupt the frame. The rejected `$00CE` first-anchor-left probes (`$00/$0F`, `$01/$10`) remain diagnostic-only and must never be generated by the formatter. One hundred generated page transitions occur in the accepted corpus. The
 current layout refinement also replaces legacy leading blank
 scroll lines with clear-only `TEXT_CLEAR` transitions when the structure is proven.
 After the historical compact-wrapper fallback has failed, events whose **only**

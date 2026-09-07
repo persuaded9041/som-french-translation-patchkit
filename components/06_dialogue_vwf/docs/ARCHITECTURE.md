@@ -144,37 +144,19 @@ be split. Whole-word pre-wrap is intentionally deferred.
 
 ## Interactive choice rows
 
-Stock choice selection geometry is cell-based. The `$58` handler clears the option
-count; `$5A xx` applies an absolute decoded-buffer position and stores the same `xx` in
-`$7E:A1D7[]`; `$5B` appends the terminal boundary. The selection/highlight routine at
-`$C0:1B55` later uses adjacent `$A1D7[]` values and flips palette bit `$08` on each whole
-text tile in that span. It therefore cannot independently highlight two options that have
-been compacted into the same 8-pixel tile.
+Stock `$5A xx` choice commands use `xx` both as an absolute decoded-buffer reset and as the cell boundary stored in `$A1D7[]`. Fixed-width rendering makes those coordinate systems identical; VWF does not.
 
-The runtime-validated fix keeps the ordinary component-06 renderer and the stock
-highlight code. At `$ED:7180`, after exact event-render scope has already been established,
-it checks the stock choice-active bit (`$001D00 & $80`). If active, the current decoded slot
-is compared with the option starts already present in `$A1D7[]`. On an exact match, the
-cumulative pixel cursor `$9382` is reset to `slot * 8`. Runtime testing on `$0331` confirms
-that the options remain VWF and the stock magenta selection follows the selected option.
+Component 06 therefore preserves two runtime paths without introducing a second choice renderer:
 
-The runtime-validated follow-up extends that same scan by one existing entry: `$5B` appends the
-terminal boundary at `$A1D7[option_count]`, so the renderer also recognizes that boundary.
-If the canonical closing parenthesis is present, its decoded slot equals that terminal
-boundary because stock `$5B` excludes the parenthesis from the selectable span; the glyph
-is therefore drawn starting at `terminal * 8`, outside the final magenta range. If no
-closing parenthesis is present, there is no glyph at that slot and the extra scan is inert.
+**Decorated choices.** If `decoded[$A1D7[option_count]]` is the stock closing parenthesis glyph `$CC`, the existing stock-anchor synchronization is used. The terminal boundary keeps `)` outside the last highlighted span. This fallback is runtime-validated on ordinary Potos `Acheter / Vendre` and `Oui / Non` rows.
 
-This makes the coordinate systems meet only at boundaries already owned by the stock
-selector: no parser pseudo-glyphs, no private choice buffer, no alternate render loop, no
-`$A1D7[]` rewrite and no magenta hook. Ordinary dialogue never enters the scan because the
-stock choice-active bit is clear; GAME SELECT already takes the non-event replay.
+**Undecorated two-option choices.** `$A1D7[]` remains untouched and continues to define parser/storage resets, but rendering records the actual VWF cursor after each non-space glyph. At a logical boundary the visual helper derives separate cell-aligned coordinates: first option no farther left than cell `$03`; second option at `ceil(previous_real_end / 8) + 1`; terminal at `ceil(final_real_end / 8)`. The resulting private boundaries live at `$93BD-$93BF` and become valid only after the terminal boundary is reached.
 
-`$0331` retains its formatting-side layout preservation: unresolved `C9:CEB3` contributes
-only its two stock newlines, with no invented prose, so the choice row remains on its stock
-physical line. Component 08 may additionally move only a later choice anchor right when
-the stock absolute decoded-cell reset would overwrite the preceding localized label. The
-Potos `Temple de l'Eau / Pandora` diagnostic runtime-validates the `$11 -> $12` case.
+The stock highlight routine still performs palette work; only its geometry calculation at `$C0:1B5F` is hooked. When private bounds are valid for exactly two options, the helper supplies them; otherwise it reproduces the original adjacent `$A1D7[]` calculation. `$A1D7[]` is never rewritten.
+
+This measured-end separation is runtime-validated on Potos reproductions of `$00CE`, `$00CF`, `$00D1` and `$0202`, with both selected options checked. `$00D0` remains a documented limit: the row fits visually, but `Pays de glace` ends too close to the bitmap edge and highlighting can corrupt the right frame. Do not admit `$00D0` until an additional right-edge margin rule is separately runtime-validated.
+
+The rejected first-anchor-left diagnostics (`$00/$0F`, `$01/$10` on `$00CE`) remain rejected because they clipped the first label. The safe first visual floor of cell `$03` is part of the validated measured-end rule.
 
 ## Outline repair
 

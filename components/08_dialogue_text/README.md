@@ -167,12 +167,12 @@ python3 tools/import_android_text.py --only dialogue-format-mass \
   --rom <clean-USA-ROM>
 ```
 
-The current deterministic partial-aware mass pass is **510 simulator-clean events /
-1078 visible semantic source IDs / 1129 JSON entries**. The corpus contains 509
+The current deterministic partial-aware mass pass is **521 simulator-clean events /
+1122 visible semantic source IDs / 1179 JSON entries**. The corpus contains 520
 events treated as complete and 1 PARTIEL event. `$0103`, `$017F` and `$01DC` are user-validated
 visually complete Android adaptations whose remaining SNES-only fragments stay unmapped
 without a PARTIEL badge. `$0278` is intentionally the sole PARTIEL event: its two controller-specific SNES carriers are proven absent from Android and are staged in `translations/dialogues_manual_supplements.json`; pending entries intentionally retain exact USA text until manually translated.
-Structural commands/layout bytes remain canonical except for the exact user-validated `$01DC` omission of `PLAYER_NAME(0)` immediately before suppressed `C9:804A` and generated rightward `CHOICE_OPTION` coordinate overrides that pass the validated minimal-anchor rule. The remaining 194 excluded events are listed in
+Structural commands/layout bytes remain canonical except for the exact user-validated `$01DC` omission of `PLAYER_NAME(0)` immediately before suppressed `C9:804A` and generated rightward `CHOICE_OPTION` coordinate overrides that pass the validated minimal-anchor rule. The remaining 183 excluded events are listed in
 `mappings/android/dialogues_format_mass_excluded.csv`.
 
 The formatter is intentionally conservative:
@@ -194,8 +194,10 @@ The formatter is intentionally conservative:
   omission is the explicitly user-validated `$01DC` Android-adaptation deletion;
 - `MONEY_PRINT` consumes no dialogue-buffer geometry because it redraws the separate
   money window;
-- interactive choices keep the first stock `CHOICE_OPTION` anchor. If a later absolute
-  decoded-cell reset would overwrite the preceding localized label, the formatter may move
+- interactive choices keep the first stock `CHOICE_OPTION` anchor. If Android prose reflow
+  consumes the stock choice row, the formatter may restore only the source-proven final
+  `NEWLINE + (` suffix (or one newline before a standalone decorative `(` carrier) before
+  trying geometry changes. If a later absolute decoded-cell reset would overwrite the preceding localized label, the formatter may move
   only that later anchor right to the minimum safe decoded cell; the full event must then
   pass the same simulator gate. The `$00DF` `$11 -> $12` move is runtime-validated. The
   outer stock `( ... )` decoration is retained when possible and may still be removed with
@@ -204,7 +206,7 @@ The formatter is intentionally conservative:
 
 The mass pass serializes each candidate event and runs the independent simulator. An
 error, warning, implicit runtime wrap or unsupported structure excludes the whole event.
-The 510-event corpus simulates with **0 errors, 0 warnings and 0 implicit runtime
+The 521-event corpus simulates with **0 errors, 0 warnings and 0 implicit runtime
 wraps**. Component 06 renders admitted choice rows through its ordinary VWF path; the
 option-start and terminal-boundary synchronization are runtime-validated on `$0331`; the
 minimal later-anchor shift is runtime-validated on the Potos `Temple de l'Eau / Pandora`

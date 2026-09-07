@@ -5444,6 +5444,143 @@ def _choice_decoration_reports(
     return updated_reports
 
 
+def _try_restore_stock_choice_row_prefix(
+    *,
+    base_rom: bytes,
+    event: dict,
+    translations: dict[str, str],
+    reports: list[dict],
+    font,
+    simulation,
+) -> tuple[dict[str, str], list[dict], object, list[dict]]:
+    """Restore only stock choice-row layout that Android prose reflow removed.
+
+    Two conservative source shapes are supported, and only while the current
+    simulator reports an overlap at the *first* CHOICE_OPTION anchor:
+
+    * a translated prompt whose USA carrier ended in ``NEWLINE + spaces + (``;
+      append that exact stock suffix when the Android wording omitted it;
+    * a standalone decorative ``("` carrier; prefix one NEWLINE so dynamic
+      stock output immediately before it cannot consume the choice row.
+
+    No option coordinate changes here.  The candidate is retained only when it
+    strictly removes the first-anchor overlap without introducing a new class
+    of error/warning or an implicit wrap; later-anchor overlap may remain for
+    the separately gated adaptive-anchor pass.
+    """
+    from shared.dialogue_simulator import simulate_event
+
+    tokens = event.get("tokens", [])
+    begins = [
+        index for index, token in enumerate(tokens)
+        if token.get("type") == "command" and token.get("name") == "CHOICE_BEGIN"
+    ]
+    if len(begins) != 1 or begins[0] == 0:
+        return translations, reports, simulation, []
+    begin = begins[0]
+    if begin + 1 >= len(tokens):
+        return translations, reports, simulation, []
+    first_option = tokens[begin + 1]
+    if first_option.get("type") != "command" or first_option.get("name") != "CHOICE_OPTION":
+        return translations, reports, simulation, []
+    args = first_option.get("args", "").split()
+    if len(args) != 1:
+        return translations, reports, simulation, []
+    first_position = int(args[0], 16)
+    first_marker = f"CHOICE_OPTION ${first_position:02X} rewinds"
+    if not any(
+        issue.code == "CHOICE_OPTION_OVERLAP"
+        and issue.severity in {"error", "warning"}
+        and issue.message.startswith(first_marker)
+        for issue in simulation.issues
+    ):
+        return translations, reports, simulation, []
+
+    previous = tokens[begin - 1]
+    if previous.get("type") not in {"text", "ending_text"}:
+        return translations, reports, simulation, []
+    text_id = previous["id"]
+    source = previous.get("source", "")
+    current = translations.get(text_id, source)
+    candidate = dict(translations)
+    repair: dict | None = None
+
+    opening_match = re.search(r"(\n[ ]*\()$", source)
+    if opening_match and not re.search(r"(?:\n|\f)[ ]*\($", current):
+        suffix = opening_match.group(1)
+        candidate[text_id] = current.rstrip(" ") + suffix
+        repair = {
+            "strategy": "restore_stock_choice_row_suffix",
+            "text_id": text_id,
+            "restored_suffix": suffix,
+            "choice_commands_unchanged": True,
+        }
+    elif re.fullmatch(r"[ ]*\(", source) and re.fullmatch(r"[ ]*\(", current):
+        candidate[text_id] = "\n" + current
+        repair = {
+            "strategy": "fresh_line_before_standalone_choice_decoration",
+            "text_id": text_id,
+            "prepended_newline": True,
+            "choice_commands_unchanged": True,
+        }
+    else:
+        return translations, reports, simulation, []
+
+    try:
+        candidate_simulation = simulate_event(
+            base_rom,
+            event,
+            candidate,
+            font=font,
+            player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+        )
+    except ValueError:
+        return translations, reports, simulation, []
+
+    candidate_first_overlap = any(
+        issue.code == "CHOICE_OPTION_OVERLAP"
+        and issue.severity in {"error", "warning"}
+        and issue.message.startswith(first_marker)
+        for issue in candidate_simulation.issues
+    )
+    candidate_wraps = sum(
+        line.implicit_wrap
+        for box in candidate_simulation.boxes
+        for page in box.pages
+        for line in page.lines
+    )
+    if candidate_first_overlap or candidate_wraps:
+        return translations, reports, simulation, []
+
+    # Do not accept a layout repair that creates an unrelated blocker.  A
+    # remaining later-anchor overlap or width warning is allowed to continue to
+    # the existing independent choice-layout fallbacks below.
+    original_codes = {
+        issue.code for issue in simulation.issues if issue.severity in {"error", "warning"}
+    }
+    candidate_codes = {
+        issue.code
+        for issue in candidate_simulation.issues
+        if issue.severity in {"error", "warning"}
+    }
+    if candidate_codes - original_codes:
+        return translations, reports, simulation, []
+
+    updated_reports = [dict(report) for report in reports]
+    for report in updated_reports:
+        if text_id not in report.get("snes_ids", []):
+            continue
+        entries = [dict(entry) for entry in report.get("formatted_entries", [])]
+        for entry in entries:
+            if entry.get("id") == text_id:
+                entry["text"] = candidate[text_id]
+        report["formatted_entries"] = entries
+        if len(report.get("snes_ids", [])) == 1:
+            report["formatted_markup"] = candidate[text_id]
+        report["choice_row_layout_repair"] = repair["strategy"]
+    return candidate, updated_reports, candidate_simulation, [repair]
+
+
 def _try_adaptive_choice_anchor_positions(
     *,
     base_rom: bytes,
@@ -5620,6 +5757,88 @@ def _try_adaptive_choice_decoration(
     return candidate, candidate_reports, candidate_simulation, [repair]
 
 
+def _try_adaptive_choice_decoration_with_anchor_positions(
+    *,
+    base_rom: bytes,
+    event: dict,
+    translations: dict[str, str],
+    reports: list[dict],
+    advances: dict[str, int],
+    font,
+    simulation,
+) -> tuple[
+    dict[str, str],
+    list[dict],
+    object,
+    list[dict],
+    dict[int, int],
+    list[dict],
+]:
+    """Strip outer decoration, then retry the validated later-anchor repair.
+
+    This is a composed fallback only: decoration is still preserved whenever a
+    less invasive candidate passes.  The first CHOICE_OPTION coordinate remains
+    stock; only later coordinates may move right under the existing independent
+    simulator gate.
+    """
+    from shared.dialogue_simulator import simulate_event
+
+    candidate, repair = _strip_canonical_choice_decoration(event, translations)
+    if repair is None:
+        return translations, reports, simulation, [], {}, []
+    try:
+        candidate_simulation = simulate_event(
+            base_rom,
+            event,
+            candidate,
+            font=font,
+            player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+        )
+    except ValueError:
+        return translations, reports, simulation, [], {}, []
+
+    (
+        shifted_simulation,
+        anchor_overrides,
+        anchor_repairs,
+    ) = _try_adaptive_choice_anchor_positions(
+        base_rom=base_rom,
+        event=event,
+        translations=candidate,
+        advances=advances,
+        font=font,
+        simulation=candidate_simulation,
+    )
+    if not anchor_repairs:
+        return translations, reports, simulation, [], {}, []
+
+    blocking = [
+        issue
+        for issue in shifted_simulation.issues
+        if issue.severity in {"error", "warning"}
+    ]
+    wraps = sum(
+        line.implicit_wrap
+        for box in shifted_simulation.boxes
+        for page in box.pages
+        for line in page.lines
+    )
+    if blocking or wraps:
+        return translations, reports, simulation, [], {}, []
+
+    candidate_reports = _choice_decoration_reports(reports, candidate, repair)
+    for report in candidate_reports:
+        report["choice_decoration_anchor_fallback"] = True
+    return (
+        candidate,
+        candidate_reports,
+        shifted_simulation,
+        [repair],
+        anchor_overrides,
+        anchor_repairs,
+    )
+
+
 def make_dialogue_format_mass(
     english: dict[int, str],
     french: dict[int, str],
@@ -5685,6 +5904,7 @@ def make_dialogue_format_mass(
     fragment_spacing_repairs_by_event: dict[str, list[dict]] = {}
     targeted_wait00_fresh_page_repairs_by_event: dict[str, list[dict]] = {}
     explicit_post_wait_newline_repairs_by_event: dict[str, list[dict]] = {}
+    choice_row_layout_repairs_by_event: dict[str, list[dict]] = {}
     adaptive_choice_decoration_repairs_by_event: dict[str, list[dict]] = {}
     adaptive_choice_anchor_repairs_by_event: dict[str, list[dict]] = {}
     choice_option_position_overrides_by_event: dict[str, dict[int, int]] = {}
@@ -5839,6 +6059,32 @@ def make_dialogue_format_mass(
         )
         if blocking_issues or implicit_wraps:
             (
+                event_translations,
+                event_reports,
+                simulation,
+                choice_row_layout_repairs,
+            ) = _try_restore_stock_choice_row_prefix(
+                base_rom=base_rom,
+                event=event,
+                translations=event_translations,
+                reports=event_reports,
+                font=font,
+                simulation=simulation,
+            )
+            if choice_row_layout_repairs:
+                choice_row_layout_repairs_by_event[event_id] = choice_row_layout_repairs
+                blocking_issues = [
+                    issue for issue in simulation.issues
+                    if issue.severity in {"error", "warning"}
+                ]
+                implicit_wraps = sum(
+                    line.implicit_wrap
+                    for box in simulation.boxes
+                    for page in box.pages
+                    for line in page.lines
+                )
+        if blocking_issues or implicit_wraps:
+            (
                 anchor_simulation,
                 anchor_overrides,
                 anchor_repairs,
@@ -5872,6 +6118,32 @@ def make_dialogue_format_mass(
             )
             if choice_decoration_repairs:
                 adaptive_choice_decoration_repairs_by_event[event_id] = choice_decoration_repairs
+                blocking_issues = []
+                implicit_wraps = 0
+        if blocking_issues or implicit_wraps:
+            (
+                decorated_translations,
+                decorated_reports,
+                decorated_simulation,
+                choice_decoration_repairs,
+                decorated_anchor_overrides,
+                decorated_anchor_repairs,
+            ) = _try_adaptive_choice_decoration_with_anchor_positions(
+                base_rom=base_rom,
+                event=event,
+                translations=event_translations,
+                reports=event_reports,
+                advances=advances,
+                font=font,
+                simulation=simulation,
+            )
+            if choice_decoration_repairs and decorated_anchor_repairs:
+                event_translations = decorated_translations
+                event_reports = decorated_reports
+                simulation = decorated_simulation
+                adaptive_choice_decoration_repairs_by_event[event_id] = choice_decoration_repairs
+                choice_option_position_overrides_by_event[event_id] = decorated_anchor_overrides
+                adaptive_choice_anchor_repairs_by_event[event_id] = decorated_anchor_repairs
                 blocking_issues = []
                 implicit_wraps = 0
         if blocking_issues or implicit_wraps:
@@ -5927,6 +6199,32 @@ def make_dialogue_format_mass(
                 )
                 if compact_blocking or compact_wraps:
                     (
+                        compact_translations,
+                        compact_reports,
+                        compact_simulation,
+                        compact_choice_row_layout_repairs,
+                    ) = _try_restore_stock_choice_row_prefix(
+                        base_rom=base_rom,
+                        event=event,
+                        translations=compact_translations,
+                        reports=compact_reports,
+                        font=font,
+                        simulation=compact_simulation,
+                    )
+                    if compact_choice_row_layout_repairs:
+                        choice_row_layout_repairs_by_event[event_id] = compact_choice_row_layout_repairs
+                        compact_blocking = [
+                            issue for issue in compact_simulation.issues
+                            if issue.severity in {"error", "warning"}
+                        ]
+                        compact_wraps = sum(
+                            line.implicit_wrap
+                            for box in compact_simulation.boxes
+                            for page in box.pages
+                            for line in page.lines
+                        )
+                if compact_blocking or compact_wraps:
+                    (
                         compact_anchor_simulation,
                         compact_anchor_overrides,
                         compact_anchor_repairs,
@@ -5960,6 +6258,32 @@ def make_dialogue_format_mass(
                     )
                     if compact_choice_decoration_repairs:
                         adaptive_choice_decoration_repairs_by_event[event_id] = compact_choice_decoration_repairs
+                        compact_blocking = []
+                        compact_wraps = 0
+                if compact_blocking or compact_wraps:
+                    (
+                        compact_decorated_translations,
+                        compact_decorated_reports,
+                        compact_decorated_simulation,
+                        compact_choice_decoration_repairs,
+                        compact_decorated_anchor_overrides,
+                        compact_decorated_anchor_repairs,
+                    ) = _try_adaptive_choice_decoration_with_anchor_positions(
+                        base_rom=base_rom,
+                        event=event,
+                        translations=compact_translations,
+                        reports=compact_reports,
+                        advances=advances,
+                        font=font,
+                        simulation=compact_simulation,
+                    )
+                    if compact_choice_decoration_repairs and compact_decorated_anchor_repairs:
+                        compact_translations = compact_decorated_translations
+                        compact_reports = compact_decorated_reports
+                        compact_simulation = compact_decorated_simulation
+                        adaptive_choice_decoration_repairs_by_event[event_id] = compact_choice_decoration_repairs
+                        choice_option_position_overrides_by_event[event_id] = compact_decorated_anchor_overrides
+                        adaptive_choice_anchor_repairs_by_event[event_id] = compact_decorated_anchor_repairs
                         compact_blocking = []
                         compact_wraps = 0
                 if not compact_blocking and not compact_wraps:
@@ -6631,8 +6955,9 @@ def make_dialogue_format_mass(
             "targeted_wait00_fresh_page_policy": "keep stock WAIT $00 bytes unchanged; $0106/C9:2994 is runtime-validated and the eight round13 detector matches are explicitly converted from newline-only carriers to TEXT_CLEAR as a single user-requested runtime-test batch; no generic WAIT carry-over cleanup",
             "wait_semantics_policy": "runtime-validated: WAIT pauses without advancing the text cursor; only explicit $7F NEWLINE or TEXT_CLEAR changes the physical line/page",
             "explicit_post_wait_newline_policy": "materialize only reviewed formatter line boundaries that older simulation had implicitly attributed to WAIT; keep WAIT bytes unchanged; use TEXT_CLEAR instead of NEWLINE when a three-line window would otherwise scroll before the next pause",
+            "choice_row_prefix_restore_policy": "when Android prose reflow removes the stock final NEWLINE + optional spaces + '(' immediately before CHOICE_BEGIN and the first stock CHOICE_OPTION would rewind over translated prompt text, restore only that stock row suffix; for a standalone decorative '(' carrier after dynamic stock output, one explicit NEWLINE may be prefixed for the same first-anchor condition; no option coordinate changes are made by this repair and unrelated new simulator defects reject it",
             "adaptive_choice_anchor_policy": "keep the first CHOICE_OPTION stock; when a later stock coordinate would overwrite the preceding localized label in the decoded row, move only that later coordinate right to the minimum cell immediately after the label; accept only a rightward <32 coordinate whose whole event passes the independent zero-error/zero-warning/zero-wrap simulation; runtime validated by the $03/$11 -> $03/$12 Temple de l'Eau/Pandora diagnostic",
-            "adaptive_choice_decoration_policy": "preserve the canonical outer ( ... ) decoration whenever the normal choice event is simulator-clean; only after a width/layout rejection, retry by removing the proven opening/closing parenthesis pair plus its adjacent horizontal padding, without changing CHOICE_BEGIN/CHOICE_OPTION/CHOICE_END or their coordinates; accept the stripped form only if the whole event then passes the same zero-error/zero-warning/zero-wrap gate",
+            "adaptive_choice_decoration_policy": "preserve the canonical outer ( ... ) decoration whenever the normal choice event is simulator-clean; only after a width/layout rejection, retry by removing the proven opening/closing parenthesis pair plus its adjacent horizontal padding; when stripping alone is insufficient, it may be composed with the already validated later-anchor-only right shift, while the first CHOICE_OPTION remains stock; accept only if the whole event passes the same zero-error/zero-warning/zero-wrap gate",
         },
         "coverage": {
             "semantic_source_event_count": sum(
@@ -6722,6 +7047,14 @@ def make_dialogue_format_mass(
             "action_boundary_line_break_count": sum(
                 bool(entry.get("inserted_action_boundary_line_break")) for entry in formatted
             ),
+            "choice_row_layout_repaired_event_count": sum(
+                bool(choice_row_layout_repairs_by_event.get(event_id))
+                for event_id in accepted_events
+            ),
+            "choice_row_layout_repair_count": sum(
+                len(choice_row_layout_repairs_by_event.get(event_id, []))
+                for event_id in accepted_events
+            ),
             "adaptive_choice_anchor_shifted_event_count": sum(
                 bool(adaptive_choice_anchor_repairs_by_event.get(event_id))
                 for event_id in accepted_events
@@ -6757,6 +7090,11 @@ def make_dialogue_format_mass(
             partial_metadata(event_id) for event_id in visible_partial_events
         ],
         "formatted_mappings": formatted,
+        "choice_row_layout_repairs": [
+            {"event_id": event_id, **repair}
+            for event_id in accepted_events
+            for repair in choice_row_layout_repairs_by_event.get(event_id, [])
+        ],
         "adaptive_choice_anchor_repairs": [
             {"event_id": event_id, **repair}
             for event_id in accepted_events

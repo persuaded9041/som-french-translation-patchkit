@@ -139,6 +139,18 @@
           "text": "Non  )"
         },
         {
+          "id": "C9:1176",
+          "text": "Vraiment ? Et qu'est-ce qui te ferait\nplaisir, miaou ?\n ("
+        },
+        {
+          "id": "C9:11A0",
+          "text": "Dormir"
+        },
+        {
+          "id": "C9:11A6",
+          "text": "Faire des achats )"
+        },
+        {
           "id": "C9:11B7",
           "text": "Niccolo : Humpf.\nJ'ai du travail, alors sois gentil,\nlaisse-moi, miaou !"
         },
@@ -165,6 +177,34 @@
         {
           "id": "C9:1268",
           "text": "Vendre )"
+        },
+        {
+          "id": "C9:12C2",
+          "text": " : Rusalka !!\n"
+        },
+        {
+          "id": "C9:12CD",
+          "text": "Rusalka : Fuyez, vite !"
+        },
+        {
+          "id": "C9:12EE",
+          "text": "Mais qui voilà...\nJe me nomme Gestahl,\ngénéral de l'Empire Vandole."
+        },
+        {
+          "id": "C9:1327",
+          "text": "Si tu veux sauver Rusalka,\ndonne-moi cette Graine !\fRusalka : Ne l'écoute pas !\nVa-t'en !"
+        },
+        {
+          "id": "C9:135F",
+          "text": "Que faire ?\n  ("
+        },
+        {
+          "id": "C9:1379",
+          "text": "Obéir"
+        },
+        {
+          "id": "C9:1387",
+          "text": "S'enfuir )"
         },
         {
           "id": "C9:139B",
@@ -295,6 +335,42 @@
           "text": "Oh, quelle histoire !\nJe ferme pour le reste de la journée."
         },
         {
+          "id": "C9:1CFE",
+          "text": "Hum ? Un client ? Bah, pour ce que\nj'ai à vendre..."
+        },
+        {
+          "id": "C9:1D30",
+          "text": "\n ("
+        },
+        {
+          "id": "C9:1D35",
+          "text": "Acheter"
+        },
+        {
+          "id": "C9:1D3A",
+          "text": "Vendre )"
+        },
+        {
+          "id": "C9:1D55",
+          "text": "Dormir ?\nAllez-y, installez-vous là où il y a\nde la place."
+        },
+        {
+          "id": "C9:1D83",
+          "text": "Hé là !\nC'est 10 pièces d'or, et d'avance !\n"
+        },
+        {
+          "id": "C9:1DA4",
+          "text": ""
+        },
+        {
+          "id": "C9:1DA9",
+          "text": "Pfff, d'accord."
+        },
+        {
+          "id": "C9:1DB6",
+          "text": "Alors, non !"
+        },
+        {
           "id": "C9:1DCF",
           "text": "Hé hé hé, bienvenue ! Où veux-tu\naller ? C'est 50 pièces par trajet !\n ("
         },
@@ -329,6 +405,18 @@
         {
           "id": "C9:1E98",
           "text": "Pays de glace )"
+        },
+        {
+          "id": "C9:1EB5",
+          "text": "Hé hé, salut !\nUn saut à Kakkara pour 50 pièces ?\n  ("
+        },
+        {
+          "id": "C9:1EEC",
+          "text": "Non merci"
+        },
+        {
+          "id": "C9:1EF3",
+          "text": "O.K. ! )"
         },
         {
           "id": "C9:1F03",
@@ -1343,6 +1431,22 @@
           "text": "Le roi est tellement soulagé qu'il ne\ntient plus en place !\nLui qui était si déprimé !"
         },
         {
+          "id": "C9:6538",
+          "text": "Hé ! Fais voir cette épée, jeune\nhomme ! ... Oh là là ! Elle risque de\nse briser, si on ne fait rien !"
+        },
+        {
+          "id": "C9:6587",
+          "text": "Je m'appelle Watts, et je suis\nle meilleur forgeron de ce pays !\fPour 100 pièces d'or, je\nte restaure ton épée !\n ("
+        },
+        {
+          "id": "C9:65C4",
+          "text": "D'accord !"
+        },
+        {
+          "id": "C9:65D0",
+          "text": "Non merci )"
+        },
+        {
           "id": "C9:65E5",
           "text": "Watts : Vraiment ?\nReviens si tu changes d'avis,\njeune homme !"
         },
@@ -1373,6 +1477,18 @@
         {
           "id": "C9:67DB",
           "text": "\u000bJe vais essayer de forger une hache,\npour voir !\nReviens la chercher plus tard !"
+        },
+        {
+          "id": "C9:682E",
+          "text": "Watts : Tu as changé d'avis ? Pour 100\npièces d'or, je répare ton épée !\n ("
+        },
+        {
+          "id": "C9:6863",
+          "text": "D'accord !"
+        },
+        {
+          "id": "C9:686F",
+          "text": "Non merci )"
         },
         {
           "id": "C9:6884",
@@ -1643,6 +1759,26 @@
           "text": "Niccolo : Moi aussi, je\nme suis fait capturer,\nmiaou... Merci !\fAu fait, vous ne m'achèteriez pas\nun petit quelque chose, miaou ?"
         },
         {
+          "id": "C9:8144",
+          "text": "Exceptionnellement, je peux\nsauvegarder, miaou !\n"
+        },
+        {
+          "id": "C9:817B",
+          "text": ""
+        },
+        {
+          "id": "C9:817F",
+          "text": "Sauvegarder"
+        },
+        {
+          "id": "C9:8185",
+          "text": "Acheter"
+        },
+        {
+          "id": "C9:818A",
+          "text": "Vendre"
+        },
+        {
           "id": "C9:8206",
           "text": "Elinice : Je suis redevenue une\nvieille dame inoffensive, menant une\nvie paisible."
         },
@@ -1733,6 +1869,26 @@
         {
           "id": "C9:8C47",
           "text": "\u000bMoi, je veux aller au Château de la\nsorcière, dans la Forêt hantée.\nCompris ?"
+        },
+        {
+          "id": "C9:8C93",
+          "text": "Rusalka : Cette épée est la véritable\nÉpée de Mana. Mais elle a perdu son\néclat, sa puissance s'est tarie."
+        },
+        {
+          "id": "C9:8CCB",
+          "text": "\u000bL'Épée sacrée a utilisé ce qui lui\nrestait d'énergie pour te choisir et\nt'appeler."
+        },
+        {
+          "id": "C9:8D01",
+          "text": ""
+        },
+        {
+          "id": "C9:8D05",
+          "text": "Pourquoi moi ?"
+        },
+        {
+          "id": "C9:8D0E",
+          "text": "Son énergie ?"
         },
         {
           "id": "C9:8D25",
@@ -2857,6 +3013,30 @@
         {
           "id": "C9:CD40",
           "text": "Vendre )"
+        },
+        {
+          "id": "C9:CD5C",
+          "text": "Niccolo : La montée a dû vous\nfatiguer, non ?\nMiaou !"
+        },
+        {
+          "id": "C9:CD95",
+          "text": "Exceptionnellement, je peux\nsauvegarder, miaou !\n"
+        },
+        {
+          "id": "C9:CDB2",
+          "text": ""
+        },
+        {
+          "id": "C9:CDB6",
+          "text": "Sauvegarder"
+        },
+        {
+          "id": "C9:CDBC",
+          "text": "Acheter"
+        },
+        {
+          "id": "C9:CDC1",
+          "text": "Vendre"
         },
         {
           "id": "C9:CDD2",
@@ -4427,6 +4607,26 @@
           "text": "Ah... Il y a un bouclier ! On\nn'arrivera pas à entrer ! Partons..."
         },
         {
+          "id": "CA:8967",
+          "text": "Niccolo : Brrr, mes moustaches sont\nhérissées par le froid !\nUne sauvegarde ?"
+        },
+        {
+          "id": "CA:8998",
+          "text": ""
+        },
+        {
+          "id": "CA:899C",
+          "text": "Sauvegarder"
+        },
+        {
+          "id": "CA:89A2",
+          "text": "Acheter"
+        },
+        {
+          "id": "CA:89A7",
+          "text": "Vendre"
+        },
+        {
           "id": "CA:8A79",
           "text": "...\nQuittez cet endroit !\n..."
         },
@@ -4617,6 +4817,26 @@
   ],
   "choice_option_position_overrides": [
     {
+      "event_id": "00DB",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 12,
+      "source_position": 9,
+      "translated_position": 10,
+      "previous_text_id": "C9:1D35",
+      "decoded_label_cells": 7,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "00DC",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 23,
+      "source_position": 17,
+      "translated_position": 18,
+      "previous_text_id": "C9:1DA9",
+      "decoded_label_cells": 15,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
       "event_id": "00DF",
       "strategy": "shift_choice_option_right_for_decoded_vwf_label",
       "token_index": 9,
@@ -4624,6 +4844,46 @@
       "translated_position": 18,
       "previous_text_id": "C9:1DED",
       "decoded_label_cells": 15,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "00E2",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 9,
+      "source_position": 12,
+      "translated_position": 13,
+      "previous_text_id": "C9:1EEC",
+      "decoded_label_cells": 9,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "01DF",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 11,
+      "source_position": 12,
+      "translated_position": 16,
+      "previous_text_id": "C9:817F",
+      "decoded_label_cells": 11,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "01DF",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 13,
+      "source_position": 18,
+      "translated_position": 23,
+      "previous_text_id": "C9:8185",
+      "decoded_label_cells": 7,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "0200",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 10,
+      "source_position": 11,
+      "translated_position": 16,
+      "previous_text_id": "C9:8D05",
+      "decoded_label_cells": 14,
       "choice_commands_preserved_except_coordinate": true
     },
     {
@@ -4657,12 +4917,52 @@
       "choice_commands_preserved_except_coordinate": true
     },
     {
+      "event_id": "0318",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 16,
+      "source_position": 12,
+      "translated_position": 16,
+      "previous_text_id": "C9:CDB6",
+      "decoded_label_cells": 11,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "0318",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 18,
+      "source_position": 18,
+      "translated_position": 23,
+      "previous_text_id": "C9:CDBC",
+      "decoded_label_cells": 7,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
       "event_id": "0319",
       "strategy": "shift_choice_option_right_for_decoded_vwf_label",
       "token_index": 13,
       "source_position": 10,
       "translated_position": 12,
       "previous_text_id": "C9:CE1F",
+      "decoded_label_cells": 7,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "065F",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 12,
+      "source_position": 12,
+      "translated_position": 16,
+      "previous_text_id": "CA:899C",
+      "decoded_label_cells": 11,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "065F",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 14,
+      "source_position": 18,
+      "translated_position": 23,
+      "previous_text_id": "CA:89A2",
       "decoded_label_cells": 7,
       "choice_commands_preserved_except_coordinate": true
     }
