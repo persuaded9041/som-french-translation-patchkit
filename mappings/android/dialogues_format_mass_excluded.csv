@@ -346,16 +346,6 @@
 0318;simulator_rejected;C9:CDB6;Save;non;"CHOICE_OPTION_OVERLAP: CHOICE_OPTION $0C rewinds over 4 already-decoded cell(s); translated option text would be overwritten. | CHOICE_OPTION_OVERLAP: CHOICE_OPTION $12 rewinds over 1 already-decoded cell(s); translated option text would be overwritten.";
 0318;simulator_rejected;C9:CDBC;Buy;non;"CHOICE_OPTION_OVERLAP: CHOICE_OPTION $0C rewinds over 4 already-decoded cell(s); translated option text would be overwritten. | CHOICE_OPTION_OVERLAP: CHOICE_OPTION $12 rewinds over 1 already-decoded cell(s); translated option text would be overwritten.";
 0318;simulator_rejected;C9:CDC1;Sell );non;"CHOICE_OPTION_OVERLAP: CHOICE_OPTION $0C rewinds over 4 already-decoded cell(s); translated option text would be overwritten. | CHOICE_OPTION_OVERLAP: CHOICE_OPTION $12 rewinds over 1 already-decoded cell(s); translated option text would be overwritten.";
-0320;alignment_incomplete;C9:CE3D;5;oui;C9:CE3D: insufficient_context_or_segmentation;
-0321;alignment_incomplete;C9:CE46;10;oui;C9:CE46: insufficient_lexical_confidence;
-0322;alignment_incomplete;C9:CE50;15;oui;C9:CE50: insufficient_lexical_confidence;
-0323;alignment_incomplete;C9:CE5A;30;oui;C9:CE5A: insufficient_lexical_confidence;
-0324;alignment_incomplete;C9:CE64;50;oui;C9:CE64: insufficient_lexical_confidence;
-0325;alignment_incomplete;C9:CE6E;100;oui;C9:CE6E: insufficient_lexical_confidence;
-0326;alignment_incomplete;C9:CE79;120;oui;C9:CE79: insufficient_lexical_confidence;
-0327;alignment_incomplete;C9:CE84;150;oui;C9:CE84: insufficient_lexical_confidence;
-0328;alignment_incomplete;C9:CE8F;200;oui;C9:CE8F: insufficient_lexical_confidence;
-0330;alignment_incomplete;C9:CEA3;One night is;oui;C9:CEA3: insufficient_lexical_confidence;
 0358;alignment_incomplete;C9:D12C;Gnome;oui;C9:D12C: insufficient_lexical_confidence;
 0359;alignment_incomplete;C9:D13F;Undine;oui;C9:D13F: insufficient_lexical_confidence;
 035A;alignment_incomplete;C9:D153;Sylphid;oui;C9:D153: insufficient_lexical_confidence;

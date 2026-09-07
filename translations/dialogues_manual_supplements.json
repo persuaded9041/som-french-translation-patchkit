@@ -1,0 +1,24 @@
+{
+  "format_version": 1,
+  "language": "fr",
+  "source_asset": "assets/dialogues.json",
+  "policy": "Only user-validated SNES lines proven absent from Android belong here. Pending entries intentionally retain the exact USA source text until manually translated.",
+  "entries": [
+    {
+      "event_id": "0278",
+      "id": "C9:A730",
+      "source_en": " Press START to see the map.",
+      "text": " Press START to see the map.",
+      "status": "needs_manual_translation",
+      "reason": "user_validated_absent_from_android"
+    },
+    {
+      "event_id": "0278",
+      "id": "C9:A74E",
+      "source_en": " L/R buttons change modes.",
+      "text": " L/R buttons change modes.",
+      "status": "needs_manual_translation",
+      "reason": "user_validated_absent_from_android"
+    }
+  ]
+}

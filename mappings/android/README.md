@@ -35,14 +35,10 @@ implemented by the current formatter/simulator.
 
 The accepted alignment resolves 1,601 / 1,838 semantic source IDs (87.1%) and leaves
 237 unresolved rather than forcing weak matches. The established complete-event path
-contains 498 events treated as complete. A simulator-gated partial pass accepts 2 PARTIEL events while
-suppressing 3 still-unresolved semantic IDs from visible dialogue, so PARTIEL scenes remain
-French-only even when semantically incomplete. The current corpus therefore contains
-500 events / 1066 visible French semantic source IDs / 1119 JSON entries. The remaining exclusions are 171 alignment-incomplete events, 17 formatter
-rejects and 16 simulator rejects. Unresolved choice geometry remains rejected rather
+contains 509 events treated as complete. A simulator-gated partial pass keeps only `$0278` PARTIEL; its two user-validated Android-absent controller carriers are staged in `translations/dialogues_manual_supplements.json` and remain exact USA text until manually translated. The current corpus therefore contains
+510 events / 1078 visible semantic source IDs / 1129 JSON entries. The remaining exclusions are 161 alignment-incomplete events, 17 formatter rejects and 16 simulator rejects. Unresolved choice geometry remains rejected rather
 than guessed; `$0202` remains separately rejected for visible-bitmap overflow.
-Android English is the primary identity layer, while Android French may adapt or
-redistribute wording across adjacent localization slots.
+Android English is the primary identity layer, while Android French may adapt or redistribute wording across adjacent localization slots. Manual supplements never count as Android alignment. The common inn flow is handled separately as a user-validated parameterized template derived from Android ID 110, with stock numeric price carriers retained as the dynamic value.
 
 
 Round 21 resolves three conservative PARTIEL resegmentation cases without manual French:

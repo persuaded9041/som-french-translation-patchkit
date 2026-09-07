@@ -2176,15 +2176,15 @@
         },
         {
           "id": "C9:A730",
-          "text": ""
+          "text": "Press START to see the map."
         },
         {
           "id": "C9:A74E",
-          "text": ""
+          "text": "\nL/R buttons change modes."
         },
         {
           "id": "C9:A76B",
-          "text": "Au sud-ouest d'ici se trouvent les\nmontagnes de la Sierra.\nC'est votre destination !"
+          "text": "Sur la carte, un marqueur rouge\nindique votre position actuelle.\fAu sud-ouest d'ici se trouvent les\nmontagnes de la Sierra.\nC'est votre destination !"
         },
         {
           "id": "C9:A7B9",
@@ -2875,8 +2875,48 @@
           "text": "Vendre )"
         },
         {
+          "id": "C9:CE3D",
+          "text": "5"
+        },
+        {
+          "id": "C9:CE46",
+          "text": "10"
+        },
+        {
+          "id": "C9:CE50",
+          "text": "15"
+        },
+        {
+          "id": "C9:CE5A",
+          "text": "30"
+        },
+        {
+          "id": "C9:CE64",
+          "text": "50"
+        },
+        {
+          "id": "C9:CE6E",
+          "text": "100"
+        },
+        {
+          "id": "C9:CE79",
+          "text": "120"
+        },
+        {
+          "id": "C9:CE84",
+          "text": "150"
+        },
+        {
+          "id": "C9:CE8F",
+          "text": "200"
+        },
+        {
+          "id": "C9:CEA3",
+          "text": ""
+        },
+        {
           "id": "C9:CEB3",
-          "text": "\n\n"
+          "text": " pièces d'or la nuit.\nVoulez-vous rester dormir ?\n"
         },
         {
           "id": "C9:CECE",
@@ -4488,18 +4528,11 @@
   "partial_events": [
     {
       "event_id": "0278",
-      "suppressed_semantic_ids": [
+      "suppression_reason": "manual_translation_pending",
+      "manual_pending_semantic_ids": [
         "C9:A730",
         "C9:A74E"
-      ],
-      "suppression_reason": "alignment_unresolved"
-    },
-    {
-      "event_id": "0331",
-      "suppressed_semantic_ids": [
-        "C9:CEB3"
-      ],
-      "suppression_reason": "alignment_unresolved"
+      ]
     }
   ],
   "user_validated_visually_complete_events": [
@@ -4545,12 +4578,41 @@
       "reason": "user_validated_android_adaptation_omission"
     }
   ],
-  "user_validated_partial_layout_preservations": [
+  "user_validated_partial_layout_preservations": [],
+  "manual_dialogue_supplements": [
     {
-      "event_id": "0331",
-      "suppressed_semantic_id": "C9:CEB3",
-      "preserved_text": "\n\n",
-      "reason": "runtime_validated_choice_row_line_placement"
+      "event_id": "0278",
+      "id": "C9:A730",
+      "status": "needs_manual_translation",
+      "reason": "user_validated_absent_from_android"
+    },
+    {
+      "event_id": "0278",
+      "id": "C9:A74E",
+      "status": "needs_manual_translation",
+      "reason": "user_validated_absent_from_android"
+    }
+  ],
+  "parameterized_android_templates": [
+    {
+      "kind": "inn_price_prompt",
+      "android_id": 110,
+      "android_english": "One night is 5 GP. Want to stay?",
+      "android_french": "5 pièces d'or la nuit. Voulez-vous rester dormir ?",
+      "prefix_id": "C9:CEA3",
+      "suffix_id": "C9:CEB3",
+      "price_event_ids": [
+        "0320",
+        "0321",
+        "0322",
+        "0323",
+        "0324",
+        "0325",
+        "0326",
+        "0327",
+        "0328"
+      ],
+      "reason": "user_validated_dynamic_price_generalization"
     }
   ],
   "choice_option_position_overrides": [

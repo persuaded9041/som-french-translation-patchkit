@@ -6,10 +6,12 @@
     "event_selection": "complete semantic events plus simulator-clean partial events",
     "alignment_must_already_be_accepted": true,
     "all_semantic_ids_in_complete_event_must_be_mapped": true,
-    "partial_event_policy": "translate every already accepted mapping in an alignment-incomplete event; suppress every unmapped semantic source text token so PARTIEL events never mix visible stock English with French; preserve all structural commands/layout bytes; admit only direct formatter output with no partial-event compact/page/event-level repair and a clean independent simulation",
+    "partial_event_policy": "translate every accepted Android mapping in an alignment-incomplete event; unresolved IDs are normally suppressed, while user-validated Android-absent manual supplements may remain visible and explicitly keep the event PARTIEL until manually translated; preserve structural commands/layout and require a clean independent simulation",
     "user_validated_visual_complete_policy": "events explicitly validated by the user as complete Android adaptations keep their simulator-clean French-only bytes and are removed from the PARTIEL badge without inventing mappings for omitted SNES-only fragments",
     "user_validated_structural_omission_policy": "a stock command may be omitted only when the user explicitly validates the Android adaptation omission and the command is proven by exact adjacency to an explicitly suppressed semantic ID; $01DC drops only PLAYER_NAME(0) immediately before C9:804A",
-    "user_validated_partial_layout_preservation_policy": "a suppressed PARTIEL semantic carrier is normally empty; $0331/C9:CEB3 is the sole runtime-validated exception and preserves only its two stock NEWLINEs (no visible prose) so the choice row remains on the stock selection/highlight line",
+    "manual_supplement_policy": "only exact carriers user-validated as absent from Android may appear in translations/dialogues_manual_supplements.json; pending entries must remain byte-faithful USA text, do not count as Android alignment, and keep their event PARTIEL",
+    "parameterized_inn_policy": "Android EN/FR 110 is the reviewed template for the common inn prompt: keep each stock numeric caller as the dynamic price, suppress stock C9:CEA3 before it, and render the normalized Android-FR suffix through C9:CEB3; this resolves all shared inn price variants without per-price manual translation",
+    "event_0278_android_extra_policy": "after Android 1347/1348 and the two user-validated SNES-only manual controller supplements, insert Android FR 1349 as an extra page before already aligned 1350, then continue with 1351; an explicit newline before C9:A74E materializes the real WAIT!=NEWLINE cursor behavior and avoids an implicit wrap",
     "reviewed_fragment_spacing_policy": "event $0106 may insert only the two user-reported literal spaces between proven adjacent text fragments; no command or layout boundary changes",
     "physical_page_capacity_lines": 3,
     "source_english_line_count_is_not_a_layout_limit": true,
@@ -54,16 +56,17 @@
     "semantic_source_event_count": 704,
     "complete_aligned_event_count": 528,
     "formatter_candidate_event_count": 511,
-    "accepted_event_count": 500,
-    "complete_accepted_event_count": 498,
-    "partial_accepted_event_count": 2,
+    "accepted_event_count": 510,
+    "complete_accepted_event_count": 509,
+    "partial_accepted_event_count": 1,
     "user_validated_visually_complete_event_count": 3,
     "user_validated_structural_omission_event_count": 1,
     "user_validated_structural_omitted_command_count": 1,
-    "user_validated_partial_layout_preservation_count": 1,
-    "partial_suppressed_semantic_id_count": 3,
-    "accepted_semantic_source_id_count": 1066,
-    "translation_entry_count": 1119,
+    "manual_supplement_entry_count": 2,
+    "parameterized_inn_event_count": 11,
+    "partial_unresolved_or_manual_id_count": 2,
+    "accepted_semantic_source_id_count": 1078,
+    "translation_entry_count": 1129,
     "fragment_spacing_repaired_event_count": 1,
     "fragment_spacing_repair_count": 2,
     "explicit_post_wait_newline_repaired_event_count": 12,
@@ -97,9 +100,9 @@
     "adaptive_choice_anchor_shift_count": 5,
     "adaptive_choice_decoration_stripped_event_count": 0,
     "adaptive_choice_decoration_stripped_count": 0,
-    "excluded_event_count": 204,
+    "excluded_event_count": 194,
     "excluded_stage_counts": {
-      "alignment_incomplete": 171,
+      "alignment_incomplete": 161,
       "simulator_rejected": 16,
       "formatter_rejected": 17
     }
@@ -441,6 +444,16 @@
     "0311",
     "0314",
     "0319",
+    "0320",
+    "0321",
+    "0322",
+    "0323",
+    "0324",
+    "0325",
+    "0326",
+    "0327",
+    "0328",
+    "0330",
     "0331",
     "0337",
     "0363",
@@ -649,29 +662,50 @@
       "reason": "user_validated_android_adaptation_omission"
     }
   ],
-  "user_validated_partial_layout_preservations": [
+  "manual_dialogue_supplements": [
     {
-      "event_id": "0331",
-      "suppressed_semantic_id": "C9:CEB3",
-      "preserved_text": "\n\n",
-      "reason": "runtime_validated_choice_row_line_placement"
+      "event_id": "0278",
+      "id": "C9:A730",
+      "status": "needs_manual_translation",
+      "reason": "user_validated_absent_from_android"
+    },
+    {
+      "event_id": "0278",
+      "id": "C9:A74E",
+      "status": "needs_manual_translation",
+      "reason": "user_validated_absent_from_android"
+    }
+  ],
+  "parameterized_android_templates": [
+    {
+      "kind": "inn_price_prompt",
+      "android_id": 110,
+      "android_english": "One night is 5 GP. Want to stay?",
+      "android_french": "5 pièces d'or la nuit. Voulez-vous rester dormir ?",
+      "prefix_id": "C9:CEA3",
+      "suffix_id": "C9:CEB3",
+      "price_event_ids": [
+        "0320",
+        "0321",
+        "0322",
+        "0323",
+        "0324",
+        "0325",
+        "0326",
+        "0327",
+        "0328"
+      ],
+      "reason": "user_validated_dynamic_price_generalization"
     }
   ],
   "partial_accepted_events": [
     {
       "event_id": "0278",
-      "suppressed_semantic_ids": [
+      "suppression_reason": "manual_translation_pending",
+      "manual_pending_semantic_ids": [
         "C9:A730",
         "C9:A74E"
-      ],
-      "suppression_reason": "alignment_unresolved"
-    },
-    {
-      "event_id": "0331",
-      "suppressed_semantic_ids": [
-        "C9:CEB3"
-      ],
-      "suppression_reason": "alignment_unresolved"
+      ]
     }
   ],
   "formatted_mappings": [
@@ -28964,6 +28998,169 @@
       "partial_event": true
     },
     {
+      "event_id": "0278",
+      "snes_ids": [
+        "C9:A730"
+      ],
+      "android_ids": [],
+      "confidence": "user_validated_android_absent_manual",
+      "source_display": " Press START to see the map.",
+      "android_french_raw": " Press START to see the map.",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Press START to see the map.",
+      "layout_markup_before_wrap": "Press START to see the map.",
+      "layout_hints": [],
+      "formatted_markup": "Press START to see the map.",
+      "line_widths_pixels": [
+        166
+      ],
+      "line_decoded_character_counts": [
+        27
+      ],
+      "line_parser_unit_counts": [
+        27
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:A730",
+          "text": "Press START to see the map."
+        }
+      ],
+      "manual_supplement": true,
+      "manual_status": "needs_manual_translation",
+      "manual_reason": "user_validated_absent_from_android"
+    },
+    {
+      "event_id": "0278",
+      "snes_ids": [
+        "C9:A74E"
+      ],
+      "android_ids": [],
+      "confidence": "user_validated_android_absent_manual",
+      "source_display": " L/R buttons change modes.",
+      "android_french_raw": " L/R buttons change modes.",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "L/R buttons change modes.",
+      "layout_markup_before_wrap": "L/R buttons change modes.",
+      "layout_hints": [],
+      "formatted_markup": "L/R buttons change modes.",
+      "line_widths_pixels": [
+        159
+      ],
+      "line_decoded_character_counts": [
+        25
+      ],
+      "line_parser_unit_counts": [
+        25
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:A74E",
+          "text": "L/R buttons change modes."
+        }
+      ],
+      "manual_supplement": true,
+      "manual_status": "needs_manual_translation",
+      "manual_reason": "user_validated_absent_from_android",
+      "layout_adjustment": "explicit_newline_after_wait00"
+    },
+    {
+      "event_id": "0278",
+      "snes_ids": [
+        "C9:A76B"
+      ],
+      "android_ids": [
+        1349
+      ],
+      "confidence": "user_validated_android_extra",
+      "source_display": " You'll find the Lofty\n Mountains to the southwest. What you seek is there.",
+      "android_french_raw": "Sur la carte, un marqueur rouge indique votre position actuelle. ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Sur la carte, un marqueur rouge indique votre position actuelle.",
+      "layout_markup_before_wrap": "Sur la carte, un marqueur rouge indique votre position actuelle.",
+      "layout_hints": [],
+      "formatted_markup": "Sur la carte, un marqueur rouge\nindique votre position actuelle.",
+      "line_widths_pixels": [
+        188,
+        181
+      ],
+      "line_decoded_character_counts": [
+        31,
+        32
+      ],
+      "line_parser_unit_counts": [
+        31,
+        32
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 2,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:A76B",
+          "text": "Sur la carte, un marqueur rouge\nindique votre position actuelle."
+        }
+      ],
+      "android_extra_page": true,
+      "distributed_before_android_ids": [
+        1350
+      ]
+    },
+    {
       "event_id": "0279",
       "snes_ids": [
         "C9:A7DD"
@@ -38411,6 +38608,176 @@
         {
           "id": "C9:CE24",
           "text": "Vendre )"
+        }
+      ]
+    },
+    {
+      "event_id": "0320",
+      "snes_ids": [
+        "C9:CE3D"
+      ],
+      "android_ids": [
+        110
+      ],
+      "confidence": "user_validated_parameterized_android_template",
+      "parameter_value": "5",
+      "formatted_entries": [
+        {
+          "id": "C9:CE3D",
+          "text": "5"
+        }
+      ]
+    },
+    {
+      "event_id": "0321",
+      "snes_ids": [
+        "C9:CE46"
+      ],
+      "android_ids": [
+        110
+      ],
+      "confidence": "user_validated_parameterized_android_template",
+      "parameter_value": "10",
+      "formatted_entries": [
+        {
+          "id": "C9:CE46",
+          "text": "10"
+        }
+      ]
+    },
+    {
+      "event_id": "0322",
+      "snes_ids": [
+        "C9:CE50"
+      ],
+      "android_ids": [
+        110
+      ],
+      "confidence": "user_validated_parameterized_android_template",
+      "parameter_value": "15",
+      "formatted_entries": [
+        {
+          "id": "C9:CE50",
+          "text": "15"
+        }
+      ]
+    },
+    {
+      "event_id": "0323",
+      "snes_ids": [
+        "C9:CE5A"
+      ],
+      "android_ids": [
+        110
+      ],
+      "confidence": "user_validated_parameterized_android_template",
+      "parameter_value": "30",
+      "formatted_entries": [
+        {
+          "id": "C9:CE5A",
+          "text": "30"
+        }
+      ]
+    },
+    {
+      "event_id": "0324",
+      "snes_ids": [
+        "C9:CE64"
+      ],
+      "android_ids": [
+        110
+      ],
+      "confidence": "user_validated_parameterized_android_template",
+      "parameter_value": "50",
+      "formatted_entries": [
+        {
+          "id": "C9:CE64",
+          "text": "50"
+        }
+      ]
+    },
+    {
+      "event_id": "0325",
+      "snes_ids": [
+        "C9:CE6E"
+      ],
+      "android_ids": [
+        110
+      ],
+      "confidence": "user_validated_parameterized_android_template",
+      "parameter_value": "100",
+      "formatted_entries": [
+        {
+          "id": "C9:CE6E",
+          "text": "100"
+        }
+      ]
+    },
+    {
+      "event_id": "0326",
+      "snes_ids": [
+        "C9:CE79"
+      ],
+      "android_ids": [
+        110
+      ],
+      "confidence": "user_validated_parameterized_android_template",
+      "parameter_value": "120",
+      "formatted_entries": [
+        {
+          "id": "C9:CE79",
+          "text": "120"
+        }
+      ]
+    },
+    {
+      "event_id": "0327",
+      "snes_ids": [
+        "C9:CE84"
+      ],
+      "android_ids": [
+        110
+      ],
+      "confidence": "user_validated_parameterized_android_template",
+      "parameter_value": "150",
+      "formatted_entries": [
+        {
+          "id": "C9:CE84",
+          "text": "150"
+        }
+      ]
+    },
+    {
+      "event_id": "0328",
+      "snes_ids": [
+        "C9:CE8F"
+      ],
+      "android_ids": [
+        110
+      ],
+      "confidence": "user_validated_parameterized_android_template",
+      "parameter_value": "200",
+      "formatted_entries": [
+        {
+          "id": "C9:CE8F",
+          "text": "200"
+        }
+      ]
+    },
+    {
+      "event_id": "0330",
+      "snes_ids": [
+        "C9:CEA3"
+      ],
+      "android_ids": [
+        110
+      ],
+      "confidence": "user_validated_parameterized_android_template",
+      "suppressed_stock_prefix": true,
+      "formatted_entries": [
+        {
+          "id": "C9:CEA3",
+          "text": ""
         }
       ]
     },
@@ -63450,176 +63817,6 @@
           "box": 1,
           "page": 2,
           "line": null
-        }
-      ]
-    },
-    {
-      "event_id": "0320",
-      "stage": "alignment_incomplete",
-      "semantic_ids": [
-        "C9:CE3D"
-      ],
-      "missing_semantic_ids": [
-        "C9:CE3D"
-      ],
-      "details": [
-        {
-          "snes_id": "C9:CE3D",
-          "reason": "insufficient_context_or_segmentation",
-          "note": "Plausible lexical candidate exists, but the conservative local-order/segmentation rules did not establish very-high confidence."
-        }
-      ]
-    },
-    {
-      "event_id": "0321",
-      "stage": "alignment_incomplete",
-      "semantic_ids": [
-        "C9:CE46"
-      ],
-      "missing_semantic_ids": [
-        "C9:CE46"
-      ],
-      "details": [
-        {
-          "snes_id": "C9:CE46",
-          "reason": "insufficient_lexical_confidence",
-          "note": "Best Android-English candidate is too different to accept automatically."
-        }
-      ]
-    },
-    {
-      "event_id": "0322",
-      "stage": "alignment_incomplete",
-      "semantic_ids": [
-        "C9:CE50"
-      ],
-      "missing_semantic_ids": [
-        "C9:CE50"
-      ],
-      "details": [
-        {
-          "snes_id": "C9:CE50",
-          "reason": "insufficient_lexical_confidence",
-          "note": "Best Android-English candidate is too different to accept automatically."
-        }
-      ]
-    },
-    {
-      "event_id": "0323",
-      "stage": "alignment_incomplete",
-      "semantic_ids": [
-        "C9:CE5A"
-      ],
-      "missing_semantic_ids": [
-        "C9:CE5A"
-      ],
-      "details": [
-        {
-          "snes_id": "C9:CE5A",
-          "reason": "insufficient_lexical_confidence",
-          "note": "Best Android-English candidate is too different to accept automatically."
-        }
-      ]
-    },
-    {
-      "event_id": "0324",
-      "stage": "alignment_incomplete",
-      "semantic_ids": [
-        "C9:CE64"
-      ],
-      "missing_semantic_ids": [
-        "C9:CE64"
-      ],
-      "details": [
-        {
-          "snes_id": "C9:CE64",
-          "reason": "insufficient_lexical_confidence",
-          "note": "Best Android-English candidate is too different to accept automatically."
-        }
-      ]
-    },
-    {
-      "event_id": "0325",
-      "stage": "alignment_incomplete",
-      "semantic_ids": [
-        "C9:CE6E"
-      ],
-      "missing_semantic_ids": [
-        "C9:CE6E"
-      ],
-      "details": [
-        {
-          "snes_id": "C9:CE6E",
-          "reason": "insufficient_lexical_confidence",
-          "note": "Best Android-English candidate is too different to accept automatically."
-        }
-      ]
-    },
-    {
-      "event_id": "0326",
-      "stage": "alignment_incomplete",
-      "semantic_ids": [
-        "C9:CE79"
-      ],
-      "missing_semantic_ids": [
-        "C9:CE79"
-      ],
-      "details": [
-        {
-          "snes_id": "C9:CE79",
-          "reason": "insufficient_lexical_confidence",
-          "note": "Best Android-English candidate is too different to accept automatically."
-        }
-      ]
-    },
-    {
-      "event_id": "0327",
-      "stage": "alignment_incomplete",
-      "semantic_ids": [
-        "C9:CE84"
-      ],
-      "missing_semantic_ids": [
-        "C9:CE84"
-      ],
-      "details": [
-        {
-          "snes_id": "C9:CE84",
-          "reason": "insufficient_lexical_confidence",
-          "note": "Best Android-English candidate is too different to accept automatically."
-        }
-      ]
-    },
-    {
-      "event_id": "0328",
-      "stage": "alignment_incomplete",
-      "semantic_ids": [
-        "C9:CE8F"
-      ],
-      "missing_semantic_ids": [
-        "C9:CE8F"
-      ],
-      "details": [
-        {
-          "snes_id": "C9:CE8F",
-          "reason": "insufficient_lexical_confidence",
-          "note": "Best Android-English candidate is too different to accept automatically."
-        }
-      ]
-    },
-    {
-      "event_id": "0330",
-      "stage": "alignment_incomplete",
-      "semantic_ids": [
-        "C9:CEA3"
-      ],
-      "missing_semantic_ids": [
-        "C9:CEA3"
-      ],
-      "details": [
-        {
-          "snes_id": "C9:CEA3",
-          "reason": "insufficient_lexical_confidence",
-          "note": "Best Android-English candidate is too different to accept automatically."
         }
       ]
     },

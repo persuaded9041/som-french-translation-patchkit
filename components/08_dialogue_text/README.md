@@ -142,6 +142,22 @@ caller gates; their stock `$C9/$CA` VWF behavior is unchanged.
 - Dialogue DTE recompression is deferred; source/no-translation round-trips still
   preserve the original encoding exactly.
 
+
+## Manual Android-absent supplements
+
+`translations/dialogues_manual_supplements.json` is the only manual dialogue staging file.
+An entry is accepted only when its event/text ID is explicitly user-validated as absent
+from Android and its `source_en` exactly matches `assets/dialogues.json`. While status is
+`needs_manual_translation`, `text` must remain exactly the USA source text. These entries
+do not count as Android alignment and keep their event PARTIEL. `$0278` currently owns the
+two START/L/R controller instructions; Android FR 1349 is then inserted as an extra page
+before the already aligned 1350/1351 continuation.
+
+The generic inn sequence uses no manual translation. Android ID 110 is a reviewed
+parameterized template: stock events `$0320-$0328` provide the dynamic numeric price,
+`$0330/C9:CEA3` suppresses the English prefix, and `$0331/C9:CEB3` renders the French
+suffix derived from Android.
+
 ## Current mass formatting
 
 The authoritative dialogue translation is generated with:
@@ -151,19 +167,17 @@ python3 tools/import_android_text.py --only dialogue-format-mass \
   --rom <clean-USA-ROM>
 ```
 
-The current deterministic partial-aware mass pass is **500 simulator-clean events /
-1066 visible French semantic source IDs / 1119 JSON entries**. The corpus contains 498
-events treated as complete and 2 PARTIEL events. `$0103`, `$017F` and `$01DC` are user-validated
+The current deterministic partial-aware mass pass is **510 simulator-clean events /
+1078 visible semantic source IDs / 1129 JSON entries**. The corpus contains 509
+events treated as complete and 1 PARTIEL event. `$0103`, `$017F` and `$01DC` are user-validated
 visually complete Android adaptations whose remaining SNES-only fragments stay unmapped
-without a PARTIEL badge. The PARTIEL events encode **3 still-unresolved semantic source IDs** as empty text so no stock English is shown.
-Structural commands/layout bytes remain canonical except for the exact user-validated `$01DC` omission of `PLAYER_NAME(0)` immediately before suppressed `C9:804A` and generated rightward `CHOICE_OPTION` coordinate overrides that pass the validated minimal-anchor rule. The remaining 204 excluded events are listed in
+without a PARTIEL badge. `$0278` is intentionally the sole PARTIEL event: its two controller-specific SNES carriers are proven absent from Android and are staged in `translations/dialogues_manual_supplements.json`; pending entries intentionally retain exact USA text until manually translated.
+Structural commands/layout bytes remain canonical except for the exact user-validated `$01DC` omission of `PLAYER_NAME(0)` immediately before suppressed `C9:804A` and generated rightward `CHOICE_OPTION` coordinate overrides that pass the validated minimal-anchor rule. The remaining 194 excluded events are listed in
 `mappings/android/dialogues_format_mass_excluded.csv`.
 
 The formatter is intentionally conservative:
 
-- complete events still require every semantic text token to have a high-confidence
-  Android alignment; partial events may translate only already accepted mappings and
-  suppress unresolved semantic text rather than exposing stock English;
+- complete events still require every semantic text token to have a high-confidence Android alignment, except reviewed structural templates such as the dynamic inn prompt; partial events may additionally expose only user-validated Android-absent manual supplements from the dedicated JSON;
 - partial events receive no compact-wrapper, pagination or cross-mapping repair: their
   direct French-only-but-incomplete serialization must already pass the independent simulator;
 - each generated line must stay within 240 pixels and 38 parser units, with at most
@@ -190,7 +204,7 @@ The formatter is intentionally conservative:
 
 The mass pass serializes each candidate event and runs the independent simulator. An
 error, warning, implicit runtime wrap or unsupported structure excludes the whole event.
-The 500-event corpus simulates with **0 errors, 0 warnings and 0 implicit runtime
+The 510-event corpus simulates with **0 errors, 0 warnings and 0 implicit runtime
 wraps**. Component 06 renders admitted choice rows through its ordinary VWF path; the
 option-start and terminal-boundary synchronization are runtime-validated on `$0331`; the
 minimal later-anchor shift is runtime-validated on the Potos `Temple de l'Eau / Pandora`

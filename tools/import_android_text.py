@@ -60,6 +60,7 @@ DEFAULT_DIALOGUE_REVIEW_ROUND20_OUTPUT = ROOT / "mappings" / "android" / "dialog
 DEFAULT_DIALOGUE_REVIEW_ROUND21_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round21.json"
 DEFAULT_DIALOGUE_REVIEW_ROUND22_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round22.json"
 DIALOGUE_SOURCE = ROOT / "assets" / "dialogues.json"
+DIALOGUE_MANUAL_SUPPLEMENTS = ROOT / "translations" / "dialogues_manual_supplements.json"
 
 INTRO_ANDROID_IDS = tuple(range(3445, 3453))
 INTRO_TARGET_IDS = (
@@ -1683,14 +1684,145 @@ DIALOGUE_USER_VALIDATED_STRUCTURAL_OMISSIONS = (
 # proved that the choice row must stay on its original third physical line for
 # the stock selection/highlight geometry to target the rendered Oui/Non row.
 # This is layout-only metadata, never localized prose.
-DIALOGUE_USER_VALIDATED_PARTIAL_LAYOUT_PRESERVATIONS = (
-    {
-        "event_id": "0331",
-        "suppressed_semantic_id": "C9:CEB3",
-        "preserved_text": "\n\n",
-        "reason": "runtime_validated_choice_row_line_placement",
-    },
-)
+DIALOGUE_USER_VALIDATED_PARTIAL_LAYOUT_PRESERVATIONS = ()
+
+
+# Manual supplements are deliberately outside Android alignment.  They are
+# permitted only for exact SNES carriers whose complete absence from Android
+# has been explicitly reviewed.  The editable JSON initially keeps the stock
+# USA prose until a human French translation is supplied.
+DIALOGUE_USER_VALIDATED_ANDROID_ABSENT_MANUAL_IDS = {
+    "0278": frozenset({"C9:A730", "C9:A74E"}),
+}
+
+
+def _load_manual_dialogue_supplements(source_document: dict) -> dict[str, dict[str, dict]]:
+    document = json.loads(DIALOGUE_MANUAL_SUPPLEMENTS.read_text(encoding="utf-8"))
+    if document.get("format_version") != 1 or document.get("language") != "fr":
+        raise ValueError("dialogues_manual_supplements.json: unsupported format/language")
+    if document.get("source_asset") != "assets/dialogues.json":
+        raise ValueError("dialogues_manual_supplements.json: invalid source_asset")
+    by_id, _ = event_text_index(source_document)
+    result: dict[str, dict[str, dict]] = {}
+    for entry in document.get("entries", []):
+        if not isinstance(entry, dict):
+            raise ValueError("dialogues_manual_supplements.json: entries must be objects")
+        event_id = entry.get("event_id")
+        text_id = entry.get("id")
+        source_en = entry.get("source_en")
+        text = entry.get("text")
+        status = entry.get("status")
+        reason = entry.get("reason")
+        allowed = DIALOGUE_USER_VALIDATED_ANDROID_ABSENT_MANUAL_IDS.get(event_id, frozenset())
+        if text_id not in allowed:
+            raise ValueError(
+                f"Manual supplement ${event_id}/{text_id}: carrier is not user-validated absent from Android"
+            )
+        meta = by_id.get(text_id)
+        if meta is None or meta.get("event_id") != event_id:
+            raise ValueError(f"Manual supplement ${event_id}/{text_id}: unknown/mismatched source carrier")
+        if source_en != meta.get("source"):
+            raise ValueError(f"Manual supplement ${event_id}/{text_id}: source_en is not byte-faithful to assets/dialogues.json")
+        if not isinstance(text, str) or not text:
+            raise ValueError(f"Manual supplement ${event_id}/{text_id}: text must be non-empty")
+        if status not in {"needs_manual_translation", "translated"}:
+            raise ValueError(f"Manual supplement ${event_id}/{text_id}: invalid status")
+        if status == "needs_manual_translation" and text != source_en:
+            raise ValueError(f"Manual supplement ${event_id}/{text_id}: pending entries must retain stock USA text")
+        if reason != "user_validated_absent_from_android":
+            raise ValueError(f"Manual supplement ${event_id}/{text_id}: invalid reason")
+        if text_id in result.setdefault(event_id, {}):
+            raise ValueError(f"Manual supplement ${event_id}/{text_id}: duplicate entry")
+        result[event_id][text_id] = entry
+    for event_id, allowed in DIALOGUE_USER_VALIDATED_ANDROID_ABSENT_MANUAL_IDS.items():
+        actual = frozenset(result.get(event_id, {}))
+        if actual != allowed:
+            raise ValueError(
+                f"Manual supplement ${event_id}: expected {sorted(allowed)}, got {sorted(actual)}"
+            )
+    return result
+
+
+def _format_manual_supplement(
+    source_document: dict, entry: dict, advances: dict[str, int]
+) -> tuple[str, dict]:
+    text_id = entry["id"]
+    _, by_event = event_text_index(source_document)
+    source_event = by_event[entry["event_id"]]
+    source_token = next(token for token in source_event["tokens"] if token.get("id") == text_id)
+    mapping = {
+        "event_id": entry["event_id"],
+        "snes_ids": [text_id],
+        "android_ids": [],
+        "confidence": "user_validated_android_absent_manual",
+        "source_display": source_token.get("source", ""),
+        "french_display": entry["text"],
+    }
+    values, report = format_dialogue_mapping(
+        source_document, mapping, advances,
+        allow_one_extra_page=False,
+        use_physical_page_capacity=True,
+        prefer_semantic_line_breaks=True,
+    )
+    report["manual_supplement"] = True
+    report["manual_status"] = entry["status"]
+    report["manual_reason"] = entry["reason"]
+    return values[text_id], report
+
+
+def _format_android_extra_page(
+    source_document: dict, *, event_id: str, carrier_id: str, android_id: int,
+    french: dict[int, str], advances: dict[str, int]
+) -> tuple[str, dict]:
+    by_id, _ = event_text_index(source_document)
+    mapping = {
+        "event_id": event_id,
+        "snes_ids": [carrier_id],
+        "android_ids": [android_id],
+        "confidence": "user_validated_android_extra",
+        "source_display": by_id[carrier_id]["source"],
+        "french_display": french[android_id],
+    }
+    values, report = format_dialogue_mapping(
+        source_document, mapping, advances,
+        allow_one_extra_page=False,
+        use_physical_page_capacity=True,
+        prefer_semantic_line_breaks=True,
+    )
+    report["android_extra_page"] = True
+    return values[carrier_id], report
+
+
+def _parameterized_inn_prompt(english: dict[int, str], french: dict[int, str]) -> dict:
+    android_id = 110
+    en = english.get(android_id, "")
+    fr = normalize_android_french(french.get(android_id, ""))
+    if en != "One night is 5 GP. Want to stay?":
+        raise ValueError("Parameterized inn template: Android EN 110 changed unexpectedly")
+    if not fr.startswith("5"):
+        raise ValueError("Parameterized inn template: Android FR 110 must start with the price 5")
+    suffix = fr[1:]
+    if not suffix.strip():
+        raise ValueError("Parameterized inn template: empty French suffix")
+    # Keep the dynamic numeric carrier supplied by the stock caller, then render
+    # the Android-FR suffix.  One newline separates the sentence/prompt and the
+    # trailing newline keeps the choice row on the next physical line.
+    prompt_marker = "Voulez-vous rester dormir ?"
+    if prompt_marker not in suffix:
+        raise ValueError("Parameterized inn template: expected French prompt is absent")
+    first, second = suffix.split(prompt_marker, 1)
+    if second.strip():
+        raise ValueError("Parameterized inn template: unexpected text after the French prompt")
+    suffix = first.rstrip() + "\n" + prompt_marker + "\n"
+    return {
+        "android_id": android_id,
+        "android_english": en,
+        "android_french": fr,
+        "prefix_translation": "",
+        "suffix_translation": suffix,
+        "prefix_id": "C9:CEA3",
+        "suffix_id": "C9:CEB3",
+    }
 
 
 def _auto_metrics(source: str, candidate: str) -> dict[str, float]:
@@ -5522,6 +5654,8 @@ def make_dialogue_format_mass(
         french_path=french_path,
     )
     source_document = json.loads(DIALOGUE_SOURCE.read_text(encoding="utf-8"))
+    manual_supplements_by_event = _load_manual_dialogue_supplements(source_document)
+    inn_template = _parameterized_inn_prompt(english, french)
     structural_omission_indexes_by_event = resolve_structural_omission_token_indexes(
         {"user_validated_structural_omissions": list(DIALOGUE_USER_VALIDATED_STRUCTURAL_OMISSIONS)},
         source_document,
@@ -5554,6 +5688,9 @@ def make_dialogue_format_mass(
     adaptive_choice_decoration_repairs_by_event: dict[str, list[dict]] = {}
     adaptive_choice_anchor_repairs_by_event: dict[str, list[dict]] = {}
     choice_option_position_overrides_by_event: dict[str, dict[int, int]] = {}
+    manual_supplement_reports_by_event: dict[str, list[dict]] = {}
+    android_extra_reports_by_event: dict[str, list[dict]] = {}
+    parameterized_inn_events: set[str] = set()
     accepted_events: list[str] = []
     partial_accepted_events: list[str] = []
     partial_suppressed_semantic_ids_by_event: dict[str, list[str]] = {}
@@ -6103,12 +6240,64 @@ def make_dialogue_format_mass(
             event_translations.update(values)
             mapping_report["partial_event"] = True
             event_reports.append(mapping_report)
+        # User-validated Android-absent carriers may be supplied explicitly by
+        # the small manual supplement file.  They stay outside Android identity
+        # coverage and keep the event PARTIEL until a separate policy changes
+        # that status.
+        manual_entries = manual_supplements_by_event.get(event_id, {})
+        manual_reports: list[dict] = []
+        for missing_id in list(missing_ids):
+            manual_entry = manual_entries.get(missing_id)
+            if manual_entry is None:
+                continue
+            value, manual_report = _format_manual_supplement(
+                source_document, manual_entry, advances
+            )
+            # $0278's two controller instructions are separated by WAIT $00 but
+            # no stock NEWLINE/TEXT_CLEAR. WAIT does not advance the live cursor;
+            # add an explicit formatting-only newline before the second manual
+            # supplement so the two validated SNES-only instructions cannot rely
+            # on an implicit runtime wrap.
+            if event_id == "0278" and missing_id == "C9:A74E":
+                value = "\n" + value.lstrip(" ")
+                manual_report["layout_adjustment"] = "explicit_newline_after_wait00"
+            event_translations[missing_id] = value
+            manual_reports.append(manual_report)
+        if manual_reports:
+            manual_supplement_reports_by_event[event_id] = manual_reports
+            event_reports.extend(manual_reports)
+
+        # $0278 resumes the Android sequence after its two SNES-only controller
+        # instructions. Android 1349 is a mobile-specific extra page absent from
+        # SNES; insert it before the already aligned 1350 page, then continue to
+        # 1351 on the stock next carrier.
+        if event_id == "0278":
+            if set(manual_entries) != {"C9:A730", "C9:A74E"}:
+                raise AssertionError("$0278 manual supplement set changed unexpectedly")
+            if "C9:A76B" not in event_translations:
+                raise AssertionError("$0278 expected aligned carrier C9:A76B")
+            extra_text, extra_report = _format_android_extra_page(
+                source_document, event_id=event_id, carrier_id="C9:A76B",
+                android_id=1349, french=french, advances=advances
+            )
+            event_translations["C9:A76B"] = extra_text + "\f" + event_translations["C9:A76B"]
+            extra_report["distributed_before_android_ids"] = [1350]
+            android_extra_reports_by_event[event_id] = [extra_report]
+            event_reports.append(extra_report)
+
+        # The common inn prompt is parameterized rather than manually translated.
+        # Android EN/FR 110 proves the full 5-GP sentence; the stock caller emits
+        # the numeric price between $0330 and $0331, so $0331 receives only the
+        # French suffix after that number.
+        if event_id == "0331":
+            event_translations["C9:CEB3"] = inn_template["suffix_translation"]
+
         # French-only partial presentation: suppress semantic source text for
-        # unmapped IDs instead of falling back to stock English. Structural
-        # commands/tokens remain canonical, and the event stays tagged partial.
+        # genuinely unresolved IDs instead of falling back to stock English.
+        # Structural commands/tokens remain canonical.
         for missing_id in missing_ids:
             if missing_id in event_translations:
-                raise AssertionError(f"partial event ${event_id}: missing ID unexpectedly translated: {missing_id}")
+                continue
             preservation = next((
                 entry
                 for entry in DIALOGUE_USER_VALIDATED_PARTIAL_LAYOUT_PRESERVATIONS
@@ -6203,9 +6392,14 @@ def make_dialogue_format_mass(
             }
             continue
         accepted_events.append(event_id)
-        partial_accepted_events.append(event_id)
-        partial_suppressed_semantic_ids_by_event[event_id] = missing_ids
-        partial_suppression_reason_by_event[event_id] = "alignment_unresolved"
+        if event_id == "0331":
+            parameterized_inn_events.add(event_id)
+        else:
+            partial_accepted_events.append(event_id)
+            partial_suppressed_semantic_ids_by_event[event_id] = missing_ids
+            partial_suppression_reason_by_event[event_id] = (
+                "manual_translation_pending" if manual_entries else "alignment_unresolved"
+            )
         translations_by_event[event_id] = event_translations
         reports_by_event[event_id] = event_reports
         wait00_repairs_by_event[event_id] = []
@@ -6214,8 +6408,66 @@ def make_dialogue_format_mass(
         duplicated_player_context_repairs_by_event.setdefault(event_id, [])
         fragment_spacing_repairs_by_event.setdefault(event_id, [])
 
-    if partial_accepted_events:
-        accepted_partial = set(partial_accepted_events)
+    # Materialize the other half of the parameterized inn chain.  The nine
+    # caller events contain language-neutral numeric parameters; $0330's English
+    # prefix is suppressed so the number becomes the first visible French token.
+    inn_price_events = {
+        "0320": ("C9:CE3D", "5"),
+        "0321": ("C9:CE46", "10"),
+        "0322": ("C9:CE50", "15"),
+        "0323": ("C9:CE5A", "30"),
+        "0324": ("C9:CE64", "50"),
+        "0325": ("C9:CE6E", "100"),
+        "0326": ("C9:CE79", "120"),
+        "0327": ("C9:CE84", "150"),
+        "0328": ("C9:CE8F", "200"),
+    }
+    by_event_id = {event["event_id"]: event for event in source_document["events"]}
+    for event_id, (text_id, price) in inn_price_events.items():
+        event = by_event_id[event_id]
+        text_token = next(token for token in event["tokens"] if token.get("id") == text_id)
+        if text_token.get("source") != price:
+            raise ValueError(f"Parameterized inn ${event_id}: stock price carrier changed")
+        signatures = [
+            (token.get("name"), token.get("args"))
+            for token in event["tokens"] if token.get("type") == "command"
+        ]
+        if signatures != [("OP_30", f"F9 {int(event_id,16)-0x320:02X}"), ("OP_23", "30"), ("OP_13", "31"), ("END", None)]:
+            raise ValueError(f"Parameterized inn ${event_id}: caller structure changed")
+        translations_by_event[event_id] = {text_id: price}
+        reports_by_event[event_id] = [{
+            "event_id": event_id,
+            "snes_ids": [text_id],
+            "android_ids": [inn_template["android_id"]],
+            "confidence": "user_validated_parameterized_android_template",
+            "parameter_value": price,
+            "formatted_entries": [{"id": text_id, "text": price}],
+        }]
+        if event_id not in accepted_events:
+            accepted_events.append(event_id)
+        parameterized_inn_events.add(event_id)
+
+    prefix_event_id = "0330"
+    prefix_event = by_event_id[prefix_event_id]
+    prefix_token = next(token for token in prefix_event["tokens"] if token.get("id") == inn_template["prefix_id"])
+    if prefix_token.get("source") != " One night is ":
+        raise ValueError("Parameterized inn $0330: stock prefix changed")
+    translations_by_event[prefix_event_id] = {inn_template["prefix_id"]: inn_template["prefix_translation"]}
+    reports_by_event[prefix_event_id] = [{
+        "event_id": prefix_event_id,
+        "snes_ids": [inn_template["prefix_id"]],
+        "android_ids": [inn_template["android_id"]],
+        "confidence": "user_validated_parameterized_android_template",
+        "suppressed_stock_prefix": True,
+        "formatted_entries": [{"id": inn_template["prefix_id"], "text": ""}],
+    }]
+    if prefix_event_id not in accepted_events:
+        accepted_events.append(prefix_event_id)
+    parameterized_inn_events.add(prefix_event_id)
+
+    resolved_special_events = set(parameterized_inn_events)
+    if partial_accepted_events or resolved_special_events:
+        accepted_partial = set(partial_accepted_events) | resolved_special_events
         excluded_events = [
             entry for entry in excluded_events
             if entry.get("event_id") not in accepted_partial
@@ -6253,13 +6505,18 @@ def make_dialogue_format_mass(
         event_id for event_id in partial_accepted_events
         if event_id in DIALOGUE_USER_VALIDATED_VISUALLY_COMPLETE_EVENTS
     ]
+    def partial_metadata(event_id: str) -> dict:
+        reason = partial_suppression_reason_by_event[event_id]
+        ids = partial_suppressed_semantic_ids_by_event[event_id]
+        result = {"event_id": event_id, "suppression_reason": reason}
+        if reason == "manual_translation_pending":
+            result["manual_pending_semantic_ids"] = ids
+        else:
+            result["suppressed_semantic_ids"] = ids
+        return result
+
     translation_document["partial_events"] = [
-        {
-            "event_id": event_id,
-            "suppressed_semantic_ids": partial_suppressed_semantic_ids_by_event[event_id],
-            "suppression_reason": partial_suppression_reason_by_event[event_id],
-        }
-        for event_id in visible_partial_events
+        partial_metadata(event_id) for event_id in visible_partial_events
     ]
     translation_document["user_validated_visually_complete_events"] = [
         {
@@ -6272,9 +6529,30 @@ def make_dialogue_format_mass(
     translation_document["user_validated_structural_omissions"] = list(
         DIALOGUE_USER_VALIDATED_STRUCTURAL_OMISSIONS
     )
-    translation_document["user_validated_partial_layout_preservations"] = list(
-        DIALOGUE_USER_VALIDATED_PARTIAL_LAYOUT_PRESERVATIONS
-    )
+    translation_document["user_validated_partial_layout_preservations"] = []
+    translation_document["manual_dialogue_supplements"] = [
+        {
+            "event_id": event_id,
+            "id": text_id,
+            "status": entry["status"],
+            "reason": entry["reason"],
+        }
+        for event_id in sorted(manual_supplements_by_event)
+        for text_id, entry in sorted(manual_supplements_by_event[event_id].items())
+    ]
+    translation_document["parameterized_android_templates"] = [{
+        "kind": "inn_price_prompt",
+        "android_id": inn_template["android_id"],
+        "android_english": inn_template["android_english"],
+        "android_french": inn_template["android_french"],
+        "prefix_id": inn_template["prefix_id"],
+        "suffix_id": inn_template["suffix_id"],
+        "price_event_ids": sorted(
+            [event_id for event_id in parameterized_inn_events if event_id not in {"0330", "0331"}],
+            key=lambda value: int(value, 16),
+        ),
+        "reason": "user_validated_dynamic_price_generalization",
+    }]
     translation_document["choice_option_position_overrides"] = [
         {"event_id": event_id, **repair}
         for event_id in accepted_events
@@ -6310,10 +6588,12 @@ def make_dialogue_format_mass(
             "event_selection": "complete semantic events plus simulator-clean partial events",
             "alignment_must_already_be_accepted": True,
             "all_semantic_ids_in_complete_event_must_be_mapped": True,
-            "partial_event_policy": "translate every already accepted mapping in an alignment-incomplete event; suppress every unmapped semantic source text token so PARTIEL events never mix visible stock English with French; preserve all structural commands/layout bytes; admit only direct formatter output with no partial-event compact/page/event-level repair and a clean independent simulation",
+            "partial_event_policy": "translate every accepted Android mapping in an alignment-incomplete event; unresolved IDs are normally suppressed, while user-validated Android-absent manual supplements may remain visible and explicitly keep the event PARTIEL until manually translated; preserve structural commands/layout and require a clean independent simulation",
             "user_validated_visual_complete_policy": "events explicitly validated by the user as complete Android adaptations keep their simulator-clean French-only bytes and are removed from the PARTIEL badge without inventing mappings for omitted SNES-only fragments",
             "user_validated_structural_omission_policy": "a stock command may be omitted only when the user explicitly validates the Android adaptation omission and the command is proven by exact adjacency to an explicitly suppressed semantic ID; $01DC drops only PLAYER_NAME(0) immediately before C9:804A",
-            "user_validated_partial_layout_preservation_policy": "a suppressed PARTIEL semantic carrier is normally empty; $0331/C9:CEB3 is the sole runtime-validated exception and preserves only its two stock NEWLINEs (no visible prose) so the choice row remains on the stock selection/highlight line",
+            "manual_supplement_policy": "only exact carriers user-validated as absent from Android may appear in translations/dialogues_manual_supplements.json; pending entries must remain byte-faithful USA text, do not count as Android alignment, and keep their event PARTIEL",
+            "parameterized_inn_policy": "Android EN/FR 110 is the reviewed template for the common inn prompt: keep each stock numeric caller as the dynamic price, suppress stock C9:CEA3 before it, and render the normalized Android-FR suffix through C9:CEB3; this resolves all shared inn price variants without per-price manual translation",
+            "event_0278_android_extra_policy": "after Android 1347/1348 and the two user-validated SNES-only manual controller supplements, insert Android FR 1349 as an extra page before already aligned 1350, then continue with 1351; an explicit newline before C9:A74E materializes the real WAIT!=NEWLINE cursor behavior and avoids an implicit wrap",
             "reviewed_fragment_spacing_policy": "event $0106 may insert only the two user-reported literal spaces between proven adjacent text fragments; no command or layout boundary changes",
             "physical_page_capacity_lines": DIALOGUE_PAGE_LINES,
             "source_english_line_count_is_not_a_layout_limit": True,
@@ -6373,10 +6653,9 @@ def make_dialogue_format_mass(
             "user_validated_structural_omitted_command_count": sum(
                 len(indexes) for indexes in structural_omission_indexes_by_event.values()
             ),
-            "user_validated_partial_layout_preservation_count": len(
-                DIALOGUE_USER_VALIDATED_PARTIAL_LAYOUT_PRESERVATIONS
-            ),
-            "partial_suppressed_semantic_id_count": sum(
+            "manual_supplement_entry_count": sum(len(entries) for entries in manual_supplements_by_event.values()),
+            "parameterized_inn_event_count": len(parameterized_inn_events),
+            "partial_unresolved_or_manual_id_count": sum(
                 len(partial_suppressed_semantic_ids_by_event[event_id]) for event_id in visible_partial_events
             ),
             "accepted_semantic_source_id_count": accepted_semantic_ids,
@@ -6472,16 +6751,10 @@ def make_dialogue_format_mass(
             for event_id in user_validated_complete_events
         ],
         "user_validated_structural_omissions": list(DIALOGUE_USER_VALIDATED_STRUCTURAL_OMISSIONS),
-        "user_validated_partial_layout_preservations": list(
-            DIALOGUE_USER_VALIDATED_PARTIAL_LAYOUT_PRESERVATIONS
-        ),
+        "manual_dialogue_supplements": translation_document["manual_dialogue_supplements"],
+        "parameterized_android_templates": translation_document["parameterized_android_templates"],
         "partial_accepted_events": [
-            {
-                "event_id": event_id,
-                "suppressed_semantic_ids": partial_suppressed_semantic_ids_by_event[event_id],
-                "suppression_reason": partial_suppression_reason_by_event[event_id],
-            }
-            for event_id in visible_partial_events
+            partial_metadata(event_id) for event_id in visible_partial_events
         ],
         "formatted_mappings": formatted,
         "adaptive_choice_anchor_repairs": [

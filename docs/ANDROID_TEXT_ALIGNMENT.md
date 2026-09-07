@@ -753,6 +753,8 @@ Potos diagnostic using `Temple de l'Eau / Pandora` runtime-validates `$00DF`'s c
 This removes `$00DF` from PARTIEL and also admits four previously excluded complete events
 (`$020F`, `$0310`, `$0314`, `$0319`) under the same static gate. Semantic alignment remains
 **1,601 / 1,838 (87.1%)**, because this is a layout change rather than a new identity mapping.
-The current corpus is **500 simulator-clean events**, **498 complete + 2 PARTIEL**, with
-**1,066 visible French semantic IDs / 1,119 JSON entries**. The four newly admitted events
-remain runtime-unvalidated individually until ordinary playthrough review.
+The current corpus is **510 simulator-clean events**, **509 complete + 1 PARTIEL**, with
+**1,078 visible semantic IDs / 1,129 JSON entries**. `$0278` is the sole PARTIEL event because
+its two SNES-only controller carriers are staged for manual translation; `$0331` is complete
+through the reviewed parameterized Android-ID-110 inn template. The four choice events newly
+admitted by anchor shifting remain runtime-unvalidated individually until ordinary playthrough review.

@@ -85,14 +85,14 @@ component-06 follow-up.
 
 ## Current mass-pass result
 
-The simulator-filtered generator currently accepts **500 events / 1066 visible French
-semantic source IDs (1119 JSON entries)**: 498 events treated as complete plus 2
-PARTIEL events. `$0103`, `$017F` and `$01DC` are user-validated visually complete Android
+The simulator-filtered generator currently accepts **510 events / 1078 visible
+semantic source IDs (1129 JSON entries)**: 509 events treated as complete plus 1
+PARTIEL event. `$0103`, `$017F` and `$01DC` are user-validated visually complete Android
 adaptations and therefore have no PARTIEL badge despite retaining unmapped SNES-only
 fragments. `$01DC` additionally omits the exact final stock `PLAYER_NAME(0)` command tied
-to suppressed `C9:804A`. The 2 PARTIEL events suppress 3 still-unresolved semantic IDs from the visible dialogue.
+to suppressed `C9:804A`. `$0278` is the sole PARTIEL event; its two SNES-only controller carriers are user-validated absent from Android and are staged in the manual supplement JSON.
 Re-running the simulator on the candidate mass translation produces **0 errors, 0 warnings
-and 0 implicit runtime wraps**. The HTML marks those 2 events with a `PARTIEL · français
+and 0 implicit runtime wraps**. The HTML marks that event with a `PARTIEL · français
 incomplet` badge so incomplete scenes can be revisited during playthrough. When
 `--baseline-translation` points to the previous generated JSON, the preview also tags
 events as `NEW` when newly translated source IDs appear, `MODIFIED` when the final
@@ -100,7 +100,7 @@ serialized event bytes differ from the baseline, and `TO REVIEW` for PARTIEL,
 warning/error events, or `WAIT00_THIRD_LINE_SCROLL_RISK`. `--preserve-tags <json>` may carry forward an explicit
 NEW/MODIFIED/TO REVIEW snapshot while a user review is still in progress, so a later technical change cannot silently
 remove an unread badge. The repository keeps the active snapshot at
-`mappings/android/dialogue_preview_state.json`. Dedicated toolbar buttons filter these tags and can be combined with the text search. Twenty formatter-compatible events are still rejected by the simulator; incompatible stock choice anchors remain the dominant reason, while `$0202` exceeds the visible bitmap. The HTML remains a static guardrail
+`mappings/android/dialogue_preview_state.json`. Dedicated toolbar buttons filter these tags and can be combined with the text search. Sixteen formatter-compatible events are still rejected by the simulator; fifteen are choice/layout cases and `$0202` separately exceeds the visible bitmap. The HTML remains a static guardrail
 rather than a substitute for the planned full-game
 playthrough. Representative runtime tests have validated the simulator-driven page layout used by
 the mass formatter. Exact visible carry-over after interactive `WAIT $00` is preserved as stock rolling-window

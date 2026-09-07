@@ -150,14 +150,16 @@ insertion, line breaks and WAIT sequencing. The canonical `assets/dialogues.json
 The runtime-validated pagination baseline includes `$010F`: dynamic-name lines
 reserve one parser safety unit, and its four safe lines use a sentence-aware
 3+1 split with generated `WAIT $00` + `TEXT_CLEAR`. The current simulator-filtered
-mass pass contains **500 simulator-clean events / 1066 visible French semantic source
-tokens / 1119 JSON entries** and resimulates with 0 errors, 0 warnings and 0 implicit
-wraps. Two events are PARTIEL: 3 still-unresolved semantic source IDs are suppressed from
-visible dialogue. `$00DF` is now complete through the runtime-validated minimal later-choice
-anchor shift. `$0103`, `$017F` and
-`$01DC` are separately user-validated as visually complete Android adaptations and no longer
-carry a PARTIEL badge. `$01DC` has one explicit structural exception: its final stock
-`PLAYER_NAME(0)` is omitted together with Android-absent `C9:804A`.
+mass pass contains **510 simulator-clean events / 1078 visible semantic source
+tokens / 1129 JSON entries** and resimulates with 0 errors, 0 warnings and 0 implicit
+wraps. Only `$0278` remains PARTIEL: its two SNES-only controller carriers are
+user-validated absent from Android and are staged in `translations/dialogues_manual_supplements.json`
+pending manual French translation. `$00DF` is complete through the runtime-validated minimal
+later-choice anchor shift. `$0103`, `$017F` and `$01DC` are separately user-validated as
+visually complete Android adaptations and no longer carry a PARTIEL badge. `$01DC` has one
+explicit structural exception: its final stock `PLAYER_NAME(0)` is omitted together with
+Android-absent `C9:804A`. The shared inn prompt is complete through a parameterized Android
+ID 110 template while the stock numeric price carriers remain dynamic.
 Interactive choice rows use component 06's ordinary VWF path with stock `CHOICE_OPTION`
 / `$A1D7[]` selection geometry untouched. Resynchronizing VWF option starts to those stock
 boundaries is runtime-validated on `$0331`; the current follow-up additionally uses the

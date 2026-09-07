@@ -527,9 +527,9 @@ Speaker-reattributed Joch reactions may receive a page boundary only across the 
 proven `OP_20` bridge and only after clean whole-event resimulation. Mapping identity
 never bypasses choice geometry.
 
-Current deterministic result: **500 simulator-clean events / 1066 visible French semantic
-source IDs** (1119 JSON entries). This comprises 498 events treated as complete plus 2 PARTIEL events. `$0103`, `$017F` and `$01DC` are explicitly user-validated as complete Android adaptations while leaving their SNES-only fragments unmapped. `$01DC` additionally drops the exact final stock `PLAYER_NAME(0)` bound to suppressed `C9:804A`. The 2 PARTIEL events suppress 3 still-unresolved semantic IDs. `$00DF` is no longer layout-deferred: its second option moves minimally from `$11` to `$12`, a geometry change runtime-validated with `Temple de l'Eau / Pandora`; `$01EE` remains rendered through its structurally proven fresh-page choice carrier. The remaining
-excluded-event split is 171 incomplete alignments, 17 formatter rejects and 16
+Current deterministic result: **510 simulator-clean events / 1078 visible semantic
+source IDs** (1129 JSON entries). This comprises 509 events treated as complete plus 1 PARTIEL event. `$0103`, `$017F` and `$01DC` are explicitly user-validated as complete Android adaptations while leaving their SNES-only fragments unmapped. `$01DC` additionally drops the exact final stock `PLAYER_NAME(0)` bound to suppressed `C9:804A`. `$0278` is the sole PARTIEL event; its two controller-specific SNES carriers are staged in the manual supplement JSON. `$00DF` is no longer layout-deferred: its second option moves minimally from `$11` to `$12`, a geometry change runtime-validated with `Temple de l'Eau / Pandora`; `$01EE` remains rendered through its structurally proven fresh-page choice carrier. The remaining
+excluded-event split is 161 incomplete alignments, 17 formatter rejects and 16
 simulator rejects. Choice rows keep their first stock anchor; a later anchor may move only
 right to the minimum decoded cell required to preserve the preceding official-French label,
 and only after clean whole-event simulation. Fifteen of the 16 remaining simulator rejects
