@@ -1,0 +1,336 @@
+{
+  "format_version": 1,
+  "status": "round18_user_review_pending",
+  "source_asset": "dialogues.json",
+  "android_english": {
+    "path": "sources/android/scrtxt_en.bin",
+    "sha256": "4d4508560967b6ce4d6cf992f29e84e2775ed4accc74d87c3fd4269044b75ae5"
+  },
+  "android_french": {
+    "path": "sources/android/scrtxt_fr.bin",
+    "sha256": "cd837aaf53a7979d0e84910e8cda3bd67427f4a3cbddadc351811378d7e7d696"
+  },
+  "policy": {
+    "automatic_translation_generation": false,
+    "english_identity_is_primary": true,
+    "notes": [
+      "SNES PLAYER_NAME commands are represented explicitly as Android-style %S(index,0) placeholders for comparison only.",
+      "Android anchor intervals include following English-empty localization slots.",
+      "Very-high-confidence SNES-to-Android-English identity is not rejected merely because French wording is freely adapted.",
+      "When French or Android segmentation crosses individual anchors, preserve and review the complete local sequence block rather than forcing a per-ID translation."
+    ]
+  },
+  "scenes": [
+    {
+      "event_id": "0236",
+      "label": "Gnome entrance resegmentation",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:9B8C"
+          ],
+          "snes_parts": [
+            "C9:9B8C"
+          ],
+          "source_display": "  You can't barge in here!\n  We gnomes won't allow it!",
+          "android_anchor_ids": [
+            993,
+            994
+          ],
+          "android_unit_ids": [
+            993,
+            994
+          ],
+          "android_english_display": "You can't barge in here! The great Gnome won't allow it!",
+          "french_nonempty_ids": [
+            993,
+            994
+          ],
+          "french_display": "Gnome : Dites donc, vous ! Qui vous a permis d'entrer ?  Vous êtes sur mon territoire, alors dégagez ! ",
+          "relation": "one_snes_to_many_android",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 90.2,
+            "source_token_coverage": 83.3,
+            "lexical_score": 88.5
+          },
+          "note": "SNES combines the two consecutive gnome warnings; Android EN splits them into 993/994 immediately before Android 995/996.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:9BCB"
+          ],
+          "snes_parts": [
+            "C9:9BCB"
+          ],
+          "source_display": ":What a wind bag!\nGNOME:Little brat!\n",
+          "android_anchor_ids": [
+            995,
+            996
+          ],
+          "android_unit_ids": [
+            995,
+            996,
+            997
+          ],
+          "android_english_display": "%S(2,0): What a wind bag! Gnome: Little brat!",
+          "french_nonempty_ids": [
+            995,
+            996
+          ],
+          "french_display": "%S(2,0) : Dégage toi-même ! On est pressés ! Gnome : Insolent ! Je vais te donner une leçon !",
+          "relation": "one_snes_to_many_android",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 85.7,
+            "source_token_coverage": 100.0,
+            "lexical_score": 89.3
+          },
+          "note": "Exact player/gome exchange split into adjacent Android 995/996; retained explicitly because adding the preceding structural unit changes generic session segmentation.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:9C20"
+          ],
+          "snes_parts": [
+            "C9:9C20"
+          ],
+          "source_display": "GNOME:This is an outrage!",
+          "android_anchor_ids": [
+            999
+          ],
+          "android_unit_ids": [
+            999,
+            1000
+          ],
+          "android_english_display": "Gnome: Why you little--!",
+          "french_nonempty_ids": [
+            999
+          ],
+          "french_display": "Gnome : Je ne me laisserai pas faire !",
+          "relation": "speaker_reaction_adaptation",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 54.5,
+            "source_token_coverage": 20.0,
+            "lexical_score": 45.9
+          },
+          "note": "The gnome's angry reaction sits exactly between already accepted Android 998 ('Take this!') and 1001 ('I'm out of here!'); Android adapts the wording to 'Why you little--!' while preserving speaker and scene position.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0293",
+      "label": "Sandship Sergo/guard speaker split",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:AEB6"
+          ],
+          "snes_parts": [
+            "C9:AEB6"
+          ],
+          "source_display": "SERGO:Fire! Fire!\nGuard:What!? Out of my way!",
+          "android_anchor_ids": [
+            1508,
+            1509
+          ],
+          "android_unit_ids": [
+            1508,
+            1509
+          ],
+          "android_english_display": "Sergo: Fire! Fire! Guard: What!? Out of my way!",
+          "french_nonempty_ids": [
+            1508,
+            1509
+          ],
+          "french_display": "Sergueï : Au feu ! Au feu !  Soldat : Quoi ?! Pousse-toi de là, toi !",
+          "relation": "one_snes_to_many_android_equivalent_duplicate",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "SNES packs Sergo 'Fire! Fire!' and the guard reply into one token; Android EN splits them into 1508/1509. The duplicate 1513/1514 pair has identical EN/FR, so the localized semantic result is unambiguous.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "03E9",
+      "label": "Television sleep reaction ordered duplicate",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:F039"
+          ],
+          "snes_parts": [
+            "C9:F039"
+          ],
+          "source_display": " ...Gzzz...",
+          "android_anchor_ids": [
+            2349
+          ],
+          "android_unit_ids": [
+            2349
+          ],
+          "android_english_display": "...Gzzz...",
+          "french_nonempty_ids": [
+            2349
+          ],
+          "french_display": "Krrr...",
+          "relation": "duplicate_resolved_by_local_order",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact '...Gzzz...' follows already accepted Android 2347/2348 in this television sequence; the later duplicate 2355 belongs to a different programme block.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "055E",
+      "label": "Phanna/Krissie speaker resegmentation",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:6828"
+          ],
+          "snes_parts": [
+            "CA:6828"
+          ],
+          "source_display": "Hush!",
+          "android_anchor_ids": [
+            2034
+          ],
+          "android_unit_ids": [
+            2034
+          ],
+          "android_english_display": " Shut up!",
+          "french_nonempty_ids": [
+            2034
+          ],
+          "french_display": "Lâche-moi ! ",
+          "relation": "speaker_reaction_adaptation",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 36.4,
+            "source_token_coverage": 0.0,
+            "lexical_score": 27.3
+          },
+          "note": "SNES 'Hush!' and Android EN 'Shut up!' are the same reaction immediately after accepted 2032/2033 and before accepted 2035.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "CA:687F"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              1
+            ],
+            "CA:687F"
+          ],
+          "source_display": "%S(1,0):Liar!\n",
+          "android_anchor_ids": [
+            2037
+          ],
+          "android_unit_ids": [
+            2037
+          ],
+          "android_english_display": "%S(1,0): T-that's...not true... You're lying!",
+          "french_nonempty_ids": [
+            2037
+          ],
+          "french_display": "%S(1,0) : Mais... je... Pamela, enfin !",
+          "relation": "placeholder_plus_expanded_reaction",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 46.4,
+            "source_token_coverage": 50.0,
+            "lexical_score": 47.3
+          },
+          "note": "SNES PLAYER_NAME(1)+':Liar!' is expanded by Android EN to the same player's 'T-that's... not true... You're lying!' exactly between accepted 2035 and 2038.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "CA:68B1"
+          ],
+          "snes_parts": [
+            "CA:68B1"
+          ],
+          "source_display": "PHANNA:Ooh!\n",
+          "android_anchor_ids": [
+            2040
+          ],
+          "android_unit_ids": [
+            2040
+          ],
+          "android_english_display": "Phanna: Ooh!",
+          "french_nonempty_ids": [
+            2040
+          ],
+          "french_display": "Pamela : Argh...",
+          "relation": "speaker_label_alignment",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact 'Phanna: Ooh!' / Android 2040 is bracketed by already accepted 2038 and 2041 in the same confrontation.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "CA:6962",
+            "CA:696C"
+          ],
+          "snes_parts": [
+            "CA:6962",
+            [
+              "player_name",
+              0
+            ],
+            "CA:696C"
+          ],
+          "source_display": "KRISSIE:%S(0,0)!\n What's up?",
+          "android_anchor_ids": [
+            2048
+          ],
+          "android_unit_ids": [
+            2048,
+            2049
+          ],
+          "android_english_display": "Krissie: %S(0,0)! What's up?",
+          "french_nonempty_ids": [
+            2048
+          ],
+          "french_display": "Chris : %S(0,0) ! Tout va bien ?",
+          "relation": "speaker_prefix_placeholder_join",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "SNES splits 'KRISSIE:' + PLAYER_NAME(0) + 'What's up?' across two text carriers; Android EN 2048 stores the exact combined Krissie line in the same 2032-2055 scene.",
+          "user_validation": "pending"
+        }
+      ]
+    }
+  ]
+}

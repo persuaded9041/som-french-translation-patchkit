@@ -19,6 +19,42 @@
           "text": "Pendant ce temps, toi, file au Nombril\nde Gaïa !\n"
         },
         {
+          "id": "C9:09A7",
+          "text": "Tiens donc..."
+        },
+        {
+          "id": "C9:09B9",
+          "text": "Maître Jach s'est rendu\nà Tasmanica. Il a déroulé son tapis\nvolant, et fwitt ! Tasmanica ?\fCherchez un château fort\nau bord de la mer, à l'ouest d'ici."
+        },
+        {
+          "id": "C9:09F8",
+          "text": "Ah bon ?"
+        },
+        {
+          "id": "C9:0A04",
+          "text": "Maître Jach s'est rendu\nau Temple des Ténèbres.\fIl se trouve dans une grotte\ndevant laquelle vous avez\ndû passer en venant."
+        },
+        {
+          "id": "C9:0A44",
+          "text": "Encore ?!\f "
+        },
+        {
+          "id": "C9:0A58",
+          "text": "Maître Jach est parti pour l'Île\nd'or. Il a enfourché son balai\nmagique et s'est envolé, fiouh !\fL'Île d'or est une île ronde au\nnord-est d'ici, au milieu de l'océan !\nVous ne pouvez pas la rater !"
+        },
+        {
+          "id": "C9:0A8E",
+          "text": "Vous vous moquez de nous, là !\f "
+        },
+        {
+          "id": "C9:0A9F",
+          "text": "Maître Jach est parti au Temple de la\nLune. Il a appelé son nuage magique,\net hop !"
+        },
+        {
+          "id": "C9:0ABB",
+          "text": "Le Temple de la Lune flotte dans la\nMer cosmique, au bout du Désert de\nKakkara."
+        },
+        {
           "id": "C9:0B03",
           "text": "Regardez, cet éminent vieillard est le\nmaître Jach. Moi, je suis son\ndisciple, Zico. Enchanté."
         },
@@ -91,6 +127,18 @@
           "text": "L'Empereur a beau être mort,\nle monde est perdu.\nNos efforts n'ont servi à rien !"
         },
         {
+          "id": "C9:10A5",
+          "text": "Sauvegarder la partie ?\n"
+        },
+        {
+          "id": "C9:10BC",
+          "text": "Oui"
+        },
+        {
+          "id": "C9:10C1",
+          "text": "Non  )"
+        },
+        {
           "id": "C9:11B7",
           "text": "Niccolo : Humpf.\nJ'ai du travail, alors sois gentil,\nlaisse-moi, miaou !"
         },
@@ -107,8 +155,56 @@
           "text": "Non  )"
         },
         {
+          "id": "C9:1236",
+          "text": "Bien, bien ! Tu vas voir, je n'ai que\ndes objets de qualité à proposer,\nmiaou !\f ("
+        },
+        {
+          "id": "C9:1263",
+          "text": "Acheter"
+        },
+        {
+          "id": "C9:1268",
+          "text": "Vendre )"
+        },
+        {
           "id": "C9:139B",
           "text": "Gestahl : Brave petit !"
+        },
+        {
+          "id": "C9:13BF",
+          "text": "Gestahl : Ha ! Imbécile !\n"
+        },
+        {
+          "id": "C9:13DE",
+          "text": " : Urgh !\nJe ne peux plus bouger !"
+        },
+        {
+          "id": "C9:14FE",
+          "text": "Bienvenue chez Niccolo ! Dis-moi,\njeune homme, ta bourse est-elle plutôt\nbien pleine ?\f("
+        },
+        {
+          "id": "C9:1512",
+          "text": "Oui !"
+        },
+        {
+          "id": "C9:151F",
+          "text": "Bof... )"
+        },
+        {
+          "id": "C9:1547",
+          "text": "Je suis Picard, gardien de ce phare.\fAvec cette mer agitée,\nles bateaux ne passent guère\nplus, mais je reste à mon poste."
+        },
+        {
+          "id": "C9:1573",
+          "text": "Sous le récif de corail au nord-est de\ncette île dort un continent englouti\nabritant une civilisation ancienne."
+        },
+        {
+          "id": "C9:15B9",
+          "text": "On raconte qu'en réalité, le Temple de\nMana servirait à faire resurgir ce\ncontinent."
+        },
+        {
+          "id": "C9:15FE",
+          "text": "\u000bLa puissance des civilisations\nanciennes est impressionnante !\fJe suis sûr que ce continent\nrecèle bien des prodiges."
         },
         {
           "id": "C9:163C",
@@ -183,6 +279,10 @@
           "text": "Je suis jalouse !\nIls sont tous partis vivre dans cette\nnouvelle station à la mode, au nord."
         },
         {
+          "id": "C9:1A8A",
+          "text": "Les Hautes-Terres sont grandes...\nJe ne peux vous envoyer que jusqu'à la\nforêt."
+        },
+        {
           "id": "C9:1C1E",
           "text": "Oh, c'est toi, "
         },
@@ -195,8 +295,112 @@
           "text": "Oh, quelle histoire !\nJe ferme pour le reste de la journée."
         },
         {
+          "id": "C9:1DCF",
+          "text": ""
+        },
+        {
+          "id": "C9:1DED",
+          "text": ""
+        },
+        {
+          "id": "C9:1DFB",
+          "text": "Pandora )"
+        },
+        {
+          "id": "C9:1E14",
+          "text": "Hé hé, bienvenue ! Où veux-tu aller ?\nC'est 50 pièces par trajet !\n ("
+        },
+        {
+          "id": "C9:1E3D",
+          "text": "Matango"
+        },
+        {
+          "id": "C9:1E46",
+          "text": "Kakkara )"
+        },
+        {
+          "id": "C9:1E5F",
+          "text": "Bonjour ! Un petit voyage ? Où veux-tu\naller ? C'est 50 pièces par trajet !\n"
+        },
+        {
+          "id": "C9:1E8F",
+          "text": "Matango"
+        },
+        {
+          "id": "C9:1E98",
+          "text": "Pays de glace )"
+        },
+        {
+          "id": "C9:1F03",
+          "text": " 1:Matango\n 2:Pays de glace\n 3:Empire"
+        },
+        {
+          "id": "C9:1F32",
+          "text": "1"
+        },
+        {
+          "id": "C9:1F37",
+          "text": "2"
+        },
+        {
+          "id": "C9:1F3C",
+          "text": "3 )"
+        },
+        {
           "id": "C9:1F4C",
           "text": "Désolé, j'ai plus assez de poudre...\nJe peux juste vous envoyer à Matango."
+        },
+        {
+          "id": "C9:1F92",
+          "text": "Hé hé, vous rentrez ?\n"
+        },
+        {
+          "id": "C9:1FD3",
+          "text": "Matango ?\nAucun problème !\n"
+        },
+        {
+          "id": "C9:2000",
+          "text": "Attention de ne pas attraper froid\nlà-bas !\n"
+        },
+        {
+          "id": "C9:203E",
+          "text": "Attention de ne pas trop vous faire\nremarquer dans l'Empire.\n"
+        },
+        {
+          "id": "C9:207F",
+          "text": "Matango ?\nBon voyage !\n"
+        },
+        {
+          "id": "C9:20B8",
+          "text": "Attention de ne pas vous déshydrater\ndans le désert !\n"
+        },
+        {
+          "id": "C9:20F7",
+          "text": "Le désert...\nJe suis pas sûr d'y arriver,\nmais je vais essayer.\n"
+        },
+        {
+          "id": "C9:2146",
+          "text": "Il doit faire bien froid, là-bas.\nVous êtes sûrs ?\n"
+        },
+        {
+          "id": "C9:21A9",
+          "text": "Un aller pour Potos !\n"
+        },
+        {
+          "id": "C9:21D7",
+          "text": "Le Nombril de Gaïa ?\nO.K. !\n"
+        },
+        {
+          "id": "C9:2220",
+          "text": "Le désert ?\nCette fois, ça va aller.\nDésolé pour l'autre jour !\n"
+        },
+        {
+          "id": "C9:229B",
+          "text": "Le Temple de l'Eau ?\nC'est comme si c'était fait !\n"
+        },
+        {
+          "id": "C9:22D6",
+          "text": "Pandora ?\nFermez les yeux et vous y serez !\n"
         },
         {
           "id": "C9:2326",
@@ -207,6 +411,10 @@
           "text": "Vraiment ? Comme tu voudras ! Si tu\npréfères marcher jusqu'au Temple de\nl'Eau, va vers l'ouest, hé hé hé."
         },
         {
+          "id": "C9:2390",
+          "text": "Alors allons-y !\nHé hé hé !\n"
+        },
+        {
           "id": "C9:23AB",
           "text": "Hé hé hé. Bonjour, bienvenue chez\nles Frères Canon, connus pour leur\nréseau mondial de transport aérien !\fHé hé hé."
         },
@@ -215,12 +423,28 @@
           "text": "Tu vas au Temple de l'Eau, pas\nvrai ? Gemma t'a précédé, hé hé hé.\nUn coup de canon, et hop, tu y seras !\fGemma a payé d'avance pour toi.\nAlors, tu montes dans le canon ?"
         },
         {
+          "id": "C9:2447",
+          "text": "\u000b"
+        },
+        {
           "id": "C9:244D",
-          "text": "\u000bAccepter"
+          "text": "Accepter"
         },
         {
           "id": "C9:2459",
           "text": "Refuser )"
+        },
+        {
+          "id": "C9:246D",
+          "text": "On saute dans le canon,\net c'est parti !"
+        },
+        {
+          "id": "C9:2502",
+          "text": "Le Temple de l'Eau ?\nC'est comme si c'était fait !\n"
+        },
+        {
+          "id": "C9:2541",
+          "text": "Le Nombril de Gaïa ?\nVous y serez avant d'avoir pu dire\nouf !\n"
         },
         {
           "id": "C9:258F",
@@ -228,7 +452,83 @@
         },
         {
           "id": "C9:25A1",
-          "text": "Pas moyen de remonter ! Comment je\nvais faire ?"
+          "text": "Pas moyen de remonter !\nComment je vais faire ?"
+        },
+        {
+          "id": "C9:2627",
+          "text": ""
+        },
+        {
+          "id": "C9:2649",
+          "text": " : Qui est là ?"
+        },
+        {
+          "id": "C9:265A",
+          "text": "\nEt que fait cette épée là ?"
+        },
+        {
+          "id": "C9:2691",
+          "text": " : Ho..."
+        },
+        {
+          "id": "C9:26A8",
+          "text": ""
+        },
+        {
+          "id": "C9:26BC",
+          "text": " : Cette lumière...\nje n'y vois plus rien !"
+        },
+        {
+          "id": "C9:26F1",
+          "text": "\u000bAaah !\nUn fantôme !!"
+        },
+        {
+          "id": "C9:2715",
+          "text": "\n...\n"
+        },
+        {
+          "id": "C9:271E",
+          "text": "\n..."
+        },
+        {
+          "id": "C9:2723",
+          "text": "\n..."
+        },
+        {
+          "id": "C9:2728",
+          "text": ""
+        },
+        {
+          "id": "C9:2735",
+          "text": ""
+        },
+        {
+          "id": "C9:2740",
+          "text": "\n..."
+        },
+        {
+          "id": "C9:2745",
+          "text": ""
+        },
+        {
+          "id": "C9:2753",
+          "text": "\n..."
+        },
+        {
+          "id": "C9:276B",
+          "text": "\u000bQu-quoi ?"
+        },
+        {
+          "id": "C9:2778",
+          "text": "\u000bAh !\nL'épée !"
+        },
+        {
+          "id": "C9:27AE",
+          "text": "La lumière a disparu..."
+        },
+        {
+          "id": "C9:27E4",
+          "text": " : Bon, il faut que je\nrentre au village !\n"
         },
         {
           "id": "C9:2811",
@@ -237,6 +537,62 @@
         {
           "id": "C9:2866",
           "text": " : Houla !\nIl y a des lapyns ici ?!\nJe vais devoir être prudent !"
+        },
+        {
+          "id": "C9:28B7",
+          "text": " : Ohé ! "
+        },
+        {
+          "id": "C9:28C1",
+          "text": "Les gars !\n"
+        },
+        {
+          "id": "C9:28CB",
+          "text": "Attendez-moi, "
+        },
+        {
+          "id": "C9:28D5",
+          "text": "dites !"
+        },
+        {
+          "id": "C9:28EB",
+          "text": "\nHoula !"
+        },
+        {
+          "id": "C9:2900",
+          "text": "Bob : Pas si fort, crétin ! Si le chef\ndu village apprend qu'on est venus\nici, on va avoir des ennuis !"
+        },
+        {
+          "id": "C9:294C",
+          "text": "Ness : C'est vrai, la loi du village\ninterdit de se promener par ici.\fIl paraît qu'il y a\nun fantôme qui rôde..."
+        },
+        {
+          "id": "C9:2994",
+          "text": "\u000b"
+        },
+        {
+          "id": "C9:299C",
+          "text": "Bob : Bah ! Tu ne crois tout de même\npas à ces histoires ? Les adultes\nracontent ça pour nous faire peur."
+        },
+        {
+          "id": "C9:29E8",
+          "text": "Ma grand-mère dit qu'elle a vu un\nobjet brillant près de la cascade,\nautrefois. C'est sûrement un trésor !"
+        },
+        {
+          "id": "C9:2A3D",
+          "text": "Ness : Alors, dépêchons-nous !"
+        },
+        {
+          "id": "C9:2A99",
+          "text": " : Ah !\nOh !\nJe vais tomber !"
+        },
+        {
+          "id": "C9:2AC0",
+          "text": "Ah !"
+        },
+        {
+          "id": "C9:2ADB",
+          "text": "\nÀ l'aiiiiiiide !!"
         },
         {
           "id": "C9:2B09",
@@ -323,6 +679,14 @@
           "text": "Bien, en route !\nSoyons prudents !"
         },
         {
+          "id": "C9:392C",
+          "text": "Notre capitaine, Durac, est très\nsérieux malgré son jeune âge."
+        },
+        {
+          "id": "C9:3943",
+          "text": "Cette mission est très périlleuse, et\npourtant il l'a acceptée sans\nsourciller."
+        },
+        {
           "id": "C9:39DF",
           "text": "Gemma : Je t'attendais.\nAllons-y, "
         },
@@ -343,6 +707,10 @@
           "text": "Rusalka : Je vais t'aider à recouvrer\ntes forces."
         },
         {
+          "id": "C9:3D03",
+          "text": "\u000b"
+        },
+        {
           "id": "C9:3D08",
           "text": "Veux-tu aussi sauvegarder ?\n"
         },
@@ -355,12 +723,20 @@
           "text": "Non  )"
         },
         {
+          "id": "C9:3D38",
+          "text": "Gemma : J'étais autrefois un disciple\nde Rusalka."
+        },
+        {
+          "id": "C9:3D64",
+          "text": "Elle m'a tout appris de la force\nde Mana qui soutient notre monde.\fCelle-là même qui disparaît\naujourd'hui..."
+        },
+        {
           "id": "C9:3DBE",
           "text": "Rusalka : Commence par te rendre au\nNombril de Gaïa, où se trouve le\nTemple souterrain."
         },
         {
           "id": "C9:3E14",
-          "text": "\u000bPour l'atteindre, traverse le Royaume\nde Pandora, au sud."
+          "text": "\nPour l'atteindre, traverse le Royaume\nde Pandora, au sud."
         },
         {
           "id": "C9:3E59",
@@ -459,6 +835,22 @@
           "text": "\u000bCette sortie mène aux ruines.\nAllons voir là-bas !"
         },
         {
+          "id": "C9:45FD",
+          "text": "Bienvenue au Royaume de Pandora.\n"
+        },
+        {
+          "id": "C9:4613",
+          "text": "Sire Gemma m'a demandé de te laisser\npasser."
+        },
+        {
+          "id": "C9:4647",
+          "text": "\u000bSire Gemma ?\nOn dit qu'il vient de Tasmanica.\nIl doit être en visite au château."
+        },
+        {
+          "id": "C9:467E",
+          "text": "Au fait, tu ferais mieux d'éviter\nde parler aux gens de la ville si tu\nne veux pas perdre ton temps...\fTu comprendras vite pourquoi."
+        },
+        {
           "id": "C9:46BE",
           "text": "Monsieur et Mademoiselle sont à\nl'étage. Monsieur et Mademoiselle sont\nau château."
         },
@@ -511,6 +903,34 @@
           "text": "Ma pauvre petite Pamela...\fC'est en voulant m'aider\nqu'elle s'est retrouvée mêlée\nà toute cette histoire..."
         },
         {
+          "id": "C9:49F5",
+          "text": "Les gens se rassemblent aux ruines au\nsud de la ville. Il se passe de drôles\nde choses, ces temps-ci..."
+        },
+        {
+          "id": "C9:4A31",
+          "text": "\u000bMa grand-mère aussi est bizarre, elle\nqui est si énergique d'habitude..."
+        },
+        {
+          "id": "C9:4ACA",
+          "text": " : Pamela !\nPamela : Oh, c'est toi, "
+        },
+        {
+          "id": "C9:4AE4",
+          "text": "."
+        },
+        {
+          "id": "C9:4AE8",
+          "text": "Durac est revenu ?"
+        },
+        {
+          "id": "C9:4AFE",
+          "text": "\u000bOh... je vois. Mais je suis sûre qu'il\nva bien.\n"
+        },
+        {
+          "id": "C9:4B1A",
+          "text": " : Merci."
+        },
+        {
           "id": "C9:4B7E",
           "text": "Oh, Mademoiselle, depuis que vous êtes\npartie, Monsieur broie du noir toute\nla journée..."
         },
@@ -521,6 +941,46 @@
         {
           "id": "C9:4BE6",
           "text": "C'est terrible !\nOn dirait qu'ils ont tous perdu leur\nâme..."
+        },
+        {
+          "id": "C9:4C65",
+          "text": "Pamela : ...\nOh, c'est toi,\n"
+        },
+        {
+          "id": "C9:4C73",
+          "text": "... Il paraît que je vais\nêtre “immolée”... T'es jalouse, hein ?"
+        },
+        {
+          "id": "C9:4CA7",
+          "text": "\u000b"
+        },
+        {
+          "id": "C9:4CAA",
+          "text": " : Mais qu'est-ce que tu\nracontes ?\nReprends tes esprits, Pamela !"
+        },
+        {
+          "id": "C9:4CCF",
+          "text": "Pamela : Tu me casses les oreilles."
+        },
+        {
+          "id": "C9:4CEC",
+          "text": "\nLâche-moi un peu !"
+        },
+        {
+          "id": "C9:4D0D",
+          "text": " : Pamela !"
+        },
+        {
+          "id": "C9:4D1B",
+          "text": "\nPamelaaa !!\n"
+        },
+        {
+          "id": "C9:4D32",
+          "text": "Poussez-vous de là, vous autres !"
+        },
+        {
+          "id": "C9:4D6B",
+          "text": " : Vite, Pamela est en\ndanger ! Durac est sûrement à\nl'intérieur, lui aussi !"
         },
         {
           "id": "C9:4DB5",
@@ -551,6 +1011,10 @@
           "text": " : Libère Pamela et Durac !\nEt rends aux citadins leur énergie !"
         },
         {
+          "id": "C9:4ECF",
+          "text": "\u000b"
+        },
+        {
           "id": "C9:4ED4",
           "text": "Thanatos : Ha ha, quelle fougue !\nPamela, c'est cette fille, j'imagine ?"
         },
@@ -560,7 +1024,7 @@
         },
         {
           "id": "C9:4F84",
-          "text": "\u000bThanatos : L'énergie que j'accumule se\ntrouve scellée sous cet autel."
+          "text": "\nThanatos : L'énergie que j'accumule se\ntrouve scellée sous cet autel."
         },
         {
           "id": "C9:4FC8",
@@ -608,7 +1072,7 @@
         },
         {
           "id": "C9:5233",
-          "text": "Durac !\nPamela !"
+          "text": "\nDurac !\nPamela !"
         },
         {
           "id": "C9:524A",
@@ -675,6 +1139,34 @@
           "text": "Oh, ma pauvre Pamela...\nC'est terrible !"
         },
         {
+          "id": "C9:558B",
+          "text": " : Quoi ?! Mais alors, c'est\npapa qui a fait en sorte que Durac\nsoit envoyé chez la sorcière ?"
+        },
+        {
+          "id": "C9:55C8",
+          "text": "\u000bAutrement dit,\nil a voulu l'éloigner de moi !\nJe ne lui pardonnerai jamais !"
+        },
+        {
+          "id": "C9:55FC",
+          "text": ""
+        },
+        {
+          "id": "C9:5610",
+          "text": " : C'est bon, j'ai compris !\nOn s'en va, "
+        },
+        {
+          "id": "C9:562B",
+          "text": " !"
+        },
+        {
+          "id": "C9:5710",
+          "text": "Roi : Je suis très inquiet. L'Empire\npourrait attaquer à tout moment, et\nmes sujets sont comme des zombies !"
+        },
+        {
+          "id": "C9:5766",
+          "text": "\u000bJ'ai mal à la tête.\nJe crois que je vais aller me reposer\ndans ma chambre."
+        },
+        {
           "id": "C9:57D6",
           "text": "Alors comme ça, vous avez\nété banni de votre village ?\fNotre pays n'est hélas\npas en état d'accueillir\nles visiteurs comme il se doit."
         },
@@ -689,6 +1181,14 @@
         {
           "id": "C9:58D6",
           "text": "Notre royaume est allié à la\nRépublique de Tasmanica."
+        },
+        {
+          "id": "C9:5ABF",
+          "text": "Papa !\nC'est à moi de décider ce que je veux\nfaire de ma vie !"
+        },
+        {
+          "id": "C9:5B12",
+          "text": "Pousse-toi de là, toi !"
         },
         {
           "id": "C9:5B49",
@@ -741,6 +1241,14 @@
         {
           "id": "C9:5EA9",
           "text": "mais elle est allée s'enticher d'un\nsoldat !"
+        },
+        {
+          "id": "C9:5EE8",
+          "text": "Noble : Seigneur Elman,\net notre arrangement ?\nQu'est-ce que tout cela signifie ?!"
+        },
+        {
+          "id": "C9:5F2E",
+          "text": "\u000bRéflexion faite, je préfère que nous\nannulions tout !\nJamais je n'ai subi un tel affront !"
         },
         {
           "id": "C9:5FFC",
@@ -807,6 +1315,26 @@
           "text": "C'est la première fois que je vois\nnotre roi aussi inquiet."
         },
         {
+          "id": "C9:6366",
+          "text": "Roi : Bravo, "
+        },
+        {
+          "id": "C9:6374",
+          "text": " !\nNotre royaume a retrouvé sa joie de\nvivre et son énergie !"
+        },
+        {
+          "id": "C9:63A6",
+          "text": "\u000bGemma avait raison à ton sujet, tu es\nbel et bien le héros à l'Épée sacrée !"
+        },
+        {
+          "id": "C9:63E4",
+          "text": "Roi : Comme le veut\nnotre tradition, je me dois\nde te remettre notre trésor.\fVa dans la salle\nau sous-sol et sers-toi."
+        },
+        {
+          "id": "C9:640C",
+          "text": "Ces trésors sont destinés au héros à\nl'Épée sacrée, qui sauvera notre monde\nde la désolation."
+        },
+        {
           "id": "C9:645E",
           "text": "Merci, ô nobles héros !\nQuand votre périple sera terminé, nous\nespérons vous revoir à Pandora."
         },
@@ -817,6 +1345,34 @@
         {
           "id": "C9:65E5",
           "text": "Watts : Vraiment ?\nReviens si tu changes d'avis,\njeune homme !"
+        },
+        {
+          "id": "C9:6640",
+          "text": "Watts : C'est parti !\nAttends une seconde !"
+        },
+        {
+          "id": "C9:6687",
+          "text": "Watts : Et voilà, elle est comme\nneuve ! Pour tout te dire, je n'ai\njamais vu une aussi belle lame...\fça me donne des frissons !"
+        },
+        {
+          "id": "C9:66DB",
+          "text": "Je ne pouvais pas\nla laisser dans un tel état !\fAh, j'espère que j'arriverai\nà en forger une aussi belle, un jour !"
+        },
+        {
+          "id": "C9:6711",
+          "text": "Tiens ? Mais... Que se passe-t-il ?\nMon marteau brille..."
+        },
+        {
+          "id": "C9:6755",
+          "text": "Cette épée...\nEst-ce que par hasard...\nC'est l'Épée sacrée ?!"
+        },
+        {
+          "id": "C9:678A",
+          "text": "\u000bÇa alors !\nOn dirait qu'elle a transféré une\npartie de son pouvoir à mon marteau !"
+        },
+        {
+          "id": "C9:67DB",
+          "text": "\u000bJe vais essayer de forger une hache,\npour voir !\nReviens la chercher plus tard !"
         },
         {
           "id": "C9:6884",
@@ -832,7 +1388,7 @@
         },
         {
           "id": "C9:6F28",
-          "text": "\u000bContinuer"
+          "text": "Continuer"
         },
         {
           "id": "C9:6F3C",
@@ -864,11 +1420,23 @@
         },
         {
           "id": "C9:70BF",
-          "text": "Tenez !\nVous voyez ?!\nÇa fiche la trouille !"
+          "text": "\nTenez ! Vous voyez ?! Ça fiche la\ntrouille !"
         },
         {
           "id": "C9:70D1",
           "text": "Le Temple souterrain ?\nOh, ça fait des lustres que l'entrée\nest bloquée..."
+        },
+        {
+          "id": "C9:7161",
+          "text": " : Quelle tête de mule !\nSi tu le prends comme ça, j'irai au\nChâteau de la sorcière seule, alors.\fAu revoir !"
+        },
+        {
+          "id": "C9:71AC",
+          "text": "\n"
+        },
+        {
+          "id": "C9:71C1",
+          "text": " vous quitte..."
         },
         {
           "id": "C9:71D6",
@@ -901,6 +1469,10 @@
         {
           "id": "C9:73EC",
           "text": "\u000bJ'ai voulu l'aider à gagner de quoi\nretourner chez lui... C'est lui qui a\neu l'idée de ce spectacle.\fLutin : Hé hé hé !\nSuper idée, hein ?"
+        },
+        {
+          "id": "C9:743D",
+          "text": "\u000b"
         },
         {
           "id": "C9:7441",
@@ -943,6 +1515,22 @@
           "text": "Bah ! Il a pas assez ! C'est pas avec\nce genre de pigeon qu'on va aller\nloin !"
         },
         {
+          "id": "C9:7944",
+          "text": "Lutin : Ouais, ouais...\nMais t'as pas intérêt à me mettre des\nbâtons dans les roues, mon gars !\n"
+        },
+        {
+          "id": "C9:795D",
+          "text": " : Hé, oh !\fJe m'appelle "
+        },
+        {
+          "id": "C9:7977",
+          "text": " !"
+        },
+        {
+          "id": "C9:797A",
+          "text": "\u000bLutin : Moi aussi,\nil me faudrait un nom !\nCe serait plus pratique !"
+        },
+        {
           "id": "C9:79D7",
           "text": "Chef : Bonne chance. Il y a\nun chemin qui mène au temple\ndans la grotte, là-bas.\fMais vous ne pourrez pas entrer..."
         },
@@ -975,6 +1563,18 @@
           "text": "Chef : À propos, Watts vous cherchait."
         },
         {
+          "id": "C9:7C5B",
+          "text": "Je vous sens ému jusqu'aux larmes,\ncher spectateur... Voulez-vous\nfaire un geste pour ce malheureux\fenfant frappé par l'injustice ?\nUn simple don de 100 pièces ferait\ndéjà beaucoup pour ce pauvre petit !\f  ("
+        },
+        {
+          "id": "C9:7C74",
+          "text": "Oui"
+        },
+        {
+          "id": "C9:7C79",
+          "text": "Non  )"
+        },
+        {
           "id": "C9:7CD8",
           "text": "Aaah !"
         },
@@ -983,12 +1583,80 @@
           "text": "Hé, toi !\nAide-moi, si t'es un homme !"
         },
         {
+          "id": "C9:7EB5",
+          "text": "Soldat : ..."
+        },
+        {
+          "id": "C9:7EC2",
+          "text": "\u000b"
+        },
+        {
+          "id": "C9:7EC5",
+          "text": " : Nous sommes venus vous\ndélivrer !\fSoldat : Hein ?\nAh..."
+        },
+        {
+          "id": "C9:7EF1",
+          "text": "\u000b"
+        },
+        {
+          "id": "C9:7EF4",
+          "text": " : Où est Durac ?\nSoldat : Hein ? J'en sais rien...\nEuh... Avec la sorcière... ?"
+        },
+        {
+          "id": "C9:7F3D",
+          "text": " : On n'en tirera rien, ils\nsont complètement abrutis, eux aussi."
+        },
+        {
+          "id": "C9:7F75",
+          "text": " : Ils sont comme les gens\nde Pandora ! La sorcière est bel et\nbien derrière tout ça !"
+        },
+        {
+          "id": "C9:7FBF",
+          "text": "\u000bSoldat : On rentre... ? Hein ? ..."
+        },
+        {
+          "id": "C9:7FF4",
+          "text": "Ah, au fait... la dalle, en haut...\nfaut monter à 3 dessus... pour activer\nle pont..."
+        },
+        {
+          "id": "C9:804A",
+          "text": ""
+        },
+        {
+          "id": "C9:806F",
+          "text": "Lutin : Ouais, ouais...\nMais t'as pas intérêt à me mettre des\nbâtons dans les roues, miss !\n"
+        },
+        {
+          "id": "C9:80A1",
+          "text": " : Hé !\fMon nom est "
+        },
+        {
+          "id": "C9:80A9",
+          "text": " !"
+        },
+        {
+          "id": "C9:80AC",
+          "text": "\u000bLutin : Moi aussi,\nil me faudrait un nom !\nCe serait plus pratique !"
+        },
+        {
           "id": "C9:8104",
           "text": "Niccolo : Moi aussi, je\nme suis fait capturer,\nmiaou... Merci !\fAu fait, vous ne m'achèteriez pas\nun petit quelque chose, miaou ?"
         },
         {
           "id": "C9:8206",
           "text": "Elinice : Je suis redevenue une\nvieille dame inoffensive, menant une\nvie paisible."
+        },
+        {
+          "id": "C9:8256",
+          "text": " : Hé hé...\nJe savais que tu viendrais.\nMerci !"
+        },
+        {
+          "id": "C9:827F",
+          "text": "Bon, allons-y !\nOn doit sauver Durac !"
+        },
+        {
+          "id": "C9:82B9",
+          "text": " se joint à vous !"
         },
         {
           "id": "C9:82D2",
@@ -1009,6 +1677,46 @@
         {
           "id": "C9:8720",
           "text": " : Il faudrait un outil\nsolide pour abattre ça ! Peut-être une\nhache... ?"
+        },
+        {
+          "id": "C9:8771",
+          "text": "Elinice : Aaah !\nPardonnez-moi !"
+        },
+        {
+          "id": "C9:87BD",
+          "text": "Elinice : Je suis désolée.\nLes herbes magiques dont j'ai besoin\nne poussent plus ces derniers temps."
+        },
+        {
+          "id": "C9:8809",
+          "text": "\u000bThanatos m'en procurait à condition\nque j'envoûte les villageois."
+        },
+        {
+          "id": "C9:8846",
+          "text": "\u000bJe vais redevenir une gentille vieille\ndame et mener une vie paisible, c'est\npromis !"
+        },
+        {
+          "id": "C9:8892",
+          "text": "\u000bLe jeune homme que vous cherchiez\ndevrait se trouver aux ruines de\nPandora."
+        },
+        {
+          "id": "C9:88F7",
+          "text": "Elinice : Voulez-vous que je vous\nenvoie dehors avec ce qu'il me reste\nde magie ?\f"
+        },
+        {
+          "id": "C9:891D",
+          "text": "Oui"
+        },
+        {
+          "id": "C9:8922",
+          "text": "Non  )"
+        },
+        {
+          "id": "C9:8957",
+          "text": "L'orbe du Temple souterrain ?\nIl faut un sortilège de glace pour le\nbriser."
+        },
+        {
+          "id": "C9:899F",
+          "text": "\u000bJe suis redevenue une vieille dame\nordinaire...\nje n'ai plus le pouvoir nécessaire."
         },
         {
           "id": "C9:8B6F",
@@ -1131,12 +1839,16 @@
           "text": "!"
         },
         {
+          "id": "C9:9893",
+          "text": "\n..."
+        },
+        {
           "id": "C9:9898",
           "text": "\u000bAlors comme ça..."
         },
         {
           "id": "C9:98AC",
-          "text": "Durac est..."
+          "text": "\nDurac est..."
         },
         {
           "id": "C9:98F3",
@@ -1195,6 +1907,42 @@
           "text": "Gnome : Je me retire.\nÀ bientôt !"
         },
         {
+          "id": "C9:9B8C",
+          "text": "Gnome : Dites donc, vous ! Qui vous a\npermis d'entrer ? Vous êtes sur mon\nterritoire, alors dégagez !"
+        },
+        {
+          "id": "C9:9BCB",
+          "text": "Dégage toi-même !\nOn est pressés !\fGnome : Insolent !\nJe vais te donner une leçon !\n"
+        },
+        {
+          "id": "C9:9C0E",
+          "text": " : Prends ça !\n"
+        },
+        {
+          "id": "C9:9C20",
+          "text": "Gnome : Je ne me laisserai pas faire !"
+        },
+        {
+          "id": "C9:9C47",
+          "text": "Gnome : Oh là là, ça se gâte...\nje file, moi !"
+        },
+        {
+          "id": "C9:9C73",
+          "text": " : Regardez !\nIl y a quelque chose !"
+        },
+        {
+          "id": "C9:9CB8",
+          "text": "Qu'est-ce que c'est que cet orbe de\ncristal ?"
+        },
+        {
+          "id": "C9:9CDC",
+          "text": " : D'après Papy, c'est le\nsceau qu'a placé la sorcière du nord\npour protéger le temple."
+        },
+        {
+          "id": "C9:9D15",
+          "text": "\u000bIl faut lui demander de le briser !"
+        },
+        {
           "id": "C9:9D38",
           "text": "C'est dans cette salle que doit se\ntrouver la Graine.\n"
         },
@@ -1207,8 +1955,44 @@
           "text": "Mog : Kupi !\nKupopo !"
         },
         {
+          "id": "C9:9EC0",
+          "text": "Mog : Pu...\n"
+        },
+        {
+          "id": "C9:9EDB",
+          "text": " : Oh, comme il est mignon !\nIl rit !"
+        },
+        {
+          "id": "C9:9EF5",
+          "text": "\u000b"
+        },
+        {
+          "id": "C9:9EF8",
+          "text": " : Non, il pleure !\nLes taupérissons ont envahi leur\nvillage !"
+        },
+        {
           "id": "C9:9F44",
           "text": "Les mogs vont pouvoir retourner dans\nleur village, maintenant."
+        },
+        {
+          "id": "C9:9FC5",
+          "text": " : Ohééé !\nJe suis de retour !\n"
+        },
+        {
+          "id": "C9:9FDA",
+          "text": "... Mais... Qu'est-ce que... ?!\n"
+        },
+        {
+          "id": "C9:A00D",
+          "text": "Le village est sens dessus dessous !"
+        },
+        {
+          "id": "C9:A02A",
+          "text": "\u000bQue s'est-il passé ?"
+        },
+        {
+          "id": "C9:A052",
+          "text": "Hé !\nIl y a quelque chose, là !"
         },
         {
           "id": "C9:A082",
@@ -1260,7 +2044,7 @@
         },
         {
           "id": "C9:A1B3",
-          "text": "Hum ? Zut ! Je me suis cogné en\natterrissant... et on dirait bien que\nj'ai encore oublié !"
+          "text": "\nHum ? Zut ! Je me suis cogné en\natterrissant... et on dirait bien que\nj'ai encore oublié !"
         },
         {
           "id": "C9:A1E3",
@@ -1295,10 +2079,6 @@
           "text": "Pourtant, l'un des nôtres a aperçu un\ndragon blanc dans la grotte du nord,\nhier !"
         },
         {
-          "id": "C9:A358",
-          "text": ""
-        },
-        {
           "id": "C9:A35D",
           "text": "La légende parle d'un conflit entre\nles bénévodons et la Forteresse qui\naurait dévasté le monde."
         },
@@ -1313,10 +2093,6 @@
         {
           "id": "C9:A3FD",
           "text": "Je n'en reviens pas ! J'ai vu un\ndragon blanc dans la grotte de la\nmontagne... On les croyait disparus !"
-        },
-        {
-          "id": "C9:A434",
-          "text": ""
         },
         {
           "id": "C9:A440",
@@ -1379,6 +2155,30 @@
           "text": "Ha ha ha, qu'il est mignon...\nJ'ai l'impression d'être papa."
         },
         {
+          "id": "C9:A6CE",
+          "text": "Truffaut : Alors ?\nVous aimez monter sur le dos de\nFlammie ?"
+        },
+        {
+          "id": "C9:A6F9",
+          "text": "Grâce à son instinct, vous retrouverez\ntoujours votre chemin dans les airs."
+        },
+        {
+          "id": "C9:A730",
+          "text": ""
+        },
+        {
+          "id": "C9:A74E",
+          "text": ""
+        },
+        {
+          "id": "C9:A76B",
+          "text": "Au sud-ouest d'ici se trouvent les\nmontagnes de la Sierra.\nC'est votre destination !"
+        },
+        {
+          "id": "C9:A7B9",
+          "text": "J'ai élevé Flammie comme mon propre\nenfant... il me manque ! Revenez me\nrendre visite de temps en temps."
+        },
+        {
           "id": "C9:A7DD",
           "text": "Truffaut : Comment va mon petit\nFlammie ?\nBien, j'espère ?"
         },
@@ -1392,7 +2192,7 @@
         },
         {
           "id": "C9:A8ED",
-          "text": " : Pouah !\nJ'suis plein de sable !\fJ'en ai partout !\n"
+          "text": " : Pouah ! J'suis plein de\nsable ! J'en ai partout !\n"
         },
         {
           "id": "C9:A91B",
@@ -1455,6 +2255,14 @@
           "text": "Va parler aux soldats devant\nl'escalier.\nJe me charge du reste !"
         },
         {
+          "id": "C9:AE91",
+          "text": "Soldat : Retourne à ton poste,\ntout de suite !"
+        },
+        {
+          "id": "C9:AEB6",
+          "text": "Sergueï : Au feu !\nAu feu !\fSoldat : Quoi ?!\nPousse-toi de là, toi !"
+        },
+        {
           "id": "C9:AEF3",
           "text": "Sergueï : Oh, ne me remercie pas.\nC'était plutôt marrant de les voir\npaniquer comme ça !"
         },
@@ -1485,6 +2293,82 @@
         {
           "id": "C9:B0BE",
           "text": " : Des rats, hein ?"
+        },
+        {
+          "id": "C9:B0E3",
+          "text": "Moriel : Allez, masse-moi le dos !\n"
+        },
+        {
+          "id": "C9:B0FC",
+          "text": " : Ça va pas, non !\nJamais de la vie !"
+        },
+        {
+          "id": "C9:B129",
+          "text": "Moriel : Insolente !"
+        },
+        {
+          "id": "C9:B14A",
+          "text": " : Quoi, tu veux te battre ?"
+        },
+        {
+          "id": "C9:B166",
+          "text": "Merelia : Moriel !\nCe n'est pas un comportement digne\nd'un chevalier !"
+        },
+        {
+          "id": "C9:B187",
+          "text": "Moriel : Mais, grand-père, elle m'a\ninsulté..."
+        },
+        {
+          "id": "C9:B1AD",
+          "text": "\u000b"
+        },
+        {
+          "id": "C9:B1B0",
+          "text": "Peuh !"
+        },
+        {
+          "id": "C9:B1C4",
+          "text": "\u000bMeleria : Tu me fais honte !\n"
+        },
+        {
+          "id": "C9:B1E0",
+          "text": "Femme, sors d'ici !\n"
+        },
+        {
+          "id": "C9:B1FB",
+          "text": " : Allez au diable !"
+        },
+        {
+          "id": "C9:B21C",
+          "text": " : Vous étiez là ?! Vous\navez vu ça ? C'est pas une façon de\ntraiter une dame !"
+        },
+        {
+          "id": "C9:B236",
+          "text": "Moriel : Ils s'échappent, grand-père !"
+        },
+        {
+          "id": "C9:B26C",
+          "text": "\u000bMeleria : Hum !\n"
+        },
+        {
+          "id": "C9:B281",
+          "text": "Je...\nAttrapez-les, alors !"
+        },
+        {
+          "id": "C9:B2BD",
+          "text": "Mais...\nQue ?"
+        },
+        {
+          "id": "C9:B2CE",
+          "text": "Alerte !\nL'Empire nous attaque !!\fMoriel : Non !\nJe ne veux pas mourir !!\nRendons-nous !"
+        },
+        {
+          "id": "C9:B2FF",
+          "text": "\u000bMeleria : Abruti ! Un chevalier ne se\nrend pas ! Tous à vos postes !\nPréparez-vous au combat !"
+        },
+        {
+          "id": "C9:B330",
+          "text": "Soldat : Fuyons,\net laissons Moriel se débrouiller !!"
         },
         {
           "id": "C9:B36B",
@@ -1535,12 +2419,20 @@
           "text": "Après cette histoire, l'amiral Meleria\nva sûrement redevenir le grand\nchevalier qu'il était autrefois."
         },
         {
-          "id": "C9:B615",
-          "text": "Rien à signaler !\nVoulez-vous inscrire quelque chose au\njournal de bord ?"
+          "id": "C9:B580",
+          "text": "Nous attendons les secours envoyés\npar la République de Tasmanica.\nVous partez ?"
         },
         {
-          "id": "C9:B635",
-          "text": "\u000b"
+          "id": "C9:B5B3",
+          "text": "Oui"
+        },
+        {
+          "id": "C9:B5B8",
+          "text": "Non  )"
+        },
+        {
+          "id": "C9:B615",
+          "text": "Rien à signaler !\nVoulez-vous inscrire quelque chose au\njournal de bord ?"
         },
         {
           "id": "C9:B63C",
@@ -1559,6 +2451,22 @@
           "text": "Oh !\nVous avez récupéré la Graine de Mana ?\nMerci !"
         },
         {
+          "id": "C9:B691",
+          "text": "Une noix magique ? Peuh !\n"
+        },
+        {
+          "id": "C9:B6B9",
+          "text": "Mais pourquoi me prennent-ils tous\npour un marchand ?!"
+        },
+        {
+          "id": "C9:B6C7",
+          "text": "Hein ? Ah ! Vous parliez de la Graine\nde Mana ! Pardon."
+        },
+        {
+          "id": "C9:B6FC",
+          "text": "Vous allez remettre la Graine sur son\nautel ? Merci ! Mais prenez garde aux\nmonstres."
+        },
+        {
           "id": "C9:B730",
           "text": "Je me demande si je ne vais pas\ndéménager vers l'Empire, moi aussi."
         },
@@ -1575,8 +2483,32 @@
           "text": "Pourtant, l'eau ne revient pas...\nC'est à n'y rien comprendre !"
         },
         {
+          "id": "C9:B89E",
+          "text": "Omar : Oh, mais c'est une queue de\nlièvre marin ! Vite ! Au puits !"
+        },
+        {
+          "id": "C9:B8D4",
+          "text": "Oh ! C'est de l'eau ! L'eau jaillit de\nnouveau ! Nous sommes sauvés !!"
+        },
+        {
+          "id": "C9:B8F8",
+          "text": "Prenez ceci en gage de notre\ngratitude. C'est une ceinture destinée\nau héros de la légende !"
+        },
+        {
+          "id": "C9:B924",
+          "text": "Vous obtenez la Ceinture mog !"
+        },
+        {
           "id": "C9:B941",
           "text": "Omar : Si Mana continue de faiblir,\nles puits s'assécheront peut-être de\nnouveau."
+        },
+        {
+          "id": "C9:B99D",
+          "text": "Quelqu'un a enlevé Athanor,\nle dieu gardien du Temple du Feu."
+        },
+        {
+          "id": "C9:B9D6",
+          "text": "Et depuis que la Graine qui s'y\ntrouvait a été volée, le désert est\ninfesté de monstres."
         },
         {
           "id": "C9:B9FD",
@@ -1585,6 +2517,18 @@
         {
           "id": "C9:BA19",
           "text": "Notre puits s'est asséché...\nnotre royaume est perdu !"
+        },
+        {
+          "id": "C9:BA34",
+          "text": "Tout le monde fuit notre pays...\n"
+        },
+        {
+          "id": "C9:BA6C",
+          "text": "Je me demande si je ne vais pas\ndéménager au Pays de glace, moi aussi."
+        },
+        {
+          "id": "C9:BA7C",
+          "text": "\u000bIl paraît qu'il y a un village\nparadisiaque où il fait aussi chaud\nqu'ici ! Ça fait rêver !\n"
         },
         {
           "id": "C9:BABD",
@@ -1668,7 +2612,7 @@
         },
         {
           "id": "C9:BF1A",
-          "text": " ! Vous\navez l'air si forts, maintenant !\fJ'ai failli ne pas vous reconnaître.\n"
+          "text": " !\nVous avez l'air si forts, maintenant !\nJ'ai failli ne pas vous reconnaître.\n"
         },
         {
           "id": "C9:BF38",
@@ -1755,6 +2699,14 @@
           "text": "Que la force de Mana soit avec vous !"
         },
         {
+          "id": "C9:C604",
+          "text": "Notre roi a beaucoup d'estime pour\nSire Gemma."
+        },
+        {
+          "id": "C9:C62F",
+          "text": "Son seul égal était le chevalier\nSerynn, son rival et ami,\fqui combattit pendant\nla guerre il y a 15 ans."
+        },
+        {
           "id": "C9:C668",
           "text": "L'Empereur aurait quitté son palais.\nVa-t-il tenter une attaque ?"
         },
@@ -1791,6 +2743,14 @@
           "text": "Ouah !\nC'est le héros à l'Épée de Mana !\nVenez voir !"
         },
         {
+          "id": "C9:C830",
+          "text": "Fillette : Oh là là !\nQu'est-ce que t'es petit !\n"
+        },
+        {
+          "id": "C9:C84D",
+          "text": " : Dis\ndonc ! C'toi la petite !\fC'est pas la taille\nqui compte, d'abord !"
+        },
+        {
           "id": "C9:C866",
           "text": "Vous êtes à l'endroit le plus animé du\nchâteau."
         },
@@ -1819,6 +2779,26 @@
           "text": "On est mari et femme !"
         },
         {
+          "id": "C9:C9D5",
+          "text": "Cette île est si petite que je\nn'arrive pas à joindre les deux bouts.\nJe veux aller en ville !"
+        },
+        {
+          "id": "C9:C9F6",
+          "text": "Il n'y a rien à vendre, ici, à part\nces fichues queues de lièvres marins\nqui s'échouent sur la rive..."
+        },
+        {
+          "id": "C9:CA38",
+          "text": "\u000bHein ? Vous en voulez ? On en a\ntellement qu'on ne sait plus quoi en\nfaire ! Je vous la donne !"
+        },
+        {
+          "id": "C9:CA5A",
+          "text": "Vous obtenez une queue de lièvre\nmarin !"
+        },
+        {
+          "id": "C9:CA73",
+          "text": "Rangeons-la précieusement pour ne pas\nla perdre !"
+        },
+        {
           "id": "C9:CB44",
           "text": "Gemma : Bien joué !"
         },
@@ -1843,8 +2823,28 @@
           "text": "Merci, au revoir."
         },
         {
+          "id": "C9:CEB3",
+          "text": ""
+        },
+        {
+          "id": "C9:CECE",
+          "text": "Oui"
+        },
+        {
+          "id": "C9:CED3",
+          "text": "Non  )"
+        },
+        {
           "id": "C9:CF4E",
           "text": "Pas assez de pièces d'or pour ça !"
+        },
+        {
+          "id": "C9:D1DB",
+          "text": "Chef : Attendez !\nSi vous descendez,\nvous n'aurez rien pour remonter !"
+        },
+        {
+          "id": "C9:D207",
+          "text": "Il y a une corde magique quelque part\nà l'étage.\nPrenez-la avant de partir !"
         },
         {
           "id": "C9:D239",
@@ -1877,6 +2877,54 @@
         {
           "id": "C9:D3EE",
           "text": "Ramenons-la au Temple de l'Eau !"
+        },
+        {
+          "id": "C9:D43A",
+          "text": "Scorpion : Ohohohohoho !\nAdieu, vilains morveux !"
+        },
+        {
+          "id": "C9:D482",
+          "text": "Scorpion : Tiens ?\nMais qu'est-ce qu'il se passe ?\fSbire : Chef !\nL'énergie surcharge ses circuits !\nOn a perdu le contrôle !"
+        },
+        {
+          "id": "C9:D4CB",
+          "text": "\u000bScorpion : Comment ? C'est\nimpossible ! Enlevez la Graine, et\nlancez le générateur auxiliaire !"
+        },
+        {
+          "id": "C9:D515",
+          "text": "Ah !\nLa Graine de l'Eau !"
+        },
+        {
+          "id": "C9:D53C",
+          "text": "Comment êtes-vous entrés ici ?!\n"
+        },
+        {
+          "id": "C9:D563",
+          "text": "Maintenant que vous avez découvert\nnotre repaire, pas question de vous\nlaisser repartir !"
+        },
+        {
+          "id": "C9:D591",
+          "text": "Salut les gamins !\nNous sommes l'Escadron Scorpion et\nnous allons bientôt dominer le monde !"
+        },
+        {
+          "id": "C9:D5D6",
+          "text": "Ouah !\nTrop classe, la patronne !"
+        },
+        {
+          "id": "C9:D5EF",
+          "text": "Scorpion : Silence, vous deux !"
+        },
+        {
+          "id": "C9:D601",
+          "text": "\nNous avons pris la Graine de l'Eau."
+        },
+        {
+          "id": "C9:D61E",
+          "text": "\u000bNous utilisons son énergie\npour alimenter notre tout nouveau\nmagnifique robot génial...\fJ'ai nommé...\nRobotor !"
+        },
+        {
+          "id": "C9:D661",
+          "text": "\u000bOuah !\nTrop classe, la patronne !\nScorpion : Allez, à toi de jouer,\fRobotor !\nLancez-le, vous autres !\nSbire : À vos ordres, chef !"
         },
         {
           "id": "C9:D6B5",
@@ -2039,6 +3087,14 @@
           "text": "Une femme du nom de Marict\nvit dans une maison\nun peu à l'écart de la ville.\fÀ votre place, je l'éviterais,\nc'est une marginale !"
         },
         {
+          "id": "C9:DFF2",
+          "text": "Entre vous et moi, je ne comprends pas\nce que l'Empereur a derrière la tête,\nces temps-ci."
+        },
+        {
+          "id": "C9:E028",
+          "text": "Il renforce l'armée avec de lourds\nimpôts, tout ça sous prétexte\nd'“unifier le monde”...\fOn raconte même qu'il bâtit\nune armée de démons. Son palais\nserait déjà rempli de monstres !"
+        },
+        {
           "id": "C9:E07E",
           "text": "Vos visages ne me disent rien...\nNe faites rien de louche si vous ne\nvoulez pas que je vous arrête !"
         },
@@ -2183,6 +3239,14 @@
           "text": "\u000bNe vous en faites pas pour Pamela.\nAvec du temps,\nelle redeviendra comme avant."
         },
         {
+          "id": "C9:E9A1",
+          "text": "Un peu en contrebas de ce village se\ntrouve le Temple des Ténèbres.\nIl grouille de monstres !"
+        },
+        {
+          "id": "C9:E9EC",
+          "text": "\u000bIl a été construit dans le flanc de la\nmontagne, alors l'entrée ressemble à\nune grotte."
+        },
+        {
           "id": "C9:EA11",
           "text": "Ces temps-ci, les chemins\nde montagne ne sont plus sûrs.\fJ'espère que le sage Jach,\nqui vit au sommet, n'a rien !"
         },
@@ -2259,6 +3323,18 @@
           "text": "Non  )"
         },
         {
+          "id": "C9:ED6D",
+          "text": "Hé ! On n'entre pas !\n"
+        },
+        {
+          "id": "C9:ED8A",
+          "text": " : Laissez-moi deviner...\nle maître est absent ?"
+        },
+        {
+          "id": "C9:ED9D",
+          "text": "Maître Jach est dans la grotte,\nà deux pas d'ici !"
+        },
+        {
           "id": "C9:EDD2",
           "text": "Zico : Vous ne pouvez pas échapper à\nvotre destin !"
         },
@@ -2293,6 +3369,22 @@
         {
           "id": "C9:EF85",
           "text": "Cette fillette apporte tous les jours\ndes fleurs au sanctuaire.\nQuelle bonne petite !"
+        },
+        {
+          "id": "C9:EFAB",
+          "text": "“Commençons ce bulletin d'information\navec ce tir de missiles de Lorimar\fà l'aube pour contrer l'avancée\nimpériale au nord du pays...”"
+        },
+        {
+          "id": "C9:EFF2",
+          "text": "\u000b“Par mesure de rétorsion, l'Empire\nprévoit de lancer une attaque\fsur la capitale de Lorimar, Wendel,\ndans les prochaines 24h...”"
+        },
+        {
+          "id": "C9:F036",
+          "text": "\u000b"
+        },
+        {
+          "id": "C9:F039",
+          "text": "Krrr..."
         },
         {
           "id": "C9:F0AD",
@@ -2343,8 +3435,76 @@
           "text": "Tiens, c'est bizarre..."
         },
         {
+          "id": "CA:17DA",
+          "text": "Faunach : Je vous retrouve, les\ngamins...\n"
+        },
+        {
+          "id": "CA:17EF",
+          "text": " : C'est vous qui avez tué\nl'Empereur ?!"
+        },
+        {
+          "id": "CA:180C",
+          "text": "\u000bFaunach : Hé hé hé... on ne peut rien\nvous cacher. Avec la Forteresse, nous\nserons les maîtres du monde !"
+        },
+        {
+          "id": "CA:1856",
+          "text": "\u000b"
+        },
+        {
+          "id": "CA:1859",
+          "text": " : “Nous” ?\nQui d'autre...\n?"
+        },
+        {
+          "id": "CA:188C",
+          "text": " : Thanatos !\nC'était toi !!\fThanatos : Ha ha ha...\nComme on se retrouve !"
+        },
+        {
+          "id": "CA:18C5",
+          "text": "\u000b"
+        },
+        {
+          "id": "CA:18C8",
+          "text": " : Où est Durac ?\nEst-il sain et sauf ?"
+        },
+        {
+          "id": "CA:18E9",
+          "text": "Thanatos : Bien sûr, très chère.\nIl sera bientôt mon nouvel hôte."
+        },
+        {
+          "id": "CA:192A",
+          "text": " : Comment ça ?!"
+        },
+        {
+          "id": "CA:1945",
+          "text": "Faunach : Cela ne vous regarde pas.\nSeigneur Thanatos, à la Forteresse !"
+        },
+        {
+          "id": "CA:197E",
+          "text": "\u000b"
+        },
+        {
+          "id": "CA:1986",
+          "text": "Je vais enfin pouvoir venger Sheek et\nGestahl...\nPréparez-vous à mourir !"
+        },
+        {
           "id": "CA:19BE",
           "text": "Faunach : Non... ce n'est pas\npossible... Seigneur Thanatos...\npourquoi..."
+        },
+        {
+          "id": "CA:1A00",
+          "text": " : Gestahl !\nIl est vivant ?!\nGestahl : ..."
+        },
+        {
+          "id": "CA:1A1E",
+          "text": "Thanatos : Hé hé hé...\nCe n'est plus tout à fait le Gestahl\nque vous avez connu."
+        },
+        {
+          "id": "CA:1A49",
+          "text": "Je me suis servi d'un ancien sortilège\npour en faire une machine vivante, un\npantin que je manipule à ma guise !"
+        },
+        {
+          "id": "CA:1A96",
+          "text": " : C'est abominable !"
         },
         {
           "id": "CA:1AC1",
@@ -2373,10 +3533,6 @@
         {
           "id": "CA:1D7A",
           "text": "\u000bL'Épée n'est pas encore achevée ; tu\nen auras cependant besoin pour arrêter\nVandole."
-        },
-        {
-          "id": "CA:1DC7",
-          "text": ""
         },
         {
           "id": "CA:1DCE",
@@ -2528,7 +3684,7 @@
         },
         {
           "id": "CA:3942",
-          "text": "Ah...\nsa mère a dû être tuée par le serpent."
+          "text": "Ah... sa mère a dû être tuée par le\nserpent."
         },
         {
           "id": "CA:3988",
@@ -2536,7 +3692,7 @@
         },
         {
           "id": "CA:39B2",
-          "text": "Il a beau être un bébé, il est trop\ngros pour qu'on le porte.\nAllons en parler au roi."
+          "text": "Il a beau être un bébé, il est trop\ngros pour qu'on le porte. Allons en\nparler au roi."
         },
         {
           "id": "CA:3A05",
@@ -2544,11 +3700,11 @@
         },
         {
           "id": "CA:3A42",
-          "text": "Ministre : Mais !\nVotre Majesté !\fTruffaut : Chut !\nC'est décidé !\nPoint final !"
+          "text": "Ministre : Mais ! Votre Majesté !\nTruffaut : Chut ! C'est décidé ! Point\nfinal !"
         },
         {
           "id": "CA:3A76",
-          "text": "Vous avez à faire, on dirait.\nJe ne vous retiens pas plus !\nPartez !\n"
+          "text": "Vous avez à faire, on dirait. Je ne\nvous retiens pas plus ! Partez !\n"
         },
         {
           "id": "CA:3AAD",
@@ -2556,19 +3712,19 @@
         },
         {
           "id": "CA:3AE1",
-          "text": "( Beurk !\nD'accord !\n)\n"
+          "text": "( Beurk ! D'accord ! )\n"
         },
         {
           "id": "CA:3AF6",
-          "text": "Truffaut : Une minute !\nPourquoi je vous demande votre avis,\nmoi ?"
+          "text": "Truffaut : Une minute ! Pourquoi je\nvous demande votre avis, moi ?"
         },
         {
           "id": "CA:3B23",
-          "text": "Même si ça ne vous plaît pas,\nje ferai comme j'ai envie !"
+          "text": "Même si ça ne vous plaît pas, je ferai\ncomme j'ai envie !"
         },
         {
           "id": "CA:3B5D",
-          "text": "Bref, il s'appelle Flammie, c'est\ndécidé !\nÇa lui va bien, hein ?"
+          "text": "Bref, il s'appelle Flammie, c'est\ndécidé ! Ça lui va bien, hein ?"
         },
         {
           "id": "CA:3B91",
@@ -2577,6 +3733,62 @@
         {
           "id": "CA:3BCC",
           "text": "Vous devriez lui demander de vous y\nenvoyer, si vous allez au Temple.\nAllez, bonne chance !"
+        },
+        {
+          "id": "CA:4980",
+          "text": "Rusalka : Gemma, surveille de près les\nagissements de l'Empire.\nIls convoitent la Forteresse de Mana !"
+        },
+        {
+          "id": "CA:49D3",
+          "text": " : La Forteresse de Mana ?\nCelle qui détruit le monde dans les\ncontes de fées ?"
+        },
+        {
+          "id": "CA:4A2A",
+          "text": "Gemma : Ce ne sont pas\ndes contes de fées.\fLa Forteresse a réellement existé,\net l'Empire cherche à s'en emparer."
+        },
+        {
+          "id": "CA:4A6B",
+          "text": "\u000b"
+        },
+        {
+          "id": "CA:4A6F",
+          "text": "Rusalka : L'Empire tente de briser les\nsceaux des Graines de Mana, cela ne\nfait aucun doute."
+        },
+        {
+          "id": "CA:4ABC",
+          "text": "\u000bIl y a d'ores et déjà des intrus qui\nrôdent autour de ce temple pour le\nsurveiller."
+        },
+        {
+          "id": "CA:4B1E",
+          "text": "Gemma : Des événements étranges ont\neu lieu à Pandora, dernièrement.\nUn rapport avec l'Empire ?"
+        },
+        {
+          "id": "CA:4B67",
+          "text": "\u000bRusalka : Je l'ignore. Gemma,\nva voir le roi et mets-le\nen garde contre l'Empire.\fIl ne faut surtout pas qu'ils mettent\nla main sur les Graines de Mana."
+        },
+        {
+          "id": "CA:4BB8",
+          "text": "\u000bGemma : Bien.\nJe pars sans plus tarder."
+        },
+        {
+          "id": "CA:4BD5",
+          "text": "\u000b"
+        },
+        {
+          "id": "CA:4BD9",
+          "text": ", tu vas te diriger vers une\ngrotte qu'on appelle le Nombril de\nGaïa."
+        },
+        {
+          "id": "CA:4C1F",
+          "text": "Là-bas se trouve chez les nains un\nhabile forgeron."
+        },
+        {
+          "id": "CA:4C71",
+          "text": "\u000bTu vas lui demander de réparer ton\népée."
+        },
+        {
+          "id": "CA:4CBE",
+          "text": "\u000bAu fil de l'évolution de l'Épée\net de ta compétence, tu devrais\napprendre de nouvelles techniques.\fEntraîne-toi assidûment !"
         },
         {
           "id": "CA:599F",
@@ -2619,10 +3831,6 @@
           "text": "Chris : ...\nD'accord.\nAllons-y."
         },
         {
-          "id": "CA:5B5A",
-          "text": "\u000b"
-        },
-        {
           "id": "CA:5B5F",
           "text": "Avec vous !"
         },
@@ -2633,6 +3841,26 @@
         {
           "id": "CA:5BA4",
           "text": "Homme : Rejoignez-nous là-bas."
+        },
+        {
+          "id": "CA:5C02",
+          "text": "Empereur : Ha ha ha...\nCette journée est à marquer d'une\npierre blanche !"
+        },
+        {
+          "id": "CA:5C2F",
+          "text": "Je vais me débarrasser à la fois de la\nRésistance et du héros à l'Épée\nsacrée !"
+        },
+        {
+          "id": "CA:5C6C",
+          "text": "Soldat : Tenez-vous tranquilles !\n"
+        },
+        {
+          "id": "CA:5C81",
+          "text": " : C'est un piège !"
+        },
+        {
+          "id": "CA:5C92",
+          "text": "Empereur : Mouahahaha !"
         },
         {
           "id": "CA:5CC6",
@@ -2679,12 +3907,60 @@
           "text": "Gestahl : Je vais enfin laver\nl'affront que vous m'avez fait subir !\nVous allez le regretter !"
         },
         {
+          "id": "CA:5F82",
+          "text": "Gestahl : Malédiction ! Puisque c'est\ncomme ça, vous plongerez avec moi...\ndans les flammes de l'enfer !"
+        },
+        {
+          "id": "CA:5FB6",
+          "text": " : Cette fois,\nc'est la fin !"
+        },
+        {
+          "id": "CA:5FD1",
+          "text": "...\nQuel est ce bruit ?!"
+        },
+        {
+          "id": "CA:5FEF",
+          "text": "Ohééé !\n"
+        },
+        {
+          "id": "CA:6000",
+          "text": " : Cette voix...\nC'est le roi Truffaut !"
+        },
+        {
           "id": "CA:601E",
           "text": "Chris : Merci ! Les soldats\nont pris peur et sont partis\nchercher des renforts.\fLe château sera bientôt\nrempli de gardes.\nSéparons-nous et fuyons !"
         },
         {
           "id": "CA:6065",
           "text": "Bien joué !!\nBeau travail !"
+        },
+        {
+          "id": "CA:6081",
+          "text": "Truffaut : Ha !\nJ'arrive juste à temps, pas vrai ?\nComment j'ai fait ?"
+        },
+        {
+          "id": "CA:60C0",
+          "text": "\u000bC'est grâce à Flammie !\nIl a grandi d'un coup, et il vole,\nmaintenant !"
+        },
+        {
+          "id": "CA:60FA",
+          "text": "Il s'est dirigé ici sans crier gare,\nalors que je le montais !"
+        },
+        {
+          "id": "CA:612D",
+          "text": "Il voulait sûrement vous revoir...\nC'est un grand enfant, et il vous\nconsidère comme ses parents !"
+        },
+        {
+          "id": "CA:617A",
+          "text": "Prenez ça !\nCe tambour est son jouet préféré."
+        },
+        {
+          "id": "CA:61AD",
+          "text": "Si vous l'utilisez, Flammie accourra,\noù que vous soyez ! Bref, il est temps\nde quitter cet endroit !"
+        },
+        {
+          "id": "CA:61D8",
+          "text": "Ah, et j'aimerais que vous me rameniez\nà Matango !\nC'est au sud-ouest d'ici."
         },
         {
           "id": "CA:6247",
@@ -2707,12 +3983,96 @@
           "text": "Elle ne s'ouvre pas..."
         },
         {
+          "id": "CA:67F3",
+          "text": " : Oh !\nPamela !\nTu vas bien ?\fPamela : ..."
+        },
+        {
+          "id": "CA:6828",
+          "text": "Lâche-moi !"
+        },
+        {
+          "id": "CA:6835",
+          "text": "\u000bJe ne rentrerai pas !\nJ'ai décidé de vivre ici...\navec Durac !"
+        },
+        {
+          "id": "CA:687A",
+          "text": "\u000b"
+        },
+        {
+          "id": "CA:687F",
+          "text": " : Mais...\nje...\nPamela, enfin !\n"
+        },
+        {
+          "id": "CA:688A",
+          "text": "\nPamela : Ha ha ha !\nÇa t'apprendra !"
+        },
+        {
+          "id": "CA:68B1",
+          "text": "Pamela : Argh...\n"
+        },
+        {
+          "id": "CA:68D9",
+          "text": " : Oh...\nPamela !"
+        },
+        {
+          "id": "CA:68EF",
+          "text": "Je..."
+        },
+        {
+          "id": "CA:68FF",
+          "text": "\nje ne voulais pas..."
+        },
+        {
+          "id": "CA:6923",
+          "text": " : Amenons-la chez Chris,\npour le moment.\n"
+        },
+        {
+          "id": "CA:6945",
+          "text": " : Courage, "
+        },
+        {
+          "id": "CA:6951",
+          "text": " !"
+        },
+        {
+          "id": "CA:6962",
+          "text": "Chris : "
+        },
+        {
+          "id": "CA:696C",
+          "text": " !\nTout va bien ?"
+        },
+        {
+          "id": "CA:6988",
+          "text": " : Chris, nous voudrions que\ntu viennes en aide à cette jeune\nfille... c'est une amie à nous."
+        },
+        {
+          "id": "CA:69A7",
+          "text": "Chris : Hum... Je vois. Je connais un\ndocteur qui pourra l'examiner.\nLaissez-moi faire !"
+        },
+        {
+          "id": "CA:69DF",
+          "text": " : ...\nMerci, Chris."
+        },
+        {
+          "id": "CA:69EA",
+          "text": "Chris : Ne t'en fais pas !\nEt Durac a besoin de toi,\nne te décourage pas !"
+        },
+        {
           "id": "CA:6AAF",
           "text": "J'ai trouvé un code secret de\nl'ennemi, “R-B-J-V”.\nQu'est-ce que ça peut bien être ?\n"
         },
         {
           "id": "CA:6B6A",
           "text": "Vous entendez un bruit au loin..."
+        },
+        {
+          "id": "CA:6B9C",
+          "text": "Vous obtenez les pouvoirs de Gnome !"
+        },
+        {
+          "id": "CA:6BB9",
+          "text": "Vite !\nLa Graine de Mana !"
         },
         {
           "id": "CA:6BD6",
@@ -2779,8 +4139,40 @@
           "text": " : Hé hé hé !\nJ'suis un sorcier, maintenant !"
         },
         {
+          "id": "CA:6E99",
+          "text": "Ouaaah ! Merci ! Vous m'avez sauvé !\nJe suis Athanor, l'esprit du feu !"
+        },
+        {
+          "id": "CA:6ED6",
+          "text": "\u000bÇa fait un bien fou d'être libre !\nYouhou ! J'ai eu chaud. Ha ha !"
+        },
+        {
+          "id": "CA:6F0A",
+          "text": "Je vous donne mon pouvoir en\nremerciement !\nÇa va chauffer, vous aller voir !"
+        },
+        {
+          "id": "CA:6F3D",
+          "text": "Vous obtenez les pouvoirs d'Athanor !"
+        },
+        {
           "id": "CA:6F71",
           "text": "\nVous obtenez les pouvoirs de\nSylphide !"
+        },
+        {
+          "id": "CA:6FA4",
+          "text": "Luna : Bienvenue.\nJe suis Luna, l'esprit de la lune.\nJe vous attends depuis bien longtemps."
+        },
+        {
+          "id": "CA:6FD7",
+          "text": "Je vais vous octroyer mon pouvoir."
+        },
+        {
+          "id": "CA:7005",
+          "text": "La force de Mana disparaît partout\ndans le monde.\nNe perdez pas un instant !"
+        },
+        {
+          "id": "CA:7044",
+          "text": "Vous obtenez les pouvoirs de Luna !"
         },
         {
           "id": "CA:706D",
@@ -2797,6 +4189,22 @@
         {
           "id": "CA:712D",
           "text": "Vous obtenez les pouvoirs d'Ombre !"
+        },
+        {
+          "id": "CA:7154",
+          "text": "Lumina : Je me nomme Lumina.\nLe roi de cette île se servait de ma\nmagie pour fabriquer de l'or."
+        },
+        {
+          "id": "CA:718F",
+          "text": "\u000bMais tout cela est fini, maintenant.\nEt un jour, cette île redeviendra\npierre."
+        },
+        {
+          "id": "CA:71E3",
+          "text": "\u000bJe vous donne mon pouvoir, avant que\nla lumière ne disparaisse de ce monde."
+        },
+        {
+          "id": "CA:723A",
+          "text": "\nVous obtenez les pouvoirs de Lumina !"
         },
         {
           "id": "CA:7397",
@@ -2828,7 +4236,7 @@
         },
         {
           "id": "CA:76B2",
-          "text": "Comme vous voudrez, Votre Majesté..."
+          "text": "\nComme vous voudrez, Votre Majesté..."
         },
         {
           "id": "CA:76C2",
@@ -2841,6 +4249,38 @@
         {
           "id": "CA:771B",
           "text": "Allons-y...\nNous n'avons pas une minute à perdre !"
+        },
+        {
+          "id": "CA:77F0",
+          "text": "1"
+        },
+        {
+          "id": "CA:77F3",
+          "text": "2"
+        },
+        {
+          "id": "CA:77F6",
+          "text": "3"
+        },
+        {
+          "id": "CA:77F9",
+          "text": "4"
+        },
+        {
+          "id": "CA:77FC",
+          "text": "5"
+        },
+        {
+          "id": "CA:77FF",
+          "text": "6"
+        },
+        {
+          "id": "CA:7802",
+          "text": "7"
+        },
+        {
+          "id": "CA:7805",
+          "text": "8"
         },
         {
           "id": "CA:78A1",
@@ -2875,6 +4315,14 @@
           "text": "\nDanger !\nAttention aux gobelins !"
         },
         {
+          "id": "CA:8690",
+          "text": "Forêt hantée "
+        },
+        {
+          "id": "CA:86A5",
+          "text": " Nombril de Gaïa"
+        },
+        {
           "id": "CA:86D7",
           "text": "Village Potos"
         },
@@ -2885,6 +4333,22 @@
         {
           "id": "CA:892F",
           "text": "Ah... Il y a un bouclier ! On\nn'arrivera pas à entrer ! Partons..."
+        },
+        {
+          "id": "CA:8A79",
+          "text": "...\nQuittez cet endroit !\n..."
+        },
+        {
+          "id": "CA:8A8A",
+          "text": "Voulez-vous obéir ?\n"
+        },
+        {
+          "id": "CA:8A96",
+          "text": "Oui"
+        },
+        {
+          "id": "CA:8A9B",
+          "text": "Non  )"
         },
         {
           "id": "CA:8AAB",
@@ -2953,8 +4417,88 @@
         {
           "id": "CA:977E",
           "text": "Bravo !"
+        },
+        {
+          "id": "CA:982A",
+          "text": "...\n"
+        },
+        {
+          "id": "CA:982E",
+          "text": "...\nRéveille-toi !"
+        },
+        {
+          "id": "CA:986B",
+          "text": "Oh là là, qu'est-ce qui m'est\narrivé...\n?"
         }
       ]
+    }
+  ],
+  "partial_events": [
+    {
+      "event_id": "00DF",
+      "suppressed_semantic_ids": [
+        "C9:1DCF",
+        "C9:1DED"
+      ],
+      "suppression_reason": "mapped_but_layout_deferred"
+    },
+    {
+      "event_id": "0278",
+      "suppressed_semantic_ids": [
+        "C9:A730",
+        "C9:A74E"
+      ],
+      "suppression_reason": "alignment_unresolved"
+    },
+    {
+      "event_id": "0331",
+      "suppressed_semantic_ids": [
+        "C9:CEB3"
+      ],
+      "suppression_reason": "alignment_unresolved"
+    }
+  ],
+  "user_validated_visually_complete_events": [
+    {
+      "event_id": "0103",
+      "suppressed_semantic_ids": [
+        "C9:2627",
+        "C9:26A8",
+        "C9:2728",
+        "C9:2735",
+        "C9:2745"
+      ],
+      "reason": "user_validated_android_adaptation_complete"
+    },
+    {
+      "event_id": "017F",
+      "suppressed_semantic_ids": [
+        "C9:55FC"
+      ],
+      "reason": "user_validated_android_adaptation_complete"
+    },
+    {
+      "event_id": "01DC",
+      "suppressed_semantic_ids": [
+        "C9:804A"
+      ],
+      "reason": "user_validated_android_adaptation_complete"
+    }
+  ],
+  "user_validated_structural_omissions": [
+    {
+      "event_id": "01DC",
+      "suppressed_semantic_ids": [
+        "C9:804A"
+      ],
+      "suppressed_commands": [
+        {
+          "name": "PLAYER_NAME",
+          "args": "00",
+          "immediately_before_text_id": "C9:804A"
+        }
+      ],
+      "reason": "user_validated_android_adaptation_omission"
     }
   ]
 }

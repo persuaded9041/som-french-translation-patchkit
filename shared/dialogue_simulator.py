@@ -199,6 +199,14 @@ class _Simulator:
         self.line_control_epoch = 0
         self.line_dynamic_blocks = 0
         self.last_wait: str | None = None
+        # Review-only guard for the runtime-validated $0106 failure mode:
+        # WAIT $00 keeps the live cursor position. If two lines are visible, an
+        # explicit newline can move onto physical line 3; another line advance
+        # before the next pause then reproduces the $0106 fast-scroll hazard.
+        self.wait00_retained_lines = 0
+        self.wait00_empty_line_armed = False
+        self.wait00_scroll_risk_reported = False
+        self.wait_same_line_pending: str | None = None
         self.choice_active = False
         self.choice_starts: list[int] = []
         self.choice_finished = False
@@ -226,6 +234,10 @@ class _Simulator:
         self.content_lines_since_pause = 0
         self.changed_since_snapshot = False
         self.last_wait = None
+        self.wait_same_line_pending = None
+        self.wait00_retained_lines = 0
+        self.wait00_empty_line_armed = False
+        self.wait00_scroll_risk_reported = False
         if implicit:
             self.issue("info", "IMPLICIT_TEXT_BOX", "Text begins without TEXT_OPEN; preview assumes the box is already open.")
 
@@ -285,6 +297,27 @@ class _Simulator:
         self.line_glyphs.append(glyph)
 
     def add_glyph(self, glyph: Glyph) -> None:
+        # A real $7F newline advances the dialogue cursor immediately. Once
+        # three non-empty lines have already been completed since the previous
+        # pause, the first glyph on the next line is therefore already a
+        # runtime scroll-before-pause hazard. Older simulation only noticed
+        # this after the fourth line itself was finished, which missed cases
+        # such as $0101 where WAIT arrives while that fourth line is still live.
+        if not self.line_glyphs and self.content_lines_since_pause >= PAGE_LINES:
+            self.issue(
+                "info",
+                "UNPAUSED_LIVE_LINE_SCROLL_RISK",
+                f"Text starts a {self.content_lines_since_pause + 1}th non-empty line since the previous WAIT/box opening; the live cursor has already entered a scrolling line before the player can pause.",
+                line=PAGE_LINES,
+            )
+        if self.wait_same_line_pending is not None and self.line_glyphs:
+            self.issue(
+                "info",
+                "WAIT_SAME_LINE_CONTINUATION",
+                f"{self.wait_same_line_pending} pauses without a newline; following text continues on the same physical line.",
+                line=min(PAGE_LINES, len(self.visible_lines) + 1),
+            )
+            self.wait_same_line_pending = None
         if self.choice_finished:
             self.issue("error", "CHOICE_POST_TEXT_UNSUPPORTED", "Text after CHOICE_END requires branch-aware simulation and remains review-only.")
             self.choice_finished = False  # avoid duplicate diagnostics for the same continuation
@@ -359,7 +392,38 @@ class _Simulator:
         self.issue("error", "IMPLICIT_RUNTIME_HARD_WRAP", f"Runtime would hard-break before an atomic DTE pair because of {reason.replace('_', ' ')}.")
         self.add_dte(codes)
 
+    def _preview_current_line(self, kind: str = "wait_preview") -> SimLine | None:
+        """Return the currently decoded line without advancing the text cursor.
+
+        WAIT pauses rendering but does not emit a newline.  The runtime keeps
+        the decoded line/cursor live, so later text continues on that same
+        physical line unless an explicit $7F/TEXT_CLEAR changes it.
+        """
+        if not self.line_glyphs:
+            return None
+        advance, visible, decoded, parser_units, dynamic_blocks = self._line_metrics()
+        return SimLine(
+            glyphs=list(self.line_glyphs),
+            break_kind=kind,
+            implicit_wrap=False,
+            advance_pixels=advance,
+            visible_extent_pixels=visible,
+            decoded_count=decoded,
+            parser_units=parser_units,
+            dynamic_name_blocks=dynamic_blocks,
+        )
+
+    def _display_lines(self, *, include_current: bool = False) -> list[SimLine]:
+        lines = list(self.visible_lines)
+        if include_current:
+            current = self._preview_current_line()
+            if current is not None:
+                lines.append(current)
+        return lines[-PAGE_LINES:]
+
     def finish_line(self, kind: str, *, implicit: bool = False, allow_empty: bool = False) -> None:
+        if kind in {"explicit_newline", "text_clear", "TEXT_CLOSE", "END", "event_end"}:
+            self.wait_same_line_pending = None
         if not self.line_glyphs and not allow_empty:
             self.last_safe_split = None
             return
@@ -378,9 +442,23 @@ class _Simulator:
         self.visible_lines.append(line)
         if len(self.visible_lines) > PAGE_LINES:
             self.visible_lines.pop(0)
+        was_empty = not self.line_glyphs
         self.line_advances_since_pause += 1
         if self.line_glyphs:
             self.content_lines_since_pause += 1
+        if (
+            self.last_wait == "WAIT $00"
+            and self.wait00_empty_line_armed
+            and self.line_advances_since_pause > 1
+            and not self.wait00_scroll_risk_reported
+        ):
+            self.issue(
+                "info",
+                "WAIT00_THIRD_LINE_SCROLL_RISK",
+                "WAIT $00 retained two visible lines; an explicit newline moved the cursor to line 3 and another line advance scrolls before the next pause.",
+                line=min(PAGE_LINES, len(self.visible_lines)),
+            )
+            self.wait00_scroll_risk_reported = True
         self.changed_since_snapshot = True
         line_no = min(PAGE_LINES, len(self.visible_lines))
         if parser_units > RUNTIME_MAX_DECODED:
@@ -400,7 +478,7 @@ class _Simulator:
         self.last_safe_split = None
         self.line_dynamic_blocks = 0
 
-    def _snapshot(self, transition: str, *, wait: str | None = None, force: bool = False) -> None:
+    def _snapshot(self, transition: str, *, wait: str | None = None, force: bool = False, include_current: bool = False) -> None:
         self.ensure_box(implicit=True)
         assert self.box is not None
         if not force and not self.changed_since_snapshot and self.box.pages:
@@ -409,7 +487,7 @@ class _Simulator:
             if wait and wait not in self.box.pages[-1].waits:
                 self.box.pages[-1].waits.append(wait)
             return
-        page = SimPage(lines=list(self.visible_lines), transition=transition)
+        page = SimPage(lines=self._display_lines(include_current=include_current), transition=transition)
         if wait:
             page.waits.append(wait)
         self.box.pages.append(page)
@@ -427,6 +505,7 @@ class _Simulator:
         self.changed_since_snapshot = False
         self.last_safe_split = None
         self.last_wait = None
+        self.wait_same_line_pending = None
 
     def page_clear(self) -> None:
         self.finish_line("text_clear")
@@ -441,6 +520,10 @@ class _Simulator:
         self.content_lines_since_pause = 0
         self.changed_since_snapshot = False
         self.last_wait = None
+        self.wait_same_line_pending = None
+        self.wait00_retained_lines = 0
+        self.wait00_empty_line_armed = False
+        self.wait00_scroll_risk_reported = False
         self._reset_checkpoint()
 
     def close_box(self, transition: str = "TEXT_CLOSE") -> None:
@@ -459,19 +542,28 @@ class _Simulator:
         self.changed_since_snapshot = False
         self.last_safe_split = None
         self.last_wait = None
+        self.wait_same_line_pending = None
 
     def add_wait(self, arg: int) -> None:
-        # WAIT occurs after the current decoded chunk; finalize its last line,
-        # snapshot the three-line rolling window, and only then let later text
-        # scroll. This matches the stock scripts where WAIT alone separates
-        # readable dialogue chunks without clearing the box.
-        self.finish_line("wait")
+        # Runtime-validated on $0106: WAIT pauses the current rendered state but
+        # does NOT advance to a new line.  Keep the live decoded line/cursor so
+        # later text appends to it unless a real $7F newline or TEXT_CLEAR
+        # follows.  The HTML snapshot includes that live line without consuming
+        # it.
         self.ensure_box(implicit=True)
         wait = f"WAIT ${arg:02X}"
-        self._snapshot(wait, wait=wait, force=not (self.box and self.box.pages))
+        retained = len(self._display_lines(include_current=True))
+        had_live_line = bool(self.line_glyphs)
+        self._snapshot(wait, wait=wait, force=not (self.box and self.box.pages), include_current=True)
         self.line_advances_since_pause = 0
         self.content_lines_since_pause = 0
         self.last_wait = wait
+        self.wait_same_line_pending = wait if had_live_line else None
+        self.wait00_retained_lines = retained if wait == "WAIT $00" else 0
+        # Reuse this flag to mean: the WAIT retained a live second line, so the
+        # next explicit newline moves the cursor onto physical line 3.
+        self.wait00_empty_line_armed = bool(wait == "WAIT $00" and retained == 2 and had_live_line)
+        self.wait00_scroll_risk_reported = False
         self._reset_checkpoint()
 
     def add_player_name(self, index: int) -> None:
@@ -686,6 +778,7 @@ def simulate_event(
     *,
     font: DialogueFont | None = None,
     player_names: dict[int, str] | None = None,
+    omitted_command_token_indexes: frozenset[int] | set[int] | None = None,
 ) -> EventSimulation:
     font = font or make_dialogue_font(base_rom)
     player_names = player_names or {0: "000000000", 1: "000000000", 2: "000000000"}
@@ -694,7 +787,13 @@ def simulate_event(
         for token in event["tokens"]
         if token.get("type") in {"text", "ending_text"} and token.get("id") in translations
     ]
-    data = serialize_event(base_rom, event, translations=translations, source=False)
+    data = serialize_event(
+        base_rom,
+        event,
+        translations=translations,
+        source=False,
+        omitted_command_token_indexes=omitted_command_token_indexes,
+    )
     return _Simulator(
         event_id=event["event_id"],
         base_rom=base_rom,

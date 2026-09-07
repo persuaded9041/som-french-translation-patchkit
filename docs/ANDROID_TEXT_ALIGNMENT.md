@@ -450,11 +450,12 @@ semantic words/digits after comparison normalization; 305 are layout or
 punctuation-only tokens and are not counted as phrases requiring Android
 matching.
 
-The current conservative pass maps **1,471 / 1,838 semantic source IDs (80.0%)**.
-It also carries six punctuation/layout source IDs inside already user-validated
-multi-token blocks, for 1,477 mapped source IDs total. **367 semantic phrases
-remain unresolved** and are preserved in `dialogues_unmapped.csv` rather than
-forced.
+The current conservative pass maps **1,571 / 1,838 semantic source IDs (85.5%)**.
+It also carries layout/punctuation source IDs inside already reviewed multi-token
+blocks. **275 semantic phrases remain unresolved** and are preserved in
+`dialogues_unmapped.csv` rather than forced. `$0103` and `$017F` are user-validated
+as visually complete Android adaptations, but their omitted SNES-only fragments stay
+unmapped and therefore do not inflate this alignment count.
 
 As a calibration check, the generic automatic session pass independently makes
 156 attempts on source IDs covered by the reviewed rounds and recovers the
@@ -464,15 +465,84 @@ situations and stay authoritative user-validated mappings.
 
 The unresolved set currently breaks down into:
 
-- 221 with insufficient English lexical confidence;
-- 103 with a plausible candidate but insufficient local context/segmentation
+- 193 with insufficient English lexical confidence;
+- 79 with a plausible candidate but insufficient local context/segmentation
   confidence;
-- 34 exact Android-English duplicate sets whose French blocks differ;
-- 7 strong but insufficiently separated candidates;
+- 26 exact Android-English duplicate sets whose French blocks differ;
+- 6 strong but insufficiently separated candidates;
 - 2 explicitly validated no-equivalent cases.
 
 These categories are intentionally conservative and are suitable for later
 manual or structure-specific work.
+
+### Structural review round 6: staging and split choices
+
+A sixth structural-review round records **30 correspondence units**. One source ID was
+already mapped by the previous pass, so it recovers **29 additional semantic source IDs**
+that the lexical matcher correctly left unresolved. These are not weaker fuzzy matches: identity is established
+from ordered Android-English scene structure plus already accepted neighboring anchors.
+The evidence is reproducible as `mappings/android/dialogues_review_round6.json`;
+identity remains encoded explicitly in `tools/import_android_text.py`. Two main families are kept separate:
+
+- **speaker/staging redistribution**: the SNES Joch running gag stores reactions such as
+  `All:WHAT!?`, while Android English keeps the reaction text (`WHAT!?`) and Android
+  French reattributes it with `%S(0,0)`. The same review also accepts short speaker-labelled
+  lines only when their Android-English identity is exact and neighboring accepted records
+  prove the scene (`Geshtar: Idiot!`, the moogle reaction triplet, the Fanha confrontation,
+  etc.);
+- **prompt/choice splitting**: the SNES often stores a prompt and selectable labels in
+  one event row, while Android stores the prompt and each option as adjacent localization
+  records. A prompt is accepted only when the Android-English option sequence and local
+  ordering provide an independent anchor (for example Save/Yes/No, Neko Buy/Sell,
+  Cannon destinations, or the contiguous `1..8` option run).
+
+Round 6 raises semantic alignment from 1,471 to **1,500 / 1,838 (81.6%)**, leaving
+**338** source phrases unresolved. It does not authorize generic matching of short labels
+such as `Yes`, `No`, `Buy` or place names outside their proven local choice block. Some
+newly identified text is still withheld from the ROM when its stock choice geometry is
+unsafe; identity and renderability remain separate gates.
+
+### Structural review round 7: ordered gaps and scene-correct short choices
+
+Round 7 adds **18 structural correspondence units** and raises the accepted alignment to
+**1,516 / 1,838 semantic source IDs (82.5%)**, leaving **322 unresolved**. The new units
+continue the same two proof families rather than broadening the matcher:
+
+- exact speaker-labelled or speaker-redistributed lines are accepted only when they fill
+  a specific gap inside an already ordered Android-English scene, such as Luka `916`,
+  Guard `1516`, Morie/Meria `1545/1552`, Krissie `2013/2020`, and PLAYER_NAME line `2186`;
+- Cannon/Neko prompt-and-choice blocks are accepted only from their complete adjacent
+  Android-English run. This also corrects two earlier globally exact short-label
+  identities: SNES `Kakkara` in `$00D0` belongs to Android `1327` inside the
+  `1326/1327/1328` Kakkara/Ice Country block, and the affirmative option in `$00E2`
+  belongs to Android `1923` beside prompt `1921` and negative option `1922`, rather than
+  to an unrelated exact `Sure!` elsewhere.
+
+These corrections demonstrate why short labels and destinations must never be matched
+in isolation. Several newly completed choice events remain excluded by the separate
+layout gate because their official French labels collide with stock `CHOICE_OPTION`
+anchors; no anchors are moved or guessed.
+
+
+### Structural review round 8: user-reviewed PARTIEL blocks
+
+Round 8 follows the first in-game review of PARTIEL events. It adds **16 semantic
+source IDs**, raising alignment from 1,516 to **1,532 / 1,838 (85.5%)** and leaving
+**267 unresolved**. The accepted identities are all demonstrated by ordered Android
+English context around already accepted anchors: Picard's lighthouse (`2303-2306`),
+Pandora gate (`237-240`), the ruins NPC (`300-301`), Phanna/Pamela exchanges, the
+Pandora king/noble scenes, Watts `565-566`, and the party-removal notice `439-440`.
+The duplicated Dyluck-soldier line in `$0121` is kept as two equivalent Android
+alternative locations (`792` or `796`) because both English and French blocks are
+identical; no arbitrary provenance is invented.
+
+The same review confirms several render-vs-identity distinctions. `$00DF`'s Cannon
+prompt is Android `420`, separate from options `421/422`, but remains layout-deferred
+because the official French prompt/option geometry collides with stock choice anchors.
+`$01D3` has a structurally credible expanded Android opening (`616/617`) but that text
+still cannot be laid out safely in the stock carrier, so it stays PARTIEL. `$0167`'s
+Android `1059` is the likely resegmented continuation around `PLAYER_NAME(1)`, but is
+left unresolved rather than forcing a binding across the SNES WAIT/name structure.
 
 ### First SNES formatting checkpoint
 
@@ -548,3 +618,123 @@ Android alignment and every mapping passes existing-command binding, exact
 PLAYER_NAME rebinding and the conservative layout rules. This complete-event gate
 deliberately prevents mixed English/French runtime test scenes.
 
+## Round 11 PARTIEL follow-up
+
+Round 11 reuses the structural patterns established by user review rather than lowering
+lexical thresholds. Accepted units must be proven by the ordered Android-English scene:
+exact gaps between already accepted anchors, Android sentences that expand an SNES
+fragment, or consecutive SNES fragments clearly collapsed into one Android anchor.
+Generic short labels, choices and destinations remain unresolved unless their local block
+proves identity.
+
+This pass raises accepted alignment to **1,563 / 1,838 semantic IDs (85.0%)**, leaving
+**275 unresolved**. The simulator-filtered corpus remains 478 events but improves to
+**458 complete + 20 PARTIEL**, with **1009 visible French semantic IDs** and 0 errors,
+0 warnings and 0 implicit wraps. A semantically convincing `$02AE` regrouping was
+explicitly left unresolved because it crosses a stock `WAIT` boundary that the formatter
+refuses to bind automatically.
+
+
+
+## Round 18 speaker/resegmentation follow-up
+
+Round 18 follows the already-established speaker-reattribution pattern instead of
+lowering lexical thresholds. It restores the final Joch `All:Surprise...` reaction
+from Android EN 2457, resolves the ordered Gnome 993-999 sequence, the split
+Sergo/guard exchange at 1508-1509, the locally disambiguated television `...Gzzz...`
+at 2349, and the Pamela/Chris resegmentation in Android 2032-2055. The Android
+French `%S(0,0) :` label on the Joch reactions is treated as Android presentation
+metadata because the corresponding SNES `All:` carrier has no PLAYER_NAME command;
+no new runtime speaker command is invented.
+
+The accepted alignment is now **1,571 / 1,838 semantic IDs (85.5%)**, leaving
+**267 unresolved**. The simulator-filtered output remains **478 events**, now
+**466 complete + 12 PARTIEL**, with **1,023 visible French semantic IDs / 1,086 JSON
+entries**, 0 errors, 0 warnings, 0 implicit wraps and 0 WAIT $00 third-line-scroll
+risks. `$0023` requires one generated validated-style page boundary after its longer
+French reaction; `$03E9` and `$055E` expose two new instances of the already-audited
+WAIT $00 third-line hazard and therefore use the same explicit newline-carrier to
+TEXT_CLEAR test-candidate repair.
+
+
+## Round 20 Cannon Travel / choice-destination structural review
+
+Round 20 uses ordered destination labels as structural anchors for the heavily rewritten
+Cannon Travel dialogue. The Android prompt text is not required to resemble the SNES
+prompt lexically: identity is established from the ordered Android-English block
+`prompt -> destination option(s) -> destination response`, cross-checked against the
+SNES choice branches. Android commonly merges the stock shared `Just slide into the
+cannon!` event into each destination response; the importer therefore splits the
+official French response back across the destination-specific SNES event and the shared
+`$00FC` carrier instead of duplicating it.
+
+The same ordered-choice method resolves the `$01D6` donation prompt and the `$01EE`
+Yes/No options. `$01D6` and `$01EE` use fresh-page choice presentation when required by
+the three-line runtime window. `$00DF` remains PARTIEL despite accepted semantic identity
+because `Temple de l'Eau` does not fit the stock option-anchor span; no CHOICE_OPTION
+anchor is moved automatically.
+
+This review raises the conservative alignment to **1,593 / 1,838 semantic IDs (86.7%)**,
+leaving **245 unresolved**. The simulator-filtered corpus reaches **496 events**, with
+**486 complete + 10 PARTIEL**, **1,043 visible French semantic IDs / 1,104 JSON entries**,
+and still reports 0 errors, 0 warnings, 0 implicit wraps and 0 WAIT $00 third-line-scroll
+risks.
+
+
+## Round 21 conservative PARTIEL resegmentation
+
+Round 21 resolves three cases using only structural Android-English evidence and the
+official Android French strings. `$01E5` binds Android 668 to the existing
+`PLAYER_NAME(1) + joined again!` carrier. `$0609` treats Android 415 as the merged
+`Haunted Forest ↑ / ↓ Gaia's Navel` unit and redistributes its two French labels across
+the stock `$D1/$D2` glyph row without translating or moving the arrows. `$0167` expands
+the earlier 1058 evidence to the contiguous 1058/1059 block and redistributes the exact
+French text around the existing `WAIT $00` + `PLAYER_NAME(1)` bridge; neither command is
+moved or invented.
+
+The conservative alignment is now **1,596 / 1,838 semantic IDs (86.8%)**, leaving
+**242 unresolved**. All three events pass the formatter and independent simulator, so
+the 496-event corpus becomes **489 complete + 7 PARTIEL**, with **1,046 visible French
+semantic IDs / 1,104 JSON entries**, 0 errors, 0 warnings and 0 implicit wraps. The
+existing `$0167` explicit post-WAIT newline remains a runtime-test candidate rather than
+being promoted by static simulation alone.
+
+
+## Round 22 branch/staging PARTIEL resegmentation
+
+Round 22 resolves three additional PARTIEL events without manual French. `$01DD` uses
+Android EN 616 as the shared Sprite warning, 619 as the female-address branch, and 620
+as the exact two-`PLAYER_NAME(1)` reply; Android FR 616/619/620 is redistributed only
+through those existing SNES carriers. `$07FE` binds the ending wake-up staging to Android
+3399/3401/3406 and preserves the stock `PLAYER_NAME(0)` while reusing the Android FR
+staging pieces. `$02AE` binds the two Amar fragments around the existing timed `WAIT $10`
+to Android 1630. Because WAIT does not advance the cursor, the formatter keeps the first
+Android-FR piece on one physical line, emits one explicit newline before the unchanged
+`WAIT $10`, then places the remaining official French on the following two lines.
+
+The conservative alignment is now **1,601 / 1,838 semantic IDs (87.1%)**, leaving
+**237 unresolved**. The corpus remains **496 simulator-clean events** and becomes
+**492 complete + 4 PARTIEL**, with **1,051 visible French semantic IDs / 1,106 JSON
+entries**, 0 errors, 0 warnings and 0 implicit wraps. `$01DD`, `$02AE` and `$07FE` remain
+`TO REVIEW`; this round is statically clean but not runtime-validated. The remaining
+PARTIEL events are `$00DF`, `$01DC`, `$0278` and `$0331`.
+
+
+## Round 23 user-validated Android omission at $01DC
+
+Round 23 does not create a new semantic mapping. A corpus-wide Android-English check
+confirms that Android 728 ends with the three-person platform/bridge instruction and
+Android 729 immediately starts the following Niccolo scene. The final SNES-only
+`PLAYER_NAME(0) + C9:804A` reaction (`...? Platform? / Let's go see it!`) therefore has
+no Android identity or official Android-French equivalent.
+
+The user explicitly validated treating that pair as one Android-adaptation omission.
+`C9:804A` remains unmapped and suppressed, so alignment coverage stays **1,601 / 1,838
+semantic IDs (87.1%)**, with **237 unresolved**. The translated serializer additionally
+omits only the stock `PLAYER_NAME(0)` immediately before `C9:804A`, guarded by exact
+source-token adjacency; the canonical source asset is unchanged and no generic command
+removal rule is introduced.
+
+The corpus remains **496 simulator-clean events** but becomes **493 complete + 3 PARTIEL**,
+with **1,051 visible French semantic IDs / 1,106 JSON entries**, 0 errors, 0 warnings and
+0 implicit wraps. The remaining PARTIEL events are `$00DF`, `$0278` and `$0331`.

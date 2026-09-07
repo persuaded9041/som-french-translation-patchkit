@@ -1,0 +1,1069 @@
+{
+  "format_version": 1,
+  "status": "round6_user_review_pending",
+  "source_asset": "dialogues.json",
+  "android_english": {
+    "path": "sources/android/scrtxt_en.bin",
+    "sha256": "4d4508560967b6ce4d6cf992f29e84e2775ed4accc74d87c3fd4269044b75ae5"
+  },
+  "android_french": {
+    "path": "sources/android/scrtxt_fr.bin",
+    "sha256": "cd837aaf53a7979d0e84910e8cda3bd67427f4a3cbddadc351811378d7e7d696"
+  },
+  "policy": {
+    "automatic_translation_generation": false,
+    "english_identity_is_primary": true,
+    "notes": [
+      "SNES PLAYER_NAME commands are represented explicitly as Android-style %S(index,0) placeholders for comparison only.",
+      "Android anchor intervals include following English-empty localization slots.",
+      "Very-high-confidence SNES-to-Android-English identity is not rejected merely because French wording is freely adapted.",
+      "When French or Android segmentation crosses individual anchors, preserve and review the complete local sequence block rather than forcing a per-ID translation."
+    ]
+  },
+  "scenes": [
+    {
+      "event_id": "0083",
+      "label": "Geshtar short speaker-labelled reaction",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:13BF"
+          ],
+          "snes_parts": [
+            "C9:13BF"
+          ],
+          "source_display": "GESHTAR:Idiot!\n",
+          "android_anchor_ids": [
+            927
+          ],
+          "android_unit_ids": [
+            927
+          ],
+          "android_english_display": "Geshtar: Idiot!",
+          "french_nonempty_ids": [
+            927
+          ],
+          "french_display": "Gestahl : Ha ! Imbécile !",
+          "relation": "speaker_label_alignment",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact Geshtar: Idiot! Android line immediately precedes already accepted Android 928 in the same trapped-player exchange.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0187",
+      "label": "Girl warning reattributed to PLAYER_NAME",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:5B12"
+          ],
+          "snes_parts": [
+            "C9:5B12"
+          ],
+          "source_display": "GIRL:Look out!",
+          "android_anchor_ids": [
+            359
+          ],
+          "android_unit_ids": [
+            359,
+            360
+          ],
+          "android_english_display": "%S(1,0): Look out!",
+          "french_nonempty_ids": [
+            359
+          ],
+          "french_display": "Pousse-toi de là, toi !",
+          "relation": "speaker_reattribution",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 62.5,
+            "source_token_coverage": 66.7,
+            "lexical_score": 63.5
+          },
+          "note": "SNES Girl: Look out! is the exact Android Look out! line; Android represents the girl with PLAYER_NAME after the naming sequence.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "024B",
+      "label": "Repeated moogle reaction triplet",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:9EC0"
+          ],
+          "snes_parts": [
+            "C9:9EC0"
+          ],
+          "source_display": "MOOGLE:...Puu...\n",
+          "android_anchor_ids": [
+            1229
+          ],
+          "android_unit_ids": [
+            1229
+          ],
+          "android_english_display": "Moogle: ...Puu...",
+          "french_nonempty_ids": [
+            1229
+          ],
+          "french_display": "Mog : Pu...",
+          "relation": "speaker_label_alignment",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Android repeats the same Moogle / laughing / crying triplet several times; 1229 begins one exact triplet and the following two SNES fragments already use the identical localized reactions.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "02EE",
+      "label": "Tiny sprite speaker-labelled exchange",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:C830"
+          ],
+          "snes_parts": [
+            "C9:C830"
+          ],
+          "source_display": "GIRL:A tiny little sprite!\n",
+          "android_anchor_ids": [
+            2557
+          ],
+          "android_unit_ids": [
+            2557
+          ],
+          "android_english_display": "Girl: A tiny little sprite!",
+          "french_nonempty_ids": [
+            2557
+          ],
+          "french_display": "Fillette : Oh là là ! Qu'est-ce que t'es petit ! ",
+          "relation": "speaker_label_alignment",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact Girl: A tiny little sprite! line immediately precedes already accepted Android 2558 in the same two-line exchange.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "04A1",
+      "label": "Fanha confrontation opening speaker redistribution",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:17DA"
+          ],
+          "snes_parts": [
+            "CA:17DA"
+          ],
+          "source_display": "FANHA:You made it!\n",
+          "android_anchor_ids": [
+            2897
+          ],
+          "android_unit_ids": [
+            2897
+          ],
+          "android_english_display": "Fanha: You made it!",
+          "french_nonempty_ids": [
+            2897
+          ],
+          "french_display": "Faunach : Je vous retrouve, les gamins... ",
+          "relation": "speaker_label_alignment",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact Fanha: You made it! opens the same contiguous Android confrontation whose 2899+ lines are already aligned.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "CA:17EF"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              0
+            ],
+            "CA:17EF"
+          ],
+          "source_display": "%S(0,0):Did YOU beat\n the Emperor?",
+          "android_anchor_ids": [
+            2898
+          ],
+          "android_unit_ids": [
+            2898
+          ],
+          "android_english_display": "%S(0,0): YOU'RE the one who killed the emperor?",
+          "french_nonempty_ids": [
+            2898
+          ],
+          "french_display": "%S(0,0) : C'est vous qui avez tué l'Empereur ?! ",
+          "relation": "speaker_reattribution",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 69.9,
+            "source_token_coverage": 66.7,
+            "lexical_score": 69.1
+          },
+          "note": "SNES continuation is preceded by PLAYER_NAME 0 and corresponds exactly to Android PLAYER_NAME asking the same question immediately between 2897 and already accepted 2899.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "051D",
+      "label": "Soldier trap reaction speaker-labelled line",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:5C6C"
+          ],
+          "snes_parts": [
+            "CA:5C6C"
+          ],
+          "source_display": "SOLDIER:Pipe down!\n",
+          "android_anchor_ids": [
+            2221
+          ],
+          "android_unit_ids": [
+            2221
+          ],
+          "android_english_display": "Soldier: Pipe down!",
+          "french_nonempty_ids": [
+            2221
+          ],
+          "french_display": "Soldat : Tenez-vous tranquilles ! ",
+          "relation": "speaker_label_alignment",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact Soldier: Pipe down! Android line is bracketed by already accepted Android 2220 and 2222 in the same trap sequence.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0020",
+      "label": "Joch running gag - Tasnica",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:09A7"
+          ],
+          "snes_parts": [
+            "C9:09A7"
+          ],
+          "source_display": "All:What luck...",
+          "android_anchor_ids": [
+            2460
+          ],
+          "android_unit_ids": [
+            2460
+          ],
+          "android_english_display": "What luck... ",
+          "french_nonempty_ids": [
+            2460
+          ],
+          "french_display": "%S(0,0) : Tiens donc...",
+          "relation": "speaker_reattribution",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 81.8,
+            "source_token_coverage": 66.7,
+            "lexical_score": 78.0
+          },
+          "note": "SNES 'All:What luck...' corresponds to Android 'What luck...'; Android FR reattributes the reaction to PLAYER_NAME. Ordered immediately before the Tasnica answer.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:09B9"
+          ],
+          "snes_parts": [
+            "C9:09B9"
+          ],
+          "source_display": "has left\n for Tasnica. The Republic's to the west of here.",
+          "android_anchor_ids": [
+            2461,
+            2462
+          ],
+          "android_unit_ids": [
+            2461,
+            2462
+          ],
+          "android_english_display": "He has left for Tasnica. The republic's to the west of here.",
+          "french_nonempty_ids": [
+            2461,
+            2462
+          ],
+          "french_display": "Maître Jach s'est rendu à Tasmanica. Il a déroulé son tapis volant, et fwitt ! Tasmanica ? Cherchez un château fort au bord de la mer, à l'ouest d'ici. ",
+          "relation": "one_snes_to_many_android",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 97.3,
+            "source_token_coverage": 100.0,
+            "lexical_score": 98.0
+          },
+          "note": "Android splits the same Tasnica answer into destination + direction records; ordered scene block is exact.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0021",
+      "label": "Joch running gag - Palace of Darkness",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:09F8"
+          ],
+          "snes_parts": [
+            "C9:09F8"
+          ],
+          "source_display": "All:WHAT!?",
+          "android_anchor_ids": [
+            2452
+          ],
+          "android_unit_ids": [
+            2452
+          ],
+          "android_english_display": "WHAT!?",
+          "french_nonempty_ids": [
+            2452
+          ],
+          "french_display": "%S(0,0) : Ah bon ?",
+          "relation": "speaker_reattribution",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 66.7,
+            "source_token_coverage": 50.0,
+            "lexical_score": 62.5
+          },
+          "note": "SNES 'All:WHAT!?' corresponds to Android 'WHAT!?'; Android FR reattributes the reaction to PLAYER_NAME. Android 2453 is already the accepted immediately following answer.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0022",
+      "label": "Joch running gag - Gold Isle",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:0A44"
+          ],
+          "snes_parts": [
+            "C9:0A44"
+          ],
+          "source_display": "All:Where is Joch?",
+          "android_anchor_ids": [
+            2454
+          ],
+          "android_unit_ids": [
+            2454
+          ],
+          "android_english_display": "Where is Joch?",
+          "french_nonempty_ids": [
+            2454
+          ],
+          "french_display": "%S(0,0) : Encore ?! ",
+          "relation": "speaker_reattribution",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 86.7,
+            "source_token_coverage": 75.0,
+            "lexical_score": 83.8
+          },
+          "note": "SNES 'All:Where is Joch?' corresponds to Android 'Where is Joch?'; Android FR reattributes the reaction to PLAYER_NAME.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:0A58"
+          ],
+          "snes_parts": [
+            "C9:0A58"
+          ],
+          "source_display": "left for\n the Gold Isle.\n It's northeast of here.",
+          "android_anchor_ids": [
+            2455,
+            2456
+          ],
+          "android_unit_ids": [
+            2455,
+            2456
+          ],
+          "android_english_display": "He left for the Gold Isle. It's northeast of here.",
+          "french_nonempty_ids": [
+            2455,
+            2456
+          ],
+          "french_display": "Maître Jach est parti pour l'Île d'or. Il a enfourché son balai magique et s'est envolé, fiouh ! L'Île d'or est une île ronde au nord-est d'ici, au milieu de l'océan ! Vous ne pouvez pas la rater !",
+          "relation": "one_snes_to_many_android",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 96.8,
+            "source_token_coverage": 100.0,
+            "lexical_score": 97.6
+          },
+          "note": "Android splits the same Gold Isle answer into destination + direction records in the ordered Joch scene.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0023",
+      "label": "Joch running gag - Moon Palace",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:0A8E"
+          ],
+          "snes_parts": [
+            "C9:0A8E"
+          ],
+          "source_display": "All:Surprise...",
+          "android_anchor_ids": [
+            2457
+          ],
+          "android_unit_ids": [
+            2457
+          ],
+          "android_english_display": "Surprise...",
+          "french_nonempty_ids": [
+            2457
+          ],
+          "french_display": "%S(0,0) : Vous vous moquez de nous, là !",
+          "relation": "speaker_reattribution",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 80.0,
+            "source_token_coverage": 50.0,
+            "lexical_score": 72.5
+          },
+          "note": "SNES 'All:Surprise...' corresponds to Android 'Surprise...'; Android FR reattributes the reaction to PLAYER_NAME. Android 2458/2459 are already the accepted following answer.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0050",
+      "label": "Neko save prompt split from Yes/No",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:10A5"
+          ],
+          "snes_parts": [
+            "C9:10A5"
+          ],
+          "source_display": " Save your game?\n",
+          "android_anchor_ids": [
+            198
+          ],
+          "android_unit_ids": [
+            198
+          ],
+          "android_english_display": "Save your game?",
+          "french_nonempty_ids": [
+            198
+          ],
+          "french_display": "Sauvegarder la partie ?",
+          "relation": "choice_prompt_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Android 198/199/200 is the Save your game?/Yes/No triplet bracketed by the already aligned Neko stay block 194-196 and shop block 201-203.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0065",
+      "label": "Neko shop prompt split from Buy/Sell",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:1236"
+          ],
+          "snes_parts": [
+            "C9:1236"
+          ],
+          "source_display": " Purrfectly priceless\n items available!\n (",
+          "android_anchor_ids": [
+            201
+          ],
+          "android_unit_ids": [
+            201
+          ],
+          "android_english_display": "Purrrfectly priceless items available!",
+          "french_nonempty_ids": [
+            201
+          ],
+          "french_display": "Bien, bien ! Tu vas voir, je n'ai que des objets de qualité à proposer, miaou !",
+          "relation": "choice_prompt_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 98.6,
+            "source_token_coverage": 75.0,
+            "lexical_score": 92.7
+          },
+          "note": "Android 201/202/203 is the contiguous Purrrfectly.../Buy/Sell triplet; option 202 is already accepted for this SNES choice.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0099",
+      "label": "Neko initial shop question split from choice",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:14FE"
+          ],
+          "snes_parts": [
+            "C9:14FE"
+          ],
+          "source_display": " Need anything?\n(",
+          "android_anchor_ids": [
+            188
+          ],
+          "android_unit_ids": [
+            188
+          ],
+          "android_english_display": "Welcome to Neko's! Need anything?",
+          "french_nonempty_ids": [
+            188
+          ],
+          "french_display": "Bienvenue chez Niccolo ! Dis-moi, jeune homme, ta bourse est-elle plutôt bien pleine ?",
+          "relation": "choice_prompt_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 59.1,
+            "source_token_coverage": 100.0,
+            "lexical_score": 69.3
+          },
+          "note": "Android 188/189/190 is the contiguous Welcome/Need anything?/Whatcha got?/Not really choice block; option 190 is already accepted in this SNES event.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:1512"
+          ],
+          "snes_parts": [
+            "C9:1512"
+          ],
+          "source_display": "Watcha got?",
+          "android_anchor_ids": [
+            189
+          ],
+          "android_unit_ids": [
+            189
+          ],
+          "android_english_display": "   Whatcha got?   ",
+          "french_nonempty_ids": [
+            189
+          ],
+          "french_display": "   Oui !   ",
+          "relation": "choice_option_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 95.2,
+            "source_token_coverage": 50.0,
+            "lexical_score": 83.9
+          },
+          "note": "Exact Whatcha got? option immediately precedes already accepted Android 190 Not really.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "00DF",
+      "label": "Cannon Travel Water Palace/Pandora choice",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:1DCF"
+          ],
+          "snes_parts": [
+            "C9:1DCF"
+          ],
+          "source_display": " Air delivery for 50 GP!\n (",
+          "android_anchor_ids": [
+            420
+          ],
+          "android_unit_ids": [
+            420
+          ],
+          "android_english_display": "Heh heh heh. Welcome!_50 GP per trip!",
+          "french_nonempty_ids": [
+            420
+          ],
+          "french_display": "Hé hé hé, bienvenue !_Où veux-tu aller ? C'est 50 pièces par trajet ! ",
+          "relation": "choice_prompt_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 35.7,
+            "source_token_coverage": 40.0,
+            "lexical_score": 36.8
+          },
+          "note": "Android 420/421/422 is the contiguous 50-GP prompt / Water Palace / Pandora block; Pandora 422 is already accepted for this event.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:1DED"
+          ],
+          "snes_parts": [
+            "C9:1DED"
+          ],
+          "source_display": "Water Palace",
+          "android_anchor_ids": [
+            421
+          ],
+          "android_unit_ids": [
+            421
+          ],
+          "android_english_display": " Water Palace ",
+          "french_nonempty_ids": [
+            421
+          ],
+          "french_display": " Temple de l'Eau ",
+          "relation": "choice_option_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Water Palace is the option immediately preceding already accepted Pandora 422 in the same Android block.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "00E0",
+      "label": "Cannon Travel Matango/Kakkara choice",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:1E14"
+          ],
+          "snes_parts": [
+            "C9:1E14"
+          ],
+          "source_display": " Hey! 50 GP and you're\n outta here!\n (",
+          "android_anchor_ids": [
+            1773
+          ],
+          "android_unit_ids": [
+            1773
+          ],
+          "android_english_display": "Heh heh. Welcome!_50 GP per trip!",
+          "french_nonempty_ids": [
+            1773
+          ],
+          "french_display": "Hé hé, bienvenue !_Où veux-tu aller ? C'est 50 pièces par trajet ! ",
+          "relation": "choice_prompt_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 36.1,
+            "source_token_coverage": 25.0,
+            "lexical_score": 33.3
+          },
+          "note": "Android 1773/1774/1775 is the contiguous 50-GP prompt / Matango / Kakkara block; Kakkara 1775 is already accepted for this event.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:1E3D"
+          ],
+          "snes_parts": [
+            "C9:1E3D"
+          ],
+          "source_display": "Matango",
+          "android_anchor_ids": [
+            1774
+          ],
+          "android_unit_ids": [
+            1774
+          ],
+          "android_english_display": " Matango ",
+          "french_nonempty_ids": [
+            1774
+          ],
+          "french_display": " Matango ",
+          "relation": "choice_option_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Matango is the option immediately preceding already accepted Kakkara 1775 in the same Android block.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "00DC",
+      "label": "Pandora lodging Nope option split",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:1DB6"
+          ],
+          "snes_parts": [
+            "C9:1DB6"
+          ],
+          "source_display": "Nope! )",
+          "android_anchor_ids": [
+            271
+          ],
+          "android_unit_ids": [
+            271
+          ],
+          "android_english_display": "   Nope!   ",
+          "french_nonempty_ids": [
+            271
+          ],
+          "french_display": "   Alors, non !   ",
+          "relation": "choice_option_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Android 267/269/270/271 is the same ordered lodging exchange; Android 271 is the missing Nope option immediately after the already accepted Phew, okay option 270.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "00E1",
+      "label": "Cannon Travel Matango/Ice Country split",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:1E5F"
+          ],
+          "snes_parts": [
+            "C9:1E5F"
+          ],
+          "source_display": " Where ya headed? Your\n choice 50 GP!\n",
+          "android_anchor_ids": [
+            1653
+          ],
+          "android_unit_ids": [
+            1653
+          ],
+          "android_english_display": "Where'll it be today!?_50 GP per trip!",
+          "french_nonempty_ids": [
+            1653
+          ],
+          "french_display": "Bonjour ! Un petit voyage ?_Où veux-tu aller ? C'est 50 pièces par trajet ! ",
+          "relation": "choice_prompt_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 38.2,
+            "source_token_coverage": 42.9,
+            "lexical_score": 39.4
+          },
+          "note": "Android 1653-1656 is the Cannon Travel prompt followed by Matango, Ice Country and Empire; this SNES state exposes Matango/Ice Country.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:1E98"
+          ],
+          "snes_parts": [
+            "C9:1E98"
+          ],
+          "source_display": "Ice Country )",
+          "android_anchor_ids": [
+            1655
+          ],
+          "android_unit_ids": [
+            1655
+          ],
+          "android_english_display": " Ice Country ",
+          "french_nonempty_ids": [
+            1655
+          ],
+          "french_display": " Pays de glace ",
+          "relation": "choice_option_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Ice Country is the Android option adjacent to Matango 1654 in the same Cannon Travel block.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "00E3",
+      "label": "Cannon Travel numbered destination list split",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:1F03"
+          ],
+          "snes_parts": [
+            "C9:1F03"
+          ],
+          "source_display": " 1:Matango\n 2:Ice Country\n 3:The Empire",
+          "android_anchor_ids": [
+            1654,
+            1655,
+            1656
+          ],
+          "android_unit_ids": [
+            1654,
+            1655,
+            1656
+          ],
+          "android_english_display": " Matango   Ice Country   The Empire ",
+          "french_nonempty_ids": [
+            1654,
+            1655,
+            1656
+          ],
+          "french_display": " Matango   Pays de glace   Empire ",
+          "relation": "choice_destination_list",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 90.9,
+            "source_token_coverage": 62.5,
+            "lexical_score": 83.8
+          },
+          "note": "SNES concatenates the three destination labels into a numbered list; Android 1654/1655/1656 stores Matango, Ice Country and The Empire as three adjacent localization records.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "01EE",
+      "label": "Elinee send-outside prompt split from Yes/No",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:88F7"
+          ],
+          "snes_parts": [
+            "C9:88F7"
+          ],
+          "source_display": " Allow me to send you\n outside!\n",
+          "android_anchor_ids": [
+            763
+          ],
+          "android_unit_ids": [
+            763
+          ],
+          "android_english_display": "Allow me to send you outside with what magic I have remaining.",
+          "french_nonempty_ids": [
+            763
+          ],
+          "french_display": "Elinice : Voulez-vous que je vous envoie dehors avec ce qu'il me reste de magie ? ",
+          "relation": "choice_prompt_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 62.9,
+            "source_token_coverage": 100.0,
+            "lexical_score": 72.2
+          },
+          "note": "Android 763/764/765 is the contiguous send-outside prompt / Yes / No block.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "02A7",
+      "label": "Tasnica rescue-team leaving choice",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:B580"
+          ],
+          "snes_parts": [
+            "C9:B580"
+          ],
+          "source_display": " A rescue team's coming.\n Are you leaving?",
+          "android_anchor_ids": [
+            1579,
+            1580
+          ],
+          "android_unit_ids": [
+            1579,
+            1580
+          ],
+          "android_english_display": "A rescue team's coming. Are you leaving?",
+          "french_nonempty_ids": [
+            1579,
+            1580
+          ],
+          "french_display": "Nous attendons les secours envoyés par la République de Tasmanica.  Vous partez ? ",
+          "relation": "choice_prompt_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Android splits the two SNES prompt sentences into 1579/1580, immediately followed by Yes/No 1581/1582.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "05B0",
+      "label": "Eight-way numeric choice - missing six",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:77FF"
+          ],
+          "snes_parts": [
+            "CA:77FF"
+          ],
+          "source_display": "6",
+          "android_anchor_ids": [
+            1884
+          ],
+          "android_unit_ids": [
+            1884
+          ],
+          "android_english_display": "  6  ",
+          "french_nonempty_ids": [
+            1884
+          ],
+          "french_display": "  6  ",
+          "relation": "choice_option_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Android 1879-1886 is the contiguous 1..8 option run; SNES options 1-5 and 7-8 were already aligned to the surrounding IDs.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "066B",
+      "label": "Be gone / Well? prompt split from Yes/No",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:8A79"
+          ],
+          "snes_parts": [
+            "CA:8A79"
+          ],
+          "source_display": " Be gone!",
+          "android_anchor_ids": [
+            1845
+          ],
+          "android_unit_ids": [
+            1845
+          ],
+          "android_english_display": "Be gone!",
+          "french_nonempty_ids": [
+            1845
+          ],
+          "french_display": "... Quittez cet endroit ! ...",
+          "relation": "choice_prompt_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Android 1845/1846/1847/1848 is the contiguous Be gone!/Well?/Yes/No block.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "CA:8A8A"
+          ],
+          "snes_parts": [
+            "CA:8A8A"
+          ],
+          "source_display": "Well?\n",
+          "android_anchor_ids": [
+            1846
+          ],
+          "android_unit_ids": [
+            1846
+          ],
+          "android_english_display": "Well?",
+          "french_nonempty_ids": [
+            1846
+          ],
+          "french_display": "Voulez-vous obéir ?",
+          "relation": "choice_prompt_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Android Well? immediately precedes the Yes/No pair in the same block.",
+          "user_validation": "pending"
+        }
+      ]
+    }
+  ]
+}

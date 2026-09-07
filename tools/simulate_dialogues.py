@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import base64
 import csv
+import json
 from html import escape
 from io import BytesIO
 from pathlib import Path
@@ -26,10 +27,23 @@ from shared.dialogue_simulator import (  # noqa: E402
     simulate_event,
 )
 from shared.rom import validate_base_rom  # noqa: E402
-from shared.translation_json import load_translation  # noqa: E402
+from shared.translation_json import (  # noqa: E402
+    load_structural_omission_token_indexes,
+    load_translation,
+)
 
 DIALOGUES = PROJECT_ROOT / "assets" / "dialogues.json"
 TRANSLATIONS = PROJECT_ROOT / "translations" / "dialogues_french.json"
+
+
+WAIT00_FRESH_PAGE_BATCH_TEST_EVENTS = frozenset({
+    "00FB", "0134", "016D", "01CA", "029C", "03EE", "04A1", "04EA",
+})
+
+EXPLICIT_POST_WAIT_NEWLINE_BATCH_TEST_EVENTS = frozenset({
+    "0103", "0106", "0136", "0167", "016D", "016E", "01C3", "0228",
+    "0259", "026A", "055E", "059B",
+})
 
 
 def render_page_png(lines: list[SimLine], font: DialogueFont, *, scale: int = 2) -> str:
@@ -119,7 +133,17 @@ def make_html(
     player_name: str,
     source_path: Path,
     source_events: dict[str, dict],
+    partial_events: set[str] | None = None,
+    baseline_simulations: dict[str, EventSimulation] | None = None,
+    baseline_translations: dict[str, str] | None = None,
+    current_translations: dict[str, str] | None = None,
+    preserved_tags: dict[str, set[str]] | None = None,
 ) -> str:
+    partial_events = partial_events or set()
+    baseline_simulations = baseline_simulations or {}
+    baseline_translations = baseline_translations or {}
+    current_translations = current_translations or {}
+    preserved_tags = preserved_tags or {"new": set(), "modified": set(), "review": set()}
     total_boxes = sum(len(sim.boxes) for sim in simulations)
     total_pages = sum(len(box.pages) for sim in simulations for box in sim.boxes)
     errors = sum(issue.severity == "error" for sim in simulations for issue in sim.issues)
@@ -158,9 +182,45 @@ def make_html(
                   {f'<div class="transition">Transition : {escape(page.transition)}</div>' if page.transition else ''}
                 </div>""")
             boxes_html.append("".join(pages_html))
+        partial = sim.event_id in partial_events
+        partial_badge = '<span class="badge partial">PARTIEL · français incomplet</span>' if partial else ''
+        current_ids = set(sim.translated_ids)
+        # A previously suppressed empty translation becoming visible is NEW too.
+        # PARTIEL suppression deliberately keeps empty entries in the translation
+        # document, so key-presence alone would miss the most important review case.
+        new_ids = (
+            sorted(
+                text_id
+                for text_id in current_ids
+                if current_translations.get(text_id, "").strip("\n\r\t \v\f")
+                and not baseline_translations.get(text_id, "").strip("\n\r\t \v\f")
+            )
+            if baseline_translations
+            else []
+        )
+        baseline_sim = baseline_simulations.get(sim.event_id)
+        modified = (baseline_sim is not None and baseline_sim.encoded != sim.encoded) or sim.event_id in preserved_tags["modified"]
+        is_new = bool(new_ids) or sim.event_id in preserved_tags["new"]
+        review_issue_codes = {"WAIT00_THIRD_LINE_SCROLL_RISK", "UNPAUSED_LIVE_LINE_SCROLL_RISK"}
+        to_review = (
+            partial
+            or sim.status != "ok"
+            or sim.event_id in WAIT00_FRESH_PAGE_BATCH_TEST_EVENTS
+            or sim.event_id in EXPLICIT_POST_WAIT_NEWLINE_BATCH_TEST_EVENTS
+            or sim.event_id in preserved_tags["review"]
+            or any(issue.code in review_issue_codes for issue in sim.issues)
+        )
+        tag_badges = []
+        if is_new:
+            tag_badges.append('<span class="badge new">NEW</span>')
+        if modified:
+            tag_badges.append('<span class="badge modified">MODIFIED</span>')
+        if to_review:
+            tag_badges.append('<span class="badge review">TO REVIEW</span>')
+        tag_title = f' title="Nouveaux IDs: {escape(", ".join(new_ids))}"' if new_ids else ''
         cards.append(f"""
-        <details class="event {sim.status}" data-status="{sim.status}" data-event="{sim.event_id}" open>
-          <summary><span class="event-id">${sim.event_id}</span> <span class="status {sim.status}">{sim.status.upper()}</span> <span class="muted">{len(sim.translated_ids)} token(s) traduit(s), {len(sim.encoded)} octets encodés</span></summary>
+        <details class="event {sim.status}" data-status="{sim.status}" data-event="{sim.event_id}" data-new="{int(is_new)}" data-modified="{int(modified)}" data-review="{int(to_review)}" open>
+          <summary{tag_title}><span class="event-id">${sim.event_id}</span> <span class="status {sim.status}">{sim.status.upper()}</span> {partial_badge} {' '.join(tag_badges)} <span class="muted">{len(sim.translated_ids)} token(s) traduit(s), {len(sim.encoded)} octets encodés</span></summary>
           <ul class="issues">{issue_html}</ul>
           <div class="comparison">
             <section class="translated-column"><h3>Français généré · simulation VWF</h3>{''.join(boxes_html)}</section>
@@ -193,7 +253,7 @@ button {{ cursor:pointer }}
 summary {{ cursor:pointer; padding:13px 15px }}
 .event-id {{ font:700 16px ui-monospace,SFMono-Regular,Consolas,monospace }}
 .status,.badge {{ display:inline-block; font-size:11px; font-weight:800; border-radius:999px; padding:3px 7px; margin:0 5px; }}
-.status.ok,.badge.ok {{ background:#193d2b;color:#80efad }} .status.warning,.badge.warning {{ background:#4a3812;color:#ffd878 }} .status.error,.badge.error {{ background:#4c2024;color:#ff9b9b }} .badge.info {{ background:#263750;color:#a8ccff }}
+.status.ok,.badge.ok {{ background:#193d2b;color:#80efad }} .status.warning,.badge.warning {{ background:#4a3812;color:#ffd878 }} .status.error,.badge.error {{ background:#4c2024;color:#ff9b9b }} .badge.info {{ background:#263750;color:#a8ccff }} .badge.partial {{ background:#4a3518;color:#ffd08a }}
 .muted {{ color:var(--muted) }}
 .issues {{ margin:0 18px 8px; padding-left:20px; color:#d7deee }} .issues li {{ margin:5px 0 }}
 .comparison {{ display:grid; grid-template-columns:minmax(0,1.18fr) minmax(330px,.82fr); gap:14px; padding:0 18px 18px; align-items:start; }}
@@ -224,7 +284,7 @@ pre {{ white-space:pre-wrap; margin:10px 0 5px; font:14px ui-monospace,SFMono-Re
 <div class="stats">
 <div class="stat"><strong>{len(simulations)}</strong>événements</div><div class="stat"><strong>{total_boxes}</strong>boîtes</div><div class="stat"><strong>{total_pages}</strong>pages</div><div class="stat"><strong>{errors}</strong>erreurs</div><div class="stat"><strong>{warnings}</strong>avertissements</div><div class="stat"><strong>{implicit}</strong>wraps implicites</div>
 </div>
-<div class="toolbar"><input id="search" placeholder="Filtrer par ID, texte, erreur…"><button id="issues">Afficher seulement les problèmes</button><button id="collapse">Tout replier</button><button id="expand">Tout ouvrir</button></div>
+<div class="toolbar"><input id="search" placeholder="Filtrer par ID, texte, erreur…"><button id="issues">Afficher seulement les problèmes</button><button class="tag-filter" data-filter="new">NEW</button><button class="tag-filter" data-filter="modified">MODIFIED</button><button class="tag-filter" data-filter="review">TO REVIEW</button><button id="collapse">Tout replier</button><button id="expand">Tout ouvrir</button></div>
 <section id="events">{''.join(cards)}</section>
 <p class="muted">Source : {escape(str(source_path))}</p>
 <script>
@@ -245,12 +305,23 @@ def main() -> None:
     parser.add_argument("--event", action="append", default=[], help="optional event ID (hex), repeatable")
     parser.add_argument("--player-name", default="000000000", help="simulated PLAYER_NAME value; default is 9 wide digits")
     parser.add_argument("--issues-csv", type=Path, help="optional machine-readable issue report")
+    parser.add_argument("--baseline-translation", type=Path, help="optional previous translation JSON used to tag NEW/MODIFIED events")
+    parser.add_argument("--preserve-tags", type=Path, help="optional JSON snapshot of NEW/MODIFIED/TO REVIEW event IDs to preserve until user review")
     args = parser.parse_args()
 
     base = args.rom.resolve().read_bytes()
     validate_base_rom(base)
     document = load_document(args.dialogues.resolve())
     translations = load_translation(args.translation.resolve(), document, source_asset="dialogues.json")
+    structural_omissions = load_structural_omission_token_indexes(
+        args.translation.resolve(), document, translations=translations
+    )
+    translation_document = json.loads(args.translation.resolve().read_text(encoding="utf-8"))
+    partial_events = {
+        entry.get("event_id")
+        for entry in translation_document.get("partial_events", [])
+        if isinstance(entry, dict) and isinstance(entry.get("event_id"), str)
+    }
     selected_ids = {value.upper().replace("$", "").zfill(4) for value in args.event}
 
     events = []
@@ -270,15 +341,58 @@ def main() -> None:
 
     font = make_dialogue_font(base)
     player_names = {0: args.player_name, 1: args.player_name, 2: args.player_name}
-    simulations = [simulate_event(base, event, translations, font=font, player_names=player_names) for event in events]
+    simulations = [
+        simulate_event(
+            base,
+            event,
+            translations,
+            font=font,
+            player_names=player_names,
+            omitted_command_token_indexes=structural_omissions.get(event["event_id"]),
+        )
+        for event in events
+    ]
 
     source_events = {event["event_id"]: event for event in events}
+    preserved_tags = {"new": set(), "modified": set(), "review": set()}
+    if args.preserve_tags:
+        raw_preserved = json.loads(args.preserve_tags.resolve().read_text(encoding="utf-8"))
+        for key in preserved_tags:
+            values = raw_preserved.get(key, [])
+            if not isinstance(values, list) or not all(isinstance(v, str) for v in values):
+                raise SystemExit(f"Invalid preserve-tags field: {key}")
+            preserved_tags[key] = {v.upper().replace("$", "").zfill(4) for v in values}
+    baseline_translations: dict[str, str] = {}
+    baseline_simulations: dict[str, EventSimulation] = {}
+    if args.baseline_translation:
+        baseline_path = args.baseline_translation.resolve()
+        baseline_translations = load_translation(baseline_path, document, source_asset="dialogues.json")
+        baseline_structural_omissions = load_structural_omission_token_indexes(
+            baseline_path, document, translations=baseline_translations
+        )
+        baseline_simulations = {
+            event["event_id"]: simulate_event(
+                base,
+                event,
+                baseline_translations,
+                font=font,
+                player_names=player_names,
+                omitted_command_token_indexes=baseline_structural_omissions.get(event["event_id"]),
+            )
+            for event in events
+            if any(token.get("id") in baseline_translations for token in event["tokens"] if token.get("id"))
+        }
     html = make_html(
         simulations,
         font,
         player_name=args.player_name,
         source_path=args.translation.resolve(),
         source_events=source_events,
+        partial_events=partial_events,
+        baseline_simulations=baseline_simulations,
+        baseline_translations=baseline_translations,
+        current_translations=translations,
+        preserved_tags=preserved_tags,
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(html, encoding="utf-8")
@@ -295,8 +409,10 @@ def main() -> None:
     errors = sum(issue.severity == "error" for issue in issues)
     warnings = sum(issue.severity == "warning" for issue in issues)
     implicit = sum(line.implicit_wrap for sim in simulations for box in sim.boxes for page in box.pages for line in page.lines)
+    wait_scroll_review = sum(issue.code == "WAIT00_THIRD_LINE_SCROLL_RISK" for issue in issues)
     print(f"Simulated translated events: {len(simulations)}")
     print(f"Errors: {errors}; warnings: {warnings}; implicit runtime wraps: {implicit}")
+    print(f"WAIT $00 third-line scroll review risks: {wait_scroll_review}")
     print(f"HTML: {args.output}")
     if args.issues_csv:
         print(f"Issues CSV: {args.issues_csv}")

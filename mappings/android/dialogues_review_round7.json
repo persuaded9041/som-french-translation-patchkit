@@ -1,0 +1,626 @@
+{
+  "format_version": 1,
+  "status": "round7_user_review_pending",
+  "source_asset": "dialogues.json",
+  "android_english": {
+    "path": "sources/android/scrtxt_en.bin",
+    "sha256": "4d4508560967b6ce4d6cf992f29e84e2775ed4accc74d87c3fd4269044b75ae5"
+  },
+  "android_french": {
+    "path": "sources/android/scrtxt_fr.bin",
+    "sha256": "cd837aaf53a7979d0e84910e8cda3bd67427f4a3cbddadc351811378d7e7d696"
+  },
+  "policy": {
+    "automatic_translation_generation": false,
+    "english_identity_is_primary": true,
+    "notes": [
+      "SNES PLAYER_NAME commands are represented explicitly as Android-style %S(index,0) placeholders for comparison only.",
+      "Android anchor intervals include following English-empty localization slots.",
+      "Very-high-confidence SNES-to-Android-English identity is not rejected merely because French wording is freely adapted.",
+      "When French or Android segmentation crosses individual anchors, preserve and review the complete local sequence block rather than forcing a per-ID translation."
+    ]
+  },
+  "scenes": [
+    {
+      "event_id": "00CE",
+      "label": "Cannon Travel Water Palace / Gaia's Navel choice",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:1B18"
+          ],
+          "snes_parts": [
+            "C9:1B18"
+          ],
+          "source_display": "WaterPalace",
+          "android_anchor_ids": [
+            156
+          ],
+          "android_unit_ids": [
+            156
+          ],
+          "android_english_display": " Water Palace ",
+          "french_nonempty_ids": [
+            156
+          ],
+          "french_display": " Temple de l'Eau ",
+          "relation": "choice_option_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 95.7,
+            "source_token_coverage": 0.0,
+            "lexical_score": 71.7
+          },
+          "note": "Android 155/156/157 is the contiguous 50-GP prompt / Water Palace / Gaia's Navel block; prompt 155 is already accepted for this exact SNES event.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:1B25"
+          ],
+          "snes_parts": [
+            "C9:1B25"
+          ],
+          "source_display": "Gaia'sNavel )",
+          "android_anchor_ids": [
+            157
+          ],
+          "android_unit_ids": [
+            157
+          ],
+          "android_english_display": " Gaia's Navel ",
+          "french_nonempty_ids": [
+            157
+          ],
+          "french_display": " Nombril de Gaïa ",
+          "relation": "choice_option_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 95.7,
+            "source_token_coverage": 50.0,
+            "lexical_score": 84.2
+          },
+          "note": "Gaia's Navel immediately follows Water Palace inside the same Android block anchored by accepted prompt 155.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "00CF",
+      "label": "Cannon Travel Potos / Gaia's Navel choice",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:1B60"
+          ],
+          "snes_parts": [
+            "C9:1B60"
+          ],
+          "source_display": "Potos",
+          "android_anchor_ids": [
+            1255
+          ],
+          "android_unit_ids": [
+            1255
+          ],
+          "android_english_display": " Potos Village ",
+          "french_nonempty_ids": [
+            1255
+          ],
+          "french_display": " Village Potos ",
+          "relation": "choice_option_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 55.6,
+            "source_token_coverage": 100.0,
+            "lexical_score": 66.7
+          },
+          "note": "Android 1254/1255/1256 is the contiguous prompt / Potos Village / Gaia's Navel block; prompt 1254 and Gaia's Navel 1256 are already accepted in this exact event.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "00D0",
+      "label": "Cannon Travel Kakkara / Ice Country choice",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:1B85"
+          ],
+          "snes_parts": [
+            "C9:1B85"
+          ],
+          "source_display": " Slap me 50 GP and\n I'll send ya flying!\n (",
+          "android_anchor_ids": [
+            1326
+          ],
+          "android_unit_ids": [
+            1326
+          ],
+          "android_english_display": "Heh heh. Welcome, welcome!_50 GP per trip!",
+          "french_nonempty_ids": [
+            1326
+          ],
+          "french_display": "Bienvenue, hé hé ! Un petit voyage ?_Où veux-tu aller ? C'est 50 pièces par trajet ! ",
+          "relation": "choice_prompt_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 34.7,
+            "source_token_coverage": 20.0,
+            "lexical_score": 31.0
+          },
+          "note": "Android 1326/1327/1328 is the contiguous 50-GP prompt / Kakkara Desert / Ice Country block and matches this SNES destination pair in order.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:1BB3"
+          ],
+          "snes_parts": [
+            "C9:1BB3"
+          ],
+          "source_display": "Kakkara",
+          "android_anchor_ids": [
+            1327
+          ],
+          "android_unit_ids": [
+            1327
+          ],
+          "android_english_display": " Kakkara Desert ",
+          "french_nonempty_ids": [
+            1327
+          ],
+          "french_display": " Désert de Kakkara ",
+          "relation": "choice_option_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 66.7,
+            "source_token_coverage": 100.0,
+            "lexical_score": 75.0
+          },
+          "note": "Kakkara belongs to Android 1327 in this ordered Kakkara/Ice Country block; this replaces the earlier globally exact but scene-wrong Kakkara anchor.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:1BBC"
+          ],
+          "snes_parts": [
+            "C9:1BBC"
+          ],
+          "source_display": "Ice Country )",
+          "android_anchor_ids": [
+            1328
+          ],
+          "android_unit_ids": [
+            1328
+          ],
+          "android_english_display": " Ice Country ",
+          "french_nonempty_ids": [
+            1328
+          ],
+          "french_display": " Pays de glace ",
+          "relation": "choice_option_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Ice Country immediately follows Kakkara in the same Android 1326-1328 choice block.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "00E2",
+      "label": "Cannon Travel Kakkara yes/no choice",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:1EEC"
+          ],
+          "snes_parts": [
+            "C9:1EEC"
+          ],
+          "source_display": "Nope!",
+          "android_anchor_ids": [
+            1922
+          ],
+          "android_unit_ids": [
+            1922
+          ],
+          "android_english_display": "   Nope!   ",
+          "french_nonempty_ids": [
+            1922
+          ],
+          "french_display": "   Non merci   ",
+          "relation": "choice_option_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Android 1921/1922/1923 is the contiguous Kakkara 50-GP prompt / negative / affirmative choice block; prompt 1921 is already accepted for this event.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:1EF3"
+          ],
+          "snes_parts": [
+            "C9:1EF3"
+          ],
+          "source_display": "Sure! )",
+          "android_anchor_ids": [
+            1923
+          ],
+          "android_unit_ids": [
+            1923
+          ],
+          "android_english_display": "  Thank you!  ",
+          "french_nonempty_ids": [
+            1923
+          ],
+          "french_display": "   O.K. !   ",
+          "relation": "choice_option_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 15.4,
+            "source_token_coverage": 0.0,
+            "lexical_score": 11.5
+          },
+          "note": "The affirmative SNES option belongs to Android 1923 in the same prompt block; this replaces the earlier globally exact but scene-wrong Sure! match.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0127",
+      "label": "Luka welcome line inside ordered Water Palace exchange",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:3B05"
+          ],
+          "snes_parts": [
+            "C9:3B05"
+          ],
+          "source_display": "LUKA:Ha ha ha...welcome!\n",
+          "android_anchor_ids": [
+            916
+          ],
+          "android_unit_ids": [
+            916
+          ],
+          "android_english_display": "Luka: Ha ha ha...welcome!",
+          "french_nonempty_ids": [
+            916
+          ],
+          "french_display": "Rusalka : Ho ho ho... Que t'amène ici, Gemma ? ",
+          "relation": "speaker_label_alignment",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact Luka: Ha ha ha...welcome! fills the only Android-English gap between already accepted 915 and 917 in the same exchange.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0295",
+      "label": "Guard reaction before ordered ship-food exchange",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:AF19"
+          ],
+          "snes_parts": [
+            "C9:AF19"
+          ],
+          "source_display": "GUARD:Stop lollygagging!",
+          "android_anchor_ids": [
+            1516
+          ],
+          "android_unit_ids": [
+            1516
+          ],
+          "android_english_display": "Guard: Stop lollygagging!",
+          "french_nonempty_ids": [
+            1516
+          ],
+          "french_display": "Mais tu vas arrêter, oui ?! ",
+          "relation": "speaker_label_alignment",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact Guard: Stop lollygagging! immediately precedes already accepted Android 1517 and 1518 in the same ship scene.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "029C",
+      "label": "Morie / Meria confrontation ordered gaps",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:B0E3"
+          ],
+          "snes_parts": [
+            "C9:B0E3"
+          ],
+          "source_display": "MORIE:Massage my back!\n",
+          "android_anchor_ids": [
+            1545
+          ],
+          "android_unit_ids": [
+            1545
+          ],
+          "android_english_display": "Morie: Massage my back!",
+          "french_nonempty_ids": [
+            1545
+          ],
+          "french_display": "Moriel : Allez, masse-moi le dos ! ",
+          "relation": "speaker_label_alignment",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact Morie: Massage my back! immediately precedes the accepted 1546-1548 exchange.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:B1B0"
+          ],
+          "snes_parts": [
+            "C9:B1B0"
+          ],
+          "source_display": ":Harumph!!",
+          "android_anchor_ids": [
+            1552
+          ],
+          "android_unit_ids": [
+            1552
+          ],
+          "android_english_display": "%S(1,0): Harrumph!!!",
+          "french_nonempty_ids": [
+            1552
+          ],
+          "french_display": "%S(1,0) : Peuh !",
+          "relation": "speaker_reattribution",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 53.8,
+            "source_token_coverage": 0.0,
+            "lexical_score": 40.4
+          },
+          "note": "SNES unlabeled Harrumph follows Morie's line and corresponds to Android PLAYER_NAME 1 Harrumph at 1552, bracketed by accepted 1551 and 1553.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:B330"
+          ],
+          "snes_parts": [
+            "C9:B330"
+          ],
+          "source_display": "SOLDIER:No way!\n We're with Morie!",
+          "android_anchor_ids": [
+            1564
+          ],
+          "android_unit_ids": [
+            1564
+          ],
+          "android_english_display": "Soldier: No way! We're with Morie! Let's get out of here!",
+          "french_nonempty_ids": [
+            1564
+          ],
+          "french_display": "Soldat : Fuyons, et laissons Moriel se débrouiller !! ",
+          "relation": "one_snes_to_one_android_expanded",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 73.8,
+            "source_token_coverage": 100.0,
+            "lexical_score": 80.4
+          },
+          "note": "SNES Soldier: No way! We're with Morie! is the same ordered line as Android 1564, whose English adds the staged departure immediately after accepted 1563.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0318",
+      "label": "Neko save-service line before Save/Buy/Sell options",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:CD95"
+          ],
+          "snes_parts": [
+            "C9:CD95"
+          ],
+          "source_display": " I'll even save your game!\n",
+          "android_anchor_ids": [
+            2377
+          ],
+          "android_unit_ids": [
+            2377
+          ],
+          "android_english_display": "Neko: Meow, busy travelers! I'll even save the game!",
+          "french_nonempty_ids": [
+            2377
+          ],
+          "french_display": "Exceptionnellement, je peux sauvegarder, miaou ! ",
+          "relation": "choice_prompt_split",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 55.6,
+            "source_token_coverage": 83.3,
+            "lexical_score": 62.5
+          },
+          "note": "Android 2376-2380 is the contiguous Neko greeting / save-service / Save / Buy / Sell block; 2376, 2378 and 2379 are already accepted in this exact event.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "036D",
+      "label": "Scorpion boss send-off before robot overload",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:D43A"
+          ],
+          "snes_parts": [
+            "C9:D43A"
+          ],
+          "source_display": "BOSS:Go get them now!\n See ya, farewell,\n good bye children!",
+          "android_anchor_ids": [
+            1156
+          ],
+          "android_unit_ids": [
+            1156
+          ],
+          "android_english_display": "Boss: Go get them now! See ya, farewell, goodbye children!",
+          "french_nonempty_ids": [
+            1156
+          ],
+          "french_display": "Scorpion : Ohohohohoho ! Adieu, vilains morveux ! ",
+          "relation": "speaker_label_alignment",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 99.1,
+            "source_token_coverage": 81.8,
+            "lexical_score": 94.8
+          },
+          "note": "Exact Boss send-off line precedes Android Robot 1157 and the already accepted overload exchange 1159-1161 in the same scene.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "03AA",
+      "label": "Krissie resistance introduction ordered gaps",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:E13E"
+          ],
+          "snes_parts": [
+            "C9:E13E"
+          ],
+          "source_display": "KRISSIE:Who're you?\n Imperial spies?\n",
+          "android_anchor_ids": [
+            2013
+          ],
+          "android_unit_ids": [
+            2013
+          ],
+          "android_english_display": "Krissie: Who are you? Imperial spies?",
+          "french_nonempty_ids": [
+            2013
+          ],
+          "french_display": "Qui va là ?! Des espions de l'Empire ?",
+          "relation": "speaker_label_alignment",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 98.5,
+            "source_token_coverage": 83.3,
+            "lexical_score": 94.7
+          },
+          "note": "Exact Krissie opening question immediately precedes already accepted Android 2014-2019.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:E234"
+          ],
+          "snes_parts": [
+            "C9:E234"
+          ],
+          "source_display": "KRISSIE:You KNOW Dyluck?\n",
+          "android_anchor_ids": [
+            2020
+          ],
+          "android_unit_ids": [
+            2020
+          ],
+          "android_english_display": "Krissie: You KNOW Dyluck?",
+          "french_nonempty_ids": [
+            2020
+          ],
+          "french_display": "Chris : Quoi, tu connais Durac ?!",
+          "relation": "speaker_label_alignment",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact Krissie: You KNOW Dyluck? fills the only gap between accepted 2019 and 2021 in the same conversation.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0558",
+      "label": "Girl awakening line in Thanatos scene",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:65E8"
+          ],
+          "snes_parts": [
+            "CA:65E8"
+          ],
+          "source_display": ":Where am I...\n",
+          "android_anchor_ids": [
+            2186
+          ],
+          "android_unit_ids": [
+            2186,
+            2187
+          ],
+          "android_english_display": "%S(1,0): Where am I...?",
+          "french_nonempty_ids": [
+            2186,
+            2187
+          ],
+          "french_display": "%S(1,0) : Où suis-je ? Ah !  Qu'est-ce qui vous arrive ?! ",
+          "relation": "speaker_reattribution",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 64.5,
+            "source_token_coverage": 100.0,
+            "lexical_score": 73.4
+          },
+          "note": "SNES unlabeled Where am I...? corresponds exactly to Android PLAYER_NAME 1 at 2186, between accepted Thanatos 2184 and PLAYER_NAME 0 line 2188.",
+          "user_validation": "pending"
+        }
+      ]
+    }
+  ]
+}

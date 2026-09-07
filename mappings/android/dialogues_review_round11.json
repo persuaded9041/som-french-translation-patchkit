@@ -1,0 +1,1016 @@
+{
+  "format_version": 1,
+  "status": "round11_user_review_pending",
+  "source_asset": "dialogues.json",
+  "android_english": {
+    "path": "sources/android/scrtxt_en.bin",
+    "sha256": "4d4508560967b6ce4d6cf992f29e84e2775ed4accc74d87c3fd4269044b75ae5"
+  },
+  "android_french": {
+    "path": "sources/android/scrtxt_fr.bin",
+    "sha256": "cd837aaf53a7979d0e84910e8cda3bd67427f4a3cbddadc351811378d7e7d696"
+  },
+  "policy": {
+    "automatic_translation_generation": false,
+    "english_identity_is_primary": true,
+    "notes": [
+      "SNES PLAYER_NAME commands are represented explicitly as Android-style %S(index,0) placeholders for comparison only.",
+      "Android anchor intervals include following English-empty localization slots.",
+      "Very-high-confidence SNES-to-Android-English identity is not rejected merely because French wording is freely adapted.",
+      "When French or Android segmentation crosses individual anchors, preserve and review the complete local sequence block rather than forcing a per-ID translation."
+    ]
+  },
+  "scenes": [
+    {
+      "event_id": "01DC",
+      "label": "Pandora ruins soldiers ordered gaps",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:7EB5"
+          ],
+          "snes_parts": [
+            "C9:7EB5"
+          ],
+          "source_display": "SOLDIER:...",
+          "android_anchor_ids": [
+            720
+          ],
+          "android_unit_ids": [
+            720
+          ],
+          "android_english_display": "Soldier: ...",
+          "french_nonempty_ids": [
+            720
+          ],
+          "french_display": "Soldat : ...",
+          "relation": "speaker_label_alignment",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact Soldier ellipsis opens Android 720-728, immediately before accepted 721/722.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:7FF4"
+          ],
+          "snes_parts": [
+            "C9:7FF4"
+          ],
+          "source_display": " ...go up to...next floor.\n When 3 people step onto...\n platform...uh...bridge...",
+          "android_anchor_ids": [
+            728
+          ],
+          "android_unit_ids": [
+            728
+          ],
+          "android_english_display": "When three people step onto...platform...uh...it's...bridge...",
+          "french_nonempty_ids": [
+            728
+          ],
+          "french_display": "Ah, au fait... la dalle, en haut... faut monter à 3 dessus... pour activer le pont...",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 72.6,
+            "source_token_coverage": 53.8,
+            "lexical_score": 67.9
+          },
+          "note": "Android 728 is the exact three-person platform/bridge instruction and directly follows accepted 727.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "01ED",
+      "label": "Elinee apology opening",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:8771"
+          ],
+          "snes_parts": [
+            "C9:8771"
+          ],
+          "source_display": "ELINEE:SHRIEK!\n Please forgive me!",
+          "android_anchor_ids": [
+            754
+          ],
+          "android_unit_ids": [
+            754
+          ],
+          "android_english_display": "Elinee: Aaah! Please forgive me!",
+          "french_nonempty_ids": [
+            754
+          ],
+          "french_display": "Elinice : Aaah ! Pardonnez-moi ! ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 86.7,
+            "source_token_coverage": 80.0,
+            "lexical_score": 85.0
+          },
+          "note": "Exact Elinee apology at Android 754 immediately precedes accepted 755-758.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "01F5",
+      "label": "Elinee lost magic continuation",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:899F"
+          ],
+          "snes_parts": [
+            "C9:899F"
+          ],
+          "source_display": "\n But I don't have any more\n magical power left.",
+          "android_anchor_ids": [
+            761
+          ],
+          "android_unit_ids": [
+            761
+          ],
+          "android_english_display": "But I don't have that kind of magical power left.",
+          "french_nonempty_ids": [
+            761
+          ],
+          "french_display": "Je suis redevenue une vieille dame ordinaire... je n'ai plus le pouvoir nécessaire.",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 87.0,
+            "source_token_coverage": 80.0,
+            "lexical_score": 85.2
+          },
+          "note": "Exact lost-magical-power sentence at Android 761 immediately follows accepted 760.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "023A",
+      "label": "Crystal Orb question opening",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:9CB8"
+          ],
+          "snes_parts": [
+            "C9:9CB8"
+          ],
+          "source_display": "What's this Crystal Orb do?",
+          "android_anchor_ids": [
+            973
+          ],
+          "android_unit_ids": [
+            973
+          ],
+          "android_english_display": "What's this Crystal Orb do?",
+          "french_nonempty_ids": [
+            973
+          ],
+          "french_display": "%S(0,0) : Qu'est-ce que c'est que cet orbe de cristal ?",
+          "relation": "speaker_reattribution",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact Crystal Orb question at Android 973 immediately precedes accepted 974/975; Android adds PLAYER_NAME(0) attribution.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0250",
+      "label": "Matango village shambles gap",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:A00D"
+          ],
+          "snes_parts": [
+            "C9:A00D"
+          ],
+          "source_display": " The village is a shambles!",
+          "android_anchor_ids": [
+            1263
+          ],
+          "android_unit_ids": [
+            1263
+          ],
+          "android_english_display": "The village is in shambles!",
+          "french_nonempty_ids": [
+            1263
+          ],
+          "french_display": "Le village est sens dessus dessous ! ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 94.1,
+            "source_token_coverage": 80.0,
+            "lexical_score": 90.6
+          },
+          "note": "Android 1263 is the exact village-in-shambles line between accepted 1262 and 1264.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "02B2",
+      "label": "Amar Sea Hare and belt ordered gaps",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:B89E"
+          ],
+          "snes_parts": [
+            "C9:B89E"
+          ],
+          "source_display": "AMAR:It's a Sea Hare's\n tail! Hurrah!",
+          "android_anchor_ids": [
+            1642
+          ],
+          "android_unit_ids": [
+            1642,
+            1643
+          ],
+          "android_english_display": "Amar: It's a sea hare's tail! Hurrah! Let's throw that in the dry well!",
+          "french_nonempty_ids": [
+            1642
+          ],
+          "french_display": "Omar : Oh, mais c'est une queue de lièvre marin ! Vite ! Au puits !",
+          "relation": "one_snes_to_one_android_expanded",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 67.3,
+            "source_token_coverage": 100.0,
+            "lexical_score": 75.5
+          },
+          "note": "Android 1642 begins with the exact Sea Hare tail/Hurrah line and adds the well action in the same Amar scene.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:B8F8"
+          ],
+          "snes_parts": [
+            "C9:B8F8"
+          ],
+          "source_display": " In return let me give you\n this belt!",
+          "android_anchor_ids": [
+            1664
+          ],
+          "android_unit_ids": [
+            1664
+          ],
+          "android_english_display": "In return, let me give you this belt! It belonged to the legendary knight. I'm sure it'll look great on you!",
+          "french_nonempty_ids": [
+            1664
+          ],
+          "french_display": "Prenez ceci en gage de notre gratitude. C'est une ceinture destinée au héros de la légende !",
+          "relation": "one_snes_to_one_android_expanded",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 50.4,
+            "source_token_coverage": 100.0,
+            "lexical_score": 62.8
+          },
+          "note": "Android 1664 begins with the exact belt reward and expands its legendary-knight description immediately before accepted 1665.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "02B4",
+      "label": "Fire Seed missing continuation",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:B9D6"
+          ],
+          "snes_parts": [
+            "C9:B9D6"
+          ],
+          "source_display": "What's more, the Fire seed\nis gone!",
+          "android_anchor_ids": [
+            1636
+          ],
+          "android_unit_ids": [
+            1636
+          ],
+          "android_english_display": "What's more, the Fire Seed is gone, and monsters are everywhere!",
+          "french_nonempty_ids": [
+            1636
+          ],
+          "french_display": "Et depuis que la Graine qui s'y trouvait a été volée, le désert est infesté de monstres.",
+          "relation": "one_snes_to_one_android_expanded",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 70.2,
+            "source_token_coverage": 100.0,
+            "lexical_score": 77.7
+          },
+          "note": "Android 1636 begins with the exact missing Fire Seed sentence and adds the monster consequence directly after accepted 1635.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "02B7",
+      "label": "Ice Country relocation branch",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:BA6C"
+          ],
+          "snes_parts": [
+            "C9:BA6C"
+          ],
+          "source_display": "Ice Country...",
+          "android_anchor_ids": [
+            1623
+          ],
+          "android_unit_ids": [
+            1623
+          ],
+          "android_english_display": "--Ice Country...",
+          "french_nonempty_ids": [
+            1623
+          ],
+          "french_display": "Je me demande si je ne vais pas déménager au Pays de glace, moi aussi. ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact Ice Country destination at Android 1623 in the relocation NPC branch.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:BA7C"
+          ],
+          "snes_parts": [
+            "C9:BA7C"
+          ],
+          "source_display": "\nI heard there's a town as\nwarm as this one there!\n",
+          "android_anchor_ids": [
+            1624
+          ],
+          "android_unit_ids": [
+            1624,
+            1625
+          ],
+          "android_english_display": "I heard there's a town as warm as this one there!_",
+          "french_nonempty_ids": [
+            1624,
+            1625
+          ],
+          "french_display": "Il paraît qu'il y a un village paradisiaque où il fait aussi chaud qu'ici !_ Ça fait rêver ! ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact warm-town sentence at Android 1624 immediately after 1623; French continuation in the following English-empty slot is retained by anchor interval policy.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "02E4",
+      "label": "Serin legendary warrior continuation",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:C62F"
+          ],
+          "snes_parts": [
+            "C9:C62F"
+          ],
+          "source_display": "His only equal was the\nlegendary warrior, Serin.",
+          "android_anchor_ids": [
+            2561
+          ],
+          "android_unit_ids": [
+            2561
+          ],
+          "android_english_display": "His only equal was the legendary warrior, Serin, who fought in the great war fifteen years ago.",
+          "french_nonempty_ids": [
+            2561
+          ],
+          "french_display": "Son seul égal était le chevalier Serynn, son rival et ami, qui combattit pendant la guerre il y a 15 ans. ",
+          "relation": "one_snes_to_one_android_expanded",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 66.7,
+            "source_token_coverage": 100.0,
+            "lexical_score": 75.0
+          },
+          "note": "Android 2561 begins with the exact Serin legendary-warrior sentence and adds the great-war timing, directly after accepted 2560.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "02F9",
+      "label": "Sea Hare merchant ordered gaps",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:C9D5"
+          ],
+          "snes_parts": [
+            "C9:C9D5"
+          ],
+          "source_display": "I'm not making it here...",
+          "android_anchor_ids": [
+            2294
+          ],
+          "android_unit_ids": [
+            2294
+          ],
+          "android_english_display": "I'm not making it here... Maybe I should move to a bigger city...",
+          "french_nonempty_ids": [
+            2294
+          ],
+          "french_display": "Cette île est si petite que je n'arrive pas à joindre les deux bouts. Je veux aller en ville !",
+          "relation": "one_snes_to_one_android_expanded",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 54.3,
+            "source_token_coverage": 100.0,
+            "lexical_score": 65.7
+          },
+          "note": "Android 2294 begins with the exact 'not making it here' thought and expands the move-to-city idea immediately before accepted 2295.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:CA38"
+          ],
+          "snes_parts": [
+            "C9:CA38"
+          ],
+          "source_display": "\nEh? You actually WANT one?",
+          "android_anchor_ids": [
+            2296
+          ],
+          "android_unit_ids": [
+            2296
+          ],
+          "android_english_display": "Eh? You actually WANT one? Well, I was gonna throw it away, anyway...",
+          "french_nonempty_ids": [
+            2296
+          ],
+          "french_display": "Hein ? Vous en voulez ? On en a tellement qu'on ne sait plus quoi en faire ! Je vous la donne !",
+          "relation": "one_snes_to_one_android_expanded",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 55.8,
+            "source_token_coverage": 100.0,
+            "lexical_score": 66.9
+          },
+          "note": "Android 2296 begins with the exact 'you actually WANT one?' reaction and adds the giveaway rationale between accepted 2295 and 2297.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0363",
+      "label": "Sprite elder warning opening",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:D1DB"
+          ],
+          "snes_parts": [
+            "C9:D1DB"
+          ],
+          "source_display": "ELDER:Leave now and you'll\n never return.",
+          "android_anchor_ids": [
+            500
+          ],
+          "android_unit_ids": [
+            500
+          ],
+          "android_english_display": "Elder: Wait up! If you leave now, you'll never return.",
+          "french_nonempty_ids": [
+            500
+          ],
+          "french_display": "Chef : Attendez ! Si vous descendez, vous n'aurez rien pour remonter ! ",
+          "relation": "one_snes_to_one_android_expanded",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 78.7,
+            "source_token_coverage": 87.5,
+            "lexical_score": 80.9
+          },
+          "note": "Android 500 contains the exact leave-now/never-return warning plus 'Wait up!', immediately before accepted 501.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "036F",
+      "label": "Scorpion hideout ordered gaps",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:D563"
+          ],
+          "snes_parts": [
+            "C9:D563"
+          ],
+          "source_display": " You realize we can't\n let you leave...",
+          "android_anchor_ids": [
+            1144
+          ],
+          "android_unit_ids": [
+            1144
+          ],
+          "android_english_display": "You realize we can't let you leave now that you've found our secret hideout...",
+          "french_nonempty_ids": [
+            1144
+          ],
+          "french_display": "Maintenant que vous avez découvert notre repaire, pas question de vous laisser repartir !",
+          "relation": "one_snes_to_one_android_expanded",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 62.4,
+            "source_token_coverage": 100.0,
+            "lexical_score": 71.8
+          },
+          "note": "Android 1144 begins with the exact cannot-let-you-leave sentence and adds the secret-hideout reason immediately before accepted 1145.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:D661"
+          ],
+          "snes_parts": [
+            "C9:D661"
+          ],
+          "source_display": "\nBOYS:Hubba, hubba!\nBOSS:Do it!!\nBOYS:Aye aye, Sir.",
+          "android_anchor_ids": [
+            1151,
+            1152,
+            1153
+          ],
+          "android_unit_ids": [
+            1151,
+            1152,
+            1153
+          ],
+          "android_english_display": "Boys: Check it out! Boss: Do it!!! Boys: Aye aye, Sir.",
+          "french_nonempty_ids": [
+            1151,
+            1152,
+            1153
+          ],
+          "french_display": "Ouah ! Trop classe, la patronne ! Scorpion : Allez, à toi de jouer, Robotor ! Lancez-le, vous autres ! Sbire : À vos ordres, chef !",
+          "relation": "one_snes_to_many_android",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 78.7,
+            "source_token_coverage": 80.0,
+            "lexical_score": 79.0
+          },
+          "note": "The SNES Boys/Boss/Boys reaction is split into ordered Android 1151/1152/1153 directly after accepted 1149/1150.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "039F",
+      "label": "Empire bizarre thoughts opening",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:DFF2"
+          ],
+          "snes_parts": [
+            "C9:DFF2"
+          ],
+          "source_display": "These days the Emperor has\nsuch bizarre thoughts...",
+          "android_anchor_ids": [
+            1871
+          ],
+          "android_unit_ids": [
+            1871
+          ],
+          "android_english_display": "I probably shouldn't be saying this out loud... But these days the emperor has such bizarre thoughts...",
+          "french_nonempty_ids": [
+            1871
+          ],
+          "french_display": "Entre vous et moi, je ne comprends pas ce que l'Empereur a derrière la tête, ces temps-ci.",
+          "relation": "one_snes_to_one_android_expanded",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 66.2,
+            "source_token_coverage": 100.0,
+            "lexical_score": 74.7
+          },
+          "note": "Android 1871 contains the exact emperor-bizarre-thoughts sentence with a conversational preface, immediately before accepted 1872.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "03D0",
+      "label": "Palace of Darkness cave opening",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:E9A1"
+          ],
+          "snes_parts": [
+            "C9:E9A1"
+          ],
+          "source_display": "Go down the mountain a bit,\nand you'll see a cave.\nMonsters are dwelling.",
+          "android_anchor_ids": [
+            2315
+          ],
+          "android_unit_ids": [
+            2315
+          ],
+          "android_english_display": "Go down the mountain a bit, and you'll see a cave. There are tons of monsters in there.",
+          "french_nonempty_ids": [
+            2315
+          ],
+          "french_display": "Un peu en contrebas de ce village se trouve le Temple des Ténèbres. Il grouille de monstres !",
+          "relation": "one_snes_to_one_android_expanded",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 77.9,
+            "source_token_coverage": 93.3,
+            "lexical_score": 81.8
+          },
+          "note": "Android 2315 contains the exact mountain/cave/monsters directions and directly precedes accepted 2316.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "03DD",
+      "label": "Jehk rejection opening",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:ED6D"
+          ],
+          "snes_parts": [
+            "C9:ED6D"
+          ],
+          "source_display": "JEHK:Hey! Get out of here!\n",
+          "android_anchor_ids": [
+            2445
+          ],
+          "android_unit_ids": [
+            2445
+          ],
+          "android_english_display": "Go away!_",
+          "french_nonempty_ids": [
+            2445
+          ],
+          "french_display": "Hé ! On n'entre pas !_",
+          "relation": "speaker_label_alignment",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 12.9,
+            "source_token_coverage": 0.0,
+            "lexical_score": 9.7
+          },
+          "note": "Android 2445 'Go away!' is the same Jehk rejection immediately before accepted 2446/2447; no global short-label matching is used.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "04A3",
+      "label": "Thanatos Geshtar explanation",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:1A1E"
+          ],
+          "snes_parts": [
+            "CA:1A1E"
+          ],
+          "source_display": "THANATOS:Mwa, ha...is it\n Geshtar, or..?",
+          "android_anchor_ids": [
+            2917
+          ],
+          "android_unit_ids": [
+            2917
+          ],
+          "android_english_display": "Thanatos: Mwa ha ha... He IS Geshtar...and...he isn't.",
+          "french_nonempty_ids": [
+            2917
+          ],
+          "french_display": "Thanatos : Hé hé hé... Ce n'est plus tout à fait le Gestahl que vous avez connu. ",
+          "relation": "one_snes_to_one_android_expanded",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 70.1,
+            "source_token_coverage": 71.4,
+            "lexical_score": 70.5
+          },
+          "note": "Android 2917 begins with the same Thanatos/Geshtar question-answer and expands it, bracketed by accepted 2915/2916 and 2918/2919.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "04EA",
+      "label": "Gaia Navel dwarves resegmentation",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:4C1F",
+            "CA:4C71"
+          ],
+          "snes_parts": [
+            "CA:4C1F",
+            "CA:4C71"
+          ],
+          "source_display": " Dwarves live in that cave.\n They make good weapons and\n know all about weapons.\n They may know somebody who\n can reforge and empower\n that sword of yours.",
+          "android_anchor_ids": [
+            858
+          ],
+          "android_unit_ids": [
+            858
+          ],
+          "android_english_display": "Dwarves live in that cave. They make\ngood weapons and may know somebody who can reforge the Sword.",
+          "french_nonempty_ids": [
+            858
+          ],
+          "french_display": "Là-bas se trouve chez les nains un habile forgeron. Tu vas lui demander de réparer ton épée. ",
+          "relation": "many_snes_to_one_android",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 78.5,
+            "source_token_coverage": 81.5,
+            "lexical_score": 79.3
+          },
+          "note": "Android 858 combines the two consecutive SNES dwarf-cave/weapon/reforge fragments between accepted 857 and 859.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "052F",
+      "label": "Truffle voice opening",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:5FEF"
+          ],
+          "snes_parts": [
+            "CA:5FEF"
+          ],
+          "source_display": "VOICE:Helloow!\n",
+          "android_anchor_ids": [
+            2272
+          ],
+          "android_unit_ids": [
+            2272
+          ],
+          "android_english_display": "Voice: Hellooo!",
+          "french_nonempty_ids": [
+            2272
+          ],
+          "french_display": "Ohééé ! ",
+          "relation": "speaker_label_alignment",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 92.3,
+            "source_token_coverage": 50.0,
+            "lexical_score": 81.7
+          },
+          "note": "Exact Voice: Hellooo line at Android 2272 between accepted 2271 and 2273.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0532",
+      "label": "Truffle Matango destination ending",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:61D8"
+          ],
+          "snes_parts": [
+            "CA:61D8"
+          ],
+          "source_display": " Now, take me to Matango.\n It's to the south-west.",
+          "android_anchor_ids": [
+            2280
+          ],
+          "android_unit_ids": [
+            2280
+          ],
+          "android_english_display": "Now, take me to Matango. It's to the southwest.",
+          "french_nonempty_ids": [
+            2280
+          ],
+          "french_display": "Ah, et j'aimerais que vous me rameniez à Matango ! C'est au sud-ouest d'ici.",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 98.9,
+            "source_token_coverage": 81.8,
+            "lexical_score": 94.6
+          },
+          "note": "Exact Matango/southwest instruction at Android 2280 immediately after accepted 2279.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0580",
+      "label": "Gnome gained-powers system line",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:6B9C"
+          ],
+          "snes_parts": [
+            "CA:6B9C"
+          ],
+          "source_display": "   Got Gnome's powers!",
+          "android_anchor_ids": [
+            1048
+          ],
+          "android_unit_ids": [
+            1048
+          ],
+          "android_english_display": "Gained Gnome's powers!",
+          "french_nonempty_ids": [
+            1048
+          ],
+          "french_display": "　Vous obtenez les pouvoirs de Gnome !",
+          "relation": "system_message_equivalence",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 82.1,
+            "source_token_coverage": 75.0,
+            "lexical_score": 80.3
+          },
+          "note": "Android 1048 'Gained Gnome's powers!' is the exact system-message equivalent immediately before accepted 1049.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0582",
+      "label": "Salamando gained-powers system line",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:6F3D"
+          ],
+          "snes_parts": [
+            "CA:6F3D"
+          ],
+          "source_display": "  Got Salamando's powers!",
+          "android_anchor_ids": [
+            1807
+          ],
+          "android_unit_ids": [
+            1807
+          ],
+          "android_english_display": "Gained Salamando's powers!",
+          "french_nonempty_ids": [
+            1807
+          ],
+          "french_display": "　Vous obtenez les pouvoirs d'Athanor !",
+          "relation": "system_message_equivalence",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 85.1,
+            "source_token_coverage": 75.0,
+            "lexical_score": 82.6
+          },
+          "note": "Android 1807 'Gained Salamando's powers!' is the exact system-message equivalent immediately after accepted 1806.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0584",
+      "label": "Luna power grant resegmentation",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:6FD7",
+            "CA:7005"
+          ],
+          "snes_parts": [
+            "CA:6FD7",
+            "CA:7005"
+          ],
+          "source_display": " So sad this place has\n grown...but enough! Take with you my powers!\n GO! Mana is fading...",
+          "android_anchor_ids": [
+            2649
+          ],
+          "android_unit_ids": [
+            2649,
+            2650
+          ],
+          "android_english_display": "Hurry! Take my powers! Mana is fading from this world faster than ever!",
+          "french_nonempty_ids": [
+            2649
+          ],
+          "french_display": "Je vais vous octroyer mon pouvoir. La force de Mana disparaît partout dans le monde. Ne perdez pas un instant !",
+          "relation": "many_snes_to_one_android",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 43.2,
+            "source_token_coverage": 41.2,
+            "lexical_score": 42.7
+          },
+          "note": "Android 2649 compresses the two consecutive SNES Luna fragments into the same take-my-powers / Mana-is-fading message between accepted 2648 and 2651.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0587",
+      "label": "Lumina introduction resegmentation",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:7154",
+            "CA:718F"
+          ],
+          "snes_parts": [
+            "CA:7154",
+            "CA:718F"
+          ],
+          "source_display": "LUMINA:I'm Lumina!\n The king was robbing me of\n my power!\n He was forcing me to make\n gold! My power should not\n be used by anyone but you!",
+          "android_anchor_ids": [
+            2533
+          ],
+          "android_unit_ids": [
+            2533,
+            2534
+          ],
+          "android_english_display": "Lumina: I'm Lumina, the light elemental!\nThe king was robbing me of my power!\nHe was forcing me to make gold! ",
+          "french_nonempty_ids": [
+            2533,
+            2534
+          ],
+          "french_display": "Lumina : Je me nomme Lumina. Le roi de cette île se servait de ma magie pour fabriquer de l'or. Mais tout cela est fini, maintenant. Et un jour, cette île redeviendra pierre.",
+          "relation": "many_snes_to_one_android",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 71.8,
+            "source_token_coverage": 72.4,
+            "lexical_score": 71.9
+          },
+          "note": "Android 2533 combines the two consecutive SNES Lumina introduction / king draining power / making gold fragments immediately before accepted 2536/2538.",
+          "user_validation": "pending"
+        }
+      ]
+    }
+  ]
+}

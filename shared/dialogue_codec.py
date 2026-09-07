@@ -255,7 +255,7 @@ def _command_bytes(token: dict) -> bytes:
     return raw
 
 
-def encode_translated_dialogue_text(text: str) -> bytes:
+def encode_translated_dialogue_text(text: str, *, allow_trailing_page_break: bool = False) -> bytes:
     """Encode translated text plus generated layout markers.
 
     ``\f`` compiles to stock ``WAIT $00 + TEXT_CLEAR`` between generated
@@ -272,13 +272,22 @@ def encode_translated_dialogue_text(text: str) -> bytes:
         raise ValueError("Translated dialogue clear marker is only valid at the start of a text chunk")
     if not text:
         return bytes(out)
+    if text.endswith(TRANSLATION_PAGE_BREAK):
+        if not allow_trailing_page_break:
+            raise ValueError("Translated dialogue page break cannot be trailing")
+        body = text[:-1]
+        if not body or body.endswith(TRANSLATION_PAGE_BREAK):
+            raise ValueError("Translated dialogue page break cannot be leading or repeated")
+        out += encode_translated_dialogue_text(body)
+        out += TRANSLATION_PAGE_BREAK_BYTES
+        return bytes(out)
     if TRANSLATION_PAGE_BREAK not in text:
         out += encode_text(text)
         return bytes(out)
 
     pages = text.split(TRANSLATION_PAGE_BREAK)
     if any(page == "" for page in pages):
-        raise ValueError("Translated dialogue page break cannot be leading, trailing or repeated")
+        raise ValueError("Translated dialogue page break cannot be leading or repeated")
 
     for index, page in enumerate(pages):
         out += encode_text(page)
@@ -392,12 +401,21 @@ def event_has_text(event: dict) -> bool:
     )
 
 
-def serialize_event(rom: bytes, event: dict, *, translations: dict[str, str] | None = None, source: bool) -> bytes:
+def serialize_event(
+    rom: bytes,
+    event: dict,
+    *,
+    translations: dict[str, str] | None = None,
+    source: bool,
+    omitted_command_token_indexes: frozenset[int] | set[int] | None = None,
+) -> bytes:
     """Serialize one event against its canonical clean-ROM source and optional translations.
 
     Exact bytes for unchanged text are intentionally recovered from a fresh
     parse of the clean USA ROM rather than duplicated in the JSON. Commands and
     raw glyphs are reconstructed from their compact structured representation.
+    A translated build may additionally omit a tightly validated set of command
+    token indexes; canonical/source serialization never permits structural edits.
     """
     event_id = int(event["event_id"], 16)
     canonical = parse_event(rom, event_id, include_source_bytes=True)
@@ -407,6 +425,13 @@ def serialize_event(rom: bytes, event: dict, *, translations: dict[str, str] | N
         )
 
     translations = translations or {}
+    omitted = frozenset(omitted_command_token_indexes or ())
+    if source and omitted:
+        raise ValueError(f"Event ${event_id:04X}: source serialization cannot omit commands")
+    invalid_indexes = sorted(index for index in omitted if index < 0 or index >= len(event["tokens"]))
+    if invalid_indexes:
+        raise ValueError(f"Event ${event_id:04X}: invalid omitted command token indexes: {invalid_indexes}")
+
     out = bytearray()
     for index, (token, original_token) in enumerate(zip(event["tokens"], canonical["tokens"])):
         kind = token["type"]
@@ -414,12 +439,35 @@ def serialize_event(rom: bytes, event: dict, *, translations: dict[str, str] | N
             raise ValueError(
                 f"Event ${event_id:04X}: token type changed at token {index}"
             )
+        if index in omitted:
+            if kind != "command":
+                raise ValueError(
+                    f"Event ${event_id:04X}: only command tokens may be structurally omitted (token {index})"
+                )
+            # Source-document/canonical command identity is still checked below
+            # by the normal token round-trip verifier before translated builds.
+            continue
         if kind == "text":
             text = translations.get(token["id"])
             if source or text is None or text == original_token["source"]:
                 out += original_token["_source_bytes"]
             else:
-                out += encode_translated_dialogue_text(text)
+                allow_trailing_page_break = False
+                if text.endswith(TRANSLATION_PAGE_BREAK) and index + 3 < len(event["tokens"]):
+                    text_x = event["tokens"][index + 1]
+                    carrier = event["tokens"][index + 2]
+                    choice_begin = event["tokens"][index + 3]
+                    allow_trailing_page_break = (
+                        text_x.get("type") == "command"
+                        and text_x.get("name") == "TEXT_X"
+                        and carrier.get("type") in {"text", "ending_text"}
+                        and carrier.get("source", "").strip() == "("
+                        and choice_begin.get("type") == "command"
+                        and choice_begin.get("name") == "CHOICE_BEGIN"
+                    )
+                out += encode_translated_dialogue_text(
+                    text, allow_trailing_page_break=allow_trailing_page_break
+                )
         elif kind == "ending_text":
             text = translations.get(token["id"])
             if source or text is None or text == original_token["source"]:

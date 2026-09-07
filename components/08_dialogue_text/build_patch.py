@@ -41,7 +41,10 @@ from shared.dialogue_dte import (  # noqa: E402
 )
 from shared.ips import make_ips  # noqa: E402
 from shared.rom import ROM_SIZE_OFFSET, expand_rom, update_checksum, validate_base_rom  # noqa: E402
-from shared.translation_json import load_translation  # noqa: E402
+from shared.translation_json import (  # noqa: E402
+    load_structural_omission_token_indexes,
+    load_translation,
+)
 
 DIALOGUE_FILE = PROJECT_ROOT / "assets" / "dialogues.json"
 TRANSLATION_FILE = PROJECT_ROOT / "translations" / "dialogues_french.json"
@@ -55,6 +58,9 @@ def build(base: bytes, dialogue_file: Path = DIALOGUE_FILE, translation_file: Pa
     document = load_document(dialogue_file)
     try:
         translations = load_translation(translation_file, document, source_asset="dialogues.json")
+        structural_omissions = load_structural_omission_token_indexes(
+            translation_file, document, translations=translations
+        )
     except ValueError as exc:
         raise SystemExit(str(exc)) from exc
 
@@ -78,6 +84,12 @@ def build(base: bytes, dialogue_file: Path = DIALOGUE_FILE, translation_file: Pa
                 f"Generated explicit dialogue page break(s): {generated_page_breaks} "
                 "(WAIT $00 + TEXT_CLEAR)"
             )
+    omitted_commands = sum(len(indexes) for indexes in structural_omissions.values())
+    if omitted_commands:
+        reports.append(
+            f"User-validated Android structural command omission(s): {omitted_commands} "
+            f"across {len(structural_omissions)} event(s)"
+        )
 
     rebuilt_events: list[tuple[dict, bytes, bytes, int, int]] = []
     relocation_inputs: list[tuple[int, bytes]] = []
@@ -89,7 +101,13 @@ def build(base: bytes, dialogue_file: Path = DIALOGUE_FILE, translation_file: Pa
             )
 
         source_data, file_start, pointer = read_event(base, event_id)
-        rebuilt = serialize_event(base, event, translations=translations, source=False)
+        rebuilt = serialize_event(
+            base,
+            event,
+            translations=translations,
+            source=False,
+            omitted_command_token_indexes=structural_omissions.get(event["event_id"]),
+        )
         if not source_data or source_data[-1] != 0x00:
             raise SystemExit(
                 f"Event ${event_id:04X}: source span must end in END ($00)"

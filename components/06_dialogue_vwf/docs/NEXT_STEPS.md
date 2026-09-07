@@ -23,6 +23,15 @@ Do not move `$5A` option anchors without separate analysis. The simulator still 
 `Accepter / Refuser` as additional regression coverage, but do not broaden the runtime
 rule merely to increase corpus coverage.
 
+A deliberate runtime stress test on `$0331` moved the anchors and replaced the stock
+labels with the longest real Android-FR two-option pair, `Impossible !` /
+`Bon, d'accord...`. Selection/highlighting still worked and the game did not crash, but
+the fixed-width row overran the visible right edge and corrupted the right side of the
+dialogue frame. Therefore **30 nominal 8-pixel cells / 240 px is not a proven safe
+choice-relayout boundary**. Keep the clean checkpoint's stock anchors; do not carry the
+diagnostic text/anchor patch forward. Revisit the exact frame/tile write limit only as a
+separate renderer investigation.
+
 ## Deferred renderer work
 
 The clipping-safety wrap is validated, but a word can still be split when the

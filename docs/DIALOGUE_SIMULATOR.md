@@ -32,11 +32,13 @@ works from the resulting **encoded event byte stream**. It independently:
   physical bitmap and its safe-space rewind behavior;
 - checks the conservative formatter target of 240 pixels separately;
 - follows explicit `$7F` line breaks, `WAIT`, `TEXT_CLEAR`, `TEXT_OPEN` and
-  `TEXT_CLOSE`;
+  `TEXT_CLOSE`; runtime validation on `$0106` established that `WAIT` is pause-only and **does not advance the text cursor**; following text therefore remains on the same physical line until `$7F` or `TEXT_CLEAR`;
 - models `TEXT_X $nn` only when it starts a fresh line: the command's absolute
   decoded-text position becomes `nn` leading `$80` padding cells, matching the
   private-buffer path used by component 06;
-- models the stock three-line rolling window: `WAIT` snapshots a readable state, while a fourth line generated **before** a WAIT is reported as unpaused scroll;
+- models the stock three-line rolling window: `WAIT` snapshots the current readable state without consuming a line, while a fourth line generated **before** the next pause is reported as unpaused scroll;
+- emits review-only `WAIT_SAME_LINE_CONTINUATION` when translated text resumes after a WAIT on a still-live line, making missing explicit `$7F` boundaries visible instead of silently inventing them;
+- detects the runtime-validated `$0106` pagination hazard separately: after `WAIT $00`, two retained visible lines plus an empty newline can consume physical line 3 and make following prose scroll before the next pause; this is emitted as review-only `WAIT00_THIRD_LINE_SCROLL_RISK`, never auto-fixed;
 - renders the resulting pages with the actual 8x12 glyph bitmaps in a standalone
   HTML report;
 - shows a side-by-side comparison for every event: generated French/VWF on the
@@ -83,12 +85,40 @@ component-06 follow-up.
 
 ## Current mass-pass result
 
-The simulator-filtered generator currently accepts **404 complete events / 719
-translated source IDs (737 JSON entries)**. Re-running the simulator on the candidate
-mass translation produces **0 errors, 0 warnings and 0 implicit runtime wraps**. The
-13 formatter-compatible events still rejected by the simulator are choices whose
-French text would overlap a stock option anchor or overflow the selectable row. The HTML remains a static guardrail
+The simulator-filtered generator currently accepts **496 events / 1051 visible French
+semantic source IDs (1106 JSON entries)**: 493 events treated as complete plus 3
+PARTIEL events. `$0103`, `$017F` and `$01DC` are user-validated visually complete Android
+adaptations and therefore have no PARTIEL badge despite retaining unmapped SNES-only
+fragments. `$01DC` additionally omits the exact final stock `PLAYER_NAME(0)` command tied
+to suppressed `C9:804A`. The 3 PARTIEL events suppress 3 still-unresolved semantic IDs plus 2
+mapped-but-layout-deferred IDs from the visible dialogue.
+Re-running the simulator on the candidate mass translation produces **0 errors, 0 warnings
+and 0 implicit runtime wraps**. The HTML marks those 3 events with a `PARTIEL · français
+incomplet` badge so incomplete scenes can be revisited during playthrough. When
+`--baseline-translation` points to the previous generated JSON, the preview also tags
+events as `NEW` when newly translated source IDs appear, `MODIFIED` when the final
+serialized event bytes differ from the baseline, and `TO REVIEW` for PARTIEL,
+warning/error events, or `WAIT00_THIRD_LINE_SCROLL_RISK`. `--preserve-tags <json>` may carry forward an explicit
+NEW/MODIFIED/TO REVIEW snapshot while a user review is still in progress, so a later technical change cannot silently
+remove an unread badge. The repository keeps the active snapshot at
+`mappings/android/dialogue_preview_state.json`. Dedicated toolbar buttons filter these tags and can be combined with the text search. Twenty formatter-compatible events are still rejected by the simulator; incompatible stock choice anchors remain the dominant reason, while `$0202` exceeds the visible bitmap. The HTML remains a static guardrail
 rather than a substitute for the planned full-game
-playthrough. Representative runtime tests have validated the simulator-driven layout
-repairs used by the mass formatter, including clean WAIT-separated pages and exact
-interactive-WAIT overlap removal.
+playthrough. Representative runtime tests have validated the simulator-driven page layout used by
+the mass formatter. Exact visible carry-over after interactive `WAIT $00` is preserved as stock rolling-window
+presentation rather than automatically removed. `$0106/C9:2994` remains the only runtime-validated
+fresh-page exception. For one user-requested combined runtime-test batch, the eight exact round13
+detector matches (`$00FB`, `$0134`, `$016D`, `$01CA`, `$029C`, `$03EE`, `$04A1`, `$04EA`)
+now receive the same targeted newline-carrier -> `TEXT_CLEAR` change while preserving their stock
+`WAIT $00`. The guard reports **0 remaining third-line-scroll risks** after this batch. These eight
+events remain TO REVIEW until runtime validation; no generic WAIT cleanup is enabled.
+
+A separate live-window guard protects against formatter-added semantic line breaks
+that consume an extra physical line before the next pause.  When
+`UNPAUSED_LIVE_LINE_SCROLL_RISK` is present, the mass formatter may retry one
+mapping at a time with the compact width-only wrapper.  It accepts that change
+only if independent resimulation removes the complete risk with no error, warning
+or implicit wrap; choice rows are excluded, and partial risk reductions are
+rejected.  This keeps short source utterances such as `$0083`
+`Gestahl : Ha ! Imbécile !` on one line when the official French already fits,
+instead of letting a purely aesthetic sentence break push later text through the
+rolling three-line window.

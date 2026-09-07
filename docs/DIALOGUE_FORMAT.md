@@ -436,7 +436,7 @@ Representative runtime testing validates the semantic line-placement rules (fres
 speaker turns, punctuation attachment, sentence-first reflow, weak single-comma
 balancing and dash attribution) and the clear-only cleanup of legacy blank lines after
 interactive WAITs. Component 06's stock-rendered choice fallback is runtime-validated
-on event `$0331`; the 404-event corpus as a whole still requires full-game playthrough
+on event `$0331`; the 496-event corpus as a whole still requires full-game playthrough
 validation.
 
 ## 8.5 Independent HTML simulation
@@ -501,22 +501,30 @@ effect byte is changed. Finally, the already user-validated `$0511`
 shape to redistribute the existing Android French over three semantic SNES slots while
 preserving the stock layout carrier. Commands remain byte-for-byte in place.
 
-Selection is deliberately two-stage and event-complete:
+Selection is deliberately simulator-gated in two passes:
 
-1. every semantic source ID in the event must already have an accepted Android
-   alignment, and every mapping must bind/format without crossing an unsupported
-   structural command;
-2. the fully serialized candidate event must pass `tools/simulate_dialogues.py`
-   with zero error, zero warning and zero implicit runtime wrap. Unsupported
-   geometry therefore excludes the whole event instead of being guessed.
+1. completely aligned events keep the established formatter/fallback chain and must
+   pass the independent simulator with zero error, zero warning and zero implicit wrap;
+2. alignment-incomplete events may contribute only their **already accepted** Android
+   mappings. Every unmapped semantic source ID is explicitly suppressed from visible
+   dialogue instead of falling back to clean-USA English. Structural commands/layout
+   remain canonical. Partial events receive no compact wrapper or event-level pagination
+   repair: the directly formatted French-only-but-incomplete event must already resimulate
+   cleanly.
 
-Current deterministic result: 704 semantic text events -> 431 completely aligned
--> 417 formatter candidates -> **404 simulator-clean events / 719 translated
-source IDs** (737 JSON entries). The excluded-event split is 273 incomplete
-alignments, 14 formatter rejects and 13 simulator rejects. Choice rows are admitted
-only when their translated labels remain within the stock `CHOICE_OPTION` anchors;
-all 13 simulator rejects are incompatible choices. Sixty-five generated page
-transitions occur in the accepted corpus. The current layout refinement also replaces legacy leading blank
+Structural-review mappings are still subject to the same formatter/simulator gate. For
+Android prompt/choice splits, the prompt may be rebound separately from already anchored
+options while preserving the stock `CHOICE_BEGIN/CHOICE_OPTION/CHOICE_END` commands.
+Speaker-reattributed Joch reactions may receive a page boundary only across the exact
+proven `OP_20` bridge and only after clean whole-event resimulation. Mapping identity
+never bypasses choice geometry.
+
+Current deterministic result: **496 simulator-clean events / 1051 visible French semantic
+source IDs** (1106 JSON entries). This comprises 493 events treated as complete plus 3 PARTIEL events. `$0103`, `$017F` and `$01DC` are explicitly user-validated as complete Android adaptations while leaving their SNES-only fragments unmapped. `$01DC` additionally drops the exact final stock `PLAYER_NAME(0)` bound to suppressed `C9:804A`. The 3 PARTIEL events suppress 3 still-unresolved semantic IDs and 2 mapped-but-layout-deferred IDs. The deferred layout is now confined to `$00DF` (Cannon prompt/Water Palace choice geometry); `$01EE` is rendered through its structurally proven fresh-page choice carrier. The remaining
+excluded-event split is 171 incomplete alignments, 17 formatter rejects and 20
+simulator rejects. Choice rows are admitted only when their translated labels remain
+within the stock `CHOICE_OPTION` anchors; 19 of the 20 simulator rejects are incompatible choices; `$0202` is separately rejected for visible-bitmap overflow. Eighty-nine generated page transitions occur in the accepted corpus. The
+current layout refinement also replaces legacy leading blank
 scroll lines with clear-only `TEXT_CLEAR` transitions when the structure is proven.
 After the historical compact-wrapper fallback has failed, events whose **only**
 remaining simulator defect is `UNPAUSED_SCROLL` may try one additional page at a
@@ -531,39 +539,37 @@ wraps and decoded-capacity hard wraps use the same final proof. Events with unsu
 commands are not eligible.
 Five accepted mappings contain speaker-after-sentence hard-line hints and one
 contains a dash-attribution hint. The current semantic reflow changes line
-placement in many accepted mappings; event `$0101` is presently the only event
-that needs the automatic compact-layout fallback after simulator rejection.
-Component 08 relocates 358 growing events; the final relocated payload still
-fits entirely in the first `$E8` relocation bank in the current candidate.
+placement in many accepted mappings. `$0101` now has a runtime-reviewed explicit
+three-line layout because a formatter-added fourth live line caused a fast scroll
+that the older simulator did not detect.
+Component 08 relocates 397 growing events; the final relocated payload
+now extends into `$E9`; the highest current relocated payload still remains well inside the runtime-validated reserved `$E8-$EC` pool.
 
 `mappings/android/dialogues_format_mass.json` records every accepted/rejected
 stage and `mappings/android/dialogues_format_mass_excluded.csv` gives a reviewable
 row for every semantic source phrase belonging to an excluded event. This mass
 output is a runtime candidate until a full playthrough is completed.
 
-## 8.7 Exact rolling-window overlap cleanup
+## 8.7 WAIT $00 rolling-window preservation
 
-A later visual audit of the side-by-side simulator found a distinct layout case:
-a stock interactive `WAIT $00` can leave one or two lines from the previous
-three-line rolling window visible at the start of the next simulated state. This
-is normal stock engine behavior, but after French reflow it can produce visually
-redundant pages such as `Temple souterrain.` or two `dragon blanc...` lines
-appearing unchanged in both states.
+The stock dialogue box is a rolling three-line window. After an interactive
+`WAIT $00`, one or two lines from the previous state can legitimately remain
+visible while later text is appended. This can look like duplicated prose in a
+static page-by-page preview, but it is presentation state rather than evidence
+that the underlying dialogue text is duplicated.
 
-The mass generator now performs a conservative post-format pass driven by the
-independent simulator. It only acts when the next state after an **interactive
-`WAIT $00`** begins with an exact non-empty suffix of the previous state. It then
-tries one source-structure-preserving repair: either a clear-only `TEXT_CLEAR`
-before the next translated chunk, replacement of a newline-only stock scroll
-token with `TEXT_CLEAR`, or removal of a trailing newline-only token when no
-further prose follows. The repair is retained only if resimulation strictly
-reduces the duplicated-line count and still has zero errors, zero warnings and
-zero implicit wraps. Timed waits such as `WAIT $04` / `WAIT $08` are never
-changed.
+The formatter therefore **does not automatically remove exact carry-over after
+`WAIT $00`**. It does not insert `TEXT_CLEAR`, replace newline-only scroll
+tokens, or remove trailing layout tokens merely to make consecutive simulator
+states look unique. Timed waits such as `WAIT $02/$04/$08/$0C/...` are likewise
+left untouched.
 
-The rule is runtime-validated. The current mass output applies eight repairs in
-`$0136`, `$016D`, `$0263`, `$0265`, `$026A`, `$03EE`, `$04AC` and `$0511`; the
-simulator reports zero remaining exact carry-over after `WAIT $00`.
+An earlier checkpoint had presentation repairs for `$00E3`, `$00FB`, `$0136`,
+`$016D`, `$01BD`, `$0263`, `$0265`, `$026A`, `$029C`, `$02A7`, `$02AA`,
+`$03EE`, `$04AC` and `$0511`. A later audit established that those repairs were
+all driven by normal stock `WAIT $00` carry-over, so they are no longer applied.
+If one of these events still appears wrong at runtime, it must be investigated
+individually from source/event evidence rather than deduplicated automatically.
 
 ## 9. Deliberately deferred work
 
@@ -583,3 +589,67 @@ These should be added from engine/ROM evidence, not inferred from local examples
 ## 10. Charset audit
 
 See `DIALOGUE_CHARSET_AUDIT.md` before expanding Android-derived formatting.
+
+## Runtime-validated `$0106` fresh-page exception
+
+Runtime testing found one presentation bug that the static rolling-window preview can
+represent but cannot classify as wrong by itself. After the two-line French page ending
+with `un fantôme qui rôde...`, the stock event executes `WAIT $00`, then carries a
+newline-only text token at `C9:2994`, then begins the next speaker at `C9:299C`. With
+only two visible lines before the pause, that newline consumes physical line 3 and the
+following prose immediately scrolls, making the next page advance too quickly.
+
+The validated correction is deliberately local: keep the stock `WAIT $00` unchanged and
+compile only `C9:2994` as `TEXT_CLEAR` (`\v`). The next speaker then starts at line 1
+on a fresh page. This does **not** restore the former generic WAIT-overlap cleanup.
+
+For the next combined runtime test, the round13 review-only detector identified eight exact
+matches of the same physical hazard: `$00FB/C9:2447`, `$0134/C9:3D03`,
+`$016D/C9:4ECF`, `$01CA/C9:743D`, `$029C/C9:B1AD`, `$03EE/C9:F1E5`,
+`$04A1/CA:197E`, and `$04EA/CA:4A6B`. At the user's request these eight carriers are
+now compiled as `TEXT_CLEAR` while every stock `WAIT $00` remains unchanged. They are
+**batch test candidates**, not runtime-validated exceptions, and remain TO REVIEW until
+playthrough validation.
+## Runtime-validated WAIT cursor semantics and explicit NEWLINE repair
+
+Runtime testing on `$0106` established that `WAIT` pauses rendering **without moving the text cursor**. The previous simulator had incorrectly finalized the current line at every WAIT, so some formatter layouts appeared correct in HTML even though the serialized event lacked the required `$7F` NEWLINE. This explained `$0106` (`dites !` + `Houla !`) and the timed `...` sequence in `$0103`.
+
+The simulator now keeps the live line across WAIT. The formatter materializes the already-reviewed intended boundaries as explicit `$7F` bytes in `$0103`, `$0106`, `$0136`, `$0167`, `$016D`, `$016E`, `$01C3`, `$0228`, `$0259`, `$026A`, `$055E`, and `$059B`. WAIT bytes remain unchanged. `$026A` requires a fresh-page `TEXT_CLEAR` rather than a simple newline because its two-line retained state plus the following two-line prose would otherwise scroll before the next pause. These repairs are layout-only batch-test candidates until runtime review, except the previously validated `$0106/C9:2994` fresh-page fix.
+
+Future formatter changes must not infer a newline from WAIT itself. A desired line transition must be serialized explicitly and then pass the corrected simulator with zero errors, warnings and implicit wraps.
+
+### Round 22 `$02AE` timed-WAIT resegmentation candidate
+
+Android EN 1630 merges the two SNES Amar fragments separated by stock `WAIT $10`; Android
+FR 1630 is likewise one rewritten localization unit. The round22 formatter is deliberately
+event-specific: it keeps `WAIT $10` unchanged, splits the exact Android French only at a
+complete-sentence boundary, requires the pre-WAIT piece to fit on one physical line, and
+emits one explicit newline before the timed pause so the post-WAIT piece starts on the next
+physical line. The final event independently simulates with no implicit wrap. This is a
+`TO REVIEW` layout candidate, not a generalized timed-WAIT rule or a runtime-validated fix.
+
+
+
+## Runtime-reviewed `$0101` live fourth-line overflow
+
+Runtime capture on `$0101` showed that the official French `Aïe... Pfiouh.` had
+been split by the formatter into two physical lines. Together with `Pas moyen de
+remonter !` and `Comment je vais faire ?`, this created four lines before the
+next `WAIT $00`; the live fourth line therefore scrolled the first line away and
+made the final sentence appear in a rapid follow-up state. Stock English keeps
+`Ouch! Phew..!` on one line.
+
+The correction keeps the Android French wording unchanged and removes only that
+formatter-added break: `Aïe... Pfiouh.` stays on one physical line, followed by
+`Pas moyen de remonter !` and `Comment je vais faire ?` on lines 2 and 3. No
+WAIT, TEXT_CLEAR, actor command, or semantic mapping is changed.
+
+The simulator now also emits the review-only diagnostic
+`UNPAUSED_LIVE_LINE_SCROLL_RISK` when text begins a fourth non-empty live line
+before the next pause. This catches the failure at the moment the cursor enters
+the scrolling line, even if a WAIT arrives before that fourth line is formally
+finished. The diagnostic does not rewrite events automatically. After the
+`$0101` correction, the current corpus has 15 unique review candidates:
+`$0083`, `$0106`, `$01D3`, `$01DC`, `$0259`, `$0263`, `$0289`, `$02D2`,
+`$02EE`, `$036F`, `$03DD`, `$04A1`, `$04EA`, `$059B`, and `$066D`.
+`$036F` and `$04EA` each contain two occurrences.

@@ -34,10 +34,13 @@ from shared.dialogue_translation import (  # noqa: E402
     event_text_index,
     normalize_android_french,
     _sentence_boundary_positions,
+    _markup_width,
+    semantic_wrap_markup,
     make_dialogue_advances,
     make_translation_document as make_dialogue_translation_document,
 )
 from shared.dialogue_codec import parse_event  # noqa: E402
+from shared.translation_json import resolve_structural_omission_token_indexes  # noqa: E402
 from shared.rom import validate_base_rom  # noqa: E402
 
 DEFAULT_SCRTXT_EN = ROOT / "sources" / "android" / "scrtxt_en.bin"
@@ -48,6 +51,14 @@ DEFAULT_DIALOGUE_REVIEW_OUTPUT = ROOT / "mappings" / "android" / "dialogues_revi
 DEFAULT_DIALOGUE_REVIEW_ROUND3_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round3.json"
 DEFAULT_DIALOGUE_REVIEW_ROUND4_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round4.json"
 DEFAULT_DIALOGUE_REVIEW_ROUND5_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round5.json"
+DEFAULT_DIALOGUE_REVIEW_ROUND6_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round6.json"
+DEFAULT_DIALOGUE_REVIEW_ROUND7_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round7.json"
+DEFAULT_DIALOGUE_REVIEW_ROUND8_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round8.json"
+DEFAULT_DIALOGUE_REVIEW_ROUND11_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round11.json"
+DEFAULT_DIALOGUE_REVIEW_ROUND18_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round18.json"
+DEFAULT_DIALOGUE_REVIEW_ROUND20_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round20.json"
+DEFAULT_DIALOGUE_REVIEW_ROUND21_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round21.json"
+DEFAULT_DIALOGUE_REVIEW_ROUND22_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round22.json"
 DIALOGUE_SOURCE = ROOT / "assets" / "dialogues.json"
 
 INTRO_ANDROID_IDS = tuple(range(3445, 3453))
@@ -157,6 +168,259 @@ DIALOGUE_REVIEW_ROUND2 = (
 )
 
 
+# Round 6 records high-confidence structural correspondences discovered while
+# auditing partial events. These are not lexical guesses: each unit is anchored
+# by an ordered Android-English scene block and/or already accepted adjacent
+# choice options. Android may reattribute a reaction speaker or split a SNES
+# prompt + options across separate localization records.
+DIALOGUE_REVIEW_ROUND6 = (
+    {
+        "event_id": "0083",
+        "label": "Geshtar short speaker-labelled reaction",
+        "units": (
+            (("C9:13BF",), (927,), "speaker_label_alignment", "very_high_structural", "Exact Geshtar: Idiot! Android line immediately precedes already accepted Android 928 in the same trapped-player exchange."),
+        ),
+    },
+    {
+        "event_id": "0187",
+        "label": "Girl warning reattributed to PLAYER_NAME",
+        "units": (
+            (("C9:5B12",), (359,), "speaker_reattribution", "very_high_structural", "SNES Girl: Look out! is the exact Android Look out! line; Android represents the girl with PLAYER_NAME after the naming sequence."),
+        ),
+    },
+    {
+        "event_id": "024B",
+        "label": "Repeated moogle reaction triplet",
+        "units": (
+            (("C9:9EC0",), (1229,), "speaker_label_alignment", "very_high_structural", "Android repeats the same Moogle / laughing / crying triplet several times; 1229 begins one exact triplet and the following two SNES fragments already use the identical localized reactions."),
+        ),
+    },
+    {
+        "event_id": "02EE",
+        "label": "Tiny sprite speaker-labelled exchange",
+        "units": (
+            (("C9:C830",), (2557,), "speaker_label_alignment", "very_high_structural", "Exact Girl: A tiny little sprite! line immediately precedes already accepted Android 2558 in the same two-line exchange."),
+        ),
+    },
+    {
+        "event_id": "04A1",
+        "label": "Fanha confrontation opening speaker redistribution",
+        "units": (
+            (("CA:17DA",), (2897,), "speaker_label_alignment", "very_high_structural", "Exact Fanha: You made it! opens the same contiguous Android confrontation whose 2899+ lines are already aligned."),
+            ((("player_name", 0), "CA:17EF"), (2898,), "speaker_reattribution", "very_high_structural", "SNES continuation is preceded by PLAYER_NAME 0 and corresponds exactly to Android PLAYER_NAME asking the same question immediately between 2897 and already accepted 2899."),
+        ),
+    },
+    {
+        "event_id": "051D",
+        "label": "Soldier trap reaction speaker-labelled line",
+        "units": (
+            (("CA:5C6C",), (2221,), "speaker_label_alignment", "very_high_structural", "Exact Soldier: Pipe down! Android line is bracketed by already accepted Android 2220 and 2222 in the same trap sequence."),
+        ),
+    },
+    {
+        "event_id": "0020",
+        "label": "Joch running gag - Tasnica",
+        "units": (
+            (("C9:09A7",), (2460,), "speaker_reattribution", "very_high_structural", "SNES 'All:What luck...' corresponds to Android 'What luck...'; Android FR reattributes the reaction to PLAYER_NAME. Ordered immediately before the Tasnica answer."),
+            (("C9:09B9",), (2461, 2462), "one_snes_to_many_android", "very_high_structural", "Android splits the same Tasnica answer into destination + direction records; ordered scene block is exact."),
+        ),
+    },
+    {
+        "event_id": "0021",
+        "label": "Joch running gag - Palace of Darkness",
+        "units": (
+            (("C9:09F8",), (2452,), "speaker_reattribution", "very_high_structural", "SNES 'All:WHAT!?' corresponds to Android 'WHAT!?'; Android FR reattributes the reaction to PLAYER_NAME. Android 2453 is already the accepted immediately following answer."),
+        ),
+    },
+    {
+        "event_id": "0022",
+        "label": "Joch running gag - Gold Isle",
+        "units": (
+            (("C9:0A44",), (2454,), "speaker_reattribution", "very_high_structural", "SNES 'All:Where is Joch?' corresponds to Android 'Where is Joch?'; Android FR reattributes the reaction to PLAYER_NAME."),
+            (("C9:0A58",), (2455, 2456), "one_snes_to_many_android", "very_high_structural", "Android splits the same Gold Isle answer into destination + direction records in the ordered Joch scene."),
+        ),
+    },
+    {
+        "event_id": "0023",
+        "label": "Joch running gag - Moon Palace",
+        "units": (
+            (("C9:0A8E",), (2457,), "speaker_reattribution", "very_high_structural", "SNES 'All:Surprise...' corresponds to Android 'Surprise...'; Android FR reattributes the reaction to PLAYER_NAME. Android 2458/2459 are already the accepted following answer."),
+        ),
+    },
+    {
+        "event_id": "0050",
+        "label": "Neko save prompt split from Yes/No",
+        "units": (
+            (("C9:10A5",), (198,), "choice_prompt_split", "very_high_structural", "Android 198/199/200 is the Save your game?/Yes/No triplet bracketed by the already aligned Neko stay block 194-196 and shop block 201-203."),
+        ),
+    },
+    {
+        "event_id": "0065",
+        "label": "Neko shop prompt split from Buy/Sell",
+        "units": (
+            (("C9:1236",), (201,), "choice_prompt_split", "very_high_structural", "Android 201/202/203 is the contiguous Purrrfectly.../Buy/Sell triplet; option 202 is already accepted for this SNES choice."),
+        ),
+    },
+    {
+        "event_id": "0099",
+        "label": "Neko initial shop question split from choice",
+        "units": (
+            (("C9:14FE",), (188,), "choice_prompt_split", "very_high_structural", "Android 188/189/190 is the contiguous Welcome/Need anything?/Whatcha got?/Not really choice block; option 190 is already accepted in this SNES event."),
+            (("C9:1512",), (189,), "choice_option_split", "very_high_structural", "Exact Whatcha got? option immediately precedes already accepted Android 190 Not really."),
+        ),
+    },
+    {
+        "event_id": "00DF",
+        "label": "Cannon Travel Water Palace/Pandora choice",
+        "units": (
+            (("C9:1DCF",), (420,), "choice_prompt_split", "very_high_structural", "Android 420/421/422 is the contiguous 50-GP prompt / Water Palace / Pandora block; Pandora 422 is already accepted for this event."),
+            (("C9:1DED",), (421,), "choice_option_split", "very_high_structural", "Water Palace is the option immediately preceding already accepted Pandora 422 in the same Android block."),
+        ),
+    },
+    {
+        "event_id": "00E0",
+        "label": "Cannon Travel Matango/Kakkara choice",
+        "units": (
+            (("C9:1E14",), (1773,), "choice_prompt_split", "very_high_structural", "Android 1773/1774/1775 is the contiguous 50-GP prompt / Matango / Kakkara block; Kakkara 1775 is already accepted for this event."),
+            (("C9:1E3D",), (1774,), "choice_option_split", "very_high_structural", "Matango is the option immediately preceding already accepted Kakkara 1775 in the same Android block."),
+        ),
+    },
+    {
+        "event_id": "00DC",
+        "label": "Pandora lodging Nope option split",
+        "units": (
+            (("C9:1DB6",), (271,), "choice_option_split", "very_high_structural", "Android 267/269/270/271 is the same ordered lodging exchange; Android 271 is the missing Nope option immediately after the already accepted Phew, okay option 270."),
+        ),
+    },
+    {
+        "event_id": "00E1",
+        "label": "Cannon Travel Matango/Ice Country split",
+        "units": (
+            (("C9:1E5F",), (1653,), "choice_prompt_split", "very_high_structural", "Android 1653-1656 is the Cannon Travel prompt followed by Matango, Ice Country and Empire; this SNES state exposes Matango/Ice Country."),
+            (("C9:1E98",), (1655,), "choice_option_split", "very_high_structural", "Ice Country is the Android option adjacent to Matango 1654 in the same Cannon Travel block."),
+        ),
+    },
+    {
+        "event_id": "00E3",
+        "label": "Cannon Travel numbered destination list split",
+        "units": (
+            (("C9:1F03",), (1654, 1655, 1656), "choice_destination_list", "very_high_structural", "SNES concatenates the three destination labels into a numbered list; Android 1654/1655/1656 stores Matango, Ice Country and The Empire as three adjacent localization records."),
+        ),
+    },
+    {
+        "event_id": "01EE",
+        "label": "Elinee send-outside prompt split from Yes/No",
+        "units": (
+            (("C9:88F7",), (763,), "choice_prompt_split", "very_high_structural", "Android 763/764/765 is the contiguous send-outside prompt / Yes / No block."),
+        ),
+    },
+    {
+        "event_id": "02A7",
+        "label": "Tasnica rescue-team leaving choice",
+        "units": (
+            (("C9:B580",), (1579, 1580), "choice_prompt_split", "very_high_structural", "Android splits the two SNES prompt sentences into 1579/1580, immediately followed by Yes/No 1581/1582."),
+        ),
+    },
+    {
+        "event_id": "05B0",
+        "label": "Eight-way numeric choice - missing six",
+        "units": (
+            (("CA:77FF",), (1884,), "choice_option_split", "very_high_structural", "Android 1879-1886 is the contiguous 1..8 option run; SNES options 1-5 and 7-8 were already aligned to the surrounding IDs."),
+        ),
+    },
+    {
+        "event_id": "066B",
+        "label": "Be gone / Well? prompt split from Yes/No",
+        "units": (
+            (("CA:8A79",), (1845,), "choice_prompt_split", "very_high_structural", "Android 1845/1846/1847/1848 is the contiguous Be gone!/Well?/Yes/No block."),
+            (("CA:8A8A",), (1846,), "choice_prompt_split", "very_high_structural", "Android Well? immediately precedes the Yes/No pair in the same block."),
+        ),
+    },
+)
+
+
+# Round 20 follows Cannon Travel's destination/branch structure instead of lexical similarity.
+DIALOGUE_REVIEW_ROUND20 = (
+    {"event_id":"00CD","label":"Cannon Travel Upper Land response","units":((("C9:1A8A",),(163,),"cannon_response_prefix","very_high_structural","Android 163 begins with the exact Upper Land response and appends the shared cannon-boarding instruction stored by SNES in event $00FC."),)},
+    {"event_id":"00D1","label":"Cannon Travel Water Palace / Upper Land choice","units":((("C9:1BDE",),(155,),"choice_prompt_split","very_high_structural","The SNES choice branches to $00FD (Water Palace) and $00CD (Upper Land); Android 155 precedes destination IDs 156/157/158 in the same Cannon Travel block."),(("C9:1BFD",),(156,),"choice_option_split","very_high_structural","Water Palace is Android 156 in the same destination block."),(("C9:1C0A",),(158,),"choice_option_split","very_high_structural","Upper Land is Android 158 in the same block; this SNES state omits the intermediate Gaia's Navel option."))},
+    {"event_id":"00E6","label":"Cannon Travel Kakkara return response","units":((("C9:1F92",),(1924,),"cannon_response_prefix","very_high_structural","Android 1924 begins with the same heading-back response; SNES then calls shared event $00FC."),)},
+    {"event_id":"00E7","label":"Cannon Travel Matango response","units":((("C9:1FD3",),(1657,),"cannon_response_prefix","very_high_structural","$00E1 branches to $00E7 for Matango; Android 1657 follows option 1654."),)},
+    {"event_id":"00E8","label":"Cannon Travel Ice Country response","units":((("C9:2000",),(1659,),"cannon_response_prefix","very_high_structural","$00E1 branches to $00E8 for Ice Country; Android 1659 is the matching response."),)},
+    {"event_id":"00E9","label":"Cannon Travel Empire response","units":((("C9:203E",),(1661,),"cannon_response_prefix","very_high_structural","The three-way $00E3 choice routes its third selection to $00E9; Android 1661 follows Empire option 1656."),)},
+    {"event_id":"00EA","label":"Cannon Travel Matango response","units":((("C9:207F",),(1776,),"cannon_response_prefix","very_high_structural","$00E0 branches to $00EA for Matango; Android 1776 follows option 1774."),)},
+    {"event_id":"00EB","label":"Cannon Travel Kakkara response","units":((("C9:20B8",),(1779,),"cannon_response_prefix","very_high_structural","$00E0 branches to $00EB for Kakkara; Android 1779 is the desert response in that scene."),)},
+    {"event_id":"00EC","label":"Cannon Travel Kakkara response","units":((("C9:20F7",),(1329,),"cannon_response_prefix","very_high_structural","$00D0 branches to $00EC for Kakkara; Android 1329 follows Kakkara option 1327."),)},
+    {"event_id":"00ED","label":"Cannon Travel Ice Country response","units":((("C9:2146",),(1332,),"cannon_response_prefix","very_high_structural","$00D0 branches to $00ED for Ice Country; Android 1332 is the matching response."),)},
+    {"event_id":"00EF","label":"Cannon Travel Potos response","units":((("C9:21A9",),(1257,),"cannon_response_prefix","very_high_structural","$00CF branches to $00EF for Potos; Android 1257 follows Potos option 1255."),)},
+    {"event_id":"00F0","label":"Cannon Travel Gaia's Navel response","units":((("C9:21D7",),(1259,),"cannon_response_prefix","very_high_structural","$00CF branches to $00F0 for Gaia's Navel; Android 1259 is the corresponding response."),)},
+    {"event_id":"00F2","label":"Cannon Travel retry Kakkara response","units":((("C9:2220",),(1330,),"cannon_response_prefix","very_high_structural","Android 1330 expands the exact SNES retry response and shares the boarding suffix."),)},
+    {"event_id":"00F4","label":"Cannon Travel Water Palace response","units":((("C9:229B",),(423,),"cannon_response_prefix","very_high_structural","$00DF branches to $00F4 for Water Palace; Android 423 follows option 421."),)},
+    {"event_id":"00F5","label":"Cannon Travel Pandora response","units":((("C9:22D6",),(425,),"cannon_response_prefix","very_high_structural","$00DF branches to $00F5 for Pandora; Android 425 follows option 422."),)},
+    {"event_id":"00FA","label":"Cannon Travel initial boarding response","units":((("C9:2390",),(152,),"cannon_response_prefix","very_high_structural","Android 152 begins with the exact warning and appends the shared boarding instruction."),)},
+    {"event_id":"00FC","label":"Cannon Travel shared boarding instruction","units":((("C9:246D",),(159,),"cannon_common_boarding_suffix","very_high_structural","SNES $00FC contains only 'Just slide into the cannon!'; Android folds that same suffix into destination responses. Android 159 is one representative proven block."),)},
+    {"event_id":"00FD","label":"Cannon Travel Water Palace response","units":((("C9:2502",),(159,),"cannon_response_prefix","very_high_structural","$00CE branches to $00FD for Water Palace; Android 159 follows option 156."),)},
+    {"event_id":"00FE","label":"Cannon Travel Gaia's Navel response","units":((("C9:2541",),(161,),"cannon_response_prefix","very_high_structural","$00CE branches to $00FE for Gaia's Navel; Android 161 follows option 157."),)},
+    {"event_id":"01D6","label":"Dwarf elder donation prompt split before Yes/No","units":((("C9:7C5B",),(535,536),"choice_prompt_split","very_high_structural","Android 535/536 are the contiguous appeal/donation prompt immediately followed by Yes/No 537/538."),(("C9:7C74",),(537,),"choice_option_split","very_high_structural","Yes is Android 537 immediately after the donation prompt."),(("C9:7C79",),(538,),"choice_option_split","very_high_structural","No is Android 538 in the same block."))},
+    {"event_id":"01EE","label":"Elinee send-outside Yes/No anchors","units":((("C9:891D",),(764,),"choice_option_split","very_high_structural","Prompt 763 is already accepted; Yes 764 follows immediately."),(("C9:8922",),(765,),"choice_option_split","very_high_structural","No 765 follows Yes 764 in the same block."))},
+)
+
+
+# Round 21 resolves three conservative PARTIEL resegmentation cases. Android
+# English remains the identity layer; the formatter may only redistribute the
+# exact Android French localization around stock SNES structural carriers.
+DIALOGUE_REVIEW_ROUND21 = (
+    {
+        "event_id": "0167",
+        "label": "Phanna sacrifice opening resegmented around WAIT and PLAYER_NAME",
+        "units": (
+            (("C9:4C65", ("player_name", 1), "C9:4C73"), (1058, 1059), "wait_player_resegmentation", "very_high_structural", "Android 1058/1059 is the contiguous opening immediately before accepted 1060. SNES stores the same turn as Phanna's ellipsis, WAIT $00, PLAYER_NAME(1), then the continuation; preserve both commands and redistribute only the official Android French around the existing name carrier."),
+        ),
+    },
+    {
+        "event_id": "01E5",
+        "label": "Girl rejoins party placeholder join",
+        "units": (
+            ((("player_name", 1), "C9:82B9"), (668,), "placeholder_join", "very_high_structural", "Android 668 '%S(1,0) joined!' is exactly between accepted 666/667 and the following scene. SNES already emits PLAYER_NAME(1) immediately before the text carrier."),
+        ),
+    },
+    {
+        "event_id": "0609",
+        "label": "Haunted Forest / Gaia's Navel merged Android direction row",
+        "units": (
+            (("CA:8690", "CA:86A5"), (415,), "paired_direction_labels", "very_high_structural", "Android 415 merges the two SNES destination labels into one ordered row with ↑/↓ markers. SNES keeps those markers as stock D1/D2 glyphs around a newline-only carrier, so only the two official French labels are redistributed."),
+        ),
+    },
+)
+
+# Round 22 resolves three more PARTIEL cases where Android English proves a
+# branch/staging resegmentation. French text is taken only from the original
+# Android localization; no manual wording is introduced.
+DIALOGUE_REVIEW_ROUND22 = (
+    {
+        "event_id": "01DD",
+        "label": "Sprite female-name branch resegmentation",
+        "units": (
+            (("C9:806F",), (616, 619), "branch_shared_prefix_female_address", "very_high_structural", "Android EN 616 supplies the shared Sprite warning and 619 is the immediately following female-address branch before exact girl response 620. Android FR deliberately redistributes the shared prefix across 616 and the female address into 619; combine only those official slots for the SNES female branch."),
+            ((("player_name", 1), "C9:80A1", ("player_name", 1), "C9:80A9"), (620,), "double_player_name_response", "very_high_structural", "Android 620 is the exact girl-name correction between female-address branch 619 and already accepted 621. SNES stores the same response around two existing PLAYER_NAME(1) commands."),
+        ),
+    },
+    {
+        "event_id": "02AE",
+        "label": "Amar Faerie Walnut timed-WAIT resegmentation",
+        "units": (
+            (("C9:B691", "C9:B6B9"), (1630,), "timed_wait10_resegmentation", "very_high_structural", "Android EN 1630 merges the two consecutive SNES Amar fragments around the stock WAIT $10 ('Faerie walnut... Huh...? You mean...'), immediately before exact 1631/1632. Keep WAIT $10 byte-for-byte and redistribute only complete sentences from official Android FR 1630 across its two existing text carriers."),
+        ),
+    },
+    {
+        "event_id": "07FE",
+        "label": "Ending wake-up staging redistribution",
+        "units": (
+            (("CA:982A", ("player_name", 0), "CA:982E"), (3399, 3401, 3406), "ending_wakeup_staging", "very_high_structural", "Android EN redistributes the same ending wake-up turn over 3399 (%S(0,0)...), 3401 (wake up...) and 3406 (You must not fall now...), immediately before already accepted 3409. Android FR redistributes those slots again; preserve the stock SNES PLAYER_NAME(0) and use only the official localized pieces."),
+        ),
+    },
+)
+
+
 # Round 3 extends the validated method to two long, highly coherent scene runs
 # plus one localization-heavy Resistance scene. English identity remains the
 # primary acceptance signal; French wording may be adapted or redistributed.
@@ -210,6 +474,197 @@ DIALOGUE_REVIEW_ROUND3 = (
             (("CA:5B11",), (1992,), "one_to_one", "very_high_candidate", "Unique exact English match."),
             (("CA:5B41", "CA:5B5A", "CA:5B5F", "CA:5B70"), (1993, 1994, 1995, 1996), "sequence_block_with_android_extra", "block_candidate", "SNES has three spoken statements plus a newline token; Android has four anchors because 1996 adds a Dyluck sentence absent from SNES. French redistributes the same local conversation across 1993-1996."),
             (("CA:5BA4",), (1998,), "one_to_one", "very_high_candidate", "Unique exact English match after the sequence block; 1999 is an empty localization slot."),
+        ),
+    },
+)
+
+
+# Round 7 continues the structural PARTIEL audit. It deliberately targets
+# ordered Android-English gaps and prompt/choice blocks where neighboring
+# accepted IDs prove identity. It also corrects two short-label lexical matches
+# whose global exact wording pointed at the wrong Android scene.
+DIALOGUE_REVIEW_ROUND7 = (
+    {
+        "event_id": "00CE",
+        "label": "Cannon Travel Water Palace / Gaia's Navel choice",
+        "units": (
+            (("C9:1B18",), (156,), "choice_option_split", "very_high_structural", "Android 155/156/157 is the contiguous 50-GP prompt / Water Palace / Gaia's Navel block; prompt 155 is already accepted for this exact SNES event."),
+            (("C9:1B25",), (157,), "choice_option_split", "very_high_structural", "Gaia's Navel immediately follows Water Palace inside the same Android block anchored by accepted prompt 155."),
+        ),
+    },
+    {
+        "event_id": "00CF",
+        "label": "Cannon Travel Potos / Gaia's Navel choice",
+        "units": (
+            (("C9:1B60",), (1255,), "choice_option_split", "very_high_structural", "Android 1254/1255/1256 is the contiguous prompt / Potos Village / Gaia's Navel block; prompt 1254 and Gaia's Navel 1256 are already accepted in this exact event."),
+        ),
+    },
+    {
+        "event_id": "00D0",
+        "label": "Cannon Travel Kakkara / Ice Country choice",
+        "units": (
+            (("C9:1B85",), (1326,), "choice_prompt_split", "very_high_structural", "Android 1326/1327/1328 is the contiguous 50-GP prompt / Kakkara Desert / Ice Country block and matches this SNES destination pair in order."),
+            (("C9:1BB3",), (1327,), "choice_option_split", "very_high_structural", "Kakkara belongs to Android 1327 in this ordered Kakkara/Ice Country block; this replaces the earlier globally exact but scene-wrong Kakkara anchor."),
+            (("C9:1BBC",), (1328,), "choice_option_split", "very_high_structural", "Ice Country immediately follows Kakkara in the same Android 1326-1328 choice block."),
+        ),
+    },
+    {
+        "event_id": "00E2",
+        "label": "Cannon Travel Kakkara yes/no choice",
+        "units": (
+            (("C9:1EEC",), (1922,), "choice_option_split", "very_high_structural", "Android 1921/1922/1923 is the contiguous Kakkara 50-GP prompt / negative / affirmative choice block; prompt 1921 is already accepted for this event."),
+            (("C9:1EF3",), (1923,), "choice_option_split", "very_high_structural", "The affirmative SNES option belongs to Android 1923 in the same prompt block; this replaces the earlier globally exact but scene-wrong Sure! match."),
+        ),
+    },
+    {
+        "event_id": "0127",
+        "label": "Luka welcome line inside ordered Water Palace exchange",
+        "units": (
+            (("C9:3B05",), (916,), "speaker_label_alignment", "very_high_structural", "Exact Luka: Ha ha ha...welcome! fills the only Android-English gap between already accepted 915 and 917 in the same exchange."),
+        ),
+    },
+    {
+        "event_id": "0295",
+        "label": "Guard reaction before ordered ship-food exchange",
+        "units": (
+            (("C9:AF19",), (1516,), "speaker_label_alignment", "very_high_structural", "Exact Guard: Stop lollygagging! immediately precedes already accepted Android 1517 and 1518 in the same ship scene."),
+        ),
+    },
+    {
+        "event_id": "029C",
+        "label": "Morie / Meria confrontation ordered gaps",
+        "units": (
+            (("C9:B0E3",), (1545,), "speaker_label_alignment", "very_high_structural", "Exact Morie: Massage my back! immediately precedes the accepted 1546-1548 exchange."),
+            (("C9:B1B0",), (1552,), "speaker_reattribution", "very_high_structural", "SNES unlabeled Harrumph follows Morie's line and corresponds to Android PLAYER_NAME 1 Harrumph at 1552, bracketed by accepted 1551 and 1553."),
+            (("C9:B330",), (1564,), "one_snes_to_one_android_expanded", "very_high_structural", "SNES Soldier: No way! We're with Morie! is the same ordered line as Android 1564, whose English adds the staged departure immediately after accepted 1563."),
+        ),
+    },
+    {
+        "event_id": "0318",
+        "label": "Neko save-service line before Save/Buy/Sell options",
+        "units": (
+            (("C9:CD95",), (2377,), "choice_prompt_split", "very_high_structural", "Android 2376-2380 is the contiguous Neko greeting / save-service / Save / Buy / Sell block; 2376, 2378 and 2379 are already accepted in this exact event."),
+        ),
+    },
+    {
+        "event_id": "036D",
+        "label": "Scorpion boss send-off before robot overload",
+        "units": (
+            (("C9:D43A",), (1156,), "speaker_label_alignment", "very_high_structural", "Exact Boss send-off line precedes Android Robot 1157 and the already accepted overload exchange 1159-1161 in the same scene."),
+        ),
+    },
+    {
+        "event_id": "03AA",
+        "label": "Krissie resistance introduction ordered gaps",
+        "units": (
+            (("C9:E13E",), (2013,), "speaker_label_alignment", "very_high_structural", "Exact Krissie opening question immediately precedes already accepted Android 2014-2019."),
+            (("C9:E234",), (2020,), "speaker_label_alignment", "very_high_structural", "Exact Krissie: You KNOW Dyluck? fills the only gap between accepted 2019 and 2021 in the same conversation."),
+        ),
+    },
+    {
+        "event_id": "0558",
+        "label": "Girl awakening line in Thanatos scene",
+        "units": (
+            (("CA:65E8",), (2186,), "speaker_reattribution", "very_high_structural", "SNES unlabeled Where am I...? corresponds exactly to Android PLAYER_NAME 1 at 2186, between accepted Thanatos 2184 and PLAYER_NAME 0 line 2188."),
+        ),
+    },
+)
+
+
+# Round 8 focuses on user-reviewed PARTIEL events. Every mapping below is
+# supported by the ordered Android-English scene around already accepted
+# anchors; no French-only identity inference is used.
+DIALOGUE_REVIEW_ROUND8 = (
+    {
+        "event_id": "00AA",
+        "label": "Picard lighthouse ordered continuation",
+        "units": (
+            (("C9:1547",), (2303,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 2303-2306 is one contiguous lighthouse speech run. 2303 expands the SNES caretaker introduction and immediately precedes accepted 2304/2305."),
+            (("C9:15FE",), (2306,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 2306 begins with the exact SNES ancients-power sentence and directly follows accepted 2305 in the same lighthouse run."),
+        ),
+    },
+    {
+        "event_id": "0106",
+        "label": "Waterfall fragmented opening and falling scream",
+        "units": (
+            (("C9:2ADB",), (3494,), "one_to_one", "very_high_structural", "Exact final falling scream at Android 3494, immediately after already accepted 3492/3493."),
+        ),
+    },
+    {
+        "event_id": "0135",
+        "label": "Jema Mana study continuation",
+        "units": (
+            (("C9:3D64",), (887,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 886/887 is the contiguous Jema/Luka-followers speech. 887 starts with the complete SNES sentence and adds the Android continuation."),
+        ),
+    },
+    {
+        "event_id": "0147",
+        "label": "Pandora gate introduction",
+        "units": (
+            (("C9:45FD",), (237,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 237-240 is the exact ordered gate-guard run. 237 expands 'This is Pandora' to 'This is the Kingdom of Pandora' immediately before accepted 238-240."),
+        ),
+    },
+    {
+        "event_id": "0157",
+        "label": "Pandora ruins NPC continuation",
+        "units": (
+            (("C9:4A31",), (301,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 300/301 is the same two-part NPC speech; 301 closely matches the missing second SNES block and directly follows accepted 300."),
+        ),
+    },
+    {
+        "event_id": "0159",
+        "label": "Phanna and Dyluck exchange ordered gap",
+        "units": (
+            (("C9:4AFE",), (305,), "one_to_one", "very_high_structural", "Exact Android-English line 305 fills the only gap between accepted 304 and 306 in the same conversation."),
+        ),
+    },
+    {
+        "event_id": "0167",
+        "label": "Phanna sacrifice scene opening",
+        "units": (
+            (("C9:4C65",), (1058,), "speaker_label_alignment", "very_high_structural", "Android 1058 is the exact Phanna ellipsis and immediately precedes Android 1059 and the already aligned 1060-1068 scene. Android 1059 is semantically related to the following SNES line but remains layout-deferred because it resegments around PLAYER_NAME(1)."),
+        ),
+    },
+    {
+        "event_id": "0181",
+        "label": "Pandora king nightmare line",
+        "units": (
+            (("C9:5710",), (388,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 388 contains the complete SNES king nightmare/zombie sentence plus an Empire-warning expansion; it belongs to the same ordered court scene as 390-394."),
+        ),
+    },
+    {
+        "event_id": "0193",
+        "label": "Nobleman breaks off arrangement",
+        "units": (
+            (("C9:5F2E",), (369,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 369 is the same cancellation/indignation line and immediately follows accepted 368 in the Elman scene."),
+        ),
+    },
+    {
+        "event_id": "01A5",
+        "label": "Pandora king victory opening",
+        "units": (
+            (("C9:6366", ("player_name", 0), "C9:6374"), (403,), "placeholder_join", "very_high_structural", "Android 403 combines the two SNES text fragments around PLAYER_NAME(0): 'You did it, %S(0,0)!' and the kingdom returning to normal."),
+        ),
+    },
+    {
+        "event_id": "01B2",
+        "label": "Watts splendid sword continuation",
+        "units": (
+            (("C9:66DB",), (566,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 566 contains the complete missing hope-to-forge-a-sword sentence and directly follows accepted 565."),
+        ),
+    },
+    {
+        "event_id": "01C6",
+        "label": "Girl party-separation notice",
+        "units": (
+            (("C9:71AC", ("player_name", 1), "C9:71C1"), (440,), "adapted_system_notice", "very_high_structural", "SNES 'Separated from %S(1,0).' and Android '%S(1,0) leaves.' are the same party-removal event; Android 440 immediately follows accepted departure line 439."),
+        ),
+    },
+    {
+        "event_id": "01D3",
+        "label": "Sprite naming banter opening",
+        "units": (
+            (("C9:7944",), (616, 617), "one_snes_to_many_android_expanded", "very_high_structural", "Android 616/617 is the expanded sprite address ending in 'Brother!' immediately before accepted Android 618, which answers that address with the player reply at Android 618."),
         ),
     },
 )
@@ -560,6 +1015,75 @@ def rank_android_candidates(source: str, english: dict[int, str], *, limit: int 
         for _, _, android_id, metrics in ranked[:limit]
     ]
 
+
+
+# Round 11 continues the PARTIEL review using the same conservative structural
+# rules as round 8. Every mapping is demonstrated by Android English and the
+# ordered local scene; generic short labels/options are intentionally excluded.
+DIALOGUE_REVIEW_ROUND11 = (
+    {"event_id": "01DC", "label": "Pandora ruins soldiers ordered gaps", "units": (
+        (("C9:7EB5",), (720,), "speaker_label_alignment", "very_high_structural", "Exact Soldier ellipsis opens Android 720-728, immediately before accepted 721/722."),
+        (("C9:7FF4",), (728,), "one_to_one", "very_high_structural", "Android 728 is the exact three-person platform/bridge instruction and directly follows accepted 727."),
+    )},
+    {"event_id": "01ED", "label": "Elinee apology opening", "units": ((("C9:8771",), (754,), "one_to_one", "very_high_structural", "Exact Elinee apology at Android 754 immediately precedes accepted 755-758."),)},
+    {"event_id": "01F5", "label": "Elinee lost magic continuation", "units": ((("C9:899F",), (761,), "one_to_one", "very_high_structural", "Exact lost-magical-power sentence at Android 761 immediately follows accepted 760."),)},
+    {"event_id": "023A", "label": "Crystal Orb question opening", "units": ((("C9:9CB8",), (973,), "speaker_reattribution", "very_high_structural", "Exact Crystal Orb question at Android 973 immediately precedes accepted 974/975; Android adds PLAYER_NAME(0) attribution."),)},
+    {"event_id": "0250", "label": "Matango village shambles gap", "units": ((("C9:A00D",), (1263,), "one_to_one", "very_high_structural", "Android 1263 is the exact village-in-shambles line between accepted 1262 and 1264."),)},
+    {"event_id": "02B2", "label": "Amar Sea Hare and belt ordered gaps", "units": (
+        (("C9:B89E",), (1642,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 1642 begins with the exact Sea Hare tail/Hurrah line and adds the well action in the same Amar scene."),
+        (("C9:B8F8",), (1664,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 1664 begins with the exact belt reward and expands its legendary-knight description immediately before accepted 1665."),
+    )},
+    {"event_id": "02B4", "label": "Fire Seed missing continuation", "units": ((("C9:B9D6",), (1636,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 1636 begins with the exact missing Fire Seed sentence and adds the monster consequence directly after accepted 1635."),)},
+    {"event_id": "02B7", "label": "Ice Country relocation branch", "units": (
+        (("C9:BA6C",), (1623,), "one_to_one", "very_high_structural", "Exact Ice Country destination at Android 1623 in the relocation NPC branch."),
+        (("C9:BA7C",), (1624,), "one_to_one", "very_high_structural", "Exact warm-town sentence at Android 1624 immediately after 1623; French continuation in the following English-empty slot is retained by anchor interval policy."),
+    )},
+    {"event_id": "02E4", "label": "Serin legendary warrior continuation", "units": ((("C9:C62F",), (2561,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 2561 begins with the exact Serin legendary-warrior sentence and adds the great-war timing, directly after accepted 2560."),)},
+    {"event_id": "02F9", "label": "Sea Hare merchant ordered gaps", "units": (
+        (("C9:C9D5",), (2294,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 2294 begins with the exact 'not making it here' thought and expands the move-to-city idea immediately before accepted 2295."),
+        (("C9:CA38",), (2296,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 2296 begins with the exact 'you actually WANT one?' reaction and adds the giveaway rationale between accepted 2295 and 2297."),
+    )},
+    {"event_id": "0363", "label": "Sprite elder warning opening", "units": ((("C9:D1DB",), (500,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 500 contains the exact leave-now/never-return warning plus 'Wait up!', immediately before accepted 501."),)},
+    {"event_id": "036F", "label": "Scorpion hideout ordered gaps", "units": (
+        (("C9:D563",), (1144,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 1144 begins with the exact cannot-let-you-leave sentence and adds the secret-hideout reason immediately before accepted 1145."),
+        (("C9:D661",), (1151, 1152, 1153), "one_snes_to_many_android", "very_high_structural", "The SNES Boys/Boss/Boys reaction is split into ordered Android 1151/1152/1153 directly after accepted 1149/1150."),
+    )},
+    {"event_id": "039F", "label": "Empire bizarre thoughts opening", "units": ((("C9:DFF2",), (1871,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 1871 contains the exact emperor-bizarre-thoughts sentence with a conversational preface, immediately before accepted 1872."),)},
+    {"event_id": "03D0", "label": "Palace of Darkness cave opening", "units": ((("C9:E9A1",), (2315,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 2315 contains the exact mountain/cave/monsters directions and directly precedes accepted 2316."),)},
+    {"event_id": "03DD", "label": "Jehk rejection opening", "units": ((("C9:ED6D",), (2445,), "speaker_label_alignment", "very_high_structural", "Android 2445 'Go away!' is the same Jehk rejection immediately before accepted 2446/2447; no global short-label matching is used."),)},
+    {"event_id": "04A3", "label": "Thanatos Geshtar explanation", "units": ((("CA:1A1E",), (2917,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 2917 begins with the same Thanatos/Geshtar question-answer and expands it, bracketed by accepted 2915/2916 and 2918/2919."),)},
+    {"event_id": "04EA", "label": "Gaia Navel dwarves resegmentation", "units": ((("CA:4C1F", "CA:4C71"), (858,), "many_snes_to_one_android", "very_high_structural", "Android 858 combines the two consecutive SNES dwarf-cave/weapon/reforge fragments between accepted 857 and 859."),)},
+    {"event_id": "052F", "label": "Truffle voice opening", "units": ((("CA:5FEF",), (2272,), "speaker_label_alignment", "very_high_structural", "Exact Voice: Hellooo line at Android 2272 between accepted 2271 and 2273."),)},
+    {"event_id": "0532", "label": "Truffle Matango destination ending", "units": ((("CA:61D8",), (2280,), "one_to_one", "very_high_structural", "Exact Matango/southwest instruction at Android 2280 immediately after accepted 2279."),)},
+    {"event_id": "0580", "label": "Gnome gained-powers system line", "units": ((("CA:6B9C",), (1048,), "system_message_equivalence", "very_high_structural", "Android 1048 'Gained Gnome's powers!' is the exact system-message equivalent immediately before accepted 1049."),)},
+    {"event_id": "0582", "label": "Salamando gained-powers system line", "units": ((("CA:6F3D",), (1807,), "system_message_equivalence", "very_high_structural", "Android 1807 'Gained Salamando's powers!' is the exact system-message equivalent immediately after accepted 1806."),)},
+    {"event_id": "0584", "label": "Luna power grant resegmentation", "units": ((("CA:6FD7", "CA:7005"), (2649,), "many_snes_to_one_android", "very_high_structural", "Android 2649 compresses the two consecutive SNES Luna fragments into the same take-my-powers / Mana-is-fading message between accepted 2648 and 2651."),)},
+    {"event_id": "0587", "label": "Lumina introduction resegmentation", "units": ((("CA:7154", "CA:718F"), (2533,), "many_snes_to_one_android", "very_high_structural", "Android 2533 combines the two consecutive SNES Lumina introduction / king draining power / making gold fragments immediately before accepted 2536/2538."),)},
+)
+
+
+# Round 18 targets the same speaker/resegmentation family as the user-reviewed
+# ``All:`` Joch reactions.  Every unit is anchored by Android English and the
+# ordered local scene; no global short-label matching is used.
+DIALOGUE_REVIEW_ROUND18 = (
+    {"event_id": "0236", "label": "Gnome entrance resegmentation", "units": (
+        (("C9:9B8C",), (993, 994), "one_snes_to_many_android", "very_high_structural", "SNES combines the two consecutive gnome warnings; Android EN splits them into 993/994 immediately before Android 995/996."),
+        (("C9:9BCB",), (995, 996), "one_snes_to_many_android", "very_high_structural", "Exact player/gome exchange split into adjacent Android 995/996; retained explicitly because adding the preceding structural unit changes generic session segmentation."),
+        (("C9:9C20",), (999,), "speaker_reaction_adaptation", "very_high_structural", "The gnome's angry reaction sits exactly between already accepted Android 998 ('Take this!') and 1001 ('I'm out of here!'); Android adapts the wording to 'Why you little--!' while preserving speaker and scene position."),
+    )},
+    {"event_id": "0293", "label": "Sandship Sergo/guard speaker split", "units": (
+        (("C9:AEB6",), (1508, 1509), "one_snes_to_many_android_equivalent_duplicate", "very_high_structural", "SNES packs Sergo 'Fire! Fire!' and the guard reply into one token; Android EN splits them into 1508/1509. The duplicate 1513/1514 pair has identical EN/FR, so the localized semantic result is unambiguous."),
+    )},
+    {"event_id": "03E9", "label": "Television sleep reaction ordered duplicate", "units": (
+        (("C9:F039",), (2349,), "duplicate_resolved_by_local_order", "very_high_structural", "Exact '...Gzzz...' follows already accepted Android 2347/2348 in this television sequence; the later duplicate 2355 belongs to a different programme block."),
+    )},
+    {"event_id": "055E", "label": "Phanna/Krissie speaker resegmentation", "units": (
+        (("CA:6828",), (2034,), "speaker_reaction_adaptation", "very_high_structural", "SNES 'Hush!' and Android EN 'Shut up!' are the same reaction immediately after accepted 2032/2033 and before accepted 2035."),
+        ((("player_name", 1), "CA:687F"), (2037,), "placeholder_plus_expanded_reaction", "very_high_structural", "SNES PLAYER_NAME(1)+':Liar!' is expanded by Android EN to the same player's 'T-that's... not true... You're lying!' exactly between accepted 2035 and 2038."),
+        (("CA:68B1",), (2040,), "speaker_label_alignment", "very_high_structural", "Exact 'Phanna: Ooh!' / Android 2040 is bracketed by already accepted 2038 and 2041 in the same confrontation."),
+        (("CA:6962", ("player_name", 0), "CA:696C"), (2048,), "speaker_prefix_placeholder_join", "very_high_structural", "SNES splits 'KRISSIE:' + PLAYER_NAME(0) + 'What's up?' across two text carriers; Android EN 2048 stores the exact combined Krissie line in the same 2032-2055 scene."),
+    )},
+)
 
 
 def english_anchor_interval(anchor_id: int, english: dict[int, str]) -> list[int]:
@@ -943,6 +1467,133 @@ def make_dialogue_review_round5_report(
     return document
 
 
+def make_dialogue_review_round6_report(
+    english: dict[int, str],
+    french: dict[int, str],
+    *,
+    english_path: Path,
+    french_path: Path,
+) -> dict:
+    """Regenerate the structural review used by the current auto alignment."""
+    return make_dialogue_review_report(
+        english,
+        french,
+        english_path=english_path,
+        french_path=french_path,
+        batch=DIALOGUE_REVIEW_ROUND6,
+        round_name="round6",
+        user_validated=False,
+    )
+
+
+def make_dialogue_review_round7_report(
+    english: dict[int, str],
+    french: dict[int, str],
+    *,
+    english_path: Path,
+    french_path: Path,
+) -> dict:
+    """Regenerate the next conservative structural PARTIEL review."""
+    return make_dialogue_review_report(
+        english,
+        french,
+        english_path=english_path,
+        french_path=french_path,
+        batch=DIALOGUE_REVIEW_ROUND7,
+        round_name="round7",
+        user_validated=False,
+    )
+
+
+def make_dialogue_review_round8_report(
+    english: dict[int, str],
+    french: dict[int, str],
+    *,
+    english_path: Path,
+    french_path: Path,
+) -> dict:
+    """Regenerate the user-driven structural PARTIEL review."""
+    return make_dialogue_review_report(
+        english,
+        french,
+        english_path=english_path,
+        french_path=french_path,
+        batch=DIALOGUE_REVIEW_ROUND8,
+        round_name="round8",
+        user_validated=False,
+    )
+
+
+def make_dialogue_review_round11_report(
+    english: dict[int, str],
+    french: dict[int, str],
+    *,
+    english_path: Path,
+    french_path: Path,
+) -> dict:
+    """Regenerate the conservative PARTIEL follow-up derived from user review patterns."""
+    return make_dialogue_review_report(
+        english, french, english_path=english_path, french_path=french_path,
+        batch=DIALOGUE_REVIEW_ROUND11, round_name="round11", user_validated=False,
+    )
+
+
+def make_dialogue_review_round18_report(
+    english: dict[int, str],
+    french: dict[int, str],
+    *,
+    english_path: Path,
+    french_path: Path,
+) -> dict:
+    """Regenerate the speaker/resegmentation PARTIEL follow-up."""
+    return make_dialogue_review_report(
+        english, french, english_path=english_path, french_path=french_path,
+        batch=DIALOGUE_REVIEW_ROUND18, round_name="round18", user_validated=False,
+    )
+
+
+def make_dialogue_review_round20_report(
+    english: dict[int, str],
+    french: dict[int, str],
+    *,
+    english_path: Path,
+    french_path: Path,
+) -> dict:
+    """Regenerate the Cannon Travel / choice-anchor structural follow-up."""
+    return make_dialogue_review_report(
+        english, french, english_path=english_path, french_path=french_path,
+        batch=DIALOGUE_REVIEW_ROUND20, round_name="round20", user_validated=False,
+    )
+
+
+def make_dialogue_review_round21_report(
+    english: dict[int, str],
+    french: dict[int, str],
+    *,
+    english_path: Path,
+    french_path: Path,
+) -> dict:
+    """Regenerate the conservative PARTIEL resegmentation follow-up."""
+    return make_dialogue_review_report(
+        english, french, english_path=english_path, french_path=french_path,
+        batch=DIALOGUE_REVIEW_ROUND21, round_name="round21", user_validated=False,
+    )
+
+
+def make_dialogue_review_round22_report(
+    english: dict[int, str],
+    french: dict[int, str],
+    *,
+    english_path: Path,
+    french_path: Path,
+) -> dict:
+    """Regenerate the branch/staging PARTIEL resegmentation follow-up."""
+    return make_dialogue_review_report(
+        english, french, english_path=english_path, french_path=french_path,
+        batch=DIALOGUE_REVIEW_ROUND22, round_name="round22", user_validated=False,
+    )
+
+
 # ---- Conservative whole-dialogue Android alignment -------------------------
 
 DEFAULT_DIALOGUE_AUTO_OUTPUT = ROOT / "mappings" / "android" / "dialogues_auto.json"
@@ -983,6 +1634,11 @@ DIALOGUE_FORCED_UNMAPPED = {
     "CA:437D": "Round-5 validated unmatched case: the nearby Android exclamation is semantically different.",
 }
 
+# Reviewed structural corrections that intentionally replace an automatic
+# lexical choice. The generic calibration guard remains active for every other
+# reviewed source ID.
+DIALOGUE_REVIEWED_AUTO_OVERRIDES = frozenset({"CA:696C"})
+
 # The pilot proved that these duplicated Android locations carry equivalent
 # English/French content even though provenance cannot select one copy. Keep the
 # alternatives explicit instead of inventing a single Android ID.
@@ -990,7 +1646,35 @@ DIALOGUE_VALIDATED_ALTERNATIVE_GROUPS = {
     "C9:089B": ((3314,), (3360,)),
     "C9:0C19": ((2667,), (2793,)),
     "C9:0B03": ((2449, 2450), (2463, 2464)),
+    "C9:392C": ((792,), (796,)),
 }
+
+# These events were explicitly reviewed by the user as visually complete even
+# though some stock SNES semantic fragments have no one-to-one Android anchor.
+# Keep their exact simulator-clean French-only bytes, but do not count them as
+# PARTIEL in the preview/report. This does not create mappings for the omitted
+# SNES fragments and therefore does not inflate alignment coverage.
+DIALOGUE_USER_VALIDATED_VISUALLY_COMPLETE_EVENTS = frozenset({"0103", "017F", "01DC"})
+
+# $01DC has one Android-adaptation omission that includes a structural speaker
+# carrier, not just semantic text. The user explicitly validated dropping the
+# final stock PLAYER_NAME(0) together with C9:804A because Android 729 begins
+# the following Niccolo scene directly after Android 728. The source asset stays
+# canonical; this exact command is omitted only in translated serialization.
+DIALOGUE_USER_VALIDATED_STRUCTURAL_OMISSIONS = (
+    {
+        "event_id": "01DC",
+        "suppressed_semantic_ids": ["C9:804A"],
+        "suppressed_commands": [
+            {
+                "name": "PLAYER_NAME",
+                "args": "00",
+                "immediately_before_text_id": "C9:804A",
+            }
+        ],
+        "reason": "user_validated_android_adaptation_omission",
+    },
+)
 
 
 def _auto_metrics(source: str, candidate: str) -> dict[str, float]:
@@ -1445,6 +2129,14 @@ def _auto_reviewed_records(source: dict[str, dict]) -> list[dict]:
         ("round3", DIALOGUE_REVIEW_ROUND3),
         ("round4", DIALOGUE_REVIEW_ROUND4),
         ("round5", DIALOGUE_REVIEW_ROUND5),
+        ("round6", DIALOGUE_REVIEW_ROUND6),
+        ("round7", DIALOGUE_REVIEW_ROUND7),
+        ("round8", DIALOGUE_REVIEW_ROUND8),
+        ("round11", DIALOGUE_REVIEW_ROUND11),
+        ("round18", DIALOGUE_REVIEW_ROUND18),
+        ("round20", DIALOGUE_REVIEW_ROUND20),
+        ("round21", DIALOGUE_REVIEW_ROUND21),
+        ("round22", DIALOGUE_REVIEW_ROUND22),
     ):
         for scene in batch:
             for parts, android_ids, relation, _candidate_confidence, note in scene["units"]:
@@ -1454,14 +2146,26 @@ def _auto_reviewed_records(source: dict[str, dict]) -> list[dict]:
                         "event_id": scene["event_id"],
                         "snes_ids": snes_ids,
                         "android_ids": list(android_ids),
-                        "confidence": "user_validated",
+                        "confidence": "very_high_structural_review" if round_name in {"round6", "round7", "round8", "round11", "round18", "round20", "round21", "round22"} else "user_validated",
                         "provenance": round_name,
                         "relation": relation,
                         "note": note,
                         "source_display": source_display,
                     }
                 )
-    return records
+    # A later structural round may intentionally expand an earlier reviewed
+    # block (round21 does this for $0167). Keep the latest whole reviewed unit
+    # whenever source-ID ownership overlaps. Existing pre-round21 rounds do not
+    # overlap, so this affects only explicitly superseded evidence.
+    claimed: set[str] = set()
+    latest_records: list[dict] = []
+    for record in reversed(records):
+        if claimed.intersection(record["snes_ids"]):
+            continue
+        latest_records.append(record)
+        claimed.update(record["snes_ids"])
+    latest_records.reverse()
+    return latest_records
 
 
 def _auto_french_unit(anchor_id: int, english: dict[int, str], french: dict[int, str]) -> tuple[str, ...]:
@@ -1921,6 +2625,10 @@ def make_dialogue_auto_alignment(
             observed = set(record["android_ids"])
             if expected.intersection(observed):
                 calibration_matches += 1
+            elif snes_id in DIALOGUE_REVIEWED_AUTO_OVERRIDES:
+                # Round-specific structural evidence intentionally corrects the
+                # generic lexical choice; reviewed records remain authoritative.
+                continue
             else:
                 calibration_conflicts.append(
                     {
@@ -2094,6 +2802,12 @@ def make_dialogue_format_selection(
         french_path=french_path,
     )
     source_document = json.loads(DIALOGUE_SOURCE.read_text(encoding="utf-8"))
+    source_text_by_id = {
+        token["id"]: token.get("source", "")
+        for event in source_document["events"]
+        for token in event["tokens"]
+        if token.get("type") == "text"
+    }
     advances = make_dialogue_advances(base_rom)
 
     selected = [
@@ -2266,6 +2980,17 @@ def make_dialogue_format_batch2(
 
 
 
+# WAIT $00 rolling-window cleanup is presentation-sensitive.  Keep automatic
+# repairs restricted to the checkpoint that predates the round-8 partial-block
+# review; newly exposed overlaps must be reviewed explicitly before changing
+# stock persistence semantics.
+# Do not rewrite stock WAIT $00 presentation automatically.  Exact visible
+# carry-over after an interactive WAIT is a legitimate rolling-window state,
+# not proof of duplicated dialogue.  Any future presentation change must be
+# reviewed and implemented explicitly for that event.
+DIALOGUE_RUNTIME_VALIDATED_WAIT00_OVERLAP_EVENTS = frozenset()
+
+
 def _wait00_page_overlap_count(simulation) -> int:
     """Count exact visible-line carry-over after interactive WAIT $00 pauses.
 
@@ -2384,6 +3109,134 @@ def _wait00_repair_variants(event: dict, translations: dict[str, str]):
             yield candidate, description
 
 
+
+# Runtime-validated WAIT semantics: WAIT pauses without advancing the text
+# cursor.  Earlier formatter/simulator revisions implicitly treated WAIT as a
+# line terminator, so a small set of already-formatted scenes relied on a line
+# break that was never serialized.  Materialize those intended boundaries as
+# explicit dialogue NEWLINE bytes ($7F) while leaving every WAIT command intact.
+#
+# These are layout-only repairs: no Android/SNES semantic mapping is changed.
+# ``prepend`` places NEWLINE at the start of the following text carrier;
+# ``append`` places it at the end of the preceding carrier when the following
+# visible object is PLAYER_NAME and there is no text carrier before it.
+DIALOGUE_EXPLICIT_POST_WAIT_NEWLINES = {
+    "0103": [
+        ("C9:265A", "prepend"),
+        ("C9:2715", "prepend"),
+        ("C9:2715", "append"),
+        ("C9:271E", "prepend"),
+        ("C9:2723", "prepend"),
+        ("C9:2740", "prepend"),
+        ("C9:2753", "prepend"),
+    ],
+    "0106": [
+        ("C9:28EB", "prepend"),
+        ("C9:2ADB", "prepend"),
+    ],
+    "0136": [("C9:3E14", "prepend")],
+    "0167": [
+        ("C9:4C65", "append"),
+        ("C9:4D1B", "prepend"),
+    ],
+    "016D": [("C9:4F84", "prepend")],
+    "016E": [("C9:5233", "prepend")],
+    "01C3": [("C9:70BF", "prepend")],
+    "0228": [
+        ("C9:9893", "prepend"),
+        ("C9:98AC", "prepend"),
+    ],
+    "0259": [("C9:A1B3", "prepend")],
+    "026A": [("C9:A4E9", "prepend_clear")],
+    "055E": [
+        ("CA:688A", "prepend"),
+        ("CA:68FF", "prepend"),
+    ],
+    "059B": [("CA:76B2", "prepend")],
+}
+
+
+def _apply_explicit_post_wait_newlines(
+    event_id: str,
+    translations: dict[str, str],
+    *,
+    source_text_by_id: dict[str, str],
+) -> list[dict]:
+    """Materialize reviewed line boundaries after WAIT as literal $7F.
+
+    A missing translation entry normally means "keep stock source bytes". For
+    punctuation/layout-only carriers (notably $0103/$0228), create an explicit
+    translation from the canonical source text before adding the newline so the
+    visible punctuation itself remains byte-equivalent apart from the new $7F.
+    """
+    repairs: list[dict] = []
+    for text_id, mode in DIALOGUE_EXPLICIT_POST_WAIT_NEWLINES.get(event_id, []):
+        value = translations.get(text_id)
+        if value is None:
+            if text_id not in source_text_by_id:
+                raise KeyError(f"Unknown post-WAIT newline carrier {text_id}")
+            value = source_text_by_id[text_id]
+        if mode == "prepend":
+            if not value.startswith("\n"):
+                value = "\n" + value
+        elif mode == "append":
+            if not value.endswith("\n"):
+                value = value + "\n"
+        elif mode == "prepend_clear":
+            if not value.startswith("\v"):
+                value = "\v" + value.lstrip("\n")
+        else:
+            raise ValueError(f"Unsupported post-WAIT newline mode {mode!r}")
+        translations[text_id] = value
+        repairs.append({
+            "layout_text_id": text_id,
+            "strategy": f"{mode}_explicit_newline_after_wait",
+            "validation_status": "batch_test_candidate",
+            "reason": "materialize line boundary previously assumed implicitly at WAIT",
+        })
+    return repairs
+
+WAIT00_FRESH_PAGE_CLEAR_TARGETS = {
+    "0106": ("C9:2994", "runtime_validated"),
+    "00FB": ("C9:2447", "batch_test_candidate"),
+    "0134": ("C9:3D03", "batch_test_candidate"),
+    "016D": ("C9:4ECF", "batch_test_candidate"),
+    "01CA": ("C9:743D", "batch_test_candidate"),
+    "029C": ("C9:B1AD", "batch_test_candidate"),
+    "03EE": ("C9:F1E5", "batch_test_candidate"),
+    "04A1": ("CA:197E", "batch_test_candidate"),
+    "04EA": ("CA:4A6B", "batch_test_candidate"),
+    "03E9": ("C9:F036", "round18_batch_test_candidate"),
+    "055E": ("CA:687A", "round18_batch_test_candidate"),
+}
+
+
+def _apply_targeted_wait00_fresh_page_clear(
+    event_id: str, translations: dict[str, str]
+) -> list[dict]:
+    """Replace only audited newline-only carriers after the $0106 hazard shape.
+
+    $0106/C9:2994 is runtime-validated. The eight round13 targets are the
+    original detector batch; newly visible round18 mappings add two more exact
+    detector matches ($03E9/$055E), also kept as explicit test candidates. The
+    stock WAIT $00 bytes remain untouched and no generic WAIT carry-over rule is
+    enabled.
+    """
+    target = WAIT00_FRESH_PAGE_CLEAR_TARGETS.get(event_id)
+    if target is None:
+        return []
+    layout_id, validation_status = target
+    if translations.get(layout_id) == "\v":
+        return []
+    translations[layout_id] = "\v"
+    return [{
+        "layout_text_id": layout_id,
+        "strategy": "replace_stock_layout_newline_with_text_clear",
+        "validation_status": validation_status,
+        "reason": "fresh-page boundary for audited WAIT $00 third-line-scroll hazard",
+    }]
+
+
 def _repair_wait00_page_overlaps(
     *,
     base_rom: bytes,
@@ -2402,8 +3255,11 @@ def _repair_wait00_page_overlaps(
         font=font,
         player_names={0: "000000000", 1: "000000000", 2: "000000000"},
     )
-    current_overlap = _wait00_page_overlap_count(simulation)
     repairs: list[dict] = []
+    if event.get("event_id") not in DIALOGUE_RUNTIME_VALIDATED_WAIT00_OVERLAP_EVENTS:
+        return current, simulation, repairs
+
+    current_overlap = _wait00_page_overlap_count(simulation)
     if not current_overlap:
         return current, simulation, repairs
 
@@ -2445,6 +3301,152 @@ def _repair_wait00_page_overlaps(
             break
 
     return current, simulation, repairs
+
+
+def _repair_live_line_scroll_risk_with_compact_wrap(
+    *,
+    base_rom: bytes,
+    source_document: dict,
+    event: dict,
+    event_mappings: list[dict],
+    translations: dict[str, str],
+    reports: list[dict],
+    advances: dict[str, int],
+    french: dict[int, str],
+    font,
+    simulation,
+):
+    """Remove formatter-added line expansion that causes pre-WAIT live scroll.
+
+    Semantic wrapping may split a short multi-sentence Android string even when
+    the same official text fits in fewer physical lines.  If that extra aesthetic
+    break makes the live dialogue cursor enter line 4 before the next player
+    pause, retry mappings one at a time with the compact width-only wrapper.
+
+    This never inserts WAIT/TEXT_CLEAR and never changes semantic mappings.  A
+    compact candidate is kept only when independent resimulation strictly
+    reduces ``UNPAUSED_LIVE_LINE_SCROLL_RISK`` with no error, warning, or
+    implicit wrap.  This is the generalized form of the runtime-observed $0083
+    failure where ``Gestahl : Ha ! Imbécile !`` had been expanded from one safe
+    line to two and pushed the following utterance through the rolling window.
+    """
+    from shared.dialogue_simulator import simulate_event
+
+    def risk_count(sim) -> int:
+        return sum(issue.code == "UNPAUSED_LIVE_LINE_SCROLL_RISK" for issue in sim.issues)
+
+    original = dict(translations)
+    original_reports = list(reports)
+    original_simulation = simulation
+    if any(
+        token.get("type") == "command" and token.get("name") in {"CHOICE_BEGIN", "CHOICE_END"}
+        for token in event.get("tokens", [])
+    ):
+        return original, original_reports, original_simulation, []
+
+    current = dict(translations)
+    current_reports = list(reports)
+    current_simulation = simulation
+    current_risk = risk_count(current_simulation)
+    repairs: list[dict] = []
+    if not current_risk:
+        return current, current_reports, current_simulation, repairs
+
+    progress = True
+    while current_risk and progress:
+        progress = False
+        for mapping in event_mappings:
+            if str(mapping.get("relation", "")).startswith("choice"):
+                continue
+            try:
+                compact_values, compact_report = _format_mass_mapping(
+                    source_document,
+                    mapping,
+                    advances,
+                    base_rom=base_rom,
+                    french=french,
+                    prefer_semantic_line_breaks=False,
+                )
+            except ValueError:
+                continue
+
+            matching_report_index = next((
+                index for index, report in enumerate(current_reports)
+                if report.get("snes_ids") == mapping.get("snes_ids")
+                and report.get("android_ids") == mapping.get("android_ids")
+            ), None)
+            if matching_report_index is None:
+                continue
+            old_report = current_reports[matching_report_index]
+            if compact_report.get("formatted_markup") == old_report.get("formatted_markup"):
+                continue
+
+            candidate = dict(current)
+            candidate.update(compact_values)
+            # Preserve the small set of already audited event-level layout
+            # decisions; compacting one mapping must not silently remove them.
+            _apply_user_reviewed_fragment_spacing(event["event_id"], candidate)
+            _apply_targeted_wait00_fresh_page_clear(event["event_id"], candidate)
+            _apply_explicit_post_wait_newlines(
+                event["event_id"], candidate,
+                source_text_by_id={
+                    token["id"]: token.get("source", "")
+                    for token in event.get("tokens", [])
+                    if token.get("type") == "text"
+                },
+            )
+            _apply_wait_semantics_layout_compat(event["event_id"], candidate)
+
+            try:
+                candidate_simulation = simulate_event(
+                    base_rom,
+                    event,
+                    candidate,
+                    font=font,
+                    player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+                )
+            except ValueError:
+                continue
+            blocking = [
+                issue for issue in candidate_simulation.issues
+                if issue.severity in {"error", "warning"}
+            ]
+            wraps = sum(
+                line.implicit_wrap
+                for box in candidate_simulation.boxes
+                for page in box.pages
+                for line in page.lines
+            )
+            candidate_risk = risk_count(candidate_simulation)
+            if blocking or wraps or candidate_risk >= current_risk:
+                continue
+
+            updated_report = dict(compact_report)
+            updated_report["live_line_compact_fallback"] = True
+            updated_report["live_line_risk_before"] = current_risk
+            updated_report["live_line_risk_after"] = candidate_risk
+            current_reports[matching_report_index] = updated_report
+            repairs.append({
+                "snes_ids": mapping.get("snes_ids", []),
+                "android_ids": mapping.get("android_ids", []),
+                "strategy": "compact_semantic_wrap_to_preserve_pre_wait_window",
+                "formatted_markup_before": old_report.get("formatted_markup"),
+                "formatted_markup_after": compact_report.get("formatted_markup"),
+                "risk_before": current_risk,
+                "risk_after": candidate_risk,
+            })
+            current = candidate
+            current_simulation = candidate_simulation
+            current_risk = candidate_risk
+            progress = True
+            break
+
+    # A partial reduction is not enough to justify changing presentation.  If
+    # compacting cannot eliminate the complete pre-WAIT live-scroll defect,
+    # keep the original event and leave it TO REVIEW.
+    if current_risk:
+        return original, original_reports, original_simulation, []
+    return current, current_reports, current_simulation, repairs
 
 
 def _repair_pure_unpaused_scroll(
@@ -3277,6 +4279,564 @@ def _strip_duplicated_trailing_player_context(
 
 
 
+def _format_structurally_reviewed_choice_prompt(
+    source_document: dict,
+    mapping: dict,
+    advances: dict[str, int],
+) -> tuple[dict[str, str], dict]:
+    """Format one reviewed Android prompt that precedes a stock choice row.
+
+    Android commonly stores prompt and options as separate localization slots,
+    while SNES may keep ``prompt + newline + (`` in one token or place ``(``
+    in a tiny stock carrier after ``TEXT_X``. Preserve those stock choice-row
+    structures rather than treating the parenthesis as translated prose.
+
+    Compact wrapping is used only for this proven prompt/choice relation. A
+    two-line prompt keeps the stock third-line choice row. If official French
+    needs exactly three lines, a validated WAIT $00 + TEXT_CLEAR is inserted
+    after the complete prompt so the selectable row starts on a fresh page.
+    """
+    if mapping.get("confidence") != "very_high_structural_review":
+        raise ValueError("Choice-prompt split requires structural-review confidence")
+    if mapping.get("relation") != "choice_prompt_split":
+        raise ValueError("Choice-prompt split requires its explicit relation")
+    snes_ids = mapping.get("snes_ids", [])
+    if len(snes_ids) != 1:
+        raise ValueError("Choice-prompt split requires exactly one SNES text ID")
+
+    by_id, by_event = event_text_index(source_document)
+    meta = by_id.get(snes_ids[0])
+    if meta is None:
+        raise ValueError("Choice-prompt split references an unknown SNES text ID")
+    source = meta["source"]
+    event = by_event[meta["event_id"]]
+    token_index = meta["token_index"]
+
+    embedded_match = re.search(r"(\n[ ]*\()$", source)
+    shape: str | None = None
+    spaces_and_paren = ""
+    structural_suffix = None
+    if embedded_match is not None:
+        if token_index + 1 >= len(event["tokens"]):
+            raise ValueError("Embedded choice prompt has no following token")
+        following = event["tokens"][token_index + 1]
+        if not (following.get("type") == "command" and following.get("name") == "CHOICE_BEGIN"):
+            raise ValueError("Embedded choice prompt is not immediately followed by CHOICE_BEGIN")
+        shape = "embedded_parenthesis"
+        structural_suffix = embedded_match.group(1)
+        spaces_and_paren = structural_suffix[1:]
+    elif source.endswith("\n"):
+        # Proven alternate SNES shape: prompt token, TEXT_X, tiny '(' carrier,
+        # CHOICE_BEGIN. The padding byte emitted after a generated page break is
+        # harmless because TEXT_X immediately resets the decoded-row position.
+        if token_index + 3 < len(event["tokens"]):
+            text_x = event["tokens"][token_index + 1]
+            carrier = event["tokens"][token_index + 2]
+            choice_begin = event["tokens"][token_index + 3]
+            if (
+                text_x.get("type") == "command"
+                and text_x.get("name") == "TEXT_X"
+                and carrier.get("type") in {"text", "ending_text"}
+                and re.fullmatch(r"[ ]*\(", carrier.get("source", "")) is not None
+                and choice_begin.get("type") == "command"
+                and choice_begin.get("name") == "CHOICE_BEGIN"
+            ):
+                shape = "separate_parenthesis_after_text_x"
+                structural_suffix = carrier.get("source", "")
+    if shape is None:
+        raise ValueError("Choice-prompt split does not match a proven stock choice-row shape")
+
+    values, report = format_dialogue_mapping(
+        source_document,
+        mapping,
+        advances,
+        allow_one_extra_page=True,
+        use_physical_page_capacity=True,
+        prefer_semantic_line_breaks=False,
+        allow_two_extra_pages=True,
+    )
+    text_id = snes_ids[0]
+    if text_id not in values:
+        raise ValueError("Choice-prompt split did not format its SNES text token")
+    line_count = len(report.get("line_widths_pixels", []))
+    page_line_counts = report.get("page_line_counts", []) or [line_count]
+    final_page_lines = page_line_counts[-1]
+
+    if final_page_lines <= 2:
+        if shape == "embedded_parenthesis":
+            values[text_id] = values[text_id].rstrip("\n") + "\n" + spaces_and_paren
+        choice_transition = "stock_newline"
+    elif final_page_lines == 3:
+        french = normalize_android_french(mapping.get("french_display", "")).rstrip()
+        if re.search(r"(?:\.{3}|[.!?…])[”\"»')\]]*$", french) is None:
+            raise ValueError("Full choice-prompt page needs a complete sentence before pagination")
+        if shape == "embedded_parenthesis":
+            values[text_id] = values[text_id].rstrip("\n") + "\f" + spaces_and_paren
+        else:
+            # A trailing generated page break is deliberate here: the following
+            # stock TEXT_X then starts on a genuinely fresh decoded row before
+            # the separate '(' carrier is rendered.
+            values[text_id] = values[text_id].rstrip("\n") + "\f"
+        choice_transition = "WAIT $00 + TEXT_CLEAR"
+    else:
+        raise ValueError("Choice prompt final page exceeds the three-line physical capacity")
+
+    report = dict(report)
+    report["structural_choice_prompt_split"] = True
+    report["choice_prompt_stock_shape"] = shape
+    report["preserved_choice_opening_suffix"] = structural_suffix
+    report["choice_row_transition"] = choice_transition
+    report["formatted_markup"] = values[text_id]
+    report["formatted_entries"] = [{"id": text_id, "text": values[text_id]}]
+    if choice_transition != "stock_newline":
+        report["inserted_page_break_count"] = report.get("inserted_page_break_count", 0) + 1
+        report["page_break_encoding"] = "WAIT $00 + TEXT_CLEAR"
+        report["page_break_strategy"] = "choice_prompt_complete_sentence"
+    return values, report
+
+
+def _format_structurally_reviewed_choice_destination_list(
+    source_document: dict,
+    mapping: dict,
+    advances: dict[str, int],
+    *,
+    french: dict[int, str],
+) -> tuple[dict[str, str], dict]:
+    """Rebuild a SNES numbered destination list from split Android labels.
+
+    Some Cannon Travel scripts store ``1:/2:/3:`` and all destination names in
+    one SNES text token, while Android stores the three destination labels in
+    adjacent localization records.  The numeric prefixes are layout/selection
+    structure, not translated prose, so preserve them from the proven SNES
+    shape and insert only the Android French labels.
+    """
+    if mapping.get("confidence") != "very_high_structural_review":
+        raise ValueError("Choice destination list requires structural-review confidence")
+    if mapping.get("relation") != "choice_destination_list":
+        raise ValueError("Choice destination list requires its explicit relation")
+    snes_ids = mapping.get("snes_ids", [])
+    android_ids = mapping.get("android_ids", [])
+    if len(snes_ids) != 1 or len(android_ids) != 3:
+        raise ValueError("Choice destination list requires one SNES ID and three Android IDs")
+
+    by_id, _ = event_text_index(source_document)
+    meta = by_id.get(snes_ids[0])
+    if meta is None:
+        raise ValueError("Choice destination list references an unknown SNES text ID")
+    source = meta.get("source", "")
+    match = re.fullmatch(r"([ ]*)1:.*\n([ ]*)2:.*\n([ ]*)3:.*", source)
+    if match is None:
+        raise ValueError("Choice destination list does not match the proven 1:/2:/3: SNES shape")
+
+    labels = [normalize_android_french(french[text_id]).strip() for text_id in android_ids]
+    if any(not label or "\n" in label or "\f" in label or "\v" in label for label in labels):
+        raise ValueError("Choice destination list requires three single-line French labels")
+    rebuilt = "\n".join(
+        f"{match.group(index)}{index}:{labels[index - 1]}"
+        for index in (1, 2, 3)
+    )
+    lines = rebuilt.split("\n")
+    widths = [sum(advances.get(char, 8) for char in line) for line in lines]
+    parser_units = [len(line) for line in lines]
+    if any(width > DIALOGUE_WRAP_PIXELS for width in widths):
+        raise ValueError("Choice destination list exceeds the 240px line target")
+    if any(units > DIALOGUE_WRAP_CHARS for units in parser_units):
+        raise ValueError("Choice destination list exceeds parser line capacity")
+    text_id = snes_ids[0]
+    values = {text_id: rebuilt}
+    report = {
+        "event_id": mapping["event_id"],
+        "snes_ids": snes_ids,
+        "android_ids": android_ids,
+        "confidence": mapping.get("confidence"),
+        "source_display": source,
+        "android_french_raw": " ".join(french[text_id] for text_id in android_ids),
+        "android_french_normalized": " ".join(labels),
+        "layout_markup_before_wrap": rebuilt,
+        "layout_hints": [],
+        "formatted_markup": rebuilt,
+        "line_widths_pixels": widths,
+        "line_decoded_character_counts": parser_units,
+        "line_parser_unit_counts": parser_units,
+        "leading_text_x_position": None,
+        "leading_text_x_padding_pixels": 0,
+        "leading_text_x_parser_units": 0,
+        "source_visible_line_budget": 3,
+        "effective_line_budget": 3,
+        "physical_page_capacity_mode": True,
+        "semantic_line_break_preferences": False,
+        "page_line_counts": [3],
+        "inserted_page_break_count": 0,
+        "inserted_leading_clear": False,
+        "page_break_encoding": None,
+        "page_break_strategy": None,
+        "event_level_forced_page_break": False,
+        "formatted_entries": [{"id": text_id, "text": rebuilt}],
+        "structural_choice_destination_list": True,
+        "preserved_numeric_prefixes": [f"{match.group(i)}{i}:" for i in (1, 2, 3)],
+    }
+    return values, report
+
+
+
+def _format_cannon_travel_piece(
+    source_document: dict,
+    mapping: dict,
+    advances: dict[str, int],
+    *,
+    prefer_semantic_line_breaks: bool,
+) -> tuple[dict[str, str], dict]:
+    """Redistribute Android's merged Cannon Travel response over stock SNES slots.
+
+    Android appends the common boarding sentence to each destination response,
+    while SNES calls shared sub-event $00FC for that sentence.  Reviewed round20
+    mappings therefore format either the response prefix or the common suffix,
+    preserving the original event call structure instead of duplicating prose.
+    """
+    relation = mapping.get("relation")
+    if relation not in {"cannon_response_prefix", "cannon_common_boarding_suffix"}:
+        raise ValueError("Not a Cannon Travel split relation")
+    english = re.sub(r"\s+", " ", mapping.get("android_english_display", "").replace("_", " ")).strip()
+    if "Just slide into the cannon!" not in english:
+        raise ValueError("Cannon Travel split requires the Android shared boarding sentence")
+    french_full = normalize_android_french(mapping.get("french_display", "")).strip()
+    suffix_match = re.search(r"On saute dans le canon, et c'est parti\s*!\s*$", french_full)
+    if suffix_match is None:
+        raise ValueError("Cannon Travel split requires the proven common French boarding suffix")
+    prefix = french_full[:suffix_match.start()].rstrip(" _")
+    suffix = suffix_match.group(0).strip()
+    piece = prefix if relation == "cannon_response_prefix" else suffix
+    if not piece:
+        raise ValueError("Cannon Travel split produced an empty French piece")
+    local = dict(mapping)
+    local["french_display"] = piece
+    values, report = format_dialogue_mapping(
+        source_document,
+        local,
+        advances,
+        allow_one_extra_page=True,
+        use_physical_page_capacity=True,
+        prefer_semantic_line_breaks=prefer_semantic_line_breaks,
+        allow_two_extra_pages=True,
+    )
+    report = dict(report)
+    report["structural_cannon_travel_split"] = relation
+    report["android_merged_french"] = french_full
+    report["distributed_french_piece"] = piece
+    return values, report
+
+
+
+def _format_wait_player_resegmentation(
+    source_document: dict,
+    mapping: dict,
+    advances: dict[str, int],
+    *,
+    prefer_semantic_line_breaks: bool,
+) -> tuple[dict[str, str], dict]:
+    """Redistribute one Android turn around stock WAIT + PLAYER_NAME.
+
+    The accepted $0167 structure is text, WAIT $00, PLAYER_NAME(1), text.
+    Android 1058/1059 puts localized prose on both sides of that dynamic name.
+    Keep both SNES commands byte-for-byte and split only the exact normalized
+    Android French at its existing %S(1,0) placeholder.
+    """
+    if mapping.get("confidence") != "very_high_structural_review":
+        raise ValueError("WAIT/PLAYER_NAME resegmentation requires structural-review confidence")
+    if mapping.get("relation") != "wait_player_resegmentation":
+        raise ValueError("WAIT/PLAYER_NAME resegmentation requires its explicit relation")
+    snes_ids = mapping.get("snes_ids", [])
+    android_ids = mapping.get("android_ids", [])
+    if len(snes_ids) != 2 or len(android_ids) != 2:
+        raise ValueError("WAIT/PLAYER_NAME resegmentation requires two SNES and two Android IDs")
+
+    by_id, by_event = event_text_index(source_document)
+    first = by_id.get(snes_ids[0])
+    second = by_id.get(snes_ids[1])
+    if first is None or second is None or first["event_id"] != second["event_id"]:
+        raise ValueError("WAIT/PLAYER_NAME resegmentation references invalid SNES carriers")
+    if first["event_id"] != mapping.get("event_id"):
+        raise ValueError("WAIT/PLAYER_NAME resegmentation crosses events")
+    event = by_event[first["event_id"]]
+    bridge = event["tokens"][first["token_index"] + 1:second["token_index"]]
+    if len(bridge) != 2:
+        raise ValueError("WAIT/PLAYER_NAME resegmentation requires exactly two bridge commands")
+    wait, player = bridge
+    if wait.get("type") != "command" or wait.get("name") != "WAIT" or wait.get("args") != "00":
+        raise ValueError("WAIT/PLAYER_NAME resegmentation requires stock WAIT $00")
+    if player.get("type") != "command" or player.get("name") != "PLAYER_NAME" or player.get("args") != "01":
+        raise ValueError("WAIT/PLAYER_NAME resegmentation requires stock PLAYER_NAME 01")
+
+    french_full = normalize_android_french(mapping.get("french_display", "")).strip()
+    placeholder = "%S(1,0)"
+    if french_full.count(placeholder) != 1:
+        raise ValueError("WAIT/PLAYER_NAME resegmentation requires one Android PLAYER_NAME(1) placeholder")
+    before, after = (piece.strip() for piece in french_full.split(placeholder, 1))
+    if not before or not after:
+        raise ValueError("WAIT/PLAYER_NAME resegmentation requires French prose on both sides of the placeholder")
+
+    translations: dict[str, str] = {}
+    reports: list[dict] = []
+    for index, (text_id, piece) in enumerate(((snes_ids[0], before), (snes_ids[1], after))):
+        local = dict(mapping)
+        local["snes_ids"] = [text_id]
+        if index == 1:
+            # The stock PLAYER_NAME command sits immediately before this carrier.
+            # Include it in the formatter model so the 9-character worst-case
+            # name consumes both VWF width and one parser-safety unit.
+            local["source_display"] = placeholder + by_id[text_id]["source"]
+            local["french_display"] = placeholder + piece
+        else:
+            local["source_display"] = by_id[text_id]["source"]
+            local["french_display"] = piece
+        values, report = format_dialogue_mapping(
+            source_document,
+            local,
+            advances,
+            allow_one_extra_page=True,
+            use_physical_page_capacity=True,
+            prefer_semantic_line_breaks=prefer_semantic_line_breaks,
+            allow_two_extra_pages=True,
+        )
+        translations.update(values)
+        reports.append(report)
+
+    return translations, {
+        "event_id": mapping["event_id"],
+        "snes_ids": snes_ids,
+        "android_ids": android_ids,
+        "confidence": mapping.get("confidence"),
+        "source_display": mapping.get("source_display", ""),
+        "android_french_raw": mapping.get("french_display", ""),
+        "android_french_normalized": french_full,
+        "structural_wait_player_resegmentation": True,
+        "preserved_bridge": [
+            {"name": wait.get("name"), "args": wait.get("args")},
+            {"name": player.get("name"), "args": player.get("args")},
+        ],
+        "distributed_french_parts": [before, after],
+        "resegmentation_parts": reports,
+        "formatted_entries": [
+            {"id": text_id, "text": translations[text_id]} for text_id in snes_ids
+        ],
+    }
+
+
+def _format_timed_wait10_resegmentation(
+    source_document: dict,
+    mapping: dict,
+    advances: dict[str, int],
+    *,
+    prefer_semantic_line_breaks: bool,
+) -> tuple[dict[str, str], dict]:
+    """Redistribute one Android localization across the stock $02AE WAIT $10.
+
+    This is deliberately event-specific: Android EN 1630 merges two adjacent
+    SNES Amar fragments separated only by WAIT $10. The timing command remains
+    untouched; the exact Android French is split only at a complete-sentence
+    boundary, with the split chosen to best preserve the source sentence shape.
+    """
+    if mapping.get("confidence") != "very_high_structural_review":
+        raise ValueError("WAIT $10 resegmentation requires structural-review confidence")
+    if mapping.get("relation") != "timed_wait10_resegmentation":
+        raise ValueError("WAIT $10 resegmentation requires its explicit relation")
+    if mapping.get("event_id") != "02AE":
+        raise ValueError("WAIT $10 resegmentation is limited to event $02AE")
+    snes_ids = mapping.get("snes_ids", [])
+    android_ids = mapping.get("android_ids", [])
+    if snes_ids != ["C9:B691", "C9:B6B9"] or android_ids != [1630]:
+        raise ValueError("WAIT $10 resegmentation no longer matches its reviewed identities")
+
+    by_id, by_event = event_text_index(source_document)
+    first = by_id.get(snes_ids[0])
+    second = by_id.get(snes_ids[1])
+    if first is None or second is None or first["event_id"] != second["event_id"]:
+        raise ValueError("WAIT $10 resegmentation references invalid SNES carriers")
+    event = by_event[first["event_id"]]
+    bridge = event["tokens"][first["token_index"] + 1:second["token_index"]]
+    if len(bridge) != 1:
+        raise ValueError("WAIT $10 resegmentation requires one untouched bridge command")
+    wait = bridge[0]
+    if wait.get("type") != "command" or wait.get("name") != "WAIT" or wait.get("args") != "10":
+        raise ValueError("WAIT $10 resegmentation requires the stock WAIT $10")
+
+    french_full = normalize_android_french(mapping.get("french_display", "")).strip()
+    if not french_full or "%S(" in french_full:
+        raise ValueError("WAIT $10 resegmentation requires plain Android French prose")
+    boundaries = _sentence_boundary_positions(french_full)
+    if not boundaries:
+        raise ValueError("WAIT $10 resegmentation requires a complete-sentence split")
+
+    def sentence_count(text: str) -> int:
+        compact = re.sub(r"\s+", " ", text.strip())
+        return 0 if not compact else len(_sentence_boundary_positions(compact)) + 1
+
+    source_counts = [sentence_count(by_id[text_id]["source"]) for text_id in snes_ids]
+    candidates = []
+    for boundary in boundaries:
+        pieces = [french_full[:boundary].strip(), french_full[boundary:].strip()]
+        if any(not piece for piece in pieces):
+            continue
+        translations: dict[str, str] = {}
+        reports: list[dict] = []
+        valid = True
+        for part_index, (text_id, piece) in enumerate(zip(snes_ids, pieces, strict=True)):
+            local = dict(mapping)
+            local["snes_ids"] = [text_id]
+            local["source_display"] = by_id[text_id]["source"]
+            local["french_display"] = piece
+            try:
+                values, report = format_dialogue_mapping(
+                    source_document,
+                    local,
+                    advances,
+                    allow_one_extra_page=True,
+                    use_physical_page_capacity=True,
+                    prefer_semantic_line_breaks=False if part_index == 0 else prefer_semantic_line_breaks,
+                    allow_two_extra_pages=True,
+                )
+            except ValueError:
+                valid = False
+                break
+            if part_index == 0:
+                first_value = values[text_id].rstrip("\n")
+                # WAIT does not move the live cursor. Require the pre-WAIT
+                # official French piece to fit on one physical line, then move
+                # the cursor once before preserving the stock WAIT $10.
+                if "\n" in first_value or "\f" in first_value or "\v" in first_value:
+                    valid = False
+                    break
+                values[text_id] = first_value + "\n"
+                report = dict(report)
+                report["inserted_pre_wait_newline"] = True
+                report["formatted_markup"] = values[text_id]
+                report["formatted_entries"] = [{"id": text_id, "text": values[text_id]}]
+            translations.update(values)
+            reports.append(report)
+        if not valid:
+            continue
+        piece_counts = [sentence_count(piece) for piece in pieces]
+        score = (
+            sum(abs(a - b) for a, b in zip(source_counts, piece_counts, strict=True)),
+            sum(report.get("inserted_page_break_count", 0) for report in reports),
+            boundary,
+        )
+        candidates.append((score, pieces, translations, reports))
+    if not candidates:
+        raise ValueError("WAIT $10 resegmentation found no clean sentence-boundary layout")
+
+    _score, pieces, translations, reports = min(candidates, key=lambda item: item[0])
+    return translations, {
+        "event_id": mapping["event_id"],
+        "snes_ids": snes_ids,
+        "android_ids": android_ids,
+        "confidence": mapping.get("confidence"),
+        "source_display": mapping.get("source_display", ""),
+        "android_french_raw": mapping.get("french_display", ""),
+        "android_french_normalized": french_full,
+        "structural_timed_wait10_resegmentation": True,
+        "preserved_bridge": [{"name": wait.get("name"), "args": wait.get("args")}],
+        "source_sentence_counts": source_counts,
+        "distributed_french_parts": pieces,
+        "resegmentation_parts": reports,
+        "formatted_entries": [
+            {"id": text_id, "text": translations[text_id]} for text_id in snes_ids
+        ],
+    }
+
+
+def _format_paired_direction_labels(
+    source_document: dict,
+    mapping: dict,
+    advances: dict[str, int],
+    *,
+    prefer_semantic_line_breaks: bool,
+) -> tuple[dict[str, str], dict]:
+    """Split one Android ↑/↓ destination row onto two stock SNES carriers."""
+    if mapping.get("confidence") != "very_high_structural_review":
+        raise ValueError("Paired direction labels require structural-review confidence")
+    if mapping.get("relation") != "paired_direction_labels":
+        raise ValueError("Paired direction labels require its explicit relation")
+    snes_ids = mapping.get("snes_ids", [])
+    android_ids = mapping.get("android_ids", [])
+    if len(snes_ids) != 2 or len(android_ids) != 1:
+        raise ValueError("Paired direction labels require two SNES IDs and one Android anchor")
+
+    by_id, by_event = event_text_index(source_document)
+    first = by_id.get(snes_ids[0])
+    second = by_id.get(snes_ids[1])
+    if first is None or second is None or first["event_id"] != second["event_id"]:
+        raise ValueError("Paired direction labels reference invalid SNES carriers")
+    event = by_event[first["event_id"]]
+    bridge = event["tokens"][first["token_index"] + 1:second["token_index"]]
+    if len(bridge) != 4:
+        raise ValueError("Paired direction labels require the proven four-token bridge")
+    up, layout, text_x, down = bridge
+    if up.get("type") != "glyph" or up.get("code") != "D1":
+        raise ValueError("Paired direction labels require stock D1 up-arrow glyph")
+    if layout.get("type") != "text" or normalize_alignment_text(layout.get("source", "")):
+        raise ValueError("Paired direction labels require one newline-only stock carrier")
+    if text_x.get("type") != "command" or text_x.get("name") != "TEXT_X" or text_x.get("args") != "05":
+        raise ValueError("Paired direction labels require stock TEXT_X 05")
+    if down.get("type") != "glyph" or down.get("code") != "D2":
+        raise ValueError("Paired direction labels require stock D2 down-arrow glyph")
+
+    french_full = normalize_android_french(mapping.get("french_display", "")).strip()
+    match = re.fullmatch(r"(.+?)\s*↑\s*↓\s*(.+)", french_full)
+    if match is None:
+        raise ValueError("Paired direction labels require one Android ↑/↓ French row")
+    labels = [match.group(1).strip(), match.group(2).strip()]
+    if any(not label for label in labels):
+        raise ValueError("Paired direction labels produced an empty localized label")
+
+    translations: dict[str, str] = {}
+    reports: list[dict] = []
+    for text_id, label in zip(snes_ids, labels, strict=True):
+        local = dict(mapping)
+        local["snes_ids"] = [text_id]
+        local["source_display"] = by_id[text_id]["source"]
+        local["french_display"] = label
+        values, report = format_dialogue_mapping(
+            source_document,
+            local,
+            advances,
+            allow_one_extra_page=False,
+            use_physical_page_capacity=True,
+            prefer_semantic_line_breaks=prefer_semantic_line_breaks,
+            allow_two_extra_pages=False,
+        )
+        value = values[text_id].strip()
+        # Preserve the stock one-cell glue around the D1/D2 structural glyphs;
+        # localized wording itself comes only from Android French.
+        if by_id[text_id]["source"].startswith(" "):
+            value = " " + value
+        if by_id[text_id]["source"].endswith(" "):
+            value = value + " "
+        translations[text_id] = value
+        reports.append(report)
+
+    return translations, {
+        "event_id": mapping["event_id"],
+        "snes_ids": snes_ids,
+        "android_ids": android_ids,
+        "confidence": mapping.get("confidence"),
+        "source_display": mapping.get("source_display", ""),
+        "android_french_raw": mapping.get("french_display", ""),
+        "android_french_normalized": french_full,
+        "structural_paired_direction_labels": True,
+        "preserved_bridge": [
+            {"type": up.get("type"), "code": up.get("code")},
+            {"type": layout.get("type"), "id": layout.get("id")},
+            {"name": text_x.get("name"), "args": text_x.get("args")},
+            {"type": down.get("type"), "code": down.get("code")},
+        ],
+        "distributed_french_parts": labels,
+        "direction_label_parts": reports,
+        "formatted_entries": [
+            {"id": text_id, "text": translations[text_id]} for text_id in snes_ids
+        ],
+    }
+
 def _format_mass_mapping(
     source_document: dict,
     mapping: dict,
@@ -3299,6 +4859,36 @@ def _format_mass_mapping(
         "allow_two_extra_pages": True,
     }
     primary_message: str | None = None
+    if mapping.get("relation") == "wait_player_resegmentation":
+        return _format_wait_player_resegmentation(
+            source_document, mapping, advances, prefer_semantic_line_breaks=prefer_semantic_line_breaks
+        )
+    if mapping.get("relation") == "timed_wait10_resegmentation":
+        return _format_timed_wait10_resegmentation(
+            source_document, mapping, advances, prefer_semantic_line_breaks=prefer_semantic_line_breaks
+        )
+    if mapping.get("relation") == "paired_direction_labels":
+        return _format_paired_direction_labels(
+            source_document, mapping, advances, prefer_semantic_line_breaks=prefer_semantic_line_breaks
+        )
+    if mapping.get("relation") in {"cannon_response_prefix", "cannon_common_boarding_suffix"}:
+        return _format_cannon_travel_piece(
+            source_document, mapping, advances, prefer_semantic_line_breaks=prefer_semantic_line_breaks
+        )
+    if mapping.get("relation") == "choice_prompt_split":
+        try:
+            return _format_structurally_reviewed_choice_prompt(
+                source_document, mapping, advances
+            )
+        except ValueError:
+            pass
+    if mapping.get("relation") == "choice_destination_list":
+        try:
+            return _format_structurally_reviewed_choice_destination_list(
+                source_document, mapping, advances, french=french
+            )
+        except ValueError:
+            pass
     try:
         return format_dialogue_mapping(source_document, mapping, advances, **common)
     except ValueError as exc:
@@ -3345,6 +4935,241 @@ def _format_mass_mapping(
     raise ValueError(primary_message)
 
 
+def _repair_structural_reaction_page_boundary(
+    *,
+    base_rom: bytes,
+    source_document: dict,
+    event: dict,
+    event_mappings: list[dict],
+    translations: dict[str, str],
+    reports: list[dict],
+    advances: dict[str, int],
+    font,
+    simulation,
+):
+    """Repair a structurally reattributed crowd reaction before its answer.
+
+    The Joch running gag uses a stock ``OP_20`` speaker/action boundary between
+    the crowd reaction and Jehk's answer. Android keeps the same ordered scene
+    but reattributes the reaction to a dynamic party member. Prefer preserving
+    the stock command flow: keep the reaction on the live line and rewrap the
+    following answer with the reaction's VWF width as first-line prefix. Only
+    the older page-boundary fallback remains below for already-supported shapes.
+    """
+    from shared.dialogue_simulator import simulate_event
+
+    blocking = [i for i in simulation.issues if i.severity in {"error", "warning"}]
+    codes = {i.code for i in blocking}
+
+    by_id, _ = event_text_index(source_document)
+    for index in range(len(event_mappings) - 1):
+        reaction = event_mappings[index]
+        answer = event_mappings[index + 1]
+        if reaction.get("relation") != "speaker_reattribution":
+            continue
+        if reaction.get("confidence") != "very_high_structural_review":
+            continue
+        reaction_ids = reaction.get("snes_ids", [])
+        answer_ids = answer.get("snes_ids", [])
+        if len(reaction_ids) != 1 or len(answer_ids) != 1:
+            continue
+        first_meta = by_id.get(reaction_ids[0])
+        second_meta = by_id.get(answer_ids[0])
+        if first_meta is None or second_meta is None:
+            continue
+        bridge = event["tokens"][first_meta["token_index"] + 1:second_meta["token_index"]]
+        if len(bridge) != 1 or bridge[0].get("type") != "command" or bridge[0].get("name") != "OP_20":
+            continue
+        reaction_text = translations.get(reaction_ids[0], "").rstrip(" \n\f\v")
+        answer_text = translations.get(answer_ids[0], "")
+        if not reaction_text or not answer_text or "\f" in answer_text or "\v" in answer_text:
+            continue
+        # A space is presentation-only glue between the two stock text tokens;
+        # the OP_20 action command remains exactly where it was in the source.
+        reaction_text += " "
+        answer_flat = " ".join(answer_text.split())
+        try:
+            wrapped, _widths, _chars, _units = semantic_wrap_markup(
+                answer_flat,
+                advances,
+                first_line_prefix_pixels=_markup_width(reaction_text, advances, 0),
+                first_line_prefix_units=len(reaction_text),
+            )
+        except ValueError:
+            continue
+        candidate = dict(translations)
+        candidate[reaction_ids[0]] = reaction_text
+        candidate[answer_ids[0]] = wrapped
+        try:
+            candidate_simulation = simulate_event(
+                base_rom, event, candidate, font=font,
+                player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+            )
+        except ValueError:
+            continue
+        candidate_blocking = [
+            i for i in candidate_simulation.issues
+            if i.severity in {"error", "warning"} or i.code == "UNPAUSED_LIVE_LINE_SCROLL_RISK"
+        ]
+        candidate_wraps = sum(
+            line.implicit_wrap for box in candidate_simulation.boxes
+            for page in box.pages for line in page.lines
+        )
+        if candidate_blocking or candidate_wraps:
+            continue
+        candidate_reports = []
+        for report in reports:
+            updated = dict(report)
+            if report.get("snes_ids") == reaction_ids:
+                updated["formatted_markup"] = candidate[reaction_ids[0]]
+                updated["formatted_entries"] = [{"id": reaction_ids[0], "text": candidate[reaction_ids[0]]}]
+                updated["speaker_reattribution_live_line_prefix"] = True
+            elif report.get("snes_ids") == answer_ids:
+                updated["formatted_markup"] = candidate[answer_ids[0]]
+                updated["formatted_entries"] = [{"id": answer_ids[0], "text": candidate[answer_ids[0]]}]
+                updated["speaker_reattribution_prefix_aware_wrap"] = True
+            candidate_reports.append(updated)
+        repair = {
+            "snes_ids": reaction_ids,
+            "following_snes_ids": answer_ids,
+            "bridge": [{"name": "OP_20", "args": bridge[0].get("args")}],
+            "strategy": "speaker_reattribution_prefix_aware_wrap",
+        }
+        return candidate, candidate_reports, candidate_simulation, [repair]
+
+    if codes not in (
+        {"IMPLICIT_RUNTIME_WRAP"},
+        {"IMPLICIT_RUNTIME_HARD_WRAP"},
+        {"IMPLICIT_RUNTIME_WRAP", "UNPAUSED_SCROLL"},
+        {"IMPLICIT_RUNTIME_HARD_WRAP", "UNPAUSED_SCROLL"},
+    ):
+        return translations, reports, simulation, []
+
+    for index in range(len(event_mappings) - 1):
+        reaction = event_mappings[index]
+        answer = event_mappings[index + 1]
+        if reaction.get("relation") != "speaker_reattribution":
+            continue
+        if reaction.get("confidence") != "very_high_structural_review":
+            continue
+        reaction_ids = reaction.get("snes_ids", [])
+        answer_ids = answer.get("snes_ids", [])
+        if len(reaction_ids) != 1 or not answer_ids:
+            continue
+        first_meta = by_id.get(reaction_ids[0])
+        second_meta = by_id.get(answer_ids[0])
+        if first_meta is None or second_meta is None:
+            continue
+        bridge = event["tokens"][first_meta["token_index"] + 1:second_meta["token_index"]]
+        if len(bridge) != 1 or bridge[0].get("type") != "command" or bridge[0].get("name") != "OP_20":
+            continue
+        text_id = reaction_ids[0]
+        current = translations.get(text_id, "").rstrip(" \n\f\v")
+        if not current or re.search(r"(?:\.{3}|[.!?…])[”\"»')\]]*$", current) is None:
+            continue
+        candidate = dict(translations)
+        candidate[text_id] = current + "\f "
+        try:
+            candidate_simulation = simulate_event(
+                base_rom,
+                event,
+                candidate,
+                font=font,
+                player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+            )
+        except ValueError:
+            continue
+        candidate_blocking = [
+            i for i in candidate_simulation.issues if i.severity in {"error", "warning"}
+        ]
+        candidate_wraps = sum(
+            line.implicit_wrap
+            for box in candidate_simulation.boxes
+            for page in box.pages
+            for line in page.lines
+        )
+        if candidate_blocking or candidate_wraps:
+            continue
+        candidate_reports = []
+        for report in reports:
+            if report.get("snes_ids") == reaction_ids:
+                updated = dict(report)
+                updated["formatted_markup"] = candidate[text_id]
+                updated["formatted_entries"] = [{"id": text_id, "text": candidate[text_id]}]
+                updated["inserted_structural_reaction_page_break"] = True
+                candidate_reports.append(updated)
+            else:
+                candidate_reports.append(report)
+        repair = {
+            "snes_ids": reaction_ids,
+            "following_snes_ids": answer_ids,
+            "bridge": [{"name": "OP_20", "args": bridge[0].get("args")}],
+            "strategy": "speaker_reattribution_page_boundary",
+        }
+        return candidate, candidate_reports, candidate_simulation, [repair]
+    return translations, reports, simulation, []
+
+
+def _apply_user_reviewed_fragment_spacing(event_id: str, translations: dict[str, str]) -> list[dict]:
+    """Repair exact adjacent-fragment spacing reported in the waterfall scene.
+
+    Event $0106 stores one utterance in four consecutive text fragments. Android
+    localizes the fragments separately, and generic per-fragment normalization
+    removes the two inter-fragment spaces. Add only those literal spaces; no
+    command, wait, or semantic boundary is changed.
+    """
+    if event_id != "0106":
+        return []
+    repairs: list[dict] = []
+    for left_id, right_id in (("C9:28B7", "C9:28C1"), ("C9:28CB", "C9:28D5")):
+        left = translations.get(left_id)
+        right = translations.get(right_id)
+        if left is None or right is None or left.endswith((" ", "\n", "\v", "\f")) or right.startswith((" ", "\n", "\v", "\f")):
+            continue
+        translations[left_id] = left + " "
+        repairs.append({"left_snes_id": left_id, "right_snes_id": right_id, "strategy": "insert_literal_inter_fragment_space"})
+    return repairs
+
+
+
+# The corrected WAIT simulator changes candidate scoring in two unrelated
+# already-clean events. Keep their previously accepted official-French content
+# and page layout byte-for-byte; these are layout compatibility overrides, not
+# translation overrides.
+DIALOGUE_WAIT_SEMANTICS_LAYOUT_COMPAT = {
+    # Runtime review on $0101 exposed a four-line transient that the old
+    # simulator missed because WAIT arrived while line 4 was still live.
+    # Keep the stock three-line structure: Ouch/Phew share line 1, then the
+    # two following sentences each occupy one line.  The official Android FR
+    # wording is unchanged; only formatter-inserted line breaks are adjusted.
+    "0101": {
+        "C9:258F": " : Aïe... Pfiouh.\n",
+        "C9:25A1": "Pas moyen de remonter !\nComment je vais faire ?",
+    },
+    "0022": {
+        "C9:0A44": "Encore ?!\f ",
+    },
+    "02FD": {
+        "C9:CB57": "\nMajesté, je vous avais\nparlé de ces jeunes gens.\fIls ont déjoué un attentat !",
+    },
+}
+
+
+def _apply_wait_semantics_layout_compat(event_id: str, translations: dict[str, str]) -> list[dict]:
+    repairs: list[dict] = []
+    for text_id, value in DIALOGUE_WAIT_SEMANTICS_LAYOUT_COMPAT.get(event_id, {}).items():
+        if translations.get(text_id) == value:
+            continue
+        translations[text_id] = value
+        repairs.append({
+            "layout_text_id": text_id,
+            "strategy": "preserve_pre_wait_semantics_clean_layout",
+            "validation_status": "static_compatibility",
+            "reason": "corrected WAIT simulation must not regress a previously simulator-clean formatted event",
+        })
+    return repairs
+
+
 def make_dialogue_format_mass(
     english: dict[int, str],
     french: dict[int, str],
@@ -3379,6 +5204,16 @@ def make_dialogue_format_mass(
         french_path=french_path,
     )
     source_document = json.loads(DIALOGUE_SOURCE.read_text(encoding="utf-8"))
+    structural_omission_indexes_by_event = resolve_structural_omission_token_indexes(
+        {"user_validated_structural_omissions": list(DIALOGUE_USER_VALIDATED_STRUCTURAL_OMISSIONS)},
+        source_document,
+    )
+    source_text_by_id = {
+        token["id"]: token.get("source", "")
+        for source_event in source_document["events"]
+        for token in source_event["tokens"]
+        if token.get("type") == "text"
+    }
     advances = make_dialogue_advances(base_rom)
     font = make_dialogue_font(base_rom)
 
@@ -3391,9 +5226,17 @@ def make_dialogue_format_mass(
     reports_by_event: dict[str, list[dict]] = {}
     wait00_repairs_by_event: dict[str, list[dict]] = {}
     unpaused_scroll_repairs_by_event: dict[str, list[dict]] = {}
+    live_line_compact_repairs_by_event: dict[str, list[dict]] = {}
     cross_mapping_sentence_repairs_by_event: dict[str, list[dict]] = {}
+    structural_reaction_page_repairs_by_event: dict[str, list[dict]] = {}
     duplicated_player_context_repairs_by_event: dict[str, list[dict]] = {}
+    fragment_spacing_repairs_by_event: dict[str, list[dict]] = {}
+    targeted_wait00_fresh_page_repairs_by_event: dict[str, list[dict]] = {}
+    explicit_post_wait_newline_repairs_by_event: dict[str, list[dict]] = {}
     accepted_events: list[str] = []
+    partial_accepted_events: list[str] = []
+    partial_suppressed_semantic_ids_by_event: dict[str, list[str]] = {}
+    partial_suppression_reason_by_event: dict[str, str] = {}
     excluded_events: list[dict] = []
     complete_aligned_count = 0
     formatter_candidate_count = 0
@@ -3489,12 +5332,40 @@ def make_dialogue_format_mass(
             continue
         formatter_candidate_count += 1
 
+        fragment_spacing_repairs_by_event[event_id] = _apply_user_reviewed_fragment_spacing(
+            event_id, event_translations
+        )
+        targeted_wait00_fresh_page_repairs_by_event[event_id] = _apply_targeted_wait00_fresh_page_clear(
+            event_id, event_translations
+        )
+        explicit_post_wait_newline_repairs_by_event[event_id] = _apply_explicit_post_wait_newlines(
+            event_id, event_translations, source_text_by_id=source_text_by_id
+        )
+        _apply_wait_semantics_layout_compat(event_id, event_translations)
         event_translations, simulation, wait00_repairs = _repair_wait00_page_overlaps(
             base_rom=base_rom,
             event=event,
             translations=event_translations,
             font=font,
         )
+        (
+            event_translations,
+            event_reports,
+            simulation,
+            live_line_compact_repairs,
+        ) = _repair_live_line_scroll_risk_with_compact_wrap(
+            base_rom=base_rom,
+            source_document=source_document,
+            event=event,
+            event_mappings=event_mappings,
+            translations=event_translations,
+            reports=event_reports,
+            advances=advances,
+            french=french,
+            font=font,
+            simulation=simulation,
+        )
+        live_line_compact_repairs_by_event[event_id] = live_line_compact_repairs
         unpaused_scroll_repairs: list[dict] = []
         cross_mapping_sentence_repairs: list[dict] = []
         blocking_issues = [
@@ -3538,6 +5409,11 @@ def make_dialogue_format_mass(
                 compact_reports.append(mapping_report)
 
             if not compact_errors:
+                _apply_targeted_wait00_fresh_page_clear(event_id, compact_translations)
+                _apply_explicit_post_wait_newlines(
+                    event_id, compact_translations, source_text_by_id=source_text_by_id
+                )
+                _apply_wait_semantics_layout_compat(event_id, compact_translations)
                 compact_translations, compact_simulation, compact_wait00_repairs = _repair_wait00_page_overlaps(
                     base_rom=base_rom,
                     event=event,
@@ -3617,7 +5493,121 @@ def make_dialogue_format_mass(
                 cross_mapping_sentence_repairs_by_event[event_id] = (
                     cross_mapping_sentence_repairs
                 )
+                structural_reaction_page_repairs_by_event[event_id] = []
                 continue
+
+            (
+                reaction_translations,
+                reaction_reports,
+                reaction_simulation,
+                reaction_repairs,
+            ) = _repair_structural_reaction_page_boundary(
+                base_rom=base_rom,
+                source_document=source_document,
+                event=event,
+                event_mappings=event_mappings,
+                translations=event_translations,
+                reports=event_reports,
+                advances=advances,
+                font=font,
+                simulation=simulation,
+            )
+            if reaction_repairs:
+                accepted_events.append(event_id)
+                translations_by_event[event_id] = reaction_translations
+                reports_by_event[event_id] = reaction_reports
+                wait00_repairs_by_event[event_id] = wait00_repairs
+                unpaused_scroll_repairs_by_event[event_id] = []
+                cross_mapping_sentence_repairs_by_event[event_id] = []
+                structural_reaction_page_repairs_by_event[event_id] = reaction_repairs
+                continue
+
+            # If newly reviewed structural mappings are correct semantically but
+            # still cannot be laid out safely, preserve the previous French-only
+            # PARTIEL behavior instead of losing the whole event. Only mappings
+            # that predate the current structural reviews are rendered; every newly
+            # reviewed semantic token is explicitly suppressed and the direct result
+            # must simulate cleanly.
+            structural_review = [
+                m for m in event_mappings
+                if m.get("provenance") in {"round6", "round7", "round8", "round11", "round18", "round20", "round21", "round22"}
+            ]
+            baseline = [
+                m for m in event_mappings
+                if m.get("provenance") not in {"round6", "round7", "round8", "round11", "round18", "round20", "round21", "round22"}
+            ]
+            if structural_review and baseline:
+                partial_translations: dict[str, str] = {}
+                partial_reports: list[dict] = []
+                partial_failed = False
+                for baseline_mapping in baseline:
+                    try:
+                        values, mapping_report = _format_mass_mapping(
+                            source_document,
+                            baseline_mapping,
+                            advances,
+                            base_rom=base_rom,
+                            french=french,
+                            prefer_semantic_line_breaks=True,
+                        )
+                    except ValueError:
+                        partial_failed = True
+                        break
+                    if set(values) & set(partial_translations):
+                        partial_failed = True
+                        break
+                    partial_translations.update(values)
+                    mapping_report = dict(mapping_report)
+                    mapping_report["partial_event"] = True
+                    partial_reports.append(mapping_report)
+                suppressed = sorted({
+                    text_id
+                    for structural_mapping in structural_review
+                    for text_id in structural_mapping.get("snes_ids", [])
+                })
+                for text_id in suppressed:
+                    partial_translations[text_id] = ""
+                targeted_wait00_fresh_page_repairs_by_event[event_id] = _apply_targeted_wait00_fresh_page_clear(
+                    event_id, partial_translations
+                )
+                explicit_post_wait_newline_repairs_by_event[event_id] = _apply_explicit_post_wait_newlines(
+                    event_id, partial_translations, source_text_by_id=source_text_by_id
+                )
+                _apply_wait_semantics_layout_compat(event_id, partial_translations)
+                if not partial_failed and partial_reports:
+                    try:
+                        partial_simulation = simulate_event(
+                            base_rom,
+                            event,
+                            partial_translations,
+                            font=font,
+                            player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+                        )
+                    except ValueError:
+                        partial_simulation = None
+                    if partial_simulation is not None:
+                        partial_blocking = [
+                            i for i in partial_simulation.issues
+                            if i.severity in {"error", "warning"}
+                        ]
+                        partial_wraps = sum(
+                            line.implicit_wrap
+                            for box in partial_simulation.boxes
+                            for page in box.pages
+                            for line in page.lines
+                        )
+                        if not partial_blocking and not partial_wraps:
+                            accepted_events.append(event_id)
+                            partial_accepted_events.append(event_id)
+                            partial_suppressed_semantic_ids_by_event[event_id] = suppressed
+                            partial_suppression_reason_by_event[event_id] = "mapped_but_layout_deferred"
+                            translations_by_event[event_id] = partial_translations
+                            reports_by_event[event_id] = partial_reports
+                            wait00_repairs_by_event[event_id] = []
+                            unpaused_scroll_repairs_by_event[event_id] = []
+                            cross_mapping_sentence_repairs_by_event[event_id] = []
+                            structural_reaction_page_repairs_by_event[event_id] = []
+                            continue
 
             details = [
                 {
@@ -3659,6 +5649,147 @@ def make_dialogue_format_mass(
         unpaused_scroll_repairs_by_event[event_id] = unpaused_scroll_repairs
         cross_mapping_sentence_repairs_by_event[event_id] = cross_mapping_sentence_repairs
 
+    # Second, conservative partial-event pass. An alignment-incomplete event may
+    # contribute only its already accepted high-confidence mappings. Every
+    # unresolved semantic source token is explicitly translated to empty text so
+    # PARTIEL events never expose a visible FR/stock-English mix. Structural
+    # commands and layout remain canonical. Unlike complete events, partial events
+    # receive no compact/event-level repair: the directly formatted French-only-
+    # but-incomplete event must already simulate with no errors, warnings or
+    # implicit wraps.
+    incomplete_by_event = {
+        entry["event_id"]: entry
+        for entry in excluded_events
+        if entry.get("stage") == "alignment_incomplete"
+    }
+    for event in source_document["events"]:
+        event_id = event["event_id"]
+        incomplete = incomplete_by_event.get(event_id)
+        if incomplete is None:
+            continue
+        event_mappings = mappings_by_event.get(event_id, [])
+        if not event_mappings:
+            continue
+        missing_ids = list(incomplete.get("missing_semantic_ids", []))
+        missing_set = set(missing_ids)
+        event_translations: dict[str, str] = {}
+        event_reports: list[dict] = []
+        partial_errors: list[dict] = []
+        for mapping in event_mappings:
+            try:
+                values, mapping_report = _format_mass_mapping(
+                    source_document,
+                    mapping,
+                    advances,
+                    base_rom=base_rom,
+                    french=french,
+                    prefer_semantic_line_breaks=True,
+                )
+            except ValueError as exc:
+                partial_errors.append({
+                    "snes_ids": mapping.get("snes_ids", []),
+                    "android_ids": mapping.get("android_ids", []),
+                    "message": str(exc),
+                })
+                continue
+            duplicate = sorted(set(values) & set(event_translations))
+            if duplicate:
+                partial_errors.append({
+                    "snes_ids": mapping.get("snes_ids", []),
+                    "android_ids": mapping.get("android_ids", []),
+                    "message": f"partial formatter generated duplicate translated source IDs: {duplicate}",
+                })
+                continue
+            forbidden = sorted(set(values) & missing_set)
+            if forbidden:
+                raise AssertionError(
+                    f"partial event ${event_id} attempted to translate unmapped semantic IDs: {forbidden}"
+                )
+            event_translations.update(values)
+            mapping_report["partial_event"] = True
+            event_reports.append(mapping_report)
+        # French-only partial presentation: suppress semantic source text for
+        # unmapped IDs instead of falling back to stock English. Structural
+        # commands/tokens remain canonical, and the event stays tagged partial.
+        for missing_id in missing_ids:
+            if missing_id in event_translations:
+                raise AssertionError(f"partial event ${event_id}: missing ID unexpectedly translated: {missing_id}")
+            event_translations[missing_id] = ""
+        if partial_errors or not event_translations:
+            incomplete["partial_attempt"] = {
+                "status": "formatter_rejected",
+                "details": partial_errors,
+            }
+            continue
+        targeted_wait00_fresh_page_repairs_by_event[event_id] = _apply_targeted_wait00_fresh_page_clear(
+            event_id, event_translations
+        )
+        explicit_post_wait_newline_repairs_by_event[event_id] = _apply_explicit_post_wait_newlines(
+            event_id, event_translations, source_text_by_id=source_text_by_id
+        )
+        _apply_wait_semantics_layout_compat(event_id, event_translations)
+        try:
+            simulation = simulate_event(
+                base_rom,
+                event,
+                event_translations,
+                font=font,
+                player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+                omitted_command_token_indexes=structural_omission_indexes_by_event.get(event_id),
+            )
+        except ValueError as exc:
+            incomplete["partial_attempt"] = {
+                "status": "serialization_rejected",
+                "details": [{"message": str(exc)}],
+            }
+            continue
+        blocking_issues = [
+            issue for issue in simulation.issues
+            if issue.severity in {"error", "warning"}
+        ]
+        implicit_wraps = sum(
+            line.implicit_wrap
+            for box in simulation.boxes
+            for page in box.pages
+            for line in page.lines
+        )
+        if blocking_issues or implicit_wraps:
+            incomplete["partial_attempt"] = {
+                "status": "simulator_rejected",
+                "details": [
+                    {
+                        "severity": issue.severity,
+                        "code": issue.code,
+                        "message": issue.message,
+                        "box": issue.box,
+                        "page": issue.page,
+                        "line": issue.line,
+                    }
+                    for issue in blocking_issues
+                ],
+                "implicit_wraps": implicit_wraps,
+            }
+            continue
+        accepted_events.append(event_id)
+        partial_accepted_events.append(event_id)
+        partial_suppressed_semantic_ids_by_event[event_id] = missing_ids
+        partial_suppression_reason_by_event[event_id] = "alignment_unresolved"
+        translations_by_event[event_id] = event_translations
+        reports_by_event[event_id] = event_reports
+        wait00_repairs_by_event[event_id] = []
+        unpaused_scroll_repairs_by_event[event_id] = []
+        cross_mapping_sentence_repairs_by_event[event_id] = []
+        duplicated_player_context_repairs_by_event.setdefault(event_id, [])
+        fragment_spacing_repairs_by_event.setdefault(event_id, [])
+
+    if partial_accepted_events:
+        accepted_partial = set(partial_accepted_events)
+        excluded_events = [
+            entry for entry in excluded_events
+            if entry.get("event_id") not in accepted_partial
+        ]
+        accepted_events.sort(key=lambda value: int(value, 16))
+
     translations: dict[str, str] = {}
     formatted: list[dict] = []
     for event_id in accepted_events:
@@ -3682,28 +5813,62 @@ def make_dialogue_format_mass(
         ordered_entries,
         group="dialogues.android_format_mass_simulator_filtered",
     )
+    visible_partial_events = [
+        event_id for event_id in partial_accepted_events
+        if event_id not in DIALOGUE_USER_VALIDATED_VISUALLY_COMPLETE_EVENTS
+    ]
+    user_validated_complete_events = [
+        event_id for event_id in partial_accepted_events
+        if event_id in DIALOGUE_USER_VALIDATED_VISUALLY_COMPLETE_EVENTS
+    ]
+    translation_document["partial_events"] = [
+        {
+            "event_id": event_id,
+            "suppressed_semantic_ids": partial_suppressed_semantic_ids_by_event[event_id],
+            "suppression_reason": partial_suppression_reason_by_event[event_id],
+        }
+        for event_id in visible_partial_events
+    ]
+    translation_document["user_validated_visually_complete_events"] = [
+        {
+            "event_id": event_id,
+            "suppressed_semantic_ids": partial_suppressed_semantic_ids_by_event[event_id],
+            "reason": "user_validated_android_adaptation_complete",
+        }
+        for event_id in user_validated_complete_events
+    ]
+    translation_document["user_validated_structural_omissions"] = list(
+        DIALOGUE_USER_VALIDATED_STRUCTURAL_OMISSIONS
+    )
 
     stage_counts: dict[str, int] = {}
     for entry in excluded_events:
         stage_counts[entry["stage"]] = stage_counts.get(entry["stage"], 0) + 1
     accepted_semantic_ids = sum(
-        len(
-            [
-                token
-                for token in next(event for event in source_document["events"] if event["event_id"] == event_id)["tokens"]
-                if token.get("type") == "text" and _auto_semantic(token.get("source", ""))
-            ]
-        )
+        1
         for event_id in accepted_events
+        for token in next(
+            event for event in source_document["events"] if event["event_id"] == event_id
+        )["tokens"]
+        if (
+            token.get("type") == "text"
+            and _auto_semantic(token.get("source", ""))
+            and token.get("id") in translations_by_event[event_id]
+            and translations_by_event[event_id][token.get("id")] != ""
+        )
     )
     report_document = {
         "format_version": 1,
-        "status": "simulator_filtered_runtime_candidate",
+        "status": "simulator_filtered_partial_runtime_candidate",
         "source_alignment": "mappings/android/dialogues_auto.json (regenerated from Android EN/FR)",
         "policy": {
-            "event_selection": "complete semantic events only",
+            "event_selection": "complete semantic events plus simulator-clean partial events",
             "alignment_must_already_be_accepted": True,
-            "all_semantic_ids_in_event_must_be_mapped": True,
+            "all_semantic_ids_in_complete_event_must_be_mapped": True,
+            "partial_event_policy": "translate every already accepted mapping in an alignment-incomplete event; suppress every unmapped semantic source text token so PARTIEL events never mix visible stock English with French; preserve all structural commands/layout bytes; admit only direct formatter output with no partial-event compact/page/event-level repair and a clean independent simulation",
+            "user_validated_visual_complete_policy": "events explicitly validated by the user as complete Android adaptations keep their simulator-clean French-only bytes and are removed from the PARTIEL badge without inventing mappings for omitted SNES-only fragments",
+            "user_validated_structural_omission_policy": "a stock command may be omitted only when the user explicitly validates the Android adaptation omission and the command is proven by exact adjacency to an explicitly suppressed semantic ID; $01DC drops only PLAYER_NAME(0) immediately before C9:804A",
+            "reviewed_fragment_spacing_policy": "event $0106 may insert only the two user-reported literal spaces between proven adjacent text fragments; no command or layout boundary changes",
             "physical_page_capacity_lines": DIALOGUE_PAGE_LINES,
             "source_english_line_count_is_not_a_layout_limit": True,
             "snes_vwf_wrap_pixels": DIALOGUE_WRAP_PIXELS,
@@ -3727,6 +5892,7 @@ def make_dialogue_format_mass(
             "duplicated_player_context_policy": "a trailing PLAYER_NAME duplicated as the next mapping's leading alignment context may be ignored only across a proven linear bridge; any called clean-ROM event must be text-free, branch-free and returning, and the SNES PLAYER_NAME remains with the following mapping",
             "existing_wait_sentence_distribution_policy": "multi-slot mappings may be redistributed across existing WAIT $00 + optional TEXT_CLEAR boundaries only at complete French sentence boundaries; timed WAITs and PLAYER_NAME remain excluded and stock commands stay unchanged",
             "existing_timed_wait_sentence_distribution_policy": "exactly one existing WAIT $04/$08 may separate two complete source/French sentences; the timed WAIT is preserved byte-for-byte and no other boundary command is accepted",
+            "round22_wait10_resegmentation_policy": "event $02AE only: Android EN/FR 1630 may be split across the exact stock WAIT $10 at a complete French sentence boundary; the pre-WAIT text must fit one physical line, one explicit newline is serialized before the unchanged timed WAIT, and the candidate remains runtime-unvalidated",
             "existing_wait_weak_clause_policy": "for one two-slot WAIT $00 mapping whose source slots are each complete sentences, a French comma may be the split only before an explicit discourse connector such as alors/mais/donc/pourtant/cependant",
             "existing_action_boundary_policy": "two text slots from one Android unit may be redistributed only at a complete sentence boundary across proven OP_32 walk / OP_34 loop-action / COMPLETE_ACTIONS commands, with a complete source sentence before the action; choice events remain excluded and commands remain unchanged",
             "nonsemantic_action_carrier_policy": "one three-slot semantic/layout-only/semantic mapping may preserve the stock middle carrier while distributing two complete French sentences across action-only boundaries and clean-ROM text-free returning calls",
@@ -3735,7 +5901,10 @@ def make_dialogue_format_mass(
             "cross_mapping_action_sentence_overflow_policy": "one leading newline plus semantic pagination may repair a soft or decoded-capacity parser wrap only across an adjacent OP_32/OP_34 + COMPLETE_ACTIONS boundary after a complete localized sentence; accept only after clean resimulation",
             "pure_unpaused_scroll_policy": "after compact fallback fails, one semantic-boundary extra page may be tried only when UNPAUSED_SCROLL is the sole simulator defect; accept only after clean resimulation",
             "cross_mapping_sentence_overflow_policy": "after all earlier fallbacks fail, a parser-wrap + unpaused-scroll event may add one newline at a proven adjacent sentence boundary and one semantic page break; accept only after clean resimulation",
-            "wait00_exact_overlap_policy": "simulator-proven targeted TEXT_CLEAR/drop-layout repair; timed WAITs unchanged",
+            "wait00_exact_overlap_policy": "no generic WAIT $00 carry-over cleanup; presentation changes require explicit per-event runtime validation; timed WAITs unchanged",
+            "targeted_wait00_fresh_page_policy": "keep stock WAIT $00 bytes unchanged; $0106/C9:2994 is runtime-validated and the eight round13 detector matches are explicitly converted from newline-only carriers to TEXT_CLEAR as a single user-requested runtime-test batch; no generic WAIT carry-over cleanup",
+            "wait_semantics_policy": "runtime-validated: WAIT pauses without advancing the text cursor; only explicit $7F NEWLINE or TEXT_CLEAR changes the physical line/page",
+            "explicit_post_wait_newline_policy": "materialize only reviewed formatter line boundaries that older simulation had implicitly attributed to WAIT; keep WAIT bytes unchanged; use TEXT_CLEAR instead of NEWLINE when a three-line window would otherwise scroll before the next pause",
         },
         "coverage": {
             "semantic_source_event_count": sum(
@@ -3749,14 +5918,32 @@ def make_dialogue_format_mass(
             "complete_aligned_event_count": complete_aligned_count,
             "formatter_candidate_event_count": formatter_candidate_count,
             "accepted_event_count": len(accepted_events),
+            "complete_accepted_event_count": len(accepted_events) - len(visible_partial_events),
+            "partial_accepted_event_count": len(visible_partial_events),
+            "user_validated_visually_complete_event_count": len(user_validated_complete_events),
+            "user_validated_structural_omission_event_count": len(structural_omission_indexes_by_event),
+            "user_validated_structural_omitted_command_count": sum(
+                len(indexes) for indexes in structural_omission_indexes_by_event.values()
+            ),
+            "partial_suppressed_semantic_id_count": sum(
+                len(partial_suppressed_semantic_ids_by_event[event_id]) for event_id in visible_partial_events
+            ),
             "accepted_semantic_source_id_count": accepted_semantic_ids,
             "translation_entry_count": len(ordered_entries),
+            "fragment_spacing_repaired_event_count": sum(bool(value) for value in fragment_spacing_repairs_by_event.values()),
+            "fragment_spacing_repair_count": sum(len(value) for value in fragment_spacing_repairs_by_event.values()),
+            "explicit_post_wait_newline_repaired_event_count": sum(bool(value) for value in explicit_post_wait_newline_repairs_by_event.values()),
+            "explicit_post_wait_newline_repair_count": sum(len(value) for value in explicit_post_wait_newline_repairs_by_event.values()),
             "wait00_overlap_repaired_event_count": sum(bool(value) for value in wait00_repairs_by_event.values()),
             "wait00_overlap_repair_count": sum(len(value) for value in wait00_repairs_by_event.values()),
             "unpaused_scroll_repaired_event_count": sum(bool(value) for value in unpaused_scroll_repairs_by_event.values()),
             "unpaused_scroll_repair_count": sum(len(value) for value in unpaused_scroll_repairs_by_event.values()),
+            "live_line_compact_repaired_event_count": sum(bool(value) for value in live_line_compact_repairs_by_event.values()),
+            "live_line_compact_repair_count": sum(len(value) for value in live_line_compact_repairs_by_event.values()),
             "cross_mapping_sentence_repaired_event_count": sum(bool(value) for value in cross_mapping_sentence_repairs_by_event.values()),
             "cross_mapping_sentence_repair_count": sum(len(value) for value in cross_mapping_sentence_repairs_by_event.values()),
+            "structural_reaction_page_repaired_event_count": sum(bool(value) for value in structural_reaction_page_repairs_by_event.values()),
+            "structural_reaction_page_repair_count": sum(len(value) for value in structural_reaction_page_repairs_by_event.values()),
             "android_leading_player_label_removed_mapping_count": sum(
                 any("%S(" in marker for marker in (entry.get("structural_markers_removed") or []))
                 for entry in formatted
@@ -3784,6 +5971,9 @@ def make_dialogue_format_mass(
             "existing_timed_wait_sentence_distribution_mapping_count": sum(
                 bool(entry.get("existing_timed_wait_sentence_distribution")) for entry in formatted
             ),
+            "round22_wait10_resegmentation_mapping_count": sum(
+                bool(entry.get("structural_timed_wait10_resegmentation")) for entry in formatted
+            ),
             "existing_wait_weak_clause_boundary_mapping_count": sum(
                 bool(entry.get("existing_wait_weak_clause_boundary")) for entry in formatted
             ),
@@ -3806,6 +5996,23 @@ def make_dialogue_format_mass(
             "excluded_stage_counts": stage_counts,
         },
         "accepted_events": accepted_events,
+        "user_validated_visually_complete_events": [
+            {
+                "event_id": event_id,
+                "suppressed_semantic_ids": partial_suppressed_semantic_ids_by_event[event_id],
+                "reason": "user_validated_android_adaptation_complete",
+            }
+            for event_id in user_validated_complete_events
+        ],
+        "user_validated_structural_omissions": list(DIALOGUE_USER_VALIDATED_STRUCTURAL_OMISSIONS),
+        "partial_accepted_events": [
+            {
+                "event_id": event_id,
+                "suppressed_semantic_ids": partial_suppressed_semantic_ids_by_event[event_id],
+                "suppression_reason": partial_suppression_reason_by_event[event_id],
+            }
+            for event_id in visible_partial_events
+        ],
         "formatted_mappings": formatted,
         "wait00_overlap_repairs": [
             {"event_id": event_id, **repair}
@@ -3817,10 +6024,30 @@ def make_dialogue_format_mass(
             for event_id in accepted_events
             for repair in unpaused_scroll_repairs_by_event.get(event_id, [])
         ],
+        "live_line_compact_repairs": [
+            {"event_id": event_id, **repair}
+            for event_id in accepted_events
+            for repair in live_line_compact_repairs_by_event.get(event_id, [])
+        ],
         "cross_mapping_sentence_repairs": [
             {"event_id": event_id, **repair}
             for event_id in accepted_events
             for repair in cross_mapping_sentence_repairs_by_event.get(event_id, [])
+        ],
+        "structural_reaction_page_repairs": [
+            {"event_id": event_id, **repair}
+            for event_id in accepted_events
+            for repair in structural_reaction_page_repairs_by_event.get(event_id, [])
+        ],
+        "fragment_spacing_repairs": [
+            {"event_id": event_id, **repair}
+            for event_id, repairs in fragment_spacing_repairs_by_event.items()
+            for repair in repairs
+        ],
+        "explicit_post_wait_newline_repairs": [
+            {"event_id": event_id, **repair}
+            for event_id in accepted_events
+            for repair in explicit_post_wait_newline_repairs_by_event.get(event_id, [])
         ],
         "duplicated_player_context_repairs": [
             {"event_id": event_id, **repair}
@@ -3968,6 +6195,14 @@ def main() -> None:
             "dialogue-review-round3",
             "dialogue-review-round4",
             "dialogue-review-round5",
+            "dialogue-review-round6",
+            "dialogue-review-round7",
+            "dialogue-review-round8",
+            "dialogue-review-round11",
+            "dialogue-review-round18",
+            "dialogue-review-round20",
+            "dialogue-review-round21",
+            "dialogue-review-round22",
             "dialogue-auto",
             "dialogue-format-pilot",
             "dialogue-format-batch1",
@@ -4067,6 +6302,70 @@ def main() -> None:
                     french_path=french_path,
                 )
                 output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND5_OUTPUT).resolve()
+            elif args.only == "dialogue-review-round6":
+                document = make_dialogue_review_round6_report(
+                    english,
+                    french,
+                    english_path=english_path,
+                    french_path=french_path,
+                )
+                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND6_OUTPUT).resolve()
+            elif args.only == "dialogue-review-round7":
+                document = make_dialogue_review_round7_report(
+                    english,
+                    french,
+                    english_path=english_path,
+                    french_path=french_path,
+                )
+                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND7_OUTPUT).resolve()
+            elif args.only == "dialogue-review-round8":
+                document = make_dialogue_review_round8_report(
+                    english,
+                    french,
+                    english_path=english_path,
+                    french_path=french_path,
+                )
+                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND8_OUTPUT).resolve()
+            elif args.only == "dialogue-review-round11":
+                document = make_dialogue_review_round11_report(
+                    english,
+                    french,
+                    english_path=english_path,
+                    french_path=french_path,
+                )
+                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND11_OUTPUT).resolve()
+            elif args.only == "dialogue-review-round18":
+                document = make_dialogue_review_round18_report(
+                    english,
+                    french,
+                    english_path=english_path,
+                    french_path=french_path,
+                )
+                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND18_OUTPUT).resolve()
+            elif args.only == "dialogue-review-round20":
+                document = make_dialogue_review_round20_report(
+                    english,
+                    french,
+                    english_path=english_path,
+                    french_path=french_path,
+                )
+                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND20_OUTPUT).resolve()
+            elif args.only == "dialogue-review-round21":
+                document = make_dialogue_review_round21_report(
+                    english,
+                    french,
+                    english_path=english_path,
+                    french_path=french_path,
+                )
+                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND21_OUTPUT).resolve()
+            elif args.only == "dialogue-review-round22":
+                document = make_dialogue_review_round22_report(
+                    english,
+                    french,
+                    english_path=english_path,
+                    french_path=french_path,
+                )
+                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND22_OUTPUT).resolve()
             elif args.only in ("dialogue-format-pilot", "dialogue-format-batch1", "dialogue-format-page-pilot", "dialogue-format-batch2", "dialogue-format-mass"):
                 if args.rom is None:
                     raise ValueError(f"--rom is required for {args.only}")
@@ -4217,7 +6516,7 @@ def main() -> None:
                 coverage = format_report["coverage"]
                 print(
                     "Dialogue format mass: "
-                    f"{coverage['accepted_event_count']} simulator-clean complete event(s), "
+                    f"{coverage['accepted_event_count']} simulator-clean event(s), "
                     f"{coverage['translation_entry_count']} translated source token(s); "
                     f"{coverage['excluded_event_count']} event(s) excluded"
                 )

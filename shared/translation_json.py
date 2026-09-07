@@ -62,6 +62,98 @@ def load_translation(path: Path, source_document: dict, *, source_asset: str) ->
     return translations
 
 
+
+def resolve_structural_omission_token_indexes(
+    translation_document: dict,
+    source_document: dict,
+    *,
+    translations: dict[str, str] | None = None,
+) -> dict[str, frozenset[int]]:
+    """Resolve tightly-scoped user-validated command omissions.
+
+    Translation text normally cannot alter event structure. The only supported
+    exception is an explicitly documented Android-adaptation omission whose
+    command is identified by exact adjacency to a suppressed semantic text ID.
+    The canonical source asset remains untouched; callers receive token indexes
+    to omit only during translated serialization/simulation.
+    """
+    raw = translation_document.get("user_validated_structural_omissions", [])
+    if not isinstance(raw, list):
+        raise ValueError("user_validated_structural_omissions must be a list")
+
+    events = {event.get("event_id"): event for event in source_document.get("events", [])}
+    result: dict[str, set[int]] = {}
+    for entry in raw:
+        if not isinstance(entry, dict):
+            raise ValueError("Every structural omission entry must be an object")
+        event_id = entry.get("event_id")
+        if not isinstance(event_id, str) or event_id not in events:
+            raise ValueError(f"Unknown structural-omission event ID: {event_id!r}")
+        suppressed = entry.get("suppressed_semantic_ids")
+        commands = entry.get("suppressed_commands")
+        reason = entry.get("reason")
+        if not isinstance(suppressed, list) or not suppressed or not all(isinstance(v, str) for v in suppressed):
+            raise ValueError(f"Structural omission ${event_id}: suppressed_semantic_ids must be a non-empty string list")
+        if not isinstance(commands, list) or not commands:
+            raise ValueError(f"Structural omission ${event_id}: suppressed_commands must be a non-empty list")
+        if not isinstance(reason, str) or not reason:
+            raise ValueError(f"Structural omission ${event_id}: reason is required")
+
+        event = events[event_id]
+        tokens = event.get("tokens", [])
+        text_index = {
+            token.get("id"): index
+            for index, token in enumerate(tokens)
+            if token.get("type") in {"text", "ending_text"}
+        }
+        for text_id in suppressed:
+            if text_id not in text_index:
+                raise ValueError(f"Structural omission ${event_id}: unknown semantic ID {text_id}")
+            if translations is not None and translations.get(text_id) != "":
+                raise ValueError(
+                    f"Structural omission ${event_id}: {text_id} must be explicitly suppressed to empty text"
+                )
+
+        indexes = result.setdefault(event_id, set())
+        for command in commands:
+            if not isinstance(command, dict):
+                raise ValueError(f"Structural omission ${event_id}: command spec must be an object")
+            name = command.get("name")
+            args = command.get("args", "")
+            before_id = command.get("immediately_before_text_id")
+            if not isinstance(name, str) or not isinstance(args, str) or not isinstance(before_id, str):
+                raise ValueError(f"Structural omission ${event_id}: malformed command spec")
+            if before_id not in suppressed:
+                raise ValueError(
+                    f"Structural omission ${event_id}: command anchor {before_id} is not a suppressed semantic ID"
+                )
+            target_index = text_index[before_id]
+            command_index = target_index - 1
+            if command_index < 0:
+                raise ValueError(f"Structural omission ${event_id}: no command before {before_id}")
+            token = tokens[command_index]
+            if token.get("type") != "command" or token.get("name") != name or token.get("args", "") != args:
+                raise ValueError(
+                    f"Structural omission ${event_id}: expected {name} {args!r} immediately before {before_id}"
+                )
+            if command_index in indexes:
+                raise ValueError(f"Structural omission ${event_id}: duplicate command omission at token {command_index}")
+            indexes.add(command_index)
+
+    return {event_id: frozenset(indexes) for event_id, indexes in result.items()}
+
+
+def load_structural_omission_token_indexes(
+    path: Path,
+    source_document: dict,
+    *,
+    translations: dict[str, str] | None = None,
+) -> dict[str, frozenset[int]]:
+    document = json.loads(path.read_text(encoding="utf-8"))
+    return resolve_structural_omission_token_indexes(
+        document, source_document, translations=translations
+    )
+
 def require(translations: dict[str, str], ids: list[str] | tuple[str, ...], *, context: str) -> list[str]:
     missing = [text_id for text_id in ids if text_id not in translations]
     if missing:

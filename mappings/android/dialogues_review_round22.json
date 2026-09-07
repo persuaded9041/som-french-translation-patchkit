@@ -1,0 +1,189 @@
+{
+  "format_version": 1,
+  "status": "round22_user_review_pending",
+  "source_asset": "dialogues.json",
+  "android_english": {
+    "path": "sources/android/scrtxt_en.bin",
+    "sha256": "4d4508560967b6ce4d6cf992f29e84e2775ed4accc74d87c3fd4269044b75ae5"
+  },
+  "android_french": {
+    "path": "sources/android/scrtxt_fr.bin",
+    "sha256": "cd837aaf53a7979d0e84910e8cda3bd67427f4a3cbddadc351811378d7e7d696"
+  },
+  "policy": {
+    "automatic_translation_generation": false,
+    "english_identity_is_primary": true,
+    "notes": [
+      "SNES PLAYER_NAME commands are represented explicitly as Android-style %S(index,0) placeholders for comparison only.",
+      "Android anchor intervals include following English-empty localization slots.",
+      "Very-high-confidence SNES-to-Android-English identity is not rejected merely because French wording is freely adapted.",
+      "When French or Android segmentation crosses individual anchors, preserve and review the complete local sequence block rather than forcing a per-ID translation."
+    ]
+  },
+  "scenes": [
+    {
+      "event_id": "01DD",
+      "label": "Sprite female-name branch resegmentation",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:806F"
+          ],
+          "snes_parts": [
+            "C9:806F"
+          ],
+          "source_display": "SPRITE:Now don't you get in\n my way, ”Brother!”\n",
+          "android_anchor_ids": [
+            616,
+            619
+          ],
+          "android_unit_ids": [
+            616,
+            619
+          ],
+          "android_english_display": "Sprite: Hrmph. Now don’t you get in my way,_ Same to you, Sis!",
+          "french_nonempty_ids": [
+            616,
+            619
+          ],
+          "french_display": "Lutin : Ouais, ouais..._Mais t'as pas intérêt à me mettre des bâtons dans les roues,  miss ! ",
+          "relation": "branch_shared_prefix_female_address",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 72.2,
+            "source_token_coverage": 70.0,
+            "lexical_score": 71.6
+          },
+          "note": "Android EN 616 supplies the shared Sprite warning and 619 is the immediately following female-address branch before exact girl response 620. Android FR deliberately redistributes the shared prefix across 616 and the female address into 619; combine only those official slots for the SNES female branch.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:80A1",
+            "C9:80A9"
+          ],
+          "snes_parts": [
+            [
+              "player_name",
+              1
+            ],
+            "C9:80A1",
+            [
+              "player_name",
+              1
+            ],
+            "C9:80A9"
+          ],
+          "source_display": "%S(1,0):I AM %S(1,0)!",
+          "android_anchor_ids": [
+            620
+          ],
+          "android_unit_ids": [
+            620
+          ],
+          "android_english_display": "%S(1,0): I'm %S(1,0)!",
+          "french_nonempty_ids": [
+            620
+          ],
+          "french_display": "%S(1,0) : Hé ! Mon nom est %S(1,0) ! ",
+          "relation": "double_player_name_response",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 98.0,
+            "source_token_coverage": 75.0,
+            "lexical_score": 92.3
+          },
+          "note": "Android 620 is the exact girl-name correction between female-address branch 619 and already accepted 621. SNES stores the same response around two existing PLAYER_NAME(1) commands.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "02AE",
+      "label": "Amar Faerie Walnut timed-WAIT resegmentation",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:B691",
+            "C9:B6B9"
+          ],
+          "snes_parts": [
+            "C9:B691",
+            "C9:B6B9"
+          ],
+          "source_display": "AMAR:Faerie Walnut?! Oh,\n please! Huh!You mean...",
+          "android_anchor_ids": [
+            1630
+          ],
+          "android_unit_ids": [
+            1630
+          ],
+          "android_english_display": "Amar: Faerie walnut!? Oh, give me a break! Huh...? You mean...",
+          "french_nonempty_ids": [
+            1630
+          ],
+          "french_display": "Une noix magique ? Peuh ! Mais pourquoi me prennent-ils tous pour un marchand ?!",
+          "relation": "timed_wait10_resegmentation",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 81.3,
+            "source_token_coverage": 87.5,
+            "lexical_score": 82.9
+          },
+          "note": "Android EN 1630 merges the two consecutive SNES Amar fragments around the stock WAIT $10 ('Faerie walnut... Huh...? You mean...'), immediately before exact 1631/1632. Keep WAIT $10 byte-for-byte and redistribute only complete sentences from official Android FR 1630 across its two existing text carriers.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "07FE",
+      "label": "Ending wake-up staging redistribution",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:982A",
+            "CA:982E"
+          ],
+          "snes_parts": [
+            "CA:982A",
+            [
+              "player_name",
+              0
+            ],
+            "CA:982E"
+          ],
+          "source_display": "  %S(0,0)... wake up...\n  You must not\n  fall down now...",
+          "android_anchor_ids": [
+            3399,
+            3401,
+            3406
+          ],
+          "android_unit_ids": [
+            3399,
+            3401,
+            3406
+          ],
+          "android_english_display": "%S(0,0)...  wake up... You must not fall now...",
+          "french_nonempty_ids": [
+            3399,
+            3401,
+            3406
+          ],
+          "french_display": "...  %S(0,0)...  Réveille-toi ! ",
+          "relation": "ending_wakeup_staging",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 94.1,
+            "source_token_coverage": 88.9,
+            "lexical_score": 92.8
+          },
+          "note": "Android EN redistributes the same ending wake-up turn over 3399 (%S(0,0)...), 3401 (wake up...) and 3406 (You must not fall now...), immediately before already accepted 3409. Android FR redistributes those slots again; preserve the stock SNES PLAYER_NAME(0) and use only the official localized pieces.",
+          "user_validation": "pending"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,538 @@
+{
+  "format_version": 1,
+  "status": "round8_user_review_pending",
+  "source_asset": "dialogues.json",
+  "android_english": {
+    "path": "sources/android/scrtxt_en.bin",
+    "sha256": "4d4508560967b6ce4d6cf992f29e84e2775ed4accc74d87c3fd4269044b75ae5"
+  },
+  "android_french": {
+    "path": "sources/android/scrtxt_fr.bin",
+    "sha256": "cd837aaf53a7979d0e84910e8cda3bd67427f4a3cbddadc351811378d7e7d696"
+  },
+  "policy": {
+    "automatic_translation_generation": false,
+    "english_identity_is_primary": true,
+    "notes": [
+      "SNES PLAYER_NAME commands are represented explicitly as Android-style %S(index,0) placeholders for comparison only.",
+      "Android anchor intervals include following English-empty localization slots.",
+      "Very-high-confidence SNES-to-Android-English identity is not rejected merely because French wording is freely adapted.",
+      "When French or Android segmentation crosses individual anchors, preserve and review the complete local sequence block rather than forcing a per-ID translation."
+    ]
+  },
+  "scenes": [
+    {
+      "event_id": "00AA",
+      "label": "Picard lighthouse ordered continuation",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:1547"
+          ],
+          "snes_parts": [
+            "C9:1547"
+          ],
+          "source_display": "I'm Pecard, caretaker of\nthis lighthouse.",
+          "android_anchor_ids": [
+            2303
+          ],
+          "android_unit_ids": [
+            2303
+          ],
+          "android_english_display": "I'm Pecard, caretaker of this lighthouse.\nNot too many ships come by nowadays\nwith the seas so rough, but it sure is\npretty looking out at the ocean.",
+          "french_nonempty_ids": [
+            2303
+          ],
+          "french_display": "Je suis Picard, gardien de ce phare. Avec cette mer agitée, les bateaux ne passent guère plus, mais je reste à mon poste.",
+          "relation": "one_snes_to_one_android_expanded",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 42.4,
+            "source_token_coverage": 100.0,
+            "lexical_score": 56.8
+          },
+          "note": "Android 2303-2306 is one contiguous lighthouse speech run. 2303 expands the SNES caretaker introduction and immediately precedes accepted 2304/2305.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:15FE"
+          ],
+          "snes_parts": [
+            "C9:15FE"
+          ],
+          "source_display": "\nThe power of the ancients\nmust have been incredible!",
+          "android_anchor_ids": [
+            2306
+          ],
+          "android_unit_ids": [
+            2306
+          ],
+          "android_english_display": "The power of the ancients must have been incredible! I'm betting there are even MORE unbelievable things buried under the continent!",
+          "french_nonempty_ids": [
+            2306
+          ],
+          "french_display": "La puissance des civilisations anciennes est impressionnante ! Je suis sûr que ce continent recèle bien des prodiges.",
+          "relation": "one_snes_to_one_android_expanded",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 56.4,
+            "source_token_coverage": 100.0,
+            "lexical_score": 67.3
+          },
+          "note": "Android 2306 begins with the exact SNES ancients-power sentence and directly follows accepted 2305 in the same lighthouse run.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0106",
+      "label": "Waterfall fragmented opening and falling scream",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:2ADB"
+          ],
+          "snes_parts": [
+            "C9:2ADB"
+          ],
+          "source_display": "hhhhhh!",
+          "android_anchor_ids": [
+            3494
+          ],
+          "android_unit_ids": [
+            3494
+          ],
+          "android_english_display": "...hhhhhh!",
+          "french_nonempty_ids": [
+            3494
+          ],
+          "french_display": "À l'aiiiiiiide !! ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact final falling scream at Android 3494, immediately after already accepted 3492/3493.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0135",
+      "label": "Jema Mana study continuation",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:3D64"
+          ],
+          "snes_parts": [
+            "C9:3D64"
+          ],
+          "source_display": " I studied the power of\n Mana, which sustains\n eveything in this world.",
+          "android_anchor_ids": [
+            887
+          ],
+          "android_unit_ids": [
+            887
+          ],
+          "android_english_display": "I studied the power of Mana, which sustains everything in this world... That power is now slowly fading away.",
+          "french_nonempty_ids": [
+            887
+          ],
+          "french_display": "Elle m'a tout appris de la force de Mana qui soutient notre monde. Celle-là même qui disparaît aujourd'hui...",
+          "relation": "one_snes_to_one_android_expanded",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 77.6,
+            "source_token_coverage": 91.7,
+            "lexical_score": 81.2
+          },
+          "note": "Android 886/887 is the contiguous Jema/Luka-followers speech. 887 starts with the complete SNES sentence and adds the Android continuation.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0147",
+      "label": "Pandora gate introduction",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:45FD"
+          ],
+          "snes_parts": [
+            "C9:45FD"
+          ],
+          "source_display": "This is Pandora.\n",
+          "android_anchor_ids": [
+            237
+          ],
+          "android_unit_ids": [
+            237
+          ],
+          "android_english_display": "This is the Kingdom of Pandora._",
+          "french_nonempty_ids": [
+            237
+          ],
+          "french_display": "Bienvenue au Royaume de Pandora._",
+          "relation": "one_snes_to_one_android_expanded",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 66.7,
+            "source_token_coverage": 100.0,
+            "lexical_score": 75.0
+          },
+          "note": "Android 237-240 is the exact ordered gate-guard run. 237 expands 'This is Pandora' to 'This is the Kingdom of Pandora' immediately before accepted 238-240.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0157",
+      "label": "Pandora ruins NPC continuation",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:4A31"
+          ],
+          "snes_parts": [
+            "C9:4A31"
+          ],
+          "source_display": "\nOdd things have been\nhappening ever since!\nGrandma goes there...",
+          "android_anchor_ids": [
+            301
+          ],
+          "android_unit_ids": [
+            301
+          ],
+          "android_english_display": "Odd things have been happening lately! Even Grandma has been going there...",
+          "french_nonempty_ids": [
+            301
+          ],
+          "french_display": "Ma grand-mère aussi est bizarre, elle qui est si énergique d'habitude... ",
+          "relation": "one_snes_to_one_android_expanded",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 79.4,
+            "source_token_coverage": 70.0,
+            "lexical_score": 77.0
+          },
+          "note": "Android 300/301 is the same two-part NPC speech; 301 closely matches the missing second SNES block and directly follows accepted 300.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0159",
+      "label": "Phanna and Dyluck exchange ordered gap",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:4AFE"
+          ],
+          "snes_parts": [
+            "C9:4AFE"
+          ],
+          "source_display": "\n Oh, I'm sure he's fine.\n",
+          "android_anchor_ids": [
+            305
+          ],
+          "android_unit_ids": [
+            305
+          ],
+          "android_english_display": "Oh, I'm sure he's fine.",
+          "french_nonempty_ids": [
+            305
+          ],
+          "french_display": "Oh... je vois. Mais je suis sûre qu'il va bien. ",
+          "relation": "one_to_one",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact Android-English line 305 fills the only gap between accepted 304 and 306 in the same conversation.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0167",
+      "label": "Phanna sacrifice scene opening",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:4C65"
+          ],
+          "snes_parts": [
+            "C9:4C65"
+          ],
+          "source_display": "PHANNA:...",
+          "android_anchor_ids": [
+            1058
+          ],
+          "android_unit_ids": [
+            1058
+          ],
+          "android_english_display": "Phanna: ...",
+          "french_nonempty_ids": [
+            1058
+          ],
+          "french_display": "Pamela : ... ",
+          "relation": "speaker_label_alignment",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Android 1058 is the exact Phanna ellipsis and immediately precedes Android 1059 and the already aligned 1060-1068 scene. Android 1059 is semantically related to the following SNES line but remains layout-deferred because it resegments around PLAYER_NAME(1).",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0181",
+      "label": "Pandora king nightmare line",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:5710"
+          ],
+          "snes_parts": [
+            "C9:5710"
+          ],
+          "source_display": "KING:What a nightmare!\n The people in my country\n are acting like zombies!",
+          "android_anchor_ids": [
+            388
+          ],
+          "android_unit_ids": [
+            388
+          ],
+          "android_english_display": "King: What a nightmare! The people in my country are acting like zombies, and I have no idea when the empire might strike!",
+          "french_nonempty_ids": [
+            388
+          ],
+          "french_display": "Roi : Je suis très inquiet. L'Empire pourrait attaquer à tout moment, et mes sujets sont comme des zombies ! ",
+          "relation": "one_snes_to_one_android_expanded",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 74.5,
+            "source_token_coverage": 100.0,
+            "lexical_score": 80.9
+          },
+          "note": "Android 388 contains the complete SNES king nightmare/zombie sentence plus an Empire-warning expansion; it belongs to the same ordered court scene as 390-394.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0193",
+      "label": "Nobleman breaks off arrangement",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:5F2E"
+          ],
+          "snes_parts": [
+            "C9:5F2E"
+          ],
+          "source_display": "\n Let's forget we ever had\n this discussion. How\n absolutely impertinent!",
+          "android_anchor_ids": [
+            369
+          ],
+          "android_unit_ids": [
+            369,
+            370
+          ],
+          "android_english_display": "No, let us forget we ever had this discussion! Never in all my days...!",
+          "french_nonempty_ids": [
+            369
+          ],
+          "french_display": "Réflexion faite, je préfère que nous annulions tout ! Jamais je n'ai subi un tel affront ! ",
+          "relation": "one_snes_to_one_android_expanded",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 71.2,
+            "source_token_coverage": 63.6,
+            "lexical_score": 69.3
+          },
+          "note": "Android 369 is the same cancellation/indignation line and immediately follows accepted 368 in the Elman scene.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "01A5",
+      "label": "Pandora king victory opening",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:6366",
+            "C9:6374"
+          ],
+          "snes_parts": [
+            "C9:6366",
+            [
+              "player_name",
+              0
+            ],
+            "C9:6374"
+          ],
+          "source_display": "You did it, %S(0,0)!\nBrightness is returning \nto normal everywhere!",
+          "android_anchor_ids": [
+            403
+          ],
+          "android_unit_ids": [
+            403
+          ],
+          "android_english_display": "You did it, %S(0,0)! Once again is cheer returning throughout the kingdom!",
+          "french_nonempty_ids": [
+            403
+          ],
+          "french_display": "Roi : Bravo, %S(0,0) ! Notre royaume a retrouvé sa joie de vivre et son énergie ! ",
+          "relation": "placeholder_join",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 61.4,
+            "source_token_coverage": 60.0,
+            "lexical_score": 61.1
+          },
+          "note": "Android 403 combines the two SNES text fragments around PLAYER_NAME(0): 'You did it, %S(0,0)!' and the kingdom returning to normal.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "01B2",
+      "label": "Watts splendid sword continuation",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:66DB"
+          ],
+          "snes_parts": [
+            "C9:66DB"
+          ],
+          "source_display": " I hope someday I can forge\n such a splendid sword!",
+          "android_anchor_ids": [
+            566
+          ],
+          "android_unit_ids": [
+            566
+          ],
+          "android_english_display": "I get tingles just looking at it. I hope someday I can forge such a splendid sword myself!",
+          "french_nonempty_ids": [
+            566
+          ],
+          "french_display": "Je ne pouvais pas la laisser dans un tel état !\nAh, j'espère que j'arriverai à en forger une aussi belle, un jour !",
+          "relation": "one_snes_to_one_android_expanded",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 70.6,
+            "source_token_coverage": 100.0,
+            "lexical_score": 77.9
+          },
+          "note": "Android 566 contains the complete missing hope-to-forge-a-sword sentence and directly follows accepted 565.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "01C6",
+      "label": "Girl party-separation notice",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:71AC",
+            "C9:71C1"
+          ],
+          "snes_parts": [
+            "C9:71AC",
+            [
+              "player_name",
+              1
+            ],
+            "C9:71C1"
+          ],
+          "source_display": "\n   Separated from %S(1,0).",
+          "android_anchor_ids": [
+            440
+          ],
+          "android_unit_ids": [
+            440
+          ],
+          "android_english_display": "%S(1,0) leaves.",
+          "french_nonempty_ids": [
+            440
+          ],
+          "french_display": "　%S(1,0) vous quitte...",
+          "relation": "adapted_system_notice",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 47.6,
+            "source_token_coverage": 33.3,
+            "lexical_score": 44.0
+          },
+          "note": "SNES 'Separated from %S(1,0).' and Android '%S(1,0) leaves.' are the same party-removal event; Android 440 immediately follows accepted departure line 439.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "01D3",
+      "label": "Sprite naming banter opening",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:7944"
+          ],
+          "snes_parts": [
+            "C9:7944"
+          ],
+          "source_display": "SPRITE:Hey, “brother!”\n",
+          "android_anchor_ids": [
+            616,
+            617
+          ],
+          "android_unit_ids": [
+            616,
+            617
+          ],
+          "android_english_display": "Sprite: Hrmph. Now don’t you get in my way,_ Brother!_",
+          "french_nonempty_ids": [
+            616,
+            617
+          ],
+          "french_display": "Lutin : Ouais, ouais..._Mais t'as pas intérêt à me mettre des bâtons dans les roues,  mon gars ! ",
+          "relation": "one_snes_to_many_android_expanded",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 55.4,
+            "source_token_coverage": 66.7,
+            "lexical_score": 58.2
+          },
+          "note": "Android 616/617 is the expanded sprite address ending in 'Brother!' immediately before accepted Android 618, which answers that address with the player reply at Android 618.",
+          "user_validation": "pending"
+        }
+      ]
+    }
+  ]
+}

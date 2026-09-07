@@ -151,17 +151,22 @@ python3 tools/import_android_text.py --only dialogue-format-mass \
   --rom <clean-USA-ROM>
 ```
 
-The current deterministic choice-aware mass pass is **404 simulator-clean events /
-719 translated semantic source tokens / 737 JSON entries**. Of 704 semantic text
-events, 431 are completely aligned, 417 pass the formatter, and 404 pass the
-independent simulator.
-Excluded events remain stock English and are listed in
+The current deterministic partial-aware mass pass is **496 simulator-clean events /
+1051 visible French semantic source IDs / 1106 JSON entries**. The corpus contains 493
+events treated as complete and 3 PARTIEL events. `$0103`, `$017F` and `$01DC` are user-validated
+visually complete Android adaptations whose remaining SNES-only fragments stay unmapped
+without a PARTIEL badge. The PARTIEL events encode **3 still-unresolved semantic source
+IDs plus 2 mapped-but-layout-deferred IDs** as empty text so no stock English is shown.
+Structural commands/layout bytes remain canonical except for the exact user-validated `$01DC` omission of `PLAYER_NAME(0)` immediately before suppressed `C9:804A`. The remaining 208 excluded events are listed in
 `mappings/android/dialogues_format_mass_excluded.csv`.
 
 The formatter is intentionally conservative:
 
-- every semantic text token in an accepted event must already have a high-confidence
-  Android alignment;
+- complete events still require every semantic text token to have a high-confidence
+  Android alignment; partial events may translate only already accepted mappings and
+  suppress unresolved semantic text rather than exposing stock English;
+- partial events receive no compact-wrapper, pagination or cross-mapping repair: their
+  direct French-only-but-incomplete serialization must already pass the independent simulator;
 - each generated line must stay within 240 pixels and 38 parser units, with at most
   three visible lines per page;
 - an extra page uses `WAIT $00` + `TEXT_CLEAR`; a second generated transition is
@@ -172,7 +177,8 @@ The formatter is intentionally conservative:
   final static gate;
 - `PLAYER_NAME`, fresh-line `TEXT_X`, existing WAIT/action boundaries and
   punctuation-only carrier slots are handled only when the stock event structure proves
-  the transformation. Dynamic-name commands are never invented or moved;
+  the transformation. Dynamic-name commands are never invented or moved; the sole command
+  omission is the explicitly user-validated `$01DC` Android-adaptation deletion;
 - `MONEY_PRINT` consumes no dialogue-buffer geometry because it redraws the separate
   money window;
 - interactive choices are accepted only when every stock `CHOICE_OPTION` anchor remains
@@ -181,14 +187,24 @@ The formatter is intentionally conservative:
 
 The mass pass serializes each candidate event and runs the independent simulator. An
 error, warning, implicit runtime wrap or unsupported structure excludes the whole event.
-The 404-event corpus simulates with **0 errors, 0 warnings and 0 implicit runtime
+The 496-event corpus simulates with **0 errors, 0 warnings and 0 implicit runtime
 wraps**. Its admitted choice rows use component 06's stock-rendered choice fallback,
 which is runtime-validated on `$0331`; the full corpus still requires playthrough.
 
-The post-format interactive-WAIT cleanup is also simulator-gated. It repairs only exact
-line overlap after `WAIT $00`, never timed `WAIT $04/$08`, and the current corpus uses
-eight repairs: `$0136`, `$016D`, `$0263`, `$0265`, `$026A`, `$03EE`, `$04AC` and
-`$0511`.
+The formatter preserves stock rolling-window behavior after interactive `WAIT $00`.
+Exact lines remaining visible across a pause are not treated as duplicated dialogue,
+and no automatic `TEXT_CLEAR` or scroll-token cleanup is applied. Earlier repairs for
+`$00E3`, `$00FB`, `$0136`, `$016D`, `$01BD`, `$0263`, `$0265`, `$026A`, `$029C`,
+`$02A7`, `$02AA`, `$03EE`, `$04AC` and `$0511` were retired after audit because they
+changed normal stock WAIT presentation semantics. One event-specific exception is
+runtime-validated for `$0106`: after the two-line French ghost page, the stock `WAIT $00`
+is preserved but its following newline-only carrier `C9:2994` becomes `TEXT_CLEAR`, so
+the next speaker starts on a fresh page instead of consuming line 3 and immediately
+scrolling. This remains the only runtime-validated exception. For one combined runtime-test batch,
+the round13 detector's eight exact matches (`$00FB`, `$0134`, `$016D`, `$01CA`,
+`$029C`, `$03EE`, `$04A1`, `$04EA`) receive the same newline-carrier -> `TEXT_CLEAR`
+change while preserving their stock `WAIT $00`; they remain explicitly TO REVIEW until
+validated in game. No generic WAIT rule is enabled. Timed waits are also left untouched.
 
 Detailed formatting rules, structural fallbacks and runtime-validation history are kept
 in `docs/DIALOGUE_FORMAT.md`; simulator behavior and unsupported structures are in
@@ -209,3 +225,7 @@ python3 tools/import_android_text.py --only dialogue-format-page-pilot --rom <cl
 `$010F` validates sentence-aware `WAIT $00` + `TEXT_CLEAR` pagination. Historical
 formatter reports are not committed; the current canonical outputs are the mass-pass
 translation, report and exclusion CSV.
+### WAIT does not imply NEWLINE
+
+Runtime testing on `$0106` established that `WAIT` pauses the dialogue renderer without advancing the live text cursor. The simulator therefore no longer treats WAIT as a line terminator. Reviewed translated continuations that were formatted under the former assumption now serialize an explicit `$7F` NEWLINE at the required boundary; if the three-line rolling window would scroll before the next pause, a reviewed `TEXT_CLEAR` is used instead. The current batch remains TO REVIEW until combined runtime testing.
+
