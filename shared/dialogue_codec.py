@@ -259,10 +259,13 @@ def encode_translated_dialogue_text(text: str, *, allow_trailing_page_break: boo
     """Encode translated text plus generated layout markers.
 
     ``\f`` compiles to stock ``WAIT $00 + TEXT_CLEAR`` between generated
-    pages. ``\v`` compiles to ``TEXT_CLEAR`` only and is allowed solely at the
-    beginning of a translated chunk; it is used after an already-existing stock
-    WAIT when the source's leading blank line was only a rolling-box scroll
-    device. Neither marker is a printable glyph.
+    pages. A trailing ``\f`` is accepted only when the caller has structurally
+    proven that a choice begins immediately afterwards, so a stripped decorative
+    ``(`` carrier can still preserve its required page transition. ``\v``
+    compiles to ``TEXT_CLEAR`` only and is allowed solely at the beginning of a
+    translated chunk; it is used after an already-existing stock WAIT when the
+    source's leading blank line was only a rolling-box scroll device. Neither
+    marker is a printable glyph.
     """
     out = bytearray()
     if text.startswith(TRANSLATION_CLEAR):
@@ -466,18 +469,25 @@ def serialize_event(
                 out += original_token["_source_bytes"]
             else:
                 allow_trailing_page_break = False
-                if text.endswith(TRANSLATION_PAGE_BREAK) and index + 3 < len(event["tokens"]):
-                    text_x = event["tokens"][index + 1]
-                    carrier = event["tokens"][index + 2]
-                    choice_begin = event["tokens"][index + 3]
-                    allow_trailing_page_break = (
-                        text_x.get("type") == "command"
-                        and text_x.get("name") == "TEXT_X"
-                        and carrier.get("type") in {"text", "ending_text"}
-                        and carrier.get("source", "").strip() == "("
-                        and choice_begin.get("type") == "command"
-                        and choice_begin.get("name") == "CHOICE_BEGIN"
-                    )
+                if text.endswith(TRANSLATION_PAGE_BREAK):
+                    if index + 1 < len(event["tokens"]):
+                        next_token = event["tokens"][index + 1]
+                        allow_trailing_page_break = (
+                            next_token.get("type") == "command"
+                            and next_token.get("name") == "CHOICE_BEGIN"
+                        )
+                    if not allow_trailing_page_break and index + 3 < len(event["tokens"]):
+                        text_x = event["tokens"][index + 1]
+                        carrier = event["tokens"][index + 2]
+                        choice_begin = event["tokens"][index + 3]
+                        allow_trailing_page_break = (
+                            text_x.get("type") == "command"
+                            and text_x.get("name") == "TEXT_X"
+                            and carrier.get("type") in {"text", "ending_text"}
+                            and carrier.get("source", "").strip() == "("
+                            and choice_begin.get("type") == "command"
+                            and choice_begin.get("name") == "CHOICE_BEGIN"
+                        )
                 out += encode_translated_dialogue_text(
                     text, allow_trailing_page_break=allow_trailing_page_break
                 )

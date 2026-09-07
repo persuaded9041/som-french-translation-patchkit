@@ -323,6 +323,54 @@
           "text": "Les Hautes-Terres sont grandes...\nJe ne peux vous envoyer que jusqu'à la\nforêt."
         },
         {
+          "id": "C9:1AEE",
+          "text": "Hé hé hé ! Bienvenue ! Où veux-tu\naller ? C'est 50 pièces par trajet !\n"
+        },
+        {
+          "id": "C9:1B18",
+          "text": "Temple de l'Eau"
+        },
+        {
+          "id": "C9:1B25",
+          "text": "Nombril de Gaïa"
+        },
+        {
+          "id": "C9:1B42",
+          "text": "Hé hé, salut ! Où veux-tu aller ?\nC'est 50 pièces par trajet !\n"
+        },
+        {
+          "id": "C9:1B60",
+          "text": "Village Potos"
+        },
+        {
+          "id": "C9:1B67",
+          "text": "Nombril de Gaïa"
+        },
+        {
+          "id": "C9:1B85",
+          "text": "Bienvenue, hé hé ! Un petit voyage ?\nOù veux-tu aller ? C'est 50 pièces par\ntrajet !\f"
+        },
+        {
+          "id": "C9:1BB3",
+          "text": "Désert de Kakkara"
+        },
+        {
+          "id": "C9:1BBC",
+          "text": "Pays de glace"
+        },
+        {
+          "id": "C9:1BDE",
+          "text": "Hé hé hé ! Bienvenue ! Où veux-tu\naller ? C'est 50 pièces par trajet !\n"
+        },
+        {
+          "id": "C9:1BFD",
+          "text": "Temple de l'Eau"
+        },
+        {
+          "id": "C9:1C0A",
+          "text": "Hautes-Terres"
+        },
+        {
           "id": "C9:1C1E",
           "text": "Oh, c'est toi, "
         },
@@ -1905,6 +1953,26 @@
         {
           "id": "C9:8D87",
           "text": "Non ! )"
+        },
+        {
+          "id": "C9:8D9D",
+          "text": " : Qu'est-ce que je dois\nfaire ?"
+        },
+        {
+          "id": "C9:8DB2",
+          "text": "Rusalka : Tu dois devenir un héros\ndigne de l'Épée. Il te faudra acquérir\nforce et courage."
+        },
+        {
+          "id": "C9:8DED",
+          "text": ""
+        },
+        {
+          "id": "C9:8DF2",
+          "text": "Impossible !"
+        },
+        {
+          "id": "C9:8DFD",
+          "text": "Bon, d'accord..."
         },
         {
           "id": "C9:8E17",
@@ -4816,6 +4884,46 @@
     }
   ],
   "choice_option_position_overrides": [
+    {
+      "event_id": "00CE",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 13,
+      "source_position": 14,
+      "translated_position": 17,
+      "previous_text_id": "C9:1B18",
+      "decoded_label_cells": 15,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "00CF",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 9,
+      "source_position": 10,
+      "translated_position": 16,
+      "previous_text_id": "C9:1B60",
+      "decoded_label_cells": 13,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "00D0",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 9,
+      "source_position": 11,
+      "translated_position": 20,
+      "previous_text_id": "C9:1BB3",
+      "decoded_label_cells": 17,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "00D1",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 11,
+      "source_position": 15,
+      "translated_position": 18,
+      "previous_text_id": "C9:1BFD",
+      "decoded_label_cells": 15,
+      "choice_commands_preserved_except_coordinate": true
+    },
     {
       "event_id": "00DB",
       "strategy": "shift_choice_option_right_for_decoded_vwf_label",

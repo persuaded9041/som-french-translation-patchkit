@@ -39,9 +39,9 @@ cross-component view.
 | ROM `$ED:7500-$76A8` | 425 bytes | Dialogue parser pixel-budget preflight / safe-space rewind helper | Runtime-validated ordinary-dialogue path; choice commands receive no component-06 parser special case |
 | ROM `$ED:7700-$7760` | 97 bytes | Single-glyph visible-extent + advance preflight helper | Runtime-validated as part of right-edge fix |
 | ROM `$ED:7780-$77FF` | 128 bytes | Generated framed-right-edge table for decoded codes `$80-$FF` | Runtime-validated as part of right-edge fix |
-| ROM `$ED:7800-$782D` | 46 bytes | Choice highlight geometry helper | Runtime-validated on `$00CE/$00CF/$00D1/$0202` and short-choice fallback |
-| ROM `$ED:7880-$78FD` | 126 bytes | Two-option visual-boundary helper with decorated-choice fallback | Runtime-validated v6 rule; `$00D0` right-edge limit remains open |
-| ROM `$ED:7900-$791A` | 27 bytes max reserved | Last non-space VWF endpoint tracker for active two-option rows | Runtime-validated as part of v6 |
+| ROM `$ED:7800-$782D` | 46 bytes | Choice highlight geometry helper | Runtime-validated on `$00CE/$00CF/$00D0/$00D1/$0202` and short-choice fallback |
+| ROM `$ED:7880-$7901` | 130 bytes | Two-option visual-boundary helper with decorated-choice fallback, two-cell private left compaction and late-first-option right-edge compaction | Runtime-validated on `$00CE/$00CF/$00D0/$00D1/$0202` |
+| ROM `$ED:7910-$792A` | 27 bytes | Last non-space VWF endpoint tracker for active two-option rows | Runtime-validated as part of the measured-end path |
 | WRAM `$7E:9380` | 1 byte | Shared parser mode (`2` during component-06 private dialogue decoding) | Runtime-validated; parser phase only |
 | WRAM `$7E:9390-$93BB` | 44 bytes | Shared decoded-text private buffer; up to 38 dialogue glyphs + control/padding | Runtime-validated |
 | WRAM `$7E:9382` | 1 byte | Private dialogue pixel cursor | Tagged event render (`$C9/$CA` or validated `$E8-$EC`) |

@@ -21,16 +21,15 @@ Choice rows keep the same private-buffer, continuous-cursor VWF renderer as ordi
 
 For undecorated two-option rows, component 06 uses the runtime-validated measured-end geometry:
 
-- the first visible option starts no farther left than cell `$03`;
+- the first visible option starts at `max(logical_first, $03) - 2`, so the private visual/highlight span can begin two cells farther left while logical storage stays unchanged;
 - after each non-space glyph is rendered, the live VWF endpoint is remembered;
-- the next option starts at `ceil(endpoint / 8) + 1` whole cell, preserving one blank 8-pixel cell;
+- the next option normally starts at `ceil(endpoint / 8) + 1` whole cell, preserving one blank 8-pixel cell;
+- when that rounded first-option endpoint has already reached cell `$11` (136 px), the extra blank cell is omitted, keeping the next option at the rounded endpoint and protecting the right edge;
 - the terminal visual boundary is `ceil(final_endpoint / 8)`;
 - private visual boundaries at `$93BD-$93BF` drive the stock magenta span through a small geometry hook at `$C0:1B5F`;
 - logical `$A1D7[]` anchors continue to serve decoded storage and parser resets.
 
-This separation is runtime-validated on Potos reproductions of `$00CE`, `$00CF`, `$00D1` and `$0202`, including both magenta selections. Ordinary decorated `Acheter / Vendre` and `Oui / Non` choices are also runtime-validated after the structural fallback was added.
-
-One wide case remains intentionally unresolved: `$00D0` (`Désert de Kakkara / Pays de glace`) fits as text but places the right option too near the bitmap edge; highlighting can corrupt the right frame. Keep that event excluded until a separately validated right-edge margin rule is added.
+This separation is runtime-validated on Potos reproductions of `$00CE`, `$00CF`, `$00D0`, `$00D1` and `$0202`, including both magenta selections. With the final two-cell private left compaction, `$00D0` now starts `Désert de Kakkara` at 8 px, reaches 117 px, keeps the normal blank separator, starts `Pays de glace` at 128 px and finishes at 209 px; its terminal private boundary is cell `$1B`. The retained cell-`$11` separator-omission branch was separately runtime-validated on the earlier `$00D0` right-edge checkpoint before this left compaction and remains a generic safety fallback. Ordinary decorated `Acheter / Vendre` and `Oui / Non` choices remain on the stock-anchor fallback and are unchanged.
 
 A minor cosmetic issue is also deferred: short decorated choices could use one more blank cell before the closing `)`. This predates the compact wide-row path and is not part of the current fix.
 

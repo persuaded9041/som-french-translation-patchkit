@@ -22,7 +22,7 @@
 ;   continuous cumulative pixel cursor with cross-cell merge/spill;
 ;   interactive choice rows use the same private-buffer/cumulative-cursor VWF path;
 ;   runtime-validated choice fix resynchronizes that cursor at stock $A1D7[] option starts;
-;   decorated choices retain stock anchor/highlight geometry; undecorated two-option rows use private measured-end visual/highlight bounds while keeping $A1D7[] logical;
+;   decorated choices retain stock anchor/highlight geometry; undecorated two-option rows use private measured-end visual/highlight bounds while keeping $A1D7[] logical, with a runtime-validated late-first-option right-edge compaction;
 ;   generic interrupted-chunk conversion before stock progression.
 ;
 ; $7E:9385 is the per-invocation component-06 active tag. It overlaps the intro
@@ -165,10 +165,14 @@ dialogue_choice_geometry:
 
 org $ED7880
 dialogue_choice_visual_boundary:
-    ; For undecorated two-option rows: first >= cell $03; second =
-    ; ceil(last_real_end/8)+1; terminal = ceil(final_end/8). Decorated rows
-    ; detected by decoded[terminal] == $CC replay stock anchor geometry.
+    ; For undecorated two-option rows: keep the logical first anchor untouched
+    ; for parser/storage, clamp it to at least cell $03 for visual purposes,
+    ; then move only the private visual/highlight start two cells left.
+    ; The second option normally starts at ceil(last_real_end/8)+1, but when
+    ; the rounded first endpoint is already cell $11 or later the extra blank
+    ; cell is omitted; terminal = ceil(final_end/8). Decorated rows detected
+    ; by decoded[terminal] == $CC replay stock anchor geometry.
 
-org $ED7900
+org $ED7910
 dialogue_choice_track_endpoint:
     ; Record live cursor after each non-space glyph in an active two-option row.

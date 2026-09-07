@@ -78,7 +78,11 @@ Two generated layout controls are supported for formatter output: a form-feed
 start of a translated chunk compiles to `TEXT_CLEAR` only. The latter is used
 when a stock chunk already follows `WAIT` and its leading newline exists only to
 scroll the rolling three-line window. The validated `$010F` page transition
-keeps using `\f`. Neither marker is a printable glyph.
+keeps using `\f`. A trailing `\f` is rejected in ordinary prose, but is allowed
+when serialization proves that the next structural token is `CHOICE_BEGIN` (or
+the already-supported `TEXT_X` + standalone `(` choice carrier), so stripping a
+presentation-only opening parenthesis cannot accidentally remove a required page
+transition. Neither marker is a printable glyph.
 Exact original text bytes are also not stored: unchanged tokens are reparsed
 from the clean USA ROM so stock DTE choices are preserved byte-for-byte.
 Translated ordinary text is encoded deterministically. The dialogue charset uses `♪=$D3`, the shared French `$D4-$E5` range, `°=$E6` and `;=$E7`; a context-sensitive parser router keeps the intro at `$E6` and uses `$E8` only for real event dialogue. DTE recompression is
@@ -167,13 +171,13 @@ python3 tools/import_android_text.py --only dialogue-format-mass \
   --rom <clean-USA-ROM>
 ```
 
-The current deterministic partial-aware mass pass is **521 simulator-clean events /
-1122 visible semantic source IDs / 1179 JSON entries**. The corpus contains 520
+The current deterministic partial-aware mass pass is **526 simulator-clean events /
+1138 visible semantic source IDs / 1196 JSON entries**. The corpus contains 525
 events treated as complete and 1 PARTIEL event. `$0103`, `$017F` and `$01DC` are user-validated
 visually complete Android adaptations whose remaining SNES-only fragments stay unmapped
 without a PARTIEL badge. `$0278` is intentionally the sole PARTIEL event: its two controller-specific SNES carriers are proven absent from Android and are staged in `translations/dialogues_manual_supplements.json`; pending entries intentionally retain exact USA text until manually translated.
-Structural commands/layout bytes remain canonical except for the exact user-validated `$01DC` omission of `PLAYER_NAME(0)` immediately before suppressed `C9:804A` and generated rightward `CHOICE_OPTION` coordinate overrides that pass the validated minimal-anchor rule. The remaining 183 excluded events are listed in
-`mappings/android/dialogues_format_mass_excluded.csv`.
+Structural commands/layout bytes remain canonical except for the exact user-validated `$01DC` omission of `PLAYER_NAME(0)` immediately before suppressed `C9:804A` and generated rightward `CHOICE_OPTION` coordinate overrides that pass the validated minimal-anchor rule. The remaining 178 excluded events are listed in
+`mappings/android/dialogues_format_mass_excluded.csv`: 161 alignment-incomplete events and 17 formatter rejects.
 
 The formatter is intentionally conservative:
 
@@ -206,11 +210,12 @@ The formatter is intentionally conservative:
 
 The mass pass serializes each candidate event and runs the independent simulator. An
 error, warning, implicit runtime wrap or unsupported structure excludes the whole event.
-The 521-event corpus simulates with **0 errors, 0 warnings and 0 implicit runtime
+The 526-event corpus simulates with **0 errors, 0 warnings and 0 implicit runtime
 wraps**. Component 06 renders admitted choice rows through its ordinary VWF path; the
 option-start and terminal-boundary synchronization are runtime-validated on `$0331`; the
 minimal later-anchor shift is runtime-validated on the Potos `Temple de l'Eau / Pandora`
-diagnostic. The full corpus still requires playthrough.
+diagnostic; and the measured-end/private-highlight path is runtime-validated on
+`$00CE/$00CF/$00D0/$00D1/$0202`. The full corpus still requires playthrough.
 
 The formatter preserves stock rolling-window behavior after interactive `WAIT $00`.
 Exact lines remaining visible across a pause are not treated as duplicated dialogue,

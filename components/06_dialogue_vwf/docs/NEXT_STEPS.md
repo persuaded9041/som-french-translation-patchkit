@@ -14,14 +14,15 @@ post-outline repair are the current stable base. The stock glyph-addressing bloc
 
 Choice rows use the ordinary dialogue VWF renderer. The earlier stock-anchor synchronization and `CHOICE_END` terminal-boundary handling remain the fallback for decorated rows.
 
-A generic measured-end path is now runtime-validated for undecorated two-option rows. Logical `$A1D7[]` coordinates remain untouched for parser/storage; component 06 records the actual VWF endpoint and derives separate cell-aligned visual/highlight boundaries. The first option starts no farther left than `$03`, the second starts one full cell after the measured first-option end, and the terminal boundary is rounded up from the final VWF end. The magenta geometry hook consumes only these private bounds after they are complete.
+A generic measured-end path is now runtime-validated for undecorated two-option rows. Logical `$A1D7[]` coordinates remain untouched for parser/storage; component 06 records the actual VWF endpoint and derives separate cell-aligned visual/highlight boundaries. The first option starts at `max(logical_first, $03) - 2`, so only the private visual/highlight boundary moves left. The second normally starts one full cell after the rounded measured endpoint; when that rounded endpoint has reached cell `$11`, the extra cell is omitted to protect the right edge. The terminal boundary is rounded up from the final VWF end. The magenta geometry hook consumes only these private bounds after they are complete.
 
-Runtime-validated wide cases: `$00CE`, `$00CF`, `$00D1`, `$0202`. Runtime-validated fallback controls: ordinary Potos `Acheter / Vendre` and `Oui / Non` retain the decorated stock-anchor path. Do not reintroduce the rejected first-anchor-left experiments or a special `CHOICE_BEGIN` renderer.
+Runtime-validated wide cases: `$00CE`, `$00CF`, `$00D0`, `$00D1`, `$0202`. In the final two-cell-left geometry `$00D0` uses the normal separator and terminal cell `$1B`; the generic late-first-option separator-omission branch remains separately runtime-validated from the earlier right-edge stress checkpoint. Runtime-validated fallback controls: ordinary Potos `Acheter / Vendre` and `Oui / Non` retain the decorated stock-anchor path. Do not reintroduce a special `CHOICE_BEGIN` renderer.
 
-Two follow-ups remain:
+The `$0331` Potos carrier has stock logical anchors `$05/$0A`; they must not be left unchanged when a long diagnostic label is injected. `$5A $0A` is an absolute decoded-buffer reset and will overwrite the tail of the first label. The validated `$00D0` reproduction used logical `$03/$14`: `$14` is the minimum slot after the 17 decoded characters of `Désert de Kakkara`. These logical test anchors are independent of the private measured-end visual placement.
 
-1. `$00D0` (`Désert de Kakkara / Pays de glace`) still reaches too close to the right bitmap edge; highlighting can corrupt the frame. Keep it excluded until a right-edge safety margin is runtime-validated.
-2. Short decorated choices visually lack about one extra blank cell before the closing `)`. Treat this as a cosmetic follow-up, separate from the wide-choice geometry.
+One cosmetic follow-up remains:
+
+1. Short decorated choices visually lack about one extra blank cell before the closing `)`. Treat this as separate from the now-validated wide-choice geometry.
 
 ## Deferred renderer work
 

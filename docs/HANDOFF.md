@@ -9,9 +9,9 @@ This file records the current working checkpoint. Historical reverse-engineering
 - Component 08 owns dialogue reinsertion/relocation. Relocation to `$E8-$EC` is runtime-validated.
 - Component 06 ordinary dialogue VWF remains runtime-validated. Choice rows use that same VWF path with no `CHOICE_BEGIN` renderer special case; `$0331` runtime-validates the minimal `$A1D7[]` option-start synchronization and correct magenta selection.
 - Current semantic alignment: **1601 / 1838 (87.1%)**, with **237 unresolved**.
-- Current simulator-filtered corpus: **521 events**, **520 complete + 1 PARTIEL**, **1122 visible semantic IDs / 1179 JSON entries**.
+- Current simulator-filtered corpus: **526 events**, **525 complete + 1 PARTIEL**, **1138 visible semantic IDs / 1196 JSON entries**.
 - Static gate: **0 errors, 0 warnings, 0 implicit wraps**.
-- Choice-row VWF now has two runtime-validated paths. Decorated choices keep the stock-anchor/terminal-boundary geometry. Undecorated two-option rows keep `$A1D7[]` logical for parser/storage but use private measured-end VWF/highlight boundaries; `$00CE`, `$00CF`, `$00D1` and `$0202` are validated. `$00D0` remains excluded because its right option reaches too close to the bitmap edge and can corrupt the frame while highlighted.
+- Choice-row VWF has two runtime-validated paths. Decorated choices keep the stock-anchor/terminal-boundary geometry. Undecorated two-option rows keep `$A1D7[]` logical for parser/storage but use private measured-end VWF/highlight boundaries; the first private visual/highlight boundary is `max(logical_first, $03) - 2`, and `$00CE`, `$00CF`, `$00D0`, `$00D1` and `$0202` are validated. Final `$00D0` geometry is 8 px -> 117 px for the first option, second option at 128 px -> 209 px, terminal cell `$1B`. The retained cell-`$11` separator-omission branch was runtime-validated on the earlier `$00D0` right-edge checkpoint before the final left compaction.
 
 ## Alignment rules
 
@@ -38,9 +38,10 @@ Semantic identity and layout safety are separate gates. A proven mapping may rem
 - Do not restore the old generic WAIT-overlap deduplication. Exact carry-over after `WAIT $00` can be normal rolling-window presentation.
 - The live-window guard prevents formatter-added aesthetic line breaks from pushing a line into the next rolling-window state. `$0083` (`Gestahl : Ha ! Imbécile !`) is the canonical example.
 - `$01DC` is user-validated as a complete Android adaptation: Android 729 starts the following Niccolo scene directly after 728, so the final SNES-only `PLAYER_NAME(0) + C9:804A` reaction is omitted as one unit. This is the only current structural command omission and is guarded by exact adjacency.
-- Choice formatting remains conservative. `$00DF` runtime-validates the minimal later-anchor `$11 -> $12` storage shift. For wider undecorated two-option rows, component 06 now separates logical storage anchors from visual geometry: it measures the real VWF endpoint, keeps one blank cell between options, and supplies private cell-aligned highlight bounds without rewriting `$A1D7[]`.
-- Do **not** generalize first-option shifts to the left. The rejected `$00CE` `$00/$0F` and `$01/$10` diagnostics clipped the first label. The validated compact path instead enforces a safe first visual cell of at least `$03`.
-- Runtime-validated compact cases are `$00CE`, `$00CF`, `$00D1` and `$0202`. `$00D0` remains excluded: `Désert de Kakkara / Pays de glace` renders but the right option sits too close to the bitmap edge and highlighting can corrupt the frame. A separate right-edge margin rule is still required.
+- Choice formatting remains conservative. `$00DF` runtime-validates the minimal later-anchor `$11 -> $12` **storage** shift. For wider undecorated two-option rows, component 06 separates logical storage anchors from visual geometry: it measures the real VWF endpoint and supplies private cell-aligned highlight bounds without rewriting `$A1D7[]`. It normally keeps one blank cell between options; if the rounded first endpoint is already cell `$11`, that extra cell is omitted.
+- `$00D0` (`Désert de Kakkara / Pays de glace`) is the right-edge stress case. Before final left compaction it runtime-validated the cell-`$11` separator-omission safety branch. With the accepted two-cell private left shift it now keeps the normal separator: first option 8->117 px, second 128->209 px, terminal cell `$1B`, with no frame corruption. `$00CE`, `$00CF`, `$00D1` and `$0202` also keep the normal separator in the final geometry.
+- Diagnostic warning: Potos `$0331` uses stock logical anchors `$05/$0A`. Injecting long labels while leaving those values unchanged makes `$5A $0A` rewind the decoded buffer and truncate the first label; stripping `(`/`)` does not fix the storage reset. The validated `$00D0` reproduction used logical `$03/$14` (`$03` + 17 decoded characters). This is diagnostic setup only, not a hard-coded `$00D0` rule.
+- Do **not** generalize the rejected **logical-anchor** shifts `$00/$0F` or `$01/$10`; they clipped `$00CE`. The accepted left-margin rule is visual-only and keeps `$A1D7[]`/parser storage untouched.
 - Decorated short choices fall back structurally when decoded[terminal] is the stock `)` glyph. `Acheter / Vendre` and `Oui / Non` are runtime-validated controls. A minor cosmetic follow-up remains: one additional blank cell before the closing `)` would look better.
 
 ## Current review workflow
@@ -78,17 +79,17 @@ and are waiting for an explicit human French translation in
 Android mapping layer.
 
 The next useful phase is the **excluded-event backlog**, which is distinct from PARTIEL:
-**183 events** are currently excluded entirely from the mass corpus. They split into
-**161 alignment-incomplete events**, **17 formatter rejects**, and **5 simulator rejects**.
+**178 events** are currently excluded entirely from the mass corpus. They split into
+**161 alignment-incomplete events** and **17 formatter rejects**. There are no remaining simulator rejects; the former five choice rejects are admitted by the runtime-validated measured-end model and the composed decoration/anchor fallback.
 
 A conservative order of work is:
 
-1. finish the remaining choice reject `$00D0` by adding a separately runtime-validated right-edge safety margin. The generic measured-end primitive is already validated on `$00CE`, `$00CF`, `$00D1` and `$0202`; those four can be admitted by component 08 once the formatter/simulator is taught the new geometry. Keep `$00D0` excluded until its frame-corruption case is solved;
-2. then review the **17 formatter rejects**, which are mainly explicit structural conflicts
+1. review the **17 formatter rejects**, which are mainly explicit structural conflicts
    around `PLAYER_NAME`, `WAIT`, `OP_32`, `OP_34` or `CHOICE_BEGIN` and must remain
    event-specific unless a genuinely general structure is proven;
-3. resume Android-English structural alignment on the **237 unresolved semantic IDs**
-   spread across the 161 alignment-incomplete events, continuing to reject weak mappings.
+2. resume Android-English structural alignment on the **237 unresolved semantic IDs**
+   spread across the 161 alignment-incomplete events, continuing to reject weak mappings;
+3. keep the short decorated-choice spacing before the terminal `)` as a separate cosmetic follow-up.
 
 After each accepted batch, regenerate `dialogue-auto` only when semantic identity changes,
 regenerate `dialogue-format-mass`, require 0 errors / 0 warnings / 0 implicit wraps, rebuild

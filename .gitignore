@@ -1,8 +1,0 @@
-/build
-*.sfc
-*.smc
-*.pyc
-__pycache__/
-.venv/
-dialogue_preview*.html
-dialogue_preview*_issues.csv

@@ -150,8 +150,8 @@ insertion, line breaks and WAIT sequencing. The canonical `assets/dialogues.json
 The runtime-validated pagination baseline includes `$010F`: dynamic-name lines
 reserve one parser safety unit, and its four safe lines use a sentence-aware
 3+1 split with generated `WAIT $00` + `TEXT_CLEAR`. The current simulator-filtered
-mass pass contains **521 simulator-clean events / 1122 visible semantic source
-tokens / 1179 JSON entries** and resimulates with 0 errors, 0 warnings and 0 implicit
+mass pass contains **526 simulator-clean events / 1138 visible semantic source
+tokens / 1196 JSON entries** and resimulates with 0 errors, 0 warnings and 0 implicit
 wraps. Only `$0278` remains PARTIEL: its two SNES-only controller carriers are
 user-validated absent from Android and are staged in `translations/dialogues_manual_supplements.json`
 pending manual French translation. `$00DF` is complete through the runtime-validated minimal

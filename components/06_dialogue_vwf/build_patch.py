@@ -123,8 +123,8 @@ CHOICE_GEOMETRY_HELPER_FILE = 0x2D7800
 CHOICE_GEOMETRY_HELPER_CPU = 0xED7800
 CHOICE_VISUAL_HELPER_FILE = 0x2D7880
 CHOICE_VISUAL_HELPER_CPU = 0xED7880
-CHOICE_TRACKER_HELPER_FILE = 0x2D7900
-CHOICE_TRACKER_HELPER_CPU = 0xED7900
+CHOICE_TRACKER_HELPER_FILE = 0x2D7910
+CHOICE_TRACKER_HELPER_CPU = 0xED7910
 CHOICE_HIGHLIGHT_HOOK = bytes([0x22, *lo24(CHOICE_GEOMETRY_HELPER_CPU)]) + bytes([0xEA] * 10)
 
 PARSER_FETCH_HOOK = bytes([0x5C, *lo24(PARSER_FETCH_HELPER_CPU)])
@@ -726,11 +726,15 @@ def make_choice_visual_helper() -> bytes:
     br(0x80,'stock')
 
     label('first')
-    # Never start farther left than cell $03; a larger logical first anchor is
-    # retained.  This avoids the runtime-observed left-edge clipping.
+    # The logical first anchor remains untouched for parser/storage, but the
+    # measured-end visual/highlight geometry may start two cells farther left.
+    # Clamp the logical anchor to at least $03 first, then apply the validated
+    # private left compaction.  This keeps long undecorated rows farther from
+    # the right edge while decorated short choices still fall back structurally.
     emit(0xAD,0x86,0x93,0xC9,0x03); br(0xB0,'first_ok')
     emit(0xA9,0x03)
     label('first_ok')
+    emit(0x3A,0x3A)
     emit(0x8D,0xBD,0x93)
     emit(0x0A,0x0A,0x0A,0x8D,0x82,0x93)
     emit(0x9C,0xBC,0x93)              # no measured endpoint yet
@@ -738,9 +742,18 @@ def make_choice_visual_helper() -> bytes:
     emit(0x6B)
 
     label('second')
-    # One full blank cell after ceil(last real-glyph end / 8).
+    # Normally keep one full blank cell after ceil(last real-glyph end / 8).
+    # If the rounded endpoint has already reached visual cell $11 (136 px),
+    # use that rounded endpoint directly instead.  This generic right-edge
+    # safety branch was runtime-validated on the $00D0 stress case before the
+    # later two-cell private left compaction was adopted.  In the current
+    # geometry $00D0 itself starts farther left and therefore keeps the normal
+    # separator, but the proven late-end fallback remains as a structural guard.
     emit(0xAD,0xBC,0x93,0x18,0x69,0x07); br(0xB0,'stock')
-    emit(0x29,0xF8,0x18,0x69,0x08); br(0xB0,'stock')
+    emit(0x29,0xF8)
+    emit(0xC9,0x88); br(0xB0,'second_store')
+    emit(0x18,0x69,0x08)
+    label('second_store')
     emit(0x8D,0x82,0x93)
     emit(0x4A,0x4A,0x4A,0x8D,0xBE,0x93)
     emit(0x6B)

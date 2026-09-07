@@ -279,6 +279,57 @@ class _Simulator:
             return False, "visible_pixels"
         return True, ""
 
+    def _choice_segment_metrics(self, glyphs: list[Glyph], start_px: int) -> tuple[int, int, int]:
+        """Return cursor end, visible extent and last non-space end for one option."""
+        cursor = start_px
+        visible = 0
+        last_nonspace_end = start_px
+        space_code = TEXT_TO_CODE[" "]
+        for glyph in glyphs:
+            edge = self.font.right_edges[glyph.code]
+            if edge >= 0:
+                visible = max(visible, cursor + edge + 1)
+            cursor += self.font.advances[glyph.code]
+            if glyph.code != space_code:
+                last_nonspace_end = cursor
+        return cursor, visible, last_nonspace_end
+
+    def _commit_line(self, line: SimLine) -> None:
+        self.visible_lines.append(line)
+        if len(self.visible_lines) > PAGE_LINES:
+            self.visible_lines.pop(0)
+        self.line_advances_since_pause += 1
+        if line.glyphs:
+            self.content_lines_since_pause += 1
+        if (
+            self.last_wait == "WAIT $00"
+            and self.wait00_empty_line_armed
+            and self.line_advances_since_pause > 1
+            and not self.wait00_scroll_risk_reported
+        ):
+            self.issue(
+                "info",
+                "WAIT00_THIRD_LINE_SCROLL_RISK",
+                "WAIT $00 retained two visible lines; an explicit newline moved the cursor to line 3 and another line advance scrolls before the next pause.",
+                line=min(PAGE_LINES, len(self.visible_lines)),
+            )
+            self.wait00_scroll_risk_reported = True
+        self.changed_since_snapshot = True
+        line_no = min(PAGE_LINES, len(self.visible_lines))
+        if line.parser_units > RUNTIME_MAX_DECODED:
+            self.issue("error", "PARSER_SAFETY_EXCEEDED", f"Line uses {line.parser_units} conservative parser units (> {RUNTIME_MAX_DECODED}).", line=line_no)
+        if line.visible_extent_pixels > RUNTIME_BITMAP_PIXELS:
+            self.issue("error", "VISIBLE_BITMAP_OVERFLOW", f"Visible ink reaches {line.visible_extent_pixels}px (> {RUNTIME_BITMAP_PIXELS}px runtime bitmap).", line=line_no)
+        if line.advance_pixels > FORMATTER_TARGET_PIXELS:
+            self.issue("warning", "FORMATTER_PIXEL_TARGET_EXCEEDED", f"Line advance is {line.advance_pixels}px (> {FORMATTER_TARGET_PIXELS}px formatter target).", line=line_no)
+        if self.content_lines_since_pause > PAGE_LINES:
+            self.issue(
+                "error",
+                "UNPAUSED_SCROLL",
+                f"{self.content_lines_since_pause} non-empty text lines were rendered since the previous WAIT/box opening; the first new line would scroll away before the player can pause.",
+                line=line_no,
+            )
+
     def _reset_checkpoint(self) -> None:
         self.last_safe_split = None
         self.line_control_epoch += 1
@@ -439,41 +490,7 @@ class _Simulator:
             parser_units=parser_units,
             dynamic_name_blocks=dynamic_blocks,
         )
-        self.visible_lines.append(line)
-        if len(self.visible_lines) > PAGE_LINES:
-            self.visible_lines.pop(0)
-        was_empty = not self.line_glyphs
-        self.line_advances_since_pause += 1
-        if self.line_glyphs:
-            self.content_lines_since_pause += 1
-        if (
-            self.last_wait == "WAIT $00"
-            and self.wait00_empty_line_armed
-            and self.line_advances_since_pause > 1
-            and not self.wait00_scroll_risk_reported
-        ):
-            self.issue(
-                "info",
-                "WAIT00_THIRD_LINE_SCROLL_RISK",
-                "WAIT $00 retained two visible lines; an explicit newline moved the cursor to line 3 and another line advance scrolls before the next pause.",
-                line=min(PAGE_LINES, len(self.visible_lines)),
-            )
-            self.wait00_scroll_risk_reported = True
-        self.changed_since_snapshot = True
-        line_no = min(PAGE_LINES, len(self.visible_lines))
-        if parser_units > RUNTIME_MAX_DECODED:
-            self.issue("error", "PARSER_SAFETY_EXCEEDED", f"Line uses {parser_units} conservative parser units (> {RUNTIME_MAX_DECODED}).", line=line_no)
-        if visible > RUNTIME_BITMAP_PIXELS:
-            self.issue("error", "VISIBLE_BITMAP_OVERFLOW", f"Visible ink reaches {visible}px (> {RUNTIME_BITMAP_PIXELS}px runtime bitmap).", line=line_no)
-        if advance > FORMATTER_TARGET_PIXELS:
-            self.issue("warning", "FORMATTER_PIXEL_TARGET_EXCEEDED", f"Line advance is {advance}px (> {FORMATTER_TARGET_PIXELS}px formatter target).", line=line_no)
-        if self.content_lines_since_pause > PAGE_LINES:
-            self.issue(
-                "error",
-                "UNPAUSED_SCROLL",
-                f"{self.content_lines_since_pause} non-empty text lines were rendered since the previous WAIT/box opening; the first new line would scroll away before the player can pause.",
-                line=line_no,
-            )
+        self._commit_line(line)
         self.line_glyphs.clear()
         self.last_safe_split = None
         self.line_dynamic_blocks = 0
@@ -640,13 +657,15 @@ class _Simulator:
         self._reset_checkpoint()
 
     def choice_end(self) -> None:
-        """Finalize the stock choice row and model its user-visible pause.
+        """Finalize a choice row and model the runtime-visible geometry.
 
-        $5B stores one terminal boundary after the option starts. If the last
-        decoded glyph is the stock closing parenthesis ($CC), that boundary is
-        decremented by one. The simulator deliberately evaluates this row with
-        stock 8-pixel cells as a conservative selection/highlight safety gate,
-        even though component 06 currently draws the row through ordinary VWF.
+        Decorated rows keep the stock cell-anchor model. Undecorated two-option
+        rows instead mirror component 06's runtime-validated measured-end path:
+        parser/storage anchors remain logical, while the first option may start
+        two cells farther left in private highlight space, the second starts
+        from the rounded measured endpoint (plus one separator cell unless that
+        endpoint already reaches cell $11), and the terminal boundary rounds up
+        from the final measured endpoint.
         """
         self.ensure_box(implicit=True)
         if not self.choice_active:
@@ -654,23 +673,62 @@ class _Simulator:
             return
         if not self.choice_starts:
             self.issue("error", "CHOICE_EMPTY", "CHOICE_END has no CHOICE_OPTION entries.")
-        terminal = len(self.line_glyphs)
-        if self.line_glyphs and self.line_glyphs[-1].code == 0xCC:
-            terminal -= 1
+        decorated = bool(self.line_glyphs and self.line_glyphs[-1].code == 0xCC)
+        terminal = len(self.line_glyphs) - (1 if decorated else 0)
         boundaries = self.choice_starts + [terminal]
         for start, end in zip(boundaries, boundaries[1:]):
             if end <= start:
                 self.issue("error", "CHOICE_EMPTY_OR_OVERLAPPED_OPTION", f"Choice span {start}..{end} is empty or reversed.")
-        if terminal > 32:
-            self.issue("error", "CHOICE_LOGICAL_OVERFLOW", f"Choice terminal cell {terminal} exceeds the stock 32-cell selectable row.")
-        # Conservative gate: keep stock-cell metrics for choice rows even after
-        # runtime validation of VWF/highlight synchronization. It is intentionally
-        # stricter than the renderer and prevents speculative width promotions.
-        for glyph in self.line_glyphs:
-            glyph.fixed_cell = True
+
+        advance = 0
+        visible = 0
+        decoded = len(self.line_glyphs)
+        _, _, _, parser_units, dynamic_blocks = self._line_metrics(self.line_glyphs)
+
+        use_measured = not decorated and len(self.choice_starts) == 2
+        if use_measured:
+            first_start = max(self.choice_starts[0], 0x03) - 0x02
+            first_start_px = first_start * 8
+            first_glyphs = self.line_glyphs[self.choice_starts[0]:self.choice_starts[1]]
+            second_glyphs = self.line_glyphs[self.choice_starts[1]:terminal]
+            _, first_visible, first_real_end = self._choice_segment_metrics(first_glyphs, first_start_px)
+            rounded_first = (first_real_end + 7) & 0xF8
+            second_start_px = rounded_first if rounded_first >= 0x88 else rounded_first + 8
+            second_start = second_start_px // 8
+            _, second_visible, final_real_end = self._choice_segment_metrics(second_glyphs, second_start_px)
+            terminal_px = (final_real_end + 7) & 0xF8
+            terminal_cell = terminal_px // 8
+            visible = max(first_visible, second_visible)
+            advance = final_real_end
+            if terminal_cell > 32:
+                self.issue("error", "CHOICE_LOGICAL_OVERFLOW", f"Choice terminal cell {terminal_cell} exceeds the stock 32-cell selectable row.")
+            if second_start <= first_start:
+                self.issue("error", "CHOICE_EMPTY_OR_OVERLAPPED_OPTION", f"Choice visual spans collapse at cells {first_start}..{second_start}.")
+            if terminal_cell <= second_start:
+                self.issue("error", "CHOICE_EMPTY_OR_OVERLAPPED_OPTION", f"Choice visual spans collapse at cells {second_start}..{terminal_cell}.")
+        else:
+            if terminal > 32:
+                self.issue("error", "CHOICE_LOGICAL_OVERFLOW", f"Choice terminal cell {terminal} exceeds the stock 32-cell selectable row.")
+            for glyph in self.line_glyphs:
+                glyph.fixed_cell = True
+            advance, visible, decoded, parser_units, dynamic_blocks = self._line_metrics()
+
         self.choice_active = False
         self.choice_finished = True
-        self.finish_line("choice")
+        line = SimLine(
+            glyphs=list(self.line_glyphs),
+            break_kind="choice",
+            implicit_wrap=False,
+            advance_pixels=advance,
+            visible_extent_pixels=visible,
+            decoded_count=decoded,
+            parser_units=parser_units,
+            dynamic_name_blocks=dynamic_blocks,
+        )
+        self._commit_line(line)
+        self.line_glyphs.clear()
+        self.last_safe_split = None
+        self.line_dynamic_blocks = 0
         self._snapshot("CHOICE", force=not (self.box and self.box.pages))
         self.line_advances_since_pause = 0
         self.content_lines_since_pause = 0

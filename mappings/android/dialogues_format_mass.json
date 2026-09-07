@@ -57,8 +57,8 @@
     "semantic_source_event_count": 704,
     "complete_aligned_event_count": 528,
     "formatter_candidate_event_count": 511,
-    "accepted_event_count": 521,
-    "complete_accepted_event_count": 520,
+    "accepted_event_count": 526,
+    "complete_accepted_event_count": 525,
     "partial_accepted_event_count": 1,
     "user_validated_visually_complete_event_count": 3,
     "user_validated_structural_omission_event_count": 1,
@@ -66,8 +66,8 @@
     "manual_supplement_entry_count": 2,
     "parameterized_inn_event_count": 11,
     "partial_unresolved_or_manual_id_count": 2,
-    "accepted_semantic_source_id_count": 1122,
-    "translation_entry_count": 1179,
+    "accepted_semantic_source_id_count": 1138,
+    "translation_entry_count": 1196,
     "fragment_spacing_repaired_event_count": 1,
     "fragment_spacing_repair_count": 2,
     "explicit_post_wait_newline_repaired_event_count": 12,
@@ -97,16 +97,15 @@
     "shake_effect_sentence_distribution_mapping_count": 1,
     "reviewed_sequence_block_distribution_mapping_count": 1,
     "action_boundary_line_break_count": 1,
-    "choice_row_layout_repaired_event_count": 6,
-    "choice_row_layout_repair_count": 6,
-    "adaptive_choice_anchor_shifted_event_count": 12,
-    "adaptive_choice_anchor_shift_count": 15,
-    "adaptive_choice_decoration_stripped_event_count": 5,
-    "adaptive_choice_decoration_stripped_count": 5,
-    "excluded_event_count": 183,
+    "choice_row_layout_repaired_event_count": 8,
+    "choice_row_layout_repair_count": 8,
+    "adaptive_choice_anchor_shifted_event_count": 16,
+    "adaptive_choice_anchor_shift_count": 19,
+    "adaptive_choice_decoration_stripped_event_count": 10,
+    "adaptive_choice_decoration_stripped_count": 10,
+    "excluded_event_count": 178,
     "excluded_stage_counts": {
       "alignment_incomplete": 161,
-      "simulator_rejected": 5,
       "formatter_rejected": 17
     }
   },
@@ -155,6 +154,10 @@
     "00BD",
     "00BE",
     "00CD",
+    "00CE",
+    "00CF",
+    "00D0",
+    "00D1",
     "00D2",
     "00D3",
     "00DB",
@@ -319,6 +322,7 @@
     "01FE",
     "0200",
     "0201",
+    "0202",
     "0203",
     "0206",
     "020A",
@@ -5064,6 +5068,668 @@
       "structural_cannon_travel_split": "cannon_response_prefix",
       "android_merged_french": "Les Hautes-Terres sont grandes... Je ne peux vous envoyer que jusqu'à la forêt. On saute dans le canon, et c'est parti !",
       "distributed_french_piece": "Les Hautes-Terres sont grandes... Je ne peux vous envoyer que jusqu'à la forêt."
+    },
+    {
+      "event_id": "00CE",
+      "snes_ids": [
+        "C9:1AEE"
+      ],
+      "android_ids": [
+        155
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": " Hi! Travel special:\n 50 GP per trip!\n(",
+      "android_french_raw": "Hé hé hé ! Bienvenue !_Où veux-tu aller ? C'est 50 pièces par trajet ! ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Hé hé hé ! Bienvenue ! Où veux-tu aller ? C'est 50 pièces par trajet !",
+      "layout_markup_before_wrap": "Hé hé hé ! Bienvenue ! Où veux-tu aller ? C'est 50 pièces par trajet !",
+      "layout_hints": [],
+      "formatted_markup": "Hé hé hé ! Bienvenue ! Où veux-tu\naller ? C'est 50 pièces par trajet !\n",
+      "line_widths_pixels": [
+        201,
+        205
+      ],
+      "line_decoded_character_counts": [
+        33,
+        36
+      ],
+      "line_parser_unit_counts": [
+        33,
+        36
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 3,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:1AEE",
+          "text": "Hé hé hé ! Bienvenue ! Où veux-tu\naller ? C'est 50 pièces par trajet !\n"
+        }
+      ],
+      "choice_row_layout_repair": "restore_stock_choice_row_suffix",
+      "choice_decoration_mode": "stripped_for_width",
+      "choice_decoration_anchor_fallback": true
+    },
+    {
+      "event_id": "00CE",
+      "snes_ids": [
+        "C9:1B18"
+      ],
+      "android_ids": [
+        156
+      ],
+      "confidence": "very_high_structural_review",
+      "source_display": "WaterPalace",
+      "android_french_raw": " Temple de l'Eau ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Temple de l'Eau",
+      "layout_markup_before_wrap": "Temple de l'Eau",
+      "layout_hints": [],
+      "formatted_markup": "Temple de l'Eau",
+      "line_widths_pixels": [
+        88
+      ],
+      "line_decoded_character_counts": [
+        15
+      ],
+      "line_parser_unit_counts": [
+        15
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:1B18",
+          "text": "Temple de l'Eau"
+        }
+      ],
+      "choice_decoration_anchor_fallback": true
+    },
+    {
+      "event_id": "00CE",
+      "snes_ids": [
+        "C9:1B25"
+      ],
+      "android_ids": [
+        157
+      ],
+      "confidence": "very_high_structural_review",
+      "source_display": "Gaia'sNavel )",
+      "android_french_raw": " Nombril de Gaïa ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Nombril de Gaïa",
+      "layout_markup_before_wrap": "Nombril de Gaïa",
+      "layout_hints": [],
+      "formatted_markup": "Nombril de Gaïa",
+      "line_widths_pixels": [
+        90
+      ],
+      "line_decoded_character_counts": [
+        15
+      ],
+      "line_parser_unit_counts": [
+        15
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:1B25",
+          "text": "Nombril de Gaïa"
+        }
+      ],
+      "choice_decoration_mode": "stripped_for_width",
+      "choice_decoration_anchor_fallback": true
+    },
+    {
+      "event_id": "00CF",
+      "snes_ids": [
+        "C9:1B42"
+      ],
+      "android_ids": [
+        1254
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": " Howdy!\n 50 GP per trip!\n (",
+      "android_french_raw": "Hé hé, salut !_Où veux-tu aller ? C'est 50 pièces par trajet ! ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Hé hé, salut ! Où veux-tu aller ? C'est 50 pièces par trajet !",
+      "layout_markup_before_wrap": "Hé hé, salut ! Où veux-tu aller ? C'est 50 pièces par trajet !",
+      "layout_hints": [],
+      "formatted_markup": "Hé hé, salut ! Où veux-tu aller ?\nC'est 50 pièces par trajet !\n",
+      "line_widths_pixels": [
+        190,
+        163
+      ],
+      "line_decoded_character_counts": [
+        33,
+        28
+      ],
+      "line_parser_unit_counts": [
+        33,
+        28
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 3,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": false,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:1B42",
+          "text": "Hé hé, salut ! Où veux-tu aller ?\nC'est 50 pièces par trajet !\n"
+        }
+      ],
+      "semantic_layout_fallback": true,
+      "choice_row_layout_repair": "restore_stock_choice_row_suffix",
+      "choice_decoration_mode": "stripped_for_width",
+      "choice_decoration_anchor_fallback": true
+    },
+    {
+      "event_id": "00CF",
+      "snes_ids": [
+        "C9:1B60"
+      ],
+      "android_ids": [
+        1255
+      ],
+      "confidence": "very_high_structural_review",
+      "source_display": "Potos",
+      "android_french_raw": " Village Potos ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Village Potos",
+      "layout_markup_before_wrap": "Village Potos",
+      "layout_hints": [],
+      "formatted_markup": "Village Potos",
+      "line_widths_pixels": [
+        74
+      ],
+      "line_decoded_character_counts": [
+        13
+      ],
+      "line_parser_unit_counts": [
+        13
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": false,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:1B60",
+          "text": "Village Potos"
+        }
+      ],
+      "semantic_layout_fallback": true,
+      "choice_decoration_anchor_fallback": true
+    },
+    {
+      "event_id": "00CF",
+      "snes_ids": [
+        "C9:1B67"
+      ],
+      "android_ids": [
+        1256
+      ],
+      "confidence": "very_high_lexical",
+      "source_display": "Gaia's Navel )",
+      "android_french_raw": " Nombril de Gaïa ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Nombril de Gaïa",
+      "layout_markup_before_wrap": "Nombril de Gaïa",
+      "layout_hints": [],
+      "formatted_markup": "Nombril de Gaïa",
+      "line_widths_pixels": [
+        90
+      ],
+      "line_decoded_character_counts": [
+        15
+      ],
+      "line_parser_unit_counts": [
+        15
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": false,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:1B67",
+          "text": "Nombril de Gaïa"
+        }
+      ],
+      "semantic_layout_fallback": true,
+      "choice_decoration_mode": "stripped_for_width",
+      "choice_decoration_anchor_fallback": true
+    },
+    {
+      "event_id": "00D0",
+      "snes_ids": [
+        "C9:1B85"
+      ],
+      "android_ids": [
+        1326
+      ],
+      "confidence": "very_high_structural_review",
+      "source_display": " Slap me 50 GP and\n I'll send ya flying!\n (",
+      "android_french_raw": "Bienvenue, hé hé ! Un petit voyage ?_Où veux-tu aller ? C'est 50 pièces par trajet ! ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Bienvenue, hé hé ! Un petit voyage ? Où veux-tu aller ? C'est 50 pièces par trajet !",
+      "layout_markup_before_wrap": "Bienvenue, hé hé ! Un petit voyage ? Où veux-tu aller ? C'est 50 pièces par trajet !",
+      "layout_hints": [],
+      "formatted_markup": "Bienvenue, hé hé ! Un petit voyage ?\nOù veux-tu aller ? C'est 50 pièces par\ntrajet !\f",
+      "line_widths_pixels": [
+        215,
+        228,
+        43
+      ],
+      "line_decoded_character_counts": [
+        36,
+        38,
+        8
+      ],
+      "line_parser_unit_counts": [
+        36,
+        38,
+        8
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 3,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": false,
+      "page_line_counts": [
+        3
+      ],
+      "inserted_page_break_count": 1,
+      "inserted_leading_clear": false,
+      "page_break_encoding": "WAIT $00 + TEXT_CLEAR",
+      "page_break_strategy": "choice_prompt_complete_sentence",
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:1B85",
+          "text": "Bienvenue, hé hé ! Un petit voyage ?\nOù veux-tu aller ? C'est 50 pièces par\ntrajet !\f"
+        }
+      ],
+      "structural_choice_prompt_split": true,
+      "choice_prompt_stock_shape": "embedded_parenthesis",
+      "preserved_choice_opening_suffix": null,
+      "choice_row_transition": "WAIT $00 + TEXT_CLEAR",
+      "choice_decoration_mode": "stripped_for_width",
+      "removed_choice_opening_suffix": "\n (",
+      "choice_decoration_anchor_fallback": true
+    },
+    {
+      "event_id": "00D0",
+      "snes_ids": [
+        "C9:1BB3"
+      ],
+      "android_ids": [
+        1327
+      ],
+      "confidence": "very_high_structural_review",
+      "source_display": "Kakkara",
+      "android_french_raw": " Désert de Kakkara ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Désert de Kakkara",
+      "layout_markup_before_wrap": "Désert de Kakkara",
+      "layout_hints": [],
+      "formatted_markup": "Désert de Kakkara",
+      "line_widths_pixels": [
+        109
+      ],
+      "line_decoded_character_counts": [
+        17
+      ],
+      "line_parser_unit_counts": [
+        17
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:1BB3",
+          "text": "Désert de Kakkara"
+        }
+      ],
+      "choice_decoration_anchor_fallback": true
+    },
+    {
+      "event_id": "00D0",
+      "snes_ids": [
+        "C9:1BBC"
+      ],
+      "android_ids": [
+        1328
+      ],
+      "confidence": "very_high_structural_review",
+      "source_display": "Ice Country )",
+      "android_french_raw": " Pays de glace ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Pays de glace",
+      "layout_markup_before_wrap": "Pays de glace",
+      "layout_hints": [],
+      "formatted_markup": "Pays de glace",
+      "line_widths_pixels": [
+        81
+      ],
+      "line_decoded_character_counts": [
+        13
+      ],
+      "line_parser_unit_counts": [
+        13
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:1BBC",
+          "text": "Pays de glace"
+        }
+      ],
+      "choice_decoration_mode": "stripped_for_width",
+      "choice_decoration_anchor_fallback": true
+    },
+    {
+      "event_id": "00D1",
+      "snes_ids": [
+        "C9:1BDE"
+      ],
+      "android_ids": [
+        155
+      ],
+      "confidence": "very_high_structural_review",
+      "source_display": " 50 GP per trip! Where to?\n(",
+      "android_french_raw": "Hé hé hé ! Bienvenue !_Où veux-tu aller ? C'est 50 pièces par trajet ! ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Hé hé hé ! Bienvenue ! Où veux-tu aller ? C'est 50 pièces par trajet !",
+      "layout_markup_before_wrap": "Hé hé hé ! Bienvenue ! Où veux-tu aller ? C'est 50 pièces par trajet !",
+      "layout_hints": [],
+      "formatted_markup": "Hé hé hé ! Bienvenue ! Où veux-tu\naller ? C'est 50 pièces par trajet !\n",
+      "line_widths_pixels": [
+        201,
+        205
+      ],
+      "line_decoded_character_counts": [
+        33,
+        36
+      ],
+      "line_parser_unit_counts": [
+        33,
+        36
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 2,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": false,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:1BDE",
+          "text": "Hé hé hé ! Bienvenue ! Où veux-tu\naller ? C'est 50 pièces par trajet !\n"
+        }
+      ],
+      "structural_choice_prompt_split": true,
+      "choice_prompt_stock_shape": "embedded_parenthesis",
+      "preserved_choice_opening_suffix": null,
+      "choice_row_transition": "stock_newline",
+      "choice_decoration_mode": "stripped_for_width",
+      "removed_choice_opening_suffix": "\n(",
+      "choice_decoration_anchor_fallback": true
+    },
+    {
+      "event_id": "00D1",
+      "snes_ids": [
+        "C9:1BFD"
+      ],
+      "android_ids": [
+        156
+      ],
+      "confidence": "very_high_structural_review",
+      "source_display": "WaterPalace",
+      "android_french_raw": " Temple de l'Eau ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Temple de l'Eau",
+      "layout_markup_before_wrap": "Temple de l'Eau",
+      "layout_hints": [],
+      "formatted_markup": "Temple de l'Eau",
+      "line_widths_pixels": [
+        88
+      ],
+      "line_decoded_character_counts": [
+        15
+      ],
+      "line_parser_unit_counts": [
+        15
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:1BFD",
+          "text": "Temple de l'Eau"
+        }
+      ],
+      "choice_decoration_anchor_fallback": true
+    },
+    {
+      "event_id": "00D1",
+      "snes_ids": [
+        "C9:1C0A"
+      ],
+      "android_ids": [
+        158
+      ],
+      "confidence": "very_high_structural_review",
+      "source_display": "UpperLand )",
+      "android_french_raw": " Hautes-Terres ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Hautes-Terres",
+      "layout_markup_before_wrap": "Hautes-Terres",
+      "layout_hints": [],
+      "formatted_markup": "Hautes-Terres",
+      "line_widths_pixels": [
+        88
+      ],
+      "line_decoded_character_counts": [
+        13
+      ],
+      "line_parser_unit_counts": [
+        13
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:1C0A",
+          "text": "Hautes-Terres"
+        }
+      ],
+      "choice_decoration_mode": "stripped_for_width",
+      "choice_decoration_anchor_fallback": true
     },
     {
       "event_id": "00D2",
@@ -25242,6 +25908,220 @@
           "text": "Non ! )"
         }
       ]
+    },
+    {
+      "event_id": "0202",
+      "snes_ids": [
+        "C9:8D9D"
+      ],
+      "android_ids": [
+        832
+      ],
+      "confidence": "very_high_lexical",
+      "source_display": "%S(0,0):What should I do?",
+      "android_french_raw": "%S(0,0) : Qu'est-ce que je dois faire ? ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "%S(0,0) : Qu'est-ce que je dois faire ?",
+      "layout_markup_before_wrap": "%S(0,0) : Qu'est-ce que je dois faire ?",
+      "layout_hints": [],
+      "formatted_markup": "%S(0,0) : Qu'est-ce que je dois\nfaire ?",
+      "line_widths_pixels": [
+        214,
+        42
+      ],
+      "line_decoded_character_counts": [
+        33,
+        7
+      ],
+      "line_parser_unit_counts": [
+        34,
+        7
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:8D9D",
+          "text": " : Qu'est-ce que je dois\nfaire ?"
+        }
+      ]
+    },
+    {
+      "event_id": "0202",
+      "snes_ids": [
+        "C9:8DB2"
+      ],
+      "android_ids": [
+        833
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "LUKA:You must become a hero\n who is worthy of the sword!",
+      "android_french_raw": "Rusalka : Tu dois devenir un héros digne de l'Épée. Il te faudra acquérir force et courage.",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Rusalka : Tu dois devenir un héros digne de l'Épée. Il te faudra acquérir force et courage.",
+      "layout_markup_before_wrap": "Rusalka : Tu dois devenir un héros digne de l'Épée. Il te faudra acquérir force et courage.",
+      "layout_hints": [],
+      "formatted_markup": "Rusalka : Tu dois devenir un héros\ndigne de l'Épée. Il te faudra acquérir\nforce et courage.",
+      "line_widths_pixels": [
+        206,
+        217,
+        106
+      ],
+      "line_decoded_character_counts": [
+        34,
+        38,
+        17
+      ],
+      "line_parser_unit_counts": [
+        34,
+        38,
+        17
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 2,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        3
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:8DB2",
+          "text": "Rusalka : Tu dois devenir un héros\ndigne de l'Épée. Il te faudra acquérir\nforce et courage."
+        }
+      ]
+    },
+    {
+      "event_id": "0202",
+      "snes_ids": [
+        "C9:8DF2"
+      ],
+      "android_ids": [
+        835
+      ],
+      "confidence": "very_high_short_bracketed",
+      "source_display": "Who, me?!",
+      "android_french_raw": "   Impossible !   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Impossible !",
+      "layout_markup_before_wrap": "Impossible !",
+      "layout_hints": [],
+      "formatted_markup": "Impossible !",
+      "line_widths_pixels": [
+        67
+      ],
+      "line_decoded_character_counts": [
+        12
+      ],
+      "line_parser_unit_counts": [
+        12
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:8DF2",
+          "text": "Impossible !"
+        }
+      ]
+    },
+    {
+      "event_id": "0202",
+      "snes_ids": [
+        "C9:8DFD"
+      ],
+      "android_ids": [
+        836
+      ],
+      "confidence": "very_high_unique_exact",
+      "source_display": "...Okay! )",
+      "android_french_raw": "   Bon, d'accord...   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Bon, d'accord...",
+      "layout_markup_before_wrap": "Bon, d'accord...",
+      "layout_hints": [],
+      "formatted_markup": "Bon, d'accord...",
+      "line_widths_pixels": [
+        93
+      ],
+      "line_decoded_character_counts": [
+        16
+      ],
+      "line_parser_unit_counts": [
+        16
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:8DFD",
+          "text": "Bon, d'accord..."
+        }
+      ],
+      "choice_decoration_mode": "stripped_for_width"
     },
     {
       "event_id": "0203",
@@ -62976,6 +63856,20 @@
       "choice_commands_unchanged": true
     },
     {
+      "event_id": "00CE",
+      "strategy": "restore_stock_choice_row_suffix",
+      "text_id": "C9:1AEE",
+      "restored_suffix": "\n(",
+      "choice_commands_unchanged": true
+    },
+    {
+      "event_id": "00CF",
+      "strategy": "restore_stock_choice_row_suffix",
+      "text_id": "C9:1B42",
+      "restored_suffix": "\n (",
+      "choice_commands_unchanged": true
+    },
+    {
       "event_id": "00DB",
       "strategy": "fresh_line_before_standalone_choice_decoration",
       "text_id": "C9:1D30",
@@ -63005,6 +63899,46 @@
     }
   ],
   "adaptive_choice_anchor_repairs": [
+    {
+      "event_id": "00CE",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 13,
+      "source_position": 14,
+      "translated_position": 17,
+      "previous_text_id": "C9:1B18",
+      "decoded_label_cells": 15,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "00CF",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 9,
+      "source_position": 10,
+      "translated_position": 16,
+      "previous_text_id": "C9:1B60",
+      "decoded_label_cells": 13,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "00D0",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 9,
+      "source_position": 11,
+      "translated_position": 20,
+      "previous_text_id": "C9:1BB3",
+      "decoded_label_cells": 17,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "00D1",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 11,
+      "source_position": 15,
+      "translated_position": 18,
+      "previous_text_id": "C9:1BFD",
+      "decoded_label_cells": 15,
+      "choice_commands_preserved_except_coordinate": true
+    },
     {
       "event_id": "00DB",
       "strategy": "shift_choice_option_right_for_decoded_vwf_label",
@@ -63158,6 +64092,42 @@
   ],
   "adaptive_choice_decoration_repairs": [
     {
+      "event_id": "00CE",
+      "strategy": "strip_outer_choice_decoration_for_width",
+      "opening_text_id": "C9:1AEE",
+      "closing_text_id": "C9:1B25",
+      "removed_opening_suffix": "(",
+      "removed_closing_suffix": " )",
+      "choice_commands_unchanged": true
+    },
+    {
+      "event_id": "00CF",
+      "strategy": "strip_outer_choice_decoration_for_width",
+      "opening_text_id": "C9:1B42",
+      "closing_text_id": "C9:1B67",
+      "removed_opening_suffix": " (",
+      "removed_closing_suffix": " )",
+      "choice_commands_unchanged": true
+    },
+    {
+      "event_id": "00D0",
+      "strategy": "strip_outer_choice_decoration_for_width",
+      "opening_text_id": "C9:1B85",
+      "closing_text_id": "C9:1BBC",
+      "removed_opening_suffix": " (",
+      "removed_closing_suffix": " )",
+      "choice_commands_unchanged": true
+    },
+    {
+      "event_id": "00D1",
+      "strategy": "strip_outer_choice_decoration_for_width",
+      "opening_text_id": "C9:1BDE",
+      "closing_text_id": "C9:1C0A",
+      "removed_opening_suffix": "(",
+      "removed_closing_suffix": " )",
+      "choice_commands_unchanged": true
+    },
+    {
       "event_id": "00DC",
       "strategy": "strip_outer_choice_decoration_for_width",
       "opening_text_id": "C9:1DA4",
@@ -63181,6 +64151,15 @@
       "opening_text_id": "C9:8D01",
       "closing_text_id": "C9:8D0E",
       "removed_opening_suffix": "(",
+      "removed_closing_suffix": " )",
+      "choice_commands_unchanged": true
+    },
+    {
+      "event_id": "0202",
+      "strategy": "strip_outer_choice_decoration_for_width",
+      "opening_text_id": "C9:8DED",
+      "closing_text_id": "C9:8DFD",
+      "removed_opening_suffix": " (",
       "removed_closing_suffix": " )",
       "choice_commands_unchanged": true
     },
@@ -63914,102 +64893,6 @@
           "snes_id": "C9:1A62",
           "reason": "ambiguous_exact_duplicates_with_different_french",
           "note": "Exact Android-English duplicates do not carry one identical French localization block."
-        }
-      ]
-    },
-    {
-      "event_id": "00CE",
-      "stage": "simulator_rejected",
-      "semantic_ids": [
-        "C9:1AEE",
-        "C9:1B18",
-        "C9:1B25"
-      ],
-      "missing_semantic_ids": [],
-      "details": [
-        {
-          "severity": "error",
-          "code": "CHOICE_OPTION_OVERLAP",
-          "message": "CHOICE_OPTION $0E rewinds over 3 already-decoded cell(s); translated option text would be overwritten.",
-          "box": 1,
-          "page": 1,
-          "line": null
-        },
-        {
-          "severity": "warning",
-          "code": "FORMATTER_PIXEL_TARGET_EXCEEDED",
-          "message": "Line advance is 248px (> 240px formatter target).",
-          "box": 1,
-          "page": 1,
-          "line": 3
-        }
-      ]
-    },
-    {
-      "event_id": "00CF",
-      "stage": "simulator_rejected",
-      "semantic_ids": [
-        "C9:1B42",
-        "C9:1B60",
-        "C9:1B67"
-      ],
-      "missing_semantic_ids": [],
-      "details": [
-        {
-          "severity": "error",
-          "code": "CHOICE_OPTION_OVERLAP",
-          "message": "CHOICE_OPTION $03 rewinds over 25 already-decoded cell(s); translated option text would be overwritten.",
-          "box": 1,
-          "page": 1,
-          "line": null
-        },
-        {
-          "severity": "error",
-          "code": "CHOICE_OPTION_OVERLAP",
-          "message": "CHOICE_OPTION $0A rewinds over 6 already-decoded cell(s); translated option text would be overwritten.",
-          "box": 1,
-          "page": 1,
-          "line": null
-        }
-      ]
-    },
-    {
-      "event_id": "00D0",
-      "stage": "simulator_rejected",
-      "semantic_ids": [
-        "C9:1B85",
-        "C9:1BB3",
-        "C9:1BBC"
-      ],
-      "missing_semantic_ids": [],
-      "details": [
-        {
-          "severity": "error",
-          "code": "CHOICE_OPTION_OVERLAP",
-          "message": "CHOICE_OPTION $0B rewinds over 9 already-decoded cell(s); translated option text would be overwritten.",
-          "box": 1,
-          "page": 2,
-          "line": null
-        }
-      ]
-    },
-    {
-      "event_id": "00D1",
-      "stage": "simulator_rejected",
-      "semantic_ids": [
-        "C9:1BDE",
-        "C9:1BFD",
-        "C9:1C0A"
-      ],
-      "missing_semantic_ids": [],
-      "details": [
-        {
-          "severity": "error",
-          "code": "CHOICE_OPTION_OVERLAP",
-          "message": "CHOICE_OPTION $0F rewinds over 3 already-decoded cell(s); translated option text would be overwritten.",
-          "box": 1,
-          "page": 1,
-          "line": null
         }
       ]
     },
@@ -64974,6 +65857,14 @@
             "box": 1,
             "page": 1,
             "line": null
+          },
+          {
+            "severity": "error",
+            "code": "CHOICE_EMPTY_OR_OVERLAPPED_OPTION",
+            "message": "Choice visual spans collapse at cells 5..5.",
+            "box": 1,
+            "page": 1,
+            "line": null
           }
         ],
         "implicit_wraps": 0
@@ -65228,35 +66119,6 @@
             698
           ],
           "message": "Mapping ['C9:8A95', 'C9:8AAF'] crosses command 'OP_32'; defer structural binding"
-        }
-      ]
-    },
-    {
-      "event_id": "0202",
-      "stage": "simulator_rejected",
-      "semantic_ids": [
-        "C9:8D9D",
-        "C9:8DB2",
-        "C9:8DF2",
-        "C9:8DFD"
-      ],
-      "missing_semantic_ids": [],
-      "details": [
-        {
-          "severity": "error",
-          "code": "VISIBLE_BITMAP_OVERFLOW",
-          "message": "Visible ink reaches 260px (> 256px runtime bitmap).",
-          "box": 1,
-          "page": 3,
-          "line": 1
-        },
-        {
-          "severity": "warning",
-          "code": "FORMATTER_PIXEL_TARGET_EXCEEDED",
-          "message": "Line advance is 264px (> 240px formatter target).",
-          "box": 1,
-          "page": 3,
-          "line": 1
         }
       ]
     },

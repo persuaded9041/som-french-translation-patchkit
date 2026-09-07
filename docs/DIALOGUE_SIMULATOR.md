@@ -85,8 +85,8 @@ component-06 follow-up.
 
 ## Current mass-pass result
 
-The simulator-filtered generator currently accepts **521 events / 1122 visible
-semantic source IDs (1179 JSON entries)**: 520 events treated as complete plus 1
+The simulator-filtered generator currently accepts **526 events / 1138 visible
+semantic source IDs (1196 JSON entries)**: 525 events treated as complete plus 1
 PARTIEL event. `$0103`, `$017F` and `$01DC` are user-validated visually complete Android
 adaptations and therefore have no PARTIEL badge despite retaining unmapped SNES-only
 fragments. `$01DC` additionally omits the exact final stock `PLAYER_NAME(0)` command tied
@@ -100,7 +100,7 @@ serialized event bytes differ from the baseline, and `TO REVIEW` for PARTIEL,
 warning/error events, or `WAIT00_THIRD_LINE_SCROLL_RISK`. `--preserve-tags <json>` may carry forward an explicit
 NEW/MODIFIED/TO REVIEW snapshot while a user review is still in progress, so a later technical change cannot silently
 remove an unread badge. The repository keeps the active snapshot at
-`mappings/android/dialogue_preview_state.json`. Dedicated toolbar buttons filter these tags and can be combined with the text search. Five formatter-compatible choice events still remain rejected by the simulator (`$00CE`, `$00CF`, `$00D0`, `$00D1`, `$0202`) because its static model has not yet been updated for component 06's new measured-end geometry. Runtime validation now covers `$00CE`, `$00CF`, `$00D1` and `$0202`; `$00D0` remains unresolved because highlighting its right option can touch/corrupt the frame. The rejected `$00CE` first-anchor-left probes (`$00/$0F`, `$01/$10`) remain invalid. The next simulator update should model separate logical-storage and private visual/highlight boundaries, while keeping `$00D0` excluded until a right-edge margin is validated. The HTML remains a static guardrail
+`mappings/android/dialogue_preview_state.json`. Dedicated toolbar buttons filter these tags and can be combined with the text search. The simulator now mirrors component 06's private measured-end choice geometry for undecorated two-option rows while leaving logical `$A1D7[]` storage anchors untouched. The first private visual/highlight boundary is `max(logical_first, $03) - 2`; the second option normally keeps one blank cell after the rounded first measured endpoint, except once that rounded endpoint reaches cell `$11`, where the extra separator is omitted to protect the right edge. `$00CE`, `$00CF`, `$00D0`, `$00D1` and `$0202` are now admitted by this model. In the final two-cell-left geometry `$00D0` uses the normal separator and terminal boundary `$1B`; the cell-`$11` separator-omission fallback remains modeled because it was separately runtime-validated on the earlier right-edge checkpoint. The rejected `$00CE` **logical-anchor** probes (`$00/$0F`, `$01/$10`) remain invalid. The HTML remains a static guardrail
 rather than a substitute for the planned full-game
 playthrough. Representative runtime tests have validated the simulator-driven page layout used by
 the mass formatter. Exact visible carry-over after interactive `WAIT $00` is preserved as stock rolling-window

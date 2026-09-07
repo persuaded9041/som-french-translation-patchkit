@@ -758,8 +758,9 @@ standalone decorative `(` carrier, and may compose decoration stripping with the
 later-anchor-only shift. Semantic alignment remains **1,601 / 1,838 (87.1%)**, because these are
 layout changes rather than new identity mappings.
 
-The current corpus is **521 simulator-clean events**, **520 complete + 1 PARTIEL**, with
-**1,122 visible semantic IDs / 1,179 JSON entries**. `$0278` is the sole PARTIEL event because
+The current corpus is **526 simulator-clean events**, **525 complete + 1 PARTIEL**, with
+**1,138 visible semantic IDs / 1,196 JSON entries**. `$0278` is the sole PARTIEL event because
 its two SNES-only controller carriers are staged for manual translation; `$0331` is complete
-through the reviewed parameterized Android-ID-110 inn template. Newly admitted choice events
-remain runtime-unvalidated individually until ordinary playthrough review.
+through the reviewed parameterized Android-ID-110 inn template. The newly admitted measured-end
+choice rows (`$00CE/$00CF/$00D0/$00D1/$0202`) are now backed by the runtime-validated component-06
+geometry and the updated offline simulator/serializer model.
