@@ -1,0 +1,139 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Secret of Mana — Round 43 contextual review</title><style>
+:root{color-scheme:light dark;--bg:#f5f7fb;--card:#fff;--ink:#152033;--muted:#607087;--line:#d7deea;--accent:#1769aa;--good:#167548;--warn:#9b6500;--bad:#a33;--mono:#f1f4f8;--focus:#eaf5ff}
+@media(prefers-color-scheme:dark){:root{--bg:#0f141c;--card:#171e29;--ink:#e6edf6;--muted:#9cacbf;--line:#334154;--accent:#79b8ff;--good:#65d39e;--warn:#ffcc66;--bad:#ff8a8a;--mono:#101722;--focus:#182b3d}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}main{max-width:1280px;margin:auto;padding:28px}h1{font-size:29px;margin:0 0 6px}h2{font-size:22px;margin:32px 0 12px}h3{font-size:17px;margin:22px 0 8px}.sub{color:var(--muted);margin-bottom:22px}.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin:16px 0;box-shadow:0 2px 8px #0000000d}.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.metric{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}.metric b{display:block;font-size:20px}.good{color:var(--good);font-weight:700}.warn{color:var(--warn);font-weight:700}.bad{color:var(--bad);font-weight:700}.pill{display:inline-block;border:1px solid currentColor;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:700;margin-right:6px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.box{border:1px solid var(--line);border-radius:9px;padding:12px;min-width:0}.box h3{margin-top:0}.id,code,pre{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--mono);border-radius:7px;padding:9px;margin:5px 0;font-size:13px}table{width:100%;border-collapse:collapse;margin-top:8px}th,td{border:1px solid var(--line);padding:8px;vertical-align:top;text-align:left}th{background:var(--mono)}td pre{background:transparent;padding:0;margin:0}.focus{background:var(--focus)}.decision{border-left:4px solid var(--good);padding-left:12px}.caveat{border-left:4px solid var(--warn);padding-left:12px}.reject{border-left:4px solid var(--bad);padding-left:12px}.small{font-size:13px;color:var(--muted)}ul{margin-top:6px}.android-table{overflow-x:auto}@media(max-width:850px){.summary,.grid2{grid-template-columns:1fr}main{padding:14px}table{font-size:12px}}
+</style></head><body><div style="margin:1em 0;padding:1em;border:2px solid #b58900"><strong>Validation utilisateur Round 43 :</strong> tous les cas déterministes de cette fiche sont acceptés. Dryad reste sans Android ID ; surcharge temporaire acceptée : <code>Dryade fera réagir l'orbe !</code>, à remplacer si une localisation officielle distincte est récupérée.</div><main>
+<h1>Round 43 — fiche de validation contextuelle</h1>
+<div class="sub">Secret of Mana SNES USA ↔ Android EN/FR · Round 42 comme base · aucune modification canonique appliquée · preuve structurelle et contrôle des chemins composés.</div>
+<div class="summary">
+<div class="metric"><span class="small">Familles proposées</span><b>5</b><span>26 IDs sémantiques</span></div>
+<div class="metric"><span class="small">Projection alignement</span><b>1776 / 1838</b><span>96,6 % · 62 non résolus</span></div>
+<div class="metric"><span class="small">Projection événements</span><b>642 complets</b><span>+ 23 PARTIEL = 665 simulator-clean</span></div>
+<div class="metric"><span class="small">Nouvelle règle auto</span><b>0</b><span>redistributions locales uniquement</span></div>
+</div>
+<div class="card decision"><span class="pill good">PROTOTYPES PROPRES</span><b>24 événements individuels : 0 erreur · 0 warning · 0 wrap implicite.</b><p>Les chemins composés qui traversent des jumps/calls ont également été simulés séparément : 7 orbes élémentaires utilisés, 8 gains d'orbe d'arme et les deux variantes du game-over dynamique. Tous passent sans erreur ni wrap. <code>$035F / Dryad</code> est volontairement exclu de l'identité Android.</p></div>
+<div class="card"><h2 style="margin-top:0">Résumé des recommandations</h2><table><thead><tr><th>SNES</th><th>Android EN</th><th>Relation</th><th>Redistribution FR proposée</th><th>Confiance</th></tr></thead><tbody>
+<tr><td><code>$022F / C9:9B1B + C9:9B2C</code></td><td><code>1005</code></td><td>phrase coupée autour de PLAYER_NAME(2)</td><td>2 pages explicites, phrase Android complète</td><td class="good">TRÈS HAUTE</td></tr>
+<tr><td><code>$02B9 / C9:BAD6 + C9:BAE8</code></td><td><code>1618</code>, avec branche <code>$02BD → 1619</code></td><td>préfixe SNES partagé entre deux branches</td><td>préfixe supprimé; 1618 complet dans la branche « gone »</td><td class="good">TRÈS HAUTE</td></tr>
+<tr><td><code>$0358-$035E + $0360</code></td><td><code>2839/2844/2852/2857/2865/2870/2881</code></td><td>7 messages composés « [Spirit]'s magic will work! »</td><td>phrase FR complète dans le carrier du nom; suffixe partagé réduit au layout</td><td class="good">TRÈS HAUTE</td></tr>
+<tr><td><code>$0500-$0507 + $0509</code></td><td>8 familles <code>Received … Orb!</code></td><td>préfixe arme + suffixe commun via jump $0509</td><td><code>Vous obtenez / une sphère de … !</code></td><td class="good">TRÈS HAUTE</td></tr>
+<tr><td><code>$07FA/$07FB/$07FF</code></td><td><code>6/7</code> (546 doublons EN en 273 paires)</td><td>frame fixe + branche nom / pluriel</td><td>les deux variantes FR officielles selon le chemin SNES</td><td class="good">HAUTE À TRÈS HAUTE</td></tr>
+</tbody></table></div>
+<section><h2>1. $022F — Android 1005</h2><div class="card decision"><span class="pill good">RECOMMANDATION : VALIDER</span><b>L'identité est exacte une fois PLAYER_NAME(2) réinséré entre les deux carriers.</b><p>Le caller <code>$023B</code> saute vers <code>$022F</code> juste après « This is the stage room... ». Le texte visible de <code>$022F</code> est exactement <code>We can't leave %S(2,0) like this.</code>, soit Android 1005. Le FR Android ajoute une seconde phrase, conservée avec pagination explicite pour respecter la capacité du parser.</p></div>
+<div class="grid2"><div class="box"><h3>SNES USA — discussion/caller</h3><pre>$023B
+TEXT_OPEN
+C9:9D38  This is the stage room...
+OP_49 03 91 80
+OP_12 2F  → jump $022F
+WAIT $00
+TEXT_CLOSE
+OP_12 36</pre><pre>$022F
+C9:9B1B  We can&#x27;t leave 
+PLAYER_NAME 02
+C9:9B2C  &#x27;s\nlike this.
+WAIT $00
+TEXT_CLOSE
+OP_19 34</pre></div><div class="box"><h3>Reconstruction logique</h3><pre>We can&#x27;t leave %S(2,0) like this.</pre>
+<h3>Sortie FR prototype</h3><pre>On ne peut pas laisser
+%S(2,0) comme ça !
+[WAIT $00 + TEXT_CLEAR]
+Il faut l&#x27;aider à retrouver
+la mémoire !</pre><span class="good">0 erreur · 0 warning · 0 wrap implicite</span></div></div>
+<h3>Android EN / FR avant-après</h3><div class="android-table"><table><thead><tr><th>ID</th><th>Android EN</th><th>Android FR</th></tr></thead><tbody><tr><td class="id">1003</td><td><pre>%S(1,0): Look! Back there!</pre></td><td><pre>%S(1,0) : Regardez ! Il y a quelque chose !</pre></td></tr><tr><td class="id">1004</td><td><pre></pre></td><td><pre></pre></td></tr><tr class="focus"><td class="id">1005</td><td><pre>We can&#x27;t leave %S(2,0) like this.</pre></td><td><pre>On ne peut pas laisser %S(2,0) comme ça ! Il faut l&#x27;aider à retrouver la mémoire ! </pre></td></tr><tr><td class="id">1006</td><td><pre></pre></td><td><pre></pre></td></tr><tr><td class="id">1007</td><td><pre>Way to go!</pre></td><td><pre>
+         Bravo !
+
+</pre></td></tr></tbody></table></div></section>
+<section><h2>2. $02B9 — Android 1618, avec branche $02BD déjà alignée à 1619</h2><div class="card decision"><span class="pill good">RECOMMANDATION : VALIDER</span><b>Le contrôle de flux explique exactement pourquoi le préfixe SNES ne doit pas rester dans son carrier d'origine.</b><p><code>C9:BAD6 = "Salamando is "</code> précède un test <code>OP_42 27 2F</code>. Une branche saute vers <code>$02BD</code>, dont la suite SNES compose « Salamando is my friend… » et qui est déjà traduite par Android 1619. La chute normale compose « Salamando is gone! He lived in the Fire Palace. », identité Android 1618. Android FR restructure les deux phrases avec « Athanor » : la redistribution sûre consiste donc à mettre <code>C9:BAD6 = vide</code> et le FR complet 1618 dans <code>C9:BAE8</code>.</p></div>
+<div class="grid2"><div class="box"><h3>SNES USA — map/object</h3><pre>Map $0059 object table $08A758-$08A7A8
+object #7 @ $08A798
+raw: 29 0E 91 28 90 C8 B9 C2
+event field: $02B9
+X=$11 Y=$28 species=$C8
+
+Adjacent objects:
+#6 → $02B8 (Water...I need water!)
+#8 → $02BC (Watts heat line)</pre></div><div class="box"><h3>Branches SNES</h3><pre>$02B9
+TEXT_OPEN
+C9:BAD6  Salamando is 
+OP_42 27 2F
+OP_12 BD  → $02BD on alternate state
+C9:BAE8  gone! He lived\nin the Fire Palace.
+
+$02BD
+C9:BB6F  my friend, and\nyou&#x27;re his friend. That\nmakes us friends, too!</pre></div></div>
+<h3>Android EN / FR</h3><div class="android-table"><table><thead><tr><th>ID</th><th>Android EN</th><th>Android FR</th></tr></thead><tbody><tr><td class="id">1617</td><td><pre>Water... I need water!</pre></td><td><pre>De l&#x27;eau... J&#x27;ai soif !</pre></td></tr><tr class="focus"><td class="id">1618</td><td><pre>Salamando is gone! He lived in the Fire Palace. We always used to play together...</pre></td><td><pre>Athanor a disparu ! Il jouait tout le temps avec moi, avant... </pre></td></tr><tr class="focus"><td class="id">1619</td><td><pre>Salamando&#x27;s my friend, and you&#x27;re his friend. That makes us friends too!</pre></td><td><pre>Vous êtes des amis d&#x27;Athanor ? Alors vous êtes mes amis aussi ! </pre></td></tr><tr><td class="id">1620</td><td><pre>Everyone&#x27;s moving away... I think I&#x27;ll move to the--</pre></td><td><pre>Tout le monde fuit notre pays... </pre></td></tr><tr><td class="id">1621</td><td><pre>--Empire!</pre></td><td><pre>Je me demande si je ne vais pas déménager vers l&#x27;Empire, moi aussi. </pre></td></tr></tbody></table></div>
+<div class="card caveat"><b>Sortie proposée :</b><pre>C9:BAD6 = [vide]
+C9:BAE8 = Athanor a disparu !
+            Il jouait tout le temps avec moi,
+            avant...
+
+$02BD reste inchangé :
+Vous êtes des amis d&#x27;Athanor ?
+Alors vous êtes mes amis aussi !</pre><span class="good">Les deux chemins sont cohérents; prototype direct $02B9 : 0/0/0.</span></div></section>
+<section><h2>3. $0358-$0360 — orbes élémentaires</h2><div class="card decision"><span class="pill good">RECOMMANDATION : VALIDER LES 7 ACTIFS</span><b>Chaque chemin SNES reconstruit exactement une phrase Android dédiée; la provenance objet explique aussi l'absence de Dryad.</b><p><code>$0358-$035F</code> portent le nom de l'esprit puis sautent tous vers <code>$0360</code>, qui ajoute <code>'s magic / will work!</code>. Les wrappers <code>$0570-$0577</code> appellent respectivement <code>$0350-$0357</code>. Les maps <code>$01A4-$01AA</code> ont chacune un objet #0 vers <code>$0570-$0576</code>; la map suivante <code>$01AB</code> a un pointeur vide <code>DE30→DE30</code> et aucun objet vers <code>$0577</code>.</p></div>
+<div class="android-table"><table><thead><tr><th>SNES</th><th>Nom source</th><th>Android</th><th>EN</th><th>FR</th><th>Objet/caller</th></tr></thead><tbody><tr><td><code>$0358</code><br>C9:D12C</td><td>Gnome</td><td>2839</td><td>Gnome&#x27;s magic will work!</td><td>Gnome fera réagir l&#x27;orbe !</td><td><code>$01A4</code> obj#0 @ $08DD20<br><code>E8 00 8F 88 40 55 70 05</code> → $0570</td></tr><tr><td><code>$0359</code><br>C9:D13F</td><td>Undine</td><td>2844</td><td>Undine&#x27;s magic will work!</td><td>Ondine fera réagir l&#x27;orbe !</td><td><code>$01A5</code> obj#0 @ $08DD48<br><code>E9 00 8F 88 40 55 71 05</code> → $0571</td></tr><tr><td><code>$035A</code><br>C9:D153</td><td>Sylphid</td><td>2852</td><td>Sylphid&#x27;s magic will work!</td><td>Sylphide fera réagir l&#x27;orbe !</td><td><code>$01A6</code> obj#0 @ $08DD70<br><code>EA 00 8F 88 40 55 72 05</code> → $0572</td></tr><tr><td><code>$035B</code><br>C9:D168</td><td>Salamando</td><td>2857</td><td>Salamando&#x27;s magic will work!</td><td>Athanor fera réagir l&#x27;orbe !</td><td><code>$01A7</code> obj#0 @ $08DD98<br><code>EB 00 8F 88 40 55 73 05</code> → $0573</td></tr><tr><td><code>$035C</code><br>C9:D17F</td><td>Lumina</td><td>2865</td><td>Lumina&#x27;s magic will work!</td><td>Lumina fera réagir l&#x27;orbe !</td><td><code>$01A8</code> obj#0 @ $08DDC0<br><code>EC 00 8F 88 40 55 74 05</code> → $0574</td></tr><tr><td><code>$035D</code><br>C9:D193</td><td>Shade</td><td>2870</td><td>Shade&#x27;s magic will work!</td><td>Ombre fera réagir l&#x27;orbe !</td><td><code>$01A9</code> obj#0 @ $08DDE8<br><code>ED 00 8F 88 40 55 75 05</code> → $0575</td></tr><tr><td><code>$035E</code><br>C9:D1A6</td><td>Luna</td><td>2881</td><td>Luna&#x27;s magic will work!</td><td>Luna fera réagir l&#x27;orbe !</td><td><code>$01AA</code> obj#0 @ $08DE10<br><code>EE 00 8F 88 40 55 76 05</code> → $0576</td></tr></tbody></table></div>
+<div class="grid2"><div class="box"><h3>Suffixe partagé SNES</h3><pre>$0360
+C9:D1C0  &#x27;s magic\n
+TEXT_X 07
+C9:D1CB  will work!
+OP_15 FF</pre>
+<p>Redistribution proposée : la phrase FR complète est déplacée dans chacun des 7 carriers de nom; <code>C9:D1C0</code> ne garde qu'un newline de layout et <code>C9:D1CB</code> devient vide. Cela évite de produire un suffixe français après l'éventuel Dryad non mappé.</p></div><div class="box"><h3>Contexte Android systématique</h3><p>Chaque cible est immédiatement suivie de <b>« Heard a distant sound... » / « Vous entendez un bruit au loin... »</b>, ce qui forme un bloc mobile générique cohérent :</p><pre>2839 → 2840  Gnome / Heard a distant sound...
+2844 → 2845  Undine / Heard a distant sound...
+2852 → 2853  Sylphid / Heard a distant sound...
+2857 → 2858  Salamando / Heard a distant sound...
+2865 → 2866  Lumina / Heard a distant sound...
+2870 → 2871  Shade / Heard a distant sound...
+2881 → 2882  Luna / Heard a distant sound...</pre></div></div>
+<div class="card reject"><span class="pill bad">PAS D’IDENTITÉ ANDROID — SURCHARGE TEMPORAIRE VALIDÉE $035F / DRYAD</span><b>Aucune entrée Android EN « Dryad's magic will work! » n'existe.</b><p><code>$0577</code> existe dans la table d'événements, mais aucun caller événement n'y mène et la map contiguë <code>$01AB</code> ne contient aucun objet. L’identité Android de <code>C9:D1B8 = Dryad</code> reste donc non résolue. Round 43 injecte séparément la surcharge utilisateur temporaire <code>Dryade fera réagir l'orbe !</code> ; elle ne constitue pas une preuve d’identité et devra être remplacée si une localisation officielle distincte est retrouvée.</p></div>
+<div class="card"><b>Simulation composée :</b> les 8 chemins <code>$0358-$035F → $0360</code> ont été testés; les 7 chemins proposés sont sans erreur/warning/wrap. Le chemin Dryad reste géométriquement sûr mais sémantiquement non promu.</div></section>
+<section><h2>4. $0500-$0509 — gains d'orbes d'arme</h2><div class="card decision"><span class="pill good">RECOMMANDATION : VALIDER</span><b>Huit événements spécifiques partagent exactement le même suffixe <code>$0509</code>.</b><p>Chaque <code>$0500-$0507</code> ouvre la boîte, affiche <code>Got [Weapon]</code>, puis exécute <code>OP_15 09</code> vers <code>$0509</code>, qui ajoute <code>'s Orb!</code>, joue le son et ferme la boîte. Les phrases composées correspondent aux huit familles Android <code>Received … Orb!</code>. Pour chaque arme, toutes les copies Android EN sont strictement identiques et toutes leurs FR le sont aussi.</p></div>
+<div class="android-table"><table><thead><tr><th>SNES</th><th>Composition</th><th>Android représentatif</th><th>EN</th><th>FR strict</th><th>Callers SNES via OP_25</th></tr></thead><tbody><tr><td><code>$0500</code><br>CA:58B9</td><td><code>Got Glove</code> + <code>$0509: 's Orb!</code></td><td>952<br><span class="small">strict dup: 952, 2235, 3007</span></td><td>Received Gloves Orb!</td><td>Vous obtenez une sphère de Poing !</td><td>0233, 0527, 05F3, 0670</td></tr><tr><td><code>$0501</code><br>CA:58D5</td><td><code>Got Sword</code> + <code>$0509: 's Orb!</code></td><td>122<br><span class="small">strict dup: 122, 1444, 2610, 3030</span></td><td>Received Sword Orb!</td><td>Vous obtenez une sphère d&#x27;Épée !</td><td>0112, 0282, 050A, 05F5, 0671</td></tr><tr><td><code>$0502</code><br>CA:58F1</td><td><code>Got Axe</code> + <code>$0509: 's Orb!</code></td><td>1008<br><span class="small">strict dup: 1008, 2945</span></td><td>Received Axe Orb!</td><td>Vous obtenez une sphère de Hache !</td><td>0237, 05ED, 0672</td></tr><tr><td><code>$0503</code><br>CA:590B</td><td><code>Got Spear</code> + <code>$0509: 's Orb!</code></td><td>631<br><span class="small">strict dup: 631, 2729, 2921</span></td><td>Received Spear Orb!</td><td>Vous obtenez une sphère de Lance !</td><td>01B9, 04A4, 04B4, 0673</td></tr><tr><td><code>$0504</code><br>CA:5927</td><td><code>Got Whip</code> + <code>$0509: 's Orb!</code></td><td>901<br><span class="small">strict dup: 901, 1567, 2138, 2760, 2910</span></td><td>Received Whip Orb!</td><td>Vous obtenez une sphère de Fouet !</td><td>0212, 02A1, 04A2, 0553, 059B, 0674</td></tr><tr><td><code>$0505</code><br>CA:5942</td><td><code>Got Bow</code> + <code>$0509: 's Orb!</code></td><td>934<br><span class="small">strict dup: 934, 1138, 1783, 2526, 2820, 2966</span></td><td>Received Bow/Arrow Orb!</td><td>Vous obtenez une sphère d&#x27;Arc !</td><td>016E, 020C, 0381, 04CA, 05A5, 05EF, 0675</td></tr><tr><td><code>$0506</code><br>CA:595C</td><td><code>Got Boomerang</code> + <code>$0509: 's Orb!</code></td><td>786<br><span class="small">strict dup: 786, 1267, 1865, 2194, 2518, 3048</span></td><td>Received Boomerang Orb!</td><td>Vous obtenez une sphère de Boomerang !</td><td>01E2, 0251, 0559, 05A2, 05F7, 066D, 0676</td></tr><tr><td><code>$0507</code><br>CA:597C</td><td><code>Got Javelin</code> + <code>$0509: 's Orb!</code></td><td>1164<br><span class="small">strict dup: 1164, 1730, 2282, 2422, 2887, 2986</span></td><td>Received Javelin Orb!</td><td>Vous obtenez une sphère de Javelot !</td><td>02CA, 036A, 04B8, 052F, 0544, 05F1, 0677</td></tr></tbody></table></div>
+<div class="grid2"><div class="box"><h3>Suffixe commun</h3><pre>$0509 / CA:598C = &#x27;s Orb!
+PLAY_SOUND 02 D8 00 88
+WAIT $08
+TEXT_CLOSE
+RETURN</pre>
+<p>Redistribution : chaque carrier d'arme reçoit <code>Vous obtenez\nune sphère de …</code>; <code>CA:598C</code> devient simplement <code> !</code>.</p></div><div class="box"><h3>Exemple composé le plus long</h3><pre>$0506 → $0509
+    Vous obtenez
+une sphère de Boomerang !
+
+159 px sur la ligne longue; 0 wrap implicite</pre></div></div>
+<div class="card"><b>Simulation composée :</b> 8/8 chemins propres, y compris Boomerang et Javelot. Le <code>WAIT $08</code> existant est conservé tel quel; aucune confusion WAIT/NEWLINE.</div></section>
+<section><h2>5. $07FA / $07FB / $07FF — phrase de game-over dynamique</h2><div class="card decision"><span class="pill good">RECOMMANDATION : VALIDER</span><b>Le SNES possède réellement deux chemins grammaticaux; Android possède exactement deux FR correspondants pour le même EN.</b><p><code>$07FF</code> affiche « Sadly, no trace of », appelle <code>$07FB</code>, puis ajoute « was ever found... ». <code>$07FB</code> et <code>$07FA</code> testent les flags de présence des personnages; le chemin descendant finit à <code>$07F3 = PLAYER_NAME 00</code>, tandis que les autres chemins renvoient le texte littéral <code>them</code>. Le corpus Android contient <b>546</b> copies EN strictement identiques de cette ligne, organisées en <b>273 paires</b> FR : une version plurielle et une version avec <code>%S(0,0)</code>.</p></div>
+<div class="grid2"><div class="box"><h3>Contrôle de flux SNES</h3><pre>$07FF
+CA:98B2  Sadly, no trace of 
+OP_27 FB  → call $07FB
+CA:98C8  \n was ever found...
+
+$07FB
+OP_42 0D 00
+OP_17 FA → $07FA
+CA:97A8  them
+RETURN
+
+$07FA
+OP_42 0E 00
+OP_17 F3 → $07F3
+CA:979D  them
+RETURN
+
+$07F3
+PLAYER_NAME 00
+RETURN</pre></div><div class="box"><h3>Redistribution FR</h3><pre>CA:98B2 = ... Hélas,
+            [PAGE BREAK]
+            L&#x27;histoire de 
+
+CA:979D / CA:97A8 = ces courageux
+                       jeunes gens
+
+PLAYER_NAME 00 reste structurel
+
+CA:98C8 = \ndevait s&#x27;achever là...</pre><p class="small">La page supplémentaire est explicite (<code>WAIT $00 + TEXT_CLEAR</code>) et nécessaire uniquement pour rester sous la capacité du parser sur le chemin pluriel.</p></div></div>
+<h3>Android EN / FR — première paire représentative</h3><div class="android-table"><table><thead><tr><th>ID</th><th>Android EN</th><th>Android FR</th></tr></thead><tbody><tr><td class="id">5</td><td><pre>%S(0,0): Whoa! What&#x27;s a rabite doing in a place like this?</pre></td><td><pre>%S(0,0) : Houla ! Il y a des lapyns ici ?! Je vais devoir être prudent ! </pre></td></tr><tr class="focus"><td class="id">6</td><td><pre>Sadly, no trace of %S(0,0) was ever found...</pre></td><td><pre>... Hélas, l&#x27;histoire de ces courageux jeunes gens devait s&#x27;achever là...</pre></td></tr><tr class="focus"><td class="id">7</td><td><pre>Sadly, no trace of %S(0,0) was ever found...</pre></td><td><pre>... Hélas, l&#x27;histoire de %S(0,0) devait s&#x27;achever là...</pre></td></tr><tr><td class="id">8</td><td><pre></pre></td><td><pre></pre></td></tr><tr><td class="id">9</td><td><pre>FOREST OFF LIMITS! </pre></td><td><pre>　　　　　　→
+  Défense d&#x27;entrer dans la forêt !
+　　　　    Signé : Chef du village Potos</pre></td></tr></tbody></table></div>
+<div class="card caveat"><b>Pourquoi FR ne sert pas à prouver l'identité :</b> l'identité du frame est déjà donnée par Android EN, exactement égal à la phrase SNES reconstruite avec le slot dynamique. Les deux sorties FR ne servent qu'à sélectionner la réalisation grammaticale correspondant au chemin non textuel SNES : <code>them</code> → pluriel, <code>PLAYER_NAME 00</code> → nom.</div>
+<div class="card"><b>Simulation composée :</b><ul><li>chemin <code>PLAYER_NAME 00</code> avec nom maximal de 9 glyphes : <span class="good">0/0/0</span>;</li><li>chemin pluriel « ces courageux jeunes gens » : <span class="good">0/0/0</span>.</li></ul></div></section>
+<div class="card"><h2 style="margin-top:0">Cas explicitement non promus dans cette passe</h2><ul><li><code>$01B6</code> : l'EN Android 584 correspond très fortement à la composition SNES, mais le payload Android FR 584 est vide; aucune traduction officielle sûre à injecter.</li><li><code>$035F / Dryad</code> : aucun équivalent Android EN de la phrase générique et aucun objet/caller trouvé pour le wrapper $0577.</li><li>Les décisions protégées du handoff ($015A, $0204, $01C5, $05B4, $05F8, $04E1 et validated omissions/no-equivalent) restent inchangées.</li></ul></div>
+<div class="sub">Cette fiche ne modifie ni les mappings ni les traductions canoniques. Si ces cinq recommandations sont validées, l'intégration Round 43 pourra appliquer les 26 IDs localement, puis exécuter toute la chaîne de contrôles du handoff.</div>
+</main></body></html>

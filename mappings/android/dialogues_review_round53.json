@@ -1,0 +1,2010 @@
+{
+  "format_version": 1,
+  "status": "round53_android_fr_residual_exhaustion_audit",
+  "source_asset": "dialogues.json",
+  "android_english": {
+    "path": "sources/android/scrtxt_en.bin",
+    "sha256": "4d4508560967b6ce4d6cf992f29e84e2775ed4accc74d87c3fd4269044b75ae5"
+  },
+  "android_french": {
+    "path": "sources/android/scrtxt_fr.bin",
+    "sha256": "cd837aaf53a7979d0e84910e8cda3bd67427f4a3cbddadc351811378d7e7d696"
+  },
+  "policy": {
+    "automatic_identity_rule_added": false,
+    "android_identity_assigned": false,
+    "translation_payload_changed": false,
+    "rom_bytes_changed": false,
+    "english_identity_remains_primary": true,
+    "generic_namespace_expanded": false,
+    "systxt_policy_changed": false,
+    "note": "Round 51 already exhausted the scrtxt English identity pool. Round 53 scans every scrtxt ID with empty English and non-empty French plus the residual 40 carriers. No additional provenance-safe SNES identity or French payload is admitted."
+  },
+  "android_fr_only_audit": {
+    "total_nonempty_fr_with_empty_en": 62,
+    "already_owned_by_existing_mappings": 58,
+    "unowned": 4,
+    "entries": [
+      {
+        "android_id": 148,
+        "french": "Un coup de canon, et hop, tu y seras !\nGemma a payé d'avance pour toi. Alors, tu montes dans le canon ?_",
+        "owners": [
+          {
+            "event_id": "00FB",
+            "snes_ids": [
+              "C9:23F4"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 260,
+        "french": "Monsieur et Mademoiselle sont au château. ",
+        "owners": [
+          {
+            "event_id": "0148",
+            "snes_ids": [
+              "C9:46BE"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 488,
+        "french": "Ça fiche la trouille ! ",
+        "owners": [
+          {
+            "event_id": "01C3",
+            "snes_ids": [
+              "C9:7090",
+              "C9:70BF"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 585,
+        "french": "Watts : Tu verras, c'est beaucoup plus rapide par ce chemin ! ",
+        "owners": [
+          {
+            "event_id": "01B6",
+            "snes_ids": [
+              "C9:6AD2",
+              "C9:6B5A"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 697,
+        "french": "%S(1,0) : Je t'accompagne ! ",
+        "owners": [
+          {
+            "event_id": "01F6",
+            "snes_ids": [
+              "C9:8A50",
+              "C9:8A7E"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 774,
+        "french": "Yah ! ",
+        "owners": [
+          {
+            "event_id": "01E7",
+            "snes_ids": [
+              "C9:83A5"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 841,
+        "french": "%S(0,0) : Mais... Qu'est-ce que...",
+        "owners": [
+          {
+            "event_id": "0204",
+            "snes_ids": [
+              "C9:8EFF"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 966,
+        "french": "Une arme investie de ce pouvoir gèle celui qu'elle frappe et le change en bonhomme de neige !",
+        "owners": [
+          {
+            "event_id": "0581",
+            "snes_ids": [
+              "CA:6D6B",
+              "CA:6D6F"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 1021,
+        "french": "%S(0,0) : %S(2,0), ça va ?",
+        "owners": [
+          {
+            "event_id": "0592",
+            "snes_ids": [
+              "CA:7472"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 1024,
+        "french": "Hum ? Oh... Bonjour..._",
+        "owners": [
+          {
+            "event_id": "0592",
+            "snes_ids": [
+              "CA:748F"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 1025,
+        "french": "(bâille)",
+        "owners": [
+          {
+            "event_id": "0592",
+            "snes_ids": [
+              "CA:748F"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 1128,
+        "french": "Plus personne ne nous résistera, une fois tous réduits à l'état de pantin, comme celui-ci.",
+        "owners": [
+          {
+            "event_id": "016D",
+            "snes_ids": [
+              "C9:5011"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 1162,
+        "french": "Enlevez la Graine, et lancez le générateur auxiliaire ! ",
+        "owners": [
+          {
+            "event_id": "036D",
+            "snes_ids": [
+              "C9:D4CB"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 1295,
+        "french": "Viens à moi, Sylphide ! ",
+        "owners": [
+          {
+            "event_id": "04E2",
+            "snes_ids": [
+              "CA:349B"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 1387,
+        "french": "Notre pays sait tout de vous, grâce à notre légende !",
+        "owners": [
+          {
+            "event_id": "04E3",
+            "snes_ids": [
+              "CA:36FC"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 1625,
+        "french": "Ça fait rêver ! ",
+        "owners": [
+          {
+            "event_id": "02B7",
+            "snes_ids": [
+              "C9:BA7C"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 1688,
+        "french": "Ça fait rêver ! ",
+        "owners": [],
+        "owned": false,
+        "classification": "android_fr_only_no_snes_residual",
+        "note": "French-only Kakkara embellishment 'Ça fait rêver !' follows Android 1687. No residual SNES semantic carrier belongs to this Android scene, so it is Android-only localization prose, not a recoverable SNES identity."
+      },
+      {
+        "android_id": 1794,
+        "french": "Ceux à qui le luxe ordinaire ne suffit plus viennent ici pour atteindre un niveau supérieur !",
+        "owners": [
+          {
+            "event_id": "0387",
+            "snes_ids": [
+              "C9:D9CE"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 1798,
+        "french": "Il faut juste le taper de temps en temps, pas besoin de combustible. Compris ?",
+        "owners": [
+          {
+            "event_id": "0384",
+            "snes_ids": [
+              "C9:D951"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 1800,
+        "french": "%S(0,0) : ... ?",
+        "owners": [
+          {
+            "event_id": "0384",
+            "snes_ids": [
+              "C9:D951"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 1873,
+        "french": "On raconte même qu'il bâtit une armée de démons. Son palais serait déjà rempli de monstres !",
+        "owners": [
+          {
+            "event_id": "039F",
+            "snes_ids": [
+              "C9:E028"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 1954,
+        "french": "Hou-hou ! Chérie, où es-tu ? ",
+        "owners": [
+          {
+            "event_id": "03B1",
+            "snes_ids": [
+              "C9:E417"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2003,
+        "french": "Nous continuerons notre combat tant que la paix ne sera pas revenue. Bon courage à vous aussi !",
+        "owners": [
+          {
+            "event_id": "03CE",
+            "snes_ids": [
+              "C9:E912"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2009,
+        "french": "... et Thanatos le sorcier, dont on ne sait pas encore grand-chose.",
+        "owners": [
+          {
+            "event_id": "03C8",
+            "snes_ids": [
+              "C9:E800"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2023,
+        "french": "Il paraît qu'un homme appelé Durac draine l'énergie des gens, là-bas.",
+        "owners": [
+          {
+            "event_id": "03AA",
+            "snes_ids": [
+              "C9:E267"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2052,
+        "french": "Je vois. Je connais un docteur qui pourra l'examiner. Laissez-moi faire !",
+        "owners": [
+          {
+            "event_id": "055E",
+            "snes_ids": [
+              "CA:69A7"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2054,
+        "french": "Merci, Chris.",
+        "owners": [
+          {
+            "event_id": "055E",
+            "snes_ids": [
+              "CA:69DF"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2155,
+        "french": "%S(0,0) : Allons-y !",
+        "owners": [],
+        "owned": false,
+        "classification": "android_fr_only_no_snes_residual",
+        "note": "French-only player interjection '%S(0,0) : Allons-y !' follows Android 2154 in the Dyluck scene. It has no residual SNES carrier in that scene; the superficially similar unresolved '$0042 Well, let's go!' belongs to a different naming branch and cannot reuse it."
+      },
+      {
+        "android_id": 2159,
+        "french": "Snif... ",
+        "owners": [
+          {
+            "event_id": "0555",
+            "snes_ids": [
+              "CA:6347"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2168,
+        "french": "Tu ne t'en tireras pas comme ça !",
+        "owners": [
+          {
+            "event_id": "0555",
+            "snes_ids": [
+              "CA:6423"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2172,
+        "french": "%S(2,0) : Bouge pas ! Garde tes forces ! ",
+        "owners": [
+          {
+            "event_id": "0555",
+            "snes_ids": [
+              "CA:64A6"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2175,
+        "french": "%S(0,0) : Elle est là !",
+        "owners": [
+          {
+            "event_id": "0557",
+            "snes_ids": [
+              "CA:64F6"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2187,
+        "french": "Qu'est-ce qui vous arrive ?! ",
+        "owners": [
+          {
+            "event_id": "0558",
+            "snes_ids": [
+              "CA:65E8"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2233,
+        "french": "Le château sera bientôt rempli de gardes. Séparons-nous et fuyons !",
+        "owners": [
+          {
+            "event_id": "0530",
+            "snes_ids": [
+              "CA:601E"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2265,
+        "french": "Gestahl : Compris, Majesté !",
+        "owners": [
+          {
+            "event_id": "052E",
+            "snes_ids": [
+              "CA:5EFB"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2358,
+        "french": "\"Oh mon dieu ! Il vient de détruire la forteresse volante Gigant ! Elle tombe à la mer !\"",
+        "owners": [
+          {
+            "event_id": "03EF",
+            "snes_ids": [
+              "C9:F1F9"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2432,
+        "french": "Le maître dit qu'il faut retourner vous entraîner ! Vous n'êtes pas à la hauteur.",
+        "owners": [
+          {
+            "event_id": "0025",
+            "snes_ids": [
+              "C9:0B5C"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2534,
+        "french": "Mais tout cela est fini, maintenant. Et un jour, cette île redeviendra pierre.",
+        "owners": [
+          {
+            "event_id": "0587",
+            "snes_ids": [
+              "CA:7154",
+              "CA:718F"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2545,
+        "french": "Nous le cherchons activement. Il va sûrement attenter à la vie du roi. Soyez vigilants !",
+        "owners": [
+          {
+            "event_id": "02D2",
+            "snes_ids": [
+              "C9:BF45"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2555,
+        "french": "Apparemment, l'Empire cherche à faire resurgir ce continent. ",
+        "owners": [
+          {
+            "event_id": "02E8",
+            "snes_ids": [
+              "C9:C6CE"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2573,
+        "french": "À la place, nous avons une flotte de vaisseaux des sables et surveillons l'Empire depuis Kakkara. ",
+        "owners": [
+          {
+            "event_id": "02DA",
+            "snes_ids": [
+              "C9:C3B8"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2677,
+        "french": "Les mers se sont calmées, et on peut de nouveau naviguer normalement. ",
+        "owners": [
+          {
+            "event_id": "002C",
+            "snes_ids": [
+              "C9:0D06"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2678,
+        "french": "Et Moriel a décidé de refaire carrière en partant du bas de l'échelon : la plonge !",
+        "owners": [
+          {
+            "event_id": "002C",
+            "snes_ids": [
+              "C9:0D06"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2688,
+        "french": "Sheek : J'ai enfin ma chance de me venger de l'humiliation de Tasmanica ! ",
+        "owners": [
+          {
+            "event_id": "04B3",
+            "snes_ids": [
+              "CA:1FE0"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2713,
+        "french": "Un homme appelé Thanatos a scellé ma magie de Mana. Je ne vous servirais à rien...",
+        "owners": [
+          {
+            "event_id": "04B6",
+            "snes_ids": [
+              "CA:23B8"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2724,
+        "french": "%S(0,0) : Quoi ? Mais alors... vos pouvoirs... L'Empereur a réellement... ?!",
+        "owners": [
+          {
+            "event_id": "04B3",
+            "snes_ids": [
+              "CA:208F"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2732,
+        "french": "possible ! ",
+        "owners": [
+          {
+            "event_id": "04B4",
+            "snes_ids": [
+              "CA:2199"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 2733,
+        "french": "Aaaargh ! ",
+        "owners": [
+          {
+            "event_id": "04B4",
+            "snes_ids": [
+              "CA:2199"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 3065,
+        "french": "Il nous reste une chose à faire ! ",
+        "owners": [
+          {
+            "event_id": "05F8",
+            "snes_ids": [
+              "CA:7BA0"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 3067,
+        "french": "Allons-y ! ",
+        "owners": [
+          {
+            "event_id": "05F8",
+            "snes_ids": [
+              "CA:7BC9",
+              "CA:7BF4"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 3080,
+        "french": "Ne soyez pas tristes... Même si j'ai disparu, mon esprit reste auprès de vous... ",
+        "owners": [
+          {
+            "event_id": "05F8",
+            "snes_ids": [
+              "CA:7DE1",
+              "CA:7DF0"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 3092,
+        "french": "mon père ?!",
+        "owners": [
+          {
+            "event_id": "05F8",
+            "snes_ids": [
+              "CA:80B4",
+              "CA:80C2"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 3094,
+        "french": "j'étais sa femme, ",
+        "owners": [
+          {
+            "event_id": "05F8",
+            "snes_ids": [
+              "CA:80F2",
+              "CA:811D",
+              "CA:8132"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 3095,
+        "french": "ta mère. ",
+        "owners": [
+          {
+            "event_id": "05F8",
+            "snes_ids": [
+              "CA:80F2",
+              "CA:811D",
+              "CA:8132"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 3111,
+        "french": "Réponds-moi, je t'en prie ! ",
+        "owners": [
+          {
+            "event_id": "05F8",
+            "snes_ids": [
+              "CA:834B"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 3122,
+        "french": "C'est pas le moment de pleurer ! ",
+        "owners": [
+          {
+            "event_id": "05F8",
+            "snes_ids": [
+              "CA:8414"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 3132,
+        "french": "trois ! ",
+        "owners": [
+          {
+            "event_id": "05F8",
+            "snes_ids": [
+              "CA:854C"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 3260,
+        "french": "Mais... que... \nNon ! ",
+        "owners": [],
+        "owned": false,
+        "classification": "android_fr_only_locked_04e1_redistribution",
+        "note": "French-only Thanatos transition inside the explicitly locked $04E1 redistribution. Android EN is empty here, so this may not create a new identity; do not assign it to either locked SNES carrier."
+      },
+      {
+        "android_id": 3261,
+        "french": "Ce corps a atteint ses limites... Vite ! Je dois... changer... de corps... ",
+        "owners": [],
+        "owned": false,
+        "classification": "android_fr_only_locked_04e1_redistribution",
+        "note": "French-only Thanatos body-collapse prose inside the explicitly locked $04E1 redistribution. Android EN is empty here, so this may not create a new identity; do not assign it to either locked SNES carrier."
+      },
+      {
+        "android_id": 3274,
+        "french": "_! ",
+        "owners": [
+          {
+            "event_id": "04E1",
+            "snes_ids": [
+              "CA:2DB2"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 3300,
+        "french": "je n'ai pas le choix.",
+        "owners": [
+          {
+            "event_id": "04E1",
+            "snes_ids": [
+              "CA:308A"
+            ]
+          }
+        ],
+        "owned": true
+      },
+      {
+        "android_id": 3376,
+        "french": "pour être dignes de leur souvenir !",
+        "owners": [
+          {
+            "event_id": "04FD",
+            "snes_ids": [
+              "CA:4E85"
+            ]
+          }
+        ],
+        "owned": true
+      }
+    ]
+  },
+  "residual_semantic_audit": {
+    "total": 40,
+    "counts": {
+      "EXPLICIT_HANDOFF_LOCK": 9,
+      "ANDROID_ABSENT_VALIDATED": 14,
+      "NO_UNIQUE_ANDROID_EQUIVALENT": 8,
+      "VISUALLY_COMPLETE_ANDROID_ADAPTATION": 7,
+      "CONTEXTUAL_TEMPLATE_NO_SINGLE_ID": 2
+    },
+    "entries": [
+      {
+        "event_id": "001E",
+        "snes_id": "C9:0970",
+        "source": "⏎ JEHK:Sage Joch",
+        "previous_reason": "insufficient_lexical_confidence",
+        "final_state": "EXPLICIT_HANDOFF_LOCK",
+        "note": "Shared Joch/Jehk prefix; Android FR repeats Maître Jach inside the destination-specific owned records, so no standalone identity is created.",
+        "best_android_english_id": 2454,
+        "best_android_english": "Where is Joch?",
+        "best_android_french_candidate": "%S(0,0) : Encore ?!"
+      },
+      {
+        "event_id": "0042",
+        "snes_id": "C9:1057",
+        "source": "Well, let's go!",
+        "previous_reason": "validated_android_omission",
+        "final_state": "ANDROID_ABSENT_VALIDATED",
+        "note": "Round-47 sprite-naming branch omission: $0041 conditionally transfers to $0042 after Android-aligned naming response 625, and both paths rejoin at the already aligned join message 628. Android 623-628 contains no counterpart for the alternate SNES 'Well, let's go!' line.",
+        "best_android_english_id": 2767,
+        "best_android_english": "Let's go!",
+        "best_android_french_candidate": "Dépêchons-nous !"
+      },
+      {
+        "event_id": "00EE",
+        "snes_id": "C9:2179",
+        "source": "All aboard for Pandora! ⏎",
+        "previous_reason": "validated_no_equivalent",
+        "final_state": "NO_UNIQUE_ANDROID_EQUIVALENT",
+        "note": "Round-47 trigger-proven Cannon route with no unique Android equivalent: $00EE is used by map triggers $0049/$011C, but Android reorganizes the Cannon network and has no provenance-safe standalone counterpart for SNES 'All aboard for Pandora!'. Do not recycle another Pandora response.",
+        "best_android_english_id": 140,
+        "best_android_english": "Potos Village↑ ⏎ ↓Kingdom of Pandora",
+        "best_android_french_candidate": "Village Potos ↑ ⏎  ⏎ 　↓ Royaume de Pandora"
+      },
+      {
+        "event_id": "00F1",
+        "snes_id": "C9:2208",
+        "source": "For Pandora! ⏎",
+        "previous_reason": "validated_no_equivalent",
+        "final_state": "NO_UNIQUE_ANDROID_EQUIVALENT",
+        "note": "Round-47 trigger-proven Cannon route with no unique Android equivalent: $00F1 is used by map trigger $0121, but Android has no provenance-safe standalone counterpart for SNES 'For Pandora!'. Do not recycle another Pandora response.",
+        "best_android_english_id": 422,
+        "best_android_english": "Pandora",
+        "best_android_french_candidate": "Pandora"
+      },
+      {
+        "event_id": "00F3",
+        "snes_id": "C9:2268",
+        "source": "Ice Country? Okay! See ya! ⏎",
+        "previous_reason": "validated_no_equivalent",
+        "final_state": "NO_UNIQUE_ANDROID_EQUIVALENT",
+        "note": "Round-47 trigger-proven Cannon route with no unique Android equivalent: $00F3 is used by map trigger $011F, while Android contains multiple Ice Country Cannon responses belonging to other scene blocks. Do not force one by destination text alone.",
+        "best_android_english_id": 1328,
+        "best_android_english": "Ice Country",
+        "best_android_french_candidate": "Pays de glace"
+      },
+      {
+        "event_id": "0103",
+        "snes_id": "C9:2627",
+        "source": "Remove the sword...",
+        "previous_reason": "insufficient_context_or_segmentation",
+        "final_state": "VISUALLY_COMPLETE_ANDROID_ADAPTATION",
+        "note": "Runtime-validated $0103 adaptation; Android 3413 owns a larger dots/name/remove-sword unit and must not be split merely to raise alignment.",
+        "best_android_english_id": 3413,
+        "best_android_english": ".... %S(0,0).... Remove the sword...",
+        "best_android_french_candidate": "%S(0,0)...  ⏎ 　　Vas-y... Prends l'épée..."
+      },
+      {
+        "event_id": "0103",
+        "snes_id": "C9:2728",
+        "source": "⏎   It is I",
+        "previous_reason": "insufficient_lexical_confidence",
+        "final_state": "VISUALLY_COMPLETE_ANDROID_ADAPTATION",
+        "note": "Runtime-validated $0103 timed-ellipsis adaptation; Android 3420-3430 repartitions the ghost voice over multiple punctuation/name records.",
+        "best_android_english_id": 3118,
+        "best_android_english": "This is nuts!_",
+        "best_android_french_candidate": "Idiot !_"
+      },
+      {
+        "event_id": "0103",
+        "snes_id": "C9:2735",
+        "source": "who asked",
+        "previous_reason": "insufficient_lexical_confidence",
+        "final_state": "VISUALLY_COMPLETE_ANDROID_ADAPTATION",
+        "note": "Runtime-validated $0103 timed-ellipsis adaptation; no new carrier-level identity is required for the already-correct visible French sequence.",
+        "best_android_english_id": 835,
+        "best_android_english": "Who, me!?",
+        "best_android_french_candidate": "Impossible !"
+      },
+      {
+        "event_id": "0103",
+        "snes_id": "C9:2745",
+        "source": "⏎   the sword",
+        "previous_reason": "insufficient_context_or_segmentation",
+        "final_state": "VISUALLY_COMPLETE_ANDROID_ADAPTATION",
+        "note": "Runtime-validated $0103 timed-ellipsis adaptation; Android 'I entrust the sword to you' is segmented differently across 3425-3429.",
+        "best_android_english_id": 812,
+        "best_android_english": "The Sword",
+        "best_android_french_candidate": "L'Épée"
+      },
+      {
+        "event_id": "010C",
+        "snes_id": "C9:30F5",
+        "source": "ELLIOTT:You! ⏎",
+        "previous_reason": "validated_android_omission",
+        "final_state": "ANDROID_ABSENT_VALIDATED",
+        "note": "Round-2 validated omission: Android 62 covers only the following player line; its accepted mapping explicitly records that the standalone SNES 'ELLIOTT:You!' fragment is absent.",
+        "best_android_english_id": 59,
+        "best_android_english": "Elliott: YOU did it!",
+        "best_android_french_candidate": "Bob : Tais-toi ! Tout est de ta faute !"
+      },
+      {
+        "event_id": "015A",
+        "snes_id": "C9:4B36",
+        "source": "! ⏎  You're back!",
+        "previous_reason": "insufficient_lexical_confidence",
+        "final_state": "EXPLICIT_HANDOFF_LOCK",
+        "note": "Elman return greeting remains a validated adaptation gap; do not reopen the rejected remap.",
+        "best_android_english_id": 3353,
+        "best_android_english": "...You're sure?",
+        "best_android_french_candidate": "Tu es sûr ?"
+      },
+      {
+        "event_id": "017F",
+        "snes_id": "C9:55FC",
+        "source": "SOLDIER:How rude! ⏎",
+        "previous_reason": "insufficient_lexical_confidence",
+        "final_state": "VISUALLY_COMPLETE_ANDROID_ADAPTATION",
+        "note": "Runtime-validated $017F adaptation. Android 392 is the scene-equivalent soldier rebuke, but the event is intentionally frozen as visually complete rather than remapped for bookkeeping.",
+        "best_android_english_id": 914,
+        "best_android_english": "Jema: Hey! How rude!_",
+        "best_android_french_candidate": "Gemma : Voyons, %S(0,0) ! Un peu de respect !_"
+      },
+      {
+        "event_id": "01C5",
+        "snes_id": "C9:7140",
+        "source": "Go to the forest. )",
+        "previous_reason": "insufficient_lexical_confidence",
+        "final_state": "EXPLICIT_HANDOFF_LOCK",
+        "note": "Choice-tail wording diverges structurally from Android; keep the explicit handoff lock.",
+        "best_android_english_id": 1863,
+        "best_android_english": "Got the Fire Seed!",
+        "best_android_french_candidate": "Vous récupérez la Graine du Feu !"
+      },
+      {
+        "event_id": "01DC",
+        "snes_id": "C9:804A",
+        "source": ":...? Platform? ⏎  Let's go see it!",
+        "previous_reason": "insufficient_lexical_confidence",
+        "final_state": "VISUALLY_COMPLETE_ANDROID_ADAPTATION",
+        "note": "Runtime-validated $01DC adaptation. Android 727-728 condenses the wounded-soldier/platform exchange; the suppressed SNES carrier remains intentionally identity-unassigned.",
+        "best_android_english_id": 2147,
+        "best_android_english": "%S(2,0): ...Let's go...",
+        "best_android_french_candidate": "%S(2,0) : %S(1,0)... Ça va ?"
+      },
+      {
+        "event_id": "0204",
+        "snes_id": "C9:902F",
+        "source": "You'll be able to gain ⏎  power from the Mana seed ⏎  wherever you are!",
+        "previous_reason": "validated_no_equivalent",
+        "final_state": "NO_UNIQUE_ANDROID_EQUIVALENT",
+        "note": "Round-5 validated unmatched case: nearby Android text compresses/redistributes the explanation; no confident standalone English anchor.",
+        "best_android_english_id": 885,
+        "best_android_english": "You will be able to receive Mana power from the Seeds once you reactivate them!",
+        "best_android_french_candidate": "Ton voyage risque d'être long et périlleux, mais il ne faudra pas perdre courage !"
+      },
+      {
+        "event_id": "0207",
+        "snes_id": "C9:916F",
+        "source": "Proof that Mana is fading!",
+        "previous_reason": "validated_android_omission",
+        "final_state": "ANDROID_ABSENT_VALIDATED",
+        "note": "Round-47 Water Palace trigger omission: map $0053 directly selects $0207 on the same trigger pair that selects $0206 ('That's impossible!' -> Android 837). The Water Palace Android scene has no standalone counterpart for SNES 'Proof that Mana is fading!'; superficially similar Android 2310 belongs to Mandala and 890 is already the distinct $04E9 dialogue.",
+        "best_android_english_id": 2310,
+        "best_android_english": "So Mana is fading away.",
+        "best_android_french_candidate": "C'est pour cela que Mana se tarit."
+      },
+      {
+        "event_id": "0208",
+        "snes_id": "C9:9193",
+        "source": ":Everyone's mad ⏎  'cause I pulled out that ⏎  sword..!",
+        "previous_reason": "validated_android_omission",
+        "final_state": "ANDROID_ABSENT_VALIDATED",
+        "note": "Round-47 Water Palace trigger omission: map $004B directly selects $0208 in the same stateful trigger set as $020A (Android 938-942). The corresponding Android Water Palace material omits the boy's standalone reflection that everyone is angry because he pulled the Sword; the Potos elder line about pulling the Sword is a different scene.",
+        "best_android_english_id": 1620,
+        "best_android_english": "Everyone's moving away... I think I'll move to the--",
+        "best_android_french_candidate": "Tout le monde fuit notre pays..."
+      },
+      {
+        "event_id": "024F",
+        "snes_id": "C9:9F88",
+        "source": "The Empire sent monsters ⏎ into the palace!",
+        "previous_reason": "validated_android_omission",
+        "final_state": "ANDROID_ABSENT_VALIDATED",
+        "note": "Round-47 Wind Palace branch omission: $04E2 conditionally branches to $024F before its already aligned Grandpa/Sylphid sequence. Android 1274-1308 covers the same Wind Palace aftermath but contains no standalone counterpart for SNES 'The Empire sent monsters into the palace!'.",
+        "best_android_english_id": 2621,
+        "best_android_english": "The empire'll never take this castle!",
+        "best_android_french_candidate": "Même si l'Empire nous attaque, nous ne craignons rien à l'intérieur de ce château !"
+      },
+      {
+        "event_id": "0269",
+        "snes_id": "C9:A49C",
+        "source": "TRUFFLE:I'm rooting for you!",
+        "previous_reason": "validated_no_equivalent",
+        "final_state": "NO_UNIQUE_ANDROID_EQUIVALENT",
+        "note": "Round-47 unreferenced duplicate audit: $0269 has no incoming OP_10..27 event reference, no map trigger and no map-object event reference in the canonical routing tables. The actually used Truffle line $0276 is called from $04E3 and already owns Android 1400. Keep $0269 as an orphan stock duplicate instead of forcing reuse of 1400.",
+        "best_android_english_id": 1400,
+        "best_android_english": "Truffle: I'm counting on you!",
+        "best_android_french_candidate": "Truffaut : Je compte sur vous ! Tut tut tut ! Pas de \"mais\" qui tienne !"
+      },
+      {
+        "event_id": "0278",
+        "snes_id": "C9:A730",
+        "source": "Press START to see the map.",
+        "previous_reason": "validated_android_omission",
+        "final_state": "ANDROID_ABSENT_VALIDATED",
+        "note": "Round-51 residual audit: the controller instruction 'Press START to see the map.' was already user-validated as absent from Android and retained as a manual supplement. Exhaustive scrtxt EN inspection contains no START/map controller instruction counterpart; keep it outside Android identity.",
+        "best_android_english_id": 863,
+        "best_android_english": "Want to save the game?",
+        "best_android_french_candidate": "Veux-tu aussi sauvegarder ?"
+      },
+      {
+        "event_id": "0278",
+        "snes_id": "C9:A74E",
+        "source": "L/R buttons change modes.",
+        "previous_reason": "validated_android_omission",
+        "final_state": "ANDROID_ABSENT_VALIDATED",
+        "note": "Round-51 residual audit: the controller instruction 'L/R buttons change modes.' was already user-validated as absent from Android and retained as a manual supplement. Exhaustive scrtxt EN inspection contains no L/R/button/mode counterpart; keep it outside Android identity.",
+        "best_android_english_id": 939,
+        "best_android_english": "Luka: Yes, but what a mess!",
+        "best_android_french_candidate": "Rusalka : Oui, mais c'est terrible ! Des hommes de l'Empire ont attaqué le temple."
+      },
+      {
+        "event_id": "02DE",
+        "snes_id": "C9:C4FB",
+        "source": "Drink this medicine! ⏎ It'll fix ya right up!",
+        "previous_reason": "validated_no_equivalent",
+        "final_state": "NO_UNIQUE_ANDROID_EQUIVALENT",
+        "note": "Round-47 unreferenced stock audit: $02DE has no incoming OP_10..27 event reference, no map trigger and no map-object event reference, unlike the surrounding live Tasnica NPC scripts. No Android-English identity is established; do not force a loose medicine-line candidate.",
+        "best_android_english_id": 2278,
+        "best_android_english": "Take this Flammie Drum. It's his favorite toy.",
+        "best_android_french_candidate": "Prenez ça ! Ce tambour est son jouet préféré."
+      },
+      {
+        "event_id": "02E1",
+        "snes_id": "C9:C56C",
+        "source": "We'll smash the Empire!",
+        "previous_reason": "validated_android_omission",
+        "final_state": "ANDROID_ABSENT_VALIDATED",
+        "note": "Round-48 Tasnica live-NPC omission: map $001A object #0 at ROM $089538 (raw 3C 0E 8C 16 50 B7 E1 C2) directly selects event $02E1 under the same $3C state family as live Tasnica NPCs $02E2-$02E7. Android 2539-2577 covers the corresponding Tasnica castle NPC block and anchors all surrounding live scripts, but contains no counterpart for SNES 'We'll smash the Empire!'. Keep it unmapped rather than borrowing another Empire line.",
+        "best_android_english_id": 1561,
+        "best_android_english": "Guard: The empire!",
+        "best_android_french_candidate": "Alerte ! L'Empire nous attaque !!"
+      },
+      {
+        "event_id": "02FC",
+        "snes_id": "C9:CAA6",
+        "source": "⏎ (Unfinished diary entry)",
+        "previous_reason": "validated_android_omission",
+        "final_state": "ANDROID_ABSENT_VALIDATED",
+        "note": "Round-47 Tasnica diary omission: non-text event $02FB conditionally transfers to optional diary event $02FC immediately before the already aligned Tasnica spy aftermath. Android 2578-2605 contains the king/spy sequence but omits this diary interaction entirely.",
+        "best_android_english_id": 2719,
+        "best_android_english": "Gained Dryad's powers!",
+        "best_android_french_candidate": "Vous obtenez les pouvoirs de Dryade !"
+      },
+      {
+        "event_id": "02FC",
+        "snes_id": "C9:CAC2",
+        "source": "...My cover's been blown... Some monster's using ⏎  the Emperor's body to",
+        "previous_reason": "validated_android_omission",
+        "final_state": "ANDROID_ABSENT_VALIDATED",
+        "note": "Round-47 Tasnica diary omission: this is the diary body in optional event $02FC reached from $02FB; Android's corresponding Tasnica spy block 2578-2605 has no diary text.",
+        "best_android_english_id": 2666,
+        "best_android_english": "Thanatos's bunch double-crossed the emperor. What are they up to?",
+        "best_android_french_candidate": "Qui aurait pu croire que l'Empereur serait trahi par ses propres hommes de main... Mais quel est le but de Thanatos ?!"
+      },
+      {
+        "event_id": "02FC",
+        "snes_id": "C9:CB0C",
+        "source": "⏎  ⏎ (Text suddenly stops)",
+        "previous_reason": "validated_android_omission",
+        "final_state": "ANDROID_ABSENT_VALIDATED",
+        "note": "Round-47 Tasnica diary omission: this '(Text suddenly stops)' carrier belongs to optional event $02FC, absent from Android's corresponding Tasnica spy block 2578-2605.",
+        "best_android_english_id": 1734,
+        "best_android_english": "The Seed's been stolen!",
+        "best_android_french_candidate": "%S(0,0) : La Graine n'est pas là !! Quelqu'un l'aurait volée ?"
+      },
+      {
+        "event_id": "02FC",
+        "snes_id": "C9:CB28",
+        "source": ":What does this mean?",
+        "previous_reason": "validated_android_omission",
+        "final_state": "ANDROID_ABSENT_VALIDATED",
+        "note": "Round-47 Tasnica diary omission: the player's 'What does this mean?' closes optional event $02FC, which is absent from Android's corresponding Tasnica spy block 2578-2605.",
+        "best_android_english_id": 1641,
+        "best_android_english": "W-what's this!? King Amar!",
+        "best_android_french_candidate": "Oh ! Mais c'est... Majesté !! Regardez !"
+      },
+      {
+        "event_id": "0323",
+        "snes_id": "C9:CE5A",
+        "source": "30",
+        "previous_reason": "validated_android_omission",
+        "final_state": "ANDROID_ABSENT_VALIDATED",
+        "note": "Round-51 residual audit: the stock 30-GP caller belongs to the standard shared inn path $0330/$0331. Android scrtxt has exact standard prompts for 5, 10, 15, 50, 100, 120, 150 and 200 GP, but no standard 30-GP prompt. Android 194 is a distinct Neko/meow localization and must not be reused.",
+        "best_android_english_id": 1881,
+        "best_android_english": "3",
+        "best_android_french_candidate": "3"
+      },
+      {
+        "event_id": "0330",
+        "snes_id": "C9:CEA3",
+        "source": "One night is",
+        "previous_reason": "validated_contextual_template",
+        "final_state": "CONTEXTUAL_TEMPLATE_NO_SINGLE_ID",
+        "note": "Round-51 residual audit: shared $0330 prefix 'One night is' has no single Android identity. Its runtime meaning is completed by the caller-supplied price before shared $0331; Android stores the resulting complete prompt as separate per-price records. Serialization remains the validated parameterized inn template and must not assign this carrier to representative Android 110.",
+        "best_android_english_id": 110,
+        "best_android_english": "One night is 5 GP. Want to stay?",
+        "best_android_french_candidate": "5 pièces d'or la nuit. Voulez-vous rester dormir ?"
+      },
+      {
+        "event_id": "0331",
+        "snes_id": "C9:CEB3",
+        "source": "GP. ⏎  Want to stay? ⏎",
+        "previous_reason": "validated_contextual_template",
+        "final_state": "CONTEXTUAL_TEMPLATE_NO_SINGLE_ID",
+        "note": "Round-51 residual audit: shared $0331 suffix 'GP. Want to stay?' has no single Android identity. It is reused after every caller-supplied price, while Android stores complete per-price prompts. Serialization remains the validated parameterized inn template and must not inflate semantic alignment by assigning the shared suffix to representative Android 110.",
+        "best_android_english_id": 110,
+        "best_android_english": "One night is 5 GP. Want to stay?",
+        "best_android_french_candidate": "5 pièces d'or la nuit. Voulez-vous rester dormir ?"
+      },
+      {
+        "event_id": "035F",
+        "snes_id": "C9:D1B8",
+        "source": "Dryad",
+        "previous_reason": "insufficient_lexical_confidence",
+        "final_state": "EXPLICIT_HANDOFF_LOCK",
+        "note": "No Android-English Dryad identity was found; retain the approved manual French supplement without inflating Android alignment.",
+        "best_android_english_id": 422,
+        "best_android_english": "Pandora",
+        "best_android_french_candidate": "Pandora"
+      },
+      {
+        "event_id": "04E1",
+        "snes_id": "CA:2BED",
+        "source": "...one born in the shadow ⏎  of darkness, and raised in ⏎  the light of Mana.",
+        "previous_reason": "insufficient_lexical_confidence",
+        "final_state": "EXPLICIT_HANDOFF_LOCK",
+        "note": "Known Thanatos Android block 3252-3256 redistributes the concepts across five Android records; explicit handoff lock remains in force.",
+        "best_android_english_id": 2426,
+        "best_android_english": "Shade: I am the spirit of the darkness, and an elemental of Mana.",
+        "best_android_french_candidate": "Je me nomme Ombre, esprit des ténèbres. Je régnais autrefois sur le royaume des forces du mal."
+      },
+      {
+        "event_id": "04E1",
+        "snes_id": "CA:2C3A",
+        "source": "Dyluck is the one. ⏎  I cannot wait any longer. ⏎  My body has grown weak!",
+        "previous_reason": "insufficient_context_or_segmentation",
+        "final_state": "EXPLICIT_HANDOFF_LOCK",
+        "note": "Known Thanatos Android block 3252-3256 redistributes Dyluck/body-weakness concepts across several records; explicit handoff lock remains in force.",
+        "best_android_english_id": 3256,
+        "best_android_english": "I cannot wait any longer. My body has grown weak!",
+        "best_android_french_candidate": "Son pouvoir maléfique a dû être scellé quand il était jeune... Il n'en est devenu que plus droit et juste !"
+      },
+      {
+        "event_id": "04E8",
+        "snes_id": "CA:437D",
+        "source": "...SHRIEK!",
+        "previous_reason": "validated_no_equivalent",
+        "final_state": "NO_UNIQUE_ANDROID_EQUIVALENT",
+        "note": "Round-5 validated unmatched case: the nearby Android exclamation is semantically different.",
+        "best_android_english_id": 581,
+        "best_android_english": "Sure!",
+        "best_android_french_candidate": "Oui !"
+      },
+      {
+        "event_id": "0558",
+        "snes_id": "CA:6629",
+        "source": ":We can too!",
+        "previous_reason": "validated_android_omission",
+        "final_state": "ANDROID_ABSENT_VALIDATED",
+        "note": "Round-31 validated omission: accepted Android EN 2188 is followed only by empty slot 2189, then the scene resumes at accepted 2190; there is no Android-English anchor for the standalone SNES PLAYER_NAME(2) ':We can too!' fragment.",
+        "best_android_english_id": 3331,
+        "best_android_english": "I can't..._",
+        "best_android_french_candidate": "Je ne peux pas..._"
+      },
+      {
+        "event_id": "05F8",
+        "snes_id": "CA:7C98",
+        "source": ":Heeelp! Hey... ⏎  you guys okay? ⏎",
+        "previous_reason": "insufficient_lexical_confidence",
+        "final_state": "EXPLICIT_HANDOFF_LOCK",
+        "note": "Finale event $05F8 is explicitly frozen; nearby Android FR redistributes speaker turns and may not be rebound.",
+        "best_android_english_id": 2806,
+        "best_android_english": "Boss: Hey, you! ⏎ Boys: You!",
+        "best_android_french_candidate": "Scorpion : Comme on se retrouve ! Les gêneurs de service... ⏎ Sbire : Encore vous !"
+      },
+      {
+        "event_id": "05F8",
+        "snes_id": "CA:8323",
+        "source": "⏎  Please..!",
+        "previous_reason": "insufficient_context_or_segmentation",
+        "final_state": "EXPLICIT_HANDOFF_LOCK",
+        "note": "Finale event $05F8 is explicitly frozen; FR-only Android 3111 is part of the neighboring owned 3110 localization and is not a new English identity.",
+        "best_android_english_id": 561,
+        "best_android_english": "Please do!",
+        "best_android_french_candidate": "D'accord !"
+      },
+      {
+        "event_id": "05F8",
+        "snes_id": "CA:833E",
+        "source": "...mother?",
+        "previous_reason": "insufficient_context_or_segmentation",
+        "final_state": "EXPLICIT_HANDOFF_LOCK",
+        "note": "Finale event $05F8 is explicitly frozen; the mother/plea sequence is redistributed across Android 3104/3110/3111.",
+        "best_android_english_id": 3112,
+        "best_android_english": "Mother!!!",
+        "best_android_french_candidate": "Mèèère !!"
+      },
+      {
+        "event_id": "0602",
+        "snes_id": "CA:85DD",
+        "source": "Kippo Village ⏎",
+        "previous_reason": "insufficient_context_or_segmentation",
+        "final_state": "VISUALLY_COMPLETE_ANDROID_ADAPTATION",
+        "note": "Runtime-validated visually complete $0602 status override; no visible English remains, so identity bookkeeping is intentionally left unresolved.",
+        "best_android_english_id": 208,
+        "best_android_english": "This is Kippo Village.",
+        "best_android_french_candidate": "Vous êtes au village Kippo."
+      },
+      {
+        "event_id": "0603",
+        "snes_id": "CA:85FC",
+        "source": "Topaz Falls",
+        "previous_reason": "validated_no_equivalent",
+        "final_state": "NO_UNIQUE_ANDROID_EQUIVALENT",
+        "note": "Round-47 unreferenced sign audit: $0603 ('Topaz Falls') is the only $0600-$0609 sign event with no incoming event reference, map trigger or map-object reference in the canonical routing tables, and Android scrtxt/systxt contains no Topaz Falls anchor. Preserve it as an orphan stock sign rather than inventing an identity.",
+        "best_android_english_id": 190,
+        "best_android_english": "Not really.",
+        "best_android_french_candidate": "Bof..."
+      }
+    ]
+  },
+  "conclusion": {
+    "new_android_identities": 0,
+    "new_french_payloads": 0,
+    "semantic_alignment": "1798/1838 (97.8%)",
+    "unresolved_semantic_ids": 40,
+    "android_scrtxt_search_exhausted_under_current_policy": true,
+    "next_phase": "Defer PARTIEL cleanup until requested; keep the residual 40 visible by final-state category in the dedicated HTML review."
+  },
+  "scenes": [
+    {
+      "event_id": "001E",
+      "label": "EXPLICIT_HANDOFF_LOCK",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "001E",
+          "snes_id": "C9:0970",
+          "source": "⏎ JEHK:Sage Joch",
+          "previous_reason": "insufficient_lexical_confidence",
+          "final_state": "EXPLICIT_HANDOFF_LOCK",
+          "note": "Shared Joch/Jehk prefix; Android FR repeats Maître Jach inside the destination-specific owned records, so no standalone identity is created.",
+          "best_android_english_id": 2454,
+          "best_android_english": "Where is Joch?",
+          "best_android_french_candidate": "%S(0,0) : Encore ?!"
+        }
+      ]
+    },
+    {
+      "event_id": "0042",
+      "label": "ANDROID_ABSENT_VALIDATED",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "0042",
+          "snes_id": "C9:1057",
+          "source": "Well, let's go!",
+          "previous_reason": "validated_android_omission",
+          "final_state": "ANDROID_ABSENT_VALIDATED",
+          "note": "Round-47 sprite-naming branch omission: $0041 conditionally transfers to $0042 after Android-aligned naming response 625, and both paths rejoin at the already aligned join message 628. Android 623-628 contains no counterpart for the alternate SNES 'Well, let's go!' line.",
+          "best_android_english_id": 2767,
+          "best_android_english": "Let's go!",
+          "best_android_french_candidate": "Dépêchons-nous !"
+        }
+      ]
+    },
+    {
+      "event_id": "00EE",
+      "label": "NO_UNIQUE_ANDROID_EQUIVALENT",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "00EE",
+          "snes_id": "C9:2179",
+          "source": "All aboard for Pandora! ⏎",
+          "previous_reason": "validated_no_equivalent",
+          "final_state": "NO_UNIQUE_ANDROID_EQUIVALENT",
+          "note": "Round-47 trigger-proven Cannon route with no unique Android equivalent: $00EE is used by map triggers $0049/$011C, but Android reorganizes the Cannon network and has no provenance-safe standalone counterpart for SNES 'All aboard for Pandora!'. Do not recycle another Pandora response.",
+          "best_android_english_id": 140,
+          "best_android_english": "Potos Village↑ ⏎ ↓Kingdom of Pandora",
+          "best_android_french_candidate": "Village Potos ↑ ⏎  ⏎ 　↓ Royaume de Pandora"
+        }
+      ]
+    },
+    {
+      "event_id": "00F1",
+      "label": "NO_UNIQUE_ANDROID_EQUIVALENT",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "00F1",
+          "snes_id": "C9:2208",
+          "source": "For Pandora! ⏎",
+          "previous_reason": "validated_no_equivalent",
+          "final_state": "NO_UNIQUE_ANDROID_EQUIVALENT",
+          "note": "Round-47 trigger-proven Cannon route with no unique Android equivalent: $00F1 is used by map trigger $0121, but Android has no provenance-safe standalone counterpart for SNES 'For Pandora!'. Do not recycle another Pandora response.",
+          "best_android_english_id": 422,
+          "best_android_english": "Pandora",
+          "best_android_french_candidate": "Pandora"
+        }
+      ]
+    },
+    {
+      "event_id": "00F3",
+      "label": "NO_UNIQUE_ANDROID_EQUIVALENT",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "00F3",
+          "snes_id": "C9:2268",
+          "source": "Ice Country? Okay! See ya! ⏎",
+          "previous_reason": "validated_no_equivalent",
+          "final_state": "NO_UNIQUE_ANDROID_EQUIVALENT",
+          "note": "Round-47 trigger-proven Cannon route with no unique Android equivalent: $00F3 is used by map trigger $011F, while Android contains multiple Ice Country Cannon responses belonging to other scene blocks. Do not force one by destination text alone.",
+          "best_android_english_id": 1328,
+          "best_android_english": "Ice Country",
+          "best_android_french_candidate": "Pays de glace"
+        }
+      ]
+    },
+    {
+      "event_id": "0103",
+      "label": "VISUALLY_COMPLETE_ANDROID_ADAPTATION",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "0103",
+          "snes_id": "C9:2627",
+          "source": "Remove the sword...",
+          "previous_reason": "insufficient_context_or_segmentation",
+          "final_state": "VISUALLY_COMPLETE_ANDROID_ADAPTATION",
+          "note": "Runtime-validated $0103 adaptation; Android 3413 owns a larger dots/name/remove-sword unit and must not be split merely to raise alignment.",
+          "best_android_english_id": 3413,
+          "best_android_english": ".... %S(0,0).... Remove the sword...",
+          "best_android_french_candidate": "%S(0,0)...  ⏎ 　　Vas-y... Prends l'épée..."
+        }
+      ]
+    },
+    {
+      "event_id": "0103",
+      "label": "VISUALLY_COMPLETE_ANDROID_ADAPTATION",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "0103",
+          "snes_id": "C9:2728",
+          "source": "⏎   It is I",
+          "previous_reason": "insufficient_lexical_confidence",
+          "final_state": "VISUALLY_COMPLETE_ANDROID_ADAPTATION",
+          "note": "Runtime-validated $0103 timed-ellipsis adaptation; Android 3420-3430 repartitions the ghost voice over multiple punctuation/name records.",
+          "best_android_english_id": 3118,
+          "best_android_english": "This is nuts!_",
+          "best_android_french_candidate": "Idiot !_"
+        }
+      ]
+    },
+    {
+      "event_id": "0103",
+      "label": "VISUALLY_COMPLETE_ANDROID_ADAPTATION",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "0103",
+          "snes_id": "C9:2735",
+          "source": "who asked",
+          "previous_reason": "insufficient_lexical_confidence",
+          "final_state": "VISUALLY_COMPLETE_ANDROID_ADAPTATION",
+          "note": "Runtime-validated $0103 timed-ellipsis adaptation; no new carrier-level identity is required for the already-correct visible French sequence.",
+          "best_android_english_id": 835,
+          "best_android_english": "Who, me!?",
+          "best_android_french_candidate": "Impossible !"
+        }
+      ]
+    },
+    {
+      "event_id": "0103",
+      "label": "VISUALLY_COMPLETE_ANDROID_ADAPTATION",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "0103",
+          "snes_id": "C9:2745",
+          "source": "⏎   the sword",
+          "previous_reason": "insufficient_context_or_segmentation",
+          "final_state": "VISUALLY_COMPLETE_ANDROID_ADAPTATION",
+          "note": "Runtime-validated $0103 timed-ellipsis adaptation; Android 'I entrust the sword to you' is segmented differently across 3425-3429.",
+          "best_android_english_id": 812,
+          "best_android_english": "The Sword",
+          "best_android_french_candidate": "L'Épée"
+        }
+      ]
+    },
+    {
+      "event_id": "010C",
+      "label": "ANDROID_ABSENT_VALIDATED",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "010C",
+          "snes_id": "C9:30F5",
+          "source": "ELLIOTT:You! ⏎",
+          "previous_reason": "validated_android_omission",
+          "final_state": "ANDROID_ABSENT_VALIDATED",
+          "note": "Round-2 validated omission: Android 62 covers only the following player line; its accepted mapping explicitly records that the standalone SNES 'ELLIOTT:You!' fragment is absent.",
+          "best_android_english_id": 59,
+          "best_android_english": "Elliott: YOU did it!",
+          "best_android_french_candidate": "Bob : Tais-toi ! Tout est de ta faute !"
+        }
+      ]
+    },
+    {
+      "event_id": "015A",
+      "label": "EXPLICIT_HANDOFF_LOCK",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "015A",
+          "snes_id": "C9:4B36",
+          "source": "! ⏎  You're back!",
+          "previous_reason": "insufficient_lexical_confidence",
+          "final_state": "EXPLICIT_HANDOFF_LOCK",
+          "note": "Elman return greeting remains a validated adaptation gap; do not reopen the rejected remap.",
+          "best_android_english_id": 3353,
+          "best_android_english": "...You're sure?",
+          "best_android_french_candidate": "Tu es sûr ?"
+        }
+      ]
+    },
+    {
+      "event_id": "017F",
+      "label": "VISUALLY_COMPLETE_ANDROID_ADAPTATION",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "017F",
+          "snes_id": "C9:55FC",
+          "source": "SOLDIER:How rude! ⏎",
+          "previous_reason": "insufficient_lexical_confidence",
+          "final_state": "VISUALLY_COMPLETE_ANDROID_ADAPTATION",
+          "note": "Runtime-validated $017F adaptation. Android 392 is the scene-equivalent soldier rebuke, but the event is intentionally frozen as visually complete rather than remapped for bookkeeping.",
+          "best_android_english_id": 914,
+          "best_android_english": "Jema: Hey! How rude!_",
+          "best_android_french_candidate": "Gemma : Voyons, %S(0,0) ! Un peu de respect !_"
+        }
+      ]
+    },
+    {
+      "event_id": "01C5",
+      "label": "EXPLICIT_HANDOFF_LOCK",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "01C5",
+          "snes_id": "C9:7140",
+          "source": "Go to the forest. )",
+          "previous_reason": "insufficient_lexical_confidence",
+          "final_state": "EXPLICIT_HANDOFF_LOCK",
+          "note": "Choice-tail wording diverges structurally from Android; keep the explicit handoff lock.",
+          "best_android_english_id": 1863,
+          "best_android_english": "Got the Fire Seed!",
+          "best_android_french_candidate": "Vous récupérez la Graine du Feu !"
+        }
+      ]
+    },
+    {
+      "event_id": "01DC",
+      "label": "VISUALLY_COMPLETE_ANDROID_ADAPTATION",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "01DC",
+          "snes_id": "C9:804A",
+          "source": ":...? Platform? ⏎  Let's go see it!",
+          "previous_reason": "insufficient_lexical_confidence",
+          "final_state": "VISUALLY_COMPLETE_ANDROID_ADAPTATION",
+          "note": "Runtime-validated $01DC adaptation. Android 727-728 condenses the wounded-soldier/platform exchange; the suppressed SNES carrier remains intentionally identity-unassigned.",
+          "best_android_english_id": 2147,
+          "best_android_english": "%S(2,0): ...Let's go...",
+          "best_android_french_candidate": "%S(2,0) : %S(1,0)... Ça va ?"
+        }
+      ]
+    },
+    {
+      "event_id": "0204",
+      "label": "NO_UNIQUE_ANDROID_EQUIVALENT",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "0204",
+          "snes_id": "C9:902F",
+          "source": "You'll be able to gain ⏎  power from the Mana seed ⏎  wherever you are!",
+          "previous_reason": "validated_no_equivalent",
+          "final_state": "NO_UNIQUE_ANDROID_EQUIVALENT",
+          "note": "Round-5 validated unmatched case: nearby Android text compresses/redistributes the explanation; no confident standalone English anchor.",
+          "best_android_english_id": 885,
+          "best_android_english": "You will be able to receive Mana power from the Seeds once you reactivate them!",
+          "best_android_french_candidate": "Ton voyage risque d'être long et périlleux, mais il ne faudra pas perdre courage !"
+        }
+      ]
+    },
+    {
+      "event_id": "0207",
+      "label": "ANDROID_ABSENT_VALIDATED",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "0207",
+          "snes_id": "C9:916F",
+          "source": "Proof that Mana is fading!",
+          "previous_reason": "validated_android_omission",
+          "final_state": "ANDROID_ABSENT_VALIDATED",
+          "note": "Round-47 Water Palace trigger omission: map $0053 directly selects $0207 on the same trigger pair that selects $0206 ('That's impossible!' -> Android 837). The Water Palace Android scene has no standalone counterpart for SNES 'Proof that Mana is fading!'; superficially similar Android 2310 belongs to Mandala and 890 is already the distinct $04E9 dialogue.",
+          "best_android_english_id": 2310,
+          "best_android_english": "So Mana is fading away.",
+          "best_android_french_candidate": "C'est pour cela que Mana se tarit."
+        }
+      ]
+    },
+    {
+      "event_id": "0208",
+      "label": "ANDROID_ABSENT_VALIDATED",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "0208",
+          "snes_id": "C9:9193",
+          "source": ":Everyone's mad ⏎  'cause I pulled out that ⏎  sword..!",
+          "previous_reason": "validated_android_omission",
+          "final_state": "ANDROID_ABSENT_VALIDATED",
+          "note": "Round-47 Water Palace trigger omission: map $004B directly selects $0208 in the same stateful trigger set as $020A (Android 938-942). The corresponding Android Water Palace material omits the boy's standalone reflection that everyone is angry because he pulled the Sword; the Potos elder line about pulling the Sword is a different scene.",
+          "best_android_english_id": 1620,
+          "best_android_english": "Everyone's moving away... I think I'll move to the--",
+          "best_android_french_candidate": "Tout le monde fuit notre pays..."
+        }
+      ]
+    },
+    {
+      "event_id": "024F",
+      "label": "ANDROID_ABSENT_VALIDATED",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "024F",
+          "snes_id": "C9:9F88",
+          "source": "The Empire sent monsters ⏎ into the palace!",
+          "previous_reason": "validated_android_omission",
+          "final_state": "ANDROID_ABSENT_VALIDATED",
+          "note": "Round-47 Wind Palace branch omission: $04E2 conditionally branches to $024F before its already aligned Grandpa/Sylphid sequence. Android 1274-1308 covers the same Wind Palace aftermath but contains no standalone counterpart for SNES 'The Empire sent monsters into the palace!'.",
+          "best_android_english_id": 2621,
+          "best_android_english": "The empire'll never take this castle!",
+          "best_android_french_candidate": "Même si l'Empire nous attaque, nous ne craignons rien à l'intérieur de ce château !"
+        }
+      ]
+    },
+    {
+      "event_id": "0269",
+      "label": "NO_UNIQUE_ANDROID_EQUIVALENT",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "0269",
+          "snes_id": "C9:A49C",
+          "source": "TRUFFLE:I'm rooting for you!",
+          "previous_reason": "validated_no_equivalent",
+          "final_state": "NO_UNIQUE_ANDROID_EQUIVALENT",
+          "note": "Round-47 unreferenced duplicate audit: $0269 has no incoming OP_10..27 event reference, no map trigger and no map-object event reference in the canonical routing tables. The actually used Truffle line $0276 is called from $04E3 and already owns Android 1400. Keep $0269 as an orphan stock duplicate instead of forcing reuse of 1400.",
+          "best_android_english_id": 1400,
+          "best_android_english": "Truffle: I'm counting on you!",
+          "best_android_french_candidate": "Truffaut : Je compte sur vous ! Tut tut tut ! Pas de \"mais\" qui tienne !"
+        }
+      ]
+    },
+    {
+      "event_id": "0278",
+      "label": "ANDROID_ABSENT_VALIDATED",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "0278",
+          "snes_id": "C9:A730",
+          "source": "Press START to see the map.",
+          "previous_reason": "validated_android_omission",
+          "final_state": "ANDROID_ABSENT_VALIDATED",
+          "note": "Round-51 residual audit: the controller instruction 'Press START to see the map.' was already user-validated as absent from Android and retained as a manual supplement. Exhaustive scrtxt EN inspection contains no START/map controller instruction counterpart; keep it outside Android identity.",
+          "best_android_english_id": 863,
+          "best_android_english": "Want to save the game?",
+          "best_android_french_candidate": "Veux-tu aussi sauvegarder ?"
+        }
+      ]
+    },
+    {
+      "event_id": "0278",
+      "label": "ANDROID_ABSENT_VALIDATED",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "0278",
+          "snes_id": "C9:A74E",
+          "source": "L/R buttons change modes.",
+          "previous_reason": "validated_android_omission",
+          "final_state": "ANDROID_ABSENT_VALIDATED",
+          "note": "Round-51 residual audit: the controller instruction 'L/R buttons change modes.' was already user-validated as absent from Android and retained as a manual supplement. Exhaustive scrtxt EN inspection contains no L/R/button/mode counterpart; keep it outside Android identity.",
+          "best_android_english_id": 939,
+          "best_android_english": "Luka: Yes, but what a mess!",
+          "best_android_french_candidate": "Rusalka : Oui, mais c'est terrible ! Des hommes de l'Empire ont attaqué le temple."
+        }
+      ]
+    },
+    {
+      "event_id": "02DE",
+      "label": "NO_UNIQUE_ANDROID_EQUIVALENT",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "02DE",
+          "snes_id": "C9:C4FB",
+          "source": "Drink this medicine! ⏎ It'll fix ya right up!",
+          "previous_reason": "validated_no_equivalent",
+          "final_state": "NO_UNIQUE_ANDROID_EQUIVALENT",
+          "note": "Round-47 unreferenced stock audit: $02DE has no incoming OP_10..27 event reference, no map trigger and no map-object event reference, unlike the surrounding live Tasnica NPC scripts. No Android-English identity is established; do not force a loose medicine-line candidate.",
+          "best_android_english_id": 2278,
+          "best_android_english": "Take this Flammie Drum. It's his favorite toy.",
+          "best_android_french_candidate": "Prenez ça ! Ce tambour est son jouet préféré."
+        }
+      ]
+    },
+    {
+      "event_id": "02E1",
+      "label": "ANDROID_ABSENT_VALIDATED",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "02E1",
+          "snes_id": "C9:C56C",
+          "source": "We'll smash the Empire!",
+          "previous_reason": "validated_android_omission",
+          "final_state": "ANDROID_ABSENT_VALIDATED",
+          "note": "Round-48 Tasnica live-NPC omission: map $001A object #0 at ROM $089538 (raw 3C 0E 8C 16 50 B7 E1 C2) directly selects event $02E1 under the same $3C state family as live Tasnica NPCs $02E2-$02E7. Android 2539-2577 covers the corresponding Tasnica castle NPC block and anchors all surrounding live scripts, but contains no counterpart for SNES 'We'll smash the Empire!'. Keep it unmapped rather than borrowing another Empire line.",
+          "best_android_english_id": 1561,
+          "best_android_english": "Guard: The empire!",
+          "best_android_french_candidate": "Alerte ! L'Empire nous attaque !!"
+        }
+      ]
+    },
+    {
+      "event_id": "02FC",
+      "label": "ANDROID_ABSENT_VALIDATED",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "02FC",
+          "snes_id": "C9:CAA6",
+          "source": "⏎ (Unfinished diary entry)",
+          "previous_reason": "validated_android_omission",
+          "final_state": "ANDROID_ABSENT_VALIDATED",
+          "note": "Round-47 Tasnica diary omission: non-text event $02FB conditionally transfers to optional diary event $02FC immediately before the already aligned Tasnica spy aftermath. Android 2578-2605 contains the king/spy sequence but omits this diary interaction entirely.",
+          "best_android_english_id": 2719,
+          "best_android_english": "Gained Dryad's powers!",
+          "best_android_french_candidate": "Vous obtenez les pouvoirs de Dryade !"
+        }
+      ]
+    },
+    {
+      "event_id": "02FC",
+      "label": "ANDROID_ABSENT_VALIDATED",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "02FC",
+          "snes_id": "C9:CAC2",
+          "source": "...My cover's been blown... Some monster's using ⏎  the Emperor's body to",
+          "previous_reason": "validated_android_omission",
+          "final_state": "ANDROID_ABSENT_VALIDATED",
+          "note": "Round-47 Tasnica diary omission: this is the diary body in optional event $02FC reached from $02FB; Android's corresponding Tasnica spy block 2578-2605 has no diary text.",
+          "best_android_english_id": 2666,
+          "best_android_english": "Thanatos's bunch double-crossed the emperor. What are they up to?",
+          "best_android_french_candidate": "Qui aurait pu croire que l'Empereur serait trahi par ses propres hommes de main... Mais quel est le but de Thanatos ?!"
+        }
+      ]
+    },
+    {
+      "event_id": "02FC",
+      "label": "ANDROID_ABSENT_VALIDATED",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "02FC",
+          "snes_id": "C9:CB0C",
+          "source": "⏎  ⏎ (Text suddenly stops)",
+          "previous_reason": "validated_android_omission",
+          "final_state": "ANDROID_ABSENT_VALIDATED",
+          "note": "Round-47 Tasnica diary omission: this '(Text suddenly stops)' carrier belongs to optional event $02FC, absent from Android's corresponding Tasnica spy block 2578-2605.",
+          "best_android_english_id": 1734,
+          "best_android_english": "The Seed's been stolen!",
+          "best_android_french_candidate": "%S(0,0) : La Graine n'est pas là !! Quelqu'un l'aurait volée ?"
+        }
+      ]
+    },
+    {
+      "event_id": "02FC",
+      "label": "ANDROID_ABSENT_VALIDATED",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "02FC",
+          "snes_id": "C9:CB28",
+          "source": ":What does this mean?",
+          "previous_reason": "validated_android_omission",
+          "final_state": "ANDROID_ABSENT_VALIDATED",
+          "note": "Round-47 Tasnica diary omission: the player's 'What does this mean?' closes optional event $02FC, which is absent from Android's corresponding Tasnica spy block 2578-2605.",
+          "best_android_english_id": 1641,
+          "best_android_english": "W-what's this!? King Amar!",
+          "best_android_french_candidate": "Oh ! Mais c'est... Majesté !! Regardez !"
+        }
+      ]
+    },
+    {
+      "event_id": "0323",
+      "label": "ANDROID_ABSENT_VALIDATED",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "0323",
+          "snes_id": "C9:CE5A",
+          "source": "30",
+          "previous_reason": "validated_android_omission",
+          "final_state": "ANDROID_ABSENT_VALIDATED",
+          "note": "Round-51 residual audit: the stock 30-GP caller belongs to the standard shared inn path $0330/$0331. Android scrtxt has exact standard prompts for 5, 10, 15, 50, 100, 120, 150 and 200 GP, but no standard 30-GP prompt. Android 194 is a distinct Neko/meow localization and must not be reused.",
+          "best_android_english_id": 1881,
+          "best_android_english": "3",
+          "best_android_french_candidate": "3"
+        }
+      ]
+    },
+    {
+      "event_id": "0330",
+      "label": "CONTEXTUAL_TEMPLATE_NO_SINGLE_ID",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "0330",
+          "snes_id": "C9:CEA3",
+          "source": "One night is",
+          "previous_reason": "validated_contextual_template",
+          "final_state": "CONTEXTUAL_TEMPLATE_NO_SINGLE_ID",
+          "note": "Round-51 residual audit: shared $0330 prefix 'One night is' has no single Android identity. Its runtime meaning is completed by the caller-supplied price before shared $0331; Android stores the resulting complete prompt as separate per-price records. Serialization remains the validated parameterized inn template and must not assign this carrier to representative Android 110.",
+          "best_android_english_id": 110,
+          "best_android_english": "One night is 5 GP. Want to stay?",
+          "best_android_french_candidate": "5 pièces d'or la nuit. Voulez-vous rester dormir ?"
+        }
+      ]
+    },
+    {
+      "event_id": "0331",
+      "label": "CONTEXTUAL_TEMPLATE_NO_SINGLE_ID",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "0331",
+          "snes_id": "C9:CEB3",
+          "source": "GP. ⏎  Want to stay? ⏎",
+          "previous_reason": "validated_contextual_template",
+          "final_state": "CONTEXTUAL_TEMPLATE_NO_SINGLE_ID",
+          "note": "Round-51 residual audit: shared $0331 suffix 'GP. Want to stay?' has no single Android identity. It is reused after every caller-supplied price, while Android stores complete per-price prompts. Serialization remains the validated parameterized inn template and must not inflate semantic alignment by assigning the shared suffix to representative Android 110.",
+          "best_android_english_id": 110,
+          "best_android_english": "One night is 5 GP. Want to stay?",
+          "best_android_french_candidate": "5 pièces d'or la nuit. Voulez-vous rester dormir ?"
+        }
+      ]
+    },
+    {
+      "event_id": "035F",
+      "label": "EXPLICIT_HANDOFF_LOCK",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "035F",
+          "snes_id": "C9:D1B8",
+          "source": "Dryad",
+          "previous_reason": "insufficient_lexical_confidence",
+          "final_state": "EXPLICIT_HANDOFF_LOCK",
+          "note": "No Android-English Dryad identity was found; retain the approved manual French supplement without inflating Android alignment.",
+          "best_android_english_id": 422,
+          "best_android_english": "Pandora",
+          "best_android_french_candidate": "Pandora"
+        }
+      ]
+    },
+    {
+      "event_id": "04E1",
+      "label": "EXPLICIT_HANDOFF_LOCK",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "04E1",
+          "snes_id": "CA:2BED",
+          "source": "...one born in the shadow ⏎  of darkness, and raised in ⏎  the light of Mana.",
+          "previous_reason": "insufficient_lexical_confidence",
+          "final_state": "EXPLICIT_HANDOFF_LOCK",
+          "note": "Known Thanatos Android block 3252-3256 redistributes the concepts across five Android records; explicit handoff lock remains in force.",
+          "best_android_english_id": 2426,
+          "best_android_english": "Shade: I am the spirit of the darkness, and an elemental of Mana.",
+          "best_android_french_candidate": "Je me nomme Ombre, esprit des ténèbres. Je régnais autrefois sur le royaume des forces du mal."
+        }
+      ]
+    },
+    {
+      "event_id": "04E1",
+      "label": "EXPLICIT_HANDOFF_LOCK",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "04E1",
+          "snes_id": "CA:2C3A",
+          "source": "Dyluck is the one. ⏎  I cannot wait any longer. ⏎  My body has grown weak!",
+          "previous_reason": "insufficient_context_or_segmentation",
+          "final_state": "EXPLICIT_HANDOFF_LOCK",
+          "note": "Known Thanatos Android block 3252-3256 redistributes Dyluck/body-weakness concepts across several records; explicit handoff lock remains in force.",
+          "best_android_english_id": 3256,
+          "best_android_english": "I cannot wait any longer. My body has grown weak!",
+          "best_android_french_candidate": "Son pouvoir maléfique a dû être scellé quand il était jeune... Il n'en est devenu que plus droit et juste !"
+        }
+      ]
+    },
+    {
+      "event_id": "04E8",
+      "label": "NO_UNIQUE_ANDROID_EQUIVALENT",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "04E8",
+          "snes_id": "CA:437D",
+          "source": "...SHRIEK!",
+          "previous_reason": "validated_no_equivalent",
+          "final_state": "NO_UNIQUE_ANDROID_EQUIVALENT",
+          "note": "Round-5 validated unmatched case: the nearby Android exclamation is semantically different.",
+          "best_android_english_id": 581,
+          "best_android_english": "Sure!",
+          "best_android_french_candidate": "Oui !"
+        }
+      ]
+    },
+    {
+      "event_id": "0558",
+      "label": "ANDROID_ABSENT_VALIDATED",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "0558",
+          "snes_id": "CA:6629",
+          "source": ":We can too!",
+          "previous_reason": "validated_android_omission",
+          "final_state": "ANDROID_ABSENT_VALIDATED",
+          "note": "Round-31 validated omission: accepted Android EN 2188 is followed only by empty slot 2189, then the scene resumes at accepted 2190; there is no Android-English anchor for the standalone SNES PLAYER_NAME(2) ':We can too!' fragment.",
+          "best_android_english_id": 3331,
+          "best_android_english": "I can't..._",
+          "best_android_french_candidate": "Je ne peux pas..._"
+        }
+      ]
+    },
+    {
+      "event_id": "05F8",
+      "label": "EXPLICIT_HANDOFF_LOCK",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "05F8",
+          "snes_id": "CA:7C98",
+          "source": ":Heeelp! Hey... ⏎  you guys okay? ⏎",
+          "previous_reason": "insufficient_lexical_confidence",
+          "final_state": "EXPLICIT_HANDOFF_LOCK",
+          "note": "Finale event $05F8 is explicitly frozen; nearby Android FR redistributes speaker turns and may not be rebound.",
+          "best_android_english_id": 2806,
+          "best_android_english": "Boss: Hey, you! ⏎ Boys: You!",
+          "best_android_french_candidate": "Scorpion : Comme on se retrouve ! Les gêneurs de service... ⏎ Sbire : Encore vous !"
+        }
+      ]
+    },
+    {
+      "event_id": "05F8",
+      "label": "EXPLICIT_HANDOFF_LOCK",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "05F8",
+          "snes_id": "CA:8323",
+          "source": "⏎  Please..!",
+          "previous_reason": "insufficient_context_or_segmentation",
+          "final_state": "EXPLICIT_HANDOFF_LOCK",
+          "note": "Finale event $05F8 is explicitly frozen; FR-only Android 3111 is part of the neighboring owned 3110 localization and is not a new English identity.",
+          "best_android_english_id": 561,
+          "best_android_english": "Please do!",
+          "best_android_french_candidate": "D'accord !"
+        }
+      ]
+    },
+    {
+      "event_id": "05F8",
+      "label": "EXPLICIT_HANDOFF_LOCK",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "05F8",
+          "snes_id": "CA:833E",
+          "source": "...mother?",
+          "previous_reason": "insufficient_context_or_segmentation",
+          "final_state": "EXPLICIT_HANDOFF_LOCK",
+          "note": "Finale event $05F8 is explicitly frozen; the mother/plea sequence is redistributed across Android 3104/3110/3111.",
+          "best_android_english_id": 3112,
+          "best_android_english": "Mother!!!",
+          "best_android_french_candidate": "Mèèère !!"
+        }
+      ]
+    },
+    {
+      "event_id": "0602",
+      "label": "VISUALLY_COMPLETE_ANDROID_ADAPTATION",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "0602",
+          "snes_id": "CA:85DD",
+          "source": "Kippo Village ⏎",
+          "previous_reason": "insufficient_context_or_segmentation",
+          "final_state": "VISUALLY_COMPLETE_ANDROID_ADAPTATION",
+          "note": "Runtime-validated visually complete $0602 status override; no visible English remains, so identity bookkeeping is intentionally left unresolved.",
+          "best_android_english_id": 208,
+          "best_android_english": "This is Kippo Village.",
+          "best_android_french_candidate": "Vous êtes au village Kippo."
+        }
+      ]
+    },
+    {
+      "event_id": "0603",
+      "label": "NO_UNIQUE_ANDROID_EQUIVALENT",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "0603",
+          "snes_id": "CA:85FC",
+          "source": "Topaz Falls",
+          "previous_reason": "validated_no_equivalent",
+          "final_state": "NO_UNIQUE_ANDROID_EQUIVALENT",
+          "note": "Round-47 unreferenced sign audit: $0603 ('Topaz Falls') is the only $0600-$0609 sign event with no incoming event reference, map trigger or map-object reference in the canonical routing tables, and Android scrtxt/systxt contains no Topaz Falls anchor. Preserve it as an orphan stock sign rather than inventing an identity.",
+          "best_android_english_id": 190,
+          "best_android_english": "Not really.",
+          "best_android_french_candidate": "Bof..."
+        }
+      ]
+    }
+  ]
+}

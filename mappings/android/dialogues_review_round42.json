@@ -1,0 +1,170 @@
+{
+  "format_version": 1,
+  "status": "round42_user_validated",
+  "source_asset": "dialogues.json",
+  "android_english": {
+    "path": "sources/android/scrtxt_en.bin",
+    "sha256": "4d4508560967b6ce4d6cf992f29e84e2775ed4accc74d87c3fd4269044b75ae5"
+  },
+  "android_french": {
+    "path": "sources/android/scrtxt_fr.bin",
+    "sha256": "cd837aaf53a7979d0e84910e8cda3bd67427f4a3cbddadc351811378d7e7d696"
+  },
+  "policy": {
+    "automatic_translation_generation": false,
+    "english_identity_is_primary": true,
+    "notes": [
+      "SNES PLAYER_NAME commands are represented explicitly as Android-style %S(index,0) placeholders for comparison only.",
+      "Android anchor intervals include following English-empty localization slots.",
+      "Very-high-confidence SNES-to-Android-English identity is not rejected merely because French wording is freely adapted.",
+      "When French or Android segmentation crosses individual anchors, preserve and review the complete local sequence block rather than forcing a per-ID translation."
+    ]
+  },
+  "scenes": [
+    {
+      "event_id": "0235",
+      "label": "Tonpole/Biting Lizard aftermath - trigger/map/reward locked short reaction",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:9B74"
+          ],
+          "snes_parts": [
+            "C9:9B74"
+          ],
+          "source_display": " What the...!",
+          "android_anchor_ids": [
+            951
+          ],
+          "android_unit_ids": [
+            951
+          ],
+          "android_english_display": "What the...!",
+          "french_nonempty_ids": [
+            951
+          ],
+          "french_display": "%S(0,0) : Mais qu'est-ce que ?!",
+          "relation": "user_validated_trigger_scene_duplicate",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "The short SNES reaction is textually ambiguous, but map $0115's walk-on trigger enters $0232 -> $0235 on the Tonpole/Biting Lizard boss map; Android EN 951 is the matching reaction immediately before 952 Received Gloves Orb. Android FR adds a presentation-only %S(0,0) speaker label absent from the SNES carrier; the existing formatter policy removes only that label without inventing PLAYER_NAME.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "03CF",
+      "label": "Phanna at the doctor's house - direct map-object/state provenance",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:E993"
+          ],
+          "snes_parts": [
+            "C9:E993"
+          ],
+          "source_display": "PHANNA:...",
+          "android_anchor_ids": [
+            1976
+          ],
+          "android_unit_ids": [
+            1976
+          ],
+          "android_english_display": "Phanna: .........",
+          "french_nonempty_ids": [
+            1976
+          ],
+          "french_display": "Pamela : ... ",
+          "relation": "user_validated_map_object_state_duplicate",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "SNES $03CF is the direct event of map $007E object #4, visible only for event flag $3A == 2. The same map object set contains $03B5/$03B6/$03B7 already aligned to Android 1972/1973/1971, while doctor event $03BD is 1974+1975; Android EN 1976 is therefore the unique Phanna ellipsis in this exact scene state.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "0521",
+      "label": "Emperor guard - called welcome prefix merged into Android record",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:5CE6"
+          ],
+          "snes_parts": [
+            "CA:5CE6"
+          ],
+          "source_display": "To your right, please.",
+          "android_anchor_ids": [
+            2203
+          ],
+          "android_unit_ids": [
+            2203
+          ],
+          "android_english_display": "Welcome. The emperor awaits you._ To your right, please.",
+          "french_nonempty_ids": [
+            2203
+          ],
+          "french_display": "Bienvenue. Sa Majesté l'Empereur Vandole vous attend._Prenez l'escalier de droite, s'il vous plaît.",
+          "relation": "called_prefix_android_merge_suffix",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 56.3,
+            "source_token_coverage": 100.0,
+            "lexical_score": 67.3
+          },
+          "note": "SNES $0521 first calls $04D4, which renders 'Welcome. The Emperor awaits you.', then its own carrier renders 'To your right, please.'. Their normalized concatenation is exactly Android EN 2203; Android 2204 is a strict EN+FR duplicate. Serialize only the official French suffix after the Android presentation separator so the already translated $04D4 welcome is not duplicated.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "01D5",
+      "label": "Sprite-village elder reusable positive-response subevent",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:7C25"
+          ],
+          "snes_parts": [
+            "C9:7C25"
+          ],
+          "source_display": "ELDER:What luck! Did you\n hear that, little one?",
+          "android_anchor_ids": [
+            605
+          ],
+          "android_unit_ids": [
+            605,
+            606
+          ],
+          "android_english_display": "Elder: What luck! Did you hear that, little one? Now you be sure to listen to everything they say.",
+          "french_nonempty_ids": [
+            605
+          ],
+          "french_display": "Chef : Quelle chance ! Tu as entendu ? Je compte sur toi pour faire tout ce qu'il te dira.",
+          "relation": "user_validated_reused_subevent_equivalent_extension",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 64.2,
+            "source_token_coverage": 100.0,
+            "lexical_score": 73.2
+          },
+          "note": "SNES $01D5 is reused by three call-sites. Android EN 605 and 608 are strict duplicate copies of the same elder response and their French payloads are identical; 605 is the representative anchor. Android extends the SNES wording with one short instruction sentence, which fits the existing three-line carrier safely.",
+          "user_validation": "accepted"
+        }
+      ]
+    }
+  ]
+}

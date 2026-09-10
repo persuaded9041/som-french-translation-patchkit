@@ -50,9 +50,7 @@ systxt_fr.bin  4312b8c9a18b4f98b7dc1b297febc33a0e2c31f50212c3df593dd991669c7d42
 
 It uses the same header/table/NUL-pool container shape, but a separate contiguous
 ID namespace: 1300 entries `100000..101299`. Its contents are predominantly
-system/interface vocabulary rather than event dialogue. It is not consumed by
-the current importer checkpoint; it is retained as upstream material for later
-`interface_text`, `menu_text` and related alignment work.
+system/interface vocabulary rather than event dialogue. Since Round 46 the importer consumes it **only through explicit reviewed mappings** for the chest-message family; the generic dialogue search/index remains `scrtxt`-only. In particular, `systxt` 101254 supplies the English identity/template for money chests, while 101255/101256 are used only as French localization-correction evidence for already-proven `scrtxt` item identities because their `systxt_en` records are themselves French. The remaining namespace is retained as upstream material for later `interface_text`, `menu_text` and related alignment work.
 
 ## Current supported work
 

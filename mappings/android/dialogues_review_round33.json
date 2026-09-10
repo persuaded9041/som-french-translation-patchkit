@@ -1,0 +1,877 @@
+{
+  "format_version": 1,
+  "status": "round33_user_validated",
+  "source_asset": "dialogues.json",
+  "android_english": {
+    "path": "sources/android/scrtxt_en.bin",
+    "sha256": "4d4508560967b6ce4d6cf992f29e84e2775ed4accc74d87c3fd4269044b75ae5"
+  },
+  "android_french": {
+    "path": "sources/android/scrtxt_fr.bin",
+    "sha256": "cd837aaf53a7979d0e84910e8cda3bd67427f4a3cbddadc351811378d7e7d696"
+  },
+  "policy": {
+    "automatic_translation_generation": false,
+    "english_identity_is_primary": true,
+    "notes": [
+      "SNES PLAYER_NAME commands are represented explicitly as Android-style %S(index,0) placeholders for comparison only.",
+      "Android anchor intervals include following English-empty localization slots.",
+      "Very-high-confidence SNES-to-Android-English identity is not rejected merely because French wording is freely adapted.",
+      "When French or Android segmentation crosses individual anchors, preserve and review the complete local sequence block rather than forcing a per-ID translation."
+    ]
+  },
+  "scenes": [
+    {
+      "event_id": "04E6",
+      "label": "Potos banishment scene resegmented across Android anchors",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:3E7B",
+            "CA:3EA8"
+          ],
+          "snes_parts": [
+            "CA:3E7B",
+            "CA:3EA8"
+          ],
+          "source_display": "VILLAGER:Elder!\n We can't go on like this!VILLAGER:Yeah!\n There's no relief in sight.",
+          "android_anchor_ids": [
+            76
+          ],
+          "android_unit_ids": [
+            76,
+            77
+          ],
+          "android_english_display": "Villager: Elder! We can't go on like this!\nVillager: Yeah! There's no relief in sight.\nWho knows when another monster might\nappear?",
+          "french_nonempty_ids": [
+            76
+          ],
+          "french_display": "Villageois : Il faut faire quelque chose !\nVillageoise : Oui, nous ne sommes plus en sécurité. D'autres monstres pourraient nous attaquer à tout moment !",
+          "relation": "ordered_scene_resegmentation",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 78.4,
+            "source_token_coverage": 100.0,
+            "lexical_score": 83.8
+          },
+          "note": "Android EN 76 contains the two consecutive villager protests that SNES stores in two carriers.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:3F11"
+          ],
+          "snes_parts": [
+            "CA:3F11"
+          ],
+          "source_display": " You've really done it to me this time!",
+          "android_anchor_ids": [
+            80
+          ],
+          "android_unit_ids": [
+            80
+          ],
+          "android_english_display": "You've really done it this time! That sword has always protected us--",
+          "french_nonempty_ids": [
+            80
+          ],
+          "french_display": "Ce que tu as fait est grave. Cette épée protégeait notre village... ",
+          "relation": "contained_android_extension",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 60.2,
+            "source_token_coverage": 77.8,
+            "lexical_score": 64.6
+          },
+          "note": "SNES begins the elder accusation; Android EN 80 contains the same opening followed by the sword explanation continued by the next mapped SNES carrier.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:3F97"
+          ],
+          "snes_parts": [
+            "CA:3F97"
+          ],
+          "source_display": "VILLAGER:It's settled.",
+          "android_anchor_ids": [
+            82
+          ],
+          "android_unit_ids": [
+            82
+          ],
+          "android_english_display": "Villager: It's settled then. We can't let\n%S(0,0) stay in the village anymore!\nVillager: If we do, more monsters will\ncome after him!",
+          "french_nonempty_ids": [
+            82
+          ],
+          "french_display": "C'est certain ! L'Épée les attire ici !\nTant que %S(0,0) sera au village, les monstres continueront de proliférer !",
+          "relation": "contained_android_extension",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 27.8,
+            "source_token_coverage": 100.0,
+            "lexical_score": 45.9
+          },
+          "note": "SNES 'VILLAGER: It's settled.' is the exact opening of Android EN 82 before the already aligned continuation.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "04E2",
+      "label": "Sprite village elder scene local resegmentation",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:32F6"
+          ],
+          "snes_parts": [
+            "CA:32F6"
+          ],
+          "source_display": "\nGRANDPA:I...suppose so...\n Uwa, ha, ha!\n",
+          "android_anchor_ids": [
+            1282,
+            1283
+          ],
+          "android_unit_ids": [
+            1282,
+            1283
+          ],
+          "android_english_display": "Grandpa: I...suppose so..._ *cough* *cough*",
+          "french_nonempty_ids": [
+            1282,
+            1283
+          ],
+          "french_display": "Je... je l'espère..._ Kof ! Kof ! ",
+          "relation": "ordered_scene_resegmentation",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 77.4,
+            "source_token_coverage": 57.1,
+            "lexical_score": 72.4
+          },
+          "note": "Android EN 1282/1283 is the same elder response/reaction block; French legitimately redistributes the reaction into the following localization record.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:3335",
+            "CA:3359"
+          ],
+          "snes_parts": [
+            "CA:3335",
+            "CA:3359"
+          ],
+          "source_display": "\nGRANDPA:Gwa, ha! Okay, okay! Tyke! ",
+          "android_anchor_ids": [
+            1285
+          ],
+          "android_unit_ids": [
+            1285
+          ],
+          "android_english_display": "Grandpa: ... Listen up, tyke..._",
+          "french_nonempty_ids": [
+            1285
+          ],
+          "french_display": "Écoute-moi bien, mon petit..._",
+          "relation": "ordered_scene_resegmentation",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 54.9,
+            "source_token_coverage": 33.3,
+            "lexical_score": 49.5
+          },
+          "note": "Between exact anchors 1284 and 1286, Android EN has only 1285; SNES splits the elder's transition into 'Okay, okay!' and 'Tyke!'.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:34DD"
+          ],
+          "snes_parts": [
+            "CA:34DD"
+          ],
+          "source_display": "Sylphid:You called, master?\nGRANDPA:These young people\n are now your master!",
+          "android_anchor_ids": [
+            1297,
+            1298
+          ],
+          "android_unit_ids": [
+            1297,
+            1298
+          ],
+          "android_english_display": "Sylphid: You called, master? Grandpa: These young people are now your masters!",
+          "french_nonempty_ids": [
+            1297,
+            1298
+          ],
+          "french_display": "Sylphide : Vous m'avez appelé, Maître ? Ces enfants sont tes nouveaux maîtres. Va, et protège-les !",
+          "relation": "preserve_accepted_mapping",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 99.3,
+            "source_token_coverage": 100.0,
+            "lexical_score": 99.5
+          },
+          "note": "Freeze the previously accepted Sylphid/Grandpa mapping byte-for-byte while adding the adjacent 1299 identity.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:352B"
+          ],
+          "snes_parts": [
+            "CA:352B"
+          ],
+          "source_display": "\nSylphid:It is so!",
+          "android_anchor_ids": [
+            1299
+          ],
+          "android_unit_ids": [
+            1299,
+            1300
+          ],
+          "android_english_display": "Sylphid: As you wish!",
+          "french_nonempty_ids": [
+            1299
+          ],
+          "french_display": "Sylphide : À vos ordres.",
+          "relation": "contained_android_equivalence",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 62.9,
+            "source_token_coverage": 25.0,
+            "lexical_score": 53.4
+          },
+          "note": "SNES 'Sylphid: It is so!' and Android EN 1299 'Sylphid: As you wish!' are the same response in the tightly bracketed Sylphid exchange.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "04E1",
+      "label": "Thanatos and Dyluck final scene high-confidence local identities",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:2E21"
+          ],
+          "snes_parts": [
+            "CA:2E21"
+          ],
+          "source_display": " Guwa ha ha!",
+          "android_anchor_ids": [
+            3283
+          ],
+          "android_unit_ids": [
+            3283
+          ],
+          "android_english_display": "Gwa ha ha!",
+          "french_nonempty_ids": [
+            3283
+          ],
+          "french_display": "Ha ha ha... HA HA HA ! ",
+          "relation": "ordered_scene_equivalence",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 94.7,
+            "source_token_coverage": 66.7,
+            "lexical_score": 87.7
+          },
+          "note": "Unique local Thanatos laugh immediately before the already aligned body-transfer speech.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:2FDA"
+          ],
+          "snes_parts": [
+            "CA:2FDA"
+          ],
+          "source_display": "  Though his life force is\n  eternal, he hasn't his\n  own body.",
+          "android_anchor_ids": [
+            3294
+          ],
+          "android_unit_ids": [
+            3294
+          ],
+          "android_english_display": "Although his spirit is eternal, the bodies he inhabits are still mortal. Each time his body grows old and weak, he needs to find a new host.",
+          "french_nonempty_ids": [
+            3294
+          ],
+          "french_display": "Mais seul son esprit est éternel, pas son corps. Il doit donc régulièrement trouver un nouveau corps.",
+          "relation": "contained_android_equivalence",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 44.0,
+            "source_token_coverage": 50.0,
+            "lexical_score": 45.5
+          },
+          "note": "Both versions explain that Thanatos' spirit/life is eternal but each inhabited body is mortal.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:301C"
+          ],
+          "snes_parts": [
+            "CA:301C"
+          ],
+          "source_display": "  His life force is growing\n  darker. He feeds on hatred  and destruction!",
+          "android_anchor_ids": [
+            3295
+          ],
+          "android_unit_ids": [
+            3295
+          ],
+          "android_english_display": "And with each new host, his spirit grows\ndarker, feeding on hatred and destruction!",
+          "french_nonempty_ids": [
+            3295
+          ],
+          "french_display": "Et son âme devient de plus en plus noire, rongée par l'obsession et la rancœur... Il s'est changé en liche, devenant un sorcier mort-vivant, Koschei !",
+          "relation": "contained_android_equivalence",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 68.0,
+            "source_token_coverage": 50.0,
+            "lexical_score": 63.5
+          },
+          "note": "Both versions state that each new host makes Thanatos darker and that he feeds on hatred/destruction.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:30F8"
+          ],
+          "snes_parts": [
+            "CA:30F8"
+          ],
+          "source_display": ":Dyluck! Stop it!\n Please! Dyluck! STOP IT!!\nTHANATOS:Ugrrrrrrr!",
+          "android_anchor_ids": [
+            3302,
+            3303
+          ],
+          "android_unit_ids": [
+            3302,
+            3303
+          ],
+          "android_english_display": "%S(1,0): Dyluck! Stop it! Please! Dyluck! STOP IT!!! Thanatos: Aaaarghhh!",
+          "french_nonempty_ids": [
+            3302,
+            3303
+          ],
+          "french_display": "%S(1,0) : Durac ! Non ! Attends !  Thanatos : Arrête ! Aaargh !",
+          "relation": "ordered_scene_resegmentation",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 77.7,
+            "source_token_coverage": 88.9,
+            "lexical_score": 80.5
+          },
+          "note": "SNES combines the girl's plea and Thanatos' cry; Android EN stores them in consecutive 3302/3303.",
+          "user_validation": "accepted"
+        },
+        {
+          "snes_ids": [
+            "CA:3190"
+          ],
+          "snes_parts": [
+            "CA:3190"
+          ],
+          "source_display": "\n Give me your bodies!\n GUWAA!",
+          "android_anchor_ids": [
+            3305
+          ],
+          "android_unit_ids": [
+            3305
+          ],
+          "android_english_display": "Give me your bodies! GWAA!",
+          "french_nonempty_ids": [
+            3305
+          ],
+          "french_display": "Je ne me laisserai pas faire ! \nVous allez me donner vos corps !! Aaaarh... ",
+          "relation": "ordered_scene_equivalence",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 98.0,
+            "source_token_coverage": 80.0,
+            "lexical_score": 93.5
+          },
+          "note": "Exact local demand for the heroes' bodies immediately before the already aligned escape reaction.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "02F1",
+      "label": "Single-line greeting between consecutive Android anchors",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:C8A2"
+          ],
+          "snes_parts": [
+            "C9:C8A2"
+          ],
+          "source_display": "Hello!",
+          "android_anchor_ids": [
+            2287
+          ],
+          "android_unit_ids": [
+            2287
+          ],
+          "android_english_display": "Hello!",
+          "french_nonempty_ids": [
+            2287
+          ],
+          "french_display": "Bonjour !",
+          "relation": "user_validated_contextual_short_exact",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact 'Hello!' bracketed by event $02F0 -> 2286 and $02F2 -> 2288.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "02F2",
+      "label": "Single-line cry between consecutive Android anchors",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:C8AC"
+          ],
+          "snes_parts": [
+            "C9:C8AC"
+          ],
+          "source_display": "Aieeee!",
+          "android_anchor_ids": [
+            2288
+          ],
+          "android_unit_ids": [
+            2288
+          ],
+          "android_english_display": "Aieeee!",
+          "french_nonempty_ids": [
+            2288
+          ],
+          "french_display": "Youpi !",
+          "relation": "user_validated_contextual_short_exact",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "Exact 'Aieeee!' bracketed by $02F1 -> 2287 and $02F3 -> 2289.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "066F",
+      "label": "Validated short command in local scene",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:8E0B"
+          ],
+          "snes_parts": [
+            "CA:8E0B"
+          ],
+          "source_display": "  ...SCRAM..!",
+          "android_anchor_ids": [
+            1844
+          ],
+          "android_unit_ids": [
+            1844
+          ],
+          "android_english_display": "...SCRAM...!",
+          "french_nonempty_ids": [
+            1844
+          ],
+          "french_display": "... Partez ! ...",
+          "relation": "user_validated_contextual_short_exact",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "User validated the local ...SCRAM...! identity after reviewing Android EN/FR context.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "059D",
+      "label": "Validated locked-door line",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:7731"
+          ],
+          "snes_parts": [
+            "CA:7731"
+          ],
+          "source_display": "  Locked!",
+          "android_anchor_ids": [
+            2513
+          ],
+          "android_unit_ids": [
+            2513
+          ],
+          "android_english_display": "Locked!",
+          "french_nonempty_ids": [
+            2513
+          ],
+          "french_display": "La porte est fermée à clef...",
+          "relation": "user_validated_contextual_short_exact",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "User validated the exact Locked! identity in its local Android context.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "0194",
+      "label": "Validated Papa cry",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:5FA5"
+          ],
+          "snes_parts": [
+            "C9:5FA5"
+          ],
+          "source_display": "Papa!!",
+          "android_anchor_ids": [
+            371
+          ],
+          "android_unit_ids": [
+            371
+          ],
+          "android_english_display": "Papa!!!",
+          "french_nonempty_ids": [
+            371
+          ],
+          "french_display": "Ouin... Papaaa !",
+          "relation": "user_validated_contextual_short_exact",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "User validated Papa!! -> Android EN 371 Papa!!! in the local Pandora scene.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "0111",
+      "label": "Validated silent man label",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:32EF"
+          ],
+          "snes_parts": [
+            "C9:32EF"
+          ],
+          "source_display": "MAN: ...",
+          "android_anchor_ids": [
+            105
+          ],
+          "android_unit_ids": [
+            105
+          ],
+          "android_english_display": "Man: ...",
+          "french_nonempty_ids": [
+            105
+          ],
+          "french_display": "Voyageur : ...",
+          "relation": "user_validated_contextual_short_exact",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "User validated MAN: ... -> Android EN 105 Man: ... in the local Potos sequence.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "04AB",
+      "label": "Imperial troop hold-off instruction",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:1BED"
+          ],
+          "snes_parts": [
+            "CA:1BED"
+          ],
+          "source_display": "We'll fight off the Imperialtroops here. You catch up\nwith those soldiers!",
+          "android_anchor_ids": [
+            2746
+          ],
+          "android_unit_ids": [
+            2746
+          ],
+          "android_english_display": "We'll fight off the imperial troops here.\nYou catch up with those soldiers!",
+          "french_nonempty_ids": [
+            2746
+          ],
+          "french_display": "Nous allons faire bloc ici, pendant ce temps, poursuivez les soldats impériaux qui sont déjà entrés !",
+          "relation": "user_validated_contextual_duplicate",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 99.3,
+            "source_token_coverage": 92.3,
+            "lexical_score": 97.6
+          },
+          "note": "User validated Android EN 2746 for the SNES two-line hold-off/catch-up instruction; 2747 is a duplicate localization record.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "03A6",
+      "label": "Password 634 call separated from Enter tail",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:E0FA"
+          ],
+          "snes_parts": [
+            "C9:E0FA"
+          ],
+          "source_display": "“634!”\n",
+          "android_anchor_ids": [
+            1889
+          ],
+          "android_unit_ids": [
+            1889
+          ],
+          "android_english_display": "634!",
+          "french_nonempty_ids": [
+            1889
+          ],
+          "french_display": "%S(0,0) : 634 ! ",
+          "relation": "user_validated_event_segmentation",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "User validated the separated Android anchor 1889 for the standalone 634! event.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "03A7",
+      "label": "Password Enter tail",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:E113"
+          ],
+          "snes_parts": [
+            "C9:E113"
+          ],
+          "source_display": " Enter!",
+          "android_anchor_ids": [
+            1890
+          ],
+          "android_unit_ids": [
+            1890
+          ],
+          "android_english_display": "...! Enter!",
+          "french_nonempty_ids": [
+            1890
+          ],
+          "french_display": "Vous pouvez passer. ",
+          "relation": "user_validated_event_segmentation",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "User validated Android EN 1890 for the Enter! tail after reviewing the combined and separated Android variants.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "05B1",
+      "label": "Password failure response",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:781E"
+          ],
+          "snes_parts": [
+            "CA:781E"
+          ],
+          "source_display": "Go away!",
+          "android_anchor_ids": [
+            1874
+          ],
+          "android_unit_ids": [
+            1874
+          ],
+          "android_english_display": "Go away!",
+          "french_nonempty_ids": [
+            1874
+          ],
+          "french_display": "Allez-vous-en ! ",
+          "relation": "user_validated_password_sequence",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "User validated the first Go away! anchor in the password-entry block.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "05B2",
+      "label": "Password progress 6 ? ?",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:7833"
+          ],
+          "snes_parts": [
+            "CA:7833"
+          ],
+          "source_display": "“ 6 ? ? ”",
+          "android_anchor_ids": [
+            1877
+          ],
+          "android_unit_ids": [
+            1877
+          ],
+          "android_english_display": "6 ? ?",
+          "french_nonempty_ids": [
+            1877
+          ],
+          "french_display": "6 ? ?",
+          "relation": "user_validated_password_sequence",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "User validated the exact 6 ? ? progress anchor in the password-entry block.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "05B3",
+      "label": "Password progress 6 3 ?",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:784E"
+          ],
+          "snes_parts": [
+            "CA:784E"
+          ],
+          "source_display": "“ 6 3 ? ”",
+          "android_anchor_ids": [
+            1878
+          ],
+          "android_unit_ids": [
+            1878
+          ],
+          "android_english_display": "6 3 ?",
+          "french_nonempty_ids": [
+            1878
+          ],
+          "french_display": "6 3 ?",
+          "relation": "user_validated_password_sequence",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 100.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 100.0
+          },
+          "note": "User validated the exact 6 3 ? progress anchor in the password-entry block.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "05B4",
+      "label": "Password 634 plus shared Enter tail",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:7864"
+          ],
+          "snes_parts": [
+            "CA:7864"
+          ],
+          "source_display": "“ 6 3 4 ”\n",
+          "android_anchor_ids": [
+            1887
+          ],
+          "android_unit_ids": [
+            1887
+          ],
+          "android_english_display": "634\n...! Enter!",
+          "french_nonempty_ids": [
+            1887
+          ],
+          "french_display": "634\nC'est bon ! Vous pouvez passer !",
+          "relation": "shared_called_tail_combined_anchor",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 28.6,
+            "source_token_coverage": 0.0,
+            "lexical_score": 21.4
+          },
+          "note": "Identity is user-validated: Android EN 1887 combines 634 with the Enter! tail supplied on SNES by called event $03A7. Keep the identity, but do not inject the combined French payload into CA:7864 or it would duplicate the translated $03A7 tail.",
+          "user_validation": "accepted"
+        }
+      ]
+    }
+  ]
+}

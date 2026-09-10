@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable
 
-from shared.dialogue_codec import COMMAND_LENGTHS, COMMAND_NAMES, serialize_event
+from shared.dialogue_codec import COMMAND_LENGTHS, COMMAND_NAMES, parse_event, serialize_event
 from shared.french_charset import DIALOGUE_FRENCH_CHARS, glyph_bytes
 from shared.stock_text import CODE_TO_TEXT, DTE_TABLE_FILE, TEXT_TO_CODE
 from shared.vwf_geometry import ink_bounds
@@ -210,6 +210,13 @@ class _Simulator:
         self.choice_active = False
         self.choice_starts: list[int] = []
         self.choice_finished = False
+        base_event = parse_event(base_rom, int(event_id, 16), include_source_bytes=True)
+        self.base_ending_text_blocks = [
+            token["_source_bytes"]
+            for token in base_event["tokens"]
+            if token.get("type") == "ending_text"
+        ]
+        self.ending_text_blocks_seen = 0
 
     def issue(self, severity: str, code: str, message: str, *, line: int | None = None) -> None:
         self.issues.append(
@@ -597,18 +604,19 @@ class _Simulator:
         self._reset_checkpoint()
 
     def add_text_x(self, position: int) -> None:
-        """Model the validated component-06 line-start TEXT_X behavior.
+        """Model the stock absolute ``TEXT_X`` decoded-buffer cursor reset.
 
-        Stock command $59 writes its argument to both the decoded-text count
-        and text X position. On a fresh line the private decoded buffer is
-        already padded with $80, so component 06 renders exactly ``position``
-        leading space glyphs before the following text. Mid-line TEXT_X is an
-        absolute cursor/count reset and remains deliberately unsupported.
+        Static analysis of the stock $C0:1883 handler and its shared $C0:18FB
+        setter shows that command $59 writes the argument to both $A1CE and
+        $A173. The parser restores its decoded-buffer write index from $A173,
+        so a forward/equal reset is exactly equivalent to keeping the already
+        decoded prefix and filling the cleared $80 slots up to ``position``.
+
+        A backwards reset would overwrite an already-decoded suffix. That
+        behavior is real, but the simulator deliberately keeps it unsupported
+        until a translated event requires and validates that overwrite shape.
         """
         self.ensure_box(implicit=True)
-        if self.line_glyphs:
-            self.unsupported_layout("TEXT_X", bytes([position]))
-            return
         if position > RUNTIME_MAX_DECODED:
             self.issue(
                 "error",
@@ -617,8 +625,17 @@ class _Simulator:
             )
             self._reset_checkpoint()
             return
+        current = len(self.line_glyphs)
+        if position < current:
+            self.issue(
+                "error",
+                "TEXT_X_BACKWARD_RESET_UNSUPPORTED",
+                f"TEXT_X ${position:02X} rewinds over {current - position} already-decoded cell(s); overwrite geometry remains review-only.",
+            )
+            self._reset_checkpoint()
+            return
         self._reset_checkpoint()
-        for _ in range(position):
+        for _ in range(position - current):
             self._append_without_wrap(Glyph(TEXT_TO_CODE[" "], " ", layout_padding=True))
         self._reset_checkpoint()
 
@@ -745,12 +762,32 @@ class _Simulator:
             opcode = data[pos]
 
             if opcode == 0x7D:
-                # Ending-text mode is not ordinary component-06 dialogue.
+                # Ending/credits text uses a different renderer from ordinary
+                # component-06 dialogue. Keep the guard strict: it is accepted
+                # only while the complete $7D...$7E block is byte-identical to
+                # the corresponding block in the clean USA event. This models
+                # the current stock-preservation contract without pretending to
+                # know unproven credits geometry. Any edited/reordered/extra
+                # ending block remains a hard simulator failure.
                 end = data.find(b"\x7E", pos + 1)
                 if end < 0:
                     self.issue("error", "UNTERMINATED_ENDING_TEXT", "Unterminated $7D ending-text block.")
                     break
-                self.issue("warning", "ENDING_TEXT_UNSIMULATED", "Special ending-text mode is outside the ordinary dialogue simulator.")
+                block = data[pos:end + 1]
+                index = self.ending_text_blocks_seen
+                self.ending_text_blocks_seen += 1
+                if index >= len(self.base_ending_text_blocks):
+                    self.issue(
+                        "error",
+                        "ENDING_TEXT_EXTRA_BLOCK",
+                        f"Ending-text block {index + 1} has no counterpart in the clean USA event.",
+                    )
+                elif block != self.base_ending_text_blocks[index]:
+                    self.issue(
+                        "error",
+                        "ENDING_TEXT_CHANGED_UNMODELED",
+                        f"Ending-text block {index + 1} differs from the clean USA bytes; edited ending-text geometry remains review-only.",
+                    )
                 pos = end + 1
                 continue
 
@@ -821,6 +858,12 @@ class _Simulator:
             pos += length
 
         self.close_box("event_end")
+        if self.ending_text_blocks_seen != len(self.base_ending_text_blocks):
+            self.issue(
+                "error",
+                "ENDING_TEXT_BLOCK_COUNT_CHANGED",
+                f"Encoded event contains {self.ending_text_blocks_seen} ending-text block(s); clean USA event contains {len(self.base_ending_text_blocks)}.",
+            )
         return EventSimulation(
             event_id=self.event_id,
             boxes=self.boxes,
@@ -838,6 +881,7 @@ def simulate_event(
     font: DialogueFont | None = None,
     player_names: dict[int, str] | None = None,
     omitted_command_token_indexes: frozenset[int] | set[int] | None = None,
+    structural_command_overrides: dict[int, tuple[str, str] | None] | None = None,
     choice_option_position_overrides: dict[int, int] | None = None,
 ) -> EventSimulation:
     font = font or make_dialogue_font(base_rom)
@@ -853,6 +897,7 @@ def simulate_event(
         translations=translations,
         source=False,
         omitted_command_token_indexes=omitted_command_token_indexes,
+        structural_command_overrides=structural_command_overrides,
         choice_option_position_overrides=choice_option_position_overrides,
     )
     return _Simulator(

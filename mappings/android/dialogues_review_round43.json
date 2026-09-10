@@ -1,0 +1,831 @@
+{
+  "format_version": 1,
+  "status": "round43_user_validated",
+  "source_asset": "dialogues.json",
+  "android_english": {
+    "path": "sources/android/scrtxt_en.bin",
+    "sha256": "4d4508560967b6ce4d6cf992f29e84e2775ed4accc74d87c3fd4269044b75ae5"
+  },
+  "android_french": {
+    "path": "sources/android/scrtxt_fr.bin",
+    "sha256": "cd837aaf53a7979d0e84910e8cda3bd67427f4a3cbddadc351811378d7e7d696"
+  },
+  "policy": {
+    "automatic_translation_generation": false,
+    "english_identity_is_primary": true,
+    "notes": [
+      "SNES PLAYER_NAME commands are represented explicitly as Android-style %S(index,0) placeholders for comparison only.",
+      "Android anchor intervals include following English-empty localization slots.",
+      "Very-high-confidence SNES-to-Android-English identity is not rejected merely because French wording is freely adapted.",
+      "When French or Android segmentation crosses individual anchors, preserve and review the complete local sequence block rather than forcing a per-ID translation."
+    ]
+  },
+  "scenes": [
+    {
+      "event_id": "022F",
+      "label": "Game-over rescue line - PLAYER_NAME(2) joins two SNES carriers",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:9B1B",
+            "C9:9B2C"
+          ],
+          "snes_parts": [
+            "C9:9B1B",
+            [
+              "player_name",
+              2
+            ],
+            "C9:9B2C"
+          ],
+          "source_display": "We can't leave %S(2,0)'s\nlike this.",
+          "android_anchor_ids": [
+            1005
+          ],
+          "android_unit_ids": [
+            1005,
+            1006
+          ],
+          "android_english_display": "We can't leave %S(2,0) like this.",
+          "french_nonempty_ids": [
+            1005
+          ],
+          "french_display": "On ne peut pas laisser %S(2,0) comme ça ! Il faut l'aider à retrouver la mémoire ! ",
+          "relation": "round43_player_name_resegmentation",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 97.2,
+            "source_token_coverage": 87.5,
+            "lexical_score": 94.8
+          },
+          "note": "The two SNES carriers plus the unchanged PLAYER_NAME(2) command reconstruct exactly 'We can't leave %S(2,0) like this.'. Android EN 1005 is therefore exact; Android FR adds one official explanatory sentence. The reviewed formatter keeps PLAYER_NAME in place and adds an explicit page boundary so the maximum player name remains parser-safe.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "02B9",
+      "label": "Salamando missing - shared prefix before a branch",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:BAD6",
+            "C9:BAE8"
+          ],
+          "snes_parts": [
+            "C9:BAD6",
+            "C9:BAE8"
+          ],
+          "source_display": "Salamando is gone! He lived\nin the Fire Palace.",
+          "android_anchor_ids": [
+            1618
+          ],
+          "android_unit_ids": [
+            1618
+          ],
+          "android_english_display": "Salamando is gone! He lived in the Fire Palace. We always used to play together...",
+          "french_nonempty_ids": [
+            1618
+          ],
+          "french_display": "Athanor a disparu ! Il jouait tout le temps avec moi, avant... ",
+          "relation": "round43_shared_branch_prefix_redistribution",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 73.8,
+            "source_token_coverage": 100.0,
+            "lexical_score": 80.3
+          },
+          "note": "C9:BAD6 'Salamando is ' is shared by a conditional branch: the jump path continues in already-aligned $02BD -> Android 1619 ('Salamando's my friend...'), while the fallthrough combines C9:BAD6+C9:BAE8 into Android 1618 ('Salamando is gone!...'). Android FR restructures both lines, so the shared prefix must become empty and the complete 1618 French payload belongs only to the fallthrough carrier.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "0358",
+      "label": "Gnome orb reaction - composed shared suffix",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:D12C"
+          ],
+          "snes_parts": [
+            "C9:D12C"
+          ],
+          "source_display": "Gnome",
+          "android_anchor_ids": [
+            2839
+          ],
+          "android_unit_ids": [
+            2839
+          ],
+          "android_english_display": "Gnome's magic will work!",
+          "french_nonempty_ids": [
+            2839
+          ],
+          "french_display": "Gnome fera réagir l'orbe !",
+          "relation": "round43_shared_magic_prefix",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 35.7,
+            "source_token_coverage": 100.0,
+            "lexical_score": 51.8
+          },
+          "note": "$0358 renders 'Gnome' then jumps to shared $0360 \"'s magic / will work!\", reconstructing exactly Android EN 2839. The full French sentence fits in the spirit-name carrier; $0360 is handled separately as shared layout-only suffix.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "0359",
+      "label": "Undine orb reaction - composed shared suffix",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:D13F"
+          ],
+          "snes_parts": [
+            "C9:D13F"
+          ],
+          "source_display": "Undine",
+          "android_anchor_ids": [
+            2844
+          ],
+          "android_unit_ids": [
+            2844
+          ],
+          "android_english_display": "Undine's magic will work!",
+          "french_nonempty_ids": [
+            2844
+          ],
+          "french_display": "Ondine fera réagir l'orbe !",
+          "relation": "round43_shared_magic_prefix",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 40.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 55.0
+          },
+          "note": "$0359 + shared $0360 reconstruct exactly Android EN 2844 'Undine's magic will work!'. The full official French sentence is serialized in the name carrier.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "035A",
+      "label": "Sylphid orb reaction - composed shared suffix",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:D153"
+          ],
+          "snes_parts": [
+            "C9:D153"
+          ],
+          "source_display": "Sylphid",
+          "android_anchor_ids": [
+            2852
+          ],
+          "android_unit_ids": [
+            2852
+          ],
+          "android_english_display": "Sylphid's magic will work!",
+          "french_nonempty_ids": [
+            2852
+          ],
+          "french_display": "Sylphide fera réagir l'orbe !",
+          "relation": "round43_shared_magic_prefix",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 43.8,
+            "source_token_coverage": 100.0,
+            "lexical_score": 57.8
+          },
+          "note": "$035A + shared $0360 reconstruct exactly Android EN 2852 'Sylphid's magic will work!'. The full official French sentence is serialized in the name carrier.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "035B",
+      "label": "Salamando orb reaction - composed shared suffix",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:D168"
+          ],
+          "snes_parts": [
+            "C9:D168"
+          ],
+          "source_display": "Salamando",
+          "android_anchor_ids": [
+            2857
+          ],
+          "android_unit_ids": [
+            2857
+          ],
+          "android_english_display": "Salamando's magic will work!",
+          "french_nonempty_ids": [
+            2857
+          ],
+          "french_display": "Athanor fera réagir l'orbe !",
+          "relation": "round43_shared_magic_prefix",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 50.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 62.5
+          },
+          "note": "$035B + shared $0360 reconstruct exactly Android EN 2857 'Salamando's magic will work!'. Android FR's established spirit name is Athanor.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "035C",
+      "label": "Lumina orb reaction - composed shared suffix",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:D17F"
+          ],
+          "snes_parts": [
+            "C9:D17F"
+          ],
+          "source_display": "Lumina",
+          "android_anchor_ids": [
+            2865
+          ],
+          "android_unit_ids": [
+            2865
+          ],
+          "android_english_display": "Lumina's magic will work!",
+          "french_nonempty_ids": [
+            2865
+          ],
+          "french_display": "Lumina fera réagir l'orbe !",
+          "relation": "round43_shared_magic_prefix",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 40.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 55.0
+          },
+          "note": "$035C + shared $0360 reconstruct exactly Android EN 2865 'Lumina's magic will work!'. The full official French sentence is serialized in the name carrier.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "035D",
+      "label": "Shade orb reaction - composed shared suffix",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:D193"
+          ],
+          "snes_parts": [
+            "C9:D193"
+          ],
+          "source_display": "Shade",
+          "android_anchor_ids": [
+            2870
+          ],
+          "android_unit_ids": [
+            2870
+          ],
+          "android_english_display": "Shade's magic will work!",
+          "french_nonempty_ids": [
+            2870
+          ],
+          "french_display": "Ombre fera réagir l'orbe !",
+          "relation": "round43_shared_magic_prefix",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 35.7,
+            "source_token_coverage": 100.0,
+            "lexical_score": 51.8
+          },
+          "note": "$035D + shared $0360 reconstruct exactly Android EN 2870 'Shade's magic will work!'. Android FR's established spirit name is Ombre.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "035E",
+      "label": "Luna orb reaction - composed shared suffix",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:D1A6"
+          ],
+          "snes_parts": [
+            "C9:D1A6"
+          ],
+          "source_display": "Luna",
+          "android_anchor_ids": [
+            2881
+          ],
+          "android_unit_ids": [
+            2881
+          ],
+          "android_english_display": "Luna's magic will work!",
+          "french_nonempty_ids": [
+            2881
+          ],
+          "french_display": "Luna fera réagir l'orbe !",
+          "relation": "round43_shared_magic_prefix",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 30.8,
+            "source_token_coverage": 100.0,
+            "lexical_score": 48.1
+          },
+          "note": "$035E + shared $0360 reconstruct exactly Android EN 2881 'Luna's magic will work!'. The full official French sentence is serialized in the name carrier.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "0360",
+      "label": "Shared spirit-orb suffix - represented by Gnome anchor",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:D1C0",
+            "C9:D1CB"
+          ],
+          "snes_parts": [
+            "C9:D1C0",
+            "C9:D1CB"
+          ],
+          "source_display": "'s magic\nwill work!",
+          "android_anchor_ids": [
+            2839
+          ],
+          "android_unit_ids": [
+            2839
+          ],
+          "android_english_display": "Gnome's magic will work!",
+          "french_nonempty_ids": [
+            2839
+          ],
+          "french_display": "Gnome fera réagir l'orbe !",
+          "relation": "round43_shared_magic_suffix_layout",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 85.0,
+            "source_token_coverage": 100.0,
+            "lexical_score": 88.8
+          },
+          "note": "$0360 is the shared suffix called by the eight spirit-name events. Android stores each complete '[Spirit]'s magic will work!' sentence separately; 2839 is the representative proven composition. Because the full localized sentence is moved into each validated prefix (and Dryad uses a temporary manual supplement), these two carriers retain layout only and no duplicated words.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "0500",
+      "label": "Gloves Orb gain - shared $0509 suffix",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:58B9"
+          ],
+          "snes_parts": [
+            "CA:58B9"
+          ],
+          "source_display": "Got Glove",
+          "android_anchor_ids": [
+            952
+          ],
+          "android_unit_ids": [
+            952
+          ],
+          "android_english_display": "Received Gloves Orb!",
+          "french_nonempty_ids": [
+            952
+          ],
+          "french_display": "\n　Vous obtenez une sphère de Poing !\n\n",
+          "relation": "round43_weapon_orb_prefix",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 42.9,
+            "source_token_coverage": 0.0,
+            "lexical_score": 32.1
+          },
+          "note": "$0500 renders 'Got Glove' then jumps to shared $0509 \"'s Orb!\", reconstructing the Gloves Orb message. Android EN 952 is a representative of strict EN+FR duplicates; the French terminal punctuation is left to the shared suffix.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "0501",
+      "label": "Sword Orb gain - shared $0509 suffix",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:58D5"
+          ],
+          "snes_parts": [
+            "CA:58D5"
+          ],
+          "source_display": "Got Sword",
+          "android_anchor_ids": [
+            122
+          ],
+          "android_unit_ids": [
+            122
+          ],
+          "android_english_display": "Received Sword Orb!",
+          "french_nonempty_ids": [
+            122
+          ],
+          "french_display": "\n　Vous obtenez une sphère d'Épée !\n\n",
+          "relation": "round43_weapon_orb_prefix",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 44.4,
+            "source_token_coverage": 50.0,
+            "lexical_score": 45.8
+          },
+          "note": "$0501 + shared $0509 reconstructs the Sword Orb message; Android EN 122 represents strict EN+FR duplicate copies. The shared suffix owns the final French exclamation.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "0502",
+      "label": "Axe Orb gain - shared $0509 suffix",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:58F1"
+          ],
+          "snes_parts": [
+            "CA:58F1"
+          ],
+          "source_display": "Got Axe",
+          "android_anchor_ids": [
+            1008
+          ],
+          "android_unit_ids": [
+            1008
+          ],
+          "android_english_display": "Received Axe Orb!",
+          "french_nonempty_ids": [
+            1008
+          ],
+          "french_display": "\n　Vous obtenez une sphère de Hache !\n\n",
+          "relation": "round43_weapon_orb_prefix",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 34.8,
+            "source_token_coverage": 50.0,
+            "lexical_score": 38.6
+          },
+          "note": "$0502 + shared $0509 reconstructs the Axe Orb message; Android EN 1008 represents strict EN+FR duplicate copies. The shared suffix owns the final French exclamation.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "0503",
+      "label": "Spear Orb gain - shared $0509 suffix",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:590B"
+          ],
+          "snes_parts": [
+            "CA:590B"
+          ],
+          "source_display": "Got Spear",
+          "android_anchor_ids": [
+            631
+          ],
+          "android_unit_ids": [
+            631
+          ],
+          "android_english_display": "Received Spear Orb!",
+          "french_nonempty_ids": [
+            631
+          ],
+          "french_display": "\n　Vous obtenez une sphère de Lance !\n\n",
+          "relation": "round43_weapon_orb_prefix",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 44.4,
+            "source_token_coverage": 50.0,
+            "lexical_score": 45.8
+          },
+          "note": "$0503 + shared $0509 reconstructs the Spear Orb message; Android EN 631 represents strict EN+FR duplicate copies. The shared suffix owns the final French exclamation.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "0504",
+      "label": "Whip Orb gain - shared $0509 suffix",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:5927"
+          ],
+          "snes_parts": [
+            "CA:5927"
+          ],
+          "source_display": "Got Whip",
+          "android_anchor_ids": [
+            901
+          ],
+          "android_unit_ids": [
+            901
+          ],
+          "android_english_display": "Received Whip Orb!",
+          "french_nonempty_ids": [
+            901
+          ],
+          "french_display": "\n　Vous obtenez une sphère de Fouet !\n\n",
+          "relation": "round43_weapon_orb_prefix",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 40.0,
+            "source_token_coverage": 50.0,
+            "lexical_score": 42.5
+          },
+          "note": "$0504 + shared $0509 reconstructs the Whip Orb message; Android EN 901 represents strict EN+FR duplicate copies. The shared suffix owns the final French exclamation.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "0505",
+      "label": "Bow Orb gain - shared $0509 suffix",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:5942"
+          ],
+          "snes_parts": [
+            "CA:5942"
+          ],
+          "source_display": "Got Bow",
+          "android_anchor_ids": [
+            934
+          ],
+          "android_unit_ids": [
+            934
+          ],
+          "android_english_display": "Received Bow/Arrow Orb!",
+          "french_nonempty_ids": [
+            934
+          ],
+          "french_display": "\n　Vous obtenez une sphère d'Arc !\n\n",
+          "relation": "round43_weapon_orb_prefix",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 27.6,
+            "source_token_coverage": 50.0,
+            "lexical_score": 33.2
+          },
+          "note": "$0505 + shared $0509 reconstructs the Bow/Arrow Orb message; Android EN 934 represents strict EN+FR duplicate copies. The shared suffix owns the final French exclamation.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "0506",
+      "label": "Boomerang Orb gain - shared $0509 suffix",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:595C"
+          ],
+          "snes_parts": [
+            "CA:595C"
+          ],
+          "source_display": "Got Boomerang",
+          "android_anchor_ids": [
+            786
+          ],
+          "android_unit_ids": [
+            786
+          ],
+          "android_english_display": "Received Boomerang Orb!",
+          "french_nonempty_ids": [
+            786
+          ],
+          "french_display": "\n　Vous obtenez une sphère de Boomerang !\n\n",
+          "relation": "round43_weapon_orb_prefix",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 57.1,
+            "source_token_coverage": 50.0,
+            "lexical_score": 55.4
+          },
+          "note": "$0506 + shared $0509 reconstructs the Boomerang Orb message; Android EN 786 represents strict EN+FR duplicate copies. The shared suffix owns the final French exclamation.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "0507",
+      "label": "Javelin Orb gain - shared $0509 suffix",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:597C"
+          ],
+          "snes_parts": [
+            "CA:597C"
+          ],
+          "source_display": "Got Javelin",
+          "android_anchor_ids": [
+            1164
+          ],
+          "android_unit_ids": [
+            1164
+          ],
+          "android_english_display": "Received Javelin Orb!",
+          "french_nonempty_ids": [
+            1164
+          ],
+          "french_display": "\n　Vous obtenez une sphère de Javelot !\n\n",
+          "relation": "round43_weapon_orb_prefix",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 51.6,
+            "source_token_coverage": 50.0,
+            "lexical_score": 51.2
+          },
+          "note": "$0507 + shared $0509 reconstructs the Javelin Orb message; Android EN 1164 represents strict EN+FR duplicate copies. The shared suffix owns the final French exclamation.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "0509",
+      "label": "Shared weapon-orb suffix - represented by Gloves Orb anchor",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:598C"
+          ],
+          "snes_parts": [
+            "CA:598C"
+          ],
+          "source_display": "'s Orb!",
+          "android_anchor_ids": [
+            952
+          ],
+          "android_unit_ids": [
+            952
+          ],
+          "android_english_display": "Received Gloves Orb!",
+          "french_nonempty_ids": [
+            952
+          ],
+          "french_display": "\n　Vous obtenez une sphère de Poing !\n\n",
+          "relation": "round43_weapon_orb_suffix",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 41.7,
+            "source_token_coverage": 50.0,
+            "lexical_score": 43.8
+          },
+          "note": "$0509 contributes the same terminal \"'s Orb!\" to all eight weapon-specific events. Android stores complete messages, so 952 is a representative proven composition; only the common French terminal ' !' remains in this shared subevent.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "07FA",
+      "label": "Game-over plural dynamic slot - first helper",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:979D"
+          ],
+          "snes_parts": [
+            "CA:979D"
+          ],
+          "source_display": "them",
+          "android_anchor_ids": [
+            6
+          ],
+          "android_unit_ids": [
+            6
+          ],
+          "android_english_display": "Sadly, no trace of %S(0,0) was ever found...",
+          "french_nonempty_ids": [
+            6
+          ],
+          "french_display": "... Hélas, l'histoire de ces courageux jeunes gens devait s'achever là...",
+          "relation": "round43_gameover_plural_slot",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 12.8,
+            "source_token_coverage": 0.0,
+            "lexical_score": 9.6
+          },
+          "note": "$07FA returns literal 'them' on a non-single-character game-over branch. Android EN 6/7 are identical dynamic frames, while FR 6 is the plural realization and FR 7 is the PLAYER_NAME realization. The non-text branch therefore selects the plural middle phrase from FR 6.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "07FB",
+      "label": "Game-over plural dynamic slot - second helper",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:97A8"
+          ],
+          "snes_parts": [
+            "CA:97A8"
+          ],
+          "source_display": "them",
+          "android_anchor_ids": [
+            6
+          ],
+          "android_unit_ids": [
+            6
+          ],
+          "android_english_display": "Sadly, no trace of %S(0,0) was ever found...",
+          "french_nonempty_ids": [
+            6
+          ],
+          "french_display": "... Hélas, l'histoire de ces courageux jeunes gens devait s'achever là...",
+          "relation": "round43_gameover_plural_slot",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 12.8,
+            "source_token_coverage": 0.0,
+            "lexical_score": 9.6
+          },
+          "note": "$07FB returns literal 'them' on the other non-single-character game-over branch. As for $07FA, the event flags select Android FR 6's plural middle phrase; PLAYER_NAME remains owned by the separate $07F3 path.",
+          "user_validation": "accepted"
+        }
+      ]
+    },
+    {
+      "event_id": "07FF",
+      "label": "Game-over dynamic frame around $07FB/$07FA/$07F3 result",
+      "status": "user_validated",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:98B2",
+            "CA:98C8"
+          ],
+          "snes_parts": [
+            "CA:98B2",
+            "CA:98C8"
+          ],
+          "source_display": " Sadly, no trace of \n was ever found...",
+          "android_anchor_ids": [
+            7
+          ],
+          "android_unit_ids": [
+            7,
+            8
+          ],
+          "android_english_display": "Sadly, no trace of %S(0,0) was ever found...",
+          "french_nonempty_ids": [
+            7
+          ],
+          "french_display": "... Hélas, l'histoire de %S(0,0) devait s'achever là...",
+          "relation": "round43_gameover_dynamic_frame",
+          "proposed_confidence": "user_validated",
+          "lexical_evidence": {
+            "character_similarity": 85.3,
+            "source_token_coverage": 100.0,
+            "lexical_score": 89.0
+          },
+          "note": "$07FF supplies the fixed frame around a call to $07FB, which eventually returns either literal 'them' or the unchanged $07F3 PLAYER_NAME(0). Android EN 6/7 are 546 strict duplicate frame copies arranged as 273 FR plural/name pairs. Anchor 7 provides the PLAYER_NAME frame; the reviewed redistribution serializes only its fixed prefix/suffix and leaves the dynamic slot to the existing SNES call chain.",
+          "user_validation": "accepted"
+        }
+      ]
+    }
+  ]
+}

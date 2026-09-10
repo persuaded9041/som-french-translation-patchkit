@@ -1,0 +1,207 @@
+{
+  "format_version": 1,
+  "status": "round49_exact_formatter_recovery_audit",
+  "source_asset": "dialogues.json",
+  "policy": {
+    "automatic_identity_rule_added": false,
+    "android_identity_changed": false,
+    "generic_formatter_rule_added": false,
+    "notes": [
+      "$02CD removes only the exact Android-FR-only %S(0,0) speaker label; Android EN and the entire SNES event contain no PLAYER_NAME command.",
+      "$03F0 distributes one already accepted Android unit across the exact three stock noise carriers. PLAY_SOUND and WAIT $10 remain byte-for-byte in place; one layout-only newline is inserted before the existing WAIT $10 so WAIT remains a pause, not a newline.",
+      "$04E9 becomes PARTIEL: seven mappings render in French; two exact TEXT_CLEAR-only resets follow existing WAIT $00 pauses; the final condensed two-carrier mapping remains stock/layout-deferred.",
+      "$0205 is deliberately left unresolved at the formatter layer because Android FR collapses two SNES pages into one sentence across PLAYER_NAME + WAIT $00 + TEXT_CLEAR."
+    ]
+  },
+  "android_fr_only_speaker_label_repairs": [
+    {
+      "event_id": "02CD",
+      "snes_id": "C9:BE42",
+      "android_ids": [
+        1735,
+        1736
+      ],
+      "android_english": "The Seed's on the stage! Hold up the Sword!",
+      "android_french_before": "Vous replacez la Graine sur son autel. %S(0,0) : Je dois aligner l'Épée sur la Graine !",
+      "french_after_label_removal": "Vous replacez la Graine sur son autel. Je dois aligner l'Épée sur la Graine !",
+      "identity_unchanged": true,
+      "snes_player_name_commands_unchanged": true,
+      "status": "reviewed_exact_formatter_repair"
+    }
+  ],
+  "sound_sequence_repair": {
+    "event_id": "03F0",
+    "snes_ids": [
+      "C9:F29A",
+      "C9:F2AC",
+      "C9:F2BA"
+    ],
+    "android_ids": [
+      2361
+    ],
+    "android_english": "...Gzzzaza... zzzz... Beeeep!",
+    "android_french": "... Krrr... bzzz... biiip !",
+    "units": [
+      {
+        "snes_id": "C9:F29A",
+        "source": "...Gzzzaza...",
+        "localized_part": "... Krrr..."
+      },
+      {
+        "snes_id": "C9:F2AC",
+        "source": "zzzz...",
+        "localized_part": "bzzz..."
+      },
+      {
+        "snes_id": "C9:F2BA",
+        "source": " Beeeep!",
+        "localized_part": "biiip !"
+      }
+    ],
+    "preserved_commands": [
+      "PLAY_SOUND 02 D5 00 88",
+      "PLAY_SOUND 02 B3 0F 88",
+      "WAIT 10",
+      "PLAY_SOUND 02 17 00 88"
+    ],
+    "inserted_layout_newline_before_existing_wait10": true,
+    "identity_unchanged": true,
+    "status": "reviewed_exact_formatter_repair"
+  },
+  "partial_event_recovery": {
+    "event_id": "04E9",
+    "status": "PARTIEL",
+    "french_carriers": [
+      "CA:46AC",
+      "CA:46F5",
+      "CA:4745",
+      "CA:4797",
+      "CA:47E7",
+      "CA:4837",
+      "CA:4886"
+    ],
+    "layout_deferred_carriers": [
+      "CA:48DC",
+      "CA:4925"
+    ],
+    "text_clear_before": [
+      "CA:4745",
+      "CA:4797"
+    ],
+    "reason": "The two three-line Android-FR paragraphs start immediately after existing WAIT $00 commands. Exact TEXT_CLEAR-only resets make those pages simulator-clean without adding another pause. The final Android-FR sentence jointly condenses CA:48DC+CA:4925 across WAIT $00, so that mapping stays stock/deferred."
+  },
+  "deferred": [
+    {
+      "event_id": "0205",
+      "snes_ids": [
+        "C9:90DE",
+        "C9:910D"
+      ],
+      "android_ids": [
+        825
+      ],
+      "status": "TO_REVIEW",
+      "reason": "Android FR condenses the two SNES carriers into one sentence while the canonical SNES stream keeps PLAYER_NAME(0), then WAIT $00 + TEXT_CLEAR between the carriers. No complete-sentence redistribution preserves both stock pages without inventing or moving structure, so the event remains excluded."
+    }
+  ],
+  "counts": {
+    "exact_android_fr_only_speaker_label_repairs": 1,
+    "exact_sound_sequence_repairs": 1,
+    "exact_wait00_clear_only_repairs": 2,
+    "formatter_or_simulator_events_recovered": 3,
+    "formatter_events_deferred": 1
+  },
+  "scenes": [
+    {
+      "event_id": "02CD",
+      "label": "Android-FR-only speaker label formatter repair",
+      "status": "reviewed_exact_formatter_repair",
+      "units": [
+        {
+          "event_id": "02CD",
+          "snes_id": "C9:BE42",
+          "android_ids": [
+            1735,
+            1736
+          ],
+          "android_english": "The Seed's on the stage! Hold up the Sword!",
+          "android_french_before": "Vous replacez la Graine sur son autel. %S(0,0) : Je dois aligner l'Épée sur la Graine !",
+          "french_after_label_removal": "Vous replacez la Graine sur son autel. Je dois aligner l'Épée sur la Graine !",
+          "identity_unchanged": true,
+          "snes_player_name_commands_unchanged": true,
+          "status": "reviewed_exact_formatter_repair"
+        }
+      ]
+    },
+    {
+      "event_id": "03F0",
+      "label": "exact machine-noise sound bridge",
+      "status": "reviewed_exact_formatter_repair",
+      "units": [
+        {
+          "snes_id": "C9:F29A",
+          "source": "...Gzzzaza...",
+          "localized_part": "... Krrr..."
+        },
+        {
+          "snes_id": "C9:F2AC",
+          "source": "zzzz...",
+          "localized_part": "bzzz..."
+        },
+        {
+          "snes_id": "C9:F2BA",
+          "source": " Beeeep!",
+          "localized_part": "biiip !"
+        }
+      ]
+    },
+    {
+      "event_id": "04E9",
+      "label": "exact WAIT $00 clear-only PARTIEL recovery",
+      "status": "PARTIEL",
+      "units": [
+        {
+          "event_id": "04E9",
+          "status": "PARTIEL",
+          "french_carriers": [
+            "CA:46AC",
+            "CA:46F5",
+            "CA:4745",
+            "CA:4797",
+            "CA:47E7",
+            "CA:4837",
+            "CA:4886"
+          ],
+          "layout_deferred_carriers": [
+            "CA:48DC",
+            "CA:4925"
+          ],
+          "text_clear_before": [
+            "CA:4745",
+            "CA:4797"
+          ],
+          "reason": "The two three-line Android-FR paragraphs start immediately after existing WAIT $00 commands. Exact TEXT_CLEAR-only resets make those pages simulator-clean without adding another pause. The final Android-FR sentence jointly condenses CA:48DC+CA:4925 across WAIT $00, so that mapping stays stock/deferred."
+        }
+      ]
+    },
+    {
+      "event_id": "0205",
+      "label": "condensed two-page Android-FR mapping",
+      "status": "TO_REVIEW",
+      "units": [
+        {
+          "event_id": "0205",
+          "snes_ids": [
+            "C9:90DE",
+            "C9:910D"
+          ],
+          "android_ids": [
+            825
+          ],
+          "status": "TO_REVIEW",
+          "reason": "Android FR condenses the two SNES carriers into one sentence while the canonical SNES stream keeps PLAYER_NAME(0), then WAIT $00 + TEXT_CLEAR between the carriers. No complete-sentence redistribution preserves both stock pages without inventing or moving structure, so the event remains excluded."
+        }
+      ]
+    }
+  ]
+}

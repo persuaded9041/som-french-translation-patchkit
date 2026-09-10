@@ -1,0 +1,136 @@
+{
+  "format_version": 1,
+  "round": 57,
+  "status": "round57_snes_jp_omission_resolution",
+  "japanese_rom_sha256": "7fd1747eb4333f502d5fe6df7267342e4b4a399ab65b57f0a139e5f9fc02ab9d",
+  "usa_rom_sha256": "4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f",
+  "policy": {
+    "android_identity_changed": false,
+    "manual_supplement_policy": "JP-SNES-confirmed content omitted by Android remains unmapped and is preserved in dialogues_manual_supplements.json pending human French translation.",
+    "suppression_policy": "Only exact carriers proven absent as distinct JP-SNES lines and explicitly approved by the user are suppressed locally; adjacent commands are omitted only when structurally required."
+  },
+  "cases": [
+    {
+      "event_id": "0042",
+      "snes_id": "C9:1057",
+      "source_en": " Well, let's go!",
+      "jp_snes_state": "JP SNES présent",
+      "decision": "surcharge manuelle",
+      "note": "Restauré. Android omet la ligne, mais le SNES japonais possède un segment au même emplacement structurel.",
+      "manual_status": "needs_manual_translation"
+    },
+    {
+      "event_id": "010C",
+      "snes_id": "C9:30F5",
+      "source_en": "ELLIOTT:You!\n",
+      "jp_snes_state": "JP SNES absent comme ligne distincte",
+      "decision": "suppression validée",
+      "note": "Conserver la suppression texte seule. La supplication du héros qui suit reste intacte."
+    },
+    {
+      "event_id": "0207",
+      "snes_id": "C9:916F",
+      "source_en": " Proof that Mana is fading!",
+      "jp_snes_state": "JP SNES présent",
+      "decision": "surcharge manuelle",
+      "note": "Contenu SNES original : conserver et traduire manuellement.",
+      "manual_status": "needs_manual_translation"
+    },
+    {
+      "event_id": "0208",
+      "snes_id": "C9:9193",
+      "source_en": ":Everyone's mad\n 'cause I pulled out that\n sword..!",
+      "jp_snes_state": "JP SNES présent",
+      "decision": "surcharge manuelle",
+      "note": "Contenu SNES original : conserver et traduire manuellement. Layout stock 3 lignes préservé tant que le texte reste anglais.",
+      "manual_status": "needs_manual_translation"
+    },
+    {
+      "event_id": "024F",
+      "snes_id": "C9:9F88",
+      "source_en": "The Empire sent monsters\ninto the palace!",
+      "jp_snes_state": "JP SNES présent",
+      "decision": "surcharge manuelle",
+      "note": "Contenu SNES original : conserver et traduire manuellement.",
+      "manual_status": "needs_manual_translation"
+    },
+    {
+      "event_id": "0278",
+      "snes_id": "C9:A730",
+      "source_en": " Press START to see the map.",
+      "jp_snes_state": "JP SNES présent/resegmenté",
+      "decision": "surcharge manuelle",
+      "note": "Instruction contrôleur SNES déjà en surcharge.",
+      "manual_status": "needs_manual_translation"
+    },
+    {
+      "event_id": "0278",
+      "snes_id": "C9:A74E",
+      "source_en": " L/R buttons change modes.",
+      "jp_snes_state": "JP SNES présent/resegmenté",
+      "decision": "surcharge manuelle",
+      "note": "Instruction contrôleur SNES déjà en surcharge.",
+      "manual_status": "needs_manual_translation"
+    },
+    {
+      "event_id": "02E1",
+      "snes_id": "C9:C56C",
+      "source_en": "We'll smash the Empire!",
+      "jp_snes_state": "JP SNES présent",
+      "decision": "surcharge manuelle",
+      "note": "PNJ Tasnica confirmé dans le SNES japonais : conserver et traduire manuellement.",
+      "manual_status": "needs_manual_translation"
+    },
+    {
+      "event_id": "02FC",
+      "snes_id": "C9:CAA6",
+      "source_en": "\n(Unfinished diary entry)",
+      "jp_snes_state": "JP SNES présent",
+      "decision": "surcharge manuelle",
+      "note": "Début du journal confirmé dans le SNES japonais.",
+      "manual_status": "needs_manual_translation"
+    },
+    {
+      "event_id": "02FC",
+      "snes_id": "C9:CAC2",
+      "source_en": " ...My cover's been blown... Some monster's using\n the Emperor's body to",
+      "jp_snes_state": "JP SNES présent",
+      "decision": "surcharge manuelle",
+      "note": "Corps du journal confirmé dans le SNES japonais.",
+      "manual_status": "needs_manual_translation"
+    },
+    {
+      "event_id": "02FC",
+      "snes_id": "C9:CB0C",
+      "source_en": "\n\n(Text suddenly stops)",
+      "jp_snes_state": "JP SNES présent",
+      "decision": "surcharge manuelle",
+      "note": "Fin interrompue du journal confirmée dans le SNES japonais.",
+      "manual_status": "needs_manual_translation"
+    },
+    {
+      "event_id": "02FC",
+      "snes_id": "C9:CB28",
+      "source_en": ":What does this mean?",
+      "jp_snes_state": "JP SNES absent",
+      "decision": "suppression validée",
+      "note": "Réaction finale US supprimée avec PLAYER_NAME(0) et son WAIT $00 propre."
+    },
+    {
+      "event_id": "0558",
+      "snes_id": "CA:6629",
+      "source_en": ":We can too!",
+      "jp_snes_state": "JP SNES absent comme troisième ligne",
+      "decision": "suppression validée",
+      "note": "Supprimé avec PLAYER_NAME(2), mais le WAIT $00 suivant est conservé car il sert encore à la ligne précédente."
+    },
+    {
+      "event_id": "0323",
+      "snes_id": "C9:CE5A",
+      "source_en": "30",
+      "jp_snes_state": "JP SNES présent",
+      "decision": "sans action",
+      "note": "Paramètre dynamique 30 déjà couvert par le gabarit d’auberge."
+    }
+  ]
+}

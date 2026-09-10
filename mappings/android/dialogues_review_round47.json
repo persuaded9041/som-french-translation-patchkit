@@ -1,0 +1,323 @@
+{
+  "format_version": 1,
+  "status": "round47_routing_audit",
+  "source_asset": "dialogues.json",
+  "routing_evidence": {
+    "map_trigger_table": "ROM $084000",
+    "map_object_pointer_table": "ROM $087000",
+    "event_call_graph": "OP_10..27 event references"
+  },
+  "policy": {
+    "automatic_translation_generation": false,
+    "android_identity_assigned": false,
+    "translation_payload_changed": false,
+    "notes": [
+      "validated_no_equivalent means routing/provenance was audited and no unique Android-English identity may be assigned.",
+      "validated_android_omission means the SNES scene/branch is proven but the corresponding Android scene omits the carrier.",
+      "These classifications are negative evidence only: they do not increase the 1798/1838 semantic alignment count and do not authorize manual translation."
+    ]
+  },
+  "counts": {
+    "validated_no_equivalent": 6,
+    "validated_android_omission": 8,
+    "total_carriers": 14
+  },
+  "entries": [
+    {
+      "event_id": "00EE",
+      "snes_id": "C9:2179",
+      "source": " All aboard for Pandora!\n",
+      "classification": "validated_no_equivalent",
+      "note": "Round-47 trigger-proven Cannon route with no unique Android equivalent: $00EE is used by map triggers $0049/$011C, but Android reorganizes the Cannon network and has no provenance-safe standalone counterpart for SNES 'All aboard for Pandora!'. Do not recycle another Pandora response."
+    },
+    {
+      "event_id": "00F1",
+      "snes_id": "C9:2208",
+      "source": " For Pandora!\n",
+      "classification": "validated_no_equivalent",
+      "note": "Round-47 trigger-proven Cannon route with no unique Android equivalent: $00F1 is used by map trigger $0121, but Android has no provenance-safe standalone counterpart for SNES 'For Pandora!'. Do not recycle another Pandora response."
+    },
+    {
+      "event_id": "00F3",
+      "snes_id": "C9:2268",
+      "source": " Ice Country? Okay! See ya!\n",
+      "classification": "validated_no_equivalent",
+      "note": "Round-47 trigger-proven Cannon route with no unique Android equivalent: $00F3 is used by map trigger $011F, while Android contains multiple Ice Country Cannon responses belonging to other scene blocks. Do not force one by destination text alone."
+    },
+    {
+      "event_id": "0269",
+      "snes_id": "C9:A49C",
+      "source": "TRUFFLE:I'm rooting for you!",
+      "classification": "validated_no_equivalent",
+      "note": "Round-47 unreferenced duplicate audit: $0269 has no incoming OP_10..27 event reference, no map trigger and no map-object event reference in the canonical routing tables. The actually used Truffle line $0276 is called from $04E3 and already owns Android 1400. Keep $0269 as an orphan stock duplicate instead of forcing reuse of 1400."
+    },
+    {
+      "event_id": "02DE",
+      "snes_id": "C9:C4FB",
+      "source": "Drink this medicine!\nIt'll fix ya right up!",
+      "classification": "validated_no_equivalent",
+      "note": "Round-47 unreferenced stock audit: $02DE has no incoming OP_10..27 event reference, no map trigger and no map-object event reference, unlike the surrounding live Tasnica NPC scripts. No Android-English identity is established; do not force a loose medicine-line candidate."
+    },
+    {
+      "event_id": "0603",
+      "snes_id": "CA:85FC",
+      "source": "Topaz Falls",
+      "classification": "validated_no_equivalent",
+      "note": "Round-47 unreferenced sign audit: $0603 ('Topaz Falls') is the only $0600-$0609 sign event with no incoming event reference, map trigger or map-object reference in the canonical routing tables, and Android scrtxt/systxt contains no Topaz Falls anchor. Preserve it as an orphan stock sign rather than inventing an identity."
+    },
+    {
+      "event_id": "0042",
+      "snes_id": "C9:1057",
+      "source": " Well, let's go!",
+      "classification": "validated_android_omission",
+      "note": "Round-47 sprite-naming branch omission: $0041 conditionally transfers to $0042 after Android-aligned naming response 625, and both paths rejoin at the already aligned join message 628. Android 623-628 contains no counterpart for the alternate SNES 'Well, let's go!' line."
+    },
+    {
+      "event_id": "0207",
+      "snes_id": "C9:916F",
+      "source": " Proof that Mana is fading!",
+      "classification": "validated_android_omission",
+      "note": "Round-47 Water Palace trigger omission: map $0053 directly selects $0207 on the same trigger pair that selects $0206 ('That's impossible!' -> Android 837). The Water Palace Android scene has no standalone counterpart for SNES 'Proof that Mana is fading!'; superficially similar Android 2310 belongs to Mandala and 890 is already the distinct $04E9 dialogue."
+    },
+    {
+      "event_id": "0208",
+      "snes_id": "C9:9193",
+      "source": ":Everyone's mad\n 'cause I pulled out that\n sword..!",
+      "classification": "validated_android_omission",
+      "note": "Round-47 Water Palace trigger omission: map $004B directly selects $0208 in the same stateful trigger set as $020A (Android 938-942). The corresponding Android Water Palace material omits the boy's standalone reflection that everyone is angry because he pulled the Sword; the Potos elder line about pulling the Sword is a different scene."
+    },
+    {
+      "event_id": "024F",
+      "snes_id": "C9:9F88",
+      "source": "The Empire sent monsters\ninto the palace!",
+      "classification": "validated_android_omission",
+      "note": "Round-47 Wind Palace branch omission: $04E2 conditionally branches to $024F before its already aligned Grandpa/Sylphid sequence. Android 1274-1308 covers the same Wind Palace aftermath but contains no standalone counterpart for SNES 'The Empire sent monsters into the palace!'."
+    },
+    {
+      "event_id": "02FC",
+      "snes_id": "C9:CAA6",
+      "source": "\n(Unfinished diary entry)",
+      "classification": "validated_android_omission",
+      "note": "Round-47 Tasnica diary omission: non-text event $02FB conditionally transfers to optional diary event $02FC immediately before the already aligned Tasnica spy aftermath. Android 2578-2605 contains the king/spy sequence but omits this diary interaction entirely."
+    },
+    {
+      "event_id": "02FC",
+      "snes_id": "C9:CAC2",
+      "source": " ...My cover's been blown... Some monster's using\n the Emperor's body to",
+      "classification": "validated_android_omission",
+      "note": "Round-47 Tasnica diary omission: this is the diary body in optional event $02FC reached from $02FB; Android's corresponding Tasnica spy block 2578-2605 has no diary text."
+    },
+    {
+      "event_id": "02FC",
+      "snes_id": "C9:CB0C",
+      "source": "\n\n(Text suddenly stops)",
+      "classification": "validated_android_omission",
+      "note": "Round-47 Tasnica diary omission: this '(Text suddenly stops)' carrier belongs to optional event $02FC, absent from Android's corresponding Tasnica spy block 2578-2605."
+    },
+    {
+      "event_id": "02FC",
+      "snes_id": "C9:CB28",
+      "source": ":What does this mean?",
+      "classification": "validated_android_omission",
+      "note": "Round-47 Tasnica diary omission: the player's 'What does this mean?' closes optional event $02FC, which is absent from Android's corresponding Tasnica spy block 2578-2605."
+    }
+  ],
+  "scenes": [
+    {
+      "event_id": "00EE",
+      "label": "validated_no_equivalent",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "00EE",
+          "snes_id": "C9:2179",
+          "source": " All aboard for Pandora!\n",
+          "classification": "validated_no_equivalent",
+          "note": "Round-47 trigger-proven Cannon route with no unique Android equivalent: $00EE is used by map triggers $0049/$011C, but Android reorganizes the Cannon network and has no provenance-safe standalone counterpart for SNES 'All aboard for Pandora!'. Do not recycle another Pandora response."
+        }
+      ]
+    },
+    {
+      "event_id": "00F1",
+      "label": "validated_no_equivalent",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "00F1",
+          "snes_id": "C9:2208",
+          "source": " For Pandora!\n",
+          "classification": "validated_no_equivalent",
+          "note": "Round-47 trigger-proven Cannon route with no unique Android equivalent: $00F1 is used by map trigger $0121, but Android has no provenance-safe standalone counterpart for SNES 'For Pandora!'. Do not recycle another Pandora response."
+        }
+      ]
+    },
+    {
+      "event_id": "00F3",
+      "label": "validated_no_equivalent",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "00F3",
+          "snes_id": "C9:2268",
+          "source": " Ice Country? Okay! See ya!\n",
+          "classification": "validated_no_equivalent",
+          "note": "Round-47 trigger-proven Cannon route with no unique Android equivalent: $00F3 is used by map trigger $011F, while Android contains multiple Ice Country Cannon responses belonging to other scene blocks. Do not force one by destination text alone."
+        }
+      ]
+    },
+    {
+      "event_id": "0269",
+      "label": "validated_no_equivalent",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "0269",
+          "snes_id": "C9:A49C",
+          "source": "TRUFFLE:I'm rooting for you!",
+          "classification": "validated_no_equivalent",
+          "note": "Round-47 unreferenced duplicate audit: $0269 has no incoming OP_10..27 event reference, no map trigger and no map-object event reference in the canonical routing tables. The actually used Truffle line $0276 is called from $04E3 and already owns Android 1400. Keep $0269 as an orphan stock duplicate instead of forcing reuse of 1400."
+        }
+      ]
+    },
+    {
+      "event_id": "02DE",
+      "label": "validated_no_equivalent",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "02DE",
+          "snes_id": "C9:C4FB",
+          "source": "Drink this medicine!\nIt'll fix ya right up!",
+          "classification": "validated_no_equivalent",
+          "note": "Round-47 unreferenced stock audit: $02DE has no incoming OP_10..27 event reference, no map trigger and no map-object event reference, unlike the surrounding live Tasnica NPC scripts. No Android-English identity is established; do not force a loose medicine-line candidate."
+        }
+      ]
+    },
+    {
+      "event_id": "0603",
+      "label": "validated_no_equivalent",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "0603",
+          "snes_id": "CA:85FC",
+          "source": "Topaz Falls",
+          "classification": "validated_no_equivalent",
+          "note": "Round-47 unreferenced sign audit: $0603 ('Topaz Falls') is the only $0600-$0609 sign event with no incoming event reference, map trigger or map-object reference in the canonical routing tables, and Android scrtxt/systxt contains no Topaz Falls anchor. Preserve it as an orphan stock sign rather than inventing an identity."
+        }
+      ]
+    },
+    {
+      "event_id": "0042",
+      "label": "validated_android_omission",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "0042",
+          "snes_id": "C9:1057",
+          "source": " Well, let's go!",
+          "classification": "validated_android_omission",
+          "note": "Round-47 sprite-naming branch omission: $0041 conditionally transfers to $0042 after Android-aligned naming response 625, and both paths rejoin at the already aligned join message 628. Android 623-628 contains no counterpart for the alternate SNES 'Well, let's go!' line."
+        }
+      ]
+    },
+    {
+      "event_id": "0207",
+      "label": "validated_android_omission",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "0207",
+          "snes_id": "C9:916F",
+          "source": " Proof that Mana is fading!",
+          "classification": "validated_android_omission",
+          "note": "Round-47 Water Palace trigger omission: map $0053 directly selects $0207 on the same trigger pair that selects $0206 ('That's impossible!' -> Android 837). The Water Palace Android scene has no standalone counterpart for SNES 'Proof that Mana is fading!'; superficially similar Android 2310 belongs to Mandala and 890 is already the distinct $04E9 dialogue."
+        }
+      ]
+    },
+    {
+      "event_id": "0208",
+      "label": "validated_android_omission",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "0208",
+          "snes_id": "C9:9193",
+          "source": ":Everyone's mad\n 'cause I pulled out that\n sword..!",
+          "classification": "validated_android_omission",
+          "note": "Round-47 Water Palace trigger omission: map $004B directly selects $0208 in the same stateful trigger set as $020A (Android 938-942). The corresponding Android Water Palace material omits the boy's standalone reflection that everyone is angry because he pulled the Sword; the Potos elder line about pulling the Sword is a different scene."
+        }
+      ]
+    },
+    {
+      "event_id": "024F",
+      "label": "validated_android_omission",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "024F",
+          "snes_id": "C9:9F88",
+          "source": "The Empire sent monsters\ninto the palace!",
+          "classification": "validated_android_omission",
+          "note": "Round-47 Wind Palace branch omission: $04E2 conditionally branches to $024F before its already aligned Grandpa/Sylphid sequence. Android 1274-1308 covers the same Wind Palace aftermath but contains no standalone counterpart for SNES 'The Empire sent monsters into the palace!'."
+        }
+      ]
+    },
+    {
+      "event_id": "02FC",
+      "label": "validated_android_omission",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "02FC",
+          "snes_id": "C9:CAA6",
+          "source": "\n(Unfinished diary entry)",
+          "classification": "validated_android_omission",
+          "note": "Round-47 Tasnica diary omission: non-text event $02FB conditionally transfers to optional diary event $02FC immediately before the already aligned Tasnica spy aftermath. Android 2578-2605 contains the king/spy sequence but omits this diary interaction entirely."
+        }
+      ]
+    },
+    {
+      "event_id": "02FC",
+      "label": "validated_android_omission",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "02FC",
+          "snes_id": "C9:CAC2",
+          "source": " ...My cover's been blown... Some monster's using\n the Emperor's body to",
+          "classification": "validated_android_omission",
+          "note": "Round-47 Tasnica diary omission: this is the diary body in optional event $02FC reached from $02FB; Android's corresponding Tasnica spy block 2578-2605 has no diary text."
+        }
+      ]
+    },
+    {
+      "event_id": "02FC",
+      "label": "validated_android_omission",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "02FC",
+          "snes_id": "C9:CB0C",
+          "source": "\n\n(Text suddenly stops)",
+          "classification": "validated_android_omission",
+          "note": "Round-47 Tasnica diary omission: this '(Text suddenly stops)' carrier belongs to optional event $02FC, absent from Android's corresponding Tasnica spy block 2578-2605."
+        }
+      ]
+    },
+    {
+      "event_id": "02FC",
+      "label": "validated_android_omission",
+      "status": "audited",
+      "units": [
+        {
+          "event_id": "02FC",
+          "snes_id": "C9:CB28",
+          "source": ":What does this mean?",
+          "classification": "validated_android_omission",
+          "note": "Round-47 Tasnica diary omission: the player's 'What does this mean?' closes optional event $02FC, which is absent from Android's corresponding Tasnica spy block 2578-2605."
+        }
+      ]
+    }
+  ]
+}

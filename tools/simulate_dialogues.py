@@ -29,6 +29,7 @@ from shared.dialogue_simulator import (  # noqa: E402
 from shared.rom import validate_base_rom  # noqa: E402
 from shared.translation_json import (  # noqa: E402
     load_structural_omission_token_indexes,
+    load_structural_command_overrides,
     load_choice_option_position_overrides,
     load_translation,
 )
@@ -184,11 +185,11 @@ def make_html(
                 </div>""")
             boxes_html.append("".join(pages_html))
         partial = sim.event_id in partial_events
-        partial_badge = '<span class="badge partial">PARTIEL · français incomplet</span>' if partial else ''
+        partial_badge = '<span class="badge partial">PARTIEL · FR/EN incomplet</span>' if partial else ''
         current_ids = set(sim.translated_ids)
-        # A previously suppressed empty translation becoming visible is NEW too.
-        # PARTIEL suppression deliberately keeps empty entries in the translation
-        # document, so key-presence alone would miss the most important review case.
+        # A previously empty translation becoming visible is NEW too. PARTIEL
+        # events now deliberately leave unresolved carriers absent from the sparse
+        # French JSON so their stock SNES English stays visible in-game.
         new_ids = (
             sorted(
                 text_id
@@ -317,6 +318,9 @@ def main() -> None:
     structural_omissions = load_structural_omission_token_indexes(
         args.translation.resolve(), document, translations=translations
     )
+    structural_command_overrides = load_structural_command_overrides(
+        args.translation.resolve(), document
+    )
     choice_option_overrides = load_choice_option_position_overrides(
         args.translation.resolve(), document
     )
@@ -353,6 +357,7 @@ def main() -> None:
             font=font,
             player_names=player_names,
             omitted_command_token_indexes=structural_omissions.get(event["event_id"]),
+            structural_command_overrides=structural_command_overrides.get(event["event_id"]),
             choice_option_position_overrides=choice_option_overrides.get(event["event_id"]),
         )
         for event in events
@@ -375,6 +380,9 @@ def main() -> None:
         baseline_structural_omissions = load_structural_omission_token_indexes(
             baseline_path, document, translations=baseline_translations
         )
+        baseline_structural_command_overrides = load_structural_command_overrides(
+            baseline_path, document
+        )
         baseline_choice_option_overrides = load_choice_option_position_overrides(
             baseline_path, document
         )
@@ -386,6 +394,7 @@ def main() -> None:
                 font=font,
                 player_names=player_names,
                 omitted_command_token_indexes=baseline_structural_omissions.get(event["event_id"]),
+                structural_command_overrides=baseline_structural_command_overrides.get(event["event_id"]),
                 choice_option_position_overrides=baseline_choice_option_overrides.get(event["event_id"]),
             )
             for event in events

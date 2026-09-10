@@ -1050,6 +1050,7 @@ def strip_proven_structural_android_markers(
     else:
         removed = []
 
+
     glyph_codes = {
         token.get("code", "").upper()
         for token in event.get("tokens", [])
@@ -1188,7 +1189,9 @@ def binding_slots(document: dict, mapping: dict) -> list[BindingSlot]:
             # Only tolerate the proven linear lookahead shapes seen in the
             # alignment corpus. Branching/choice/unknown commands must never
             # make a future PLAYER_NAME look adjacent to the current mapping.
-            safe_context_commands = {"WAIT", "TEXT_CLEAR", "OP_32", "COMPLETE_ACTIONS"}
+            # OP_32 and OP_34 are the same already-proven actor-action
+            # family for this linear lookahead; neither command emits text.
+            safe_context_commands = {"WAIT", "TEXT_CLEAR", "OP_32", "OP_34", "COMPLETE_ACTIONS"}
             for token in tokens[span_end + 1:]:
                 if token.get("type") == "text":
                     break
@@ -1438,6 +1441,78 @@ def format_mapping(
     french_normalized = normalize_android_french(french_without_structural_markers)
     french_layout, layout_hints = apply_semantic_layout_hints(french_normalized)
     french_placeholders = placeholder_sequence(french_layout)
+    preserved_static_speaker_dynamic_addressee = None
+
+    # Android FR can omit a dynamic addressee from ``STATIC_SPEAKER:%S(n)!``
+    # even though Android EN and the canonical SNES span both prove it.  Keep
+    # the existing SNES PLAYER_NAME exactly where it already sits: immediately
+    # after the localized static speaker label.  This requires one PlayerSlot,
+    # text carriers on both sides, the same shape in Android EN, and a French
+    # leading ``label:``.  No command is created, removed, moved, or reordered.
+    if source_placeholders != french_placeholders and not french_placeholders:
+        source_addressee = re.match(
+            r"^\s*[^%\n:]{2,30}:\s*%S\((\d+),0\)\s*([!?])",
+            source_display,
+        )
+        android_addressee = re.match(
+            r"^\s*[^%\n:]{2,30}:\s*%S\((\d+),0\)\s*([!?])",
+            mapping.get("android_english_display", ""),
+        )
+        french_speaker = re.match(r"^(\s*[^%\n:]{2,30}\s*:\s*)(.+)$", french_layout, re.S)
+        player_slots = [slot for slot in slots if isinstance(slot, PlayerSlot)]
+        if (
+            source_addressee
+            and android_addressee
+            and source_addressee.groups() == android_addressee.groups()
+            and french_speaker
+            and len(player_slots) == 1
+            and player_slots[0].index == int(source_addressee.group(1))
+            and isinstance(slots[0], TextSlot)
+            and isinstance(slots[-1], TextSlot)
+        ):
+            player_index = int(source_addressee.group(1))
+            punctuation = source_addressee.group(2)
+            french_layout = (
+                f"{french_speaker.group(1)}%S({player_index},0) {punctuation} "
+                f"{french_speaker.group(2).lstrip()}"
+            )
+            french_placeholders = placeholder_sequence(french_layout)
+            preserved_static_speaker_dynamic_addressee = {
+                "player_index": player_index,
+                "punctuation": punctuation,
+            }
+
+    preserved_leading_snes_player_prefix = None
+
+    # Android FR can omit an explicit dynamic addressee/speaker that both the
+    # canonical SNES span and Android EN place at the very start.  The SNES
+    # PLAYER_NAME command cannot safely be removed, so preserve that proven
+    # leading placeholder and only its immediately following punctuation.  No
+    # name command is invented or moved; this is a formatting fallback for an
+    # already-existing first PlayerSlot.
+    if source_placeholders != french_placeholders and not french_placeholders and slots:
+        source_leading_player = re.match(r"^\s*%S\((\d+),0\)\s*([!?])\s*", source_display)
+        android_leading_player = re.match(
+            r"^\s*%S\((\d+),0\)\s*([!?])\s*",
+            mapping.get("android_english_display", ""),
+        )
+        if (
+            source_leading_player
+            and android_leading_player
+            and source_leading_player.groups() == android_leading_player.groups()
+            and isinstance(slots[0], PlayerSlot)
+            and slots[0].index == int(source_leading_player.group(1))
+        ):
+            player_index = int(source_leading_player.group(1))
+            punctuation = source_leading_player.group(2)
+            separator = f" {punctuation} "
+            french_layout = f"%S({player_index},0){separator}{french_layout.lstrip()}"
+            french_placeholders = placeholder_sequence(french_layout)
+            preserved_leading_snes_player_prefix = {
+                "player_index": player_index,
+                "punctuation": punctuation,
+            }
+
     adjacent_player_carrier_indexes: list[int] = []
     if source_placeholders != french_placeholders:
         slots, adjacent_player_carrier_indexes = (
@@ -1448,6 +1523,28 @@ def format_mapping(
         source_placeholders = tuple(
             slot.index for slot in slots if isinstance(slot, PlayerSlot)
         )
+    positional_player_rebindings: list[dict[str, int]] = []
+    if (
+        source_placeholders != french_placeholders
+        and source_placeholders
+        and len(source_placeholders) == len(french_placeholders)
+    ):
+        # Android occasionally assigns the same spoken line to a different
+        # party slot than the SNES script.  The English identity layer already
+        # proves the prose correspondence independently of placeholder number;
+        # for SNES serialization, preserve the existing PLAYER_NAME commands
+        # and rebind French placeholders positionally to those canonical slots.
+        # No event command is created, removed, moved, or reordered.
+        replacements = iter(source_placeholders)
+
+        def _rebind_player(match: re.Match[str]) -> str:
+            target = next(replacements)
+            source = int(match.group(1))
+            positional_player_rebindings.append({"android_index": source, "snes_index": target})
+            return f"%S({target},0)"
+
+        french_layout = PLAYER_PLACEHOLDER_RE.sub(_rebind_player, french_layout)
+        french_placeholders = placeholder_sequence(french_layout)
     if source_placeholders != french_placeholders:
         raise ValueError(
             f"French PLAYER_NAME sequence {french_placeholders} does not match SNES {source_placeholders}"
@@ -1599,6 +1696,9 @@ def format_mapping(
         "preserved_choice_terminal_suffix_ids": preserved_choice_terminal_suffix_ids or None,
         "adjacent_nonsemantic_carrier_ids": adjacent_nonsemantic_carrier_ids or None,
         "adjacent_player_carrier_indexes": adjacent_player_carrier_indexes or None,
+        "preserved_static_speaker_dynamic_addressee": preserved_static_speaker_dynamic_addressee,
+        "preserved_leading_snes_player_prefix": preserved_leading_snes_player_prefix,
+        "positional_player_rebindings": positional_player_rebindings or None,
         "ignored_alignment_trailing_player_context": ignored_alignment_trailing_player_context or None,
         "android_french_normalized": french_normalized,
         "layout_markup_before_wrap": french_layout,
@@ -1643,9 +1743,12 @@ def format_mapping_across_existing_wait_boundaries(
 
     This fallback is intentionally structural rather than editorial. It applies
     only when one accepted Android mapping owns two or more existing SNES text
-    tokens separated *exclusively* by interactive ``WAIT $00`` and optional
-    ``TEXT_CLEAR`` commands. No PLAYER_NAME may be involved. The existing event
-    commands remain byte-for-byte in place; French is cut only at complete
+    tokens separated by one interactive ``WAIT $00``, optional ``TEXT_CLEAR``,
+    and optionally the already-validated pure actor-action pair ``OP_32/OP_34``
+    + ``COMPLETE_ACTIONS``. A single ``PLAYER_NAME`` is also allowed only as
+    an identical leading placeholder immediately before the first mapped text
+    carrier; no dynamic name may occur at or across a WAIT boundary. The existing
+    event commands remain byte-for-byte in place; French is cut only at complete
     sentence boundaries and each resulting piece is formatted independently by
     the normal validated formatter.
 
@@ -1657,10 +1760,26 @@ def format_mapping_across_existing_wait_boundaries(
     snes_ids = mapping.get("snes_ids", [])
     if len(snes_ids) < 2:
         raise ValueError("Existing-WAIT distribution requires at least two SNES text IDs")
-    if PLAYER_PLACEHOLDER_RE.search(mapping.get("source_display", "")):
-        raise ValueError("Existing-WAIT distribution does not handle source PLAYER_NAME")
-    if PLAYER_PLACEHOLDER_RE.search(mapping.get("french_display", "")):
-        raise ValueError("Existing-WAIT distribution does not handle French PLAYER_NAME")
+
+    source_display = mapping.get("source_display", "")
+    french_display = mapping.get("french_display", "")
+    source_players = tuple(int(match.group(1)) for match in PLAYER_PLACEHOLDER_RE.finditer(source_display))
+    french_players = tuple(int(match.group(1)) for match in PLAYER_PLACEHOLDER_RE.finditer(french_display))
+    leading_player_index: int | None = None
+    if source_players or french_players:
+        source_leading = re.match(r"^\s*%S\((\d+),0\)", source_display)
+        french_leading = re.match(r"^\s*%S\((\d+),0\)", french_display)
+        if (
+            source_players != french_players
+            or len(source_players) != 1
+            or source_leading is None
+            or french_leading is None
+            or source_leading.group(1) != french_leading.group(1)
+        ):
+            raise ValueError(
+                "Existing-WAIT distribution handles only one identical leading PLAYER_NAME"
+            )
+        leading_player_index = source_players[0]
 
     by_id, by_event = event_text_index(document)
     metas = []
@@ -1677,6 +1796,20 @@ def format_mapping_across_existing_wait_boundaries(
         raise ValueError("Existing-WAIT distribution IDs are not in strict token order")
 
     event = by_event[metas[0]["event_id"]]
+    if leading_player_index is not None:
+        first_index = token_indexes[0]
+        if first_index <= 0:
+            raise ValueError("Existing-WAIT leading PLAYER_NAME has no canonical predecessor")
+        player = event["tokens"][first_index - 1]
+        if (
+            player.get("type") != "command"
+            or player.get("name") != "PLAYER_NAME"
+            or int(player.get("args", "00").split()[0], 16) != leading_player_index
+        ):
+            raise ValueError(
+                "Existing-WAIT leading PLAYER_NAME is not immediately before the first mapped carrier"
+            )
+
     boundary_commands: list[list[dict]] = []
     for first_index, second_index in zip(token_indexes, token_indexes[1:]):
         between = event["tokens"][first_index + 1:second_index]
@@ -1684,6 +1817,7 @@ def format_mapping_across_existing_wait_boundaries(
             raise ValueError("Existing-WAIT distribution found no command at a mapped boundary")
         wait00_count = 0
         rendered_commands: list[dict] = []
+        action_commands: list[str] = []
         for token in between:
             if token.get("type") != "command":
                 raise ValueError("Existing-WAIT distribution crosses non-command event data")
@@ -1692,13 +1826,24 @@ def format_mapping_across_existing_wait_boundaries(
                 if token.get("args", "").strip().upper() != "00":
                     raise ValueError("Existing-WAIT distribution never crosses timed WAITs")
                 wait00_count += 1
-            elif name != "TEXT_CLEAR":
+            elif name == "TEXT_CLEAR":
+                pass
+            elif name in {"OP_32", "OP_34", "COMPLETE_ACTIONS"}:
+                action_commands.append(name)
+            else:
                 raise ValueError(
                     f"Existing-WAIT distribution crosses unsupported command {name!r}"
                 )
             rendered_commands.append({"name": name, "args": token.get("args")})
         if wait00_count != 1:
             raise ValueError("Existing-WAIT distribution requires exactly one WAIT $00 per boundary")
+        if action_commands and (
+            not ({"OP_32", "OP_34"} & set(action_commands))
+            or "COMPLETE_ACTIONS" not in action_commands
+        ):
+            raise ValueError(
+                "Existing-WAIT action bridge requires an actor action and COMPLETE_ACTIONS"
+            )
         boundary_commands.append(rendered_commands)
 
     french_without_structural_markers, structural_markers_removed = (
@@ -1755,11 +1900,16 @@ def format_mapping_across_existing_wait_boundaries(
         translations: dict[str, str] = {}
         local_reports: list[dict] = []
         valid = True
-        for text_id, french_piece in zip(snes_ids, pieces, strict=True):
+        for part_index, (text_id, french_piece) in enumerate(zip(snes_ids, pieces, strict=True)):
             local_mapping = dict(mapping)
             local_mapping["snes_ids"] = [text_id]
-            local_mapping["source_display"] = by_id[text_id]["source"]
-            local_mapping["french_display"] = french_piece
+            if part_index == 0 and leading_player_index is not None:
+                placeholder = f"%S({leading_player_index},0)"
+                local_mapping["source_display"] = placeholder + by_id[text_id]["source"]
+                local_mapping["french_display"] = french_piece
+            else:
+                local_mapping["source_display"] = by_id[text_id]["source"]
+                local_mapping["french_display"] = french_piece
             try:
                 values, report = format_mapping(
                     document,
@@ -1816,6 +1966,7 @@ def format_mapping_across_existing_wait_boundaries(
         "structural_markers_removed": structural_markers_removed,
         "android_french_normalized": french_normalized,
         "existing_wait_sentence_distribution": True,
+        "existing_wait_leading_player_index": leading_player_index,
         "existing_wait_weak_clause_boundary": weak_clause_boundary,
         "existing_wait_boundary_commands": boundary_commands,
         "source_sentence_counts": source_sentence_counts,

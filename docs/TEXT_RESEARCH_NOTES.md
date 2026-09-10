@@ -180,6 +180,17 @@ asset. Record the pointer/reference mechanism, exact physical boundaries and
 round-trip invariant. This avoids reintroducing the false-positive problem caused
 by the game's dense DTE encoding.
 
+## Original Japanese event-text helper
+
+Round 61 turns the Japanese dialogue decoding work used during omission review
+into a reusable analysis tool. Given a canonical USA carrier from
+`assets/dialogues.json`, `tools/extract_japanese_dialogue.py` resolves the owning
+event and decodes that event from a clean user-supplied Japanese SFC ROM. It uses
+the original Japanese direct/S1/S2/S3 character pages in
+`shared/japanese_dialogue.py` and deliberately returns event context rather than
+guessing through regional resegmentation. See
+`docs/JAPANESE_DIALOGUE_EXTRACTION.md` for the exact policy and known limits.
+
 ## Android alignment checkpoint
 
 Cross-version matching of the canonical USA inventory against the supplied

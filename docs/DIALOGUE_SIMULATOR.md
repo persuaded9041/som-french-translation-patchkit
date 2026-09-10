@@ -33,9 +33,7 @@ works from the resulting **encoded event byte stream**. It independently:
 - checks the conservative formatter target of 240 pixels separately;
 - follows explicit `$7F` line breaks, `WAIT`, `TEXT_CLEAR`, `TEXT_OPEN` and
   `TEXT_CLOSE`; runtime validation on `$0106` established that `WAIT` is pause-only and **does not advance the text cursor**; following text therefore remains on the same physical line until `$7F` or `TEXT_CLEAR`;
-- models `TEXT_X $nn` only when it starts a fresh line: the command's absolute
-  decoded-text position becomes `nn` leading `$80` padding cells, matching the
-  private-buffer path used by component 06;
+- models forward/equal `TEXT_X $nn` as the stock absolute decoded-buffer-index reset: static analysis of `$C0:1883` / `$C0:18FB` proves writes to both `$7E:A1CE` and `$7E:A173`, so already-decoded prefix cells are retained and clean `$80` cells pad up to `nn`; backward overwrite remains unsupported;
 - models the stock three-line rolling window: `WAIT` snapshots the current readable state without consuming a line, while a fourth line generated **before** the next pause is reported as unpaused scroll;
 - emits review-only `WAIT_SAME_LINE_CONTINUATION` when translated text resumes after a WAIT on a still-live line, making missing explicit `$7F` boundaries visible instead of silently inventing them;
 - detects the runtime-validated `$0106` pagination hazard separately: after `WAIT $00`, two retained visible lines plus an empty newline can consume physical line 3 and make following prose scroll before the next pause; this is emitted as review-only `WAIT00_THIRD_LINE_SCROLL_RISK`, never auto-fixed;
@@ -52,11 +50,14 @@ also checked independently from the visible glyph count.
 
 This is not a 65816/event-engine emulator. Commands whose dialogue geometry is
 not established are **reported as unsupported rather than guessed**. `TEXT_X`
-is accepted only at a fresh-line position whose behavior is established; a
-mid-line `TEXT_X` remains unsupported because it resets an absolute text
-position/count. `MONEY_PRINT` (`$5F`) is modeled as consuming no dialogue-buffer
+is accepted for forward/equal absolute resets whose decoded-buffer behavior is
+proved from the stock handler; a backward reset remains unsupported because it
+would overwrite already-decoded cells. `MONEY_PRINT` (`$5F`) is modeled as consuming no dialogue-buffer
 geometry: static event-engine analysis shows that it redraws the separate money
-window rather than appending dialogue glyphs. Interactive choice geometry is now modeled conservatively. `CHOICE_OPTION $xx` resets
+window rather than appending dialogue glyphs. Special `ending_text` (`$7D...$7E`)
+geometry is still not simulated; those blocks are accepted only when their final
+serialized bytes, count and order are exactly identical to the clean-USA event.
+Interactive choice geometry is now modeled conservatively. `CHOICE_OPTION $xx` resets
 the decoded-buffer X to the stock absolute cell and records the same boundary later
 used by the selection/highlight code; `CHOICE_END` supplies the terminal boundary,
 excluding the stock closing `)` when present. Component 06 currently renders choice rows
@@ -85,15 +86,21 @@ component-06 follow-up.
 
 ## Current mass-pass result
 
-The simulator-filtered generator currently accepts **526 events / 1138 visible
-semantic source IDs (1196 JSON entries)**: 525 events treated as complete plus 1
-PARTIEL event. `$0103`, `$017F` and `$01DC` are user-validated visually complete Android
-adaptations and therefore have no PARTIEL badge despite retaining unmapped SNES-only
-fragments. `$01DC` additionally omits the exact final stock `PLAYER_NAME(0)` command tied
-to suppressed `C9:804A`. `$0278` is the sole PARTIEL event; its two SNES-only controller carriers are user-validated absent from Android and are staged in the manual supplement JSON.
+The simulator-filtered generator currently accepts **695 events / 1687 accepted
+semantic source IDs (1783 JSON entries)**: **669 complete + 26 PARTIEL**. The authoritative
+PARTIEL list is kept in `docs/HANDOFF.md`. `$0103`, `$017F` and `$01DC` are user-validated
+visually complete Android adaptations and therefore have no PARTIEL badge; `$0602` is likewise
+badge-free after runtime review found no visible missing/English content, while unresolved
+`CA:85DD` remains tracked. `$01DC` additionally omits the exact final stock
+`PLAYER_NAME(0)` command tied to suppressed `C9:804A`. PARTIEL events retain unresolved,
+reviewed-hole, manual-pending, or explicitly layout-deferred mapped carriers as stock English
+while independent proven mappings render in French. Generic structural safe-subset PARTIEL
+candidates are accepted only when this direct mixed serialization already passes the simulator
+without adaptive repair. Round 58's ten manual `translation_fr` proposals are non-active in the
+canonical build; a disposable all-proposals-active test also resimulates all 691 accepted events
+with 0 errors / 0 warnings / 0 implicit wraps.
 Re-running the simulator on the candidate mass translation produces **0 errors, 0 warnings
-and 0 implicit runtime wraps**. The HTML marks that event with a `PARTIEL · français
-incomplet` badge so incomplete scenes can be revisited during playthrough. When
+and 0 implicit runtime wraps**. The HTML marks these events with a `PARTIEL · FR/EN incomplet` badge so incomplete scenes can be revisited during playthrough. When
 `--baseline-translation` points to the previous generated JSON, the preview also tags
 events as `NEW` when newly translated source IDs appear, `MODIFIED` when the final
 serialized event bytes differ from the baseline, and `TO REVIEW` for PARTIEL,

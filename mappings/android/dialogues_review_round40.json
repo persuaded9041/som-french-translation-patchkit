@@ -1,0 +1,415 @@
+{
+  "format_version": 1,
+  "status": "round40_user_review_pending",
+  "source_asset": "dialogues.json",
+  "android_english": {
+    "path": "sources/android/scrtxt_en.bin",
+    "sha256": "4d4508560967b6ce4d6cf992f29e84e2775ed4accc74d87c3fd4269044b75ae5"
+  },
+  "android_french": {
+    "path": "sources/android/scrtxt_fr.bin",
+    "sha256": "cd837aaf53a7979d0e84910e8cda3bd67427f4a3cbddadc351811378d7e7d696"
+  },
+  "policy": {
+    "automatic_translation_generation": false,
+    "english_identity_is_primary": true,
+    "notes": [
+      "SNES PLAYER_NAME commands are represented explicitly as Android-style %S(index,0) placeholders for comparison only.",
+      "Android anchor intervals include following English-empty localization slots.",
+      "Very-high-confidence SNES-to-Android-English identity is not rejected merely because French wording is freely adapted.",
+      "When French or Android segmentation crosses individual anchors, preserve and review the complete local sequence block rather than forcing a per-ID translation."
+    ]
+  },
+  "scenes": [
+    {
+      "event_id": "00C0",
+      "label": "Gold City Mammon boast - unique missing anchor in reconstructed block",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:1A33"
+          ],
+          "snes_parts": [
+            "C9:1A33"
+          ],
+          "source_display": "MANMON:Money...MONEY!\n And it's all MINE!",
+          "android_anchor_ids": [
+            2508
+          ],
+          "android_unit_ids": [
+            2508
+          ],
+          "android_english_display": "Mammon: Gold... GOLD! And it's all MINE!",
+          "french_nonempty_ids": [
+            2508
+          ],
+          "french_display": "Mammon : De l'or... de l'or ! Tout cet or m'appartient ! ",
+          "relation": "contiguous_scene_gap",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 77.1,
+            "source_token_coverage": 62.5,
+            "lexical_score": 73.5
+          },
+          "note": "SNES events $00BB/$00BA/$00B9/$00B8/$00BD/$00BE already map to Android 2505/2506/2507/2509/2510/2511/2512. Mammon's Money...MONEY / all MINE boast is the only missing Gold City utterance and Android EN 2508 is the unique intervening Mammon: Gold... GOLD! / all MINE line.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "011B",
+      "label": "Potos final banishment - second call-site after departure prompt",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:3801"
+          ],
+          "snes_parts": [
+            "C9:3801"
+          ],
+          "source_display": "You are hereby banished fromPotos village.\nNow, get out of here!",
+          "android_anchor_ids": [
+            35
+          ],
+          "android_unit_ids": [
+            35
+          ],
+          "android_english_display": "By order of the elder, you are hereby banished from Potos Village. Now, begone!",
+          "french_nonempty_ids": [
+            35
+          ],
+          "french_display": "Par ordre du chef du village, tu es banni de Potos. Laisse-nous en paix. ",
+          "relation": "callsite_duplicate_disambiguation",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 70.6,
+            "source_token_coverage": 63.6,
+            "lexical_score": 68.9
+          },
+          "note": "Android EN 31 and 35 repeat the same banishment sentence with different FR payloads. SNES $011B follows $011A Have everything you need? / Yes / No, exactly matching Android 32-34 followed by the second banishment at 35; therefore 35 is the correct call-site localization.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "023C",
+      "label": "Neko save-buy-sell block - lines immediately before proven choices",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:9D5F"
+          ],
+          "snes_parts": [
+            "C9:9D5F"
+          ],
+          "source_display": "NEKO:Purrfect weather!",
+          "android_anchor_ids": [
+            1205
+          ],
+          "android_unit_ids": [
+            1205
+          ],
+          "android_english_display": "Neko: Purrrfect weather!",
+          "french_nonempty_ids": [
+            1205
+          ],
+          "french_display": "Niccolo : Vous êtes en voyage, miaou ? \nMoi aussi, figurez-vous ! ",
+          "relation": "equivalent_duplicate_same_block_tiebreak",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 97.7,
+            "source_token_coverage": 66.7,
+            "lexical_score": 89.9
+          },
+          "note": "Android EN/FR 1184 and 1205 are strict equivalent copies of Neko: Purrrfect weather!. The stock $023C choice carriers Save/Buy/Sell are already concretely aligned to 1207/1208/1209, so the copy in that exact block is 1205.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:9D7C"
+          ],
+          "snes_parts": [
+            "C9:9D7C"
+          ],
+          "source_display": " What can I do for you?\n",
+          "android_anchor_ids": [
+            1206
+          ],
+          "android_unit_ids": [
+            1206
+          ],
+          "android_english_display": "Neko: Meow, busy travelers! I'll even save the game!",
+          "french_nonempty_ids": [
+            1206
+          ],
+          "french_display": "Exceptionnellement, je peux sauvegarder, miaou ! ",
+          "relation": "contiguous_prompt_replacement",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 20.3,
+            "source_token_coverage": 16.7,
+            "lexical_score": 19.4
+          },
+          "note": "SNES What can I do for you? is the prompt immediately before Save/Buy/Sell. Android 1206 occupies exactly the same slot immediately before the already proven 1207-1209 choices; Android rewrites the generic prompt as Neko: Meow, busy travelers! I'll even save the game!. Identity is structural block position, not French wording.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0114",
+      "label": "Potos elder banishment apology - two SNES carriers to one Android line",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:364B",
+            "C9:369A"
+          ],
+          "snes_parts": [
+            "C9:364B",
+            "C9:369A"
+          ],
+          "source_display": "ELDER:I took you in and\n I raised you. But there's\n nothing I can do to help.\n Please forgive me.",
+          "android_anchor_ids": [
+            90
+          ],
+          "android_unit_ids": [
+            90
+          ],
+          "android_english_display": "Elder: I took you in and I raised you as one of my own. But there's nothing more I can do to help. Please forgive me.",
+          "french_nonempty_ids": [
+            90
+          ],
+          "french_display": "Chef : J'ai bien peur de ne rien pouvoir pour toi, cette fois. Pardonne-moi.\nCertains au village n'ont jamais vraiment pu te considérer comme l'un des leurs...",
+          "relation": "multi_carrier_android_extension",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 89.2,
+            "source_token_coverage": 100.0,
+            "lexical_score": 91.9
+          },
+          "note": "The two SNES carriers form one continuous Elder speech. Android EN 90 contains the whole speech with minor wording expansion and sits in the same Potos banishment block immediately before the already aligned $0115-$0118 lines 99/98/96/97.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "02C0",
+      "label": "Karon ferry sign - split SNES sign to one Android anchor",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:BC60",
+            "C9:BC72"
+          ],
+          "snes_parts": [
+            "C9:BC60",
+            "C9:BC72"
+          ],
+          "source_display": "“Karon's Ferry”\nOut to lunch.",
+          "android_anchor_ids": [
+            2629
+          ],
+          "android_unit_ids": [
+            2629
+          ],
+          "android_english_display": "Karon's FerryOut to lunch.",
+          "french_nonempty_ids": [
+            2629
+          ],
+          "french_display": "　\"Navette de Charon \n　Fermeture exceptionnelle\"",
+          "relation": "exact_split_sign_resegmentation",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 98.0,
+            "source_token_coverage": 66.7,
+            "lexical_score": 90.2
+          },
+          "note": "The two positioned SNES carriers concatenate to Karon's Ferry / Out to lunch; Android EN 2629 is the unique combined sign and is bracketed by the adjacent Karon ferry events $02C1/$02C2.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "03ED",
+      "label": "Mandala video - Mana-energy debate contiguous Android block",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "C9:F13C"
+          ],
+          "snes_parts": [
+            "C9:F13C"
+          ],
+          "source_display": "\n We're using it up!\n Ha! You can't USE up Mana!\n Argh! You don't understand!",
+          "android_anchor_ids": [
+            2364,
+            2365,
+            2366
+          ],
+          "android_unit_ids": [
+            2364,
+            2365,
+            2366
+          ],
+          "android_english_display": "What do you mean by that? It's a fact. We're using it up! Ha! You can't USE up Mana! Argh! You don't understand!",
+          "french_nonempty_ids": [
+            2364,
+            2365,
+            2366
+          ],
+          "french_display": "\"Grotesque ? Mais pour qui vous prenez-vous, enfin !\" \"Je ne saurais tolérer un tel affront !!\" \"Mais... que faites-vous... Arrêtez !\"\nBzzz...",
+          "relation": "contiguous_android_resegmentation",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 78.6,
+            "source_token_coverage": 100.0,
+            "lexical_score": 84.0
+          },
+          "note": "The preceding carrier is already Android 2362-2363; this carrier contains the next three debate utterances in order and therefore maps to the immediately contiguous Android EN 2364-2366.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "C9:F18D"
+          ],
+          "snes_parts": [
+            "C9:F18D"
+          ],
+          "source_display": " ...Gzzz...",
+          "android_anchor_ids": [
+            2367
+          ],
+          "android_unit_ids": [
+            2367
+          ],
+          "android_english_display": "...Gzzzaza... zzzz... Beeeep!",
+          "french_nonempty_ids": [
+            2367
+          ],
+          "french_display": "... Krrr... bzzz... biiip !",
+          "relation": "contiguous_android_transition_extension",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 34.8,
+            "source_token_coverage": 0.0,
+            "lexical_score": 26.1
+          },
+          "note": "This is the terminal static/noise carrier of the same video. Android EN 2367 is the immediately following static transition before the already aligned $03EB/$03EC material; the Android version spells out more of the static/beep sequence.",
+          "user_validation": "pending"
+        }
+      ]
+    },
+    {
+      "event_id": "0555",
+      "label": "Dyluck confrontation - contiguous call-structured Android scene",
+      "status": "user_review_pending",
+      "units": [
+        {
+          "snes_ids": [
+            "CA:632B",
+            "CA:6337"
+          ],
+          "snes_parts": [
+            "CA:632B",
+            [
+              "player_name",
+              1
+            ],
+            "CA:6337"
+          ],
+          "source_display": "DYLUCK:...%S(1,0)!\n At last!",
+          "android_anchor_ids": [
+            2157
+          ],
+          "android_unit_ids": [
+            2157
+          ],
+          "android_english_display": "Dyluck: ...%S(1,0)! At last! I've missed you so much!",
+          "french_nonempty_ids": [
+            2157
+          ],
+          "french_display": "Durac : %S(1,0) ! Tu m'as manqué ! Je t'attendais.",
+          "relation": "placeholder_join",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 67.6,
+            "source_token_coverage": 100.0,
+            "lexical_score": 75.7
+          },
+          "note": "The SNES Dyluck prefix, PLAYER_NAME(1), and At last continuation are one utterance; Android EN 2157 is exactly the corresponding line between the already aligned 2156 and 2158 anchors.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "CA:63F1"
+          ],
+          "snes_parts": [
+            "CA:63F1"
+          ],
+          "source_display": "DYLUCK:Sorry, but Thanatos\n needs her help...",
+          "android_anchor_ids": [
+            2165
+          ],
+          "android_unit_ids": [
+            2165
+          ],
+          "android_english_display": "Dyluck: Sorry, but Thanatos needs her help...or more specifically the blood of a young girl. Heh.",
+          "french_nonempty_ids": [
+            2165
+          ],
+          "french_display": "Durac : Je l'ai envoyée au seigneur Thanatos. Elle va être sacrifiée... Nous avons besoin du sang d'une jeune fille.",
+          "relation": "contained_local_scene_anchor",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 61.1,
+            "source_token_coverage": 100.0,
+            "lexical_score": 70.8
+          },
+          "note": "Android EN 2165 is the unique Dyluck/Thanatos continuation immediately after the already aligned 2164 line. Android expands the explanation but preserves the same scene identity.",
+          "user_validation": "pending"
+        },
+        {
+          "snes_ids": [
+            "CA:6423"
+          ],
+          "snes_parts": [
+            "CA:6423"
+          ],
+          "source_display": ":You can't be\n serious! She LOVES you!\n I can't handle this!",
+          "android_anchor_ids": [
+            2166,
+            2167
+          ],
+          "android_unit_ids": [
+            2166,
+            2167,
+            2168,
+            2169
+          ],
+          "android_english_display": "%S(0,0): You can't be serious! She LOVES you! I can't handle this! I don't care if you ARE being controlled or not!",
+          "french_nonempty_ids": [
+            2166,
+            2167,
+            2168
+          ],
+          "french_display": "%S(0,0) : Ordure ! %S(1,0) était morte d'inquiétude pour toi... Comment peux-tu lui faire ça ?! Elle t'aime ! Tu dois le savoir, même si on te manipule !  Tu ne t'en tireras pas comme ça !",
+          "relation": "contiguous_android_resegmentation",
+          "proposed_confidence": "very_high_structural",
+          "lexical_evidence": {
+            "character_similarity": 64.7,
+            "source_token_coverage": 100.0,
+            "lexical_score": 73.5
+          },
+          "note": "The SNES carrier contains both You can't be serious / She LOVES you and I can't handle this; Android EN splits those clauses across the consecutive anchors 2166 and 2167, directly before the already aligned 2170 Dyluck recovery line.",
+          "user_validation": "pending"
+        }
+      ]
+    }
+  ]
+}

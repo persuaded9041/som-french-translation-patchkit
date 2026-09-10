@@ -147,20 +147,47 @@ caller gates; their stock `$C9/$CA` VWF behavior is unchanged.
   preserve the original encoding exactly.
 
 
-## Manual Android-absent supplements
+## Manual dialogue supplements
 
 `translations/dialogues_manual_supplements.json` is the only manual dialogue staging file.
-An entry is accepted only when its event/text ID is explicitly user-validated as absent
-from Android and its `source_en` exactly matches `assets/dialogues.json`. While status is
-`needs_manual_translation`, `text` must remain exactly the USA source text. These entries
-do not count as Android alignment and keep their event PARTIEL. `$0278` currently owns the
-two START/L/R controller instructions; Android FR 1349 is then inserted as an extra page
-before the already aligned 1350/1351 continuation.
+Its format-v2 provenance fields are `original_jp` (true SNES-JP wording only when proven),
+byte-faithful `original_en`, `original_fr` from the official SNES-FR Rev 1 ROM, and
+`translation_fr` as the project proposal. Pending `needs_manual_translation` entries always
+serialize `original_en`; only explicit user approval changes them to `translated`. Manual
+supplements never create Android identity.
+
+Round 60 validated the original 11 supplements, including `$035F/C9:D1B8` strictly as
+`Dryade`. Round 62 added `$04E1/CA:2C84`; Round 63 validated suppressing that standalone
+USA-only page and only its immediately following `WAIT $00`, preserving the following
+`TEXT_CLEAR` and `CA:2C93`. Round 64 added five provenance-rich entries for the remaining no-safe-Android-equivalent
+carriers: `$00EE/C9:2179`, `$00F1/C9:2208`, `$00F3/C9:2268`, `$0204/C9:902F`, and
+`$04E8/CA:437D`. Round 65 explicitly validates all except `$0204`: the active texts are
+`Départ pour Pandora !`, `Pour Pandora !`, `Pays de glace ! Bon voyage !`, and
+`Héhéhéhé !`. Android FR confirms the canonical terms `Pandora` and `Pays de glace`.
+`$0204/C9:902F` remains `needs_manual_translation`. Pending entries are review metadata only
+and do not disable validated PARTIEL fallback repairs; `$04E8` is applied only after its
+already-proven PARTIEL repairs, then re-simulated. The current review sheet is
+`mappings/android/dialogues_manual_supplements_round65.html`; regenerate/check it with
+`tools/generate_manual_dialogue_supplements_html.py [--check]`.
+
+`$0278` owns the two START/L/R controller instructions; Android FR 1349 is inserted as an
+extra page before the already aligned 1350/1351 continuation.
 
 The generic inn sequence uses no manual translation. Android ID 110 is a reviewed
 parameterized template: stock events `$0320-$0328` provide the dynamic numeric price,
 `$0330/C9:CEA3` suppresses the English prefix, and `$0331/C9:CEB3` renders the French
 suffix derived from Android.
+
+### User-validated bad-localization stock override
+
+A semantically aligned carrier may preserve its exact USA source text only for an explicit
+user-validated Android-FR localization error. Round 39 applies this to
+`$0689/CA:8F20 -> Android 769`: the event grants the Whip/Leather Whip (`OP_1E A4`),
+while the actual Magic Rope chest is `$0687` (`OP_1E 46`). Android FR incorrectly reuses
+the Leather-Whip sentence for both items, so `CA:8F20` is emitted as exact stock USA
+`Found the Whip!`. Android EN 769 remains the accepted identity. The override goes through
+the ordinary component-08 serializer and in-place/relocation decision; no runtime special
+case is installed.
 
 ## Current mass formatting
 
@@ -171,19 +198,25 @@ python3 tools/import_android_text.py --only dialogue-format-mass \
   --rom <clean-USA-ROM>
 ```
 
-The current deterministic partial-aware mass pass is **526 simulator-clean events /
-1138 visible semantic source IDs / 1196 JSON entries**. The corpus contains 525
-events treated as complete and 1 PARTIEL event. `$0103`, `$017F` and `$01DC` are user-validated
-visually complete Android adaptations whose remaining SNES-only fragments stay unmapped
-without a PARTIEL badge. `$0278` is intentionally the sole PARTIEL event: its two controller-specific SNES carriers are proven absent from Android and are staged in `translations/dialogues_manual_supplements.json`; pending entries intentionally retain exact USA text until manually translated.
-Structural commands/layout bytes remain canonical except for the exact user-validated `$01DC` omission of `PLAYER_NAME(0)` immediately before suppressed `C9:804A` and generated rightward `CHOICE_OPTION` coordinate overrides that pass the validated minimal-anchor rule. The remaining 178 excluded events are listed in
-`mappings/android/dialogues_format_mass_excluded.csv`: 161 alignment-incomplete events and 17 formatter rejects.
+The current Round-65 deterministic partial-aware mass pass is **694 simulator-clean events /
+1682 accepted semantic source IDs / 1777 JSON entries**: **668 complete + 26 PARTIEL**.
+The PARTIEL events are `$001E`, `$0042`, `$00EE`, `$00F1`, `$00F3`, `$010C`, `$013A`,
+`$0207`, `$0208`, `$0227`, `$024F`, `$0278`, `$02E1`, `$02FC`, `$035F`, `$04E1`,
+`$04E2`, `$04E5`, `$04E6`, `$04E8`, `$04E9`, `$04FD`, `$0555`, `$0558`, `$0559`,
+`$0592`. Four additional events remain user-validated visually complete Android adaptations
+despite reviewed unresolved bookkeeping. The **10 excluded events** are **7 alignment-incomplete
++ 2 formatter-rejected + 1 simulator-rejected**. Semantic Android identity remains **1798/1838**.
+
+Round 62 adds four exact user-reviewed distributions only: `$038D`, `$03EA` and `$04E3`
+become complete; `$04E2` accepts `CA:31EE + CA:3218` but remains PARTIEL for six other
+carriers. Three exact carriers are allowed to end in a generated `\f` only through the
+Round-62 allow-list: `$03EA/C9:F04C`, `$04E2/CA:31EE`, `$04E3/CA:36C7`. This must not
+be generalized. Round 63 suppresses `$04E1/CA:2C84` plus its immediately following `WAIT $00`; this exact structural omission must not be generalized.
 
 The formatter is intentionally conservative:
 
-- complete events still require every semantic text token to have a high-confidence Android alignment, except reviewed structural templates such as the dynamic inn prompt; partial events may additionally expose only user-validated Android-absent manual supplements from the dedicated JSON;
-- partial events receive no compact-wrapper, pagination or cross-mapping repair: their
-  direct French-only-but-incomplete serialization must already pass the independent simulator;
+- complete events still require every semantic text token to have a high-confidence Android alignment, except reviewed structural templates such as the dynamic inn prompt; partial events are reconsidered every run and may expose accepted French mappings alongside untouched stock-English unresolved carriers; user-validated Android-absent manual supplements remain allowed from the dedicated JSON;
+- partial events normally receive no compact-wrapper, pagination or cross-mapping repair. For an explicit `validated_no_equivalent` or `validated_android_omission` hole, the established whole-event compact wrapper may remove formatter-added line breaks without changing any SNES command. Only an explicit `validated_android_omission` may additionally leave an already-mapped carrier stock/layout-deferred when its French would require an unsupported command crossing or a changed `PLAYER_NAME` stream; the mapping remains accepted and the mixed result must still pass the independent simulator;
 - each generated line must stay within 240 pixels and 38 parser units, with at most
   three visible lines per page;
 - an extra page uses `WAIT $00` + `TEXT_CLEAR`; a second generated transition is
@@ -194,8 +227,9 @@ The formatter is intentionally conservative:
   final static gate;
 - `PLAYER_NAME`, fresh-line `TEXT_X`, existing WAIT/action boundaries and
   punctuation-only carrier slots are handled only when the stock event structure proves
-  the transformation. Dynamic-name commands are never invented or moved; the sole command
-  omission is the explicitly user-validated `$01DC` Android-adaptation deletion;
+  the transformation. Dynamic-name commands are never invented or moved; command omission is restricted to the
+  explicitly reviewed `$01DC` Android-adaptation deletion and the exact Round-45 `$01DA`
+  third-`PLAYER_NAME(0)` naming-scene omission;
 - `MONEY_PRINT` consumes no dialogue-buffer geometry because it redraws the separate
   money window;
 - interactive choices keep the first stock `CHOICE_OPTION` anchor. If Android prose reflow
@@ -210,7 +244,7 @@ The formatter is intentionally conservative:
 
 The mass pass serializes each candidate event and runs the independent simulator. An
 error, warning, implicit runtime wrap or unsupported structure excludes the whole event.
-The 526-event corpus simulates with **0 errors, 0 warnings and 0 implicit runtime
+The 680-event corpus simulates with **0 errors, 0 warnings and 0 implicit runtime
 wraps**. Component 06 renders admitted choice rows through its ordinary VWF path; the
 option-start and terminal-boundary synchronization are runtime-validated on `$0331`; the
 minimal later-anchor shift is runtime-validated on the Potos `Temple de l'Eau / Pandora`
@@ -253,5 +287,5 @@ formatter reports are not committed; the current canonical outputs are the mass-
 translation, report and exclusion CSV.
 ### WAIT does not imply NEWLINE
 
-Runtime testing on `$0106` established that `WAIT` pauses the dialogue renderer without advancing the live text cursor. The simulator therefore no longer treats WAIT as a line terminator. Reviewed translated continuations that were formatted under the former assumption now serialize an explicit `$7F` NEWLINE at the required boundary; if the three-line rolling window would scroll before the next pause, a reviewed `TEXT_CLEAR` is used instead. The current batch remains TO REVIEW until combined runtime testing.
+Runtime testing on `$0106` established that `WAIT` pauses the dialogue renderer without advancing the live text cursor. The simulator therefore no longer treats WAIT as a line terminator. Reviewed translated continuations that were formatted under the former assumption now serialize an explicit `$7F` NEWLINE at the required boundary; if the three-line rolling window would scroll before the next pause, a reviewed `TEXT_CLEAR` is used instead. Those reviewed candidates remain TO REVIEW until runtime testing.
 

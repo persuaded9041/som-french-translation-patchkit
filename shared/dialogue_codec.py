@@ -134,6 +134,15 @@ COMMAND_OPCODES = {name: opcode for opcode, name in COMMAND_NAMES.items()}
 # the original event scripts. Canonical source assets never contain this marker.
 TRANSLATION_PAGE_BREAK = "\f"
 TRANSLATION_PAGE_BREAK_BYTES = bytes((0x28, 0x00, 0x52))
+# Exact user-reviewed carrier boundaries where a generated WAIT $00 + TEXT_CLEAR
+# must be emitted *after* the translated carrier and before the next canonical
+# command/text token. This remains deliberately allow-listed rather than making
+# trailing page breaks generic.
+TRANSLATION_TRAILING_PAGE_BREAK_ALLOWLIST = frozenset({
+    ("03EA", "C9:F04C"),  # song: page 1 + intermediate page, then stock sound bridge
+    ("04E2", "CA:31EE"),  # Papy! -> fresh page before Grandpa reply/action bridge
+    ("04E3", "CA:36C7"),  # Truffaut pages -> fresh page before PLAYER_NAME(0) reaction
+})
 # A translated chunk that follows an existing stock WAIT can request a clear
 # without another wait. The formatter uses this to replace legacy leading blank
 # scroll lines with a clean new page.
@@ -411,6 +420,7 @@ def serialize_event(
     translations: dict[str, str] | None = None,
     source: bool,
     omitted_command_token_indexes: frozenset[int] | set[int] | None = None,
+    structural_command_overrides: dict[int, tuple[str, str] | None] | None = None,
     choice_option_position_overrides: dict[int, int] | None = None,
 ) -> bytes:
     """Serialize one event against its canonical clean-ROM source and optional translations.
@@ -430,14 +440,33 @@ def serialize_event(
 
     translations = translations or {}
     omitted = frozenset(omitted_command_token_indexes or ())
+    command_overrides = dict(structural_command_overrides or {})
     choice_overrides = dict(choice_option_position_overrides or {})
     if source and omitted:
         raise ValueError(f"Event ${event_id:04X}: source serialization cannot omit commands")
+    if source and command_overrides:
+        raise ValueError(f"Event ${event_id:04X}: source serialization cannot override commands")
     if source and choice_overrides:
         raise ValueError(f"Event ${event_id:04X}: source serialization cannot move CHOICE_OPTION commands")
     invalid_indexes = sorted(index for index in omitted if index < 0 or index >= len(event["tokens"]))
     if invalid_indexes:
         raise ValueError(f"Event ${event_id:04X}: invalid omitted command token indexes: {invalid_indexes}")
+    invalid_command_indexes = sorted(index for index in command_overrides if index < 0 or index >= len(event["tokens"]))
+    if invalid_command_indexes:
+        raise ValueError(f"Event ${event_id:04X}: invalid structural command override token indexes: {invalid_command_indexes}")
+    overlap = sorted(set(omitted) & set(command_overrides))
+    if overlap:
+        raise ValueError(f"Event ${event_id:04X}: command token(s) both omitted and overridden: {overlap}")
+    for index, replacement in command_overrides.items():
+        token = event["tokens"][index]
+        if token.get("type") != "command":
+            raise ValueError(f"Event ${event_id:04X}: token {index} is not a command")
+        if replacement is not None:
+            name, args = replacement
+            if name != token.get("name"):
+                raise ValueError(f"Event ${event_id:04X}: structural command override cannot change command name at token {index}")
+            if not isinstance(args, str):
+                raise ValueError(f"Event ${event_id:04X}: structural command override args must be a string at token {index}")
     invalid_choice_indexes = sorted(index for index in choice_overrides if index < 0 or index >= len(event["tokens"]))
     if invalid_choice_indexes:
         raise ValueError(f"Event ${event_id:04X}: invalid CHOICE_OPTION override token indexes: {invalid_choice_indexes}")
@@ -470,7 +499,11 @@ def serialize_event(
             else:
                 allow_trailing_page_break = False
                 if text.endswith(TRANSLATION_PAGE_BREAK):
-                    if index + 1 < len(event["tokens"]):
+                    allow_trailing_page_break = (
+                        (f"{event_id:04X}", token.get("id", ""))
+                        in TRANSLATION_TRAILING_PAGE_BREAK_ALLOWLIST
+                    )
+                    if not allow_trailing_page_break and index + 1 < len(event["tokens"]):
                         next_token = event["tokens"][index + 1]
                         allow_trailing_page_break = (
                             next_token.get("type") == "command"
@@ -500,7 +533,16 @@ def serialize_event(
                 out += encode_ending_text(text)
                 out.append(0x7E)
         elif kind == "command":
-            if index in choice_overrides:
+            if index in command_overrides:
+                replacement = command_overrides[index]
+                if replacement is None:
+                    continue
+                name, args = replacement
+                replacement_token = dict(token)
+                replacement_token["name"] = name
+                replacement_token["args"] = args
+                out += _command_bytes(replacement_token)
+            elif index in choice_overrides:
                 out += bytes((COMMAND_OPCODES["CHOICE_OPTION"], choice_overrides[index]))
             else:
                 out += _command_bytes(token)

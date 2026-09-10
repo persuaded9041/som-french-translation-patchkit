@@ -150,13 +150,18 @@ insertion, line breaks and WAIT sequencing. The canonical `assets/dialogues.json
 The runtime-validated pagination baseline includes `$010F`: dynamic-name lines
 reserve one parser safety unit, and its four safe lines use a sentence-aware
 3+1 split with generated `WAIT $00` + `TEXT_CLEAR`. The current simulator-filtered
-mass pass contains **526 simulator-clean events / 1138 visible semantic source
-tokens / 1196 JSON entries** and resimulates with 0 errors, 0 warnings and 0 implicit
-wraps. Only `$0278` remains PARTIEL: its two SNES-only controller carriers are
-user-validated absent from Android and are staged in `translations/dialogues_manual_supplements.json`
-pending manual French translation. `$00DF` is complete through the runtime-validated minimal
+mass pass contains **608 simulator-clean events / 1516 visible semantic source
+IDs / 1596 JSON entries**: **584 complete + 24 PARTIEL**. It resimulates with 0 errors,
+0 warnings and 0 implicit wraps. Generic structural and Round-33 direct-simulator safe-subset
+PARTIEL events preserve deferred mapped carriers byte-for-byte in stock English under strict
+direct-simulation gates; neither fallback changes identity or stock commands. Accepted mappings may render in French while unresolved reviewed holes remain stock
+English in PARTIEL events; `$0278` additionally remains PARTIEL because its two SNES-only
+controller carriers are user-validated absent from Android and are staged in
+`translations/dialogues_manual_supplements.json` pending manual French translation. `$00DF` is complete through the runtime-validated minimal
 later-choice anchor shift. `$0103`, `$017F` and `$01DC` are separately user-validated as
-visually complete Android adaptations and no longer carry a PARTIEL badge. `$01DC` has one
+visually complete Android adaptations and no longer carry a PARTIEL badge. `$0602` is also
+badge-free after runtime review found no visible missing/English content; unresolved `CA:85DD`
+remains tracked without altering the event bytes. `$01DC` has one
 explicit structural exception: its final stock `PLAYER_NAME(0)` is omitted together with
 Android-absent `C9:804A`. The shared inn prompt is complete through a parameterized Android
 ID 110 template while the stock numeric price carriers remain dynamic.

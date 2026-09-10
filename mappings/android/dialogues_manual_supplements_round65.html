@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Secret of Mana — surcharges manuelles Round 65</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#202530;background:#f5f6f8}
+body{max-width:1280px;margin:0 auto;padding:28px 18px 60px}h1{margin-bottom:6px}.lead{color:#5b6472;max-width:950px}
+.banner{background:#fff8dc;border:1px solid #e5cf72;border-radius:12px;padding:14px 16px;margin:20px 0}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}.stat{background:white;border:1px solid #dce1e8;border-radius:10px;padding:9px 12px}
+.card{background:white;border:1px solid #dce1e8;border-radius:12px;margin:14px 0;box-shadow:0 1px 2px #00000008}summary{padding:14px 16px;font-weight:700;cursor:pointer}
+.badge{font-size:.75rem;margin-left:8px;padding:3px 7px;border-radius:999px}.pending{background:#fff0c8;color:#775000}.done{background:#daf4e2;color:#196633}.suppressed{background:#eceff3;color:#4d5968}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:0 16px 14px}section{border:1px solid #e5e8ed;border-radius:10px;padding:12px;background:#fbfcfd}section.proposal{background:#eef6ff;border-color:#bed8f5}h3{font-size:.88rem;margin:0 0 8px;color:#536071;text-transform:uppercase;letter-spacing:.03em}
+.text{white-space:normal;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;line-height:1.45}.meta{border-top:1px solid #e5e8ed;padding:12px 16px;color:#56606e;font-size:.9rem;line-height:1.45}.evidence{margin-top:9px;color:#67717f;font-size:.82rem}.muted{color:#8a929e;font-style:italic}
+.hashes{font-size:.78rem;color:#687281;word-break:break-all}code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+</style></head><body>
+<h1>Surcharges manuelles — Round 65</h1>
+<p class="lead">Comparaison destinée à la validation humaine. Le sens du SNES japonais est prioritaire ; la localisation française officielle sert de référence de terminologie et de ton. Une proposition marquée « À valider » n'est jamais injectée : le build conserve le texte USA tant que <code>status=needs_manual_translation</code>. Une entrée « SUPPRIMÉ » conserve ses trois sources pour provenance mais n'affiche aucun texte.</p>
+<div class="banner"><b>Règle de provenance :</b> <code>original_jp</code> ne contient que du japonais attribué au SNES original avec suffisamment de certitude. Un champ JP non encore transcrit reste volontairement vide ; Android JP n'est jamais substitué à l'original SNES.</div>
+<div class="stats"><div class="stat"><b>17</b> carriers manuels</div><div class="stat"><b>1</b> proposition(s) à valider</div><div class="stat"><b>15</b> traduction(s) validée(s)</div><div class="stat"><b>1</b> suppression(s) validée(s)</div></div>
+<div class="hashes">SNES JP SHA-256 : <code>7fd1747eb4333f502d5fe6df7267342e4b4a399ab65b57f0a139e5f9fc02ab9d</code><br>SNES USA SHA-256 : <code>4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f</code><br>SNES FR Rev 1 SHA-256 : <code>b730adcbb34a19f8fd1c2abe27455cc3256329a9b8a021291e3009ea33004127</code></div>
+
+<details class="card" data-status="translated" open>
+  <summary><code>$0042</code> · <code>C9:1057</code>
+    <span class="badge done">VALIDÉ</span></summary>
+  <div class="grid">
+    <section><h3>SNES japonais original</h3><div class="text">よろしくたのむぜ、ニイちゃん！</div><div class="evidence"><b>État JP :</b> exact_snes_jp_transcription_structurally_confirmed</div></section>
+    <section><h3>SNES USA original</h3><div class="text"> Well, let&#x27;s go!</div></section>
+    <section><h3>SNES France Rev 1</h3><div class="text"> Allons, en route !</div></section>
+    <section class="proposal"><h3>Proposition du patch</h3><div class="text"> Bon, faisons équipe !</div></section>
+  </div>
+  <div class="meta"><b>Base de proposition :</b> snes_jp_primary; official_snes_fr_for_tone_and_terminology<br>
+  <b>Note :</b> Le japonais exprime surtout l&#x27;idée de faire équipe / bien s&#x27;entendre; la localisation FR officielle &#x27;Allons, en route !&#x27; est plus libre. Validé explicitement par l’utilisateur après revue Round 58.</div>
+</details>
+<details class="card" data-status="translated" open>
+  <summary><code>$00EE</code> · <code>C9:2179</code>
+    <span class="badge done">VALIDÉ</span></summary>
+  <div class="grid">
+    <section><h3>SNES japonais original</h3><div class="text">「パンドーラ行き、しゅっぱーつ！</div><div class="evidence"><b>État JP :</b> exact_snes_jp_transcription_structurally_confirmed<br><b>Octets JP conservés :</b> <code>86 62 D5 B6 CF 84 60 B0 68 AB 90 80 95 BA B8 D5 84 9B 82</code></div></section>
+    <section><h3>SNES USA original</h3><div class="text"> All aboard for Pandora!<br></div></section>
+    <section><h3>SNES France Rev 1</h3><div class="text">Embarquement pour Pandore !<br></div></section>
+    <section class="proposal"><h3>Proposition du patch</h3><div class="text">Départ pour Pandora !</div></section>
+  </div>
+  <div class="meta"><b>Base de proposition :</b> snes_jp_primary; android_fr_canonical_terminology_Pandora; snes_fr_rev1_secondary<br>
+  <b>Note :</b> Round 65 : validation explicite de la proposition. La terminologie Android FR canonique emploie « Pandora » (Royaume de Pandora, Château de Pandora, destination Pandora), donc la forme SNES-FR « Pandore » n’est pas reprise.</div>
+</details>
+<details class="card" data-status="translated" open>
+  <summary><code>$00F1</code> · <code>C9:2208</code>
+    <span class="badge done">VALIDÉ</span></summary>
+  <div class="grid">
+    <section><h3>SNES japonais original</h3><div class="text">「パンドーラ行き<br></div><div class="evidence"><b>État JP :</b> exact_snes_jp_transcription_structurally_confirmed<br><b>Octets JP conservés :</b> <code>86 62 D5 B6 CF 84 60 B0 68 AB 90 7F</code></div></section>
+    <section><h3>SNES USA original</h3><div class="text"> For Pandora!<br></div></section>
+    <section><h3>SNES France Rev 1</h3><div class="text">Pour Pandore !<br></div></section>
+    <section class="proposal"><h3>Proposition du patch</h3><div class="text">Pour Pandora !</div></section>
+  </div>
+  <div class="meta"><b>Base de proposition :</b> snes_jp_primary; android_fr_canonical_terminology_Pandora; snes_fr_rev1_secondary<br>
+  <b>Note :</b> Round 65 : validation explicite de la proposition. « Pandora » est la terminologie Android FR canonique ; conserver cette forme plutôt que « Pandore » de la ROM FR Rev1.</div>
+</details>
+<details class="card" data-status="translated" open>
+  <summary><code>$00F3</code> · <code>C9:2268</code>
+    <span class="badge done">VALIDÉ</span></summary>
+  <div class="grid">
+    <section><h3>SNES japonais original</h3><div class="text">「氷の国！いってらっしゃい！<br></div><div class="evidence"><b>État JP :</b> exact_snes_jp_transcription_structurally_confirmed<br><b>Octets JP conservés :</b> <code>86 6C B2 A2 68 A7 82 8B B8 9C B0 B8 95 B9 8B 82 7F</code></div></section>
+    <section><h3>SNES USA original</h3><div class="text"> Ice Country? Okay! See ya!<br></div></section>
+    <section><h3>SNES France Rev 1</h3><div class="text">Polaira ? D&#x27;accord. Salut !<br></div></section>
+    <section class="proposal"><h3>Proposition du patch</h3><div class="text">Pays de glace ! Bon voyage !</div></section>
+  </div>
+  <div class="meta"><b>Base de proposition :</b> snes_jp_primary; android_fr_canonical_terminology_Pays_de_glace; snes_fr_rev1_secondary<br>
+  <b>Note :</b> Round 65 : validation explicite de la proposition. Le japonais dit « Pays de glace ! Bon voyage ! » et Android FR emploie exactement « Pays de glace » pour Ice Country ; la forme SNES-FR « Polaira » n’est pas reprise.</div>
+</details>
+<details class="card" data-status="needs_manual_translation" open>
+  <summary><code>$0204</code> · <code>C9:902F</code>
+    <span class="badge pending">À VALIDER</span></summary>
+  <div class="grid">
+    <section><h3>SNES japonais original</h3><div class="text">「これで世界のどこにおっても、<br>　その聖剣には種子からのパワーが　とどくはずじゃ。</div><div class="evidence"><b>État JP :</b> exact_snes_jp_transcription_resegmented_block_confirmed<br><b>Localisation JP :</b> événement <code>$0204</code> · carrier <code>C9:87E4</code><br><b>Octets JP conservés :</b> <code>86 93 B3 CE 6C BA 68 D9 A2 CF 93 9F 8E B8 9C AC 80 7F FF 98 A2 FB FC 9F A3 6D EE E4 8F B0 A2 61 D5 B5 84 C1 FF 9D CF 91 A3 C8 C7 B9 81</code></div></section>
+    <section><h3>SNES USA original</h3><div class="text"> You&#x27;ll be able to gain<br> power from the Mana seed<br> wherever you are!</div></section>
+    <section><h3>SNES France Rev 1</h3><div class="text">Où que tu sois, tu pourras<br>recevoir le pouvoir de la<br>graine Mana.</div></section>
+    <section class="proposal"><h3>Proposition du patch</h3><div class="text">Où que tu sois, le pouvoir de la Graine atteindra ton Épée.</div></section>
+  </div>
+  <div class="meta"><b>Base de proposition :</b> snes_jp_primary_resegmented; corresponding_snes_fr_segment_secondary; event_context<br>
+  <b>Note :</b> Le SNES-JP fusionne ici le sens de plusieurs carriers occidentaux : « où que tu sois dans le monde, le pouvoir de la Graine atteindra cette Épée ». Le bloc JP exact est conservé comme preuve resegmentée et n’est pas présenté comme une correspondance 1:1 avec le seul carrier USA C9:902F. Proposition à valider.</div>
+</details>
+<details class="card" data-status="translated" open>
+  <summary><code>$0207</code> · <code>C9:916F</code>
+    <span class="badge done">VALIDÉ</span></summary>
+  <div class="grid">
+    <section><h3>SNES japonais original</h3><div class="text">「世界から　マナが失われようと<br>　している　しょうこじゃ！</div><div class="evidence"><b>État JP :</b> exact_snes_jp_transcription_structurally_confirmed<br><b>Octets JP conservés :</b> <code>86 6C BA 68 D9 8F B0 FF 61 A8 9E C1 68 CA B5 B3 AF 8C 9D 7F FF 95 9C 8B B2 FF 95 BB 8C 93 C7 B9 82</code></div></section>
+    <section><h3>SNES USA original</h3><div class="text"> Proof that Mana is fading!</div></section>
+    <section><h3>SNES France Rev 1</h3><div class="text"> Preuve que Mana faiblit !</div></section>
+    <section class="proposal"><h3>Proposition du patch</h3><div class="text"> C&#x27;est la preuve que Mana disparaît de ce monde !</div></section>
+  </div>
+  <div class="meta"><b>Base de proposition :</b> snes_jp_primary; official_snes_fr_secondary; exact_snes_jp_transcription<br>
+  <b>Note :</b> Le japonais dit explicitement que Mana est en train de disparaître du monde ; la proposition précise le sens plus vague de la localisation officielle « Mana faiblit ». Validé explicitement par l’utilisateur après revue Round 58.</div>
+</details>
+<details class="card" data-status="translated" open>
+  <summary><code>$0208</code> · <code>C9:9193</code>
+    <span class="badge done">VALIDÉ</span></summary>
+  <div class="grid">
+    <section><h3>SNES japonais original</h3><div class="text">『‥‥ぼくが剣を抜いてしまった<br>　ために　みんなにめいわくが‥‥</div><div class="evidence"><b>État JP :</b> exact_snes_jp_transcription_structurally_confirmed<br><b>Octets JP conservés :</b> <code>88 85 85 D4 91 C1 FC B7 6C E1 8B 9C 95 A8 B8 99 7F FF 99 AB 9F FF A9 B6 9E 9F AB 8B B5 91 C1 85 85</code></div></section>
+    <section><h3>SNES USA original</h3><div class="text">:Everyone&#x27;s mad<br> &#x27;cause I pulled out that<br> sword..!</div></section>
+    <section><h3>SNES France Rev 1</h3><div class="text"> : Tous sont en<br>colère car j&#x27;ai retiré<br>l&#x27;épée… !</div></section>
+    <section class="proposal"><h3>Proposition du patch</h3><div class="text"> : ...En retirant l&#x27;épée,<br>j&#x27;ai causé des ennuis<br>à tout le monde...</div></section>
+  </div>
+  <div class="meta"><b>Base de proposition :</b> snes_jp_primary; event_context_secondary; exact_snes_jp_transcription<br>
+  <b>Note :</b> Le japonais parle des ennuis causés à tout le monde après avoir retiré l&#x27;épée, pas de personnes en colère. La proposition conserve trois lignes pour la capacité PLAYER_NAME validée. Validé explicitement par l’utilisateur après revue Round 58.</div>
+</details>
+<details class="card" data-status="translated" open>
+  <summary><code>$024F</code> · <code>C9:9F88</code>
+    <span class="badge done">VALIDÉ</span></summary>
+  <div class="grid">
+    <section><h3>SNES japonais original</h3><div class="text">た、たいへんじゃ、神殿の中に<br>帝国のモンスターが！</div><div class="evidence"><b>État JP :</b> exact_snes_jp_transcription_structurally_confirmed<br><b>Octets JP conservés :</b> <code>99 80 99 8B A6 B6 C7 B9 80 6C B5 68 E4 A2 6C B4 9F 7F 69 A6 A7 A2 63 AC B6 96 99 84 C1 82</code></div></section>
+    <section><h3>SNES USA original</h3><div class="text">The Empire sent monsters<br>into the palace!</div></section>
+    <section><h3>SNES France Rev 1</h3><div class="text">L&#x27;Empire a envoyé des<br>monstres dans le palais !</div></section>
+    <section class="proposal"><h3>Proposition du patch</h3><div class="text">C-c&#x27;est terrible ! Des monstres de l&#x27;Empire sont dans le palais !</div></section>
+  </div>
+  <div class="meta"><b>Base de proposition :</b> snes_jp_primary; event_context_and_official_snes_fr_terminology_secondary; exact_snes_jp_transcription<br>
+  <b>Note :</b> Le japonais annonce avec affolement la présence de monstres de l&#x27;Empire à l&#x27;intérieur du sanctuaire ; il ne dit pas que l&#x27;Empire les a « envoyés ». « palais » conserve la terminologie du carrier SNES-FR correspondant. Validé explicitement par l’utilisateur après revue Round 58.</div>
+</details>
+<details class="card" data-status="translated" open>
+  <summary><code>$0278</code> · <code>C9:A730</code>
+    <span class="badge done">VALIDÉ</span></summary>
+  <div class="grid">
+    <section><h3>SNES japonais original</h3><div class="text">（ＳＴＡＲＴ：マップをみる　）</div><div class="evidence"><b>État JP :</b> exact_snes_jp_transcription_resegmented_block_confirmed</div></section>
+    <section><h3>SNES USA original</h3><div class="text"> Press START to see the map.</div></section>
+    <section><h3>SNES France Rev 1</h3><div class="text"> START : tu vois la carte.</div></section>
+    <section class="proposal"><h3>Proposition du patch</h3><div class="text"> START : afficher la carte.</div></section>
+  </div>
+  <div class="meta"><b>Base de proposition :</b> snes_jp_primary; snes_specific_function; official_snes_fr_secondary<br>
+  <b>Note :</b> Le bloc JP resegmenté indique littéralement START : voir la carte. Cette transcription appartient au bloc SNES-JP original et ne crée aucune identité Android. Validé explicitement par l’utilisateur après revue Round 58.</div>
+</details>
+<details class="card" data-status="translated" open>
+  <summary><code>$0278</code> · <code>C9:A74E</code>
+    <span class="badge done">VALIDÉ</span></summary>
+  <div class="grid">
+    <section><h3>SNES japonais original</h3><div class="text">（　Ｌ／Ｒ　：モードきりかえ）</div><div class="evidence"><b>État JP :</b> exact_snes_jp_transcription_resegmented_block_confirmed</div></section>
+    <section><h3>SNES USA original</h3><div class="text"> L/R buttons change modes.</div></section>
+    <section><h3>SNES France Rev 1</h3><div class="text"><br>L/R : tu modifies les modes.</div></section>
+    <section class="proposal"><h3>Proposition du patch</h3><div class="text"> L/R : changer de mode.</div></section>
+  </div>
+  <div class="meta"><b>Base de proposition :</b> snes_jp_primary; snes_specific_function; official_snes_fr_secondary<br>
+  <b>Note :</b> Le bloc JP resegmenté dit simplement L/R : changement de mode ; « d&#x27;affichage » n&#x27;est pas explicité dans l&#x27;original japonais. Validé explicitement par l’utilisateur après revue Round 58.</div>
+</details>
+<details class="card" data-status="translated" open>
+  <summary><code>$02E1</code> · <code>C9:C56C</code>
+    <span class="badge done">VALIDÉ</span></summary>
+  <div class="grid">
+    <section><h3>SNES japonais original</h3><div class="text">帝国の世界せいふくの<br>やぼうを　そししなければ！</div><div class="evidence"><b>État JP :</b> exact_snes_jp_transcription_structurally_confirmed</div></section>
+    <section><h3>SNES USA original</h3><div class="text">We&#x27;ll smash the Empire!</div></section>
+    <section><h3>SNES France Rev 1</h3><div class="text">Nous écraserons l&#x27;Empire !</div></section>
+    <section class="proposal"><h3>Proposition du patch</h3><div class="text">Il faut empêcher l&#x27;Empire de conquérir le monde !</div></section>
+  </div>
+  <div class="meta"><b>Base de proposition :</b> snes_jp_primary; restores world-conquest meaning softened/lost in US/FR<br>
+  <b>Note :</b> Le japonais parle explicitement d&#x27;empêcher les ambitions de conquête mondiale de l&#x27;Empire; la traduction officielle FR &#x27;Nous écraserons l&#x27;Empire !&#x27; durcit le sens. Validé explicitement par l’utilisateur après revue Round 58.</div>
+</details>
+<details class="card" data-status="translated" open>
+  <summary><code>$02FC</code> · <code>C9:CAA6</code>
+    <span class="badge done">VALIDÉ</span></summary>
+  <div class="grid">
+    <section><h3>SNES japonais original</h3><div class="text">（かきかけのにっきがおちている）</div><div class="evidence"><b>État JP :</b> exact_snes_jp_transcription_structurally_confirmed</div></section>
+    <section><h3>SNES USA original</h3><div class="text"><br>(Unfinished diary entry)</div></section>
+    <section><h3>SNES France Rev 1</h3><div class="text"><br>(Rapport inachevé)</div></section>
+    <section class="proposal"><h3>Proposition du patch</h3><div class="text"><br>(Un journal inachevé traîne par terre.)</div></section>
+  </div>
+  <div class="meta"><b>Base de proposition :</b> snes_jp_primary; official_snes_fr_secondary<br>
+  <b>Note :</b> Le japonais parle d&#x27;un journal inachevé trouvé/posé là, pas d&#x27;un &#x27;rapport&#x27;. Validé explicitement par l’utilisateur après revue Round 58.</div>
+</details>
+<details class="card" data-status="translated" open>
+  <summary><code>$02FC</code> · <code>C9:CAC2</code>
+    <span class="badge done">VALIDÉ</span></summary>
+  <div class="grid">
+    <section><h3>SNES japonais original</h3><div class="text">‥ダメだ、ついに見つかって<br>しまった‥。皇帝はニセモノだ！<br>魔者が　皇帝になりすまし‥‥</div><div class="evidence"><b>État JP :</b> exact_snes_jp_transcription_structurally_confirmed</div></section>
+    <section><h3>SNES USA original</h3><div class="text"> ...My cover&#x27;s been blown... Some monster&#x27;s using<br> the Emperor&#x27;s body to</div></section>
+    <section><h3>SNES France Rev 1</h3><div class="text">… Je suis démasqué …<br>Un monstre utilise le corps<br>de l&#x27;Empereur pour</div></section>
+    <section class="proposal"><h3>Proposition du patch</h3><div class="text"> ...C&#x27;est fichu, ils m&#x27;ont trouvé... L&#x27;Empereur est un imposteur ! Une créature se fait passer pour lui...</div></section>
+  </div>
+  <div class="meta"><b>Base de proposition :</b> snes_jp_primary; official_snes_fr_secondary<br>
+  <b>Note :</b> Le japonais dit que l&#x27;Empereur est un imposteur et qu&#x27;une créature se fait passer pour lui; éviter de sur-spécifier &#x27;démon&#x27; tant que 魔者 reste ambigu. Validé explicitement par l’utilisateur après revue Round 58.</div>
+</details>
+<details class="card" data-status="translated" open>
+  <summary><code>$02FC</code> · <code>C9:CB0C</code>
+    <span class="badge done">VALIDÉ</span></summary>
+  <div class="grid">
+    <section><h3>SNES japonais original</h3><div class="text">（にっきは　ここでとだえていた）<br>『どういうことだろう‥</div><div class="evidence"><b>État JP :</b> exact_snes_jp_transcription_structurally_confirmed</div></section>
+    <section><h3>SNES USA original</h3><div class="text"><br><br>(Text suddenly stops)</div></section>
+    <section><h3>SNES France Rev 1</h3><div class="text"><br><br>(Le texte s’arrête là)</div></section>
+    <section class="proposal"><h3>Proposition du patch</h3><div class="text"><br><br>(Le journal s&#x27;arrête ici.)<br>Qu&#x27;est-ce que ça veut dire... ?</div></section>
+  </div>
+  <div class="meta"><b>Base de proposition :</b> snes_jp_primary; folds the JP question into this carrier because the separate US C9:CB28 was user-suppressed<br>
+  <b>Note :</b> Le japonais enchaîne dans le même segment &#x27;(le journal s&#x27;arrête ici)&#x27; puis &#x27;qu&#x27;est-ce que cela signifie… ?&#x27;. La proposition conserve donc le sens malgré la suppression du carrier US distinct C9:CB28. Validé explicitement par l’utilisateur après revue Round 58.</div>
+</details>
+<details class="card" data-status="translated" open>
+  <summary><code>$035F</code> · <code>C9:D1B8</code>
+    <span class="badge done">VALIDÉ</span></summary>
+  <div class="grid">
+    <section><h3>SNES japonais original</h3><div class="text">ドリアード</div><div class="evidence"><b>État JP :</b> exact_snes_jp_transcription_structurally_confirmed<br><b>Octets JP conservés :</b> <code>62 CF B1 8A 84 60 CF</code></div></section>
+    <section><h3>SNES USA original</h3><div class="text">Dryad</div></section>
+    <section><h3>SNES France Rev 1</h3><div class="text">Dryade</div></section>
+    <section class="proposal"><h3>Proposition du patch</h3><div class="text">Dryade</div></section>
+  </div>
+  <div class="meta"><b>Base de proposition :</b> snes_jp_primary; exact carrier contains only the Dryad name; official_snes_fr_confirms terminology<br>
+  <b>Note :</b> Validation Round 60 : le carrier SNES-JP exact ne contient que « ドリアード » (Dryade). La surcharge manuelle validée est donc strictement « Dryade ». L&#x27;ancienne expansion « Dryade fera réagir l&#x27;orbe ! » reste retirée : la notion d&#x27;orbe appartient au contexte/composition des autres variantes et n&#x27;est pas présente dans ce carrier.</div>
+</details>
+<details class="card" data-status="suppressed" open>
+  <summary><code>$04E1</code> · <code>CA:2C84</code>
+    <span class="badge suppressed">SUPPRIMÉ</span></summary>
+  <div class="grid">
+    <section><h3>SNES japonais original</h3><div class="text">「あたらしく生まれ変わった体と、　マナの要塞によって、真の世界を　つくりあげるのだ！！フハハハ！</div><div class="evidence"><b>État JP :</b> exact_snes_jp_transcription_resegmented_block_confirmed<br><b>Localisation JP :</b> événement <code>$0070</code> · carrier <code>C9:1539</code><br><b>Octets JP conservés :</b> <code>86 8A 99 B0 95 91 68 B6 A8 B3 6C 96 B5 B8 99 6C B1 9D 80 FF 61 A8 9E A2 69 AF B0 9F AF B8 9C 80 68 96 A2 6C BA 68 D9 B7 FF 9B 91 B1 8A C4 B2 A2 CB 82 82 63 A5 A3 A3 A3 82</code></div></section>
+    <section><h3>SNES USA original</h3><div class="text"> It is time!</div></section>
+    <section><h3>SNES France Rev 1</h3><div class="text">Le moment est venu !</div></section>
+    <section class="proposal"><h3>Proposition du patch</h3><div class="text"><span class="muted">Aucun texte affiché dans le patch.</span></div></section>
+  </div>
+  <div class="meta"><b>Base de proposition :</b> snes_jp_primary_resegmented; user_validated_remove_distinct_US_only_page; official_snes_fr_retained_as_reference<br>
+  <b>Note :</b> Validation Round 63 : le SNES japonais fusionne cette idée avec le carrier suivant et ne possède pas de page autonome équivalente à US CA:2C84. Le patch supprime donc l&#x27;affichage de ce carrier et son WAIT $00 immédiatement suivant, tout en conservant le TEXT_CLEAR puis CA:2C93. Le carrier n&#x27;affiche plus « It is time! » / « Le moment est venu ! » ; aucune identité Android n&#x27;est modifiée.</div>
+</details>
+<details class="card" data-status="translated" open>
+  <summary><code>$04E8</code> · <code>CA:437D</code>
+    <span class="badge done">VALIDÉ</span></summary>
+  <div class="grid">
+    <section><h3>SNES japonais original</h3><div class="text">「ケケケケ！</div><div class="evidence"><b>État JP :</b> exact_snes_jp_transcription_relocated_scene_structurally_confirmed<br><b>Localisation JP :</b> événement <code>$012A</code> · carrier <code>C9:44BD</code><br><b>Octets JP conservés :</b> <code>86 63 92 92 92 92 82</code></div></section>
+    <section><h3>SNES USA original</h3><div class="text"> ...SHRIEK!</div></section>
+    <section><h3>SNES France Rev 1</h3><div class="text">… Hiiiiiiii !</div></section>
+    <section class="proposal"><h3>Proposition du patch</h3><div class="text">Héhéhéhé !</div></section>
+  </div>
+  <div class="meta"><b>Base de proposition :</b> snes_jp_primary_relocated_scene; same_scene_command_structure; user_validated; snes_us_and_snes_fr_secondary<br>
+  <b>Note :</b> Round 65 : validation explicite. La scène JP relocalisée contient un rire de gobelin « ケケケケ！ » ; la traduction retenue privilégie donc le sens japonais plutôt que le cri des localisations US/FR.</div>
+</details>
+</body></html>

@@ -443,7 +443,7 @@ rows can now use separately measured private visual/highlight boundaries while l
 normal separator and ends at private terminal cell `$1B`; the retained cell-`$11`
 separator-omission fallback was separately runtime-validated on its earlier right-edge stress
 checkpoint. The `$00DF` minimal rightward later-anchor storage shift also remains validated.
-The 526-event corpus as a whole still requires full-game playthrough validation.
+The 560-event corpus as a whole still requires full-game playthrough validation.
 
 ## 8.5 Independent HTML simulation
 
@@ -484,21 +484,31 @@ for binding only when the actual future event tokens prove the same `PLAYER_NAME
 after linear `WAIT`/`TEXT_CLEAR`/`OP_32`/`COMPLETE_ACTIONS` controls; the command itself
 stays in its original SNES position.
 
-Two additional `PLAYER_NAME` presentation mismatches are normalized only when the
-SNES structure proves that no event command needs to be invented or moved. An exact
-leading Android-French `%S(n,0) :` speaker label is removed when the mapped SNES
-source contains no `PLAYER_NAME` at all; the remaining localized prose is unchanged.
+`PLAYER_NAME` presentation mismatches are normalized only when the SNES structure
+proves that no event command needs to be invented or moved. An exact leading
+Android-French `%S(n,0) :` speaker label is removed when the mapped SNES source
+contains no `PLAYER_NAME` at all; the remaining localized prose is unchanged.
 Conversely, if Android French places literal text on both sides of an existing
 `PLAYER_NAME`, a directly adjacent source text token may act as a carrier only when
-it is punctuation/whitespace-only and therefore non-semantic. The current accepted corpus uses the first rule in 21 mappings and the carrier
-rule in 8 mappings. One additional carrier case exposes a physically adjacent
-`PLAYER_NAME` already present immediately before the punctuation-only token; it is
-accepted only when Android French proves that exact extra leading placeholder.
+it is punctuation/whitespace-only and therefore non-semantic. One additional carrier
+case exposes a physically adjacent `PLAYER_NAME` already present immediately before
+the punctuation-only token; it is accepted only when Android French proves that exact
+extra leading placeholder.
+
+Android may also reassign the same spoken line to a different party slot. When French
+and SNES contain the **same number of dynamic placeholders in the same positions** but
+the numeric indices differ, the formatter now rebinds each French placeholder
+positionally to the already existing SNES `PLAYER_NAME` slot. This preserves the SNES
+speaker/addressee identity and changes no event command. It currently unlocks `$01E7`,
+`$04AA` and `$04B6`; applying the rule to the previously accepted corpus changes zero
+serialized entries.
+
+Round 28 adds a separate addressee-preservation case. When the canonical SNES span and Android EN both prove `STATIC_SPEAKER:%S(n)!/?`, Android FR may omit only the dynamic addressee while keeping the static speaker label. The formatter then preserves the already-existing SNES `PLAYER_NAME(n)` exactly where it sits and attaches only the source-proven punctuation after the localized static label. No command is created, removed, moved or reordered. This exact shape occurs in `$0112` and `$0212`.
 
 Several conservative event-interruption fallbacks extend coverage without editing
-stock control flow. Seven mappings spanning existing interactive `WAIT $00` boundaries
+stock control flow. Mappings spanning existing interactive `WAIT $00` boundaries
 may redistribute French only at complete sentence boundaries; each boundary must
-contain exactly one `WAIT $00` plus optional `TEXT_CLEAR`. `$0192` is the sole weak
+contain exactly one `WAIT $00`, optional `TEXT_CLEAR`, and may additionally contain the already-validated pure actor-action pair `OP_32`/`OP_34` + `COMPLETE_ACTIONS`. One dynamic placeholder is permitted only as an identical leading `PLAYER_NAME` immediately before the first mapped carrier; a name at or across the WAIT remains forbidden. `$04E8` is the sole mapping in the corpus with that leading-name shape, while `$0112` remains the composed action-bridge case. Every stock command remains byte-for-byte in place. `$0192` is the sole weak
 clause exception: its two source slots are independently complete sentences and the
 French comma is accepted only because it is followed by the explicit continuation
 connector `alors`. `$016E` separately crosses exactly one existing timed `WAIT $08`
@@ -512,7 +522,15 @@ two complete French sentences are bound around actor actions and a clean-ROM cal
 callee is independently proven text-free, branch-free and returning. `$01C3` recognizes
 only its exact sound-call -> vertical-shake -> timed `WAIT $10` -> stop-shake ->
 sound-call sequence; both callees are independently sound-only returning scripts and no
-effect byte is changed. Finally, the already user-validated `$0511`
+effect byte is changed. `$010C` adds one distinct exact bridge shape: two semantic carriers
+may span `OP_20..OP_27` -> one `OP_2D` effect -> `COMPLETE_ACTIONS` only when the called
+clean-ROM event independently decodes to `PLAY_SOUND -> RETURN -> END`. SNES and Android EN
+must contain no dynamic name. If Android FR alone inserts exactly one comma-delimited
+`%S(n,0),` vocative, that vocative may be removed because there is no SNES `PLAYER_NAME`
+command able to carry it; the remaining French is split only at a complete sentence boundary
+and every bridge command remains unchanged. One newline may be materialized after the first
+complete sentence only when the unchanged bridge would otherwise exceed same-line parser or
+pixel capacity. The exact shape currently occurs once in the corpus. Finally, the already user-validated `$0511`
 `sequence_block_with_android_extra` mapping uses its exact four-anchor/three-statement
 shape to redistribute the existing Android French over three semantic SNES slots while
 preserving the stock layout carrier. Commands remain byte-for-byte in place.
@@ -522,11 +540,18 @@ Selection is deliberately simulator-gated in two passes:
 1. completely aligned events keep the established formatter/fallback chain and must
    pass the independent simulator with zero error, zero warning and zero implicit wrap;
 2. alignment-incomplete events may contribute only their **already accepted** Android
-   mappings. Every unmapped semantic source ID is explicitly suppressed from visible
-   dialogue instead of falling back to clean-USA English. Structural commands/layout
-   remain canonical. Partial events receive no compact wrapper or event-level pagination
-   repair: the directly formatted French-only-but-incomplete event must already resimulate
-   cleanly.
+   mappings. Every unmapped semantic source ID is omitted from the sparse French JSON, so
+   clean-USA English remains visible for that carrier. Structural commands/layout remain
+   canonical. Direct formatting is the default; when the unresolved carrier is explicitly
+   `validated_no_equivalent` or `validated_android_omission`, the already-established
+   whole-event compact wrapper may remove formatter-added presentation line breaks. For an
+   explicit `validated_android_omission` only, an already accepted semantic mapping may also
+   remain stock/layout-deferred when serializing its French would require an unsupported
+   command crossing or a different canonical `PLAYER_NAME` stream. This never changes the
+   accepted identity mapping, never fills the omitted carrier, and still may not add, remove
+   or move any event command; the mixed FR/EN result must resimulate cleanly. A broader
+   layout-deferral prototype was rejected because it would admit `$0204`, whose Android French
+   genuinely redistributes content rather than exposing a pure layout problem.
 
 Structural-review mappings are still subject to the same formatter/simulator gate. For
 Android prompt/choice splits, the prompt may be rebound separately from already anchored
@@ -535,12 +560,30 @@ Speaker-reattributed Joch reactions may receive a page boundary only across the 
 proven `OP_20` bridge and only after clean whole-event resimulation. Mapping identity
 never bypasses choice geometry.
 
-Current deterministic result: **526 simulator-clean events / 1138 visible semantic
-source IDs** (1196 JSON entries). This comprises 525 events treated as complete plus 1 PARTIEL event. `$0103`, `$017F` and `$01DC` are explicitly user-validated as complete Android adaptations while leaving their SNES-only fragments unmapped. `$01DC` additionally drops the exact final stock `PLAYER_NAME(0)` bound to suppressed `C9:804A`. `$0278` is the sole PARTIEL event; its two controller-specific SNES carriers are staged in the manual supplement JSON. `$00DF` is no longer layout-deferred: its second option moves minimally from `$11` to `$12`, a geometry change runtime-validated with `Temple de l'Eau / Pandora`; `$01EE` remains rendered through its structurally proven fresh-page choice carrier.
+Current deterministic result: **608 simulator-clean events / 1516 visible semantic
+source IDs** (1596 JSON entries). This comprises 584 events treated as complete plus 24 PARTIEL events. `$0103`, `$017F` and `$01DC` are explicitly user-validated as complete Android adaptations; their validated omitted carriers remain suppressed independently of later semantic-alignment improvements. `$0602` is also presented as complete after runtime review found no visible missing/English content; unresolved `CA:85DD` remains tracked and the event serialization is unchanged. `$01DC` additionally drops the exact final stock `PLAYER_NAME(0)` bound to suppressed `C9:804A`. `$0042`, `$010C`, `$01B6`, `$04E8` and `$0558` are mixed FR/EN PARTIEL events whose unresolved carriers remain stock English; `$010C/C9:30F5` is an explicit `validated_android_omission`, and three already mapped `$010C` carriers remain stock/layout-deferred because their French would require unsupported structural rebinding; in `$04E8`, `CA:437D` (`...SHRIEK!`) remains explicitly `validated_no_equivalent` while the surrounding proven mappings render in French. `$0278` is the manual-supplement PARTIEL event and its two controller-specific SNES carriers are staged in the manual supplement JSON; `$02B0` is now complete after its final long contained Android-English unit was proven. `$00DF` is no longer layout-deferred: its second option moves minimally from `$11` to `$12`, a geometry change runtime-validated with `Temple de l'Eau / Pandora`; `$01EE` remains rendered through its structurally proven fresh-page choice carrier.
 
 The current conservative choice-row recovery adds 11 complete events (`$0062`, `$0081`, `$00DB`, `$00DC`, `$00E2`, `$01B0`, `$01B3`, `$01DF`, `$0200`, `$0318`, `$065F`) without moving a first option anchor. It may restore a source-proven final `NEWLINE + (` suffix lost by Android prose reflow, materialize one newline before a standalone decorative `(` carrier when dynamic stock output consumed the choice row, and compose outer-decoration stripping with the already validated later-anchor-only shift. Every candidate still has to pass clean whole-event simulation.
 
-The remaining excluded-event split is now 161 incomplete alignments and 17 formatter rejects. Component 08's simulator/serializer path now understands the measured-end choice geometry validated on `$00CE`, `$00CF`, `$00D0`, `$00D1` and `$0202`: `$A1D7[]` stays logical for storage, the first private visual/highlight boundary is `max(logical_first, $03) - 2`, a full blank cell is normally kept between measured endpoints, and the separately validated cell-`$11` fallback omits that extra cell only when a late first endpoint would otherwise threaten the right edge. Final `$00D0` now starts farther left, keeps the normal separator and ends at private terminal cell `$1B`. The rejected `$00CE` first-anchor-left probes (`$00/$0F`, `$01/$10`) remain diagnostic-only and must never be generated by the formatter. The generated translation currently contains 104 explicit page transitions (`WAIT $00` + `TEXT_CLEAR`). The
+The remaining excluded-event split is now **84 alignment-incomplete + 5 formatter-rejected + 7 simulator-rejected events**.
+The latest semantic-alignment pass remains deliberately identity-first. Exact normalized English may
+now bind across a different 1-3/1-3 SNES/Android segmentation when every exact Android copy
+yields the same complete French localization and no source-span overlap is ambiguous. Exact
+English duplicates with different French may be selected only from a tight event-local bracket
+or a unique immediately adjacent owned anchor; calibration reproduced 23/23 existing accepted
+choices with zero conflicts. A later isolated-contained-extension rule additionally
+accepts a long SNES carrier only when its normalized token sequence occurs contiguously
+inside the best longer Android-English record, with 100% source-token coverage, source
+length >=35 normalized characters, lexical score >=76, character similarity >=68%,
+and a >=30-point runner-up margin. Calibration reproduced 535/535 eligible accepted
+mappings with zero conflicts. Together the current rules raise semantic alignment to
+**1706 / 1838 (92.8%)**.
+They do not bypass this formatter: `$0205`, `$02CD` and `$03F0` remain formatter rejects.
+Round 32 instead admits `$0041` and `$03EA` only as strict PARTIEL safe-subsets, leaving
+their refused structural mappings stock rather than weakening the semantic or command binder.
+
+
+`$03AA` is now admitted by a narrow canonical-binding fix: trailing `PLAYER_NAME` lookahead may cross `OP_34` in the same way it already crossed `OP_32`, `WAIT`, `TEXT_CLEAR` and `COMPLETE_ACTIONS`. This only recognizes an already existing linear action context; it does not create, remove, move or retarget any command. `$01F6` is admitted by a separate exact Android-slot proof: French-only slot 697 starts with `%S(1,0)`, which belongs to the following English anchor 698 rather than preceding anchor 696; reassigning that one French slot makes both neighboring `PLAYER_NAME` sequences exactly match their already-aligned SNES streams. After the ordinary compact wrapper, the only remaining blocking defect is a same-line decoded-capacity wrap after `WAIT $00`; one explicit newline before `C9:8AE8` is accepted only as the unique immediate complete-sentence candidate that resimulates the entire event with zero errors, warnings and implicit wraps. `$01F6` remains `TO REVIEW` until runtime validation. Component 08's simulator/serializer path now understands the measured-end choice geometry validated on `$00CE`, `$00CF`, `$00D0`, `$00D1` and `$0202`: `$A1D7[]` stays logical for storage, the first private visual/highlight boundary is `max(logical_first, $03) - 2`, a full blank cell is normally kept between measured endpoints, and the separately validated cell-`$11` fallback omits that extra cell only when a late first endpoint would otherwise threaten the right edge. Final `$00D0` now starts farther left, keeps the normal separator and ends at private terminal cell `$1B`. The rejected `$00CE` first-anchor-left probes (`$00/$0F`, `$01/$10`) remain diagnostic-only and must never be generated by the formatter. The generated translation contains explicit page transitions encoded as `WAIT $00` + `TEXT_CLEAR`; their exact count is generated-data dependent and is not a compatibility invariant. The
 current layout refinement also replaces legacy leading blank
 scroll lines with clear-only `TEXT_CLEAR` transitions when the structure is proven.
 After the historical compact-wrapper fallback has failed, events whose **only**
@@ -559,7 +602,7 @@ contains a dash-attribution hint. The current semantic reflow changes line
 placement in many accepted mappings. `$0101` now has a runtime-reviewed explicit
 three-line layout because a formatter-added fourth live line caused a fast scroll
 that the older simulator did not detect.
-Component 08 relocates 397 growing events; the final relocated payload
+Component 08 relocates 515 growing events at the Round-32 checkpoint; the final relocated payload
 now extends into `$E9`; the highest current relocated payload still remains well inside the runtime-validated reserved `$E8-$EC` pool.
 
 `mappings/android/dialogues_format_mass.json` records every accepted/rejected
@@ -667,6 +710,105 @@ before the next pause. This catches the failure at the moment the cursor enters
 the scrolling line, even if a WAIT arrives before that fourth line is formally
 finished. The diagnostic does not rewrite events automatically. After the
 `$0101` correction, the current corpus has 15 unique review candidates:
-`$0083`, `$0106`, `$01D3`, `$01DC`, `$0259`, `$0263`, `$0289`, `$02D2`,
-`$02EE`, `$036F`, `$03DD`, `$04A1`, `$04EA`, `$059B`, and `$066D`.
+`$0106`, `$01D3`, `$01DC`, `$01DD`, `$01F6`, `$0259`, `$0263`, `$0289`,
+`$02D2`, `$02EE`, `$036F`, `$04A1`, `$04EA`, `$059B`, and `$066D`.
 `$036F` and `$04EA` each contain two occurrences.
+
+## Round 31 structural formatter rules
+
+The high-leverage Round-31 pass adds three deliberately narrow formatter behaviors. None creates semantic identity.
+
+- A structurally reviewed **2-SNES / 1-Android** unit may distribute official French across one exact stock `WAIT $10`. The timed wait is preserved byte-for-byte. `$02AE` keeps the historical newline before the wait; `$042D` keeps its canonical newline after the wait. The formatter explicitly rejects an invented `TEXT_CLEAR` in the latter shape.
+- One Android anchor may distribute across exactly two SNES text carriers separated solely by one stock `TEXT_X` when the first stock carrier already ends in `NEWLINE` and Android French contains exactly two non-empty lines. Both localized pieces must fit independently; the stock newline and `TEXT_X` stay unchanged. The generic shape is also recognized on `$0041`, which remains formatter-rejected for its independent `OP_38` crossing, so the rule does not opportunistically promote that event.
+- In a PARTIEL event with an immediately following `validated_no_equivalent` or `validated_android_omission` hole, a trailing `PLAYER_NAME` used only as alignment lookahead may be returned to that stock hole when the canonical token stream proves exact adjacency and French does not own the same trailing placeholder. `$0558` uses this to keep `CA:6629` stock English. Its remaining pure `UNPAUSED_SCROLL` defect is handled only by the pre-existing simulator-selected sentence-boundary pagination repair; the unique clean candidate inserts the page boundary after `Où suis-je ? / Ah !`.
+
+After these changes the deterministic corpus is **568 simulator-clean events / 1362 visible semantic source IDs / 1430 JSON entries**: **562 complete + 6 PARTIEL** (`$0042`, `$010C`, `$01B6`, `$0278`, `$04E8`, `$0558`). The exclusion split is **113 alignment-incomplete + 23 formatter rejects**. The entire Round-30 translation remains byte-for-byte unchanged (**1397/1397 entries, 0 removed**) and 33 entries are added.
+
+## Round 32 generic structural safe-subset PARTIEL
+
+Round 32 adds **no semantic identity**: alignment remains **1670 / 1838 (90.9%)**, with 168 unresolved IDs. Instead, the mass formatter can preserve a semantically accepted carrier in stock English when serialization fails only at an already-recognized unsupported structural/`PLAYER_NAME` boundary. The whole mapping is deferred; no text is split across the refused bridge, no stock command is moved/created/removed, and at least one independent French mapping must remain. These generic candidates receive **no compact, pagination, choice-anchor or other adaptive rescue**: the direct mixed event itself must independently simulate with 0 errors, 0 warnings and 0 implicit wraps. `$015A` and `$0204` are explicitly excluded because their known problems are semantic/resegmentation hazards rather than mere layout refusal.
+
+A generated trailing `\f` at the end of a mapped carrier is likewise not allowed to invent a page command. It is directly serializable only in the two existing codec-proven choice-adjacent shapes (immediate `CHOICE_BEGIN`, or `TEXT_X` + decorative `(` carrier + `CHOICE_BEGIN`); otherwise the whole mapping can only remain stock under the same strict safe-subset gate.
+
+This generic rule is exercised by **12 PARTIEL events / 30 deferred semantic IDs**. `$01DA` additionally uses one exact reviewed layout deferral, and `$023C` is admitted as an alignment-incomplete PARTIEL through the existing validated choice geometry without generic deferral. `$05F8` is intentionally rejected: even after all recognized bridges remain stock, direct simulation still reports wraps inside stock/deferred regions, so making it pass would require altering content that the safe-subset rule promises not to touch.
+
+The Round-31 translation is preserved byte-for-byte (**1430/1430 entries unchanged, 0 removed**) and **70 entries are added**. The deterministic corpus becomes **582 simulator-clean events / 1428 visible semantic source IDs / 1500 JSON entries**: **562 complete + 20 PARTIEL**. Exclusions are **110 alignment-incomplete + 4 formatter-rejected + 8 simulator-rejected events**.
+
+## Round 33 contextual review and direct-simulator safe-subset
+
+Round 33 raises semantic alignment to **1696 / 1838 (92.3%)**, leaving **142 unresolved**. All new identities are explicit Android-English structural/user reviews; Android French remains payload only. The user validated the candidate batch through a contextual HTML sheet that shows SNES USA, Android EN, Android FR and neighboring Android context. That presentation is now the preferred review UI for ambiguous future mappings and does not authorize a generic short-exact rule.
+
+The formatter adds one second-stage conservative fallback after ordinary formatting / generic structural safe-subset still fails direct simulation. The stock event must itself simulate clean; at most three **whole mappings** may be left stock; each candidate must individually reduce the direct simulator defect score; and the deterministic smallest subset must make the remaining mixed event directly reach 0 errors, 0 warnings and 0 implicit wraps. No command, mapping identity, bridge, compact repair or adaptive pagination is modified. It is currently exercised by exactly **2 events / 5 mapped IDs**: `$04E2` defers `CA:32C5`, `CA:3362`, `CA:3423`, and `$0592` defers `CA:750D`, `CA:752E`.
+
+`$05B4/CA:7864 -> Android 1887` is an accepted identity but deliberately remains formatter-rejected/stock. Android 1887 combines the `634` line with the `...! Enter!` tail that SNES `$05B4` obtains through a call to `$03A7`; direct insertion would duplicate that translated called tail. This requires an explicit cross-event resegmentation if revisited.
+
+The Round-32 translation is preserved byte-for-byte (**1500/1500 entries unchanged, 0 removed**) and **86 entries are added**. The deterministic corpus is **598 simulator-clean events / 1506 visible semantic source IDs / 1586 JSON entries**: **574 complete + 24 PARTIEL**. Exclusions are **94 alignment-incomplete + 5 formatter-rejected + 7 simulator-rejected events**.
+
+## Round 34 additive structural pass
+
+Round 34 adds ten explicit semantic mappings and does not change formatter behavior. All ten newly completed events format through the existing rules and pass direct simulation without safe-subset fallback. The Round-33 translation is preserved exactly (**1586/1586 entries unchanged, 0 removed**) and 10 entries are added.
+
+The deterministic corpus is now **608 simulator-clean events / 1516 visible semantic source IDs / 1596 JSON entries**: **584 complete + 24 PARTIEL**. Exclusions are **84 alignment-incomplete + 5 formatter-rejected + 7 simulator-rejected events**. The independent simulator remains at **0 errors / 0 warnings / 0 implicit wraps**.
+
+
+
+## Round 45 reviewed resegmentation
+
+Round 45 adds two exact serializer paths and no generic formatting behavior. `$01B6` reconstructs Android EN 584 across two SNES carriers separated by the stock Watts movement/text-close/text-open bridge. Android FR has moved the shortcut introduction into already-owned slot 583 and keeps only the post-movement continuation in FR-only slot 585, so `C9:6AD2` is empty and `C9:6B5A` receives the continuation while every bridge command remains stock.
+
+`$01DA` completes the girl's naming scene across `C9:7E64`, `C9:7E72`, `C9:7E81`. Android FR 676 keeps the first two boy-name placeholders but FR 677 omits the third repetition before `Moi, c'est...`. The serializer therefore preserves the first two `PLAYER_NAME(0)` commands and suppresses only the third command immediately before empty `C9:7E81`. This omission is recorded in `DIALOGUE_USER_VALIDATED_STRUCTURAL_OMISSIONS` and is valid only for this exact event/carrier relation. It must not be generalized. With a nine-character player name the complete event simulates with 0 errors, 0 warnings and 0 implicit wraps. Completing the event causes four already-French carriers (`C9:7D15`, `C9:7D47`, `C9:7D55`, `C9:7E12`) to be reflowed by the whole-event formatter; their semantic payload is unchanged.
+
+
+## Round 48 exact Android-FR-only vocative repairs
+
+Some official Android-FR strings introduce `%S(n,0)` as a conversational vocative even though the corresponding Android-English identity and the SNES carrier contain no dynamic addressee. Round 48 permits removal only for seven reviewed carrier/Android-ID pairs recorded in `mappings/android/dialogues_review_round48.json`. This is an exact allow-list: it must not become a generic `%S` deletion rule, and it never creates, moves or removes a SNES `PLAYER_NAME` command.
+
+`$0127` is separately allow-listed for exact pagination because its already-proven French scene otherwise exceeds the dialogue page geometry. Two `WAIT $00 + TEXT_CLEAR` transitions are placed only at reviewed sentence boundaries, and one `TEXT_CLEAR` follows the existing stock `WAIT $08`. Actor actions, both stock `PLAYER_NAME(0)` commands and the timed wait remain in source order. The resulting Round-48 corpus is **680 simulator-clean events**, with **0 errors, 0 warnings and 0 implicit wraps**.
+
+
+## Round 49 exact formatter/simulator recovery
+
+Round 49 changes **no Android-English identity** and adds no generic matcher or formatter relaxation. `$02CD/C9:BE42 -> Android 1735+1736` is admitted only after removing the exact Android-FR-only `%S(0,0) :` speaker label; Android EN and the complete SNES event contain no `PLAYER_NAME`, so no dynamic command is created, moved or removed. The official French remainder formats to two clean lines.
+
+`$03F0/C9:F29A+C9:F2AC+C9:F2BA -> Android 2361` is one exact machine-noise sequence. The three official French noise fragments are distributed over the three stock carriers while all three `PLAY_SOUND` commands and the stock `WAIT $10` remain byte-for-byte in place. A presentation-only newline is added to `C9:F2AC` immediately before that existing timed wait; this is deliberately explicit because `WAIT != NEWLINE`, and it removes the simulator's same-line-continuation warning without inventing a pause.
+
+`$04E9` becomes a simulator-clean **PARTIEL**. Seven already-proven mappings render in French. `CA:4745` and `CA:4797` each receive a leading `TEXT_CLEAR` only after the exact existing `WAIT $00` that precedes them, because the official French paragraphs occupy three physical lines and otherwise inherit the retained cursor. No extra interactive wait is added. The final accepted mapping `CA:48DC+CA:4925 -> Android 895` remains stock/layout-deferred: Android FR condenses the two SNES carriers into one sentence across `WAIT $00`, so there is no complete-sentence split to serialize conservatively.
+
+`$0205` remains formatter-rejected for the same reason: Android FR condenses two SNES carriers separated by canonical `PLAYER_NAME(0)`, `WAIT $00` and `TEXT_CLEAR` into one sentence. No forced clause split is introduced. The resulting Round-49 corpus is **683 simulator-clean events = 659 complete + 24 PARTIEL**, **1624 visible semantic IDs / 1708 JSON entries**, with exclusions **15 alignment-incomplete + 2 formatter-rejected + 4 simulator-rejected**, and the simulator reports **0 errors / 0 warnings / 0 implicit wraps**.
+
+
+## Round 50 simulator-model / exact-choice recovery
+
+Round 50 remains an identity-neutral pass. Semantic Android alignment stays **1798 / 1838 (97.8%)** with **40 unresolved**. No generic matcher, namespace expansion, formatter threshold relaxation, or automatic short-exact rule is introduced.
+
+`$0040` is admitted as **PARTIEL** after static 65816 analysis of the stock `TEXT_X` implementation. The handler at `$C0:1883` and shared setter at `$C0:18FB` write the absolute value to both `$7E:A1CE` and `$7E:A173`; the parser later restores its decoded-buffer write index from `$A173`. The simulator therefore models only forward/equal absolute resets by retaining the already-decoded prefix and padding the clean `$80` buffer up to the requested position. Backward resets remain a hard `TEXT_X_BACKWARD_RESET_UNSUPPORTED` error because they overwrite already-decoded cells and no translated event needs that shape. This is a simulator model correction, not a formatter relaxation. `$0040/C9:0F75` remains stock/layout-deferred because its Android-FR dynamic-name structure does not match the SNES `PLAYER_NAME` commands.
+
+`$04FD` is admitted as **PARTIEL** without simulating credits geometry. Its 19 `ending_text` blocks are accepted only if the final serialized `$7D...$7E` bytes are **exactly identical, in count/order/content, to the clean USA event**. Any changed, reordered, missing or added ending block is a hard simulator error. The ordinary ending-scene dialogue can therefore be translated while the special renderer remains protected; `CA:4E2F` stays stock/layout-deferred.
+
+`$01CE` becomes **complete** by resegmenting an already-owned Android-English unit, not by adding identity. Android 536/537/538 is the determinate donation-prompt / Yes / No triplet. The canonical SNES stream is `C9:7827 -> CHOICE_BEGIN -> CHOICE_OPTION $04 -> C9:7856 -> CHOICE_OPTION $0B -> C9:785C -> CHOICE_END`, so Round 50 binds 536 only to `C9:7827` and 537 only to `C9:7856`; 538 was already independently accepted for `C9:785C`. The existing `WAIT $00` immediately before newline-only `C9:7824` is preserved, and that exact layout carrier alone becomes `TEXT_CLEAR`, starting the three-line French prompt on a fresh page. Money-window and choice commands are unchanged.
+
+`$0429` remains the sole simulator-rejected event. A diagnostic mixed-FR candidate shows that it can be made statically wrap-free only by combining several presentation changes, including an English layout-only reflow of deferred `CA:110A` around the stock `PLAYER_NAME` redistribution. That is beyond the current exact semantic proof, so Round 50 deliberately leaves it excluded and exposes it in the contextual review HTML instead of forcing a repair. `$0205` and locked `$05B4` remain the two formatter rejects.
+
+The Round-50 candidate corpus is **686 simulator-clean events = 660 complete + 26 PARTIEL**, **1646 visible semantic IDs / 1731 JSON entries**, with exclusions **15 alignment-incomplete + 2 formatter-rejected + 1 simulator-rejected**. Compared with Round 49, all **1708/1708** previous translation entries remain byte-for-byte unchanged, **23 entries are added**, and none are removed or modified. Static accepted-event simulation remains **0 errors / 0 warnings / 0 implicit wraps**.
+
+
+## Round 52 exact bridge allow-list
+
+Round 52 deliberately does **not** generalize the existing action/WAIT fallbacks. Six mappings with already-proven Android-English identity are handled only when event ID, SNES carrier sequence, Android ID sequence, canonical source text, Android EN/FR payload and every intervening command all match an exact allow-list record. Any drift becomes a hard formatter error.
+
+The admitted bridges are `$01B5` Android 577, three `$01B9` mappings (593/596/599), `$04E6` Android 86 and `$04E7` Android 95. Stock WAIT/action commands are never moved or removed. Two layout-only newline carriers are promoted to page clears only after already-existing waits: the formatter-generated leading page reset before `$01B9/C9:6CDD`, and explicit newline-only `$01B9/C9:6DBC -> TEXT_CLEAR`; `$04E7` additionally emits one `TEXT_CLEAR` at the beginning of the goodbye carrier immediately after the stock `WAIT $08`. `WAIT` itself remains a pause, never a newline.
+
+The mass corpus becomes **686 events = 663 complete + 23 PARTIEL**, **1658 visible semantic IDs / 1745 JSON entries**. The Round-50 baseline's **1731/1731** existing entries are unchanged and 14 are added. Accepted-event simulation remains **0 errors / 0 warnings / 0 implicit wraps**.
+
+
+## Round 54 exact Android-FR completion allow-list
+
+Round 54 runs only after the Round-53 Android source audit proved that no additional identity can be recovered under the current policy. It adds **no Android ID, no matcher, no namespace expansion and no generic formatter relaxation**. Five already-owned units are serialized only when event ID, SNES carrier set, Android ID, Android EN/FR payload and a canonical stock token window all match an exact allow-list.
+
+- `$0040 / Android 681`: preserve both stock `PLAYER_NAME(1)` commands and serialize only ` : Moi, c'est ` / ` !` around the second name.
+- `$0041 / Android 625`: split the official French at the complete sentence boundary across the unchanged `OP_38 01 + OP_10 42` bridge.
+- `$013A / Android 848`: serialize the complete official French first sentence on `C9:4094`; leave `C9:40D7` stock because Android FR genuinely omits the second SNES instruction. The event therefore remains visibly PARTIEL with reason `official_android_fr_omission`.
+- `$0559 / Android 2146`: fill only the punctuation/layout carriers around the existing stock `PLAYER_NAME(0)/(1)` commands; Android 2147 stays deferred because its FR introduces an extra `PLAYER_NAME(1)` not present in SNES.
+- `$0592 / Android 1030`: place the official French on the available third physical line after the stock `WAIT $18`, preserving the following `WAIT $00 + TEXT_CLEAR`; Android 1031 remains deferred.
+
+Relative to the runtime-validated Round-52 payload, **1745/1745 existing entries are byte-for-byte unchanged**, **8 entries are added**, and none are removed or modified. Corpus: **686 events = 665 complete + 21 PARTIEL**, **1663 visible semantic IDs / 1753 JSON entries**, exclusions unchanged at **15 alignment-incomplete + 2 formatter-rejected + 1 simulator-rejected**. Static simulation remains **0 errors / 0 warnings / 0 implicit wraps**. The Round-54 payload is pending runtime validation.

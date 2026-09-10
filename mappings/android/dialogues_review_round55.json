@@ -1,0 +1,90 @@
+{
+  "format_version": 1,
+  "status": "round55_review_queue_no_action_classification",
+  "rom_diff": false,
+  "android_identity_set_changed": false,
+  "translation_payload_changed": false,
+  "policy": {
+    "purpose": "Remove proven no-impact bookkeeping items from the default manual review queue without changing semantic alignment or ROM bytes.",
+    "default_review_view": "action_required_only",
+    "informational_items_remain_searchable": true,
+    "notes": [
+      "Historical Round-47/51/53 identity evidence is preserved; this file only classifies review priority/impact.",
+      "Unused means no incoming event/map/object reference was found in the canonical routing audit, not that the stock bytes are deleted.",
+      "Covered template/parameter means the visible French runtime output is already produced by the validated shared serialization despite the absence of a one-carrier Android identity.",
+      "Manual/visual coverage means no visible English defect remains even though Android identity accounting stays intentionally unresolved."
+    ]
+  },
+  "counts": {
+    "no_action_events": 8,
+    "no_action_carriers": 8,
+    "action_required_events_in_html": 34,
+    "action_required_carriers_in_html": 89
+  },
+  "entries": [
+    {
+      "event_id": "001E",
+      "snes_id": "C9:0970",
+      "classification": "covered_contextual_fragment",
+      "label_fr": "GABARIT / FRAGMENT COUVERT — AUCUNE ACTION",
+      "reason_fr": "Le préfixe SNES partagé JEHK:Sage Joch n'est pas un dialogue français manquant. Android FR répète directement Maître Jach dans les réponses complètes déjà possédées; le carrier ne conserve qu'un rôle de mise en page.",
+      "action_fr": "Aucune action; ne pas créer d'identité Android artificielle pour ce fragment."
+    },
+    {
+      "event_id": "0269",
+      "snes_id": "C9:A49C",
+      "classification": "unused_orphan_event",
+      "label_fr": "TEXTE INUTILISÉ — SANS INCIDENCE",
+      "reason_fr": "L'audit de routage n'a trouvé aucune référence entrante vers $0269. La réplique Truffle réellement utilisée existe dans $0276 et est déjà traduite.",
+      "action_fr": "Aucune action pour le jeu courant; conserver seulement pour traçabilité ou restauration future."
+    },
+    {
+      "event_id": "02DE",
+      "snes_id": "C9:C4FB",
+      "classification": "unused_orphan_event",
+      "label_fr": "TEXTE INUTILISÉ — SANS INCIDENCE",
+      "reason_fr": "L'audit de routage n'a trouvé aucune référence entrante vers $02DE dans les appels d'événements, triggers de map ou objets de map canoniques.",
+      "action_fr": "Aucune action pour le jeu courant; conserver comme texte stock inutilisé."
+    },
+    {
+      "event_id": "0323",
+      "snes_id": "C9:CE5A",
+      "classification": "covered_dynamic_parameter",
+      "label_fr": "PARAMÈTRE DYNAMIQUE COUVERT — AUCUNE ACTION",
+      "reason_fr": "Le carrier ne contient que le prix 30, injecté dans le gabarit d'auberge partagé déjà traduit et validé. Android n'a pas de prompt standard 30 GP séparé, mais le rendu français complet existe en jeu.",
+      "action_fr": "Aucune action; conserver 30 comme paramètre dynamique du gabarit."
+    },
+    {
+      "event_id": "0330",
+      "snes_id": "C9:CEA3",
+      "classification": "covered_contextual_template",
+      "label_fr": "GABARIT CONTEXTUEL COUVERT — AUCUNE ACTION",
+      "reason_fr": "Préfixe partagé du gabarit d'auberge. Le prix est fourni par l'appelant et le suffixe par $0331; Android stocke les phrases finales par prix. Le rendu français paramétré est déjà couvert.",
+      "action_fr": "Aucune action; ne pas attribuer un ID Android représentatif à ce fragment partagé."
+    },
+    {
+      "event_id": "0331",
+      "snes_id": "C9:CEB3",
+      "classification": "covered_contextual_template",
+      "label_fr": "GABARIT CONTEXTUEL COUVERT — AUCUNE ACTION",
+      "reason_fr": "Suffixe partagé du même gabarit d'auberge. Il est combiné au prix dynamique; la phrase française finale est déjà générée correctement.",
+      "action_fr": "Aucune action; conserver le gabarit partagé tel quel."
+    },
+    {
+      "event_id": "035F",
+      "snes_id": "C9:D1B8",
+      "classification": "manual_translation_already_validated",
+      "label_fr": "SUPPLÉMENT MANUEL VALIDÉ — AUCUNE ACTION",
+      "reason_fr": "Aucune identité Android sûre n'existe, mais le payload manuel Dryade fera réagir l'orbe ! est déjà traduit et validé. Aucun anglais visible ne reste à corriger.",
+      "action_fr": "Aucune action sauf changement volontaire de formulation."
+    },
+    {
+      "event_id": "0603",
+      "snes_id": "CA:85FC",
+      "classification": "unused_orphan_sign",
+      "label_fr": "TEXTE INUTILISÉ — SANS INCIDENCE",
+      "reason_fr": "$0603 contient Topaz Falls, mais l'audit n'a trouvé aucun appel d'événement, trigger de map ni objet de map qui référence ce panneau.",
+      "action_fr": "Aucune action pour le jeu courant; traduire seulement si ce contenu est restauré un jour."
+    }
+  ]
+}
