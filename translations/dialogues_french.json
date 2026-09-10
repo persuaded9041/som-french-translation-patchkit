@@ -907,6 +907,14 @@
           "text": "Chef : Inconscients ! Vous saviez très\nbien qu'il est formellement interdit\nde pénétrer dans la forêt !!"
         },
         {
+          "id": "C9:2DE5",
+          "text": "Chef : Tiens ? Mais...\n"
+        },
+        {
+          "id": "C9:2DF5",
+          "text": ",\nqu'est-ce que tu tiens là ?\fC'est... Non, ce n'est pas possible..."
+        },
+        {
           "id": "C9:2E2F",
           "text": "Bob : Oh ! T'as trouvé le trésor ?!\nNess : Bien joué !"
         },
@@ -925,6 +933,10 @@
         {
           "id": "C9:2EEE",
           "text": "On dit que le village sera perdu si\nquelqu'un l'enlève de son rocher !"
+        },
+        {
+          "id": "C9:2F23",
+          "text": "Chef : Et c'est précisément\nce qu'a fait %S(0,0) !\nMalheur sur nous !"
         },
         {
           "id": "C9:2F5B",
@@ -1457,6 +1469,18 @@
         {
           "id": "C9:4B1A",
           "text": " : Merci."
+        },
+        {
+          "id": "C9:4B2E",
+          "text": "Elman :"
+        },
+        {
+          "id": "C9:4B36",
+          "text": " ! Tu es revenue !"
+        },
+        {
+          "id": "C9:4B4A",
+          "text": " : Papa, je ne reviendrai\npas tant que je n'aurai pas\nretrouvé Durac !"
         },
         {
           "id": "C9:4B7E",
@@ -2183,6 +2207,18 @@
           "text": "Le Temple souterrain ?\nOh, ça fait des lustres que l'entrée\nest bloquée..."
         },
         {
+          "id": "C9:7107",
+          "text": ":\nTu es sûr ? Je te préviens,\nje n'irai pas, moi !\fTu veux quand même y aller\nseul ?\n("
+        },
+        {
+          "id": "C9:713A",
+          "text": " Continuer "
+        },
+        {
+          "id": "C9:7140",
+          "text": " Sortir )"
+        },
+        {
           "id": "C9:7161",
           "text": " : Quelle tête de mule !\nSi tu le prends comme ça, j'irai au\nChâteau de la sorcière seule, alors.\fAu revoir !"
         },
@@ -2807,8 +2843,36 @@
           "text": "Les survivants reconstruisirent tout\nsous l'égide bienveillante du pouvoir\nde Mana."
         },
         {
+          "id": "C9:8EFF",
+          "text": "Rusalka : %S(0,0) !\nPorte l'Épée à la Graine de Mana,\nsur l'autel !\f%S(0,0) : Mais...\nQu'est-ce que..."
+        },
+        {
+          "id": "C9:8F73",
+          "text": "Rusalka : Ton Épée s'est alignée\nsur la puissance de la Graine de Mana,\fet résonne désormais à l'unisson\navec elle !"
+        },
+        {
+          "id": "C9:8FA8",
+          "text": "Où que tu sois, l'Épée recevra"
+        },
+        {
+          "id": "C9:8FE0",
+          "text": "désormais le pouvoir de la Graine\nde Mana."
+        },
+        {
           "id": "C9:902F",
-          "text": "Où que tu sois, le pouvoir de la\nGraine atteindra ton Épée."
+          "text": "Il existe sept autres temples comme\ncelui-ci dans le monde. Trouve-les et\nreçois la force de leur Graine."
+        },
+        {
+          "id": "C9:9076",
+          "text": "Rusalka : %S(0,0),\nsi l'Empire réussit à réactiver\nla Forteresse,\fle pouvoir de Mana disparaîtra à tout\njamais de ce monde."
+        },
+        {
+          "id": "C9:90DE",
+          "text": "Tu dois restaurer l'Épée avant que\ncela n'arrive,"
+        },
+        {
+          "id": "C9:910D",
+          "text": "ou tout sera perdu !"
         },
         {
           "id": "C9:914F",
@@ -2951,8 +3015,12 @@
           "text": "Notre fils Durac a tant\nde travail qu'il n'a jamais\fle temps de venir nous voir,\nalors que Pandora est si près !"
         },
         {
+          "id": "C9:97FE",
+          "text": "Quoi ? Durac a été..."
+        },
+        {
           "id": "C9:9827",
-          "text": "Non !\nJe suis sûre qu'il va bien."
+          "text": "\u000bNon ! Je suis sûre qu'il va bien,\n%S(1,0)."
         },
         {
           "id": "C9:9841",
@@ -5127,6 +5195,138 @@
           "text": "Canon : Hé là !\nJe ne transporte pas les revenants,\nmoi !"
         },
         {
+          "id": "CA:0FE3",
+          "text": ": Regardez ! C'est...\nle Bénévodon !\n"
+        },
+        {
+          "id": "CA:0FF9",
+          "text": ": On dirait Flammie !"
+        },
+        {
+          "id": "CA:1012",
+          "text": ": Les dragons comme\nFlammie devaient être des bénévodons,\nà l'origine..."
+        },
+        {
+          "id": "CA:1042",
+          "text": ": Dépêchons-nous, ou il va\ns'en prendre à notre monde !"
+        },
+        {
+          "id": "CA:1082",
+          "text": "\u000b: %S(0,0), vite !\nPourquoi tu restes planté là ?!"
+        },
+        {
+          "id": "CA:109B",
+          "text": ": ...\fJe ne peux pas..."
+        },
+        {
+          "id": "CA:10D2",
+          "text": "Tu sais ce qui va se passer,\nsi on tue le bénévodon ?"
+        },
+        {
+          "id": "CA:10FC",
+          "text": "Les bénévodons sont les seules\ncréatures capables de restaurer le\npouvoir de Mana !\fSans eux, Mana se tarira pour de bon !"
+        },
+        {
+          "id": "CA:1105",
+          "text": "\u000b...\nEt alors..."
+        },
+        {
+          "id": "CA:110A",
+          "text": "!\fTu disparaîtras, toi aussi, non ?"
+        },
+        {
+          "id": "CA:1143",
+          "text": "\u000b"
+        },
+        {
+          "id": "CA:1149",
+          "text": ": Oh, non !"
+        },
+        {
+          "id": "CA:1155",
+          "text": "\u000b"
+        },
+        {
+          "id": "CA:1158",
+          "text": ": Je ne peux pas laisser\nfaire ça !"
+        },
+        {
+          "id": "CA:1187",
+          "text": "\u000b"
+        },
+        {
+          "id": "CA:118A",
+          "text": ": ..."
+        },
+        {
+          "id": "CA:1190",
+          "text": "\u000b...\n..."
+        },
+        {
+          "id": "CA:1198",
+          "text": "Ça va pas, non !\nTu crois pas que je vais mourir pour\nsi peu !"
+        },
+        {
+          "id": "CA:11C9",
+          "text": "\u000bC'est juste que ce monde et celui des\nlutins vont se séparer...\nOn ne pourra plus se voir."
+        },
+        {
+          "id": "CA:1219",
+          "text": "\u000bMais si on n'arrête pas le bénévodon,\nce monde sera entièrement détruit !"
+        },
+        {
+          "id": "CA:1263",
+          "text": "\u000bLes lutins...\nmais aussi les arbres, les animaux, et\nmême les êtres humains !"
+        },
+        {
+          "id": "CA:12B0",
+          "text": "\u000b"
+        },
+        {
+          "id": "CA:12B5",
+          "text": "Tu as l'Épée ! Tu es le seul qui\npuisses tout sauver ! Compris ? Tu\npeux pas te dégonfler maintenant !"
+        },
+        {
+          "id": "CA:1301",
+          "text": "\u000bSouviens-toi ta promesse à ta mère !\nT'en fais pas pour moi,\net fais ce que t'as à faire !"
+        },
+        {
+          "id": "CA:1349",
+          "text": "\u000b"
+        },
+        {
+          "id": "CA:134C",
+          "text": ": Bon..."
+        },
+        {
+          "id": "CA:135B",
+          "text": "\u000b...\n...\nTu es sûr ?"
+        },
+        {
+          "id": "CA:1373",
+          "text": ": Puisque je te le dis !"
+        },
+        {
+          "id": "CA:1383",
+          "text": "\u000bAllez, toi aussi,\n"
+        },
+        {
+          "id": "CA:138D",
+          "text": "!"
+        },
+        {
+          "id": "CA:13BD",
+          "text": "\u000b: Vas-y !\nBrandis l'Épée !"
+        },
+        {
+          "id": "CA:13CF",
+          "text": "\u000bOn va utiliser la magie de Mana sur sa\nlame !"
+        },
+        {
+          "id": "CA:13EE",
+          "text": "\u000bEt l'Épée de Mana sera ravivée !"
+        },
+        {
           "id": "CA:1419",
           "text": "Le sceau sur la magie de\n"
         },
@@ -5731,8 +5931,32 @@
           "text": " : Papy !!"
         },
         {
+          "id": "CA:3335",
+          "text": "\u000bÉcoute-moi bien, mon petit..."
+        },
+        {
+          "id": "CA:3359",
+          "text": ""
+        },
+        {
+          "id": "CA:3362",
+          "text": "Nous autres lutins vivons en harmonie\navec Mana."
+        },
+        {
           "id": "CA:33A6",
           "text": "\u000bLes êtres humains brisent les sceaux\ndes Graines pour ressusciter les\ndémons du passé..."
+        },
+        {
+          "id": "CA:33E4",
+          "text": "\u000bSi Mana disparaît,\nalors nous autres lutins disparaîtrons\naussi de ce monde, hélas..."
+        },
+        {
+          "id": "CA:3423",
+          "text": "\u000bMoi, je protégerai Mana pour que tous\nles lutins reviennent au village !"
+        },
+        {
+          "id": "CA:345F",
+          "text": "\u000bJ'ai déjà deux serviteurs\npour m'aider !\n"
         },
         {
           "id": "CA:3469",
@@ -5887,6 +6111,14 @@
           "text": "Nous avons enfin réussi à dépasser nos\npropres limites en vainquant nos\ndoubles ! Tiens ? Où est le maître ?"
         },
         {
+          "id": "CA:3C59",
+          "text": "Zico : Beau travail ! Restez toujours\nunis pour affronter les terribles\népreuves qui vous attendent."
+        },
+        {
+          "id": "CA:3C75",
+          "text": ""
+        },
+        {
           "id": "CA:3CA9",
           "text": "\u000bLa véritable force de l'Épée sera\nrévélée lorsque vous allierez courage,\nsagesse et amour."
         },
@@ -5941,6 +6173,22 @@
         {
           "id": "CA:3F48",
           "text": "Et c'est probablement parce que tu\nl'as retirée que des monstres ont fait\nleur apparition."
+        },
+        {
+          "id": "CA:3F97",
+          "text": ""
+        },
+        {
+          "id": "CA:3FB0",
+          "text": "\u000bC'est certain !\nL'Épée les attire ici !"
+        },
+        {
+          "id": "CA:3FC1",
+          "text": "\u000bTant que %S(0,0) sera\nau village, les monstres continueront\nde proliférer !"
+        },
+        {
+          "id": "CA:3FE8",
+          "text": ""
         },
         {
           "id": "CA:4021",
@@ -6123,6 +6371,14 @@
           "text": "\u000bLa Fourmimante que tu as vaincue\nétait l'un de ces monstres.\fTon épée a gagné une sphère\nd'énergie quand tu l'as tuée."
         },
         {
+          "id": "CA:48DC",
+          "text": "\u000bTu trouveras sûrement d'autres moyens\nde te procurer des sphères pour\nrenforcer ton épée."
+        },
+        {
+          "id": "CA:4925",
+          "text": ""
+        },
+        {
           "id": "CA:4980",
           "text": "Rusalka : Gemma, surveille de près les\nagissements de l'Empire.\nIls convoitent la Forteresse de Mana !"
         },
@@ -6189,6 +6445,14 @@
         {
           "id": "CA:4DF0",
           "text": "Je n'ai pas pu lui dire adieu !"
+        },
+        {
+          "id": "CA:4E2C",
+          "text": "%S(0,0) : "
+        },
+        {
+          "id": "CA:4E2F",
+          "text": "...\nJe ne t'oublierai jamais !"
         },
         {
           "id": "CA:4E4F",
@@ -6436,15 +6700,19 @@
         },
         {
           "id": "CA:631A",
-          "text": " : Durac !"
+          "text": ": Durac !"
+        },
+        {
+          "id": "CA:6324",
+          "text": ""
         },
         {
           "id": "CA:632B",
-          "text": "Durac : "
+          "text": "Durac :\n"
         },
         {
           "id": "CA:6337",
-          "text": " !\nTu m'as manqué !\nJe t'attendais."
+          "text": "!\nTu m'as manqué !\nJe t'attendais."
         },
         {
           "id": "CA:6344",
@@ -6452,19 +6720,51 @@
         },
         {
           "id": "CA:6347",
-          "text": " : Oh, moi aussi ! Je suis\nsi contente que tu ailles bien !\nSnif..."
+          "text": ": Oh, moi aussi !\fJe suis si contente\nque tu ailles bien !\nSnif..."
         },
         {
           "id": "CA:639B",
-          "text": " : M-mais...\nqu'est-ce que tu fais ?!\n"
+          "text": "\u000b: M-mais...\nqu'est-ce que tu fais ?!"
         },
         {
           "id": "CA:63B9",
-          "text": "Durac : Ha ha ha...\nJeune sotte !"
+          "text": "\u000bDurac : Ha ha ha...\nJeune sotte !"
+        },
+        {
+          "id": "CA:63D8",
+          "text": "\u000b: Rends-nous %S(1,0)\ntout de suite !\nOù est-ce que tu l'as envoyée ?!"
         },
         {
           "id": "CA:63F1",
-          "text": "Durac : Je l'ai envoyée\nau seigneur Thanatos.\nElle va être sacrifiée...\fNous avons besoin\ndu sang d'une jeune fille."
+          "text": "Durac : Je l'ai envoyée au seigneur\nThanatos.\nElle va être sacrifiée...\fNous avons besoin du sang d'une jeune\nfille."
+        },
+        {
+          "id": "CA:6423",
+          "text": ": Ordure ! %S(1,0)\nétait morte d'inquiétude pour toi...\nComment peux-tu lui faire ça ?!\fElle t'aime !\nTu dois le savoir,\nmême si on te manipule !\fTu ne t'en tireras pas comme ça !"
+        },
+        {
+          "id": "CA:6480",
+          "text": "\u000bDurac : Aaah !"
+        },
+        {
+          "id": "CA:6495",
+          "text": "!\nNon..."
+        },
+        {
+          "id": "CA:649C",
+          "text": "!\nUrgh..."
+        },
+        {
+          "id": "CA:64A6",
+          "text": "Pfff, pfff...\nMerci, j'ai repris mes esprits...\f%S(2,0) : Bouge pas !\nGarde tes forces !\fDurac : Je vous en prie !\nAidez\n"
+        },
+        {
+          "id": "CA:64E2",
+          "text": ", vite !\fLa salle derrière l'autel !\nArgh...\f%S(0,0) : Elle est là !"
+        },
+        {
+          "id": "CA:64E5",
+          "text": ""
         },
         {
           "id": "CA:64F6",
@@ -6528,11 +6828,15 @@
         },
         {
           "id": "CA:6741",
-          "text": " : "
+          "text": ""
         },
         {
           "id": "CA:6744",
-          "text": "...\n"
+          "text": ""
+        },
+        {
+          "id": "CA:674A",
+          "text": " : %S(1,0)... Ça va ?"
         },
         {
           "id": "CA:6766",
@@ -6807,6 +7111,10 @@
           "text": " : ..."
         },
         {
+          "id": "CA:748F",
+          "text": "\u000bZzz... zzz...\fHum ? Oh... Bonjour...\n(bâille)"
+        },
+        {
           "id": "CA:749B",
           "text": "\u000b"
         },
@@ -6825,6 +7133,10 @@
         {
           "id": "CA:750D",
           "text": "\nFaut que tu me ramènes là-bas !"
+        },
+        {
+          "id": "CA:752E",
+          "text": "J'accepte de te tenir compagnie\njusque-là... alors sois reconnaissant,\nhein ?"
         },
         {
           "id": "CA:7565",
@@ -6919,6 +7231,10 @@
           "text": "6 3 ?"
         },
         {
+          "id": "CA:7864",
+          "text": "“ 6 3 4 ”\n"
+        },
+        {
           "id": "CA:78A1",
           "text": "Vous pouvez passer.\nVoulez-vous sauvegarder ?\n"
         },
@@ -6933,6 +7249,342 @@
         {
           "id": "CA:78E3",
           "text": "Pour passer, vous devez vaincre le\ndragon qui se trouve à l'ouest."
+        },
+        {
+          "id": "CA:7A0C",
+          "text": ": Où sommes-nous ?"
+        },
+        {
+          "id": "CA:7A1C",
+          "text": "\u000b"
+        },
+        {
+          "id": "CA:7A43",
+          "text": "\u000b: Regardez !"
+        },
+        {
+          "id": "CA:7A4B",
+          "text": "\u000b"
+        },
+        {
+          "id": "CA:7A58",
+          "text": "\u000bC'est l'Arbre de Mana !"
+        },
+        {
+          "id": "CA:7A7D",
+          "text": "\u000b: Nous y sommes enfin !\n%S(0,0), nous allons pouvoir\nraviver l'Épée de Mana !"
+        },
+        {
+          "id": "CA:7AB0",
+          "text": ": J'ai l'impression de\nrêver..."
+        },
+        {
+          "id": "CA:7AC5",
+          "text": "\u000bEst-ce que tout ceci est réel ?\nNous y sommes vraiment arrivés ?"
+        },
+        {
+          "id": "CA:7ADF",
+          "text": ""
+        },
+        {
+          "id": "CA:7AE4",
+          "text": "...\n"
+        },
+        {
+          "id": "CA:7AEC",
+          "text": "\u000b...\nMerci."
+        },
+        {
+          "id": "CA:7AF1",
+          "text": "\u000bJe suis heureuse de t'avoir rencontré."
+        },
+        {
+          "id": "CA:7B01",
+          "text": ""
+        },
+        {
+          "id": "CA:7B08",
+          "text": "\u000bToi aussi,\n"
+        },
+        {
+          "id": "CA:7B32",
+          "text": "."
+        },
+        {
+          "id": "CA:7B38",
+          "text": ": Ouais !\nJ'ai eu de la chance de tomber sur\nd'aussi bons serviteurs que vous !"
+        },
+        {
+          "id": "CA:7B69",
+          "text": ": Il s'en est passé, des\nchoses, en peu de temps..."
+        },
+        {
+          "id": "CA:7B85",
+          "text": "Mais grâce à vous deux...\nj'ai réussi à arriver jusqu'ici."
+        },
+        {
+          "id": "CA:7BA0",
+          "text": "\u000bMerci.\fIl nous reste une chose à faire !"
+        },
+        {
+          "id": "CA:7BC9",
+          "text": "\u000bQuand l'Épée sera ravivée, nous serons\nprêts à affronter la Forteresse !"
+        },
+        {
+          "id": "CA:7BF4",
+          "text": "\u000bAllons-y !"
+        },
+        {
+          "id": "CA:7C54",
+          "text": "\u000bHa ha ha ha...\nAdmirez la puissance de la Forteresse\nde Mana !\fFeu !!"
+        },
+        {
+          "id": "CA:7C98",
+          "text": "\u000b: Ah ! %S(0,0) !\n%S(1,0) !\n"
+        },
+        {
+          "id": "CA:7CBA",
+          "text": ": Aaaah !!"
+        },
+        {
+          "id": "CA:7CF4",
+          "text": "\u000b...\n..."
+        },
+        {
+          "id": "CA:7CF8",
+          "text": ""
+        },
+        {
+          "id": "CA:7CFD",
+          "text": ""
+        },
+        {
+          "id": "CA:7D03",
+          "text": ""
+        },
+        {
+          "id": "CA:7D08",
+          "text": "\u000b%S(0,0)...\fRéveille-toi, %S(0,0)..."
+        },
+        {
+          "id": "CA:7D32",
+          "text": "\u000b: Où suis-je ? Ah ! L'Arbre\nde Mana a disparu ! Non..."
+        },
+        {
+          "id": "CA:7D5E",
+          "text": ": Flûte !!\nOn avait enfin réussi à trouver\nl'Arbre !\fSaleté de Thanatos !"
+        },
+        {
+          "id": "CA:7D8D",
+          "text": ""
+        },
+        {
+          "id": "CA:7DA9",
+          "text": ": C'est terrible !\nQue va-t-il arriver à notre monde...\nà Durac ?"
+        },
+        {
+          "id": "CA:7DE1",
+          "text": ""
+        },
+        {
+          "id": "CA:7DF0",
+          "text": "...\nJe vous attendais,\ntoi et tes compagnons...\fJe suis l'Arbre de Mana...\nJe protège ce monde...\fNe soyez pas tristes...\nMême si j'ai disparu,\nmon esprit reste auprès de vous..."
+        },
+        {
+          "id": "CA:7E0E",
+          "text": "Le pouvoir de Mana s'est presque\néteint de ce monde à cause de la\nrésurrection de la Forteresse..."
+        },
+        {
+          "id": "CA:7E4B",
+          "text": "Bientôt les bénévodons du monde entier\nse rassembleront et fusionneront en un\nêtre unique et immense..."
+        },
+        {
+          "id": "CA:7E94",
+          "text": "Seul ce formidable bénévodon est\ncapable de restaurer le pouvoir perdu\nde Mana."
+        },
+        {
+          "id": "CA:7EC7",
+          "text": "Mais lorsque ce pouvoir disparaît trop\nbrusquement, le bénévodon devient\nincontrôlable."
+        },
+        {
+          "id": "CA:7EFB",
+          "text": "S'il s'en prend à la Forteresse de\nMana, le monde sera perdu."
+        },
+        {
+          "id": "CA:7F40",
+          "text": "La seule manière d'empêcher cela est\nd'abattre le bénévodon avec l'Épée\nsacrée."
+        },
+        {
+          "id": "CA:7F84",
+          "text": "Cette épée ne peut être utilisée que\npar les descendants de la tribu de\nMana."
+        },
+        {
+          "id": "CA:7FC4",
+          "text": "C'est ton père, le chevalier Serynn de\nTasmanica, qui aurait dû retirer\nl'Épée.\fIl y a 15 ans, lors de la guerre, iI\naffronta l'Empereur mais fut gravement\nblessé."
+        },
+        {
+          "id": "CA:8010",
+          "text": "Pour vaincre définitivement l'Empereur\nressuscité, il usa de ses dernières\nforces pour venir chercher l'Épée."
+        },
+        {
+          "id": "CA:805E",
+          "text": "Hélas, il mourut en arrivant à\nPotos..."
+        },
+        {
+          "id": "CA:80B4",
+          "text": "\u000b: Hein !\nMais alors, le fantôme que j'ai vu à\nla cascade, c'était..."
+        },
+        {
+          "id": "CA:80C2",
+          "text": "mon père ?!"
+        },
+        {
+          "id": "CA:80F2",
+          "text": "\u000bOui, c'était Serynn.\nEt moi..."
+        },
+        {
+          "id": "CA:811D",
+          "text": "j'étais sa femme,"
+        },
+        {
+          "id": "CA:8132",
+          "text": "\u000bta mère."
+        },
+        {
+          "id": "CA:814D",
+          "text": "\u000bNous faisons partie de la tribu de\nMana."
+        },
+        {
+          "id": "CA:816B",
+          "text": "Les femmes de notre famille ont pour\ndestin d'enfanter avant de devenir\narbre pour protéger le monde."
+        },
+        {
+          "id": "CA:81B7",
+          "text": "\u000bLes hommes doivent brandir l'Épée,\ncomme le fit ton père, et préserver la\npaix et l'ordre."
+        },
+        {
+          "id": "CA:81EF",
+          "text": "Va à la Forteresse ! Ses défenses en\nsont affaiblies, maintenant que\nl'énergie de Mana se dissipe."
+        },
+        {
+          "id": "CA:8236",
+          "text": "\u000bJe vais utiliser mes dernières forces\npour imprégner l'Épée de la puissance\ndes Graines."
+        },
+        {
+          "id": "CA:828E",
+          "text": "Le pouvoir de l'Épée est au maximum !"
+        },
+        {
+          "id": "CA:82AD",
+          "text": "..."
+        },
+        {
+          "id": "CA:82BC",
+          "text": ", pardonne-moi.\nJe n'ai pas été une bonne mère."
+        },
+        {
+          "id": "CA:8300",
+          "text": "\u000b: Mère !"
+        },
+        {
+          "id": "CA:830C",
+          "text": "C'est vraiment toi ?!"
+        },
+        {
+          "id": "CA:8323",
+          "text": "\u000bTu vas disparaître comme ça ?!"
+        },
+        {
+          "id": "CA:833E",
+          "text": "\u000b...\n...\n...\f..."
+        },
+        {
+          "id": "CA:834B",
+          "text": "\u000b%S(0,0) : Non !\nJe t'avais enfin retrouvée...\fRéponds-moi, je t'en prie !"
+        },
+        {
+          "id": "CA:8368",
+          "text": "\u000bMèèère !!"
+        },
+        {
+          "id": "CA:8381",
+          "text": "\u000b:"
+        },
+        {
+          "id": "CA:8384",
+          "text": "..."
+        },
+        {
+          "id": "CA:838A",
+          "text": ": Mère..."
+        },
+        {
+          "id": "CA:8396",
+          "text": "\u000bNon...\nne me laisse pas !"
+        },
+        {
+          "id": "CA:839E",
+          "text": ": ..."
+        },
+        {
+          "id": "CA:83A4",
+          "text": "\u000bIdiot !"
+        },
+        {
+          "id": "CA:83B3",
+          "text": "\u000b"
+        },
+        {
+          "id": "CA:83BA",
+          "text": "Reprends-toi !\nRappelle-toi ce qu'elle t'a dit !\nTu as une mission !"
+        },
+        {
+          "id": "CA:83ED",
+          "text": ""
+        },
+        {
+          "id": "CA:83F0",
+          "text": "non plus n'a pas connu sa\nmère !"
+        },
+        {
+          "id": "CA:8414",
+          "text": "\u000bEt d'ailleurs, moi non plus !\fC'est pas le moment de pleurer !"
+        },
+        {
+          "id": "CA:843F",
+          "text": ": Désolé..."
+        },
+        {
+          "id": "CA:8445",
+          "text": "\u000bTu as raison."
+        },
+        {
+          "id": "CA:844F",
+          "text": "\u000bÇa va aller !"
+        },
+        {
+          "id": "CA:8471",
+          "text": ": Je suis de la tribu de\nMana... Je vais accomplir le destin de\nmes parents et protéger ce monde si\fmerveilleux !"
+        },
+        {
+          "id": "CA:84B2",
+          "text": "\u000b"
+        },
+        {
+          "id": "CA:84B9",
+          "text": ": J'aime mieux ça !\nJe reconnais bien là mon esclave n°1 !"
+        },
+        {
+          "id": "CA:84DE",
+          "text": ": Tu as raison !\nJ'ai l'impression d'avoir rencontré ma\nmère, moi aussi !\fElle est sûrement dans mon cœur !"
+        },
+        {
+          "id": "CA:8528",
+          "text": ": Allez, on se motive !"
+        },
+        {
+          "id": "CA:854C",
+          "text": "\u000bUn, deux...\ntrois !"
         },
         {
           "id": "CA:85CC",
@@ -7141,222 +7793,43 @@
       ]
     }
   ],
-  "partial_events": [
-    {
-      "event_id": "0227",
-      "partial_reason": "mapped_but_layout_deferred",
-      "layout_deferred_semantic_ids": [
-        "C9:97FE"
-      ]
-    },
-    {
-      "event_id": "04E2",
-      "partial_reason": "mapped_but_direct_simulator_deferred",
-      "unresolved_semantic_ids": [
-        "CA:3335",
-        "CA:3359",
-        "CA:3362",
-        "CA:33E4",
-        "CA:3423"
-      ],
-      "layout_deferred_semantic_ids": [
-        "CA:3335",
-        "CA:3359",
-        "CA:3362",
-        "CA:33E4",
-        "CA:3423"
-      ]
-    },
-    {
-      "event_id": "04E5",
-      "partial_reason": "mapped_but_layout_deferred",
-      "layout_deferred_semantic_ids": [
-        "CA:3C59",
-        "CA:3C75"
-      ]
-    },
-    {
-      "event_id": "04E6",
-      "partial_reason": "mapped_but_layout_deferred",
-      "layout_deferred_semantic_ids": [
-        "CA:3F97",
-        "CA:3FB0",
-        "CA:3FC1",
-        "CA:3FE8"
-      ]
-    },
-    {
-      "event_id": "04E9",
-      "partial_reason": "mapped_but_layout_deferred",
-      "layout_deferred_semantic_ids": [
-        "CA:48DC",
-        "CA:4925"
-      ]
-    },
-    {
-      "event_id": "04FD",
-      "partial_reason": "mapped_but_layout_deferred",
-      "layout_deferred_semantic_ids": [
-        "CA:4E2F"
-      ]
-    },
-    {
-      "event_id": "0555",
-      "partial_reason": "mapped_but_layout_deferred",
-      "layout_deferred_semantic_ids": [
-        "CA:63D8",
-        "CA:6423",
-        "CA:6480",
-        "CA:649C",
-        "CA:64A6"
-      ]
-    },
-    {
-      "event_id": "0559",
-      "partial_reason": "mapped_but_layout_deferred",
-      "layout_deferred_semantic_ids": [
-        "CA:674A"
-      ]
-    },
-    {
-      "event_id": "0592",
-      "partial_reason": "mapped_but_direct_simulator_deferred",
-      "unresolved_semantic_ids": [
-        "CA:748F",
-        "CA:752E"
-      ],
-      "layout_deferred_semantic_ids": [
-        "CA:748F",
-        "CA:752E"
-      ]
-    },
+  "partial_events": [],
+  "user_validated_visually_complete_events": [
     {
       "event_id": "001E",
-      "partial_reason": "android_resegmented_shared_prefix_without_single_identity",
       "unresolved_semantic_ids": [
         "C9:0970"
-      ]
+      ],
+      "reason": "user_validated_complete_shared_prefix_resegmentation"
     },
     {
       "event_id": "0042",
-      "partial_reason": "manual_translation_without_android_identity",
       "manual_translated_semantic_ids": [
         "C9:1057"
-      ]
+      ],
+      "reason": "user_validated_complete_with_manual_jp_supplement"
     },
     {
       "event_id": "00EE",
-      "partial_reason": "manual_translation_without_android_identity",
       "manual_translated_semantic_ids": [
         "C9:2179"
-      ]
+      ],
+      "reason": "user_validated_complete_with_manual_jp_supplement"
     },
     {
       "event_id": "00F1",
-      "partial_reason": "manual_translation_without_android_identity",
       "manual_translated_semantic_ids": [
         "C9:2208"
-      ]
+      ],
+      "reason": "user_validated_complete_with_manual_jp_supplement"
     },
     {
       "event_id": "00F3",
-      "partial_reason": "manual_translation_without_android_identity",
       "manual_translated_semantic_ids": [
         "C9:2268"
-      ]
-    },
-    {
-      "event_id": "010C",
-      "partial_reason": "user_validated_snes_jp_absent_suppression",
-      "suppressed_semantic_ids": [
-        "C9:30F5"
-      ]
-    },
-    {
-      "event_id": "0204",
-      "partial_reason": "manual_translation_without_android_identity",
-      "manual_translated_semantic_ids": [
-        "C9:902F"
-      ]
-    },
-    {
-      "event_id": "0207",
-      "partial_reason": "manual_translation_without_android_identity",
-      "manual_translated_semantic_ids": [
-        "C9:916F"
-      ]
-    },
-    {
-      "event_id": "0208",
-      "partial_reason": "manual_translation_without_android_identity",
-      "manual_translated_semantic_ids": [
-        "C9:9193"
-      ]
-    },
-    {
-      "event_id": "024F",
-      "partial_reason": "manual_translation_without_android_identity",
-      "manual_translated_semantic_ids": [
-        "C9:9F88"
-      ]
-    },
-    {
-      "event_id": "0278",
-      "partial_reason": "manual_translation_without_android_identity",
-      "manual_translated_semantic_ids": [
-        "C9:A730",
-        "C9:A74E"
-      ]
-    },
-    {
-      "event_id": "02E1",
-      "partial_reason": "manual_translation_without_android_identity",
-      "manual_translated_semantic_ids": [
-        "C9:C56C"
-      ]
-    },
-    {
-      "event_id": "02FC",
-      "partial_reason": "manual_translation_without_android_identity",
-      "manual_translated_semantic_ids": [
-        "C9:CAA6",
-        "C9:CAC2",
-        "C9:CB0C"
       ],
-      "suppressed_semantic_ids": [
-        "C9:CB28"
-      ]
+      "reason": "user_validated_complete_with_manual_jp_supplement"
     },
-    {
-      "event_id": "035F",
-      "partial_reason": "manual_translation_without_android_identity",
-      "manual_translated_semantic_ids": [
-        "C9:D1B8"
-      ]
-    },
-    {
-      "event_id": "04E1",
-      "partial_reason": "manual_resegmented_page_suppression",
-      "manual_suppressed_semantic_ids": [
-        "CA:2C84"
-      ]
-    },
-    {
-      "event_id": "04E8",
-      "partial_reason": "manual_translation_without_android_identity",
-      "manual_translated_semantic_ids": [
-        "CA:437D"
-      ]
-    },
-    {
-      "event_id": "0558",
-      "partial_reason": "user_validated_snes_jp_absent_suppression",
-      "suppressed_semantic_ids": [
-        "CA:6629"
-      ]
-    }
-  ],
-  "user_validated_visually_complete_events": [
     {
       "event_id": "0103",
       "suppressed_semantic_ids": [
@@ -7381,6 +7854,82 @@
         "C9:804A"
       ],
       "reason": "user_validated_android_adaptation_complete"
+    },
+    {
+      "event_id": "0207",
+      "manual_translated_semantic_ids": [
+        "C9:916F"
+      ],
+      "reason": "user_validated_complete_with_manual_jp_supplement"
+    },
+    {
+      "event_id": "0208",
+      "manual_translated_semantic_ids": [
+        "C9:9193"
+      ],
+      "reason": "user_validated_complete_with_manual_jp_supplement"
+    },
+    {
+      "event_id": "024F",
+      "manual_translated_semantic_ids": [
+        "C9:9F88"
+      ],
+      "reason": "user_validated_complete_with_manual_jp_supplement"
+    },
+    {
+      "event_id": "0278",
+      "manual_translated_semantic_ids": [
+        "C9:A730",
+        "C9:A74E"
+      ],
+      "reason": "user_validated_complete_with_manual_jp_supplement"
+    },
+    {
+      "event_id": "02E1",
+      "manual_translated_semantic_ids": [
+        "C9:C56C"
+      ],
+      "reason": "user_validated_complete_with_manual_jp_supplement"
+    },
+    {
+      "event_id": "02FC",
+      "manual_translated_semantic_ids": [
+        "C9:CAA6",
+        "C9:CAC2",
+        "C9:CB0C"
+      ],
+      "suppressed_semantic_ids": [
+        "C9:CB28"
+      ],
+      "reason": "user_validated_complete_with_manual_jp_supplement"
+    },
+    {
+      "event_id": "035F",
+      "manual_translated_semantic_ids": [
+        "C9:D1B8"
+      ],
+      "reason": "user_validated_complete_with_manual_jp_supplement"
+    },
+    {
+      "event_id": "04E1",
+      "manual_suppressed_semantic_ids": [
+        "CA:2C84"
+      ],
+      "reason": "user_validated_complete_with_manual_resegmentation"
+    },
+    {
+      "event_id": "04E8",
+      "manual_translated_semantic_ids": [
+        "CA:437D"
+      ],
+      "reason": "user_validated_complete_with_manual_jp_supplement"
+    },
+    {
+      "event_id": "0558",
+      "suppressed_semantic_ids": [
+        "CA:6629"
+      ],
+      "reason": "user_validated_complete_snes_jp_absent_suppression"
     },
     {
       "event_id": "0602",
@@ -7489,6 +8038,90 @@
     }
   ],
   "user_validated_structural_command_overrides": [
+    {
+      "event_id": "01C5",
+      "commands": [
+        {
+          "name": "CHOICE_OPTION",
+          "args": "08",
+          "immediately_before_text_id": "C9:7140",
+          "translated_args": "0D"
+        }
+      ],
+      "reason": "round69_android_fr_continue_exit_choice_anchor"
+    },
+    {
+      "event_id": "0205",
+      "commands": [
+        {
+          "name": "PLAYER_NAME",
+          "args": "00",
+          "immediately_before_text_id": "C9:90DE",
+          "omit": true
+        }
+      ],
+      "reason": "round69_whole_scene_android_fr_0204_0205_continuation"
+    },
+    {
+      "event_id": "0227",
+      "commands": [
+        {
+          "name": "PLAYER_NAME",
+          "args": "01",
+          "immediately_before_text_id": "C9:9827",
+          "omit": true
+        }
+      ],
+      "reason": "round69_user_requested_move_player_name_inside_C9_9827"
+    },
+    {
+      "event_id": "04E6",
+      "commands": [
+        {
+          "name": "PLAYER_NAME",
+          "args": "00",
+          "immediately_before_text_id": "CA:3FC1",
+          "omit": true
+        },
+        {
+          "name": "WAIT",
+          "args": "00",
+          "immediately_before_text_id": "CA:3FE4",
+          "omit": true
+        }
+      ],
+      "reason": "round69_user_requested_move_player_name_inside_CA_3FC1"
+    },
+    {
+      "event_id": "0559",
+      "commands": [
+        {
+          "name": "PLAYER_NAME",
+          "args": "00",
+          "immediately_before_text_id": "CA:6741",
+          "omit": true
+        },
+        {
+          "name": "PLAYER_NAME",
+          "args": "01",
+          "immediately_before_text_id": "CA:6744",
+          "omit": true
+        }
+      ],
+      "reason": "round69_android_fr_2147_player_name_resegmentation"
+    },
+    {
+      "event_id": "0592",
+      "commands": [
+        {
+          "name": "PLAYER_NAME",
+          "args": "02",
+          "immediately_before_text_id": "CA:748F",
+          "omit": true
+        }
+      ],
+      "reason": "round69_android_fr_1023_omits_sprite_name_label"
+    },
     {
       "event_id": "04E2",
       "commands": [

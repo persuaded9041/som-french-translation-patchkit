@@ -156,19 +156,9 @@ byte-faithful `original_en`, `original_fr` from the official SNES-FR Rev 1 ROM, 
 serialize `original_en`; only explicit user approval changes them to `translated`. Manual
 supplements never create Android identity.
 
-Round 60 validated the original 11 supplements, including `$035F/C9:D1B8` strictly as
-`Dryade`. Round 62 added `$04E1/CA:2C84`; Round 63 validated suppressing that standalone
-USA-only page and only its immediately following `WAIT $00`, preserving the following
-`TEXT_CLEAR` and `CA:2C93`. Round 64 added five provenance-rich entries for the remaining no-safe-Android-equivalent
-carriers: `$00EE/C9:2179`, `$00F1/C9:2208`, `$00F3/C9:2268`, `$0204/C9:902F`, and
-`$04E8/CA:437D`. Round 65 explicitly validates all except `$0204`: the active texts are
-`Départ pour Pandora !`, `Pour Pandora !`, `Pays de glace ! Bon voyage !`, and
-`Héhéhéhé !`. Android FR confirms the canonical terms `Pandora` and `Pays de glace`.
-`$0204/C9:902F` remains `needs_manual_translation`. Pending entries are review metadata only
-and do not disable validated PARTIEL fallback repairs; `$04E8` is applied only after its
-already-proven PARTIEL repairs, then re-simulated. The current review sheet is
-`mappings/android/dialogues_manual_supplements_round65.html`; regenerate/check it with
-`tools/generate_manual_dialogue_supplements_html.py [--check]`.
+The current file contains **18 provenance records: 16 validated manual translations and 2 validated suppressions, with 0 pending**. These are the only dialogue translations that do not derive from Android FR. `$035F/C9:D1B8` remains strictly `Dryade`; the withdrawn expanded wording must not return. The validated suppressions are `$04E1/CA:2C84` and `$013A/C9:40D7`.
+
+The current deterministic review sheet is `mappings/android/dialogues_manual_supplements.html`; regenerate/check it with `tools/generate_manual_dialogue_supplements_html.py [--check]`. Reviewed Android-FR scene resegmentations are not manual prose: `mappings/android/dialogues_redistribution_recipes.json` stores only Android IDs/token references and structural metadata, and the importer reconstructs their French directly from `sources/android/scrtxt_fr.bin`.
 
 `$0278` owns the two START/L/R controller instructions; Android FR 1349 is inserted as an
 extra page before the already aligned 1350/1351 continuation.
@@ -198,20 +188,11 @@ python3 tools/import_android_text.py --only dialogue-format-mass \
   --rom <clean-USA-ROM>
 ```
 
-The current Round-65 deterministic partial-aware mass pass is **694 simulator-clean events /
-1682 accepted semantic source IDs / 1777 JSON entries**: **668 complete + 26 PARTIEL**.
-The PARTIEL events are `$001E`, `$0042`, `$00EE`, `$00F1`, `$00F3`, `$010C`, `$013A`,
-`$0207`, `$0208`, `$0227`, `$024F`, `$0278`, `$02E1`, `$02FC`, `$035F`, `$04E1`,
-`$04E2`, `$04E5`, `$04E6`, `$04E8`, `$04E9`, `$04FD`, `$0555`, `$0558`, `$0559`,
-`$0592`. Four additional events remain user-validated visually complete Android adaptations
-despite reviewed unresolved bookkeeping. The **10 excluded events** are **7 alignment-incomplete
-+ 2 formatter-rejected + 1 simulator-rejected**. Semantic Android identity remains **1798/1838**.
+The current **Round 69** deterministic mass pass is **701 simulator-clean events / 1810 accepted semantic source IDs / 1946 JSON entries**: **701 complete + 0 PARTIEL**. Semantic Android identity remains **1798/1838 (97.8%)**; the unresolved identity count is intentionally not inflated by manual supplements or whole-scene resegmentations.
 
-Round 62 adds four exact user-reviewed distributions only: `$038D`, `$03EA` and `$04E3`
-become complete; `$04E2` accepts `CA:31EE + CA:3218` but remains PARTIEL for six other
-carriers. Three exact carriers are allowed to end in a generated `\f` only through the
-Round-62 allow-list: `$03EA/C9:F04C`, `$04E2/CA:31EE`, `$04E3/CA:36C7`. This must not
-be generalized. Round 63 suppresses `$04E1/CA:2C84` plus its immediately following `WAIT $00`; this exact structural omission must not be generalized.
+Only three events are excluded: `$0269`, `$02DE`, `$0603`. Canonical routing audits prove all three are unused/orphan stock content, so the current patch has **100% French coverage of reachable dialogue under the audited routing graph**. Simulation is **0 errors / 0 warnings / 0 implicit wraps**. The former 15 provenance-only PARTIEL events remain traceable in `user_validated_visually_complete_events` rather than `partial_events`.
+
+Round 69 also completes the reviewed resegmentations `$010C`, `$015A`, `$01C5`, `$0204/$0205`, `$0227`, `$04E2`, `$04E5`, `$04E6`, `$04E9`, `$04FD`, `$0559`, `$0592`, while Round 68 preserves the original Android-FR scene text for `$0555`, `$0429`, `$05F8`. All such restructurings are generated from the prose-free recipe manifest; genuinely non-Android French remains exclusively in the manual supplement file.
 
 The formatter is intentionally conservative:
 

@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "translations" / "dialogues_manual_supplements.json"
-OUTPUT = ROOT / "mappings" / "android" / "dialogues_manual_supplements_round67.html"
+OUTPUT = ROOT / "mappings" / "android" / "dialogues_manual_supplements.html"
 
 
 def esc(value: object) -> str:
@@ -128,7 +128,7 @@ def main() -> None:
     if args.check:
         if not OUTPUT.exists() or OUTPUT.read_text(encoding="utf-8") != text:
             raise SystemExit(f"stale generated file: {OUTPUT.relative_to(ROOT)}")
-        print("Round-67 manual supplement HTML is up to date")
+        print("Manual supplement HTML is up to date")
         return
     OUTPUT.write_text(text, encoding="utf-8")
     print(f"Generated {OUTPUT.relative_to(ROOT)}")

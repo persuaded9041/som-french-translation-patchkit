@@ -1,99 +1,74 @@
-# Development handoff — Round 67
+# Development handoff — Round 69
 
-Operational handoff only. Historical round-by-round evidence lives in `docs/ANDROID_TEXT_ALIGNMENT.md`, `docs/DIALOGUE_FORMAT.md`, `docs/TEXT_RESEARCH_NOTES.md`, and `mappings/android/dialogues_review_round*.json`.
+Operational handoff only. Historical evidence remains in `docs/ANDROID_TEXT_ALIGNMENT.md`, `docs/DIALOGUE_FORMAT.md`, `docs/TEXT_RESEARCH_NOTES.md`, and `mappings/android/dialogues_review_round*.json/html`.
 
 ## Current checkpoint
 
 - Reference ROM: unheadered **Secret of Mana (USA)**, `0x200000`, SHA-256 `4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f`. Never store or redistribute it.
-- Android semantic alignment: **1798 / 1838 (97.8%)**, **40 unresolved**.
-- Simulator-clean payload: **695 events = 669 complete + 26 PARTIEL**.
-- Translation output: **1687 accepted semantic source IDs / 1783 JSON entries**.
+- Android semantic alignment: **1798 / 1838 (97.8%)**, **40 unresolved**. Round 69 deliberately does not inflate identity.
+- Simulator-clean payload: **701 events = 701 complete + 0 PARTIEL**.
+- Translation output: **1810 accepted semantic source IDs / 1946 JSON entries**.
 - Manual supplements: **18 = 16 translated + 2 validated suppressions + 0 pending**.
-- Exclusions: **6 alignment-incomplete + 2 formatter-rejected + 1 simulator-rejected**.
+- Exclusions: **3 alignment-incomplete**, all routing-audited unused/orphan stock content: `$0269`, `$02DE`, `$0603`.
 - Simulation: **0 errors / 0 warnings / 0 implicit wraps**.
-- `patches/08_dialogue_text.ips` SHA-256: `748783c60087f3a892d3e82ae58b4321ecf7676bbc9599eb376ddadf576a1281`.
-- `patches/all.ips` SHA-256: `8e35b4c5d2ebab9c05d80e0ac0f70d72b77d5237f3fba0a9e1f026fdbc476cb8`.
-- Patched ROM SHA-256: `06796a0387908f3d468850636c57ec8860f65ee5e266a43f167e11a9322fdda4`. Independent application of `all.ips` to the clean USA ROM is byte-identical to the builder result.
+- Playable-dialogue coverage: **100% French for dialogue reachable through the canonical routing audit**. The former 15 provenance-only PARTIEL events are now promoted to complete after scene-level semantic review; their provenance remains explicit in `user_validated_visually_complete_events`. The 3 unreachable stock strings remain intentionally excluded.
 
-## Round 67 decisions
+## Round 69 decisions
 
-- `$013A/C9:40D7`: **validated suppression**. The Western follow-up has no distinct SNES-JP counterpart and Android FR omits it. Serialize the carrier empty and omit **only** its immediately following `WAIT $00`; preserve the following `TEXT_CLEAR/RETURN`.
-- `$04E1`: the Thanatos monologue is redistributed from complete Android FR IDs **3252–3257** across `CA:2BED`, `CA:2C3A`, and `CA:2C93`. Keep the earlier Round-63 suppression of standalone `CA:2C84` and its immediate `WAIT $00`; preserve the following `TEXT_CLEAR` and the existing end-of-scene `PLAYER_NAME` fixes. Do not reopen `$04E1`.
-- `$04E2`: `CA:32C5 = " : Non ! / C'est pas possible !"` and `CA:32D7 = "Ils se sont sûrement échappés !"`. Android FR assigns both to `%S(2,0)`: change the translation-side `PLAYER_NAME(1)` before `CA:32C5` to `PLAYER_NAME(2)` and omit the redundant `PLAYER_NAME(2)` before `CA:32D7`. Five carriers remain deferred: `CA:3335`, `CA:3359`, `CA:3362`, `CA:33E4`, `CA:3423`. Use `mappings/android/dialogue_04E2_android_fr_round67.html`.
-- `$035F/C9:D1B8`: manual surcharge is strictly **`Dryade`**. Exact carrier evidence is only `ドリアード` / `Dryad` / `Dryade`; never restore `Dryade fera réagir l'orbe !`.
+Round 69 finishes the remaining actionable dialogue resegmentation without adding weak Android identities. Resegmentation data contains no French prose: `mappings/android/dialogues_redistribution_recipes.json` stores only Android-FR ID/token references plus layout/control metadata, and `tools/import_android_text.py` reconstructs every redistributed carrier directly from `sources/android/scrtxt_fr.bin`. The deterministic layouts live in `mappings/android/dialogues_redistribution_recipes.json`.
 
-## Source and mapping rules
+- `$010C`: complete the Android-FR scene redistribution; preserve the validated empty `C9:30F5` suppression.
+- `$015A`: reconstruct Android FR 255–256 across the two stock `PLAYER_NAME(1)` positions: Elman greets the girl, then the girl replies about finding Durac.
+- `$01C5`: the whole Android EN/FR block 436–438 proves the choice scene. Keep the Android FR wording (`Continuer` / `Sortir`) and shift only the second choice anchor to avoid overlap. The older isolated-carrier idea is superseded; no manual identity is created.
+- `$0204/$0205`: treat as one scene. Preserve Android FR 839/842/843/844/824/825 and redistribute across the SNES carriers. This supersedes the older Round-66 *active placement* of the `C9:902F` manual text while preserving its provenance record. Omit the now-redundant `PLAYER_NAME(0)` before `C9:90DE`.
+- `$0227`: `C9:97FE = "Quoi ? Durac a été..."`; `C9:9827` begins a new box with `Non ! Je suis sûre qu'il va bien, %S(1,0).`; omit the stock `PLAYER_NAME(1)` immediately before `C9:9827` because the translated carrier emits it internally.
+- `$04E2`: keep the Round-67 `CA:32C5/CA:32D7` speaker decision. Resolve the five formerly deferred carriers from Android FR: `CA:3335`, `CA:3359`, `CA:3362`, `CA:33E4`, `CA:3423`; `CA:345F` carries the second sentence of Android 1291. Do not reopen `$04E1` or `$013A/C9:40D7`.
+- `$04E5`: combine `CA:3C59 + CA:3C75` into the single Android-FR Zico line; `CA:3C75` is empty.
+- `$04E6`: `CA:3FB0 = "C'est certain ! L'Épée les attire ici !"`; `CA:3FC1` carries `Tant que %S(0,0) sera au village...`; omit the redundant stock name trigger and the later empty-page `WAIT $00` identified by the simulator.
+- `$04E9`: put the complete Android-FR sentence on `CA:48DC`; empty `CA:4925`.
+- `$04FD`: move `%S(0,0)` into `CA:4E2C` and keep the surrounding stock `PLAYER_NAME(2)` ordering needed by the scene.
+- `$0559`: reconstruct Android 2147 with `%S(2,0) : %S(1,0)... Ça va ?` in the final carrier; omit the two redundant earlier stock name triggers.
+- `$0592`: serialize Android FR 1023/1031 with explicit page structure and no separate stock sprite-name label.
+- `$05B4`: the carrier is only the numeric code `“ 6 3 4 ”`; admit it unchanged. Do **not** inject the called-event text that Android combines with this shared tail.
 
-- Android **English `scrtxt`** is the identity layer. Android FR supplies localization and can prove resegmentation/omission, but does not create identity by itself. `systxt` is not a generic dialogue identity source.
-- Do not restart generic lexical identity search merely to raise **1798/1838** without genuinely new provenance. Prefer PARTIEL / TO REVIEW / negative evidence to weak mapping.
-- Original **SNES-JP** is the primary semantic source when available. Never put Android-JP text in `original_jp`. `tools/extract_japanese_dialogue.py` is analysis-only and must refuse uncertain 1:1 regional carrier mappings.
-- Manual supplements remain outside Android identity. Suppression is allowed only when explicitly validated and structurally exact.
-- `WAIT != NEWLINE`. A pause does not advance the live dialogue cursor. Only explicit newline or `TEXT_CLEAR` changes line/page position.
-- Do not weaken formatter/simulator guards to increase coverage. Components 05/06 are runtime-validated; do not refactor without direct need.
+## Round 68 decisions still locked
 
-## Locked / do-not-reopen cases
+- `$0555`, `$0429`, `$05F8`: preserve the **original Android FR scene text** as accepted by the user. No JP-derived additions. Carriers/pages may be redistributed only to serialize that Android FR.
+- `$05F8` is a whole-scene review, not new Android-English identities; identity remains 1798/1838.
+- Translation-only `%S(n,0)` may serialize directly as stock `PLAYER_NAME(n)` inside reviewed translations. Canonical/source serialization is unchanged.
 
-- `$04E1`: Round 67 resolves the remaining monologue; preserve only the deliberate `CA:2C84` suppression.
+## Earlier locked decisions
+
 - `$013A/C9:40D7`: validated suppression; empty carrier + immediate `WAIT $00` omission only.
-- `$035F/C9:D1B8`: `Dryade` only.
-- `$0204/C9:902F`: validated manual translation only; do not release the event's other ambiguous Android resegmentation.
-- `$04E8/CA:437D`: validated manual `Héhéhéhé !`; preserve unrelated PARTIEL repairs.
-- `$010C/C9:30F5`, `$02FC/C9:CB28`, `$0558/CA:6629`: earlier exact user-approved SNES-JP-led suppressions.
-- `$05F8`: deliberately blocked. `$015A`: rejected remap frozen. `$001E`: no Android identity; layout-only newline. `$0323`: do not remap the dynamic 30-GP inn parameter to the distinct Android Neko/meow variant. `$0602/CA:85DD`: semantically unresolved but visually complete.
+- `$04E1`: Round-67 Thanatos monologue redistribution; preserve deliberate `CA:2C84` suppression and its immediate `WAIT $00` omission. **Do not reopen.**
+- `$035F/C9:D1B8`: manual payload is strictly **`Dryade`**.
+- `$04E8/CA:437D`: manual **`Héhéhéhé !`**.
+- `$010C/C9:30F5`, `$02FC/C9:CB28`, `$0558/CA:6629`: validated suppressions remain exact.
+- `$0602/CA:85DD`: semantically unresolved identity bookkeeping but runtime-validated visually complete; do not force an Android mapping.
+- `WAIT != NEWLINE`. A pause never advances the live dialogue cursor by itself.
 
-## Current hard/deferred cases
+## Remaining non-playable stock exclusions
 
-These are layout/structure work, not generic source-discovery work:
+These are intentionally **not** reasons to reopen Android identity search:
 
-- `$04E2`: five carriers listed above; this is the immediate priority.
-- `$0205`: formatter-rejected; Android FR condenses two SNES carriers across `PLAYER_NAME(0) + WAIT $00 + TEXT_CLEAR`.
-- `$05B4`: formatter-rejected by design; identity-only shared tail.
-- `$0429`: sole simulator-rejected event; Android-FR redistribution crosses several `WAIT`/`PLAYER_NAME` boundaries.
-- `$04E5`: known cursor/scroll geometry problems.
-- `$04E6`: only the elder-hesitation bridge is validated; larger redistribution remains PARTIEL.
-- `$04E9`: preserve the validated PARTIEL tail; Android FR condenses `CA:48DC + CA:4925` into one unsplittable sentence.
-- `$0559/Android 2147`, `$0592/Android 1031`, `$04FD`, `$0227`: identity is known but exact serialization remains structurally unsafe.
+- `$0269/C9:A49C` — `TRUFFLE:I'm rooting for you!`: unreferenced duplicate. The live Truffaut line is `$0276`, called from `$04E3`, already translated via Android 1400.
+- `$02DE/C9:C4FB` — `Drink this medicine! / It'll fix ya right up!`: no incoming event/map/object reference in the canonical routing audit; unused Tasmanica NPC script.
+- `$0603/CA:85FC` — `Topaz Falls`: unreferenced sign; Android contains no safe identity. JP confirms the place-name text but not runtime reachability.
 
-## Best next work
+Translate these only if a future project deliberately restores unused content. Do not map them merely to claim 1838/1838 Android identity.
 
-1. Continue `$04E2` from `mappings/android/dialogue_04E2_android_fr_round67.html`, limited to `CA:3335`, `CA:3359`, `CA:3362`, `CA:33E4`, `CA:3423`.
-2. Preserve the Round-67 `PLAYER_NAME(2)` resegmentation around `CA:32C5/CA:32D7`.
-3. Use `mappings/android/dialogues_review_worklist_round67_simplified.html` for the remaining non-manual queue (**15 events / 55 carriers**).
-4. Do not reopen `$04E1` or `$013A/C9:40D7`.
+## Checks
 
-## Review files
-
-- `mappings/android/dialogue_04E2_android_fr_round67.html` — complete Android EN/FR view for the five remaining `$04E2` carriers.
-- `mappings/android/dialogues_review_worklist_round67_simplified.html` — current non-manual review queue.
-- `mappings/android/dialogues_manual_supplements_round67.html` — manual JP/USA/official-FR provenance; no pending approvals.
-- `dialogue_preview.html` / generated checkpoint copy — full static simulator preview.
-
-## Regeneration / checks
-
-After an accepted semantic/formatter change:
+After dialogue changes:
 
 ```bash
-for r in 31 33 34 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54; do
-  python3 tools/import_android_text.py --only dialogue-review-round$r --check || exit 1
-done
-python3 tools/import_android_text.py --only dialogue-auto --check
-python3 tools/audit_android_dialogue_charset.py --check
 python3 tools/import_android_text.py --only dialogue-format-mass \
   --rom "Secret of Mana (USA).sfc" --check
-python3 tools/generate_android_residual_html.py --check
-python3 tools/generate_android_exhaustion_html.py --check
-python3 tools/check_dialogue_review_worklist.py --check
-python3 tools/check_manual_dialogue_supplements.py
-python3 tools/generate_manual_dialogue_supplements_html.py --check
-python3 tools/check_round62_dialogue_review.py
-python3 tools/check_round63_04e1_suppression.py
-python3 tools/check_round64_nonfound_manual_reviews.py
-python3 tools/check_round65_manual_approvals.py
-python3 tools/check_round66_0204_manual_approval.py
 python3 tools/check_round67_targeted_dialogues.py
+python3 tools/check_round68_scene_redistributions.py
+python3 tools/check_round69_dialogue_completion.py
 python3 tools/check_text_source_hygiene.py
 python3 tools/check_text_roundtrip.py "Secret of Mana (USA).sfc" --scan-all-events
-# When the clean JP reference ROM is available locally:
 python3 tools/check_japanese_dialogue_extractor.py "Seiken Densetsu 2 (Japan).sfc"
 python3 tools/simulate_dialogues.py "Secret of Mana (USA).sfc" \
   -o dialogue_preview.html \
@@ -101,4 +76,10 @@ python3 tools/simulate_dialogues.py "Secret of Mana (USA).sfc" \
   --preserve-tags mappings/android/dialogue_preview_state.json
 ```
 
-Rebuild **only changed components**, normally component 08, then recombine stored component IPS files. For user testing provide one autonomous `all.ips` against a clean unheadered USA ROM plus the relevant review HTML. Never include any ROM in an archive.
+Rebuild **only changed components**, normally component 08, then recombine stored IPS files:
+
+```bash
+python3 build.py "Secret of Mana (USA).sfc" dialogue-text --combine
+```
+
+For user testing provide one autonomous `patches/all.ips` against a clean unheadered USA ROM plus the review/preview HTML. Never include a ROM in an archive.

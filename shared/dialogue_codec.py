@@ -8,6 +8,8 @@ without carrying redundant raw byte dumps in the asset.
 """
 from __future__ import annotations
 
+import re
+
 import json
 import struct
 from pathlib import Path
@@ -294,7 +296,22 @@ def encode_translated_dialogue_text(text: str, *, allow_trailing_page_break: boo
         out += TRANSLATION_PAGE_BREAK_BYTES
         return bytes(out)
     if TRANSLATION_PAGE_BREAK not in text:
-        out += encode_text(text)
+        # User-reviewed Android-FR scene redistributions may need to move a
+        # dynamic player name inside a translated carrier.  Keep the canonical
+        # source token stream immutable, but allow the translation payload to
+        # spell the already-established Android placeholder directly.  It
+        # compiles to the same stock PLAYER_NAME opcode used by event scripts.
+        # Only the three real party slots and the canonical %S(n,0) spelling
+        # are recognized; ordinary percent text remains ordinary text.
+        parts = re.split(r"(%S\([0-2],0\))", text)
+        for part in parts:
+            if not part:
+                continue
+            match = re.fullmatch(r"%S\(([0-2]),0\)", part)
+            if match:
+                out += bytes((0x57, int(match.group(1))))
+            else:
+                out += encode_text(part)
         return bytes(out)
 
     pages = text.split(TRANSLATION_PAGE_BREAK)

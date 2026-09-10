@@ -86,45 +86,13 @@ component-06 follow-up.
 
 ## Current mass-pass result
 
-The simulator-filtered generator currently accepts **695 events / 1687 accepted
-semantic source IDs (1783 JSON entries)**: **669 complete + 26 PARTIEL**. The authoritative
-PARTIEL list is kept in `docs/HANDOFF.md`. `$0103`, `$017F` and `$01DC` are user-validated
-visually complete Android adaptations and therefore have no PARTIEL badge; `$0602` is likewise
-badge-free after runtime review found no visible missing/English content, while unresolved
-`CA:85DD` remains tracked. `$01DC` additionally omits the exact final stock
-`PLAYER_NAME(0)` command tied to suppressed `C9:804A`. PARTIEL events retain unresolved,
-reviewed-hole, manual-pending, or explicitly layout-deferred mapped carriers as stock English
-while independent proven mappings render in French. Generic structural safe-subset PARTIEL
-candidates are accepted only when this direct mixed serialization already passes the simulator
-without adaptive repair. Round 58's ten manual `translation_fr` proposals are non-active in the
-canonical build; a disposable all-proposals-active test also resimulates all 691 accepted events
-with 0 errors / 0 warnings / 0 implicit wraps.
-Re-running the simulator on the candidate mass translation produces **0 errors, 0 warnings
-and 0 implicit runtime wraps**. The HTML marks these events with a `PARTIEL · FR/EN incomplet` badge so incomplete scenes can be revisited during playthrough. When
-`--baseline-translation` points to the previous generated JSON, the preview also tags
-events as `NEW` when newly translated source IDs appear, `MODIFIED` when the final
-serialized event bytes differ from the baseline, and `TO REVIEW` for PARTIEL,
-warning/error events, or `WAIT00_THIRD_LINE_SCROLL_RISK`. `--preserve-tags <json>` may carry forward an explicit
-NEW/MODIFIED/TO REVIEW snapshot while a user review is still in progress, so a later technical change cannot silently
-remove an unread badge. The repository keeps the active snapshot at
-`mappings/android/dialogue_preview_state.json`. Dedicated toolbar buttons filter these tags and can be combined with the text search. The simulator now mirrors component 06's private measured-end choice geometry for undecorated two-option rows while leaving logical `$A1D7[]` storage anchors untouched. The first private visual/highlight boundary is `max(logical_first, $03) - 2`; the second option normally keeps one blank cell after the rounded first measured endpoint, except once that rounded endpoint reaches cell `$11`, where the extra separator is omitted to protect the right edge. `$00CE`, `$00CF`, `$00D0`, `$00D1` and `$0202` are now admitted by this model. In the final two-cell-left geometry `$00D0` uses the normal separator and terminal boundary `$1B`; the cell-`$11` separator-omission fallback remains modeled because it was separately runtime-validated on the earlier right-edge checkpoint. The rejected `$00CE` **logical-anchor** probes (`$00/$0F`, `$01/$10`) remain invalid. The HTML remains a static guardrail
-rather than a substitute for the planned full-game
-playthrough. Representative runtime tests have validated the simulator-driven page layout used by
-the mass formatter. Exact visible carry-over after interactive `WAIT $00` is preserved as stock rolling-window
-presentation rather than automatically removed. `$0106/C9:2994` remains the only runtime-validated
-fresh-page exception. For one user-requested combined runtime-test batch, the eight exact round13
-detector matches (`$00FB`, `$0134`, `$016D`, `$01CA`, `$029C`, `$03EE`, `$04A1`, `$04EA`)
-now receive the same targeted newline-carrier -> `TEXT_CLEAR` change while preserving their stock
-`WAIT $00`. The guard reports **0 remaining third-line-scroll risks** after this batch. These eight
-events remain TO REVIEW until runtime validation; no generic WAIT cleanup is enabled.
+The Round-69 simulator-filtered generator accepts **701 events / 1810 accepted semantic source IDs
+(1946 JSON entries)**: **701 complete + 0 PARTIEL**. Fifteen former PARTIEL events were promoted
+after scene-level semantic review; manual-JP supplements, validated suppressions and shared-prefix
+resegmentations remain traceable in `user_validated_visually_complete_events`. Exactly three
+routing-audited unused/orphan stock events remain excluded (`$0269`, `$02DE`, `$0603`).
 
-A separate live-window guard protects against formatter-added semantic line breaks
-that consume an extra physical line before the next pause.  When
-`UNPAUSED_LIVE_LINE_SCROLL_RISK` is present, the mass formatter may retry one
-mapping at a time with the compact width-only wrapper.  It accepts that change
-only if independent resimulation removes the complete risk with no error, warning
-or implicit wrap; choice rows are excluded, and partial risk reductions are
-rejected.  This keeps short source utterances such as `$0083`
-`Gestahl : Ha ! Imbécile !` on one line when the official French already fits,
-instead of letting a purely aesthetic sentence break push later text through the
-rolling three-line window.
+Re-running the simulator on the candidate mass translation produces **0 errors, 0 warnings and
+0 implicit runtime wraps**. `WAIT00_THIRD_LINE_SCROLL_RISK` remains a review-only informational
+flag and is not a simulator error/warning. The HTML still supports NEW/MODIFIED/TO REVIEW tags
+and preserved review state.

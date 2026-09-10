@@ -64,6 +64,7 @@ DEFAULT_DIALOGUE_REVIEW_ROUND5_OUTPUT = ROOT / "mappings" / "android" / "dialogu
 DEFAULT_DIALOGUE_REVIEW_ROUND6_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round6.json"
 DEFAULT_DIALOGUE_REVIEW_ROUND7_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round7.json"
 DEFAULT_DIALOGUE_REVIEW_ROUND8_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round8.json"
+DIALOGUE_REDISTRIBUTION_RECIPES = ROOT / "mappings" / "android" / "dialogues_redistribution_recipes.json"
 DEFAULT_DIALOGUE_REVIEW_ROUND11_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round11.json"
 DEFAULT_DIALOGUE_REVIEW_ROUND18_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round18.json"
 DEFAULT_DIALOGUE_REVIEW_ROUND20_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round20.json"
@@ -1533,6 +1534,79 @@ def read_scrtxt(path: Path) -> dict[int, str]:
         except UnicodeDecodeError as exc:
             raise ValueError(f"{path}: text ID {text_id} is not valid UTF-8") from exc
     return result
+
+
+
+_REDISTRIBUTION_TOKEN_RE = re.compile(r"%S\(\d+,0\)|[\wÀ-ÿŒœ’'-]+|[^\w\s]", re.UNICODE)
+
+
+def _redistribution_tokens(text: str) -> list[str]:
+    """Tokenize Android prose for index-based redistribution recipes.
+
+    Recipes store only Android ID/token references plus layout punctuation and
+    whitespace. They never store translated prose: the words are read from
+    scrtxt_fr.bin on every deterministic generation.
+    """
+    return _REDISTRIBUTION_TOKEN_RE.findall(text.replace("_", " "))
+
+
+def _load_dialogue_redistribution_recipes(french: dict[int, str]) -> tuple[dict[str, dict[str, str]], dict[str, dict]]:
+    document = json.loads(DIALOGUE_REDISTRIBUTION_RECIPES.read_text(encoding="utf-8"))
+    if document.get("format_version") != 1:
+        raise ValueError("Unsupported dialogue redistribution recipe format")
+    if document.get("source") != "sources/android/scrtxt_fr.bin":
+        raise ValueError("Dialogue redistribution recipes must source Android FR directly")
+
+    rendered: dict[str, dict[str, str]] = {}
+    event_meta: dict[str, dict] = {}
+    android_token_cache: dict[int, list[str]] = {}
+
+    for event_id, event_recipe in document.get("events", {}).items():
+        android_ids = [int(x) for x in event_recipe.get("android_ids", [])]
+        missing = [x for x in android_ids if x not in french]
+        if missing:
+            raise ValueError(f"Redistribution ${event_id}: missing Android FR IDs {missing}")
+        for android_id in android_ids:
+            android_token_cache.setdefault(android_id, _redistribution_tokens(french[android_id]))
+
+        values: dict[str, str] = {}
+        for sid, recipe in event_recipe.get("carriers", {}).items():
+            parts = recipe.get("parts", [])
+            seps = recipe.get("seps", [])
+            if len(seps) != len(parts) + 1:
+                raise ValueError(f"Redistribution ${event_id}/{sid}: invalid separator count")
+            chunks = [seps[0]]
+            for index, part in enumerate(parts):
+                if not isinstance(part, list) or not part:
+                    raise ValueError(f"Redistribution ${event_id}/{sid}: invalid part {part!r}")
+                kind = part[0]
+                if kind == "a":
+                    if len(part) != 3:
+                        raise ValueError(f"Redistribution ${event_id}/{sid}: invalid Android token ref {part!r}")
+                    android_id, token_index = int(part[1]), int(part[2])
+                    if android_id not in android_ids:
+                        raise ValueError(f"Redistribution ${event_id}/{sid}: undeclared Android ID {android_id}")
+                    tokens = android_token_cache[android_id]
+                    if not 0 <= token_index < len(tokens):
+                        raise ValueError(f"Redistribution ${event_id}/{sid}: token index out of range {part!r}")
+                    token = tokens[token_index]
+                elif kind == "p":
+                    if len(part) != 2 or int(part[1]) not in {0, 1, 2}:
+                        raise ValueError(f"Redistribution ${event_id}/{sid}: invalid PLAYER_NAME ref {part!r}")
+                    token = f"%S({int(part[1])},0)"
+                elif kind == "x":
+                    if len(part) != 2 or re.search(r"[A-Za-zÀ-ÿŒœ]", str(part[1])):
+                        raise ValueError(f"Redistribution ${event_id}/{sid}: literal prose forbidden in recipe {part!r}")
+                    token = str(part[1])
+                else:
+                    raise ValueError(f"Redistribution ${event_id}/{sid}: unknown part kind {kind!r}")
+                chunks.append(token)
+                chunks.append(seps[index + 1])
+            value = "".join(chunks)
+            values[sid] = value
+        rendered[event_id] = values
+        event_meta[event_id] = {"android_ids": android_ids, "round": int(event_recipe.get("round", 0) or 0)}
+    return rendered, event_meta
 
 
 def require_parallel_scrtxt(english: dict[int, str], french: dict[int, str]) -> None:
@@ -3665,8 +3739,18 @@ DIALOGUE_USER_VALIDATED_PARTIAL_SUPPRESSIONS = {
     "02FC": frozenset({"C9:CB28"}),
     "0558": frozenset({"CA:6629"}),
 }
+# Round 69: after scene-level semantic review, the following former PARTIEL
+# events are considered fully translated/complete. They remain traceable below
+# through user_validated_visually_complete_events, preserving whether completion
+# came from a manual supplement, a shared-prefix resegmentation, or a validated
+# SNES/JP-absent suppression.
+DIALOGUE_USER_VALIDATED_SEMANTICALLY_COMPLETE_EVENTS = frozenset({
+    "001E", "0042", "00EE", "00F1", "00F3", "0207", "0208", "024F",
+    "0278", "02E1", "02FC", "035F", "04E1", "04E8", "0558",
+})
 DIALOGUE_USER_VALIDATED_VISUALLY_COMPLETE_EVENTS = frozenset(
-    DIALOGUE_USER_VALIDATED_VISUALLY_COMPLETE_SUPPRESSIONS
+    set(DIALOGUE_USER_VALIDATED_VISUALLY_COMPLETE_SUPPRESSIONS)
+    | set(DIALOGUE_USER_VALIDATED_SEMANTICALLY_COMPLETE_EVENTS)
 )
 
 # These events remain semantically alignment-incomplete and keep their exact
@@ -3768,6 +3852,90 @@ DIALOGUE_USER_VALIDATED_STRUCTURAL_OMISSIONS = (
 # changes only the first adjacent PLAYER_NAME index and omits the now-redundant
 # second identical speaker command.
 DIALOGUE_USER_VALIDATED_STRUCTURAL_COMMAND_OVERRIDES = (
+    {
+        "event_id": "01C5",
+        "commands": [
+            {
+                "name": "CHOICE_OPTION",
+                "args": "08",
+                "immediately_before_text_id": "C9:7140",
+                "translated_args": "0D",
+            },
+        ],
+        "reason": "round69_android_fr_continue_exit_choice_anchor",
+    },
+    {
+        "event_id": "0205",
+        "commands": [
+            {
+                "name": "PLAYER_NAME",
+                "args": "00",
+                "immediately_before_text_id": "C9:90DE",
+                "omit": True,
+            },
+        ],
+        "reason": "round69_whole_scene_android_fr_0204_0205_continuation",
+    },
+    {
+        "event_id": "0227",
+        "commands": [
+            {
+                "name": "PLAYER_NAME",
+                "args": "01",
+                "immediately_before_text_id": "C9:9827",
+                "omit": True,
+            },
+        ],
+        "reason": "round69_user_requested_move_player_name_inside_C9_9827",
+    },
+    {
+        "event_id": "04E6",
+        "commands": [
+            {
+                "name": "PLAYER_NAME",
+                "args": "00",
+                "immediately_before_text_id": "CA:3FC1",
+                "omit": True,
+            },
+            {
+                "name": "WAIT",
+                "args": "00",
+                "immediately_before_text_id": "CA:3FE4",
+                "omit": True,
+            },
+        ],
+        "reason": "round69_user_requested_move_player_name_inside_CA_3FC1",
+    },
+    {
+        "event_id": "0559",
+        "commands": [
+            {
+                "name": "PLAYER_NAME",
+                "args": "00",
+                "immediately_before_text_id": "CA:6741",
+                "omit": True,
+            },
+            {
+                "name": "PLAYER_NAME",
+                "args": "01",
+                "immediately_before_text_id": "CA:6744",
+                "omit": True,
+            },
+        ],
+        "reason": "round69_android_fr_2147_player_name_resegmentation",
+    },
+    {
+        "event_id": "0592",
+        "commands": [
+            {
+                "name": "PLAYER_NAME",
+                "args": "02",
+                "immediately_before_text_id": "CA:748F",
+                "omit": True,
+            },
+        ],
+        "reason": "round69_android_fr_1023_omits_sprite_name_label",
+    },
     {
         "event_id": "04E2",
         "commands": [
@@ -13126,6 +13294,13 @@ def make_dialogue_format_mass(
         {"user_validated_structural_command_overrides": list(DIALOGUE_USER_VALIDATED_STRUCTURAL_COMMAND_OVERRIDES)},
         source_document,
     )
+    redistribution_values, redistribution_meta = _load_dialogue_redistribution_recipes(french)
+    round68_events = {"0555", "0429", "05F8"}
+    round69_events = {
+        "010C", "015A", "01C5", "0204", "0205", "0227", "04E2", "04E5", "04E6", "04E9", "04FD", "0559", "0592", "05B4"
+    }
+    if set(redistribution_values) != round68_events | round69_events:
+        raise ValueError("Dialogue redistribution recipe event set changed")
     source_text_by_id = {
         token["id"]: token.get("source", "")
         for source_event in source_document["events"]
@@ -13181,6 +13356,87 @@ def make_dialogue_format_mass(
             if token.get("type") == "text" and _auto_semantic(token.get("source", ""))
         ]
         if not semantic_ids:
+            continue
+
+        if event_id in round68_events:
+            values = dict(redistribution_values[event_id])
+            canonical_ids = {
+                token.get("id") for token in event["tokens"]
+                if token.get("type") in {"text", "ending_text"}
+            }
+            unknown = sorted(set(values) - canonical_ids)
+            if unknown:
+                raise ValueError(f"Round-68 ${event_id} unknown carrier(s): {unknown}")
+            simulation = simulate_event(
+                base_rom, event, values, font=font,
+                player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+            )
+            blocking = [issue for issue in simulation.issues if issue.severity in {"error", "warning"}]
+            wraps = sum(
+                line.implicit_wrap
+                for box in simulation.boxes for page in box.pages for line in page.lines
+            )
+            if blocking or wraps:
+                raise ValueError(
+                    f"Round-68 ${event_id} reviewed scene no longer simulator-clean: "
+                    f"{len(blocking)} issue(s), {wraps} wrap(s)"
+                )
+            accepted_events.append(event_id)
+            formatter_candidate_count += 1
+            if event_id != "05F8":
+                complete_aligned_count += 1
+            translations_by_event[event_id] = values
+            reports_by_event[event_id] = [{
+                "event_id": event_id,
+                "snes_ids": list(values),
+                "android_ids": redistribution_meta[event_id]["android_ids"],
+                "confidence": "user_validated_scene_semantic_redistribution",
+                "round68_user_validated_android_fr_scene": True,
+                "android_identity_count_changed": False,
+                "note": "Keep the original Android-FR scene semantics verbatim; only SNES carriers/pages and translated-only dynamic PLAYER_NAME placement are redistributed.",
+                "formatted_entries": [{"id": k, "text": v} for k, v in values.items()],
+            }]
+            continue
+
+        if event_id in round69_events:
+            values = dict(redistribution_values[event_id])
+            canonical_ids = {
+                token.get("id") for token in event["tokens"]
+                if token.get("type") in {"text", "ending_text"}
+            }
+            unknown = sorted(set(values) - canonical_ids)
+            if unknown:
+                raise ValueError(f"Round-69 ${event_id} unknown carrier(s): {unknown}")
+            simulation = simulate_event(
+                base_rom, event, values, font=font,
+                player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+                structural_command_overrides=structural_command_overrides_by_event.get(event_id),
+            )
+            blocking = [issue for issue in simulation.issues if issue.severity in {"error", "warning"}]
+            wraps = sum(
+                line.implicit_wrap
+                for box in simulation.boxes for page in box.pages for line in page.lines
+            )
+            if blocking or wraps:
+                detail = "; ".join(f"{i.code}: {i.message}" for i in blocking[:3])
+                raise ValueError(
+                    f"Round-69 ${event_id} reviewed redistribution no longer simulator-clean: "
+                    f"{len(blocking)} issue(s), {wraps} wrap(s) {detail}"
+                )
+            accepted_events.append(event_id)
+            formatter_candidate_count += 1
+            complete_aligned_count += 1
+            translations_by_event[event_id] = values
+            reports_by_event[event_id] = [{
+                "event_id": event_id,
+                "snes_ids": list(values),
+                "android_ids": redistribution_meta[event_id]["android_ids"],
+                "confidence": "user_authorized_targeted_scene_redistribution",
+                "round69_targeted_redistribution": True,
+                "android_identity_count_changed": False,
+                "note": "Reviewed Android-FR/SNES resegmentation; no new weak Android identity is created.",
+                "formatted_entries": [{"id": k, "text": v} for k, v in values.items()],
+            }]
             continue
 
         event_mappings = mappings_by_event.get(event_id, [])
@@ -15076,21 +15332,44 @@ def make_dialogue_format_mass(
     translation_document["partial_events"] = [
         partial_metadata(event_id) for event_id in visible_partial_events
     ]
-    translation_document["user_validated_visually_complete_events"] = [
-        (
-            {
+    def complete_event_metadata(event_id: str) -> dict:
+        ids = partial_unresolved_semantic_ids_by_event[event_id]
+        if event_id in DIALOGUE_USER_VALIDATED_VISUALLY_COMPLETE_STATUS_OVERRIDES:
+            return {
                 "event_id": event_id,
-                "unresolved_semantic_ids": partial_unresolved_semantic_ids_by_event[event_id],
+                "unresolved_semantic_ids": ids,
                 "reason": "user_validated_runtime_complete_with_unresolved_alignment",
             }
-            if event_id in DIALOGUE_USER_VALIDATED_VISUALLY_COMPLETE_STATUS_OVERRIDES
-            else {
-                "event_id": event_id,
-                "suppressed_semantic_ids": partial_unresolved_semantic_ids_by_event[event_id],
-                "reason": "user_validated_android_adaptation_complete",
-            }
-        )
-        for event_id in user_validated_complete_events
+        reason = partial_suppression_reason_by_event.get(event_id)
+        result = {"event_id": event_id}
+        if reason == "manual_translation_without_android_identity":
+            result["manual_translated_semantic_ids"] = sorted(
+                text_id for text_id, entry in manual_supplements_by_event.get(event_id, {}).items()
+                if entry.get("status") == "translated"
+            )
+            suppressed = sorted(set(ids) - set(result["manual_translated_semantic_ids"]))
+            if suppressed:
+                result["suppressed_semantic_ids"] = suppressed
+            result["reason"] = "user_validated_complete_with_manual_jp_supplement"
+        elif reason == "manual_resegmented_page_suppression":
+            result["manual_suppressed_semantic_ids"] = sorted(
+                text_id for text_id, entry in manual_supplements_by_event.get(event_id, {}).items()
+                if entry.get("status") == "suppressed"
+            )
+            result["reason"] = "user_validated_complete_with_manual_resegmentation"
+        elif reason == "android_resegmented_shared_prefix_without_single_identity":
+            result["unresolved_semantic_ids"] = ids
+            result["reason"] = "user_validated_complete_shared_prefix_resegmentation"
+        elif reason == "user_validated_snes_jp_absent_suppression":
+            result["suppressed_semantic_ids"] = ids
+            result["reason"] = "user_validated_complete_snes_jp_absent_suppression"
+        else:
+            result["suppressed_semantic_ids"] = ids
+            result["reason"] = "user_validated_android_adaptation_complete"
+        return result
+
+    translation_document["user_validated_visually_complete_events"] = [
+        complete_event_metadata(event_id) for event_id in user_validated_complete_events
     ]
     translation_document["user_validated_structural_omissions"] = list(
         DIALOGUE_USER_VALIDATED_STRUCTURAL_OMISSIONS
@@ -15393,12 +15672,7 @@ def make_dialogue_format_mass(
         },
         "accepted_events": accepted_events,
         "user_validated_visually_complete_events": [
-            {
-                "event_id": event_id,
-                "suppressed_semantic_ids": partial_unresolved_semantic_ids_by_event[event_id],
-                "reason": "user_validated_android_adaptation_complete",
-            }
-            for event_id in user_validated_complete_events
+            complete_event_metadata(event_id) for event_id in user_validated_complete_events
         ],
         "user_validated_structural_omissions": list(DIALOGUE_USER_VALIDATED_STRUCTURAL_OMISSIONS),
         "user_validated_structural_command_overrides": list(DIALOGUE_USER_VALIDATED_STRUCTURAL_COMMAND_OVERRIDES),

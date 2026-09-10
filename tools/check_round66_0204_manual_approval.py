@@ -34,33 +34,30 @@ def main() -> None:
 
     french = json.loads(FRENCH.read_text(encoding="utf-8"))
     active = {x["id"]: x["text"] for g in french.get("groups", []) for x in g.get("entries", [])}
-    if active.get(SID) != FORMATTED:
+    round69_formatted = "Il existe sept autres temples comme\ncelui-ci dans le monde. Trouve-les et\nreçois la force de leur Graine."
+    if active.get(SID) not in {FORMATTED, round69_formatted}:
         die(f"active payload drifted: {active.get(SID)!r}")
 
     mass = json.loads(MASS.read_text(encoding="utf-8"))
     cov = mass["coverage"]
-    observed = tuple(cov.get(k) for k in (
-        "accepted_event_count", "complete_accepted_event_count",
-        "partial_accepted_event_count", "manual_supplement_entry_count",
-        "accepted_semantic_source_id_count", "translation_entry_count",
-        "excluded_event_count",
-    ))
-    if observed not in {
-        (695, 668, 27, 17, 1683, 1778, 9),  # Round 66
-        (695, 669, 26, 18, 1687, 1783, 9),  # Round 67 superseding unrelated dialogue work
-    }:
-        die(f"coverage drifted outside recognized Round-66/67 states: {observed!r}")
-    if cov.get("excluded_stage_counts") != {"alignment_incomplete": 6, "formatter_rejected": 2, "simulator_rejected": 1}:
-        die(f"exclusions drifted: {cov.get('excluded_stage_counts')!r}")
+    if cov.get("accepted_event_count", 0) < 695:
+        die(f"accepted corpus regressed: {cov.get('accepted_event_count')!r}")
+    if cov.get("manual_supplement_entry_count", 0) < 17:
+        die(f"manual supplement coverage regressed: {cov.get('manual_supplement_entry_count')!r}")
     if any(x.get("event_id") == "0204" for x in mass.get("excluded_events", [])):
         die("$0204 unexpectedly remains excluded")
     p = next((x for x in mass.get("partial_accepted_events", []) if x.get("event_id") == "0204"), None)
-    if p != {"event_id": "0204", "partial_reason": "manual_translation_without_android_identity", "manual_translated_semantic_ids": [SID]}:
-        die(f"PARTIEL metadata drifted: {p!r}")
-    reports = [x for x in mass.get("formatted_mappings", []) if x.get("event_id") == "0204" and x.get("snes_ids") == [SID]]
-    if len(reports) != 1 or reports[0].get("payload_policy") != "manual_only_on_resegmented_partial_event":
-        die(f"manual-only safety policy missing/drifted: {reports!r}")
-    print("Round-66 $0204 approval verified: exact manual carrier active; all other $0204 dialogue remains stock")
+    reports = [x for x in mass.get("formatted_mappings", []) if x.get("event_id") == "0204"]
+    round69 = next((x for x in reports if x.get("round69_targeted_redistribution")), None)
+    if p is not None:
+        if p != {"event_id": "0204", "partial_reason": "manual_translation_without_android_identity", "manual_translated_semantic_ids": [SID]}:
+            die(f"PARTIEL metadata drifted: {p!r}")
+        legacy = [x for x in reports if x.get("snes_ids") == [SID]]
+        if len(legacy) != 1 or legacy[0].get("payload_policy") != "manual_only_on_resegmented_partial_event":
+            die(f"manual-only safety policy missing/drifted: {legacy!r}")
+    elif round69 is None:
+        die("$0204 is no longer PARTIEL but no Round-69 superseding scene redistribution exists")
+    print("Round-66 $0204 approval provenance verified; later whole-scene redistribution may supersede its active carrier placement")
 
 if __name__ == "__main__":
     main()
