@@ -1,0 +1,1969 @@
+{
+  "format_version": 1,
+  "language": "fr",
+  "source_asset": "text_resources.json",
+  "generated_from": "sources/android/systxt_fr.bin",
+  "mapping": "mappings/android/text_resources_android.json",
+  "groups": [
+    {
+      "group": "resources.magic_name",
+      "entries": [
+        {
+          "id": "CA:98E1",
+          "text": "Séisme"
+        },
+        {
+          "id": "CA:98ED",
+          "text": "Missiles de diamant"
+        },
+        {
+          "id": "CA:98F9",
+          "text": "Entrave"
+        },
+        {
+          "id": "CA:9904",
+          "text": "Lame de pierre"
+        },
+        {
+          "id": "CA:9910",
+          "text": "Vivacité"
+        },
+        {
+          "id": "CA:9919",
+          "text": "Bouclier"
+        },
+        {
+          "id": "CA:9922",
+          "text": "Givre"
+        },
+        {
+          "id": "CA:9929",
+          "text": "Pluie acide"
+        },
+        {
+          "id": "CA:9934",
+          "text": "Spoliation"
+        },
+        {
+          "id": "CA:9942",
+          "text": "Lame de glace"
+        },
+        {
+          "id": "CA:994C",
+          "text": "Guérison"
+        },
+        {
+          "id": "CA:9953",
+          "text": "Eau curative"
+        },
+        {
+          "id": "CA:995E",
+          "text": "Boules de feu"
+        },
+        {
+          "id": "CA:9967",
+          "text": "Explosion"
+        },
+        {
+          "id": "CA:9970",
+          "text": "Vague de lave"
+        },
+        {
+          "id": "CA:997A",
+          "text": "Lame de flamme"
+        },
+        {
+          "id": "CA:9986",
+          "text": "Combustion"
+        },
+        {
+          "id": "CA:9993",
+          "text": "Mur de feu"
+        },
+        {
+          "id": "CA:999E",
+          "text": "Bourrasque"
+        },
+        {
+          "id": "CA:99A8",
+          "text": "Foudre"
+        },
+        {
+          "id": "CA:99B4",
+          "text": "Confusion"
+        },
+        {
+          "id": "CA:99BC",
+          "text": "Lame de foudre"
+        },
+        {
+          "id": "CA:99CA",
+          "text": "Ballon"
+        },
+        {
+          "id": "CA:99D2",
+          "text": "Analyse"
+        },
+        {
+          "id": "CA:99DB",
+          "text": "Métamorphose"
+        },
+        {
+          "id": "CA:99E7",
+          "text": "Absorption"
+        },
+        {
+          "id": "CA:99F4",
+          "text": "Lunatique"
+        },
+        {
+          "id": "CA:9A00",
+          "text": "Lame lunaire"
+        },
+        {
+          "id": "CA:9A0B",
+          "text": "Fougue"
+        },
+        {
+          "id": "CA:9A17",
+          "text": "Boule d'énergie"
+        },
+        {
+          "id": "CA:9A23",
+          "text": "Fleur soporifique"
+        },
+        {
+          "id": "CA:9A30",
+          "text": "Implosion"
+        },
+        {
+          "id": "CA:9A36",
+          "text": "Mana"
+        },
+        {
+          "id": "CA:9A41",
+          "text": "Résurrection"
+        },
+        {
+          "id": "CA:9A4C",
+          "text": "Miroir magique"
+        },
+        {
+          "id": "CA:9A51",
+          "text": "Mana"
+        },
+        {
+          "id": "CA:9A5C",
+          "text": "Nexus ténébreux"
+        },
+        {
+          "id": "CA:9A66",
+          "text": "Force sombre"
+        },
+        {
+          "id": "CA:9A71",
+          "text": "Anti-magie"
+        },
+        {
+          "id": "CA:9A7E",
+          "text": "Lame sainte"
+        },
+        {
+          "id": "CA:9A8A",
+          "text": "Rayon sacré"
+        },
+        {
+          "id": "CA:9A96",
+          "text": "Barrière claire"
+        }
+      ]
+    },
+    {
+      "group": "resources.mana_spirit_name",
+      "entries": [
+        {
+          "id": "CA:9AA4",
+          "text": "Gnome"
+        },
+        {
+          "id": "CA:9AAA",
+          "text": "Ondine"
+        },
+        {
+          "id": "CA:9AB1",
+          "text": "Athanor"
+        },
+        {
+          "id": "CA:9ABB",
+          "text": "Sylphide"
+        },
+        {
+          "id": "CA:9AC3",
+          "text": "Luna"
+        },
+        {
+          "id": "CA:9AC8",
+          "text": "Dryade"
+        },
+        {
+          "id": "CA:9ACE",
+          "text": "Ombre"
+        },
+        {
+          "id": "CA:9AD4",
+          "text": "Lumina"
+        }
+      ]
+    },
+    {
+      "group": "resources.weapon_name",
+      "entries": [
+        {
+          "id": "CA:9ADB",
+          "text": "Poing Kaiser"
+        },
+        {
+          "id": "CA:9AE9",
+          "text": "Gant de puissance"
+        },
+        {
+          "id": "CA:9AF5",
+          "text": "Griffes de mog"
+        },
+        {
+          "id": "CA:9B02",
+          "text": "Poing chakra"
+        },
+        {
+          "id": "CA:9B0E",
+          "text": "Poing métallique"
+        },
+        {
+          "id": "CA:9B1A",
+          "text": "Griffes lacérantes"
+        },
+        {
+          "id": "CA:9B25",
+          "text": "Serres de griffon"
+        },
+        {
+          "id": "CA:9B33",
+          "text": "Griffes de dragon"
+        },
+        {
+          "id": "CA:9B40",
+          "text": "Gant d'aura"
+        },
+        {
+          "id": "CA:9B4B",
+          "text": "Épée rouillée"
+        },
+        {
+          "id": "CA:9B57",
+          "text": "Lame gardienne"
+        },
+        {
+          "id": "CA:9B63",
+          "text": "Kusanagi"
+        },
+        {
+          "id": "CA:9B70",
+          "text": "Glaive d'orichalque"
+        },
+        {
+          "id": "CA:9B79",
+          "text": "Excalibur"
+        },
+        {
+          "id": "CA:9B83",
+          "text": "Masamune"
+        },
+        {
+          "id": "CA:9B8C",
+          "text": "Épée de Surtr"
+        },
+        {
+          "id": "CA:9B98",
+          "text": "Fendeuse de dragon"
+        },
+        {
+          "id": "CA:9BA6",
+          "text": "Épée de Mana"
+        },
+        {
+          "id": "CA:9BB1",
+          "text": "Hache de nain"
+        },
+        {
+          "id": "CA:9BBC",
+          "text": "Hache de guerre"
+        },
+        {
+          "id": "CA:9BC5",
+          "text": "Bullova"
+        },
+        {
+          "id": "CA:9BCF",
+          "text": "Francisque"
+        },
+        {
+          "id": "CA:9BDA",
+          "text": "Labrys"
+        },
+        {
+          "id": "CA:9BE5",
+          "text": "Exécutrice"
+        },
+        {
+          "id": "CA:9BF1",
+          "text": "Grande vouge"
+        },
+        {
+          "id": "CA:9BFB",
+          "text": "Couperet de démon"
+        },
+        {
+          "id": "CA:9C05",
+          "text": "Hache diabolique"
+        },
+        {
+          "id": "CA:9C0E",
+          "text": "Lance de bronze"
+        },
+        {
+          "id": "CA:9C14",
+          "text": "Pique d'acier"
+        },
+        {
+          "id": "CA:9C20",
+          "text": "Bardiche de démon"
+        },
+        {
+          "id": "CA:9C2F",
+          "text": "Pertuisane"
+        },
+        {
+          "id": "CA:9C38",
+          "text": "Hallebarde"
+        },
+        {
+          "id": "CA:9C40",
+          "text": "Mezraq de corail"
+        },
+        {
+          "id": "CA:9C4E",
+          "text": "Corsèque de gigas"
+        },
+        {
+          "id": "CA:9C5A",
+          "text": "Sarisse de dragon"
+        },
+        {
+          "id": "CA:9C67",
+          "text": "Lance de Dédale"
+        },
+        {
+          "id": "CA:9C76",
+          "text": "Fouet en cuir"
+        },
+        {
+          "id": "CA:9C7B",
+          "text": "Fouet noir"
+        },
+        {
+          "id": "CA:9C86",
+          "text": "Fouet rafale"
+        },
+        {
+          "id": "CA:9C94",
+          "text": "Fléau d'armes"
+        },
+        {
+          "id": "CA:9C9F",
+          "text": "Fouet d'argent"
+        },
+        {
+          "id": "CA:9CAD",
+          "text": "Morgenstern"
+        },
+        {
+          "id": "CA:9CBA",
+          "text": "Fouet-marteau"
+        },
+        {
+          "id": "CA:9CC7",
+          "text": "Fouet diamant"
+        },
+        {
+          "id": "CA:9CD4",
+          "text": "Fléau de Gigas"
+        },
+        {
+          "id": "CA:9CE0",
+          "text": "Arc de Robin"
+        },
+        {
+          "id": "CA:9CED",
+          "text": "Arc d'acier"
+        },
+        {
+          "id": "CA:9CF7",
+          "text": "Arc long"
+        },
+        {
+          "id": "CA:9D00",
+          "text": "Grande arbalète"
+        },
+        {
+          "id": "CA:9D0A",
+          "text": "Arc d'argent"
+        },
+        {
+          "id": "CA:9D16",
+          "text": "Arc elfique"
+        },
+        {
+          "id": "CA:9D20",
+          "text": "Arbalète éolienne"
+        },
+        {
+          "id": "CA:9D29",
+          "text": "Qui-ne-faut"
+        },
+        {
+          "id": "CA:9D32",
+          "text": "Arbalète de Garuda"
+        },
+        {
+          "id": "CA:9D40",
+          "text": "Boomerang"
+        },
+        {
+          "id": "CA:9D4A",
+          "text": "Chakram"
+        },
+        {
+          "id": "CA:9D52",
+          "text": "Boomerang d'acier"
+        },
+        {
+          "id": "CA:9D61",
+          "text": "Soleil levant"
+        },
+        {
+          "id": "CA:9D6C",
+          "text": "Boomerang titane"
+        },
+        {
+          "id": "CA:9D78",
+          "text": "Baghnakh"
+        },
+        {
+          "id": "CA:9D86",
+          "text": "Frisbee de combat"
+        },
+        {
+          "id": "CA:9D8E",
+          "text": "Shuriken"
+        },
+        {
+          "id": "CA:9D97",
+          "text": "Shuriken de Fûma"
+        },
+        {
+          "id": "CA:9DA5",
+          "text": "Javelot"
+        },
+        {
+          "id": "CA:9DAF",
+          "text": "Javeline"
+        },
+        {
+          "id": "CA:9DB7",
+          "text": "Harpon sahuagin"
+        },
+        {
+          "id": "CA:9DC5",
+          "text": "Trident"
+        },
+        {
+          "id": "CA:9DD2",
+          "text": "Pilum d'argent"
+        },
+        {
+          "id": "CA:9DDF",
+          "text": "Fourche diablotin"
+        },
+        {
+          "id": "CA:9DEA",
+          "text": "Angon runique"
+        },
+        {
+          "id": "CA:9DF8",
+          "text": "Framée de dragon"
+        },
+        {
+          "id": "CA:9E04",
+          "text": "Javelot de valkyrie"
+        }
+      ]
+    },
+    {
+      "group": "resources.helmet_name",
+      "entries": [
+        {
+          "id": "CA:9E0E",
+          "text": "Aucun"
+        },
+        {
+          "id": "CA:9E18",
+          "text": "Bandana"
+        },
+        {
+          "id": "CA:9E21",
+          "text": "Ruban chic"
+        },
+        {
+          "id": "CA:9E2D",
+          "text": "Bonnet lapyn"
+        },
+        {
+          "id": "CA:9E38",
+          "text": "Cabasset"
+        },
+        {
+          "id": "CA:9E42",
+          "text": "Chapeau à plume"
+        },
+        {
+          "id": "CA:9E4C",
+          "text": "Casque d'acier"
+        },
+        {
+          "id": "CA:9E56",
+          "text": "Tiare dorée"
+        },
+        {
+          "id": "CA:9E63",
+          "text": "Chapeau raton laveur"
+        },
+        {
+          "id": "CA:9E6F",
+          "text": "Cagoule grorobin"
+        },
+        {
+          "id": "CA:9E7C",
+          "text": "Chapeau de tigre"
+        },
+        {
+          "id": "CA:9E86",
+          "text": "Torque"
+        },
+        {
+          "id": "CA:9E8E",
+          "text": "Armet vermeil"
+        },
+        {
+          "id": "CA:9E99",
+          "text": "Casque licorne"
+        },
+        {
+          "id": "CA:9EA6",
+          "text": "Casque dragon"
+        },
+        {
+          "id": "CA:9EB2",
+          "text": "Casque canard"
+        },
+        {
+          "id": "CA:9EBC",
+          "text": "Casque à piquants"
+        },
+        {
+          "id": "CA:9EC8",
+          "text": "Casque cockatrice"
+        },
+        {
+          "id": "CA:9ED7",
+          "text": "Casque démon"
+        },
+        {
+          "id": "CA:9EE3",
+          "text": "Casque griffon"
+        },
+        {
+          "id": "CA:9EF0",
+          "text": "Couronne des esprits"
+        }
+      ]
+    },
+    {
+      "group": "resources.armor_name",
+      "entries": [
+        {
+          "id": "CA:9EFD",
+          "text": "Aucun"
+        },
+        {
+          "id": "CA:9F00",
+          "text": "Habit de cuir"
+        },
+        {
+          "id": "CA:9F09",
+          "text": "Tenue de kung-fu"
+        },
+        {
+          "id": "CA:9F16",
+          "text": "Tunique de lutin"
+        },
+        {
+          "id": "CA:9F21",
+          "text": "Cotte de mailles"
+        },
+        {
+          "id": "CA:9F2C",
+          "text": "Tenue cloutée"
+        },
+        {
+          "id": "CA:9F37",
+          "text": "Qipao"
+        },
+        {
+          "id": "CA:9F45",
+          "text": "Combinaison bariolée"
+        },
+        {
+          "id": "CA:9F54",
+          "text": "Cuirasse d'argent"
+        },
+        {
+          "id": "CA:9F60",
+          "text": "Pourpoint doré"
+        },
+        {
+          "id": "CA:9F6C",
+          "text": "Pansière vermeil"
+        },
+        {
+          "id": "CA:9F76",
+          "text": "Costume de tigre"
+        },
+        {
+          "id": "CA:9F81",
+          "text": "Bikini de tigre"
+        },
+        {
+          "id": "CA:9F8E",
+          "text": "Haubert magique"
+        },
+        {
+          "id": "CA:9F9C",
+          "text": "Cuirasse tortue"
+        },
+        {
+          "id": "CA:9FAA",
+          "text": "Léotard fleuri"
+        },
+        {
+          "id": "CA:9FB6",
+          "text": "Tenue de combat"
+        },
+        {
+          "id": "CA:9FC2",
+          "text": "Plastron"
+        },
+        {
+          "id": "CA:9FCC",
+          "text": "Cape vampire"
+        },
+        {
+          "id": "CA:9FD9",
+          "text": "Combinaison de plasma"
+        },
+        {
+          "id": "CA:9FE4",
+          "text": "Pèlerine des esprits"
+        }
+      ]
+    },
+    {
+      "group": "resources.accessory_name",
+      "entries": [
+        {
+          "id": "CA:9FF1",
+          "text": "Aucun"
+        },
+        {
+          "id": "CA:9FF9",
+          "text": "Bracelet des esprits"
+        },
+        {
+          "id": "CA:A007",
+          "text": "Coudière"
+        },
+        {
+          "id": "CA:A011",
+          "text": "Poignet de force"
+        },
+        {
+          "id": "CA:A01D",
+          "text": "Bracelet cobra"
+        },
+        {
+          "id": "CA:A02C",
+          "text": "Bracelet loup"
+        },
+        {
+          "id": "CA:A038",
+          "text": "Bracelet d'argent"
+        },
+        {
+          "id": "CA:A044",
+          "text": "Anneau golem"
+        },
+        {
+          "id": "CA:A04F",
+          "text": "Bague de neige"
+        },
+        {
+          "id": "CA:A05B",
+          "text": "Anneau otyugh"
+        },
+        {
+          "id": "CA:A066",
+          "text": "Bracelet d'or"
+        },
+        {
+          "id": "CA:A074",
+          "text": "Bague protectrice"
+        },
+        {
+          "id": "CA:A080",
+          "text": "Brassard lapis"
+        },
+        {
+          "id": "CA:A08C",
+          "text": "Bague de mitigation"
+        },
+        {
+          "id": "CA:A09A",
+          "text": "Manchette"
+        },
+        {
+          "id": "CA:A0A3",
+          "text": "Brassard ninja"
+        },
+        {
+          "id": "CA:A0B0",
+          "text": "Brassard dragon"
+        },
+        {
+          "id": "CA:A0BC",
+          "text": "Bague tyrannœil"
+        },
+        {
+          "id": "CA:A0C9",
+          "text": "Bague diablotin"
+        },
+        {
+          "id": "CA:A0D4",
+          "text": "Bague démon"
+        },
+        {
+          "id": "CA:A0E0",
+          "text": "Protège-bras"
+        }
+      ]
+    },
+    {
+      "group": "resources.item_name",
+      "entries": [
+        {
+          "id": "CA:A0EA",
+          "text": ""
+        },
+        {
+          "id": "CA:A0EB",
+          "text": "Bonbon"
+        },
+        {
+          "id": "CA:A0F1",
+          "text": "Chocolat"
+        },
+        {
+          "id": "CA:A0FB",
+          "text": "Gelée royale"
+        },
+        {
+          "id": "CA:A105",
+          "text": "Noix magique"
+        },
+        {
+          "id": "CA:A113",
+          "text": "Légumantidote"
+        },
+        {
+          "id": "CA:A120",
+          "text": "Coupe céleste"
+        },
+        {
+          "id": "CA:A12E",
+          "text": "Corde magique"
+        },
+        {
+          "id": "CA:A139",
+          "text": "Tambour du vent"
+        },
+        {
+          "id": "CA:A146",
+          "text": "Ceinture mog"
+        },
+        {
+          "id": "CA:A152",
+          "text": "Maillet nain"
+        },
+        {
+          "id": "CA:A15F",
+          "text": "Tonneau"
+        }
+      ]
+    },
+    {
+      "group": "resources.menu_label",
+      "entries": [
+        {
+          "id": "CA:A168",
+          "text": "Équipement"
+        },
+        {
+          "id": "CA:A174",
+          "text": "Désigner la cible à attaquer"
+        },
+        {
+          "id": "CA:A17E",
+          "text": "Voir les caractéristiques des personnages"
+        },
+        {
+          "id": "CA:A185",
+          "text": "Voir les niveaux de compétences\ndes armes et de la magie"
+        },
+        {
+          "id": "CA:A198",
+          "text": "Définir les actions des personnages non joués"
+        },
+        {
+          "id": "CA:A1A4",
+          "text": "Options"
+        },
+        {
+          "id": "CA:A1B4",
+          "text": "Choix des fenêtres"
+        },
+        {
+          "id": "CA:A1C0",
+          "text": "Faites glisser ici les équipements à jeter."
+        },
+        {
+          "id": "CA:A1C6",
+          "text": "Tous"
+        }
+      ]
+    },
+    {
+      "group": "resources.enemy_name",
+      "entries": [
+        {
+          "id": "CA:A1CA",
+          "text": "Lapyn"
+        },
+        {
+          "id": "CA:A1D1",
+          "text": "Zabeille"
+        },
+        {
+          "id": "CA:A1DA",
+          "text": "Mycobombe"
+        },
+        {
+          "id": "CA:A1E3",
+          "text": "Robin"
+        },
+        {
+          "id": "CA:A1EF",
+          "text": "Droséra"
+        },
+        {
+          "id": "CA:A1F8",
+          "text": "Barracudaïe"
+        },
+        {
+          "id": "CA:A1FF",
+          "text": "Gobelin"
+        },
+        {
+          "id": "CA:A20A",
+          "text": "Œil espion"
+        },
+        {
+          "id": "CA:A212",
+          "text": "Flan vert"
+        },
+        {
+          "id": "CA:A21D",
+          "text": "Spectre"
+        },
+        {
+          "id": "CA:A225",
+          "text": "Fauve-souris"
+        },
+        {
+          "id": "CA:A22A",
+          "text": "Hobgobelin"
+        },
+        {
+          "id": "CA:A231",
+          "text": "Sahuagin"
+        },
+        {
+          "id": "CA:A23C",
+          "text": "Chaise animée"
+        },
+        {
+          "id": "CA:A249",
+          "text": "Garde gobelin"
+        },
+        {
+          "id": "CA:A253",
+          "text": "Feunuage"
+        },
+        {
+          "id": "CA:A25D",
+          "text": "Chenille"
+        },
+        {
+          "id": "CA:A265",
+          "text": "Triton"
+        },
+        {
+          "id": "CA:A26E",
+          "text": "Zombie"
+        },
+        {
+          "id": "CA:A275",
+          "text": "Oiseau manitou"
+        },
+        {
+          "id": "CA:A281",
+          "text": "Lapynette"
+        },
+        {
+          "id": "CA:A28A",
+          "text": "Hybou"
+        },
+        {
+          "id": "CA:A296",
+          "text": "Taupérisson"
+        },
+        {
+          "id": "CA:A29E",
+          "text": "Bombetrouille"
+        },
+        {
+          "id": "CA:A2AB",
+          "text": "Crabe pinceur"
+        },
+        {
+          "id": "CA:A2B8",
+          "text": "Cavalicorne"
+        },
+        {
+          "id": "CA:A2C5",
+          "text": "Œil mage"
+        },
+        {
+          "id": "CA:A2D0",
+          "text": "Lupus"
+        },
+        {
+          "id": "CA:A2D7",
+          "text": "Grorobin"
+        },
+        {
+          "id": "CA:A2E2",
+          "text": "Eaunuage"
+        },
+        {
+          "id": "CA:A2EA",
+          "text": "Roussettine"
+        },
+        {
+          "id": "CA:A2F4",
+          "text": "Loup-garou"
+        },
+        {
+          "id": "CA:A2FD",
+          "text": "Double n°3"
+        },
+        {
+          "id": "CA:A307",
+          "text": "Épée maudite"
+        },
+        {
+          "id": "CA:A312",
+          "text": "Maraboulet"
+        },
+        {
+          "id": "CA:A31D",
+          "text": "Livre mystique"
+        },
+        {
+          "id": "CA:A329",
+          "text": "Scorpion"
+        },
+        {
+          "id": "CA:A336",
+          "text": "Soldat couac"
+        },
+        {
+          "id": "CA:A342",
+          "text": "Goudrono"
+        },
+        {
+          "id": "CA:A34B",
+          "text": "Flan rouge"
+        },
+        {
+          "id": "CA:A354",
+          "text": "Cockatrice"
+        },
+        {
+          "id": "CA:A35E",
+          "text": "Bombabeille"
+        },
+        {
+          "id": "CA:A367",
+          "text": "Mycobleu"
+        },
+        {
+          "id": "CA:A371",
+          "text": "Pensée fatale"
+        },
+        {
+          "id": "CA:A37D",
+          "text": "Piranhaïe"
+        },
+        {
+          "id": "CA:A386",
+          "text": "Mimic"
+        },
+        {
+          "id": "CA:A390",
+          "text": "Double n°1"
+        },
+        {
+          "id": "CA:A39A",
+          "text": "Vautour chamane"
+        },
+        {
+          "id": "CA:A3A8",
+          "text": "Fantôme"
+        },
+        {
+          "id": "CA:A3AE",
+          "text": "Métallolarve"
+        },
+        {
+          "id": "CA:A3BC",
+          "text": "Fourmygale"
+        },
+        {
+          "id": "CA:A3C8",
+          "text": "Tyrannœil"
+        },
+        {
+          "id": "CA:A3D2",
+          "text": "Tortue fléau"
+        },
+        {
+          "id": "CA:A3DD",
+          "text": "Zombiloup"
+        },
+        {
+          "id": "CA:A3EA",
+          "text": "Goule"
+        },
+        {
+          "id": "CA:A3F0",
+          "text": "Diablotin"
+        },
+        {
+          "id": "CA:A3F4",
+          "text": "Flan bleu"
+        },
+        {
+          "id": "CA:A3FE",
+          "text": "Méduso"
+        },
+        {
+          "id": "CA:A408",
+          "text": "Visage féroce"
+        },
+        {
+          "id": "CA:A414",
+          "text": "Main-griffon"
+        },
+        {
+          "id": "CA:A421",
+          "text": "Hérysson"
+        },
+        {
+          "id": "CA:A42A",
+          "text": "Crabe métal"
+        },
+        {
+          "id": "CA:A435",
+          "text": "Homme de fer"
+        },
+        {
+          "id": "CA:A441",
+          "text": "Double n°2"
+        },
+        {
+          "id": "CA:A44B",
+          "text": "Chamanoir"
+        },
+        {
+          "id": "CA:A458",
+          "text": "Général couac"
+        },
+        {
+          "id": "CA:A465",
+          "text": "Grotrouille"
+        },
+        {
+          "id": "CA:A473",
+          "text": "Tortutue"
+        },
+        {
+          "id": "CA:A47D",
+          "text": "Tsunami"
+        },
+        {
+          "id": "CA:A485",
+          "text": "Basilic"
+        },
+        {
+          "id": "CA:A48E",
+          "text": "Gremlin"
+        },
+        {
+          "id": "CA:A496",
+          "text": "Métalloscorpion"
+        },
+        {
+          "id": "CA:A4A0",
+          "text": "Ninja"
+        },
+        {
+          "id": "CA:A4AB",
+          "text": "Pleurœil"
+        },
+        {
+          "id": "CA:A4B3",
+          "text": "Lycaon"
+        },
+        {
+          "id": "CA:A4BE",
+          "text": "Tête infernale"
+        },
+        {
+          "id": "CA:A4C9",
+          "text": "Ouvrage nocif"
+        },
+        {
+          "id": "CA:A4D7",
+          "text": "Assassin noir"
+        },
+        {
+          "id": "CA:A4E4",
+          "text": "Chevalier noir"
+        },
+        {
+          "id": "CA:A4F0",
+          "text": "Métamorphe"
+        },
+        {
+          "id": "CA:A4FE",
+          "text": "Monstroloup"
+        },
+        {
+          "id": "CA:A508",
+          "text": "Lame fatale"
+        },
+        {
+          "id": "CA:A513",
+          "text": "Paladin déchu"
+        },
+        {
+          "id": "CA:A51E",
+          "text": "Maître ninja"
+        },
+        {
+          "id": "CA:A52B",
+          "text": "?"
+        },
+        {
+          "id": "CA:A52D",
+          "text": "Orbe de cristal"
+        },
+        {
+          "id": "CA:A539",
+          "text": "Coffre au trésor"
+        },
+        {
+          "id": "CA:A548",
+          "text": "Fourmimante"
+        },
+        {
+          "id": "CA:A553",
+          "text": "Faciès mural"
+        },
+        {
+          "id": "CA:A55D",
+          "text": "Flagellateur"
+        },
+        {
+          "id": "CA:A568",
+          "text": "Minotaure"
+        },
+        {
+          "id": "CA:A571",
+          "text": "Chimérotigre"
+        },
+        {
+          "id": "CA:A57E",
+          "text": "Jabberwocky"
+        },
+        {
+          "id": "CA:A58A",
+          "text": "Bec-hache"
+        },
+        {
+          "id": "CA:A596",
+          "text": "Gigas de glace"
+        },
+        {
+          "id": "CA:A5A2",
+          "text": "Mordragon"
+        },
+        {
+          "id": "CA:A5AE",
+          "text": "Mécachevalier"
+        },
+        {
+          "id": "CA:A5B9",
+          "text": "Mur infernal"
+        },
+        {
+          "id": "CA:A5C5",
+          "text": "Vampire"
+        },
+        {
+          "id": "CA:A5CD",
+          "text": "Métallomante"
+        },
+        {
+          "id": "CA:A5DA",
+          "text": "Mécachevalier II"
+        },
+        {
+          "id": "CA:A5E5",
+          "text": "Robotor"
+        },
+        {
+          "id": "CA:A5EC",
+          "text": "Gorgotaurus"
+        },
+        {
+          "id": "CA:A5F8",
+          "text": "Liane folle"
+        },
+        {
+          "id": "CA:A601",
+          "text": "Otyugh"
+        },
+        {
+          "id": "CA:A60D",
+          "text": "Aspica"
+        },
+        {
+          "id": "CA:A619",
+          "text": "Immondus"
+        },
+        {
+          "id": "CA:A624",
+          "text": "Biochimère"
+        },
+        {
+          "id": "CA:A62F",
+          "text": "Œil mural"
+        },
+        {
+          "id": "CA:A63D",
+          "text": "Hydre"
+        },
+        {
+          "id": "CA:A643",
+          "text": "Egagropile"
+        },
+        {
+          "id": "CA:A650",
+          "text": "Lamianaga"
+        },
+        {
+          "id": "CA:A656",
+          "text": "Tronçonnator"
+        },
+        {
+          "id": "CA:A661",
+          "text": "Bébézard"
+        },
+        {
+          "id": "CA:A669",
+          "text": "Mécachevalier III"
+        },
+        {
+          "id": "CA:A674",
+          "text": "Dracoblanc"
+        },
+        {
+          "id": "CA:A680",
+          "text": "Gigas de feu"
+        },
+        {
+          "id": "CA:A68B",
+          "text": "Dracorouge"
+        },
+        {
+          "id": "CA:A696",
+          "text": "Infernophénix"
+        },
+        {
+          "id": "CA:A69F",
+          "text": "Dracobleu"
+        },
+        {
+          "id": "CA:A6AB",
+          "text": "Strygea"
+        },
+        {
+          "id": "CA:A6B1",
+          "text": "Koschei"
+        },
+        {
+          "id": "CA:A6BB",
+          "text": "Morzard"
+        },
+        {
+          "id": "CA:A6C9",
+          "text": "Ouroboros"
+        },
+        {
+          "id": "CA:A6D5",
+          "text": "Viscogluant"
+        },
+        {
+          "id": "CA:A6E1",
+          "text": "Gigas de foudre"
+        },
+        {
+          "id": "CA:A6EF",
+          "text": "Œil infernal"
+        },
+        {
+          "id": "CA:A6FA",
+          "text": "Bénévodon"
+        }
+      ]
+    },
+    {
+      "group": "resources.weapon_description",
+      "entries": [
+        {
+          "id": "CA:A705",
+          "text": "\n"
+        },
+        {
+          "id": "CA:A70A",
+          "text": "Inflige plus de dégâts aux insectes et aux\nmonstres à corps dur"
+        },
+        {
+          "id": "CA:A730",
+          "text": "Endort les ennemis"
+        },
+        {
+          "id": "CA:A74C",
+          "text": "Augmente l'intelligence et la sagesse de\n2 points"
+        },
+        {
+          "id": "CA:A76D",
+          "text": "Inflige plus de dégâts aux insectes et aux\nmonstres à corps dur"
+        },
+        {
+          "id": "CA:A793",
+          "text": "Inflige plus de dégâts aux gluants et aux\nlézards"
+        },
+        {
+          "id": "CA:A7BA",
+          "text": "Empoisonne les ennemis"
+        },
+        {
+          "id": "CA:A7D0",
+          "text": "Inflige plus de dégâts aux dragons"
+        },
+        {
+          "id": "CA:A7F0",
+          "text": "Le poing ultime"
+        },
+        {
+          "id": "CA:A804",
+          "text": "　"
+        },
+        {
+          "id": "CA:A809",
+          "text": "\n"
+        },
+        {
+          "id": "CA:A826",
+          "text": "Augmente l'agilité de 2 points"
+        },
+        {
+          "id": "CA:A84D",
+          "text": "Inflige plus de dégâts aux gluants et aux\nlézards"
+        },
+        {
+          "id": "CA:A873",
+          "text": "Inflige plus de dégâts aux insectes et aux\nmonstres à corps dur"
+        },
+        {
+          "id": "CA:A89E",
+          "text": "Inflige plus de dégâts aux morts-vivants et\naux démons"
+        },
+        {
+          "id": "CA:A8BE",
+          "text": "Augmente le taux de coups critiques"
+        },
+        {
+          "id": "CA:A8DD",
+          "text": "Augmente la force de 2 points"
+        },
+        {
+          "id": "CA:A8FD",
+          "text": "Inflige plus de dégâts aux dragons"
+        },
+        {
+          "id": "CA:A911",
+          "text": "L'épée ultime"
+        },
+        {
+          "id": "CA:A916",
+          "text": "　"
+        },
+        {
+          "id": "CA:A93A",
+          "text": "\n"
+        },
+        {
+          "id": "CA:A960",
+          "text": "Inflige plus de dégâts aux végétaux et aux\npoissons"
+        },
+        {
+          "id": "CA:A984",
+          "text": "Augmente l'endurance de 2 points"
+        },
+        {
+          "id": "CA:A9AA",
+          "text": "Inflige plus de dégâts aux végétaux et aux\npoissons"
+        },
+        {
+          "id": "CA:A9D1",
+          "text": "Inflige plus de dégâts aux insectes et aux\nmonstres à corps dur"
+        },
+        {
+          "id": "CA:A9F5",
+          "text": "Inflige plus de dégâts aux bêtes, oiseaux\net hommes-bêtes"
+        },
+        {
+          "id": "CA:AA15",
+          "text": "Inflige plus de dégâts aux végétaux et aux\npoissons"
+        },
+        {
+          "id": "CA:AA27",
+          "text": "Augmente la force de 5 points"
+        },
+        {
+          "id": "CA:AA2C",
+          "text": "La hache ultime"
+        },
+        {
+          "id": "CA:AA31",
+          "text": "　"
+        },
+        {
+          "id": "CA:AA48",
+          "text": "\n"
+        },
+        {
+          "id": "CA:AA6F",
+          "text": "\n"
+        },
+        {
+          "id": "CA:AA86",
+          "text": "Inflige l'état \"ballon\" aux ennemis"
+        },
+        {
+          "id": "CA:AAA2",
+          "text": "Inflige plus de dégâts aux gluants et aux\nlézards"
+        },
+        {
+          "id": "CA:AAC2",
+          "text": "Inflige l'état \"confusion\" aux ennemis"
+        },
+        {
+          "id": "CA:AAE2",
+          "text": "Endort les ennemis"
+        },
+        {
+          "id": "CA:AAF6",
+          "text": "Augmente la force de 2 points"
+        },
+        {
+          "id": "CA:AAFB",
+          "text": "Inflige plus de dégâts aux dragons"
+        },
+        {
+          "id": "CA:AB14",
+          "text": "La lance ultime"
+        },
+        {
+          "id": "CA:AB30",
+          "text": "　"
+        },
+        {
+          "id": "CA:AB57",
+          "text": "\n"
+        },
+        {
+          "id": "CA:AB82",
+          "text": "Ralentit les ennemis"
+        },
+        {
+          "id": "CA:ABA8",
+          "text": "Augmente l'agilité de 2 points"
+        },
+        {
+          "id": "CA:ABC0",
+          "text": "Inflige plus de dégâts aux gluants et aux\nlézards"
+        },
+        {
+          "id": "CA:ABE6",
+          "text": "Inflige plus de dégâts aux morts-vivants et\naux démons"
+        },
+        {
+          "id": "CA:ABF9",
+          "text": "Inflige plus de dégâts aux insectes et aux\nmonstres à corps dur"
+        },
+        {
+          "id": "CA:ABFE",
+          "text": "Ralentit les ennemis"
+        },
+        {
+          "id": "CA:AC03",
+          "text": "Inflige plus de dégâts aux insectes et aux\nmonstres à corps dur"
+        },
+        {
+          "id": "CA:AC2A",
+          "text": "Le fouet ultime"
+        },
+        {
+          "id": "CA:AC41",
+          "text": "　"
+        },
+        {
+          "id": "CA:AC6C",
+          "text": "\n"
+        },
+        {
+          "id": "CA:AC8D",
+          "text": "\n"
+        },
+        {
+          "id": "CA:ACA4",
+          "text": "Inflige plus de dégâts aux bêtes, oiseaux\net hommes-bêtes"
+        },
+        {
+          "id": "CA:ACC4",
+          "text": "Inflige l'état \"confusion\" aux ennemis"
+        },
+        {
+          "id": "CA:ACD6",
+          "text": "Inflige plus de dégâts aux morts-vivants et\naux démons"
+        },
+        {
+          "id": "CA:ACDB",
+          "text": "Augmente l'intelligence et la sagesse de\n2 points"
+        },
+        {
+          "id": "CA:AD02",
+          "text": "Inflige l'état \"confusion\" aux ennemis"
+        },
+        {
+          "id": "CA:AD1B",
+          "text": "Augmente le taux de coups critiques"
+        },
+        {
+          "id": "CA:AD20",
+          "text": "L'arc ultime"
+        },
+        {
+          "id": "CA:AD46",
+          "text": "　"
+        },
+        {
+          "id": "CA:AD5B",
+          "text": "\n"
+        },
+        {
+          "id": "CA:AD82",
+          "text": "Inflige plus de dégâts aux gluants et aux\nlézards"
+        },
+        {
+          "id": "CA:ADA2",
+          "text": "Ralentit les ennemis"
+        },
+        {
+          "id": "CA:ADBA",
+          "text": "\n"
+        },
+        {
+          "id": "CA:ADBF",
+          "text": "Inflige plus de dégâts aux insectes et aux\nmonstres à corps dur"
+        },
+        {
+          "id": "CA:ADC4",
+          "text": "Empoisonne les ennemis"
+        },
+        {
+          "id": "CA:ADEB",
+          "text": "Inflige plus de dégâts aux gluants et aux\nlézards"
+        },
+        {
+          "id": "CA:AE02",
+          "text": "Augmente le taux de coups critiques"
+        },
+        {
+          "id": "CA:AE2D",
+          "text": "Le boomerang ultime"
+        },
+        {
+          "id": "CA:AE44",
+          "text": "　"
+        },
+        {
+          "id": "CA:AE66",
+          "text": "\n"
+        },
+        {
+          "id": "CA:AE86",
+          "text": "\n"
+        }
+      ]
+    },
+    {
+      "group": "resources.magic_description",
+      "entries": [
+        {
+          "id": "CA:AE9C",
+          "text": "      Un rocher écrase la cible"
+        },
+        {
+          "id": "CA:AEBC",
+          "text": "      Une pluie de diamants s'abat sur\n      la cible"
+        },
+        {
+          "id": "CA:AEE0",
+          "text": "      Des lianes ralentissent les \n      déplacements de la cible"
+        },
+        {
+          "id": "CA:AF03",
+          "text": "      Confère à une arme le pouvoir de\n      pétrifier"
+        },
+        {
+          "id": "CA:AF28",
+          "text": "      Augmente l'esquive et accélère\n      les attaques"
+        },
+        {
+          "id": "CA:AF4C",
+          "text": "      Augmente la défense et réduit les\n      dégâts subis"
+        },
+        {
+          "id": "CA:AF6F",
+          "text": "      Un blizzard glacial frappe la cible"
+        },
+        {
+          "id": "CA:AF8E",
+          "text": "      Une violente pluie acide réduit\n      la défense de la cible"
+        },
+        {
+          "id": "CA:AFB2",
+          "text": "      Vole des points de vie à la cible"
+        },
+        {
+          "id": "CA:AFCB",
+          "text": "      Confère à une arme le pouvoir de\n      l'eau"
+        },
+        {
+          "id": "CA:AFEE",
+          "text": "      Guérit les altérations d'état"
+        },
+        {
+          "id": "CA:B001",
+          "text": "      Restitue des points de vie"
+        },
+        {
+          "id": "CA:B010",
+          "text": "      Des boules de feu s'abattent sur\n      la cible"
+        },
+        {
+          "id": "CA:B02E",
+          "text": "      Des explosions brûlent la cible"
+        },
+        {
+          "id": "CA:B050",
+          "text": "      De la lave engloutit la cible"
+        },
+        {
+          "id": "CA:B06D",
+          "text": "      Confère à une arme le pouvoir du\n      feu"
+        },
+        {
+          "id": "CA:B08F",
+          "text": "      Brûle la cible et affaiblit ses\n      attaques"
+        },
+        {
+          "id": "CA:B0B3",
+          "text": "      Un mur de feu s'abat sur la cible\n      et l'embrase"
+        },
+        {
+          "id": "CA:B0D9",
+          "text": "      Des rafales de vent lacèrent\n      la cible"
+        },
+        {
+          "id": "CA:B0FA",
+          "text": "      Un puissant éclair frappe la cible"
+        },
+        {
+          "id": "CA:B120",
+          "text": "      Plonge la cible dans un état\n      de confusion"
+        },
+        {
+          "id": "CA:B138",
+          "text": "      Confère à une arme le pouvoir du\n      vent"
+        },
+        {
+          "id": "CA:B15A",
+          "text": "      Immobilise la cible avec un ballon"
+        },
+        {
+          "id": "CA:B17C",
+          "text": "      Analyse la cible et désamorce\n      les pièges des coffres"
+        },
+        {
+          "id": "CA:B1A0",
+          "text": "      Transforme l'ennemi en un monstre \n      de bas niveau"
+        },
+        {
+          "id": "CA:B1C4",
+          "text": "      Vole des points de magie à \n      la cible"
+        },
+        {
+          "id": "CA:B1D8",
+          "text": "      Effet surprise sur les ennemis et\n      l'équipe !"
+        },
+        {
+          "id": "CA:B1FD",
+          "text": "      Confère à une arme le pouvoir\n      d'absorber des PV"
+        },
+        {
+          "id": "CA:B222",
+          "text": "      Augmente l'attaque de l'équipe\n      grâce au pouvoir de la lune"
+        },
+        {
+          "id": "CA:B239",
+          "text": "      Augmente le taux de coups\n      critiques"
+        },
+        {
+          "id": "CA:B252",
+          "text": "      Plonge la cible dans un doux\n      sommeil"
+        },
+        {
+          "id": "CA:B26C",
+          "text": "      La cible se consume de l'intérieur"
+        },
+        {
+          "id": "CA:B28D",
+          "text": "      Effet secret"
+        },
+        {
+          "id": "CA:B296",
+          "text": "      Chasse la Faucheuse et ranime\n      un ami"
+        },
+        {
+          "id": "CA:B2B2",
+          "text": "      Crée une barrière qui renvoie les\n      sorts ennemis"
+        },
+        {
+          "id": "CA:B2D7",
+          "text": "      Effet secret"
+        },
+        {
+          "id": "CA:B2E0",
+          "text": "      Une vague d'obscurité enveloppe\n      la cible"
+        },
+        {
+          "id": "CA:B305",
+          "text": "      Des boules d'énergie noire\n      frappent la cible"
+        },
+        {
+          "id": "CA:B320",
+          "text": "      Dissipe les sorts d'amélioration et\n      réduit la jauge d'énergie à 0"
+        },
+        {
+          "id": "CA:B347",
+          "text": "      Confère à une arme le pouvoir de\n      la lumière"
+        },
+        {
+          "id": "CA:B36A",
+          "text": "      Une lumière sacrée transperce\n      la cible"
+        },
+        {
+          "id": "CA:B38A",
+          "text": "      Protège contre un certain nombre\n      d'attaques physiques"
+        }
+      ]
+    },
+    {
+      "group": "resources.location_name",
+      "entries": [
+        {
+          "id": "CA:B3AC",
+          "text": "Village Potos"
+        },
+        {
+          "id": "CA:B3BA",
+          "text": "Boutique de Niccolo"
+        },
+        {
+          "id": "CA:B3C1",
+          "text": "Temple de l'Eau"
+        },
+        {
+          "id": "CA:B3CE",
+          "text": "Ville de Pandora"
+        },
+        {
+          "id": "CA:B3D6",
+          "text": "Village Kippo"
+        },
+        {
+          "id": "CA:B3E4",
+          "text": "Village des nains"
+        },
+        {
+          "id": "CA:B3F2",
+          "text": "Forêt hantée"
+        },
+        {
+          "id": "CA:B401",
+          "text": "Château de la sorcière"
+        },
+        {
+          "id": "CA:B410",
+          "text": "Château de la sorcière"
+        },
+        {
+          "id": "CA:B41F",
+          "text": "Village des mogs"
+        },
+        {
+          "id": "CA:B42E",
+          "text": "Forêt des lutins"
+        },
+        {
+          "id": "CA:B43D",
+          "text": "Temple du Vent"
+        },
+        {
+          "id": "CA:B449",
+          "text": "Royaume de Matango"
+        },
+        {
+          "id": "CA:B451",
+          "text": "Village des morses"
+        },
+        {
+          "id": "CA:B45E",
+          "text": "Vaisseau des sables"
+        },
+        {
+          "id": "CA:B467",
+          "text": "Royaume de Kakkara"
+        },
+        {
+          "id": "CA:B46F",
+          "text": "Empire - Méridia"
+        },
+        {
+          "id": "CA:B479",
+          "text": "Empire - Septentria"
+        },
+        {
+          "id": "CA:B483",
+          "text": "Île d'or"
+        },
+        {
+          "id": "CA:B48D",
+          "text": "Temple de la Lune"
+        },
+        {
+          "id": "CA:B499",
+          "text": "Mandala"
+        },
+        {
+          "id": "CA:B4A1",
+          "text": "Chemin de montagne"
+        },
+        {
+          "id": "CA:B4BB",
+          "text": "République de Tasmanica"
+        },
+        {
+          "id": "CA:B4DE",
+          "text": "Terre pure"
+        },
+        {
+          "id": "CA:B4E8",
+          "text": "Forteresse de Mana"
+        },
+        {
+          "id": "CA:B504",
+          "text": "Forêt de glace"
+        },
+        {
+          "id": "CA:B512",
+          "text": "Nombril de Gaïa"
+        }
+      ]
+    }
+  ]
+}

@@ -26,6 +26,7 @@ for the owning component even when the current generated payload is shorter.
 | intro VWF | `0x074C40-0x074C6B` | `$C7:4C40-$4C6B` | intro-private DTE loader |
 | shared VWF/config | `0x074C80-0x074C86` | `$C7:4C80-$4C86` | intro marker/end (`05`), dialogue VWF marker (`06`), dialogue-DTE `$E8` marker, Name Entry base threshold (`02`) |
 | shared VWF compositor | `0x074C90-0x074CCE` | `$C7:4C90-$4CCE` | byte-identical 8×12 shift/merge/spill helper installed by 05/06 |
+| shared UI VWF config | `0x074C87` | `$C7:4C87` | component-09 marker `$09`; shared capacity/renderer infrastructure stays dormant without it |
 | intro VWF | `0x074D00-0x074D31` | `$C7:4D00-$4D31` | 25-pair private DTE table |
 | intro VWF | `0x0A0C02-0x0A0E8A` | `$CA:0C02-$0E8A` | rebuilt translated event `$0400` in the current generated build |
 | intro VWF | `0x0AFF70-0x0AFFB7` | `$CA:FF70-$FFB7` | relocated unchanged stock events `$0401-$040F` |
@@ -42,6 +43,10 @@ for the owning component even when the current generated payload is shorter.
 | dialogue VWF | `0x2D73B0-0x2D73B8` | `$ED:73B0-$73B8` | runtime-validated renderer-active scope helper |
 | intro skip | `0x2D7400-0x2D74FF` | `$ED:7400-$74FF` | reserved intro-skip input helper region |
 | dialogue VWF | `0x2D7500-0x2D77FF` | `$ED:7500-$77FF` | pixel-aware parser preflight, glyph-fit helper and framed-right-edge table; gaps reserved to component 06 |
+| shared UI/dialogue dispatcher | `0x2D7A00-0x2D7A7F` | `$ED:7A00-$7A7F` | byte-identical renderer-entry dispatcher installed by 06/09 |
+| UI VWF renderer | `0x2D7B00-0x2D7CFF` | `$ED:7B00-$7CFF` | component-09 standalone non-dialogue UI renderer reserve (Forge backend first) |
+| UI VWF metrics | `0x2D7D00-0x2D7D7F` | `$ED:7D00-$7D7F` | component-09 validated 128-entry advance table |
+| UI VWF Forge wrapper | `0x2D7E00-0x2D7E7F` | `$ED:7E00-$7E7F` | exact Forge-row submit wrapper (`$00:19D0`) |
 
 
 `08_dialogue_text` keeps in-place reinsertion for rebuilt events that still fit
@@ -67,7 +72,7 @@ GAME FILE also keeps its translation-JSON-backed stock label fields synchronized
 
 ## 06_dialogue_vwf — global allocation view
 
-Components 05 and 06 also install byte-identical parser-buffer hooks/helpers in
+Components 05, 06 and 09 install byte-identical shared parser/capacity hooks/helpers in
 `$C0:16B8/$16C6/$17CE/$18DE` and `$C7:43D0/$4AC0+`. The helper classifies the
 parser caller structurally (`$114B` event engine vs `$235B` GAME SELECT) and
 uses `$7E:9390-$93BB` for private VWF decoding. Component-owned config bytes at
@@ -85,3 +90,21 @@ documented in `components/06_dialogue_vwf/docs/MEMORY_MAP.md`. This root map
 intentionally avoids duplicating renderer status and calibration details.
 
 `07_intro_skip` runtime checkpoint reuses `$7E:938A-$938B` only during translated intro event `$0400` for a non-blocking R-hold timer. Component 05 intercepts that event before component 06's renderer entry, so component 06 does not use its overlapping width-index scratch during the intro. A 4-byte NMI hook at `$C0:AC34-$AC37` clears the active-hold flag on physical R release so separate presses cannot accumulate. Both helpers remain inside the existing `$ED:7400-$74FF` reserve.
+
+
+## 09_ui_vwf — non-dialogue UI VWF
+
+Component 09 reuses shared framing/compositor/stock-row helpers but owns its own
+renderer. `$7E:93C1` is its one-shot exact-builder tag; `$7E:93C3-$93C9` are
+renderer-only scratch. It may reuse `$7E:9390-$93BB` only after stock parsing has
+completed, so it does not enable the private parser mode used by components 05/06.
+The accepted Forge path keeps the stock parser/buffer, grants +3 logical units
+only under the exact tag, then compacts the suffix visually under VWF.
+
+## 10_resource_names_fr — CA resource table/blob
+
+Component 10 rewrites the canonical 513-entry `$CA` resource pointer table and the translated
+name-family payload within the original stock allocation beginning at `$CA:98E1`. The current
+translated blob is 7056 bytes versus the 7315-byte stock allocation; no relocation or new ROM
+allocation is used. Its French glyph/DTE infrastructure is shared byte-identically with 06/08.
+

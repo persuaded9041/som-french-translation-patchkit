@@ -71,3 +71,19 @@ python3 tools/simulate_dialogues.py <clean-USA-ROM> -o dialogue_preview.html \
 ```
 
 Use `docs/HANDOFF.md` before changing dialogue alignment or serialization.
+
+## Non-event `$CA` system resources
+
+`tools/import_android_resources.py` is the deterministic Android `systxt` bridge for
+`assets/text_resources.json`. It deliberately remains separate from dialogue alignment.
+It emits `text_resources_android.json` (identity/provenance) and
+`translations/text_resources_french.json` (generated FR payload), plus an optional HTML
+review. Mapping recipes live in the prose-free `text_resources_layout.json`.
+
+```bash
+python3 tools/import_android_resources.py --html mappings/android/text_resources_android_review.html
+python3 tools/import_android_resources.py --check
+```
+
+This layer does not patch the ROM. Resource insertion must be added only after the stock
+UI geometry/charset/bank-capacity constraints have been measured.

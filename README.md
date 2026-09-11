@@ -28,6 +28,8 @@ The ROM itself is deliberately not included.
 6. `06_dialogue_vwf` - runtime-validated variable-width renderer for stock `$C9/$CA` event dialogue and component-08 relocated `$E8-$EC` events under the same caller gate; interactive choice rows use the same VWF path; stock/decorated fallback geometry plus private measured-end geometry and the long-row right-edge compaction rule are runtime-validated on the Potos test path.
 7. `07_intro_skip` - hold R for about two seconds during the introduction to skip directly to the waterfall scene.
 8. `08_dialogue_text` - deterministic source/translation reinsertion for all stock text-bearing event scripts except intro `$0400`, with in-place rebuilds and deterministic expanded-ROM relocation for growth.
+9. `09_ui_vwf` - standalone VWF extensions for non-dialogue UI paths; the first runtime-validated backend is Watts' Forge weapon row, with exact builder tagging, dynamic suffix compaction and a local +3 logical-line margin.
+10. `10_resource_names_fr` - deterministic reinsertion of reviewed French `$CA` name resources (magic, spirits, weapons, equipment, items, enemies and locations) from `translations/text_resources_french.json`.
 
 Component metadata lives in `components/*/component.json`. The aggregate builder
 discovers components from these manifests; adding a component does not require a
@@ -96,7 +98,7 @@ strictly `Dryade`; never restore `Dryade fera réagir l'orbe !`.
 
 ## Dialogue checkpoint
 
-The current development state is **Round 72 — automatic 216 px completion**.
+The current versioning checkpoint is **Round 75 — UI VWF foundation / resource-names checkpoint**. The dialogue payload itself remains the locked **Round 72 — automatic 216 px completion** state.
 Dialogue identity remains **1798 / 1838 (97.8%)**; the remaining unresolved Android
 IDs are not reopened by this checkpoint. The playable dialogue corpus contains
 **701 events = 701 complete + 0 PARTIEL**, with **1810 accepted semantic source IDs /
@@ -167,7 +169,7 @@ checker is `tools/check_japanese_dialogue_extractor.py`; usage and confidence
 levels are documented in `docs/JAPANESE_DIALOGUE_EXTRACTION.md`. It is not part of
 the build and never creates Android identity.
 
-For the current development checkpoint and next work, see `docs/HANDOFF.md`.
+For the current development checkpoint and next work, see `docs/HANDOFF.md`. The accepted non-dialogue UI-VWF architecture and extension rules are summarized in `docs/UI_VWF.md`. The rejected Watts forge experiments and the runtime proof chain remain in `docs/FORGE_VWF_RESEARCH.md`; read both files before extending component 09.
 
 See `docs/TEXT_INVENTORY.md` for coverage, `docs/TRANSLATIONS.md` for the source/translation
 model and ID scheme, `docs/ANDROID_TEXT_ALIGNMENT.md` for the Android English/French alignment method and conservative whole-dialogue mapping, `docs/TEXT_COMPONENT_AUDIT.md` for component

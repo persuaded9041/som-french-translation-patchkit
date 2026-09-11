@@ -107,3 +107,62 @@ Current clean-USA guarantees:
 - two fresh extractions produce byte-identical JSON.
 
 No French translation file is committed for this family yet.
+
+## Round 72 Android-FR pre-insertion audit
+
+The Android-FR mapping scaffold is now followed by a deterministic, insertion-free
+layout/encoding audit:
+
+```bash
+python3 tools/audit_text_resource_layout.py "Secret of Mana (USA).sfc"
+python3 tools/audit_text_resource_layout.py "Secret of Mana (USA).sfc" --check
+```
+
+Generated review material:
+
+- `mappings/android/text_resources_layout_audit.json`;
+- `mappings/android/text_resources_layout_audit.html`;
+- `mappings/android/text_resource_names_geometry_review.html` (focused name-only review).
+
+The audit treats the maximum line/line-count observed in the clean USA resources as a
+**conservative review envelope only**. It is not claimed to be a renderer hard limit.
+Current result over the 475 mapped Android-FR resources is 302 inside the observed
+stock envelope, 170 requiring geometry review, and 3 blocked by the current direct/DTE
+profile.
+
+### Stock-DTE compression makes in-place storage viable
+
+Direct-byte French serialization was misleadingly large because the stock CA family
+itself uses DTE. `shared.stock_text.encode_text_with_stock_dte()` now provides a
+translation-only encoder that reuses only the stock DTE pairs that remain DTE under
+the ordinary/full-French runtime boundary: lower `$60-$7C` plus upper `$E6-$FF`.
+The DTE table is not modified and decoded text is unchanged.
+
+With representation-only normalization (`U+3000 -> space`, straight double quotes to
+the stock directional quote glyphs), every currently profile-compatible mapped
+translation plus untouched stock fallbacks serializes to **7,304 bytes**, compared
+with the stock allocation of **7,315 bytes**. Therefore the resource table/blob can be
+rebuilt **in place** without touching the data immediately following the stock blob;
+relocation is not required for storage capacity.
+
+Three Android-FR enemy names remain intentionally untranslated by the current test
+path because they contain `°` (`Double n°1`, `Double n°2`, `Double n°3`). In the shared
+charset `°` is direct code `$E6`, while ordinary non-event CA resources currently use
+`$E6` as the start of the upper stock-DTE range. Do not silently substitute another
+character. Either prove a CA-resource-specific `$E8` routing context later or keep
+those three stock names until a safe solution exists.
+
+### Experimental name-only IPS
+
+`tools/build_text_resources_test_patch.py` builds a **research-only autonomous IPS
+against the clean USA ROM**. It first applies the current `patches/all.ips`, then
+rebuilds the CA table/blob in place with only selected resource categories. It refuses
+to cross the original 7,315-byte allocation and skips translations incompatible with
+the current `$E6` runtime profile instead of guessing.
+
+Default categories are all mapped name families (magic, Mana spirits, weapons,
+helmets, armor, accessories, items, enemies and locations). Current default result:
+**349 translated names**, **3 profile-skipped `n°` enemy names**, blob **7,056 bytes**
+(`-259` bytes versus stock). This is for visual/runtime testing only; it is not yet a
+production component and must not be folded into `all.ips` until menu geometry is
+reviewed.

@@ -194,3 +194,36 @@ When translated dialogue is present, component 08 installs the same
 and commits the 713 text-bearing events excluding `$0400`. The 513 following
 `$CA` non-event resources are now extracted separately to
 `assets/text_resources.json` and are not owned by the dialogue VWF runtime.
+
+## 09_ui_vwf — standalone non-dialogue UI VWF
+
+`09_ui_vwf` is intentionally independent of `06_dialogue_vwf`. Both components
+install the same shared renderer-entry dispatcher at `$C0:167D` / `$ED:7A00`;
+the overlap is byte-identical. The dispatcher selects component 09 only when its
+ROM config marker `$C7:4C87=$09` and exact one-shot UI tag are both present.
+Otherwise it delegates to component 06 when `$C7:4C84=$06`, or replays the stock
+32-cell renderer entry when neither owner is active.
+
+The shared text-buffer capacity helper is likewise installed byte-identically by
+05/06/09. Component 09 does **not** enter private parser mode; its +3 Forge margin
+is dormant unless both the component-09 marker and exact builder tag are active.
+This preserves the stock parser/buffer for UI text and keeps dialogue behavior
+owned by component 06.
+
+The accepted Forge backend arms its tag only at the exact submit of mini-event
+`$00:19D0`, patches the proven suffix geometry, and uses component-09 runtime space.
+The earlier `WEAPON_NAME` helper remains stock. The dispatcher clears `$7E:9385` on
+stock fallback, which is required for GAME SELECT compatibility. Future Ring Menu/
+item-acquisition VWF work must add equally narrow gates rather than broadening the
+current tag.
+
+Round-75 handoff status: this standalone targeting is runtime-validated. The Forge row is locked; new UI families must follow `docs/UI_VWF.md` and must not reuse the Forge tag.
+
+## 10_resource_names_fr — French CA resource names
+
+`10_resource_names_fr` owns only the rebuilt `$CA` pointer table/blob for the reviewed name
+families. It does not depend on `09_ui_vwf` and does not own any dialogue event. For standalone
+clean-USA use it installs the same shared French glyph span and context-sensitive DTE router as
+06/08; those overlaps are byte-identical in aggregate builds. The component never relocates the
+resource blob beyond its original stock allocation.
+

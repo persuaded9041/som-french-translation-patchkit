@@ -1,4 +1,4 @@
-# Development handoff — Round 72
+# Development handoff — Round 75
 
 Operational handoff only. Historical evidence remains in `docs/ANDROID_TEXT_ALIGNMENT.md`,
 `docs/DIALOGUE_FORMAT.md`, `docs/TEXT_RESEARCH_NOTES.md`, and the archived review files.
@@ -6,7 +6,7 @@ Operational handoff only. Historical evidence remains in `docs/ANDROID_TEXT_ALIG
 ## Current checkpoint
 
 - Reference ROM: unheadered **Secret of Mana (USA)**, `0x200000`, SHA-256 `4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f`. Never store or redistribute it.
-- Current state: **Round 72 — automatic 216 px completion**.
+- Current state: **Round 75 — UI VWF foundation / resource-names checkpoint**. Dialogue payload remains the locked Round-72 automatic 216 px build.
 - Android semantic alignment: **1798 / 1838 (97.8%)**, 40 unresolved semantic IDs. Do not inflate identity to reach 100%.
 - Playable dialogue corpus: **701 events = 701 complete + 0 PARTIEL**.
 - Translation output: **1810 accepted semantic source IDs / 1943 active sparse JSON entries**.
@@ -91,21 +91,192 @@ python3 tools/simulate_dialogues.py "Secret of Mana (USA).sfc" \
 
 Rebuild only changed components, then recombine stored component IPS files. Never include a ROM in an archive.
 
-## Next session — item translation procedure only
+## Round 75 — standalone `09_ui_vwf` foundation
 
-The next topic is **translation of item/special names**, but the next session must begin with **procedure design and discussion only**. Do not start translating or inserting item text until the user explicitly approves the workflow.
+The Watts Forge long-name issue is now runtime-validated as solved and has been
+cleaned into a new independent component: `09_ui_vwf` (`ui-vwf`). It has **no
+component dependency**; it only installs byte-identical helpers from `shared/`.
 
-The canonical clean-ROM family already exists in `assets/text_resources.json`. The likely initial target is resource IDs `$0B9-$0C5` (`item/special names`, 13 entries), documented in `docs/TEXT_RESOURCES.md`. A sparse `translations/text_resources_french.json` does not yet exist, and live growth/repacking of the 513-resource table is intentionally not enabled.
+Validated Forge chain and behavior:
 
-Before implementation, inspect the Android sources and existing extraction code and propose a reproducible pipeline covering at least:
+- `$D0:D3B0-$D3C4` is the current-weapon `WEAPON_NAME` builder. The probe that
+  replaced `$D0:D3C4 STA $19D3` with `STZ $19D3` forced every row to
+  `Gant d'aura`, proving the left field.
+- `$D0:D82F+` is the Forge suffix builder. Replacing its literal `$D0` arrow
+  with `$CF` changed `→` to `←`, proving the suffix.
+- a one-shot tag is now armed only at the exact submit of the Forge mini-event
+  `$00:19D0` (X=`$19D0`, bank `$00`, immediately before `$D0:D5D7`). The earlier
+  `WEAPON_NAME` helper remains stock. This prevents the tag from leaking into Watts'
+  ordinary dialogue. The correct event bank at the renderer is `$1D03=$00`; CPU
+  DB=`$7E` is a separate runtime fact.
+- VWF rendering of the current weapon name is runtime-validated.
+- fixed logical `TEXT_X` anchors 16/21 were the reason long French names were
+  overwritten before rendering. The clean layout uses safe logical slots 20/25
+  and compacts the whole `→... price GP` suffix at render time so it follows the
+  actual VWF name width with one decoded space.
+- the stock logical line budget needs extra headroom even when pixels remain.
+  The exact Forge-submit-tagged path now receives **+3** logical units. +1 fixed the
+  observed final `P` of `GP`; +3 was then stress-tested successfully with a
+  temporary 19-character weapon name (`Glaive d'orichalque`). The temporary
+  rename is **not** part of the component.
+- `Fendeuse de dragon →... 25000GP` is runtime-validated on one line with the
+  suffix positioned relative to the VWF-rendered name; a 19-character stress name
+  also passed with the +3 budget.
+- standalone `09_ui_vwf` is runtime-validated on a clean USA ROM: Forge weapon names
+  render correctly in VWF, GAME SELECT remains stock/non-glitched, and Watts'
+  ordinary dialogue remains stock/non-VWF.
 
-1. how SNES resource identities map to Android source entries, without guessing from French strings alone;
-2. which Android source container(s) provide the authoritative French item names and how provenance will be retained;
-3. whether names fit in-place or require pointer-table/blob repacking, relocation, or UI/runtime changes;
-4. how width/character-set/menu constraints will be measured for every consumer of these resources;
-5. the sparse translation JSON schema and deterministic import/check command;
-6. which component should own insertion so every component remains independently rebuildable;
-7. round-trip, source-hygiene, build and runtime review tests;
-8. an HTML review sheet showing SNES USA, Android EN identity evidence, Android FR proposal and relevant constraints before any bulk insertion.
+Rejected Forge experiments stay rejected: `$D9`, `$C0:CB3C`, broad Forge-mode
+gates, renderer-time `$FF69`, global parser hooks, `$C0:588E`, raster probes,
+private-buffer-38 parser substitution, and event-pointer-gated capacity checks.
+See `docs/FORGE_VWF_RESEARCH.md`.
 
-Preserve the project policy used for dialogue work: canonical sources remain source-only; translated prose must be regenerated from upstream Android data or explicit reviewed supplements rather than duplicated as hidden hard-coded strings.
+`09_ui_vwf` is intentionally the future home for other proven non-dialogue VWF
+paths (Ring Menu, item-acquisition UI, etc.). Each new path must get a narrow
+identity gate; do not turn it into a global menu VWF switch.
+
+The shared renderer entry now uses a byte-identical dispatcher installed by
+components 06 and 09. Component 06's dialogue classifier at `$ED:7040` remains
+its owner; component 09 owns its own renderer at `$ED:7B00+`. On stock fallbacks
+the dispatcher explicitly clears `$7E:9385`, preventing stale UI-VWF state from
+corrupting GAME SELECT or other fixed-width callers. The shared stock-capacity
+helper contains a dormant component-09 branch, enabled only by the `$C7:4C87=$09`
+config marker plus the exact one-shot UI tag. Builds without component 09 preserve
+prior behavior.
+
+## Round 73 historical cleanup checkpoint
+
+Round 73 deliberately contained no accepted Forge VWF change. Its safe hashes and
+failed-probe history are retained in version history and in
+`docs/FORGE_VWF_RESEARCH.md`; they are **not** the current production state.
+
+## Next work — extend `09_ui_vwf` to other interface paths
+
+The Forge backend is **finished and locked** unless a regression is demonstrated. The next
+phase is to extend VWF coverage to other non-dialogue UI paths, one family at a time. Start
+with `docs/UI_VWF.md`; do not infer that a renderer hook shared with the Forge is sufficient
+identity by itself.
+
+Recommended order:
+
+1. **Ring Menu text** — inventory the exact builders/submit paths that produce fixed-width
+   labels or resource names, then prove one narrow path with a harmless visual probe.
+2. **Item-acquisition / pickup UI** — identify the builder used when an item/resource name is
+   shown after pickup, including any quantity/status suffixes and fixed anchors.
+3. Only after those are understood, consider other fixed-width UI families such as equipment,
+   shop/status rows or context messages.
+
+Rules for every new backend:
+
+- preserve the locked dialogue path and do not broaden component 06;
+- component 09 stays standalone and owns rendering/layout only, never French resource text;
+- component 10 stays standalone and owns reviewed `$CA` name translation only;
+- prove the exact builder/submit identity before enabling VWF; prefer one-shot tags;
+- preserve stock parser/buffer unless the target path itself proves a need for more capacity;
+- clear UI-VWF state on every stock fallback so unrelated callers cannot inherit it;
+- test the new backend with **09 alone on a clean USA ROM**, then with **all.ips**;
+- regression-test GAME SELECT, Watts dialogue, Forge row, ordinary dialogues, and any UI family
+  sharing the same low-level hooks.
+
+The Forge investigation history is retained in `docs/FORGE_VWF_RESEARCH.md`; the reusable
+extension contract is in `docs/UI_VWF.md`.
+
+## Character-name review — concluded
+
+The character-name research phase is complete. The user validated the conclusion that the
+official French character names are sufficiently good to keep despite localization
+disparities. Do **not** start a general character-renaming pass from this research. Only
+correct a future demonstrable typo/inconsistency if it is reviewed separately.
+
+## Current resource-name runtime state
+
+The Android system-resource mapping remains deterministic at **475 mapped** resources.
+The translated-name insertion now has a production component: `10_resource_names_fr`.
+It deterministically consumes the reviewed name-family subset of
+`translations/text_resources_french.json` and is included in `all.ips`. The previously known
+Watts/Matango long-weapon-name blocker is solved independently by `09_ui_vwf`.
+
+The Forge fix does not hard-code French prose and does not own resource translation. It
+only fixes the rendering/layout path, so the same UI component can support future proven
+non-dialogue text paths.
+
+
+## Round 75 — `10_resource_names_fr` production integration
+
+The clean Round-74 rebuild initially omitted the former research-only resource-name IPS because
+it was not represented by a component manifest. This regression is fixed by the new standalone
+`10_resource_names_fr` component. `build.py --combine` now includes it automatically, so future
+aggregate rebuilds cannot silently drop the reviewed French weapon/item/equipment/enemy/location
+name resources. `09_ui_vwf` remains independent and owns no translations.
+
+## Round 72 addendum — Android system-resource mapping scaffold
+
+A deterministic Android-FR mapping layer now exists for the canonical 513 non-event
+`$CA` text resources. The mapping layer remains the deterministic source/provenance scaffold. Production reinsertion of the reviewed **name families** is now owned by `10_resource_names_fr`; descriptions, menu labels and parameterized system-message families remain outside that component.
+
+Generated files:
+
+- `mappings/android/text_resources_layout.json` — prose-free reviewed identity recipes;
+- `mappings/android/text_resources_android.json` — generated SNES ↔ Android `systxt` provenance;
+- `mappings/android/text_resources_android_review.html` — human-readable review;
+- `translations/text_resources_french.json` — sparse generated French payload bound to
+  canonical SNES position IDs.
+
+Regenerate or verify with:
+
+```bash
+python3 tools/import_android_resources.py \
+  --html mappings/android/text_resources_android_review.html
+python3 tools/import_android_resources.py --check
+```
+
+Current result: **475 mapped / 4 unresolved / 34 deliberately excluded**. Full mapped
+families are magic names (42), Mana spirits (8), weapon names (72), helmets (21),
+armor (21), accessories (21), menu labels (9), enemies (128), weapon descriptions (72)
+and magic descriptions (42). Item names map 12/13; `$0C5` is a stock `?` whose
+positional Android slot is blank and is intentionally not claimed. Locations map 27/31.
+The four unresolved location resources are `$1D7 SAGE'S CAVE`, `$1D9 TREE PALACE`,
+`$1DA LOST CONTINENT`, `$1DD EMPIRE CASTLE`.
+
+Identity rules are intentionally conservative. Stable resource families use explicit
+reviewed ordered blocks, which allows known SNES→Android renames without fuzzy guessing.
+Irregular boss/location families use exact Android-English identity inside bounded ranges;
+duplicate labels are accepted only when occurrence order is explicit (`Mech Rider`) or
+all candidate French payloads are identical. System resources `$1FF-$200` remain excluded
+because Android uses parameterized templates there and they require a separate formatting
+study before any reinsertion.
+
+`translations/text_resources_french.json` is now consumed by `10_resource_names_fr` for the
+reviewed name families only (magic/spirit/weapon/equipment/item/enemy/location names).
+Descriptions, menu labels and system-message families remain outside that production component
+until their UI/formatting constraints are separately validated.
+
+## Round 72 addendum — CA resource geometry/DTE insertion study
+
+The next insertion study is now scaffolded without changing the production component
+set or canonical dialogue output.
+
+- `tools/audit_text_resource_layout.py` measures every mapped Android-FR CA resource
+  against conservative clean-USA observed envelopes and checks runtime-profile charset
+  compatibility.
+- `shared.stock_text.encode_text_with_stock_dte()` reuses only stock DTE pairs valid
+  under the ordinary/full-French `$E6` boundary. This removes the apparent storage
+  growth caused by direct-byte-only encoding.
+- Safe mapped subset dry run: **7,304 bytes vs 7,315 stock**, so deterministic in-place
+  table/blob rebuilding is storage-feasible and no relocation is required.
+- Audit state: **302 inside observed stock envelope / 170 geometry-review / 3 current
+  profile blocks**. The envelope is not a proven UI hard limit.
+- The three profile-blocked entries are enemy names `Double n°1`, `Double n°2`,
+  `Double n°3`; direct `°=$E6` conflicts with the non-event upper-DTE boundary. They
+  stay stock in the experimental test path; do not transliterate them silently.
+- `tools/build_text_resources_test_patch.py` creates a clean-USA autonomous,
+  research-only name test IPS by applying the current `all.ips` and then rebuilding
+  the CA table/blob in place. Default result: **349 translated names**, 3 skipped,
+  **7,056-byte blob**. This tool refuses any write beyond the original resource blob.
+- `mappings/android/text_resource_names_geometry_review.html` contains only the name
+  cases that exceed the observed US envelope or are profile-blocked.
+
+Next: runtime-review the experimental names in item/magic/equipment/shop/status/battle
+contexts. Use the focused HTML to prioritize long rows. Only after those geometries are
+understood should a production resource component or formatting rules be approved.
+Do not modify Round-72 dialogues while doing this work.

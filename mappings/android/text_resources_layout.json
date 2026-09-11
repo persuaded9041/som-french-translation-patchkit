@@ -1,0 +1,26 @@
+{
+  "format_version": 1,
+  "description": "Prose-free Android systxt to SNES CA text-resource identity recipes. Ordered blocks are accepted only where the two versions preserve the same resource ordering; irregular families use bounded English identity matching.",
+  "ordered_blocks": [
+    {"category": "item_name", "snes_start": "0B9", "snes_end": "0C4", "android_start": 100360, "android_end": 100371, "evidence": "ordered_resource_block"},
+    {"category": "helmet_name", "snes_start": "07A", "snes_end": "08E", "android_start": 100374, "android_end": 100394, "evidence": "ordered_resource_block"},
+    {"category": "armor_name", "snes_start": "08F", "snes_end": "0A3", "android_start": 100395, "android_end": 100415, "evidence": "ordered_resource_block"},
+    {"category": "accessory_name", "snes_start": "0A4", "snes_end": "0B8", "android_start": 100416, "android_end": 100436, "evidence": "ordered_resource_block"},
+    {"category": "magic_name", "snes_start": "000", "snes_end": "029", "android_start": 100439, "android_end": 100480, "evidence": "ordered_resource_block"},
+    {"category": "mana_spirit_name", "snes_start": "02A", "snes_end": "031", "android_start": 100481, "android_end": 100488, "evidence": "ordered_resource_block"},
+    {"category": "weapon_name", "snes_start": "032", "snes_end": "079", "android_start": 100490, "android_end": 100561, "evidence": "ordered_resource_block"},
+    {"category": "menu_label", "snes_start": "0C6", "snes_end": "0CE", "android_start": 100351, "android_end": 100359, "evidence": "ordered_resource_block"},
+    {"category": "enemy_name", "snes_start": "0CF", "snes_end": "125", "android_start": 100563, "android_end": 100649, "evidence": "ordered_resource_block"},
+    {"category": "weapon_description", "snes_start": "14F", "snes_end": "196", "android_start": 100883, "android_end": 100954, "evidence": "ordered_resource_block"},
+    {"category": "magic_description", "snes_start": "197", "snes_end": "1C0", "android_start": 100964, "android_end": 101005, "evidence": "ordered_resource_block"}
+  ],
+  "bounded_exact_families": [
+    {"category": "enemy_name", "snes_start": "126", "snes_end": "14E", "android_start": 100651, "android_end": 100693, "evidence": "bounded_android_english_identity", "ordered_duplicate_names": ["Mech Rider"]},
+    {"category": "location_name", "snes_start": "1C1", "snes_end": "1DF", "android_start": 100828, "android_end": 100881, "evidence": "bounded_android_english_identity"}
+  ],
+  "excluded_resource_ids": {
+    "0C5": "Stock SNES '?' aligns positionally with an Android ideographic blank; semantic identity is not established.",
+    "1E0-1FE": "Canonical category is unused; no localization is generated.",
+    "1FF-200": "System-message semantics use Android placeholders/templates and require a separate formatting study before reinsertion."
+  }
+}

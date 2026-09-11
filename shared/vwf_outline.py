@@ -1,4 +1,4 @@
-"""Shared stock-outline preparation for VWF components 05 and 06.
+"""Shared stock-outline preparation for VWF components 05, 06 and 09.
 
 The stock outline routine at $C0:162C shifts each 8-pixel bitmap row left with
 ROL at $C0:163D. Carry is left behind by the preceding row's LSR, so ROL can

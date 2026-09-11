@@ -1,4 +1,4 @@
-"""Shared decoded-text private-buffer bridge for VWF components 05 and 06.
+"""Shared decoded-text/private-capacity bridge for VWF components 05, 06 and 09.
 
 The stock text engine owns only 33 bytes at $7E:A1A4-$A1C4. Bytes $A1C5+
 are live engine state, so a 38-character parser cannot safely extend that
@@ -8,13 +8,15 @@ that can route selected event-engine invocations to the already validated
 
 Component 05 enables mode 1 for translated intro event $0400. Component 06
 enables mode 2 for ordinary event-engine text in stock banks $C9/$CA and
-for component-08 relocated event banks $E8-$EC. GAME SELECT
+for component-08 relocated event banks $E8-$EC. Component 09 keeps parser mode
+stock but reuses the common capacity hook for an exact builder-tagged +3 UI margin. GAME SELECT
 also calls the stock parser initializer, so activation is structurally gated by
 the caller return address ($114B from JSR $C0:16B8 at $C0:1149).
 """
 from __future__ import annotations
 
 from .asm65816 import MiniAssembler, lo16, lo24
+from .vwf_ui import UI_CONFIG_CPU, UI_MARKER, UI_TAG, UI_MAGIC
 
 # Stock hooks shared by components 05 and 06.
 BUFFER_INIT_FILE = 0x0016B8
@@ -201,6 +203,24 @@ def _assemble_capacity() -> bytes:
     a.emit(0x38)
     a.emit(0xED, *lo16(0xA181))
 
+    # Component 09 UI-VWF: the runtime-proven Forge row needs three extra
+    # logical parser units. The exact builder arms UI_TAG before parser init;
+    # the ROM config marker prevents stale/random WRAM from affecting builds
+    # that do not include component 09. Stock buffer and parser stay unchanged.
+    a.emit(0x48)                              # PHA stock remaining count
+    a.emit(0xAF, *lo24(UI_CONFIG_CPU))
+    a.emit(0xC9, UI_MARKER)
+    a.rel8(0xD0, "stock_no_ui")
+    a.emit(0xAF, *lo24(0x7E0000 | UI_TAG))
+    a.emit(0xC9, UI_MAGIC)
+    a.rel8(0xD0, "stock_no_ui")
+    a.emit(0x68)                              # PLA count
+    a.emit(0x18)                              # CLC
+    a.emit(0x69, 0x03)                        # +3 validated Forge margin
+    a.rel8(0x80, "store")
+    a.label("stock_no_ui")
+    a.emit(0x68)
+
     a.label("store")
     a.emit(0x8D, *lo16(0xA1CA))
     a.emit(0x6B)
@@ -232,7 +252,7 @@ def validate_stock(base: bytes) -> None:
         (PARSER_WRITE_FILE_HELPER, 0x30, "parser-write helper"),
         (BUFFER_INIT_FILE_HELPER, 0x80, "buffer-init helper"),
         (PREV_CHAR_FILE_HELPER, 0x40, "previous-char helper"),
-        (CAPACITY_FILE_HELPER, 0x40, "capacity helper"),
+        (CAPACITY_FILE_HELPER, 0x70, "capacity helper"),
         (INTRO_CONFIG_FILE, 0x05, "VWF parser config"),
     ):
         if any(value != 0xFF for value in base[start:start + size]):
@@ -242,7 +262,7 @@ def validate_stock(base: bytes) -> None:
         (len(PARSER_WRITE_HELPER), 0x30, "parser-write helper"),
         (len(BUFFER_INIT_HELPER), 0x80, "buffer-init helper"),
         (len(PREV_CHAR_HELPER), 0x40, "previous-char helper"),
-        (len(CAPACITY_HELPER), 0x40, "capacity helper"),
+        (len(CAPACITY_HELPER), 0x70, "capacity helper"),
     )
     for size, limit, label in limits:
         if size > limit:

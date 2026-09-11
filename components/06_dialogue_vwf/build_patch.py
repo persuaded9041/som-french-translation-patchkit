@@ -74,6 +74,11 @@ from shared.vwf_outline import (  # noqa: E402
     validate_stock as validate_shared_outline_stock,
     install as install_shared_outline,
 )
+from shared.vwf_ui import (  # noqa: E402
+    validate_stock as validate_shared_ui_dispatch_stock,
+    install_dispatcher as install_shared_ui_dispatcher,
+    RENDER_ENTRY_HOOK as SHARED_RENDER_ENTRY_HOOK,
+)
 from shared.vwf_text_buffer import (  # noqa: E402
     validate_stock as validate_shared_text_buffer_stock,
     install_common as install_shared_text_buffer,
@@ -151,7 +156,7 @@ FONT_ROW_SIGNATURE = bytes.fromhex("BF 00 DC D2")
 CHAR_END_SIGNATURE = bytes.fromhex("FA CE 76 A1 D0 CF")
 OUTLINE_POST_SIGNATURE = bytes.fromhex("A2 00 00 8E")
 
-RENDER_ENTRY_HOOK = bytes.fromhex("5C 40 70 ED")
+RENDER_ENTRY_HOOK = SHARED_RENDER_ENTRY_HOOK
 CHAR_START_HOOK = bytes.fromhex("5C 80 71 ED")
 FONT_ROW_HOOK = bytes.fromhex("22 00 71 ED")  # JSL $ED7100; stock STA follows
 CHAR_END_HOOK = bytes.fromhex("5C C0 70 ED EA EA")
@@ -1311,6 +1316,7 @@ def build(base: bytes) -> bytes:
         raise SystemExit("Unexpected dialogue framed-right-edge table")
     validate_helper_layout()
     validate_shared_text_buffer_stock(base)
+    validate_shared_ui_dispatch_stock(base)
     validate_shared_framing_stock(base)
     validate_shared_compositor_stock(base)
     validate_shared_row_renderer_stock(base)
@@ -1322,7 +1328,7 @@ def build(base: bytes) -> bytes:
     french_glyphs = glyph_bytes(DIALOGUE_CHARS)
     glyph_start = FONT_BASE + (GLYPH_FIRST - 0x80) * 12
     rom[glyph_start:glyph_start + len(french_glyphs)] = french_glyphs
-    rom[RENDER_ENTRY_FILE:RENDER_ENTRY_FILE + len(RENDER_ENTRY_HOOK)] = RENDER_ENTRY_HOOK
+    install_shared_ui_dispatcher(rom)
     rom[CHAR_START_FILE:CHAR_START_FILE + len(CHAR_START_HOOK)] = CHAR_START_HOOK
     rom[FONT_ROW_FILE:FONT_ROW_FILE + len(FONT_ROW_HOOK)] = FONT_ROW_HOOK
     rom[CHAR_END_FILE:CHAR_END_FILE + len(CHAR_END_HOOK)] = CHAR_END_HOOK

@@ -1,4 +1,4 @@
-"""Shared 8x12 VWF row compositor for components 05 and 06.
+"""Shared 8x12 VWF row compositor for components 05, 06 and 09.
 
 Input contract (65816, 8-bit accumulator mode):
 

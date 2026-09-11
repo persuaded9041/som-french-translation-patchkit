@@ -6,7 +6,7 @@ import struct
 from pathlib import Path
 
 from shared.rom import BASE_SHA256, validate_base_rom
-from shared.stock_text import decode_text_bytes, encode_text
+from shared.stock_text import decode_text_bytes, encode_text, encode_text_with_stock_dte
 from shared.text_ids import rom_text_id
 
 CA_BASE = 0x0A0000
@@ -129,7 +129,10 @@ def _verify_immutable_fields(rom: bytes, document: dict) -> None:
                 )
 
 
-def serialize_resource(rom: bytes, resource: dict, *, text: str | None = None, source: bool = False) -> bytes:
+def serialize_resource(
+    rom: bytes, resource: dict, *, text: str | None = None, source: bool = False,
+    compress_translations: bool = False,
+) -> bytes:
     resource_id = int(resource["resource_id"], 16)
     original_payload, _ = read_resource(rom, resource_id)
     canonical = parse_resource(rom, resource_id)
@@ -139,7 +142,11 @@ def serialize_resource(rom: bytes, resource: dict, *, text: str | None = None, s
     if source or text is None or text == canonical["source"]:
         payload = original_payload
     else:
-        payload = encode_text(text)
+        payload = (
+            encode_text_with_stock_dte(rom, text, upper_dte_threshold=0xE6)
+            if compress_translations
+            else encode_text(text)
+        )
     return payload + b"\x00"
 
 
@@ -173,7 +180,8 @@ def verify_unedited_reinsertion(rom: bytes, document: dict) -> tuple[int, int]:
 
 
 def serialize_table_and_blob(
-    rom: bytes, document: dict, *, translations: dict[str, str] | None = None, source: bool = False
+    rom: bytes, document: dict, *, translations: dict[str, str] | None = None, source: bool = False,
+    compress_translations: bool = False,
 ) -> tuple[bytes, bytes]:
     """Serialize all 513 pointers and strings in deterministic resource-ID order."""
     validate_stock_layout(rom)
@@ -186,7 +194,8 @@ def serialize_table_and_blob(
     for resource in document["resources"]:
         table += struct.pack("<H", pointer)
         encoded = serialize_resource(
-            rom, resource, text=translations.get(resource["id"]), source=source
+            rom, resource, text=translations.get(resource["id"]), source=source,
+            compress_translations=compress_translations,
         )
         blob += encoded
         pointer += len(encoded)

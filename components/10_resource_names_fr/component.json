@@ -1,0 +1,7 @@
+{
+  "id": "10_resource_names_fr",
+  "short_name": "resource-names-fr",
+  "name": "French CA resource names",
+  "shared_charset_profile": "dialogue_french",
+  "dialogue_dte_router": true
+}
