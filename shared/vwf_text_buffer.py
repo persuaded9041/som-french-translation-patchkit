@@ -6,7 +6,7 @@ buffer in place.  This module installs one byte-identical set of parser hooks
 that can route selected event-engine invocations to the already validated
 44-byte private buffer at $7E:9390-$93BB.
 
-`vwf_intro` enables mode 1 for translated intro event $0400. `vwf_dialogues`
+`vwf_intro` enables mode 1 for the intro runtime window containing event $0400. `vwf_dialogues`
 enables mode 2 for ordinary event-engine text in stock banks $C9/$CA and
 for `french_dialogues` relocated event banks $E8-$EC. `vwf_ui` keeps parser mode
 stock but reuses the common capacity hook for an exact builder-tagged +3 UI margin. GAME SELECT
@@ -40,8 +40,7 @@ PREV_CHAR_FILE_HELPER = 0x074B40
 CAPACITY_CPU = 0xC74BC0
 CAPACITY_FILE_HELPER = 0x074BC0
 
-# Runtime configuration lives in a small stock-$FF gap after `vwf_intro`'s
-# intro DTE loader and before its private DTE table.
+# Runtime configuration lives in a small stock-$FF gap between the intro runtime helper ranges and the intro-private DTE table owned by `french_intro`.
 INTRO_CONFIG_CPU = 0xC74C80
 INTRO_CONFIG_FILE = 0x074C80
 DIALOGUE_CONFIG_CPU = 0xC74C84

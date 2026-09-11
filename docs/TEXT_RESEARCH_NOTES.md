@@ -28,7 +28,7 @@ with non-event text pointers. `$03FF` has no C9 sentinel and is explicitly
 validated as the stock three-byte terminal script `14 FD 00`.
 
 All 2048 scripts parse with the structural event codec. 714 contain text; event
-`$0400` is owned by `vwf_intro` and is extracted separately, leaving 713 in
+`$0400` translated payload is owned by `french_intro` and is extracted separately, leaving 713 in
 `dialogues.json`.
 
 ### Post-event `$CA` resources

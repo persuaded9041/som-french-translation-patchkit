@@ -7,7 +7,7 @@ edited event no longer fits its original pointer span.
 When relocation is required, a tiny dispatcher hook first consults a sparse
 2048-entry 24-bit table in expanded ROM.  A zero bank byte means "use the stock
 $C9/$CA lookup"; a non-zero entry supplies the complete relocated event address.
-This preserves every stock pointer (including `vwf_intro`'s runtime-validated
+This preserves every stock pointer (including the intro pair's runtime-validated
 $0400-$040F changes) for events that `french_dialogues` does not relocate.
 """
 from __future__ import annotations
@@ -94,7 +94,7 @@ def _assemble_event_loader_helper() -> bytes:
     a.emit(0x6B)                           # RTL
 
     # Reproduce the stock C9/CA pointer selection exactly for every sparse-table
-    # miss.  Reading the *live* stock tables is important: `vwf_intro` rewrites
+    # miss.  Reading the *live* stock tables is important: `french_intro` / `vwf_intro` rewrite
     # $0401-$040F pointers, and those changes must remain authoritative.
     a.label("stock")
     a.emit(0xC2, 0x30)                     # REP #$30

@@ -1,7 +1,7 @@
 """Helpers for the stock event-$0400 intro source asset.
 
 The actual event parser remains `french_dialogues`'s proven codec.  This small module
-only validates the root asset shape used to keep the one `vwf_intro`-owned
+only validates the root asset shape used to keep the one `french_intro`-owned
 text-bearing event visible in the repository-wide source inventory.
 """
 from __future__ import annotations
@@ -31,8 +31,8 @@ def make_document(event: dict) -> dict:
     return {
         "format_version": FORMAT_VERSION,
         "description": (
-            "Stock source text from event $0400. The event itself remains owned by "
-            "vwf_intro and is intentionally excluded from `french_dialogues` dialogues.json."
+            "Stock source text from event $0400. Its translated payload is owned by "
+            "`french_intro` and is intentionally excluded from `french_dialogues` dialogues.json."
         ),
         "source_rom_sha256": BASE_SHA256,
         "entries": entries,

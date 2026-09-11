@@ -1,29 +1,22 @@
-# French intro VWF
+# Intro VWF
 
-Adds the French new-game introduction with variable-width rendering, private
-DTE, accents and a private parser buffer.
+Owns the variable-width rendering/runtime path for new-game event `$0400`.
+It no longer owns any French translation payload.
 
-## Sources
+## Responsibilities
 
-- root `assets/intro_event.json`: the eight clean-USA text parts extracted from
-  stock event `$0400` with position-based IDs.
-- root `translations/intro_event_french.json`: the eight already validated
-  French intro translations.
-- `assets/text/intro_layout.json`: component-local line/page layout metadata,
-  keyed by the same source IDs.
-- `src/intro_vwf.asm`: readable representation of component-specific code/data
-  emitted by Python.
-- `docs/MEMORY_MAP.md`: component ROM/WRAM allocations and hooks.
+- intro-only VWF renderer and exact event-window gate;
+- shared private parser-buffer bridge and validated 38-character capacity;
+- VWF advance table, framing, row renderer, compositor and outline preparation;
+- WAIT resume cursor conversion for the intro path;
+- relocation of stock events `$0401-$040F` to `$CA:FF70-$FFB7`, keeping the
+  validated `$0C02-$0E8B` intro runtime window exclusive even when this
+  component is applied alone.
 
-Shared charset and VWF primitives live under `../../shared/` and are documented
-by the root README and `docs/SHARED_CHARSET.md`.
+The width table is generated against a **virtual** font containing the shared
+French glyph atlas so the runtime metrics remain byte-identical to Round 75/76,
+but this component does not install those glyphs or change the DTE threshold.
+Those responsibilities now belong to `french_intro`.
 
-## Component-specific behavior
-
-`vwf_intro` keeps its own intro parser, DTE, layout, event gating and WAIT
-handling. Its renderer uses the shared stock font, metrics/framing, private
-text-buffer bridge, compositor, row renderer and outline preparation also used
-by `vwf_dialogues`.
-
-The shared VWF path and private-buffer architecture are runtime-validated.
-`vwf_intro` does not carry a private preframed glyph table.
+`french_intro` independently performs the same `$0401-$040F` relocation; the
+overlap is intentionally byte-identical in aggregate builds.

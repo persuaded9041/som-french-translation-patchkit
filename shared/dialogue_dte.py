@@ -1,6 +1,6 @@
 """Context-sensitive direct-glyph/DTE boundary for ordinary event dialogue.
 
-The translated intro (`vwf_intro`) keeps its runtime-validated $E6 DTE
+The translated intro (`french_intro`) keeps its runtime-validated $E6 DTE
 boundary and 25 private DTE pairs. `vwf_dialogues` / `french_dialogues` may enable an $E8
 boundary only for real event-engine dialogue, making $E6/$E7 direct glyphs
 there without changing intro decoding or GAME SELECT.
@@ -84,7 +84,7 @@ def _assemble_router() -> bytes:
     a.emit(0xC9, 0xCA)
     a.rel8(0xD0, "dialogue_saved")
 
-    # In a `vwf_intro` build, use its configured translated-intro end. In an
+    # When `vwf_intro` is present, use its configured intro runtime end. In an
     # 08-only build, fall back to the clean-USA $0400 end ($0E44).
     a.emit(0xAF, *lo24(INTRO_CONFIG_CPU))
     a.emit(0xC9, INTRO_MARKER)

@@ -957,7 +957,7 @@ def make_outline_post_helper() -> bytes:
 
     The repair itself is bank-neutral. Runtime-validated scope gating requires
     the exact `vwf_dialogues` renderer-active tag value ($7E:9385 == $01), so
-    ordinary tagged $C9/$CA or relocated $E8-$EC dialogue is eligible while `vwf_intro`'s translated
+    ordinary tagged $C9/$CA or relocated $E8-$EC dialogue is eligible while `vwf_intro`'s intro
     intro remains excluded: under that mutually-exclusive scope $9385 holds a
     validated glyph advance in the range 3..8, never the tag value 1.
 

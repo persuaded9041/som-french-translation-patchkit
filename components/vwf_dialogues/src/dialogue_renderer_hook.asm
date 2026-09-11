@@ -7,7 +7,7 @@
 ;   At $C0:167D the generated entry helper reads the untouched JSR return
 ;   address at 1,S. Only return $1152 (call from $C0:1150) plus an eligible event bank. Stock $C9/$CA activates `vwf_dialogues`;
 ;   `french_dialogues` relocated scripts may additionally use $E8-$EC. GAME SELECT returns as $235E and stays stock.
-;   `vwf_intro` intercepts translated intro event $0400 earlier at $C0:1664,
+;   `vwf_intro` intercepts intro event $0400 earlier at $C0:1664,
 ;   so `vwf_dialogues` never reaches this entry during that intro.
 ;
 ; Renderer core remains the runtime-validated stock-glyph architecture:

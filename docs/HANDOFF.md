@@ -91,6 +91,30 @@ python3 tools/simulate_dialogues.py "Secret of Mana (USA).sfc" \
 
 Rebuild only changed components, then recombine stored component IPS files. Never include a ROM in an archive.
 
+## Round 77 — split `french_intro` / `vwf_intro`
+
+The former hybrid `vwf_intro` component has been split by responsibility without changing the aggregate ROM. `french_intro` now owns the validated French event-$0400 payload, layout metadata, French glyph installation, `$E6` intro DTE threshold, private 25-pair intro DTE table/loader, and the event-$0401-$040F relocation required by the enlarged payload. `vwf_intro` now owns only the intro VWF runtime: renderer hook, private parser bridge, width/framing/compositor/outline path, WAIT cursor repair, and the validated intro runtime window.
+
+Both components independently relocate unchanged stock events `$0401-$040F` to `$CA:FF70-$FFB7`. This overlap is intentionally byte-identical: `french_intro` needs the space for its enlarged `$0400`, while `vwf_intro` needs the following events outside its standalone runtime window. The VWF runtime window remains the already validated `$CA:0C02-$0E8A` (exclusive end `$0E8B`). `french_intro` asserts that its generated payload still ends exactly at `$0E8B`; changing that endpoint requires explicit runtime revalidation rather than silently widening the gate.
+
+`vwf_intro` no longer installs French glyphs, changes the direct/DTE threshold, loads translation JSON, owns `intro_layout.json`, or installs the private DTE table. Its width table is generated against a virtual copy of the stock font with the canonical shared French glyph atlas inserted, preserving the exact validated metrics without taking ownership of the glyph bytes.
+
+The split was verified structurally: after checksum recomputation, `french_intro.ips + vwf_intro.ips` reproduces the former Round-76 `vwf_intro.ips` byte-for-byte. A full 11-component rebuild produces an `all.ips` byte-for-byte identical to Round 76 (SHA-256 `5f909cd9b6f6c4d5aeb64cfc0634b5f3c4ffb850039c8a494efe745b0cc79478`; final SNES checksum `$177D`). The dialogue payload remains locked at Round 72 and is unchanged.
+
+The canonical component list is now:
+
+- `mana_tree_original`
+- `name_entry_extended`
+- `french_menus`
+- `french_opening`
+- `french_intro`
+- `vwf_intro`
+- `vwf_dialogues`
+- `intro_skip`
+- `french_dialogues`
+- `vwf_ui`
+- `french_resources`
+
 ## Round 76 — semantic component naming cleanup
 
 Component IDs are now semantic and intentionally unnumbered. The migration is structural only: no renderer, translation payload, event data, or ROM behavior is intentionally changed. The canonical component IDs are:
@@ -99,6 +123,7 @@ Component IDs are now semantic and intentionally unnumbered. The migration is st
 - `name_entry_extended`
 - `french_menus`
 - `french_opening`
+- `french_intro`
 - `vwf_intro`
 - `vwf_dialogues`
 - `intro_skip`
@@ -108,7 +133,7 @@ Component IDs are now semantic and intentionally unnumbered. The migration is st
 
 Aggregate precedence no longer depends on directory-name sorting. Every `component.json` carries an explicit integer `build_order`, and `shared/components.py` sorts by that field before building or combining patches. This preserves the validated historical merge order while allowing semantic folder names.
 
-The naming families are deliberate: `french_*` owns translated payloads, while `vwf_*` owns VWF/runtime rendering. `vwf_intro` remains temporarily hybrid because it still contains the validated French intro payload; separating that payload into a future `french_intro` component is deferred until a dedicated, independently validated refactor.
+The naming families are deliberate: `french_*` owns translated payloads, while `vwf_*` owns VWF/runtime rendering. Round 77 completed that separation for the intro: `french_intro` owns the French payload/DTE/glyph side and `vwf_intro` owns only the renderer/runtime side.
 
 The Ring Menu has also been observed in runtime to already render with VWF under the current `vwf_ui` foundation, likely through a shared path reached by the Forge work. Treat that as an observation to characterize, not as permission to broaden the UI gate: before changing Ring Menu code, trace and prove the exact existing builder/submit path and determine why VWF is already active.
 

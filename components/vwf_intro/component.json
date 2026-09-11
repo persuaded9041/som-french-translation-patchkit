@@ -1,7 +1,6 @@
 {
   "id": "vwf_intro",
   "short_name": "vwf-intro",
-  "name": "Intro VWF with current French intro payload",
-  "shared_charset_profile": "full_french",
+  "name": "New-game intro VWF runtime",
   "build_order": 50
 }

@@ -8,7 +8,7 @@ aggregate build. Their IPS write maps are then compared byte-for-byte.
 `french_menus` installs the naming-safe `$D4-$E0` subset. `name_entry_extended`
 installs that same French subset plus the disjoint shared glyphs `$D3=♪`,
 `$E6=°` and `$E7=;`, while deliberately leaving `$E1-$E5` untouched because
-Name Entry uses those slots for graphics. `vwf_intro` installs the
+Name Entry uses those slots for graphics. `french_intro` installs the
 unchanged French `$D4-$E5` range. `vwf_dialogues` / `french_dialogues` use the full extended
 dialogue span `$D3-$E7`. Identical overlapping glyph bytes all come from
 `shared/french_charset/french_glyphs.png`.
@@ -16,7 +16,7 @@ dialogue span `$D3-$E7`. Identical overlapping glyph bytes all come from
 ## Direct-glyph / DTE routing
 
 `french_menus` retains its historical standalone immediate `$E1` threshold and
-`vwf_intro` remains unchanged standalone with `$C0:16F6 = $E6`.
+`french_intro` keeps `$C0:16F6 = $E6` standalone; `vwf_intro` no longer writes the DTE threshold.
 
 `name_entry_extended` now uses the small `shared/name_dte.py` router standalone. Ordinary
 event sources still use `$E1`; the relocated Name Entry resource in bank `$E4`
@@ -38,7 +38,7 @@ all standalone patches have been applied.
 
 The event-engine caller is identified by the established `$114B` stacked return
 address, so GAME SELECT does not enter the dialogue `$E8` path. Event `$0400`
-uses `vwf_intro`'s configured translated end when present and the clean-USA
+uses `vwf_intro`'s configured intro runtime end when present and the clean-USA
 `$0E44` end otherwise. Thus `$E6/$E7` can be direct dialogue glyphs without
 changing the intro's 25 private DTE pairs.
 
@@ -58,6 +58,14 @@ The principal ROM/WRAM allocations are documented in `docs/MEMORY_MAP.md` and
 in each component's technical documentation. New code/data must be placed only
 after checking those ranges against all existing components.
 
+
+## Intro payload / VWF split
+
+`french_intro` and `vwf_intro` are separate owners. `french_intro` owns the translated event `$0400`, French glyph/DTE profile and private intro DTE loader/table. `vwf_intro` owns only the VWF renderer/parser runtime. Both independently relocate stock events `$0401-$040F` to `$CA:FF70-$FFB7`; those pointer/data writes are byte-identical and therefore need no special merge rule.
+
+The validated VWF runtime window remains `$CA:0C02-$0E8A` (exclusive end `$0E8B`). `french_intro` rejects any generated payload whose endpoint differs from `$0E8B`, preventing translation/layout changes from silently widening or shrinking the runtime gate. `vwf_intro` computes its width table against a virtual font containing the canonical French glyph atlas, but does not install those glyph bytes itself.
+
+After checksum recomputation, applying `french_intro` and `vwf_intro` together reproduces the former hybrid Round-76 `vwf_intro` patch byte-for-byte.
 
 ## Intro skip compatibility
 
@@ -124,14 +132,14 @@ aggregate builds use the same preparation.
 
 `vwf_dialogues` independently installs the `dialogue_french` `$D3-$E7`
 span and the context-sensitive DTE router, so its standalone IPS does not depend
-on `vwf_intro`. The shared `$D4-$E5` glyph bytes remain byte-identical.
+on `french_intro`. The shared `$D4-$E5` glyph bytes remain byte-identical.
 
 `vwf_dialogues` enables its core VWF only when the shared `$C0:1664` renderer was
 called by the event engine at `$C0:1150` and the live event bank is `$C9` or
 `$CA`. This caller-based gate is runtime-validated and is required because GAME
 SELECT also calls `$C0:1664`; bank/state checks alone are not safe discriminators.
 
-`vwf_intro` still owns translated intro event `$0400`: it intercepts that event
+`french_intro` owns the translated payload of event `$0400`; `vwf_intro` owns its VWF runtime path and intercepts that event
 at `$C0:1664` and exits before `vwf_dialogues` reaches `$C0:167D`. This keeps the
 shared `$7E:9380+` scratch mutually exclusive even though `vwf_dialogues` now also
 handles ordinary `$CA` event dialogue. `intro_skip`'s `$938A-$938B` intro timer

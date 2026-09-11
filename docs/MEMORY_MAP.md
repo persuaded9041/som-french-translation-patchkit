@@ -23,13 +23,13 @@ for the owning component even when the current generated payload is shorter.
 | dialogue DTE router | `0x074570-0x0745EE` | `$C7:4570-$45EE` | 127-byte context-sensitive `$E6/$E8` direct/DTE decision helper installed byte-identically by `vwf_dialogues` / `french_dialogues`; bank `$E4` Name Entry resource uses `$E8` |
 | Name Entry DTE router | `0x0745F0-0x07462F` | `$C7:45F0-$462F` | 64-byte reserved Name Entry / PLAYER_NAME helper region used by 02 standalone |
 | shared VWF parser | `0x074AC0-0x074BE9` | `$C7:4AC0-$4BE9` | shared caller-gated buffer init / previous-char / capacity helpers (with gaps) |
-| intro VWF | `0x074C40-0x074C6B` | `$C7:4C40-$4C6B` | intro-private DTE loader |
+| French intro | `0x074C40-0x074C6B` | `$C7:4C40-$4C6B` | intro-private DTE loader |
 | shared VWF/config | `0x074C80-0x074C86` | `$C7:4C80-$4C86` | intro marker/end (`05`), dialogue VWF marker (`06`), dialogue-DTE `$E8` marker, Name Entry base threshold (`02`) |
 | shared VWF compositor | `0x074C90-0x074CCE` | `$C7:4C90-$4CCE` | byte-identical 8×12 shift/merge/spill helper installed by `vwf_intro` / `vwf_dialogues` |
 | shared UI VWF config | `0x074C87` | `$C7:4C87` | `vwf_ui` marker `$09`; shared capacity/renderer infrastructure stays dormant without it |
-| intro VWF | `0x074D00-0x074D31` | `$C7:4D00-$4D31` | 25-pair private DTE table |
-| intro VWF | `0x0A0C02-0x0A0E8A` | `$CA:0C02-$0E8A` | rebuilt translated event `$0400` in the current generated build |
-| intro VWF | `0x0AFF70-0x0AFFB7` | `$CA:FF70-$FFB7` | relocated unchanged stock events `$0401-$040F` |
+| French intro | `0x074D00-0x074D31` | `$C7:4D00-$4D31` | 25-pair private DTE table |
+| French intro | `0x0A0C02-0x0A0E8A` | `$CA:0C02-$0E8A` | rebuilt translated event `$0400` |
+| French intro + intro VWF | `0x0AFF70-0x0AFFB7` | `$CA:FF70-$FFB7` | byte-identical relocation of unchanged stock events `$0401-$040F` |
 | intro VWF | WRAM | `$7E:9380-$9389` | intro-only VWF scratch state |
 | shared VWF parser | WRAM | `$7E:9390-$93BB` | 44-byte decoded-text private buffer shared by intro/dialogue modes |
 | intro skip | `0x00012C-0x00012F` | `$C0:012C-$012F` | runtime-validated event-engine hook and R trigger, gated to translated event `$0400` |
@@ -52,7 +52,7 @@ for the owning component even when the current generated payload is shorter.
 `french_dialogues` keeps in-place reinsertion for rebuilt events that still fit
 their clean-USA span. Growth is now handled by a sparse 24-bit relocation table
 and the reserved `$E8-$EC` pool above. Unrelocated IDs still read the live stock
-pointer tables, preserving `vwf_intro`'s ownership of `$0400-$040F`. The
+pointer tables, preserving the `french_intro` / `vwf_intro` pair's ownership of `$0400-$040F`. The
 relocation path is runtime-validated: unchanged event `$0107` executed from
 `$E8:2000` with normal dynamic-name insertion, VWF rendering, line breaks and
 WAIT behavior. The temporary force probe has been removed; normal builds
@@ -62,7 +62,7 @@ relocate only translated events that genuinely outgrow their clean-USA span.
 `$E8-$EC` under their existing structural event-parser / renderer caller gates.
 Their validated `$C9/$CA` behavior is otherwise unchanged.
 
-The GAME FILE relocation uses the stock-`$FF` gap after the intro VWF DTE allocation and ends before the Name Entry layout at `C7:4E00`. GAME SELECT's relocated label block ends before the intro VWF width table. New allocations
+The GAME FILE relocation uses the stock-`$FF` gap after the French-intro DTE allocation and ends before the Name Entry layout at `C7:4E00`. GAME SELECT's relocated label block ends before the intro VWF width table. New allocations
 must be checked against both the reserved ranges above and the actual IPS write
 maps produced by all components.
 

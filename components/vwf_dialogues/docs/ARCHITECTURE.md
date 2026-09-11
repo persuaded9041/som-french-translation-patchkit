@@ -36,7 +36,7 @@ bridge. `vwf_dialogues` enables dialogue mode only for `$114B` plus live bank
 `$C9/$CA` or `$E8-$EC`; GAME SELECT therefore keeps its stock `$A1A4` parser buffer even if
 shared global bank state is stale. This 38-character parser-capacity extension is runtime-validated.
 
-`vwf_intro` hooks `$C0:1664` itself for translated intro event `$0400`. When its
+`vwf_intro` hooks `$C0:1664` itself for intro event `$0400`. When its
 bank/pointer gate matches, it renders the intro and exits to `$C0:16B7`; therefore
 `vwf_dialogues`'s entry at `$C0:167D` is never reached for that event. For other
 `$CA` events `vwf_intro` falls back to stock `$C0:1669`, allowing `vwf_dialogues`
@@ -219,7 +219,7 @@ investigation proves otherwise:
 - identify event text from the renderer caller, not from `$001D03` or `$A15D`
   alone;
 - keep GAME SELECT and the `$C0:CB3C` caller on the stock renderer path;
-- preserve `vwf_intro`'s early ownership of translated intro event `$0400`;
+- preserve `vwf_intro`'s early runtime interception of intro event `$0400`;
 - keep parser activation caller-gated at `$114B`; never use bank state alone for the shared `$C0:16B8` parser initializer;
 - never extend the stock `$A1A4` decoded buffer into live `$A1C5+` state;
 - keep A in 8-bit mode through the width-table lookup, shared row renderer/compositor and stock row loop;

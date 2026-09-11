@@ -12,7 +12,7 @@ COMPONENTS = ROOT / "components"
 ALLOWED_COMPONENT_TEXTLIKE_FILES = {
     "components/mana_tree_original/assets/mana_tree_jp.bin",
     "components/name_entry_extended/assets/naming_characters.txt",
-    "components/vwf_intro/assets/text/intro_layout.json",
+    "components/french_intro/assets/text/intro_layout.json",
 }
 
 # These names are retired only as component-local translation inputs.
@@ -28,6 +28,7 @@ RETIRED_NAMES = {
 # These components intentionally own no translatable prose.
 NO_TRANSLATION_COMPONENTS = {
     "mana_tree_original",
+    "vwf_intro",
     "vwf_dialogues",
     "intro_skip",
 }
@@ -83,7 +84,7 @@ def main() -> None:
     print("  - no component CSV translation sources")
     print("  - no retired component-local prose BIN/CSV paths")
     print("  - upstream Android prose is isolated under sources/android/")
-    print("  - `mana_tree_original` / `vwf_dialogues` / `intro_skip` own no translation-JSON dependencies")
+    print("  - `mana_tree_original` / `vwf_intro` / `vwf_dialogues` / `intro_skip` own no translation-JSON dependencies")
     print("  - remaining component-local .bin/.txt assets are explicit non-prose data")
     return 0
 

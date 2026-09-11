@@ -46,7 +46,7 @@ def audit_overlaps(components, patch_data: dict[str, bytes]) -> tuple[int, int]:
                 left_threshold = _threshold(left)
                 right_threshold = _threshold(right)
                 if offset == DTE_THRESHOLD_OFFSET:
-                    # Legacy threshold-only components (`name_entry_extended` / `french_menus` / `vwf_intro`) may overlap
+                    # Legacy threshold-only components (`name_entry_extended` / `french_menus` / `french_intro`) may overlap
                     # the context-sensitive JML installed by `vwf_dialogues` / `french_dialogues` at the old
                     # immediate operand. In a combined build the later router
                     # owns this byte; without a router the historical max-

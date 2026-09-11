@@ -53,7 +53,7 @@ artifact.
 The dialogue-only direct-code routing for `♪=$D3`, `°=$E6` and `;=$E7` is
 runtime-validated: the corrected router reuses `vwf_dialogues`'s already-selected
 shared parser mode (mode 2 -> dialogue `$E8`, mode 1 -> intro `$E6`), so `$E6`
-and `$E7` no longer expand as DTE in real dialogue. `vwf_intro` still rebuilds
+and `$E7` no longer expand as DTE in real dialogue. `french_intro` rebuilds
 byte-for-byte identical.
 
 The compact VWF metrics are also runtime-validated with the explicit probe

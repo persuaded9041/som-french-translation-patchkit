@@ -3,7 +3,7 @@
 
 `french_dialogues` deliberately owns dialogue *data*, not the runtime VWF engine.
 The root source asset contains every text-bearing stock event script except event
-$0400, which is owned by `vwf_intro`. French edits live separately in
+$0400, whose translated payload is owned by `french_intro`. French edits live separately in
 translations/dialogues_french.json. Unchanged text reuses its exact source encoding.
 
 Edited events are rebuilt in place when they still fit their original pointer
@@ -119,7 +119,7 @@ def build(base: bytes, dialogue_file: Path = DIALOGUE_FILE, translation_file: Pa
         event_id = int(event["event_id"], 16)
         if event_id == INTRO_EVENT_ID:
             raise SystemExit(
-                "Event $0400 is owned by component vwf_intro and must not be rebuilt by `french_dialogues`"
+                "Event $0400 is owned by component french_intro and must not be rebuilt by `french_dialogues`"
             )
 
         source_data, file_start, pointer = read_event(base, event_id)
@@ -155,7 +155,7 @@ def build(base: bytes, dialogue_file: Path = DIALOGUE_FILE, translation_file: Pa
 
     # No translated dialogue means no French-font write. Whenever at least one
     # text token changes, standalone `french_dialogues` installs the same canonical
-    # full-French direct glyphs / threshold used by `vwf_intro` / `vwf_dialogues`.
+    # full-French direct glyphs / threshold used by `french_intro` / `vwf_dialogues`.
     if edits:
         validate_dialogue_dte_stock(base)
         install_dialogue_dte_router(rom)

@@ -56,7 +56,7 @@ An **event span** contains both text and control commands. Dialogue text is only
 one part of that byte stream.
 
 `french_dialogues` intentionally excludes event `$0400` from its default asset because
-that translated intro event is owned by `vwf_intro`. It remains
+that translated intro payload is owned by `french_intro`. It remains
 parseable/extractable explicitly for research.
 
 ## 2. Text byte classes
@@ -297,7 +297,7 @@ Growth now has a deterministic relocation path:
 - relocated scripts are packed by ascending event ID from `$E8:2000` through
   `$EC:FFFF`, never crossing a 64 KiB bank boundary.
 
-Because fallback reads the live stock tables, `vwf_intro` remains owner of its
+Because fallback reads the live stock tables, the intro component pair remains owner of its
 validated `$0400-$040F` pointer rewrites. `french_dialogues` does not duplicate or
 freeze those pointers.
 

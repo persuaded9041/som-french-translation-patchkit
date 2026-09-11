@@ -27,8 +27,8 @@ Canonical source text is repository-wide:
   validated `WAIT $00` + `TEXT_CLEAR` transition.
 
 `dialogues.json` uses format version 4. The extractor parses all stock event
-scripts `$0000-$07FF`, selects every text-bearing event except `$0400` (owned by
-`vwf_intro`), and assigns each translatable text token the SNES address of its
+scripts `$0000-$07FF`, selects every text-bearing event except `$0400` (translated payload owned by
+`french_intro`), and assigns each translatable text token the SNES address of its
 first source byte.
 
 Example:
@@ -116,7 +116,7 @@ or `--all-events`.
 Build only this component with:
 
 ```bash
-python3 build.py "Secret of Mana (USA).sfc" dialogue-text
+python3 build.py "Secret of Mana (USA).sfc" french-dialogues
 ```
 
 Then combine it with the stored IPS files for unchanged components:
@@ -131,7 +131,7 @@ A translated event that still fits its clean-USA pointer span is rebuilt in
 place. If it grows beyond that span, `french_dialogues` packs it deterministically in
 the reserved `$E8-$EC` pool and redirects only that event through a sparse
 2048-entry 24-bit table. A zero entry falls back to the live stock `$C9/$CA`
-pointer tables, so `vwf_intro` remains authoritative for its `$0400-$040F`
+pointer tables, so `french_intro` remains authoritative for translated `$0400` while the intro pair remains authoritative for `$0400-$040F`
 pointer changes.
 
 `vwf_intro` / `vwf_dialogues` contain only the minimal, already validated extension needed to

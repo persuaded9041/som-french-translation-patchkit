@@ -9,7 +9,7 @@ repository root. Detailed reverse-engineering notes are preserved in
 | Asset | Stock family | Extracted units |
 | --- | --- | ---: |
 | `assets/dialogues.json` | `french_dialogues` event scripts | 713 events / 2162 text tokens |
-| `assets/intro_event.json` | event `$0400`, owned by `vwf_intro` | 8 text parts |
+| `assets/intro_event.json` | event `$0400`, translated payload owned by `french_intro` | 8 text parts |
 | `assets/text_resources.json` | post-event `$CA` resources | 513 resources |
 | `assets/interface_text.json` | `$C0:33B5` 24-bit help/status family | 9 blocks / 27 rows |
 | `assets/menu_text.json` | native `$C7` menu/status strings | 66 logical source elements |
@@ -20,8 +20,8 @@ repository root. Detailed reverse-engineering notes are preserved in
 Together these assets currently expose **2918 globally unique source text
 elements**. The ID uniqueness is checked automatically.
 
-`dialogues.json` deliberately excludes `$0400`, because `vwf_intro` owns that
-event. `intro_event.json` inventories its eight source text parts without
+`dialogues.json` deliberately excludes `$0400`, because `french_intro` owns that
+translated payload. `intro_event.json` inventories its eight source text parts without
 changing component ownership.
 
 ## Source versus translation
@@ -74,6 +74,6 @@ families, is documented in `TEXT_RESEARCH_NOTES.md` so it can be resumed later.
 A repository-wide component audit found no additional prose source in components
 `mana_tree_original`, `vwf_dialogues`, or `intro_skip`. `mana_tree_original` owns graphics/resource data, `vwf_dialogues` owns runtime
 dialogue rendering only, and `intro_skip`'s private event consists only of event
-commands. `name_entry_extended`, `french_menus`, `french_opening`, `vwf_intro`, and `french_dialogues` are the only current component consumers of the
+commands. `name_entry_extended`, `french_menus`, `french_opening`, `french_intro`, and `french_dialogues` are the only current component consumers of the
 root source/translation JSON architecture. See `TEXT_COMPONENT_AUDIT.md` for the
 file-by-file audit and the remaining intentional component-local data assets.

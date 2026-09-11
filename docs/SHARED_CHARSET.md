@@ -47,9 +47,10 @@ source.
 
 ### `full_french`
 
-Direct range `$D4-$E5`; threshold `$E6`. `vwf_intro` keeps this exact profile
-so its runtime-validated intro compression and 25 private DTE pairs remain
-unchanged.
+Direct range `$D4-$E5`; threshold `$E6`. `french_intro` owns this exact profile
+so the runtime-validated intro compression and 25 private DTE pairs remain
+unchanged. `vwf_intro` consumes the resulting direct glyph codes but does not
+install the charset or DTE threshold.
 
 ### `dialogue_french`
 

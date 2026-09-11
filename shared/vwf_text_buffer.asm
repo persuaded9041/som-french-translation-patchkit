@@ -60,7 +60,7 @@ shared_vwf_buffer_init:
     sep #$20
     bne .stock_init
 
-    ; Mode 1: `vwf_intro` translated intro event $0400.
+    ; Mode 1: `vwf_intro` intro runtime window / event $0400.
     lda.l !INTRO_CONFIG
     cmp #$05
     bne .dialogue_check

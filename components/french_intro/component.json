@@ -1,0 +1,7 @@
+{
+  "id": "french_intro",
+  "short_name": "french-intro",
+  "name": "French new-game intro payload",
+  "shared_charset_profile": "full_french",
+  "build_order": 45
+}
