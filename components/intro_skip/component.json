@@ -1,0 +1,6 @@
+{
+  "id": "intro_skip",
+  "short_name": "intro-skip",
+  "name": "Skippable new-game introduction",
+  "build_order": 70
+}

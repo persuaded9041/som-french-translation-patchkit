@@ -281,7 +281,7 @@ pre {{ white-space:pre-wrap; margin:10px 0 5px; font:14px ui-monospace,SFMono-Re
 </style>
 </head>
 <body><main>
-<h1>Simulateur de boîtes de dialogue — composant 06/08</h1>
+<h1>Simulateur de boîtes de dialogue — `vwf_dialogues` / `french_dialogues`</h1>
 <p>Ce rapport repart des <strong>octets événement réellement sérialisés</strong>, puis redécode le flux avec le profil dialogue <code>$E8</code> et les métriques VWF validées. Chaque événement compare maintenant le <strong>français simulé à gauche</strong> et la <strong>source SNES USA canonique à droite</strong>, conservée sans VWF.</p>
 <div class="note"><strong>Nom dynamique de test :</strong> <code>{escape(player_name)}</code>. Le défaut est volontairement un nom de 9 caractères larges pour tester le pire cas. Le simulateur vérifie 38 glyphes, la marge empirique de source <code>PLAYER_NAME</code>, le bitmap physique 256 px, la largeur sûre runtime-validée de 216 px, les retours implicites et les 3 lignes physiques par page. Il ne remplace pas un test runtime pour les timings, animations ou artefacts de compositor.</div>
 <div class="stats">

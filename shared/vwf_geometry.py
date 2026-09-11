@@ -1,6 +1,6 @@
 """Shared font-geometry helpers for the patchkit's VWF builders.
 
-This module intentionally contains no renderer policy.  Components 05 and 06
+This module intentionally contains no renderer policy.  `vwf_intro` and `vwf_dialogues`
 have different runtime integrations, but both need the same primitive operations
 for measuring 8x12 glyph ink and deriving compact left-aligned glyph rows.
 """

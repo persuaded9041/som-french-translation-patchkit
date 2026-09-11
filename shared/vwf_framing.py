@@ -1,11 +1,11 @@
-"""Shared runtime VWF framing selector source for components 05, 06 and 09.
+"""Shared runtime VWF framing selector source for `vwf_intro`, `vwf_dialogues`, and `vwf_ui`.
 
 The selector receives one stock 8-bit font row in A and the corresponding
 12-byte stock-font row offset in X.  It returns the same row shifted left by
 the runtime-validated framing amount.  X and the accumulator width are left
 unchanged.
 
-Components 05, 06 and 09 install the selectors contiguously in bank C7. The
+`vwf_intro`, `vwf_dialogues`, and `vwf_ui` install the selectors contiguously in bank C7. The
 shared stock-row renderer calls this one runtime copy for both paths; component
 06 no longer carries duplicate selector payloads in bank ED.
 """

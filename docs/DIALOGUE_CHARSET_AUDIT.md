@@ -37,7 +37,7 @@ The editable shared atlas contains:
 - `$E7 = ;`.
 
 Ordinary event dialogue therefore needs `$E8` as its upper DTE boundary. The
-intro must **not** inherit that boundary: component 05 uses all 25 `$E6-$FF`
+intro must **not** inherit that boundary: `vwf_intro` uses all 25 `$E6-$FF`
 private DTE slots and is already runtime-validated. `shared/dialogue_dte.py`
 solves this by routing only true event-engine dialogue to `$E8`, while event
 `$0400` and non-dialogue parser callers keep `$E6`.
@@ -52,5 +52,5 @@ The context-sensitive dialogue DTE route and the three direct glyphs are
 runtime-validated. Their compact VWF advances are also validated (`♪` 7 px,
 `°` 7 px, `;` 4 px). The PNG artwork can still be retouched later without
 changing byte assignments, but any visual edit should be regression-tested in
-06. Component 05 remains byte-for-byte unchanged by the dialogue-only `$E8`
+06. `vwf_intro` remains byte-for-byte unchanged by the dialogue-only `$E8`
 route.

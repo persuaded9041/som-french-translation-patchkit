@@ -38,4 +38,4 @@ An eight-entry pointer table at `$C7:7BB7` is validated against the eight weapon
 names. Status-template parameters such as `$5C $12` and `$5C $16` are preserved
 as `{5C12}` / `{5C16}` instead of being mis-decoded as text.
 
-The source JSON exposes logical translatable fragments with ROM-position IDs rather than copying the complete padding-heavy menu blobs. Layout spaces, dashes, dynamic placeholders and button glyphs remain structural ROM data. The two direct GAME FILE level-prefix bytes at `$C7:53C9` and `$C7:5AF1` are also inventoried because component 03 proves they are rendered text. Existing component-03 French labels live in `translations/menu_text_french.json`.
+The source JSON exposes logical translatable fragments with ROM-position IDs rather than copying the complete padding-heavy menu blobs. Layout spaces, dashes, dynamic placeholders and button glyphs remain structural ROM data. The two direct GAME FILE level-prefix bytes at `$C7:53C9` and `$C7:5AF1` are also inventoried because `french_menus` proves they are rendered text. Existing `french_menus` French labels live in `translations/menu_text_french.json`.

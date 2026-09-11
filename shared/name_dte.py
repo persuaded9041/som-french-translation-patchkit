@@ -1,4 +1,4 @@
-"""Name-buffer-specific direct-glyph/DTE boundary for component 02.
+"""Name-buffer-specific direct-glyph/DTE boundary for `name_entry_extended`.
 
 Name Entry stores the selected bytes directly in the player-name buffer. When
 an event executes PLAYER_NAME, the stock parser copies twelve bytes to the

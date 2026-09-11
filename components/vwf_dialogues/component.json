@@ -1,0 +1,8 @@
+{
+  "id": "vwf_dialogues",
+  "short_name": "vwf-dialogues",
+  "name": "Dialogue VWF",
+  "shared_charset_profile": "dialogue_french",
+  "dialogue_dte_router": true,
+  "build_order": 60
+}

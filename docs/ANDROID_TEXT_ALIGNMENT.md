@@ -320,7 +320,7 @@ python3 tools/import_android_text.py --only dialogue-review-round5 --check
 
 The dialogue modes read `assets/dialogues.json`, `scrtxt_en.bin` and
 `scrtxt_fr.bin`, recompute the evidence and slot intervals, and write only under
-`mappings/android/`. `translations/dialogues_french.json`, component 08 and the
+`mappings/android/`. `translations/dialogues_french.json`, `french_dialogues` and the
 existing build outputs remain unchanged.
 
 ## 13. Round-5 stress test: auditing non-monotonic events
@@ -569,7 +569,7 @@ The formatter:
 - removes Android-only presentation wrapping (`_`, Android line breaks and
   ideographic spaces) without rewriting translated prose;
 - reflows against **two independent runtime constraints**: a conservative
-  historical 240-pixel VWF target (superseded by the Round-70 runtime-validated 216-pixel safe ceiling) and component 06's validated 38-decoded-character parser
+  historical 240-pixel VWF target (superseded by the Round-70 runtime-validated 216-pixel safe ceiling) and `vwf_dialogues`'s validated 38-decoded-character parser
   capacity;
 - budgets a dynamic player name as the worst-case 9-character VWF width and,
   after batch-1 runtime testing, reserves one additional parser-safety unit on
@@ -584,7 +584,7 @@ initial 245-pixel line contained 41 decoded visible characters with a maximum
 to the next line. Both observations match the known 38-character parser limit.
 With the dual constraint, the first localized speech is formatted as 196 / 199 /
 207 pixels and 32 / 35 / 36 decoded characters; the second is 217 / 114 pixels
-and 36 / 19 characters. Component 08 rebuilds the event from 122 to 162 bytes
+and 36 / 19 characters. `french_dialogues` rebuilds the event from 122 to 162 bytes
 and relocates it deterministically to `$E8:2000`. **The Android correspondence
 and the revised dual-limit French presentation are runtime-validated.** The next
 expansion step is therefore charset/structural normalization, documented in
@@ -741,8 +741,8 @@ with **1,051 visible French semantic IDs / 1,106 JSON entries**, 0 errors, 0 war
 
 ## Choice-VWF geometry follow-up
 
-After runtime validation of component 06's option-start and terminal-boundary synchronization,
-component 08 may preserve a long localized choice label by moving only a **later**
+After runtime validation of `vwf_dialogues`'s option-start and terminal-boundary synchronization,
+`french_dialogues` may preserve a long localized choice label by moving only a **later**
 `CHOICE_OPTION` to the right. The first anchor remains stock; the new coordinate is exactly
 the minimum decoded cell after the preceding label, must remain below 32, and the final event
 must still pass the independent zero-error / zero-warning / zero-wrap simulator gate. The
@@ -761,7 +761,7 @@ At the choice-geometry checkpoint, the corpus was **528 simulator-clean events**
 **1,161 visible semantic IDs / 1,222 JSON entries**. `$0278` is the sole PARTIEL event because
 its two SNES-only controller carriers are staged for manual translation; `$0331` is complete
 through the reviewed parameterized Android-ID-110 inn template. The newly admitted measured-end
-choice rows (`$00CE/$00CF/$00D0/$00D1/$0202`) are now backed by the runtime-validated component-06
+choice rows (`$00CE/$00CF/$00D0/$00D1/$0202`) are now backed by the runtime-validated `vwf_dialogues`
 geometry and the updated offline simulator/serializer model.
 
 ## Round 24 exact segmentation and contextual exact duplicates
@@ -1006,7 +1006,7 @@ After this pass semantic alignment is **1724 / 1838 (93.8%)**, leaving **114 unr
 
 Round 39 adds no automatic matcher. Four previously unresolved carriers are accepted from user-reviewed full SNES-US context. `$019C/C9:61D3 -> 385` chooses one of the strictly EN+FR-identical Pandora guard copies (381/385) by adjacent scene position. `$01EA/C9:86C6 -> 759` and `$02A9/C9:B5CE -> 1583` are both **one reused SNES subevent -> two Android call-site records** cases: the chosen Android ID supplies the shared localization payload, while the alternate call-site ID remains documented rather than being treated as a competing identity.
 
-`$0689/CA:8F20 -> 769` is different: Android English identity is structurally proved by the event's item command, but Android French is wrong. The stock `$0689` script grants `OP_1E A4`, the Whip/Leather Whip weapon (`$24` after the weapon-class offset); `$0687` is the actual Magic Rope chest and grants `OP_1E 46`, item `$06`. Android FR incorrectly gives both Android 469 (Magic Rope) and 769 (Leather Whip) the same Leather-Whip chest sentence. For this exact user-validated exception, the mass formatter keeps Android 769 as identity but serializes the canonical USA `CA:8F20` source text `Found the Whip!`. This is passed through the normal component-08 data serializer/relocation system and adds no runtime mechanism.
+`$0689/CA:8F20 -> 769` is different: Android English identity is structurally proved by the event's item command, but Android French is wrong. The stock `$0689` script grants `OP_1E A4`, the Whip/Leather Whip weapon (`$24` after the weapon-class offset); `$0687` is the actual Magic Rope chest and grants `OP_1E 46`, item `$06`. Android FR incorrectly gives both Android 469 (Magic Rope) and 769 (Leather Whip) the same Leather-Whip chest sentence. For this exact user-validated exception, the mass formatter keeps Android 769 as identity but serializes the canonical USA `CA:8F20` source text `Found the Whip!`. This is passed through the normal `french_dialogues` data serializer/relocation system and adds no runtime mechanism.
 
 This exception does **not** make Android FR an identity source and does not generalize to merely awkward translations. A stock-English override requires independently proven Android-English identity plus explicit user validation that the corresponding Android-FR payload is erroneous.
 

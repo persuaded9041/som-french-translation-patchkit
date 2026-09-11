@@ -1,7 +1,7 @@
 # Dialogue-box simulator
 
 `tools/simulate_dialogues.py` is the user-validated downstream static guardrail
-for components 06 and 08. It exists specifically so formatter bugs are not hidden by reusing the same
+for `vwf_dialogues` and `french_dialogues`. It exists specifically so formatter bugs are not hidden by reusing the same
 high-level line calculations that produced `translations/dialogues_french.json`.
 
 The tool requires the clean unheadered USA ROM locally. It never embeds or writes
@@ -25,10 +25,10 @@ works from the resulting **encoded event byte stream**. It independently:
 - expands lower and upper stock DTE source bytes;
 - expands `PLAYER_NAME` using a configurable test name (default `000000000`, a
   deliberately wide 9-character case);
-- reapplies the runtime-validated component-06 advance and framing tables from
+- reapplies the runtime-validated `vwf_dialogues` advance and framing tables from
   the stock font plus the canonical PNG glyphs;
 - models the 38-decoded-glyph runtime capacity;
-- models component 06's visible-ink preflight against the 32-cell / 256-pixel
+- models `vwf_dialogues`'s visible-ink preflight against the 32-cell / 256-pixel
   physical bitmap and its safe-space rewind behavior;
 - checks the conservative formatter target of 240 pixels separately;
 - follows explicit `$7F` line breaks, `WAIT`, `TEXT_CLEAR`, `TEXT_OPEN` and
@@ -60,7 +60,7 @@ serialized bytes, count and order are exactly identical to the clean-USA event.
 Interactive choice geometry is now modeled conservatively. `CHOICE_OPTION $xx` resets
 the decoded-buffer X to the stock absolute cell and records the same boundary later
 used by the selection/highlight code; `CHOICE_END` supplies the terminal boundary,
-excluding the stock closing `)` when present. Component 06 currently renders choice rows
+excluding the stock closing `)` when present. `vwf_dialogues` currently renders choice rows
 through the ordinary VWF path, but the simulator deliberately keeps the stricter stock
 anchor model as a safety gate: it rejects any translation that would be overwritten by a
 later option anchor or exceed the 32-cell selectable row. Dynamic item/enemy/weapon/magic/
@@ -71,7 +71,7 @@ behavior.
 The source comparison column is informational only; it is not fed back into the
 formatter or simulator. The simulator cannot yet prove timing, animation interaction or exact compositor
 pixel placement. Runtime playthrough remains the final validation. The active next engineering task is the
-position-dependent component-06 artifact where a glyph near the end of some long lines can shift
+position-dependent `vwf_dialogues` artifact where a glyph near the end of some long lines can shift
 horizontally by a few pixels. Fix that runtime defect first; then use the corrected runtime behavior as the
 reference for making this HTML simulator pixel-identical, including framing, cursor advances and spill
 merging. Do not work around the artifact by changing translated text.
@@ -82,7 +82,7 @@ merging. Do not work around the artifact by changing translated text.
    Android mappings.
 2. Run the simulator on every translated event.
 3. Automatically exclude events with simulator errors or unsupported geometry.
-4. Regenerate the final sparse translation and `08_dialogue_text.ips`.
+4. Regenerate the final sparse translation and `french_dialogues.ips`.
 5. Use the HTML report for a visual corpus pass, then validate the large patch in
    a complete game playthrough.
 

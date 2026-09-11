@@ -10,7 +10,7 @@
 ;   A = current-cell half, already merged with $9000,Y
 ;   X/Y preserved; hidden B byte untouched
 ;
-; Installed byte-identically by components 05 and 06 at $C7:4560.
+; Installed byte-identically by `vwf_intro` and `vwf_dialogues` at $C7:4560.
 
 org $C74560
 shared_vwf_stock_row:

@@ -28,7 +28,7 @@ with non-event text pointers. `$03FF` has no C9 sentinel and is explicitly
 validated as the stock three-byte terminal script `14 FD 00`.
 
 All 2048 scripts parse with the structural event codec. 714 contain text; event
-`$0400` is owned by component 05 and is extracted separately, leaving 713 in
+`$0400` is owned by `vwf_intro` and is extracted separately, leaving 713 in
 `dialogues.json`.
 
 ### Post-event `$CA` resources
@@ -62,7 +62,7 @@ bytes and dynamic placeholders remain derived from the ROM.
 
 The two GAME FILE level-prefix characters at ROM `0x0753C9` / `$C7:53C9` and
 `0x075AF1` / `$C7:5AF1` are direct code/data writes rather than normal strings.
-They were added because component 03 proves they are user-visible text sources.
+They were added because `french_menus` proves they are user-visible text sources.
 
 ### Battle message pool: `$C0:5E6B-$6380`
 
@@ -85,7 +85,7 @@ rather than search false positives.
 
 ### Compressed startup/title arrangement
 
-Component 04 already established the decompressor and renderer for the block
+`french_opening` already established the decompressor and renderer for the block
 beginning at ROM `0x07B480` / `$C7:B480`. The canonical source inventory extracts
 24 user-visible strings from the decompressed arrangement: 13 prologue lines,
 legal/copyright strings, multiplayer error, four stock credits and three
@@ -197,5 +197,5 @@ Cross-version matching of the canonical USA inventory against the supplied
 Android English/French `scrtxt` resources is tracked separately in
 `docs/ANDROID_TEXT_ALIGNMENT.md`. The current pilot establishes local scene-order
 evidence and Android localization-slot behavior without adding any French
-dialogue to component 08.
+dialogue to `french_dialogues`.
 

@@ -5,52 +5,52 @@ aggregate build. Their IPS write maps are then compared byte-for-byte.
 
 ## Shared French glyph writes
 
-`03_game_select` installs the naming-safe `$D4-$E0` subset. `02_9char_names`
+`french_menus` installs the naming-safe `$D4-$E0` subset. `name_entry_extended`
 installs that same French subset plus the disjoint shared glyphs `$D3=♪`,
 `$E6=°` and `$E7=;`, while deliberately leaving `$E1-$E5` untouched because
-Name Entry uses those slots for graphics. `05_intro_vwf_french` installs the
-unchanged French `$D4-$E5` range. Components 06/08 use the full extended
+Name Entry uses those slots for graphics. `vwf_intro` installs the
+unchanged French `$D4-$E5` range. `vwf_dialogues` / `french_dialogues` use the full extended
 dialogue span `$D3-$E7`. Identical overlapping glyph bytes all come from
 `shared/french_charset/french_glyphs.png`.
 
 ## Direct-glyph / DTE routing
 
-Component 03 retains its historical standalone immediate `$E1` threshold and
-component 05 remains unchanged standalone with `$C0:16F6 = $E6`.
+`french_menus` retains its historical standalone immediate `$E1` threshold and
+`vwf_intro` remains unchanged standalone with `$C0:16F6 = $E6`.
 
-Component 02 now uses the small `shared/name_dte.py` router standalone. Ordinary
+`name_entry_extended` now uses the small `shared/name_dte.py` router standalone. Ordinary
 event sources still use `$E1`; the relocated Name Entry resource in bank `$E4`
 and the stock `PLAYER_NAME` scratch stream at `$7E:A22F` use `$E8`, allowing
 `$E6/$E7` on the character grid and inside a selected name without reinterpreting
 normal DTE bytes. This route is runtime-validated. If 02 is combined with a later legacy charset
-component but without 06/08, the root combiner stores the historical max
+component but without `vwf_dialogues` / `french_dialogues`, the root combiner stores the historical max
 threshold in the router's `$C7:4C86` base-config byte and restores its JML after
 all standalone patches have been applied.
 
-Components 06/08 replace the same stock four-byte decision at
+`vwf_dialogues` / `french_dialogues` replace the same stock four-byte decision at
 `$C0:16F5-$16F8` with the later, byte-identical full context router from
 `shared/dialogue_dte.py`:
 
 - non-dialogue parser callers: `$E6`;
 - event `$0400`: `$E6`;
 - ordinary event-engine dialogue when the dialogue profile is enabled: `$E8`;
-- component-02 Name Entry resource in bank `$E4`: `$E8`.
+- `name_entry_extended` Name Entry resource in bank `$E4`: `$E8`.
 
 The event-engine caller is identified by the established `$114B` stacked return
 address, so GAME SELECT does not enter the dialogue `$E8` path. Event `$0400`
-uses component 05's configured translated end when present and the clean-USA
+uses `vwf_intro`'s configured translated end when present and the clean-USA
 `$0E44` end otherwise. Thus `$E6/$E7` can be direct dialogue glyphs without
 changing the intro's 25 private DTE pairs.
 
-In aggregate builds containing 06/08, their full router supersedes both the
-legacy immediate-threshold byte and component 02's smaller name-only hook.
-Without 06/08, component 02's router preserves the historical max-threshold
+In aggregate builds containing `vwf_dialogues` / `french_dialogues`, their full router supersedes both the
+legacy immediate-threshold byte and `name_entry_extended`'s smaller name-only hook.
+Without `vwf_dialogues` / `french_dialogues`, `name_entry_extended`'s router preserves the historical max-threshold
 merge through its base-config byte. Without any router, the original immediate
 max-threshold merge remains unchanged.
 
 ## Opening-font local glyph
 
-`04_french_opening` reserves tile `$7A` of its own title-screen font for the one-cell startup-credit `É`. This is local to the opening font, does not consume a shared French charset code, and introduces no new ROM/WRAM allocation or cross-component merge rule. The component builder rejects literal `Z` text because that opening-font slot is no longer available as `Z`.
+`french_opening` reserves tile `$7A` of its own title-screen font for the one-cell startup-credit `É`. This is local to the opening font, does not consume a shared French charset code, and introduces no new ROM/WRAM allocation or cross-component merge rule. The component builder rejects literal `Z` text because that opening-font slot is no longer available as `Z`.
 
 ## Allocations
 
@@ -61,9 +61,9 @@ after checking those ranges against all existing components.
 
 ## Intro skip compatibility
 
-`07_intro_skip` hooks `$C0:012C-$012F`, a runtime-validated execution point during the translated new-game introduction. While event `$0400` is in live event bank `$CA` and pointer range `$0C02-$0E8A`, holding R (`$4218` bit `$10`) continuously for 120 NMI frames redirects the live event pointer to `$CA:FFC0-$FFC7`. That private script mirrors the stock end of `$0400` while omitting only the `$1D $7F` Mode 7 world-map flyover. Runtime testing confirms the non-blocking hold, reset on release, direct arrival at the waterfall, and correct dialogue-frame transitions.
+`intro_skip` hooks `$C0:012C-$012F`, a runtime-validated execution point during the translated new-game introduction. While event `$0400` is in live event bank `$CA` and pointer range `$0C02-$0E8A`, holding R (`$4218` bit `$10`) continuously for 120 NMI frames redirects the live event pointer to `$CA:FFC0-$FFC7`. That private script mirrors the stock end of `$0400` while omitting only the `$1D $7F` Mode 7 world-map flyover. Runtime testing confirms the non-blocking hold, reset on release, direct arrival at the waterfall, and correct dialogue-frame transitions.
 
-The component reserves `$ED:7400-$74FF` for its input and NMI helpers, between the extended-ROM allocations of components 06 and 03. It samples the stock frame counter at `$7E:00F4` and reuses `$7E:938A-$938B` only during translated intro event `$0400`. Component 05 intercepts that event before component 06 reaches its renderer-entry hook, so component 06 does not use its overlapping width-index scratch during the intro. The NMI hook at `$C0:AC34-$AC37` clears the active-hold flag whenever R is released so separate presses cannot accumulate if the event-engine hook misses the release interval.
+The component reserves `$ED:7400-$74FF` for its input and NMI helpers, between the extended-ROM allocations of `vwf_dialogues` and `french_menus`. It samples the stock frame counter at `$7E:00F4` and reuses `$7E:938A-$938B` only during translated intro event `$0400`. `vwf_intro` intercepts that event before `vwf_dialogues` reaches its renderer-entry hook, so `vwf_dialogues` does not use its overlapping width-index scratch during the intro. The NMI hook at `$C0:AC34-$AC37` clears the active-hold flag whenever R is released so separate presses cannot accumulate if the event-engine hook misses the release interval.
 
 
 ## Header/checksum writes
@@ -86,7 +86,7 @@ compatibility concern justifies them.
 
 ## Shared VWF parser buffer bridge
 
-Components `05_intro_vwf_french` and `06_dialogue_vwf` independently install the
+Components `vwf_intro` and `vwf_dialogues` independently install the
 same parser hooks and helper bytes generated by `shared/vwf_text_buffer.py`. These
 functional overlaps are therefore byte-identical and pass the normal overlap
 audit without a special merge rule.
@@ -95,26 +95,26 @@ The stock `$C0:16B8` parser initializer is shared by the event engine and GAME
 SELECT. The bridge reads the untouched stacked return address and activates only
 for `$114B` (event-engine call from `$C0:1149`); GAME SELECT's `$235B` call
 remains stock. The private buffer is `$7E:9390-$93BB`; the stock `$A1A4` buffer
-is not extended because `$A1C5-$A1C7` are live engine state. Component 05 owns
-its intro marker/end bytes at `$C7:4C80-$4C82`; component 06 owns marker `$06` at
+is not extended because `$A1C5-$A1C7` are live engine state. `vwf_intro` owns
+its intro marker/end bytes at `$C7:4C80-$4C82`; `vwf_dialogues` owns marker `$06` at
 `$C7:4C84`.
 
 ## Shared VWF row compositor
 
-Components `05_intro_vwf_french` and `06_dialogue_vwf` independently install the
+Components `vwf_intro` and `vwf_dialogues` independently install the
 same 63-byte renderer-neutral compositor generated by `shared/vwf_compositor.py`
 at `$C7:4C90-$4CCE`. The overlap is byte-identical and requires no special merge
 rule.
 
 Both components derive glyph rows from the stock `$D2:DC00` font and install the
 same framing selector bundle at `$C7:44C0-$4557`. They also install the same runtime-validated 13-byte `$C7:4560-$456C` helper,
-which performs stock row load -> framing -> shared compositor. Component 06 reaches it
+which performs stock row load -> framing -> shared compositor. `vwf_dialogues` reaches it
 only after its caller-gated renderer-scope check; non-event callers replay the
 stock row load. Parser/event scope remains separate from this primitive.
 
 ## Shared VWF outline preparation
 
-Components `05_intro_vwf_french` and `06_dialogue_vwf` both install the same
+Components `vwf_intro` and `vwf_dialogues` both install the same
 one-byte stock-outline preparation from `shared/vwf_outline.py`: `$C0:163D` is
 changed from `ROL` to `ASL`, preventing carry from one source row from being
 injected into the next. The overlap is byte-identical, so both standalone and
@@ -122,28 +122,28 @@ aggregate builds use the same preparation.
 
 ## Dialogue VWF compatibility
 
-`06_dialogue_vwf` independently installs the `dialogue_french` `$D3-$E7`
+`vwf_dialogues` independently installs the `dialogue_french` `$D3-$E7`
 span and the context-sensitive DTE router, so its standalone IPS does not depend
-on component 05. The shared `$D4-$E5` glyph bytes remain byte-identical.
+on `vwf_intro`. The shared `$D4-$E5` glyph bytes remain byte-identical.
 
-Component 06 enables its core VWF only when the shared `$C0:1664` renderer was
+`vwf_dialogues` enables its core VWF only when the shared `$C0:1664` renderer was
 called by the event engine at `$C0:1150` and the live event bank is `$C9` or
 `$CA`. This caller-based gate is runtime-validated and is required because GAME
 SELECT also calls `$C0:1664`; bank/state checks alone are not safe discriminators.
 
-Component 05 still owns translated intro event `$0400`: it intercepts that event
-at `$C0:1664` and exits before component 06 reaches `$C0:167D`. This keeps the
-shared `$7E:9380+` scratch mutually exclusive even though component 06 now also
-handles ordinary `$CA` event dialogue. Component 07's `$938A-$938B` intro timer
+`vwf_intro` still owns translated intro event `$0400`: it intercepts that event
+at `$C0:1664` and exits before `vwf_dialogues` reaches `$C0:167D`. This keeps the
+shared `$7E:9380+` scratch mutually exclusive even though `vwf_dialogues` now also
+handles ordinary `$CA` event dialogue. `intro_skip`'s `$938A-$938B` intro timer
 is protected by the same early interception.
 
 Renderer architecture, metrics, caller discrimination and generic event-
-interruption handling belong to `components/06_dialogue_vwf/docs/`, not to this
+interruption handling belong to `components/vwf_dialogues/docs/`, not to this
 cross-component compatibility document.
 
 ## Dialogue text compatibility
 
-`08_dialogue_text` remains the owner of event-script source/reinsertion data, not of the
+`french_dialogues` remains the owner of event-script source/reinsertion data, not of the
 VWF renderer itself. The first edited-event checkpoint (`$0107`) was
 runtime-validated with the existing dialogue VWF, including dynamic player-name
 insertion, line breaks and WAIT sequencing. The canonical `assets/dialogues.json` contains clean-USA source only.
@@ -165,53 +165,53 @@ remains tracked without altering the event bytes. `$01DC` has one
 explicit structural exception: its final stock `PLAYER_NAME(0)` is omitted together with
 Android-absent `C9:804A`. The shared inn prompt is complete through a parameterized Android
 ID 110 template while the stock numeric price carriers remain dynamic.
-Interactive choice rows use component 06's ordinary VWF path with stock `CHOICE_OPTION`
+Interactive choice rows use `vwf_dialogues`'s ordinary VWF path with stock `CHOICE_OPTION`
 / `$A1D7[]` selection geometry untouched. Resynchronizing VWF option starts to those stock
 boundaries is runtime-validated on `$0331`; the current follow-up additionally uses the
 existing terminal boundary to keep a preserved closing parenthesis outside the final
 magenta span. The full mass corpus still requires the planned playthrough.
 
-Growth has a runtime-validated relocation path. Component 08 can install a sparse
+Growth has a runtime-validated relocation path. `french_dialogues` can install a sparse
 24-bit event-address table and dispatcher hook, then pack only overlong rebuilt
 events into reserved banks `$E8-$EC`. A zero sparse-table entry falls back to
-the *live* stock `$C9/$CA` tables, so component 05 remains authoritative for its
+the *live* stock `$C9/$CA` tables, so `vwf_intro` remains authoritative for its
 validated `$0400-$040F` pointer rewrites. Event `$0400` is still excluded from
-the component-08 asset.
+the `french_dialogues` asset.
 
-Relocated dialogue must keep the same VWF/parser behavior. Components 05 and 06
+Relocated dialogue must keep the same VWF/parser behavior. `vwf_intro` and `vwf_dialogues`
 therefore share one minimal bank-gate extension: their existing caller-gated
-private parser path and component-06 renderer path continue to accept stock
-`$C9/$CA`, and additionally accept only component-08's reserved `$E8-$EC` range.
+private parser path and `vwf_dialogues` renderer path continue to accept stock
+`$C9/$CA`, and additionally accept only `french_dialogues`'s reserved `$E8-$EC` range.
 The `$C9/$CA` behavior is unchanged. The `$E8-$EC` path was runtime-validated
 with unchanged event `$0107` executing from `$E8:2000`, including dynamic name
 insertion, VWF rendering, line breaks and WAIT behavior. The temporary force
 probe has now been removed: normal builds relocate only events that genuinely
 outgrow their source span.
 
-When translated dialogue is present, component 08 installs the same
+When translated dialogue is present, `french_dialogues` installs the same
 `dialogue_french` `$D3-$E7` glyph span and context-sensitive router as component
-06; component 05 remains on its separate `$D4-$E5` / `$E6` intro profile. The root extractor continues to structurally parse all 2048 stock event scripts
+06; `vwf_intro` remains on its separate `$D4-$E5` / `$E6` intro profile. The root extractor continues to structurally parse all 2048 stock event scripts
 and commits the 713 text-bearing events excluding `$0400`. The 513 following
 `$CA` non-event resources are now extracted separately to
 `assets/text_resources.json` and are not owned by the dialogue VWF runtime.
 
-## 09_ui_vwf — standalone non-dialogue UI VWF
+## vwf_ui — standalone non-dialogue UI VWF
 
-`09_ui_vwf` is intentionally independent of `06_dialogue_vwf`. Both components
+`vwf_ui` is intentionally independent of `vwf_dialogues`. Both components
 install the same shared renderer-entry dispatcher at `$C0:167D` / `$ED:7A00`;
-the overlap is byte-identical. The dispatcher selects component 09 only when its
+the overlap is byte-identical. The dispatcher selects `vwf_ui` only when its
 ROM config marker `$C7:4C87=$09` and exact one-shot UI tag are both present.
-Otherwise it delegates to component 06 when `$C7:4C84=$06`, or replays the stock
+Otherwise it delegates to `vwf_dialogues` when `$C7:4C84=$06`, or replays the stock
 32-cell renderer entry when neither owner is active.
 
 The shared text-buffer capacity helper is likewise installed byte-identically by
-05/06/09. Component 09 does **not** enter private parser mode; its +3 Forge margin
-is dormant unless both the component-09 marker and exact builder tag are active.
+`vwf_intro` / `vwf_dialogues` / `vwf_ui`. `vwf_ui` does **not** enter private parser mode; its +3 Forge margin
+is dormant unless both the `vwf_ui` marker and exact builder tag are active.
 This preserves the stock parser/buffer for UI text and keeps dialogue behavior
-owned by component 06.
+owned by `vwf_dialogues`.
 
 The accepted Forge backend arms its tag only at the exact submit of mini-event
-`$00:19D0`, patches the proven suffix geometry, and uses component-09 runtime space.
+`$00:19D0`, patches the proven suffix geometry, and uses `vwf_ui` runtime space.
 The earlier `WEAPON_NAME` helper remains stock. The dispatcher clears `$7E:9385` on
 stock fallback, which is required for GAME SELECT compatibility. Future Ring Menu/
 item-acquisition VWF work must add equally narrow gates rather than broadening the
@@ -219,11 +219,11 @@ current tag.
 
 Round-75 handoff status: this standalone targeting is runtime-validated. The Forge row is locked; new UI families must follow `docs/UI_VWF.md` and must not reuse the Forge tag.
 
-## 10_resource_names_fr — French CA resource names
+## french_resources — French CA resource names
 
-`10_resource_names_fr` owns only the rebuilt `$CA` pointer table/blob for the reviewed name
-families. It does not depend on `09_ui_vwf` and does not own any dialogue event. For standalone
+`french_resources` owns only the rebuilt `$CA` pointer table/blob for the reviewed name
+families. It does not depend on `vwf_ui` and does not own any dialogue event. For standalone
 clean-USA use it installs the same shared French glyph span and context-sensitive DTE router as
-06/08; those overlaps are byte-identical in aggregate builds. The component never relocates the
+`vwf_dialogues` / `french_dialogues`; those overlaps are byte-identical in aggregate builds. The component never relocates the
 resource blob beyond its original stock allocation.
 

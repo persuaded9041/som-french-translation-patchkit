@@ -80,7 +80,7 @@ def main() -> None:
             label = f"all {EVENT_COUNT} stock event scripts"
         else:
             document = extract_default_document(rom)
-            label = f"{len(document['events'])} component-08 text-bearing event(s)"
+            label = f"{len(document['events'])} `french_dialogues` text-bearing event(s)"
         output = args.output.resolve() if args.output else assets_dir / "dialogues.json"
         write_json(output, document)
         print(f"Dialogues: {label} -> {output}")

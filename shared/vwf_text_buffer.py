@@ -1,4 +1,4 @@
-"""Shared decoded-text/private-capacity bridge for VWF components 05, 06 and 09.
+"""Shared decoded-text/private-capacity bridge for VWF `vwf_intro`, `vwf_dialogues`, and `vwf_ui`.
 
 The stock text engine owns only 33 bytes at $7E:A1A4-$A1C4. Bytes $A1C5+
 are live engine state, so a 38-character parser cannot safely extend that
@@ -6,9 +6,9 @@ buffer in place.  This module installs one byte-identical set of parser hooks
 that can route selected event-engine invocations to the already validated
 44-byte private buffer at $7E:9390-$93BB.
 
-Component 05 enables mode 1 for translated intro event $0400. Component 06
+`vwf_intro` enables mode 1 for translated intro event $0400. `vwf_dialogues`
 enables mode 2 for ordinary event-engine text in stock banks $C9/$CA and
-for component-08 relocated event banks $E8-$EC. Component 09 keeps parser mode
+for `french_dialogues` relocated event banks $E8-$EC. `vwf_ui` keeps parser mode
 stock but reuses the common capacity hook for an exact builder-tagged +3 UI margin. GAME SELECT
 also calls the stock parser initializer, so activation is structurally gated by
 the caller return address ($114B from JSR $C0:16B8 at $C0:1149).
@@ -18,7 +18,7 @@ from __future__ import annotations
 from .asm65816 import MiniAssembler, lo16, lo24
 from .vwf_ui import UI_CONFIG_CPU, UI_MARKER, UI_TAG, UI_MAGIC
 
-# Stock hooks shared by components 05 and 06.
+# Stock hooks shared by `vwf_intro` and `vwf_dialogues`.
 BUFFER_INIT_FILE = 0x0016B8
 CAPACITY_FILE = 0x0016C6
 PARSER_WRITE_FILE = 0x0017CE
@@ -30,7 +30,7 @@ PARSER_WRITE_SIGNATURE = bytes.fromhex("9D A4 A1 E8")
 PREV_CHAR_SIGNATURE = bytes.fromhex("BF A4 A1 7E")
 
 # Shared helper locations. These are stock-$FF free space already adjacent to
-# component 05's existing C7 allocations, so component 05 need not expand ROM.
+# `vwf_intro`'s existing C7 allocations, so `vwf_intro` need not expand ROM.
 PARSER_WRITE_CPU = 0xC743D0
 PARSER_WRITE_FILE_HELPER = 0x0743D0
 BUFFER_INIT_CPU = 0xC74AC0
@@ -40,7 +40,7 @@ PREV_CHAR_FILE_HELPER = 0x074B40
 CAPACITY_CPU = 0xC74BC0
 CAPACITY_FILE_HELPER = 0x074BC0
 
-# Runtime configuration lives in a small stock-$FF gap after component 05's
+# Runtime configuration lives in a small stock-$FF gap after `vwf_intro`'s
 # intro DTE loader and before its private DTE table.
 INTRO_CONFIG_CPU = 0xC74C80
 INTRO_CONFIG_FILE = 0x074C80
@@ -50,7 +50,7 @@ INTRO_MARKER = 0x05
 DIALOGUE_MARKER = 0x06
 INTRO_START = 0x0C02
 
-# Parser-private mode byte. It is needed only while decoding; component 05
+# Parser-private mode byte. It is needed only while decoding; `vwf_intro`
 # later reuses $9380 as its rendered-character count after parsing has ended.
 PARSER_MODE = 0x9380
 PRIVATE_BUFFER = 0x9390
@@ -74,7 +74,7 @@ def _assemble_buffer_init() -> bytes:
     a.emit(0xE2, 0x20)                     # SEP #$20
     a.rel8(0xD0, "stock_init")
 
-    # Component 05 intro mode has priority when its config marker is present.
+    # `vwf_intro` intro mode has priority when its config marker is present.
     a.emit(0xAF, *lo24(INTRO_CONFIG_CPU))   # LDA.l intro marker
     a.emit(0xC9, INTRO_MARKER)
     a.rel8(0xD0, "dialogue_check")
@@ -92,8 +92,8 @@ def _assemble_buffer_init() -> bytes:
     a.emit(0xE2, 0x20)
     a.label("dialogue_check")
 
-    # Component 06 generic dialogue mode: exact event parser + stock C9/CA or
-    # component-08 relocated E8-EC bank.
+    # `vwf_dialogues` generic dialogue mode: exact event parser + stock C9/CA or
+    # `french_dialogues` relocated E8-EC bank.
     a.emit(0xAF, *lo24(DIALOGUE_CONFIG_CPU))
     a.emit(0xC9, DIALOGUE_MARKER)
     a.rel8(0xD0, "stock_init")
@@ -194,7 +194,7 @@ def _assemble_capacity() -> bytes:
     a.rel8(0x80, "store")
 
     a.label("intro")
-    # Preserve component 05's runtime-validated fixed intro capacity exactly.
+    # Preserve `vwf_intro`'s runtime-validated fixed intro capacity exactly.
     a.emit(0xA9, 0x27)
     a.rel8(0x80, "store")
 
@@ -203,10 +203,10 @@ def _assemble_capacity() -> bytes:
     a.emit(0x38)
     a.emit(0xED, *lo16(0xA181))
 
-    # Component 09 UI-VWF: the runtime-proven Forge row needs three extra
+    # `vwf_ui` UI-VWF: the runtime-proven Forge row needs three extra
     # logical parser units. The exact builder arms UI_TAG before parser init;
     # the ROM config marker prevents stale/random WRAM from affecting builds
-    # that do not include component 09. Stock buffer and parser stay unchanged.
+    # that do not include `vwf_ui`. Stock buffer and parser stay unchanged.
     a.emit(0x48)                              # PHA stock remaining count
     a.emit(0xAF, *lo24(UI_CONFIG_CPU))
     a.emit(0xC9, UI_MARKER)

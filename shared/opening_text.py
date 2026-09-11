@@ -2,7 +2,7 @@
 
 The title/opening uses its own fixed-width byte encoding, separate from the
 normal event/DTE text codec.  This module only reads the stock compressed
-arrangement at ROM $07B480; component 04 remains the canonical writer.
+arrangement at ROM $07B480; `french_opening` remains the canonical writer.
 """
 from __future__ import annotations
 

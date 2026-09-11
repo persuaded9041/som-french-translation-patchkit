@@ -1,7 +1,7 @@
 ; Secret of Mana (USA) - shared VWF decoded-text buffer bridge
 ; ============================================================
 ; Readable reference for shared/vwf_text_buffer.py, which is the executable
-; canonical source. Components 05 and 06 install these hooks/helpers byte-for-byte.
+; canonical source. `vwf_intro` and `vwf_dialogues` install these hooks/helpers byte-for-byte.
 ;
 ; Stock parser buffer:   $7E:A1A4-$A1C4 (33 initialized bytes)
 ; Private VWF buffer:    $7E:9390-$93BB (44 bytes)
@@ -21,7 +21,7 @@ hirom
 !PRIVATE_BUFFER    = $9390
 !STOCK_BUFFER      = $A1A4
 !INTRO_CONFIG      = $C74C80 ; $05 + 16-bit exclusive end pointer
-!DIALOGUE_CONFIG   = $C74C84 ; $06 when component 06 is installed
+!DIALOGUE_CONFIG   = $C74C84 ; $06 when `vwf_dialogues` is installed
 
 org $C016B8
     jml shared_vwf_buffer_init
@@ -60,7 +60,7 @@ shared_vwf_buffer_init:
     sep #$20
     bne .stock_init
 
-    ; Mode 1: component 05 translated intro event $0400.
+    ; Mode 1: `vwf_intro` translated intro event $0400.
     lda.l !INTRO_CONFIG
     cmp #$05
     bne .dialogue_check
@@ -77,8 +77,8 @@ shared_vwf_buffer_init:
     sep #$20
 .dialogue_check:
 
-    ; Mode 2: component 06 real event-engine text in stock C9/CA or
-    ; component-08 relocated E8-EC banks.
+    ; Mode 2: `vwf_dialogues` real event-engine text in stock C9/CA or
+    ; `french_dialogues` relocated E8-EC banks.
     lda.l !DIALOGUE_CONFIG
     cmp #$06
     bne .stock_init
@@ -153,7 +153,7 @@ shared_vwf_capacity:
     lda #$27
     bra .store
 .intro:
-    ; Runtime-validated component-05 behavior is preserved exactly.
+    ; Runtime-validated `vwf_intro` behavior is preserved exactly.
     lda #$27
     bra .store
 .stock:
@@ -166,5 +166,5 @@ shared_vwf_capacity:
 
 ; Runtime configuration bytes are component-owned rather than part of the
 ; byte-identical helper payload:
-;   component 05: $C7:4C80 = $05, $C7:4C81-$4C82 = intro exclusive end
-;   component 06: $C7:4C84 = $06
+;   `vwf_intro`: $C7:4C80 = $05, $C7:4C81-$4C82 = intro exclusive end
+;   `vwf_dialogues`: $C7:4C84 = $06

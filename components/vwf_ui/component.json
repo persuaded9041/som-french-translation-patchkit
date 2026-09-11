@@ -1,0 +1,7 @@
+{
+  "id": "vwf_ui",
+  "short_name": "vwf-ui",
+  "name": "UI VWF",
+  "shared_charset_profile": "dialogue_french",
+  "build_order": 90
+}

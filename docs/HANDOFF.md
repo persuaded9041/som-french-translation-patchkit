@@ -1,4 +1,4 @@
-# Development handoff — Round 75
+# Development handoff — Round 76
 
 Operational handoff only. Historical evidence remains in `docs/ANDROID_TEXT_ALIGNMENT.md`,
 `docs/DIALOGUE_FORMAT.md`, `docs/TEXT_RESEARCH_NOTES.md`, and the archived review files.
@@ -6,7 +6,7 @@ Operational handoff only. Historical evidence remains in `docs/ANDROID_TEXT_ALIG
 ## Current checkpoint
 
 - Reference ROM: unheadered **Secret of Mana (USA)**, `0x200000`, SHA-256 `4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f`. Never store or redistribute it.
-- Current state: **Round 75 — UI VWF foundation / resource-names checkpoint**. Dialogue payload remains the locked Round-72 automatic 216 px build.
+- Current state: **Round 76 — semantic component naming cleanup**. Dialogue payload remains the locked Round-72 automatic 216 px build.
 - Android semantic alignment: **1798 / 1838 (97.8%)**, 40 unresolved semantic IDs. Do not inflate identity to reach 100%.
 - Playable dialogue corpus: **701 events = 701 complete + 0 PARTIEL**.
 - Translation output: **1810 accepted semantic source IDs / 1943 active sparse JSON entries**.
@@ -29,7 +29,7 @@ All user-reviewed Round 67/68/69 translation identities, wording, suppressions a
 
 ## Runtime VWF contract — validated
 
-Round 70 identified the long-line Potos artifact as a parser-capacity problem, not a compositor defect. Component 06 now grants `+10` dialogue parser units, restoring **38 decoded glyphs per physical line**. Runtime tests on `pressentiment`, `lumière` and `cascade` validate that the former delayed/shifted 35th glyph is fixed.
+Round 70 identified the long-line Potos artifact as a parser-capacity problem, not a compositor defect. `vwf_dialogues` now grants `+10` dialogue parser units, restoring **38 decoded glyphs per physical line**. Runtime tests on `pressentiment`, `lumière` and `cascade` validate that the former delayed/shifted 35th glyph is fixed.
 
 Independent stress tests establish two separate ordinary-dialogue constraints:
 
@@ -91,10 +91,33 @@ python3 tools/simulate_dialogues.py "Secret of Mana (USA).sfc" \
 
 Rebuild only changed components, then recombine stored component IPS files. Never include a ROM in an archive.
 
-## Round 75 — standalone `09_ui_vwf` foundation
+## Round 76 — semantic component naming cleanup
+
+Component IDs are now semantic and intentionally unnumbered. The migration is structural only: no renderer, translation payload, event data, or ROM behavior is intentionally changed. The canonical component IDs are:
+
+- `mana_tree_original`
+- `name_entry_extended`
+- `french_menus`
+- `french_opening`
+- `vwf_intro`
+- `vwf_dialogues`
+- `intro_skip`
+- `french_dialogues`
+- `vwf_ui`
+- `french_resources`
+
+Aggregate precedence no longer depends on directory-name sorting. Every `component.json` carries an explicit integer `build_order`, and `shared/components.py` sorts by that field before building or combining patches. This preserves the validated historical merge order while allowing semantic folder names.
+
+The naming families are deliberate: `french_*` owns translated payloads, while `vwf_*` owns VWF/runtime rendering. `vwf_intro` remains temporarily hybrid because it still contains the validated French intro payload; separating that payload into a future `french_intro` component is deferred until a dedicated, independently validated refactor.
+
+The Ring Menu has also been observed in runtime to already render with VWF under the current `vwf_ui` foundation, likely through a shared path reached by the Forge work. Treat that as an observation to characterize, not as permission to broaden the UI gate: before changing Ring Menu code, trace and prove the exact existing builder/submit path and determine why VWF is already active.
+
+The rename checkpoint was rebuilt from the clean USA ROM and compared against the pre-rename Round-75 baseline. All ten standalone IPS files are byte-for-byte identical to their former counterparts, and `all.ips` is also identical (SHA-256 `5f909cd9b6f6c4d5aeb64cfc0634b5f3c4ffb850039c8a494efe745b0cc79478`; final SNES checksum `$177D`). Text-source hygiene and the complete 2048-event structural/source round-trip audit also pass. This is therefore a naming/build-order cleanup, not a ROM-content checkpoint.
+
+## Round 75 — standalone `vwf_ui` foundation
 
 The Watts Forge long-name issue is now runtime-validated as solved and has been
-cleaned into a new independent component: `09_ui_vwf` (`ui-vwf`). It has **no
+cleaned into a new independent component: `vwf_ui` (`vwf-ui`). It has **no
 component dependency**; it only installs byte-identical helpers from `shared/`.
 
 Validated Forge chain and behavior:
@@ -122,7 +145,7 @@ Validated Forge chain and behavior:
 - `Fendeuse de dragon →... 25000GP` is runtime-validated on one line with the
   suffix positioned relative to the VWF-rendered name; a 19-character stress name
   also passed with the +3 budget.
-- standalone `09_ui_vwf` is runtime-validated on a clean USA ROM: Forge weapon names
+- standalone `vwf_ui` is runtime-validated on a clean USA ROM: Forge weapon names
   render correctly in VWF, GAME SELECT remains stock/non-glitched, and Watts'
   ordinary dialogue remains stock/non-VWF.
 
@@ -131,17 +154,17 @@ gates, renderer-time `$FF69`, global parser hooks, `$C0:588E`, raster probes,
 private-buffer-38 parser substitution, and event-pointer-gated capacity checks.
 See `docs/FORGE_VWF_RESEARCH.md`.
 
-`09_ui_vwf` is intentionally the future home for other proven non-dialogue VWF
+`vwf_ui` is intentionally the future home for other proven non-dialogue VWF
 paths (Ring Menu, item-acquisition UI, etc.). Each new path must get a narrow
 identity gate; do not turn it into a global menu VWF switch.
 
 The shared renderer entry now uses a byte-identical dispatcher installed by
-components 06 and 09. Component 06's dialogue classifier at `$ED:7040` remains
-its owner; component 09 owns its own renderer at `$ED:7B00+`. On stock fallbacks
+`vwf_dialogues` and `vwf_ui`. `vwf_dialogues`'s dialogue classifier at `$ED:7040` remains
+its owner; `vwf_ui` owns its own renderer at `$ED:7B00+`. On stock fallbacks
 the dispatcher explicitly clears `$7E:9385`, preventing stale UI-VWF state from
 corrupting GAME SELECT or other fixed-width callers. The shared stock-capacity
-helper contains a dormant component-09 branch, enabled only by the `$C7:4C87=$09`
-config marker plus the exact one-shot UI tag. Builds without component 09 preserve
+helper contains a dormant `vwf_ui` branch, enabled only by the `$C7:4C87=$09`
+config marker plus the exact one-shot UI tag. Builds without `vwf_ui` preserve
 prior behavior.
 
 ## Round 73 historical cleanup checkpoint
@@ -150,7 +173,7 @@ Round 73 deliberately contained no accepted Forge VWF change. Its safe hashes an
 failed-probe history are retained in version history and in
 `docs/FORGE_VWF_RESEARCH.md`; they are **not** the current production state.
 
-## Next work — extend `09_ui_vwf` to other interface paths
+## Next work — extend `vwf_ui` to other interface paths
 
 The Forge backend is **finished and locked** unless a regression is demonstrated. The next
 phase is to extend VWF coverage to other non-dialogue UI paths, one family at a time. Start
@@ -168,9 +191,9 @@ Recommended order:
 
 Rules for every new backend:
 
-- preserve the locked dialogue path and do not broaden component 06;
-- component 09 stays standalone and owns rendering/layout only, never French resource text;
-- component 10 stays standalone and owns reviewed `$CA` name translation only;
+- preserve the locked dialogue path and do not broaden `vwf_dialogues`;
+- `vwf_ui` stays standalone and owns rendering/layout only, never French resource text;
+- `french_resources` stays standalone and owns reviewed `$CA` name translation only;
 - prove the exact builder/submit identity before enabling VWF; prefer one-shot tags;
 - preserve stock parser/buffer unless the target path itself proves a need for more capacity;
 - clear UI-VWF state on every stock fallback so unrelated callers cannot inherit it;
@@ -191,28 +214,28 @@ correct a future demonstrable typo/inconsistency if it is reviewed separately.
 ## Current resource-name runtime state
 
 The Android system-resource mapping remains deterministic at **475 mapped** resources.
-The translated-name insertion now has a production component: `10_resource_names_fr`.
+The translated-name insertion now has a production component: `french_resources`.
 It deterministically consumes the reviewed name-family subset of
 `translations/text_resources_french.json` and is included in `all.ips`. The previously known
-Watts/Matango long-weapon-name blocker is solved independently by `09_ui_vwf`.
+Watts/Matango long-weapon-name blocker is solved independently by `vwf_ui`.
 
 The Forge fix does not hard-code French prose and does not own resource translation. It
 only fixes the rendering/layout path, so the same UI component can support future proven
 non-dialogue text paths.
 
 
-## Round 75 — `10_resource_names_fr` production integration
+## Round 75 — `french_resources` production integration
 
 The clean Round-74 rebuild initially omitted the former research-only resource-name IPS because
 it was not represented by a component manifest. This regression is fixed by the new standalone
-`10_resource_names_fr` component. `build.py --combine` now includes it automatically, so future
+`french_resources` component. `build.py --combine` now includes it automatically, so future
 aggregate rebuilds cannot silently drop the reviewed French weapon/item/equipment/enemy/location
-name resources. `09_ui_vwf` remains independent and owns no translations.
+name resources. `vwf_ui` remains independent and owns no translations.
 
 ## Round 72 addendum — Android system-resource mapping scaffold
 
 A deterministic Android-FR mapping layer now exists for the canonical 513 non-event
-`$CA` text resources. The mapping layer remains the deterministic source/provenance scaffold. Production reinsertion of the reviewed **name families** is now owned by `10_resource_names_fr`; descriptions, menu labels and parameterized system-message families remain outside that component.
+`$CA` text resources. The mapping layer remains the deterministic source/provenance scaffold. Production reinsertion of the reviewed **name families** is now owned by `french_resources`; descriptions, menu labels and parameterized system-message families remain outside that component.
 
 Generated files:
 
@@ -246,7 +269,7 @@ all candidate French payloads are identical. System resources `$1FF-$200` remain
 because Android uses parameterized templates there and they require a separate formatting
 study before any reinsertion.
 
-`translations/text_resources_french.json` is now consumed by `10_resource_names_fr` for the
+`translations/text_resources_french.json` is now consumed by `french_resources` for the
 reviewed name families only (magic/spirit/weapon/equipment/item/enemy/location names).
 Descriptions, menu labels and system-message families remain outside that production component
 until their UI/formatting constraints are separately validated.

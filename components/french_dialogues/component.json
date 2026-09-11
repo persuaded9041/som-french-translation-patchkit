@@ -1,0 +1,8 @@
+{
+  "id": "french_dialogues",
+  "short_name": "french-dialogues",
+  "name": "French dialogue reinsertion",
+  "shared_charset_profile": "dialogue_french",
+  "dialogue_dte_router": true,
+  "build_order": 80
+}

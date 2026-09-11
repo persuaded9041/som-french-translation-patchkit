@@ -1,6 +1,6 @@
 """Shared validated VWF framing and advance policy.
 
-Components 05 and 06 integrate with different runtime paths, but they can use
+`vwf_intro` and `vwf_dialogues` integrate with different runtime paths, but they can use
 one canonical glyph geometry policy.  The policy here matches the currently
 runtime-validated dialogue renderer:
 

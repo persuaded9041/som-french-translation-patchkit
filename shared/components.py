@@ -33,6 +33,17 @@ def discover_components(root: Path) -> list[Component]:
         )
     if not components:
         raise SystemExit("No components found under components/*/component.json")
+
+    # Public component IDs are semantic and intentionally unnumbered. Preserve the
+    # established aggregate patch order explicitly through manifest build_order so
+    # renaming/reorganizing component folders cannot silently change merge precedence.
+    orders = [component.metadata.get("build_order") for component in components]
+    if any(not isinstance(order, int) for order in orders):
+        raise SystemExit("Every component.json must define an integer build_order")
+    if len(orders) != len(set(orders)):
+        raise SystemExit("Duplicate component build_order in component.json")
+    components.sort(key=lambda component: (component.metadata["build_order"], component.id))
+
     short_names = [component.short_name for component in components]
     if len(short_names) != len(set(short_names)):
         raise SystemExit("Duplicate component short_name in component.json")

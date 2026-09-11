@@ -1,18 +1,18 @@
-# UI VWF — component 09 extension contract
+# UI VWF — `vwf_ui` extension contract
 
-This document is the operational guide for extending `09_ui_vwf` beyond the runtime-validated
+This document is the operational guide for extending `vwf_ui` beyond the runtime-validated
 Watts Forge backend. It is intentionally separate from `FORGE_VWF_RESEARCH.md`, which records the
 Forge-specific search history and rejected probes.
 
 ## Ownership
 
-`09_ui_vwf` owns **non-dialogue interface VWF rendering and layout fixes**. It must remain
+`vwf_ui` owns **non-dialogue interface VWF rendering and layout fixes**. It must remain
 standalone on a clean USA ROM and may depend only on shared helpers/infrastructure. It does not
-own French text resources. `10_resource_names_fr` owns the reviewed French `$CA` name families.
-`06_dialogue_vwf` owns ordinary event dialogue.
+own French text resources. `french_resources` owns the reviewed French `$CA` name families.
+`vwf_dialogues` owns ordinary event dialogue.
 
 The low-level VWF hooks may be shared byte-identically, but ownership decisions must remain
-separate. A shared renderer entry is not, by itself, proof that a UI family belongs to component 09.
+separate. A shared renderer entry is not, by itself, proof that a UI family belongs to `vwf_ui`.
 
 ## Accepted Forge reference backend
 
@@ -50,8 +50,8 @@ suffix, standalone GAME SELECT, and ordinary Watts dialogue. Treat this backend 
    or collide with long translated names. Compact or reposition suffixes from measured VWF width.
 8. **Consume and clear state.** The tag must be one-shot, and all non-owned/fallback calls must
    clear low-level VWF-active state before replaying stock behavior.
-9. **Validate standalone first, aggregate second.** Test component 09 alone on a clean USA ROM,
-   then rebuild/test `all.ips` with component 10 and the dialogue components present.
+9. **Validate standalone first, aggregate second.** Test `vwf_ui` alone on a clean USA ROM,
+   then rebuild/test `all.ips` with `french_resources` and the dialogue components present.
 
 ## Mandatory regressions
 
@@ -60,18 +60,22 @@ After each new backend, verify at minimum:
 - the new UI family itself, including its longest translated/resource names;
 - Watts Forge row remains correct;
 - GAME SELECT remains fixed-width and unglitched;
-- Watts ordinary dialogue is not captured by component 09;
-- ordinary component-06 dialogues remain unchanged in the aggregate build;
-- resource-name translation from component 10 is still present in `all.ips`;
+- Watts ordinary dialogue is not captured by `vwf_ui`;
+- ordinary `vwf_dialogues` dialogues remain unchanged in the aggregate build;
+- resource-name translation from `french_resources` is still present in `all.ips`;
 - any menu family sharing the same submit/renderer helpers is spot-checked.
 
 ## Next candidates
 
 ### 1. Ring Menu
 
-Start by inventorying which labels/names are built dynamically versus read directly from `$CA`
-resources. Identify exact submit/build routines for the visible fixed-width fields before adding
-any gate. Long equipment/item names are likely useful stress cases.
+Runtime observation after the Round-75 Forge work: Ring Menu text already renders with VWF. This
+is likely an effect of a shared path, but the exact ownership/submit chain has not yet been proven.
+Do **not** add another gate merely to "enable" Ring Menu VWF. First inventory which labels/names are
+built dynamically versus read directly from `$CA` resources, trace the exact builder/submit path,
+and explain why the current narrow `vwf_ui` infrastructure already reaches it. Only add a new
+one-shot gate if a specific Ring Menu field is proven to need one. Long equipment/item names remain
+useful stress cases.
 
 ### 2. Item-acquisition / pickup UI
 
@@ -83,7 +87,7 @@ a local resource-ID or glyph probe before attempting VWF.
 
 Equipment/status/shop rows may be considered after the first two families are understood. Do not
 create a generic "all non-dialogue text" switch. Each family should remain independently gated
-and independently disableable inside component 09.
+and independently disableable inside `vwf_ui`.
 
 ## Known rejected patterns
 

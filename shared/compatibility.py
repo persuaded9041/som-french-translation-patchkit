@@ -46,8 +46,8 @@ def audit_overlaps(components, patch_data: dict[str, bytes]) -> tuple[int, int]:
                 left_threshold = _threshold(left)
                 right_threshold = _threshold(right)
                 if offset == DTE_THRESHOLD_OFFSET:
-                    # Legacy threshold-only components (02/03/05) may overlap
-                    # the context-sensitive JML installed by 06/08 at the old
+                    # Legacy threshold-only components (`name_entry_extended` / `french_menus` / `vwf_intro`) may overlap
+                    # the context-sensitive JML installed by `vwf_dialogues` / `french_dialogues` at the old
                     # immediate operand. In a combined build the later router
                     # owns this byte; without a router the historical max-
                     # threshold merge rule remains unchanged.
@@ -75,7 +75,7 @@ def audit_overlaps(components, patch_data: dict[str, bytes]) -> tuple[int, int]:
 
 
 def apply_merge_rules(rom: bytearray, components) -> None:
-    # 06/08 install the full event-dialogue router and are later than 02 in
+    # `vwf_dialogues` / `french_dialogues` install the full event-dialogue router and are later than 02 in
     # component order, so their hook owns the shared parser site in aggregate
     # builds. Never rewrite one byte of that JML with a legacy threshold.
     if any(_uses_dialogue_dte_router(component) for component in components):
@@ -83,7 +83,7 @@ def apply_merge_rules(rom: bytearray, components) -> None:
 
     thresholds = [value for component in components if (value := _threshold(component)) is not None]
 
-    # Component 02 installs a smaller Name Entry / PLAYER_NAME router. A later legacy
+    # `name_entry_extended` installs a smaller Name Entry / PLAYER_NAME router. A later legacy
     # component (notably 05) still writes its immediate threshold byte while
     # its standalone IPS is being applied, so restore 02's four-byte JML here
     # and move the historical max-threshold merge into the router config byte.

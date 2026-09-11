@@ -18,4 +18,4 @@ The extractor validates the stock tile pattern and exposes its logical source as
 `© 1993 SQUARE CO., LTD.`. Graphic-only title/logo data and layout/indent bytes
 are deliberately not duplicated as text.
 
-Component `04_french_opening` remains the canonical writer for this compressed arrangement and now consumes `translations/opening_text_french.json`. Because individual strings only acquire stable positions after decompression, IDs use `C7:B480+<decompressed offset>`. The French-only translation credit uses the explicit `new:` namespace because it has no clean-ROM source position.
+Component `french_opening` remains the canonical writer for this compressed arrangement and now consumes `translations/opening_text_french.json`. Because individual strings only acquire stable positions after decompression, IDs use `C7:B480+<decompressed offset>`. The French-only translation credit uses the explicit `new:` namespace because it has no clean-ROM source position.

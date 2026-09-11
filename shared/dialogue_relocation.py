@@ -1,14 +1,14 @@
 """Extended-bank relocation support for edited stock event scripts.
 
 The stock event dispatcher resolves IDs $0000-$07FF to a 16-bit pointer in
-bank $C9 or $CA.  Component 08 leaves that path untouched unless at least one
+bank $C9 or $CA.  `french_dialogues` leaves that path untouched unless at least one
 edited event no longer fits its original pointer span.
 
 When relocation is required, a tiny dispatcher hook first consults a sparse
 2048-entry 24-bit table in expanded ROM.  A zero bank byte means "use the stock
 $C9/$CA lookup"; a non-zero entry supplies the complete relocated event address.
-This preserves every stock pointer (including component-05's runtime-validated
-$0400-$040F changes) for events that component 08 does not relocate.
+This preserves every stock pointer (including `vwf_intro`'s runtime-validated
+$0400-$040F changes) for events that `french_dialogues` does not relocate.
 """
 from __future__ import annotations
 
@@ -94,7 +94,7 @@ def _assemble_event_loader_helper() -> bytes:
     a.emit(0x6B)                           # RTL
 
     # Reproduce the stock C9/CA pointer selection exactly for every sparse-table
-    # miss.  Reading the *live* stock tables is important: component 05 rewrites
+    # miss.  Reading the *live* stock tables is important: `vwf_intro` rewrites
     # $0401-$040F pointers, and those changes must remain authoritative.
     a.label("stock")
     a.emit(0xC2, 0x30)                     # REP #$30

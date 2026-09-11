@@ -1,13 +1,13 @@
 """Shared dispatch state for non-dialogue UI VWF components.
 
 The stock renderer entry at $C0:167D is shared by ordinary event text and several
-menu/UI callers.  Components 06 (dialogue VWF) and 09 (UI VWF) both install the
+menu/UI callers.  `vwf_dialogues` (dialogue VWF) and 09 (UI VWF) both install the
 same tiny dispatcher so their standalone patches remain self-contained and their
 aggregate overlap is byte-identical.
 
 Component-specific renderers remain independent:
-- component 06: $ED:7040
-- component 09: $ED:7B00
+- `vwf_dialogues`: $ED:7040
+- `vwf_ui`: $ED:7B00
 """
 from __future__ import annotations
 
@@ -39,7 +39,7 @@ DIALOGUE_MARKER = 0x06
 def _assemble_dispatcher() -> bytes:
     a = MiniAssembler(DISPATCH_CPU)
 
-    # UI has first refusal only when component 09 is installed *and* its exact
+    # UI has first refusal only when `vwf_ui` is installed *and* its exact
     # builder has armed the one-shot tag.
     a.emit(0xAF, *lo24(UI_CONFIG_CPU))
     a.emit(0xC9, UI_MARKER)
@@ -49,7 +49,7 @@ def _assemble_dispatcher() -> bytes:
     a.rel8(0xF0, "ui")
 
     a.label("dialogue")
-    # Component 06 sets its existing shared parser config marker. If present,
+    # `vwf_dialogues` sets its existing shared parser config marker. If present,
     # defer to its runtime-validated entry classifier unchanged.
     a.emit(0xAF, *lo24(DIALOGUE_CONFIG_CPU))
     a.emit(0xC9, DIALOGUE_MARKER)
@@ -57,7 +57,7 @@ def _assemble_dispatcher() -> bytes:
 
     # No VWF owner: clear any stale low-level VWF scope left by a previous
     # one-shot UI render, then replay the stock entry bytes and continue at
-    # $C0:1682.  This is required for standalone component 09: GAME SELECT
+    # $C0:1682.  This is required for standalone `vwf_ui`: GAME SELECT
     # and other stock callers share the same character hooks but must see
     # $9385 == 0.
     a.emit(0x9C, 0x85, 0x93)

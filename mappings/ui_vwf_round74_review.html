@@ -6,7 +6,7 @@ body{font:16px/1.45 system-ui,sans-serif;max-width:980px;margin:40px auto;paddin
 <h1>Round 74 — standalone UI VWF / Watts Forge</h1>
 <p class="ok">Accepted runtime behavior from the research series: VWF current weapon name, dynamic <code>→...</code> placement, full price + <code>GP</code> on one line.</p>
 <h2>Production component</h2>
-<table><tr><th>ID</th><td><code>09_ui_vwf</code></td></tr><tr><th>Dependency</th><td>None on other components; shared VWF helpers only</td></tr><tr><th>First backend</th><td>Watts Forge weapon row</td></tr><tr><th>Logical capacity</th><td>Exact builder-tagged +3</td></tr><tr><th>Parser</th><td>Stock parser / stock decoded buffer retained</td></tr></table>
+<table><tr><th>ID</th><td><code>vwf_ui</code></td></tr><tr><th>Dependency</th><td>None on other components; shared VWF helpers only</td></tr><tr><th>First backend</th><td>Watts Forge weapon row</td></tr><tr><th>Logical capacity</th><td>Exact builder-tagged +3</td></tr><tr><th>Parser</th><td>Stock parser / stock decoded buffer retained</td></tr></table>
 <h2>Validated geometry target</h2>
 <div class="sample">Fendeuse de dragon →... 25000GP</div>
 <p>The suffix is not anchored to a fixed visual column. It is decoded at safe logical slots, then compacted so the arrow begins one decoded space after the actual VWF-rendered weapon name.</p>

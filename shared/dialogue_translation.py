@@ -2191,7 +2191,7 @@ def format_mapping_across_existing_action_boundary(
 ) -> tuple[dict[str, str], dict]:
     """Split one localized Android unit across a proven stock action boundary.
 
-    Component-06 runtime work established the event interruption sequence where
+    `vwf_dialogues` runtime work established the event interruption sequence where
     ``OP_32`` schedules actor movement/action and ``COMPLETE_ACTIONS`` waits for
     scheduled actions to finish before text parsing resumes in the same box.
     This formatter fallback therefore handles only two mapped text tokens from

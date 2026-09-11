@@ -1,4 +1,4 @@
-"""Shared stock-font VWF row renderer for components 05, 06 and 09.
+"""Shared stock-font VWF row renderer for `vwf_intro`, `vwf_dialogues`, and `vwf_ui`.
 
 Input contract (65816, 8-bit accumulator mode):
 

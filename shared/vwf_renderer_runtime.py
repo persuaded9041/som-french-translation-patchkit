@@ -1,8 +1,8 @@
 """Shared low-level VWF renderer runtime used by standalone UI VWF.
 
 These bytes are the runtime-validated generic rendering core already used by
-component 06.  They are frozen here so component 09 can install the same
-character/row/outline machinery without depending on component 06 itself.
+`vwf_dialogues`.  They are frozen here so `vwf_ui` can install the same
+character/row/outline machinery without depending on `vwf_dialogues` itself.
 The active scope is selected at runtime through WRAM $7E:9385; when inactive,
 the hooks replay stock behavior.
 """

@@ -762,7 +762,7 @@ DIALOGUE_REVIEW_ROUND34 = (
 # provenance/payload for a SNES carrier reused or duplicated by Android.  $0689
 # keeps Android EN 769 as the proven identity but intentionally rejects the bad
 # Android-FR payload and routes the exact stock-USA source text through the
-# ordinary component-08 translation/relocation pipeline.
+# ordinary `french_dialogues` translation/relocation pipeline.
 DIALOGUE_REVIEW_ROUND39 = (
     {
         "event_id": "019C",
@@ -8833,7 +8833,7 @@ def _repair_cross_mapping_sentence_overflow(
         mapping = event_mappings[mapping_index]
 
         # The validated cross-mapping repair is only safe across the same
-        # event-interruption family already proven for component 06: actor
+        # event-interruption family already proven for `vwf_dialogues`: actor
         # actions followed by COMPLETE_ACTIONS. Do not bridge arbitrary event
         # commands merely because a candidate happens to resimulate.
         by_id, by_event = event_text_index(source_document)
@@ -10584,7 +10584,7 @@ def _format_user_validated_stock_english_override(
     This is not an unresolved/manual translation. Android English still proves
     semantic identity; the user has explicitly rejected the corresponding
     Android French localization. The exact canonical USA source string is sent
-    through the ordinary component-08 translation serializer, so existing
+    through the ordinary `french_dialogues` translation serializer, so existing
     in-place/relocation behavior remains authoritative.
     """
     snes_ids = mapping.get("snes_ids", [])
@@ -13176,7 +13176,7 @@ def _try_adaptive_choice_anchor_positions(
     to the minimum decoded-cell position immediately after the previous localized
     label.  The move is tried only for a simple canonical choice row and is kept
     only when the independently serialized/simulated event becomes fully clean.
-    Component 06 and the stock highlight then consume the same moved coordinate,
+    `vwf_dialogues` and the stock highlight then consume the same moved coordinate,
     matching the runtime-validated $03/$11 -> $03/$12 long-label diagnostic.
     """
     from shared.dialogue_simulator import simulate_event
@@ -15666,7 +15666,7 @@ def make_dialogue_format_mass(
             # English through the French formatter, because reflowing identical
             # prose could change simulation/admission despite the user not yet
             # approving any payload. This is the strict meaning of “pending
-            # serializes original_en”: component 08 falls back to the source ROM
+            # serializes original_en”: `french_dialogues` falls back to the source ROM
             # bytes exactly.
             if manual_entry.get("status") == "suppressed":
                 if (event_id, missing_id) != ("013A", "C9:40D7"):
@@ -16533,7 +16533,7 @@ def make_dialogue_format_mass(
             "user_validated_visual_complete_policy": "events explicitly validated by the user as complete Android adaptations keep their simulator-clean French-only bytes and are removed from the PARTIEL badge without inventing mappings for omitted SNES-only fragments",
             "user_validated_structural_omission_policy": "a stock command may be omitted only when the user explicitly validates the omission and the command is proven by exact adjacency to an explicitly suppressed semantic ID; Round 63 additionally suppresses the standalone $04E1/CA:2C84 page and its immediately following WAIT $00 because SNES-JP resegments that meaning into the following unit; Round 67 suppresses the Western-only $013A/C9:40D7 instruction and its immediately following WAIT $00 because no distinct SNES-JP line exists and Android FR omits it; Round 57 removes PLAYER_NAME(0)+post-line WAIT with $02FC/C9:CB28 and PLAYER_NAME(2) with $0558/CA:6629, while $010C/C9:30F5 remains text-only",
             "manual_supplement_policy": "only exact allow-listed carriers may appear in translations/dialogues_manual_supplements.json: reviewed Android omissions, user-requested no-unique-equivalent carriers, plus the exact Round-62/63 mapped suppression carrier; pending entries may carry a review-only translation_fr proposal but never alter the visible payload until explicitly approved; manual entries never create Android identity",
-            "user_validated_stock_english_override_policy": "when Android English identity is proven but the corresponding Android French is user-validated as a localization error, keep the semantic mapping accepted but serialize the exact canonical USA source text through the ordinary component-08 pipeline; this is non-cascading evidence and does not count as an unresolved/manual translation",
+            "user_validated_stock_english_override_policy": "when Android English identity is proven but the corresponding Android French is user-validated as a localization error, keep the semantic mapping accepted but serialize the exact canonical USA source text through the ordinary `french_dialogues` pipeline; this is non-cascading evidence and does not count as an unresolved/manual translation",
             "parameterized_inn_policy": "Android EN/FR 110 is the reviewed template for the common inn prompt: keep each stock numeric caller as the dynamic price, suppress stock C9:CEA3 before it, and render the normalized Android-FR suffix through C9:CEB3; this resolves all shared inn price variants without per-price manual translation",
             "event_0278_android_extra_policy": "after Android 1347/1348 and the two user-validated SNES-only manual controller supplements, insert Android FR 1349 as an extra page before already aligned 1350, then continue with 1351; an explicit newline before C9:A74E materializes the real WAIT!=NEWLINE cursor behavior and avoids an implicit wrap",
             "reviewed_fragment_spacing_policy": "event $0106 may insert only the two user-reported literal spaces between proven adjacent text fragments; no command or layout boundary changes",

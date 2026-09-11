@@ -1,9 +1,9 @@
-"""Independent dialogue-box simulator for component 06/08 output.
+"""Independent dialogue-box simulator for `vwf_dialogues` / `french_dialogues` output.
 
 The formatter decides where it *wants* lines/pages to break.  This simulator is
 intentionally downstream of that decision: it serializes the final event bytes,
 decodes those bytes with the dialogue $E8 direct/DTE boundary, expands dynamic
-PLAYER_NAME commands, and applies the validated component-06 glyph metrics and
+PLAYER_NAME commands, and applies the validated `vwf_dialogues` glyph metrics and
 runtime limits again.
 
 It is not a CPU emulator.  Event commands unrelated to text are preserved as
@@ -120,7 +120,7 @@ def make_dialogue_font(base_rom: bytes) -> DialogueFont:
     if len(font) != GLYPH_COUNT * FONT_ROWS:
         raise ValueError("Reference ROM is too small for the stock dialogue font")
 
-    # Component 06/08 installs the complete dialogue profile at D3-E7.
+    # `vwf_dialogues`/08 installs the complete dialogue profile at D3-E7.
     first_code = min(TEXT_TO_CODE[ch] for ch in DIALOGUE_FRENCH_CHARS)
     replacement = glyph_bytes(DIALOGUE_FRENCH_CHARS)
     start = (first_code - 0x80) * FONT_ROWS
@@ -143,7 +143,7 @@ def _dte_pair(base_rom: bytes, code: int) -> tuple[int, int]:
     if 0x60 <= code <= 0x7C:
         pair_index = code - 0x60
     elif DIALOGUE_DTE_THRESHOLD <= code <= 0xFF:
-        # Component 06 keeps the stock upper-DTE addressing basis ($C3), only
+        # `vwf_dialogues` keeps the stock upper-DTE addressing basis ($C3), only
         # the direct/DTE threshold changes from E6 to E8 in real dialogue.
         pair_index = code - 0xC3
     else:
@@ -348,7 +348,7 @@ class _Simulator:
     def _append_without_wrap(self, glyph: Glyph) -> None:
         # A source space is a safe rewind checkpoint only in ordinary event
         # text. Dynamic PLAYER_NAME bytes are a temporary source and are never
-        # rewound by component 06.
+        # rewound by `vwf_dialogues`.
         if (
             glyph.char == " "
             and not glyph.dynamic_name
@@ -396,7 +396,7 @@ class _Simulator:
             self._append_without_wrap(glyph)
             return
 
-        # Match component 06's safe-space rewind: finish before the last source
+        # Match `vwf_dialogues`'s safe-space rewind: finish before the last source
         # space and carry the already-decoded following word to the next line.
         if self.last_safe_split is not None and self.last_safe_split > 0:
             before = self.line_glyphs[:self.last_safe_split]
@@ -681,7 +681,7 @@ class _Simulator:
         """Finalize a choice row and model the runtime-visible geometry.
 
         Decorated rows keep the stock cell-anchor model. Undecorated two-option
-        rows instead mirror component 06's runtime-validated measured-end path:
+        rows instead mirror `vwf_dialogues`'s runtime-validated measured-end path:
         parser/storage anchors remain logical, while the first option may start
         two cells farther left in private highlight space, the second starts
         from the rounded measured endpoint (plus one separator cell unless that
@@ -767,7 +767,7 @@ class _Simulator:
 
             if opcode == 0x7D:
                 # Ending/credits text uses a different renderer from ordinary
-                # component-06 dialogue. Keep the guard strict: it is accepted
+                # `vwf_dialogues` dialogue. Keep the guard strict: it is accepted
                 # only while the complete $7D...$7E block is byte-identical to
                 # the corresponding block in the clean USA event. This models
                 # the current stock-preservation contract without pretending to
@@ -842,7 +842,7 @@ class _Simulator:
                 self.unsupported_layout(name, args)
             elif name == "MONEY_PRINT":
                 # MONEY_PRINT updates the separate money display rather than
-                # appending glyphs to the component-06 dialogue buffer. Event
+                # appending glyphs to the `vwf_dialogues` dialogue buffer. Event
                 # $01CF executes it before TEXT_OPEN, proving it is outside the
                 # ordinary dialogue text stream. Keep it as a control boundary
                 # for word-rewind purposes, but consume no dialogue geometry.

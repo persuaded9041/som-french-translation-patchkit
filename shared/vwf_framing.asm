@@ -10,8 +10,8 @@
 ;   A = row shifted left according to the validated framing policy
 ; X and accumulator width are preserved.
 ;
-; Components 05 and 06 install/call this same contiguous C7 runtime copy.
-; Component 06 no longer carries duplicate selector payloads in bank ED.
+; `vwf_intro` and `vwf_dialogues` install/call this same contiguous C7 runtime copy.
+; `vwf_dialogues` no longer carries duplicate selector payloads in bank ED.
 
 hirom
 

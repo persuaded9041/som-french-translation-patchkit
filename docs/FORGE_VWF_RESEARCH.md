@@ -81,7 +81,7 @@ Reason tried: Watts has shop/forge response mini-events in bank `$D9`.
 Runtime result: **no effect on the weapon-upgrade line**.
 
 Conclusion: `$D9` contains response/event text after menu actions, not the line renderer
-we need. Do not broaden component 06 to `$D9` for this problem.
+we need. Do not broaden `vwf_dialogues` to `$D9` for this problem.
 
 ### B. Treat `OP_0F` / forge mode as sufficient and hook the presumed menu caller
 
@@ -183,7 +183,7 @@ row.
 Recommended sequence:
 
 1. Start from the clean resource-insertion-study checkpoint, not any forge-VWF archive.
-2. Keep component 06 byte-identical to the validated Round-72 version.
+2. Keep `vwf_dialogues` byte-identical to the validated Round-72 version.
 3. Instrument the dynamic WRAM record **before** it is passed to the event engine.
 4. Find the code that writes the two weapon identifiers / name references and the `$D0`
    arrow into that record.
@@ -200,10 +200,10 @@ The next implementation should not depend solely on `forge mode`, `$D9`, `$FF69`
 renderer time, `$C0:CB3C`, or searching a presumed decoded buffer for `$D0`; all of those
 were already tested and rejected in that form.
 
-## Round 74 accepted solution — `09_ui_vwf`
+## Round 74 accepted solution — `vwf_ui`
 
 The investigation is complete for the Watts Forge row. The accepted solution is
-productionized as standalone component `09_ui_vwf`; it does not depend on component 06
+productionized as standalone component `vwf_ui`; it does not depend on `vwf_dialogues`
 and keeps ordinary dialogue ownership separate.
 
 ### Runtime proofs accumulated after the Round-73 clean research checkpoint
@@ -224,7 +224,7 @@ and keeps ordinary dialogue ownership separate.
 7. **Standalone targeting proven** — arming the UI tag at the earlier weapon-name helper
    leaked into Watts' ordinary dialogue. The final tag is armed only at the exact submit
    of Forge mini-event `$00:19D0`. With that targeting and an explicit `$9385` clear on
-   stock dispatcher fallbacks, standalone `09_ui_vwf` was runtime-validated on a clean
+   stock dispatcher fallbacks, standalone `vwf_ui` was runtime-validated on a clean
    USA ROM: Forge names use VWF, GAME SELECT remains stock/non-glitched, and Watts'
    ordinary dialogue remains stock/non-VWF.
 
@@ -236,15 +236,15 @@ and keeps ordinary dialogue ownership separate.
 - Forge `TEXT_X` arguments move from logical slots 16/21 to safe slots 20/25. This is
   decoder geometry only; final visual position is not fixed there;
 - the stock parser and stock decoded buffer remain in use;
-- the common capacity helper adds +3 only when component-09 config and the exact
+- the common capacity helper adds +3 only when `vwf_ui` config and the exact
   one-shot submit tag are both active;
-- the component-09 renderer copies the already-decoded stock row, finds the true end of
+- the `vwf_ui` renderer copies the already-decoded stock row, finds the true end of
   the current weapon name, compacts the complete suffix leftward, and draws it with the
   shared VWF framing/compositor/metrics;
 - the shared dispatcher consumes the UI tag and clears `$7E:9385` on every stock
   fallback, so fixed-width callers such as GAME SELECT cannot inherit stale VWF state;
-- component 09 has its own renderer and is standalone. A shared renderer dispatcher lets
-  06 and 09 coexist without one depending on the other.
+- `vwf_ui` has its own renderer and is standalone. A shared renderer dispatcher lets
+  `vwf_dialogues` and `vwf_ui` coexist without one depending on the other.
 
 The temporary longest-name override used for stress testing is not included in production.
 Resource translation remains a separate text-resource concern.
@@ -257,7 +257,7 @@ Do not retry these unchanged:
   renderer invocation;
 - requiring event bank `$7E` at renderer time (event bank is `$00`; DB=`$7E` is a
   different CPU register fact);
-- routing the Forge mini-event through component-06's private 38-character parser buffer;
+- routing the Forge mini-event through `vwf_dialogues`'s private 38-character parser buffer;
 - changing only the price logical slot from 25 to 24;
 - capacity changes gated by `$1D01 == $19D0`;
 - a +1 capacity change armed from a tag that did not yet exist at capacity init;
@@ -271,10 +271,10 @@ kept intact and only render-time compaction plus a local +3 logical margin.
 
 ## Round 75 final status
 
-The Forge investigation is closed. The final standalone `09_ui_vwf` backend is runtime-validated
+The Forge investigation is closed. The final standalone `vwf_ui` backend is runtime-validated
 on a clean USA ROM and in the aggregate build: weapon names render in VWF, the full dynamic
 `→...` / price suffix remains on one line under the +3 logical margin, GAME SELECT remains stock,
-and Watts' ordinary dialogue remains owned by the stock/dialogue path rather than component 09.
+and Watts' ordinary dialogue remains owned by the stock/dialogue path rather than `vwf_ui`.
 
 Do not reopen the rejected Forge probes when extending UI VWF elsewhere. New work belongs in
-separate narrow backends under component 09 and should follow `docs/UI_VWF.md`.
+separate narrow backends under `vwf_ui` and should follow `docs/UI_VWF.md`.

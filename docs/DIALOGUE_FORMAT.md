@@ -1,7 +1,7 @@
 # Stock dialogue/event format
 
 This document records the mechanisms currently used by
-`components/08_dialogue_text` for deterministic extraction and reinsertion. The
+`components/french_dialogues` for deterministic extraction and reinsertion. The
 goal is to preserve the stock event structure exactly while exposing translatable
 source text under `assets/` and keeping French edits separately under `translations/`.
 
@@ -13,7 +13,7 @@ for the larger batch-2 candidate.
 
 ## Runtime layout rule for dynamic names
 
-Component 06 has a 38-unit private parser contract, but batch-1 runtime testing
+`vwf_dialogues` has a 38-unit private parser contract, but batch-1 runtime testing
 showed that a line modeled as exactly 38 visible characters with a maximum
 9-character `PLAYER_NAME` can still split. The offline formatter therefore treats
 each dynamic-name placeholder as nine visible characters **plus one conservative
@@ -55,8 +55,8 @@ Two boundary cases are handled explicitly:
 An **event span** contains both text and control commands. Dialogue text is only
 one part of that byte stream.
 
-Component 08 intentionally excludes event `$0400` from its default asset because
-that translated intro event is owned by `05_intro_vwf_french`. It remains
+`french_dialogues` intentionally excludes event `$0400` from its default asset because
+that translated intro event is owned by `vwf_intro`. It remains
 parseable/extractable explicitly for research.
 
 ## 2. Text byte classes
@@ -86,7 +86,7 @@ future extraction target.
 The patchkit keeps `$D4-$E5` as the canonical 18-character French range.
 Ordinary translated dialogue uses the `dialogue_french` extension `$D3-$E7`
 (`♪`, French range, `°`, `;`) and a context-sensitive `$E8` event-dialogue DTE
-boundary. The translated intro remains at `$E6`. Component 08 consumes this
+boundary. The translated intro remains at `$E6`. `french_dialogues` consumes this
 shared encoding but does not own the VWF renderer.
 
 ## 3. Event/control commands
@@ -260,7 +260,7 @@ translation and later runtime candidates live only in `translations/dialogues_fr
 Dialogue layout has **two independent limits** that the formatter must respect:
 
 1. a conservative VWF pixel target (currently **240 pixels**);
-2. the component-06 parser's runtime-validated capacity of **38 decoded
+2. the `vwf_dialogues` parser's runtime-validated capacity of **38 decoded
    characters per chunk/line**.
 
 The second limit was exposed by the `$0107` runtime pilot. The initial generated
@@ -282,7 +282,7 @@ correctly in game.
 
 ## 8. Current builder behavior
 
-Component 08 reconstructs every selected event from the clean-USA canonical
+`french_dialogues` reconstructs every selected event from the clean-USA canonical
 structure. When a translated event is no larger than its source span, it remains at
 its stock address; a shorter event is padded with `$00` END bytes and all stock
 pointers remain unchanged.
@@ -297,8 +297,8 @@ Growth now has a deterministic relocation path:
 - relocated scripts are packed by ascending event ID from `$E8:2000` through
   `$EC:FFFF`, never crossing a 64 KiB bank boundary.
 
-Because fallback reads the live stock tables, component 05 remains owner of its
-validated `$0400-$040F` pointer rewrites. Component 08 does not duplicate or
+Because fallback reads the live stock tables, `vwf_intro` remains owner of its
+validated `$0400-$040F` pointer rewrites. `french_dialogues` does not duplicate or
 freeze those pointers.
 
 The relocation path is runtime-validated: unchanged event `$0107` was executed
@@ -307,15 +307,15 @@ VWF rendering, line breaks, WAIT behavior and continuation all remained correct.
 The temporary force probe has been removed; relocation now occurs only for
 genuine translated-event growth.
 
-Relocated event text must still use component 06's VWF path. The shared parser
+Relocated event text must still use `vwf_dialogues`'s VWF path. The shared parser
 caller gate and renderer caller gate therefore retain their validated structural
 checks and add only the reserved relocation-bank range `$E8-$EC`. Existing `$C9/$CA` behavior is unchanged, and the added `$E8-$EC` bank range is
 runtime-validated.
 
-With no dialogue translations, no dialogue-charset writes are emitted by component 08.
+With no dialogue translations, no dialogue-charset writes are emitted by `french_dialogues`.
 Once at least one translation changes source text, the builder installs the
 `dialogue_french` `$D3-$E7` glyph span plus the same context-sensitive DTE router
-as component 06.
+as `vwf_dialogues`.
 
 ## 8.1 First complete-event formatting batch
 
@@ -401,7 +401,7 @@ Android French prose before VWF wrapping. They never rewrite translated words:
 - when a canonical source chunk begins with a newline immediately after an
   existing stock `WAIT`, that legacy rolling-window blank line is removed and
   the translated chunk emits a clear-only marker (`\v`, serialized as JSON
-  `\u000b`). Component 08 compiles it to stock `TEXT_CLEAR` only. The existing
+  `\u000b`). `french_dialogues` compiles it to stock `TEXT_CLEAR` only. The existing
   `WAIT` therefore remains the player pause while the following localized page
   starts cleanly at its first content line.
 
@@ -435,7 +435,7 @@ remain subject to zero-error, zero-warning and zero-implicit-wrap simulation.
 Representative runtime testing validates the semantic line-placement rules (fresh
 speaker turns, punctuation attachment, sentence-first reflow, weak single-comma
 balancing and dash attribution) and the clear-only cleanup of legacy blank lines after
-interactive WAITs. Component 06 sends choice rows through its ordinary VWF path. Decorated
+interactive WAITs. `vwf_dialogues` sends choice rows through its ordinary VWF path. Decorated
 rows retain the validated stock `$A1D7[]` anchor/terminal behavior; undecorated two-option
 rows can now use separately measured private visual/highlight boundaries while leaving
 `$A1D7[]` logical and untouched. Potos runtime tests validate this compact path on `$00CE`,
@@ -463,7 +463,7 @@ Before that selection, two narrow structural cases are handled without changing
 localized wording. Android `←` / `→` sign markers are removed only when the same
 SNES event already carries the corresponding direct `$CF` / `$D0` glyph. The
 independent simulator also understands `TEXT_X $nn` only at the start of a fresh
-line, where component 06 renders the `nn` prefilled `$80` cells before the text.
+line, where `vwf_dialogues` renders the `nn` prefilled `$80` cells before the text.
 The formatter now reserves those same proven padding cells against the first
 generated line's 38-unit and 216-pixel safe-width budgets; following wrapped lines return to
 the normal full budget. Android `▽` is removed only when the event itself proves a
@@ -585,7 +585,7 @@ Round 32 instead admits `$0041` and `$03EA` only as strict PARTIEL safe-subsets,
 their refused structural mappings stock rather than weakening the semantic or command binder.
 
 
-`$03AA` is now admitted by a narrow canonical-binding fix: trailing `PLAYER_NAME` lookahead may cross `OP_34` in the same way it already crossed `OP_32`, `WAIT`, `TEXT_CLEAR` and `COMPLETE_ACTIONS`. This only recognizes an already existing linear action context; it does not create, remove, move or retarget any command. `$01F6` is admitted by a separate exact Android-slot proof: French-only slot 697 starts with `%S(1,0)`, which belongs to the following English anchor 698 rather than preceding anchor 696; reassigning that one French slot makes both neighboring `PLAYER_NAME` sequences exactly match their already-aligned SNES streams. After the ordinary compact wrapper, the only remaining blocking defect is a same-line decoded-capacity wrap after `WAIT $00`; one explicit newline before `C9:8AE8` is accepted only as the unique immediate complete-sentence candidate that resimulates the entire event with zero errors, warnings and implicit wraps. `$01F6` remains `TO REVIEW` until runtime validation. Component 08's simulator/serializer path now understands the measured-end choice geometry validated on `$00CE`, `$00CF`, `$00D0`, `$00D1` and `$0202`: `$A1D7[]` stays logical for storage, the first private visual/highlight boundary is `max(logical_first, $03) - 2`, a full blank cell is normally kept between measured endpoints, and the separately validated cell-`$11` fallback omits that extra cell only when a late first endpoint would otherwise threaten the right edge. Final `$00D0` now starts farther left, keeps the normal separator and ends at private terminal cell `$1B`. The rejected `$00CE` first-anchor-left probes (`$00/$0F`, `$01/$10`) remain diagnostic-only and must never be generated by the formatter. The generated translation contains explicit page transitions encoded as `WAIT $00` + `TEXT_CLEAR`; their exact count is generated-data dependent and is not a compatibility invariant. The
+`$03AA` is now admitted by a narrow canonical-binding fix: trailing `PLAYER_NAME` lookahead may cross `OP_34` in the same way it already crossed `OP_32`, `WAIT`, `TEXT_CLEAR` and `COMPLETE_ACTIONS`. This only recognizes an already existing linear action context; it does not create, remove, move or retarget any command. `$01F6` is admitted by a separate exact Android-slot proof: French-only slot 697 starts with `%S(1,0)`, which belongs to the following English anchor 698 rather than preceding anchor 696; reassigning that one French slot makes both neighboring `PLAYER_NAME` sequences exactly match their already-aligned SNES streams. After the ordinary compact wrapper, the only remaining blocking defect is a same-line decoded-capacity wrap after `WAIT $00`; one explicit newline before `C9:8AE8` is accepted only as the unique immediate complete-sentence candidate that resimulates the entire event with zero errors, warnings and implicit wraps. `$01F6` remains `TO REVIEW` until runtime validation. `french_dialogues`'s simulator/serializer path now understands the measured-end choice geometry validated on `$00CE`, `$00CF`, `$00D0`, `$00D1` and `$0202`: `$A1D7[]` stays logical for storage, the first private visual/highlight boundary is `max(logical_first, $03) - 2`, a full blank cell is normally kept between measured endpoints, and the separately validated cell-`$11` fallback omits that extra cell only when a late first endpoint would otherwise threaten the right edge. Final `$00D0` now starts farther left, keeps the normal separator and ends at private terminal cell `$1B`. The rejected `$00CE` first-anchor-left probes (`$00/$0F`, `$01/$10`) remain diagnostic-only and must never be generated by the formatter. The generated translation contains explicit page transitions encoded as `WAIT $00` + `TEXT_CLEAR`; their exact count is generated-data dependent and is not a compatibility invariant. The
 current layout refinement also replaces legacy leading blank
 scroll lines with clear-only `TEXT_CLEAR` transitions when the structure is proven.
 After the historical compact-wrapper fallback has failed, events whose **only**
@@ -604,7 +604,7 @@ contains a dash-attribution hint. The current semantic reflow changes line
 placement in many accepted mappings. `$0101` now has a runtime-reviewed explicit
 three-line layout because a formatter-added fourth live line caused a fast scroll
 that the older simulator did not detect.
-Component 08 relocates 515 growing events at the Round-32 checkpoint; the final relocated payload
+`french_dialogues` relocates 515 growing events at the Round-32 checkpoint; the final relocated payload
 now extends into `$E9`; the highest current relocated payload still remains well inside the runtime-validated reserved `$E8-$EC` pool.
 
 `mappings/android/dialogues_format_mass.json` records every accepted/rejected

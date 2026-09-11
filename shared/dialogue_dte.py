@@ -1,7 +1,7 @@
 """Context-sensitive direct-glyph/DTE boundary for ordinary event dialogue.
 
-The translated intro (component 05) keeps its runtime-validated $E6 DTE
-boundary and 25 private DTE pairs. Components 06/08 may enable an $E8
+The translated intro (`vwf_intro`) keeps its runtime-validated $E6 DTE
+boundary and 25 private DTE pairs. `vwf_dialogues` / `french_dialogues` may enable an $E8
 boundary only for real event-engine dialogue, making $E6/$E7 direct glyphs
 there without changing intro decoding or GAME SELECT.
 """
@@ -37,14 +37,14 @@ def _assemble_router() -> bytes:
     def jml(cpu: int) -> None:
         a.emit(0x5C, *lo24(cpu))
 
-    # Preserve the source byte. When component 06 is installed, reuse the
+    # Preserve the source byte. When `vwf_dialogues` is installed, reuse the
     # parser mode already selected by the shared VWF buffer initializer:
     # mode 2 is real dialogue ($E8 threshold), mode 1 is the translated intro
     # ($E6 threshold). This avoids re-deriving context midway through parsing.
-    # Component 08 standalone has no parser-mode owner, so only trust this
-    # scratch byte when the component-06 runtime marker is present.
+    # `french_dialogues` standalone has no parser-mode owner, so only trust this
+    # scratch byte when the `vwf_dialogues` runtime marker is present.
     a.emit(0x48)                          # PHA source byte (8-bit)
-    # Component 02 relocates the Name Entry character/help resource to bank
+    # `name_entry_extended` relocates the Name Entry character/help resource to bank
     # $E4. That bank is reserved exclusively for the resource, so render its
     # grid bytes with the dialogue-style $E8 boundary. This keeps $E6/$E7 as
     # direct ° / ; instead of stock DTE pairs while leaving all other parser
@@ -62,7 +62,7 @@ def _assemble_router() -> bytes:
     a.emit(0xC9, 0x01)
     a.rel8(0xF0, "base_saved")
 
-    # Standalone component 08, or non-VWF parser context: inspect the parser
+    # Standalone `french_dialogues`, or non-VWF parser context: inspect the parser
     # caller and live event source as before. The event parser's JSR return
     # ($114B) remains on the stack for the whole decode.
     a.label("fallback_caller")
@@ -72,7 +72,7 @@ def _assemble_router() -> bytes:
     a.rel8(0xD0, "base16")               # not event-engine parser
     a.emit(0xE2, 0x20)                    # SEP #$20
 
-    # Extended dialogue profile is opt-in. Without 06/08, preserve the
+    # Extended dialogue profile is opt-in. Without `vwf_dialogues` / `french_dialogues`, preserve the
     # established full-French $E6 boundary everywhere.
     a.emit(0xAF, *lo24(DIALOGUE_DTE_CONFIG_CPU))
     a.emit(0xC9, DIALOGUE_DTE_MARKER)
@@ -84,7 +84,7 @@ def _assemble_router() -> bytes:
     a.emit(0xC9, 0xCA)
     a.rel8(0xD0, "dialogue_saved")
 
-    # In a component-05 build, use its configured translated-intro end. In an
+    # In a `vwf_intro` build, use its configured translated-intro end. In an
     # 08-only build, fall back to the clean-USA $0400 end ($0E44).
     a.emit(0xAF, *lo24(INTRO_CONFIG_CPU))
     a.emit(0xC9, INTRO_MARKER)

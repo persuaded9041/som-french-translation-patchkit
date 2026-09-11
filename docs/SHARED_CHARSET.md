@@ -47,18 +47,18 @@ source.
 
 ### `full_french`
 
-Direct range `$D4-$E5`; threshold `$E6`. Component 05 keeps this exact profile
+Direct range `$D4-$E5`; threshold `$E6`. `vwf_intro` keeps this exact profile
 so its runtime-validated intro compression and 25 private DTE pairs remain
 unchanged.
 
 ### `dialogue_french`
 
-Direct range `$D3-$E7`; event-dialogue threshold `$E8`. Used by components 06
+Direct range `$D3-$E7`; event-dialogue threshold `$E8`. Used by `vwf_dialogues`
 and 08. The threshold is context-sensitive rather than global:
 
 - translated intro / ordinary non-dialogue parser contexts: `$E6`;
 - real event-engine dialogue: `$E8`;
-- component-02 Name Entry resource in reserved bank `$E4`: `$E8`.
+- `name_entry_extended` Name Entry resource in reserved bank `$E4`: `$E8`.
 
 `shared/dialogue_dte.py` owns that routing. It uses the established event-parser
 caller discriminator and protects event `$0400`; GAME SELECT remains on the
@@ -71,7 +71,7 @@ intro DTE codes during event `$0400`.
 - `french_glyphs.png` - editable 21-glyph 8×12 atlas, code order `$D3-$E7`.
 - `charset.py` - mapping/profile/PNG conversion helpers.
 - `../dialogue_dte.py` - context-sensitive dialogue DTE router.
-- `../name_dte.py` - Name Entry / PLAYER_NAME router used by component 02 standalone.
+- `../name_dte.py` - Name Entry / PLAYER_NAME router used by `name_entry_extended` standalone.
 
 ## Rules
 

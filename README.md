@@ -20,20 +20,18 @@ The ROM itself is deliberately not included.
 
 ## Components
 
-1. `01_japanese_mana_tree` - restores the original Japanese Mana Tree artwork.
-2. `02_9char_names` - 9-character names, four character rows, French/extended character row and French help text.
-3. `03_game_select` - French GAME SELECT and GAME FILE text pipeline, dynamic frame widths and French accented glyphs.
-4. `04_french_opening` - French startup credits/opening text.
-5. `05_intro_vwf_french` - French new-game introduction with VWF, private DTE and accented glyphs.
-6. `06_dialogue_vwf` - runtime-validated variable-width renderer for stock `$C9/$CA` event dialogue and component-08 relocated `$E8-$EC` events under the same caller gate; interactive choice rows use the same VWF path; stock/decorated fallback geometry plus private measured-end geometry and the long-row right-edge compaction rule are runtime-validated on the Potos test path.
-7. `07_intro_skip` - hold R for about two seconds during the introduction to skip directly to the waterfall scene.
-8. `08_dialogue_text` - deterministic source/translation reinsertion for all stock text-bearing event scripts except intro `$0400`, with in-place rebuilds and deterministic expanded-ROM relocation for growth.
-9. `09_ui_vwf` - standalone VWF extensions for non-dialogue UI paths; the first runtime-validated backend is Watts' Forge weapon row, with exact builder tagging, dynamic suffix compaction and a local +3 logical-line margin.
-10. `10_resource_names_fr` - deterministic reinsertion of reviewed French `$CA` name resources (magic, spirits, weapons, equipment, items, enemies and locations) from `translations/text_resources_french.json`.
+- `mana_tree_original` - restores the original Japanese Mana Tree artwork.
+- `name_entry_extended` - 9-character names, four character rows, French/extended character row and French help text.
+- `french_menus` - French GAME SELECT and GAME FILE text pipeline, dynamic frame widths and French accented glyphs.
+- `french_opening` - French startup credits/opening text.
+- `vwf_intro` - French new-game introduction with VWF, private DTE and accented glyphs.
+- `vwf_dialogues` - runtime-validated variable-width renderer for stock `$C9/$CA` event dialogue and `french_dialogues` relocated `$E8-$EC` events under the same caller gate; interactive choice rows use the same VWF path; stock/decorated fallback geometry plus private measured-end geometry and the long-row right-edge compaction rule are runtime-validated on the Potos test path.
+- `intro_skip` - hold R for about two seconds during the introduction to skip directly to the waterfall scene.
+- `french_dialogues` - deterministic source/translation reinsertion for all stock text-bearing event scripts except intro `$0400`, with in-place rebuilds and deterministic expanded-ROM relocation for growth.
+- `vwf_ui` - standalone VWF extensions for non-dialogue UI paths; the first runtime-validated backend is Watts' Forge weapon row, with exact builder tagging, dynamic suffix compaction and a local +3 logical-line margin.
+- `french_resources` - deterministic reinsertion of reviewed French `$CA` name resources (magic, spirits, weapons, equipment, items, enemies and locations) from `translations/text_resources_french.json`.
 
-Component metadata lives in `components/*/component.json`. The aggregate builder
-discovers components from these manifests; adding a component does not require a
-hard-coded component list in the root scripts.
+Component metadata lives in `components/*/component.json`. Public component IDs are semantic and intentionally unnumbered. The aggregate builder discovers components from these manifests and applies their explicit `build_order`; folder names therefore do not control patch precedence. Adding a component does not require a hard-coded component list in the root scripts.
 
 Standalone component IPS files may be kept in `patches/` as reusable build
 snapshots. Each `build_patch.py` can reconstruct its patch from the clean USA ROM plus
@@ -47,9 +45,9 @@ ROM-derived text sources live at the repository root instead of being
 re-discovered independently by each component. The clean-USA inventory is split
 by stock storage/rendering mechanism:
 
-- `assets/dialogues.json` - the 713 text-bearing event scripts owned by component 08;
+- `assets/dialogues.json` - the 713 text-bearing event scripts owned by `french_dialogues`;
 - `assets/intro_event.json` - the eight stock text parts from event `$0400`, kept
-  separate because component 05 owns that event;
+  separate because `vwf_intro` owns that event;
 - `assets/text_resources.json` - all 513 non-event `$CA` text resources;
 - `assets/interface_text.json` - 27 help/status rows from the nine-entry
   `$C0:33B5` 24-bit interface pointer-table family;
@@ -84,9 +82,9 @@ container address plus decompressed offset (`C7:B480+09F9`).
 
 French text lives separately under `translations/` in sparse `*_french.json`
 files. The validated translations formerly stored in component CSV/BIN inputs for
-components 02-05 have been migrated there.
+`name_entry_extended`, `french_menus`, `french_opening`, and `vwf_intro` have been migrated there.
 
-Component 08 consumes `translations/dialogues_french.json`, generated by the
+`french_dialogues` consumes `translations/dialogues_french.json`, generated by the
 **simulator-filtered Android-FR mass pass**. At the current Round-72 checkpoint it contains
 **701 simulator-clean playable events / 1810 accepted semantic source IDs / 1943 active sparse
 translation entries**: **701 complete + 0 PARTIEL**. Semantic Android alignment remains
@@ -98,7 +96,7 @@ strictly `Dryade`; never restore `Dryade fera réagir l'orbe !`.
 
 ## Dialogue checkpoint
 
-The current versioning checkpoint is **Round 75 — UI VWF foundation / resource-names checkpoint**. The dialogue payload itself remains the locked **Round 72 — automatic 216 px completion** state.
+The current versioning checkpoint is **Round 76 — semantic component naming cleanup**. The dialogue payload itself remains the locked **Round 72 — automatic 216 px completion** state.
 Dialogue identity remains **1798 / 1838 (97.8%)**; the remaining unresolved Android
 IDs are not reopened by this checkpoint. The playable dialogue corpus contains
 **701 events = 701 complete + 0 PARTIEL**, with **1810 accepted semantic source IDs /
@@ -107,7 +105,7 @@ routing-audited unused/orphan stock events `$0269`, `$02DE`, `$0603`.
 
 Independent simulation reports **0 errors / 0 warnings / 0 implicit runtime wraps**.
 The runtime-validated dialogue contract is **<= 38 decoded glyphs** and **<= 216 px
-advance** for ordinary dialogue lines. Component 06 contains the validated parser
+advance** for ordinary dialogue lines. `vwf_dialogues` contains the validated parser
 capacity correction that removes the delayed/shifted 35th-glyph artifact.
 
 Round 72 also moves the 216-px reflow into the deterministic Android-FR generation
@@ -150,7 +148,7 @@ only by explicitly proven structural rules. Stock rolling-window persistence aft
 interactive `WAIT $00` is preserved rather than deduplicated automatically. Unsupported
 structures are rejected rather than guessed. Choice rows use the ordinary VWF renderer;
 option-start and terminal-boundary synchronization keep the stock magenta geometry aligned,
-and component 08 may minimally move only a later option anchor when decoded text would
+and `french_dialogues` may minimally move only a later option anchor when decoded text would
 otherwise be overwritten. The 701-event corpus as a whole still requires the planned
 full-game playthrough; the Round-52 structural changes are runtime-validated; the Round-54 exact recoveries and the Round-57 omission/suppression changes are pending runtime validation.
 
@@ -169,7 +167,7 @@ checker is `tools/check_japanese_dialogue_extractor.py`; usage and confidence
 levels are documented in `docs/JAPANESE_DIALOGUE_EXTRACTION.md`. It is not part of
 the build and never creates Android identity.
 
-For the current development checkpoint and next work, see `docs/HANDOFF.md`. The accepted non-dialogue UI-VWF architecture and extension rules are summarized in `docs/UI_VWF.md`. The rejected Watts forge experiments and the runtime proof chain remain in `docs/FORGE_VWF_RESEARCH.md`; read both files before extending component 09.
+For the current development checkpoint and next work, see `docs/HANDOFF.md`. The accepted non-dialogue UI-VWF architecture and extension rules are summarized in `docs/UI_VWF.md`. The rejected Watts forge experiments and the runtime proof chain remain in `docs/FORGE_VWF_RESEARCH.md`; read both files before extending `vwf_ui`.
 
 See `docs/TEXT_INVENTORY.md` for coverage, `docs/TRANSLATIONS.md` for the source/translation
 model and ID scheme, `docs/ANDROID_TEXT_ALIGNMENT.md` for the Android English/French alignment method and conservative whole-dialogue mapping, `docs/TEXT_COMPONENT_AUDIT.md` for component
@@ -189,7 +187,7 @@ canonical validated framing/advance policy used by both VWF builders.
 65816 reference is `shared/vwf_framing.asm`. Both VWF components install the
 same selector bundle at `$C7:44C0-$4557`.
 `shared/vwf_text_buffer.py` generates the
-byte-identical private decoded-text buffer bridge used by components 05 and 06;
+byte-identical private decoded-text buffer bridge used by `vwf_intro` and `vwf_dialogues`;
 its readable 65816 reference is `shared/vwf_text_buffer.asm`.
 `shared/vwf_compositor.py` generates the byte-identical 8x12 shift/merge/spill
 primitive now shared by both VWF renderers; its readable reference is
@@ -199,7 +197,7 @@ shared stock-font row load + framing + compositor helper used by both VWF paths;
 owns the common stock-outline `ROL -> ASL` preparation installed by both VWF
 components; `shared/vwf_outline.asm` documents that one-byte fix.
 `shared/translation_json.py` binds sparse language files to canonical source IDs.
-`shared/dialogue_codec.py` owns the stock event/dialogue parser and deterministic serializer used by root text tools and components 05/08. `shared/dialogue_relocation.py` owns the validated sparse expanded-ROM event relocation mechanism consumed by component 08. `shared/dialogue_translation.py` owns the conservative Android-French normalization, PLAYER_NAME rebinding and dual-limit VWF/38-character offline formatter. Keeping these modules under `shared/` avoids cross-component Python imports.
+`shared/dialogue_codec.py` owns the stock event/dialogue parser and deterministic serializer used by root text tools and `vwf_intro` / `french_dialogues`. `shared/dialogue_relocation.py` owns the validated sparse expanded-ROM event relocation mechanism consumed by `french_dialogues`. `shared/dialogue_translation.py` owns the conservative Android-French normalization, PLAYER_NAME rebinding and dual-limit VWF/38-character offline formatter. Keeping these modules under `shared/` avoids cross-component Python imports.
 `shared/text_ids.py` defines the position-based source-ID scheme. `shared/components.py` discovers component
 manifests and `shared/compatibility.py` owns cross-component merge rules.
 
@@ -222,14 +220,14 @@ The normal incremental workflow keeps one standalone patch per component in
 `patches/`, named after the component directory. For example:
 
 ```text
-patches/05_intro_vwf_french.ips
-patches/06_dialogue_vwf.ips
+patches/vwf_intro.ips
+patches/vwf_dialogues.ips
 ```
 
 Rebuild only the components currently being modified:
 
 ```bash
-python3 build.py "Secret of Mana (USA).sfc" intro-vwf dialogue-vwf
+python3 build.py "Secret of Mana (USA).sfc" vwf-intro vwf-dialogues
 ```
 
 The same command accepts component IDs instead of short names. To rebuild every
@@ -250,10 +248,10 @@ This writes `patches/all.ips`. During normal development, rebuild one or more
 components and refresh the global patch in a single command:
 
 ```bash
-python3 build.py "Secret of Mana (USA).sfc" dialogue-vwf --combine
+python3 build.py "Secret of Mana (USA).sfc" vwf-dialogues --combine
 ```
 
-Only `06_dialogue_vwf.ips` is rebuilt; all other component patches are reused.
+Only `vwf_dialogues.ips` is rebuilt; all other component patches are reused.
 The compatibility audit is then run over the complete stored set before
 `all.ips` is produced. This also catches shared-code changes that require a
 second component to be rebuilt: incompatible stale overlaps abort instead of
@@ -262,7 +260,7 @@ being silently merged.
 A different patch directory or combined output may be selected when needed:
 
 ```bash
-python3 build.py "Secret of Mana (USA).sfc" dialogue-vwf \
+python3 build.py "Secret of Mana (USA).sfc" vwf-dialogues \
   --patch-dir /tmp/som-patches --combine -o /tmp/all.ips
 ```
 
@@ -298,7 +296,7 @@ Allowed overlaps are:
 Name Entry and GAME SELECT keep `basic_french`; the intro keeps the validated
 `full_french` `$E6` boundary. Dialogue VWF/text use `dialogue_french`, which adds
 `♪`, `°` and `;` and selects `$E8` only for real event-engine dialogue through
-`shared/dialogue_dte.py`. This avoids changing component 05's private DTE table.
+`shared/dialogue_dte.py`. This avoids changing `vwf_intro`'s private DTE table.
 Any other differing functional overlap aborts the build.
 
-See `docs/COMPATIBILITY.md` and `docs/MEMORY_MAP.md`. Component-specific renderer notes stay under each component; for dialogue VWF start with `components/06_dialogue_vwf/README.md`. The stock event/dialogue format notes are in `docs/DIALOGUE_FORMAT.md`; the 513 non-event resources are documented in `docs/TEXT_RESOURCES.md`. The repository-wide text map is `docs/TEXT_INVENTORY.md`, with family details in `docs/INTERFACE_TEXT.md`, `docs/MENU_TEXT.md`, `docs/BATTLE_TEXT.md` and `docs/OPENING_TEXT.md`. Component-08 build details remain in `components/08_dialogue_text/README.md`.
+See `docs/COMPATIBILITY.md` and `docs/MEMORY_MAP.md`. Component-specific renderer notes stay under each component; for dialogue VWF start with `components/vwf_dialogues/README.md`. The stock event/dialogue format notes are in `docs/DIALOGUE_FORMAT.md`; the 513 non-event resources are documented in `docs/TEXT_RESOURCES.md`. The repository-wide text map is `docs/TEXT_INVENTORY.md`, with family details in `docs/INTERFACE_TEXT.md`, `docs/MENU_TEXT.md`, `docs/BATTLE_TEXT.md` and `docs/OPENING_TEXT.md`. `french_dialogues` build details remain in `components/french_dialogues/README.md`.
