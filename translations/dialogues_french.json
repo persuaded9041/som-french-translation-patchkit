@@ -8345,56 +8345,6 @@
       "choice_commands_preserved_except_coordinate": true
     },
     {
-      "event_id": "0200",
-      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
-      "token_index": 10,
-      "source_position": 11,
-      "translated_position": 16,
-      "previous_text_id": "C9:8D05",
-      "decoded_label_cells": 14,
-      "choice_commands_preserved_except_coordinate": true
-    },
-    {
-      "event_id": "020F",
-      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
-      "token_index": 7,
-      "source_position": 11,
-      "translated_position": 20,
-      "previous_text_id": "C9:9329",
-      "decoded_label_cells": 16,
-      "choice_commands_preserved_except_coordinate": true
-    },
-    {
-      "event_id": "0310",
-      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
-      "token_index": 10,
-      "source_position": 10,
-      "translated_position": 12,
-      "previous_text_id": "C9:CCA0",
-      "decoded_label_cells": 7,
-      "choice_commands_preserved_except_coordinate": true
-    },
-    {
-      "event_id": "0314",
-      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
-      "token_index": 7,
-      "source_position": 10,
-      "translated_position": 12,
-      "previous_text_id": "C9:CD3B",
-      "decoded_label_cells": 7,
-      "choice_commands_preserved_except_coordinate": true
-    },
-    {
-      "event_id": "0319",
-      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
-      "token_index": 13,
-      "source_position": 10,
-      "translated_position": 12,
-      "previous_text_id": "C9:CE1F",
-      "decoded_label_cells": 7,
-      "choice_commands_preserved_except_coordinate": true
-    },
-    {
       "event_id": "01DF",
       "strategy": "shift_choice_option_right_for_decoded_vwf_label",
       "token_index": 11,
@@ -8412,6 +8362,26 @@
       "translated_position": 23,
       "previous_text_id": "C9:8185",
       "decoded_label_cells": 7,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "0200",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 10,
+      "source_position": 11,
+      "translated_position": 16,
+      "previous_text_id": "C9:8D05",
+      "decoded_label_cells": 14,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "020F",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 7,
+      "source_position": 11,
+      "translated_position": 20,
+      "previous_text_id": "C9:9329",
+      "decoded_label_cells": 16,
       "choice_commands_preserved_except_coordinate": true
     },
     {
@@ -8435,6 +8405,26 @@
       "choice_commands_preserved_except_coordinate": true
     },
     {
+      "event_id": "0310",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 10,
+      "source_position": 10,
+      "translated_position": 12,
+      "previous_text_id": "C9:CCA0",
+      "decoded_label_cells": 7,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "0314",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 7,
+      "source_position": 10,
+      "translated_position": 12,
+      "previous_text_id": "C9:CD3B",
+      "decoded_label_cells": 7,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
       "event_id": "0318",
       "strategy": "shift_choice_option_right_for_decoded_vwf_label",
       "token_index": 16,
@@ -8451,6 +8441,16 @@
       "source_position": 18,
       "translated_position": 23,
       "previous_text_id": "C9:CDBC",
+      "decoded_label_cells": 7,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "0319",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 13,
+      "source_position": 10,
+      "translated_position": 12,
+      "previous_text_id": "C9:CE1F",
       "decoded_label_cells": 7,
       "choice_commands_preserved_except_coordinate": true
     },

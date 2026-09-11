@@ -112,7 +112,14 @@ Round 72 also moves the 216-px reflow into the deterministic Android-FR generati
 pipeline. No French prose was hard-coded to solve the migration: wrapping, generated
 page transitions, live `PLAYER_NAME` prefix accounting, stock transition reuse and
 choice-specific layout handling are generic and independently simulator-gated.
-Reviewed Round 67/68/69 identities, wording and scene redistributions remain locked.
+A reproducibility amendment stores the seven reviewed outer-choice-decoration removals
+in `mappings/android/dialogues_choice_layout_recipes.json`; that file contains only
+canonical event/carrier identities, never French text. When one of those reviewed rows
+would otherwise force a fresh page, the owning Android-backed prompt is retried with the
+existing compact wrapper before the decoration is removed. Thus a fresh
+`dialogue-format-mass` run reproduces the reviewed choice presentation instead of
+silently restoring stock parentheses. Reviewed Round 67/68/69 identities, wording and
+scene redistributions remain locked.
 
 Restructured dialogue prose is **not stored in clear text** outside the canonical
 sources. `mappings/android/dialogues_redistribution_recipes.json` contains Android-FR
@@ -127,6 +134,7 @@ Operational material:
 - `docs/DIALOGUE_FORMAT.md` / `docs/DIALOGUE_SIMULATOR.md` — formatting/runtime model;
 - `mappings/android/dialogues_manual_supplements.html` — manual provenance review;
 - `mappings/android/dialogues_redistribution_recipes.json` — source-derived scene recipes.
+- `mappings/android/dialogues_choice_layout_recipes.json` — structural-only reviewed choice-layout recipes; no localized prose.
 
 Historical Round 69/70/71 investigation remains documented in the specialist docs and
 `docs/ROUND71_216PX_AUTOMATION_AUDIT.md`; those historical counters are not the current

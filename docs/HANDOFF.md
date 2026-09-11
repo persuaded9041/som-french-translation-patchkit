@@ -49,9 +49,10 @@ The Android-FR generator owns the 216-px / 38-glyph presentation contract. It re
 - deterministic generated page transitions at source-derived word boundaries, accepted only when simulator score strictly improves and the whole event becomes clean;
 - reuse of an immediately following stock `WAIT $00 + TEXT_CLEAR` instead of duplicating a generated transition;
 - generated fresh-page handling when a three-line prompt would otherwise leave no row for a following stock choice decoration;
-- choice-specific geometry checks rather than applying the ordinary 216-px padded-row ceiling to choice rows.
+- choice-specific geometry checks rather than applying the ordinary 216-px padded-row ceiling to choice rows;
+- seven reviewed Round-72 outer-decoration removals reapplied from `mappings/android/dialogues_choice_layout_recipes.json`. The recipes contain only event/carrier identities. For `$0062` and `$00CF`, where semantic wrapping would otherwise create a fresh-page choice row, the same Android-FR prompt is deterministically retried with the compact wrapper before the reviewed parentheses are stripped.
 
-Do not replace these mechanisms with event-specific French strings. Temporary hard-coded strings are acceptable only for isolated diagnostics and must never enter canonical generated assets.
+The reproducibility amendment is intentional: `dialogue-format-mass` must regenerate the reviewed choice presentation, including the absence of the stripped parentheses, without relying on a previously generated `dialogues_french.json`. Do not replace these mechanisms with event-specific French strings. Temporary hard-coded strings are acceptable only for isolated diagnostics and must never enter canonical generated assets.
 
 ## Validation baseline
 
@@ -71,7 +72,7 @@ text-source hygiene: OK
 redistribution recipes: OK
 ```
 
-The full mass-import command remains the canonical regeneration path, although repeated end-to-end invocations may be slow in hosted environments. Do not weaken deterministic validation merely to shorten a run.
+The full mass-import command remains the canonical regeneration path, although repeated end-to-end invocations may be slow in hosted environments. The committed `translations/dialogues_french.json` and `mappings/android/dialogues_format_mass.json` must both pass `--check`; a diff after regeneration is a checkpoint bug, not an expected local variation. Do not weaken deterministic validation merely to shorten a run.
 
 After dialogue-related changes, the usual checks remain:
 

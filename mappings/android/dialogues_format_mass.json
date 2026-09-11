@@ -58,12 +58,13 @@
     "explicit_post_wait_newline_policy": "materialize reviewed formatter line boundaries that older simulation had implicitly attributed to WAIT; after compact formatting, a sole decoded-capacity wrap may additionally receive one leading NEWLINE only at an immediate text -> WAIT $00 -> text complete-sentence boundary when exactly one such candidate makes the whole event simulator-clean; keep WAIT bytes unchanged; use TEXT_CLEAR instead of NEWLINE when a three-line window would otherwise scroll before the next pause",
     "choice_row_prefix_restore_policy": "when Android prose reflow removes the stock final NEWLINE + optional spaces + '(' immediately before CHOICE_BEGIN and the first stock CHOICE_OPTION would rewind over translated prompt text, restore only that stock row suffix; for a standalone decorative '(' carrier after dynamic stock output, one explicit NEWLINE may be prefixed for the same first-anchor condition; no option coordinate changes are made by this repair and unrelated new simulator defects reject it",
     "adaptive_choice_anchor_policy": "keep the first CHOICE_OPTION stock; when a later stock coordinate would overwrite the preceding localized label in the decoded row, move only that later coordinate right to the minimum cell immediately after the label; accept only a rightward <32 coordinate whose whole event passes the independent zero-error/zero-warning/zero-wrap simulation; runtime validated by the $03/$11 -> $03/$12 Temple de l'Eau/Pandora diagnostic",
-    "adaptive_choice_decoration_policy": "preserve the canonical outer ( ... ) decoration whenever the normal choice event is simulator-clean; only after a width/layout rejection, retry by removing the proven opening/closing parenthesis pair plus its adjacent horizontal padding; when stripping alone is insufficient, it may be composed with the already validated later-anchor-only right shift, while the first CHOICE_OPTION remains stock; accept only if the whole event passes the same zero-error/zero-warning/zero-wrap gate"
+    "adaptive_choice_decoration_policy": "preserve the canonical outer ( ... ) decoration whenever the normal choice event is simulator-clean; only after a width/layout rejection, retry by removing the proven opening/closing parenthesis pair plus its adjacent horizontal padding; when stripping alone is insufficient, it may be composed with the already validated later-anchor-only right shift, while the first CHOICE_OPTION remains stock; accept only if the whole event passes the same zero-error/zero-warning/zero-wrap gate",
+    "reviewed_choice_layout_recipe_policy": "Round-72 reviewed decoration removals are stored as structural event/carrier recipes with no French prose. They are reapplied deterministically after Android-FR formatting; if restoring the choice-row newline would otherwise force a fresh page, only the owning Android-backed prompt is retried with the existing compact wrapper before the reviewed decoration is stripped."
   },
   "coverage": {
     "semantic_source_event_count": 704,
     "complete_aligned_event_count": 678,
-    "formatter_candidate_event_count": 678,
+    "formatter_candidate_event_count": 679,
     "accepted_event_count": 701,
     "complete_accepted_event_count": 701,
     "partial_accepted_event_count": 0,
@@ -72,12 +73,12 @@
     "user_validated_structural_omitted_command_count": 7,
     "manual_supplement_entry_count": 18,
     "parameterized_inn_event_count": 11,
-    "partial_unresolved_or_manual_id_count": 10,
-    "partial_layout_deferred_id_count": 10,
-    "generic_structural_safe_subset_event_count": 1,
-    "generic_structural_safe_subset_deferred_id_count": 1,
-    "direct_simulator_safe_subset_event_count": 5,
-    "direct_simulator_safe_subset_deferred_id_count": 9,
+    "partial_unresolved_or_manual_id_count": 0,
+    "partial_layout_deferred_id_count": 0,
+    "generic_structural_safe_subset_event_count": 0,
+    "generic_structural_safe_subset_deferred_id_count": 0,
+    "direct_simulator_safe_subset_event_count": 0,
+    "direct_simulator_safe_subset_deferred_id_count": 0,
     "accepted_semantic_source_id_count": 1810,
     "translation_entry_count": 1943,
     "fragment_spacing_repaired_event_count": 1,
@@ -124,12 +125,14 @@
     "sound_effect_action_sentence_distribution_mapping_count": 0,
     "reviewed_sequence_block_distribution_mapping_count": 1,
     "action_boundary_line_break_count": 1,
-    "choice_row_layout_repaired_event_count": 8,
-    "choice_row_layout_repair_count": 8,
-    "adaptive_choice_anchor_shifted_event_count": 13,
-    "adaptive_choice_anchor_shift_count": 13,
+    "choice_row_layout_repaired_event_count": 9,
+    "choice_row_layout_repair_count": 9,
+    "adaptive_choice_anchor_shifted_event_count": 17,
+    "adaptive_choice_anchor_shift_count": 21,
     "adaptive_choice_decoration_stripped_event_count": 11,
     "adaptive_choice_decoration_stripped_count": 11,
+    "reviewed_choice_layout_recipe_event_count": 7,
+    "reviewed_choice_compact_reflow_event_count": 2,
     "excluded_event_count": 3,
     "excluded_stage_counts": {
       "alignment_incomplete": 3
@@ -4005,7 +4008,6 @@
           "text": "Vraiment ? Et qu'est-ce qui te ferait\nplaisir, miaou ?\n"
         }
       ],
-      "semantic_layout_fallback": true,
       "choice_row_layout_repair": "restore_stock_choice_row_suffix",
       "choice_decoration_mode": "stripped_for_width"
     },
@@ -4047,7 +4049,7 @@
       "source_visible_line_budget": 1,
       "effective_line_budget": 3,
       "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": false,
+      "semantic_line_break_preferences": true,
       "page_line_counts": [
         1
       ],
@@ -4061,8 +4063,7 @@
           "id": "C9:11A0",
           "text": "Dormir"
         }
-      ],
-      "semantic_layout_fallback": true
+      ]
     },
     {
       "event_id": "0062",
@@ -4102,7 +4103,7 @@
       "source_visible_line_budget": 1,
       "effective_line_budget": 3,
       "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": false,
+      "semantic_line_break_preferences": true,
       "page_line_counts": [
         1
       ],
@@ -4117,7 +4118,6 @@
           "text": "Faire des achats"
         }
       ],
-      "semantic_layout_fallback": true,
       "choice_decoration_mode": "stripped_for_width"
     },
     {
@@ -7329,10 +7329,8 @@
           "text": "Hé hé, salut ! Où veux-tu aller ?\nC'est 50 pièces par trajet !\n"
         }
       ],
-      "semantic_layout_fallback": true,
       "choice_row_layout_repair": "restore_stock_choice_row_suffix",
-      "choice_decoration_mode": "stripped_for_width",
-      "choice_decoration_anchor_fallback": true
+      "choice_decoration_mode": "stripped_for_width"
     },
     {
       "event_id": "00CF",
@@ -7372,7 +7370,7 @@
       "source_visible_line_budget": 1,
       "effective_line_budget": 3,
       "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": false,
+      "semantic_line_break_preferences": true,
       "page_line_counts": [
         1
       ],
@@ -7386,9 +7384,7 @@
           "id": "C9:1B60",
           "text": "Village Potos"
         }
-      ],
-      "semantic_layout_fallback": true,
-      "choice_decoration_anchor_fallback": true
+      ]
     },
     {
       "event_id": "00CF",
@@ -7428,7 +7424,7 @@
       "source_visible_line_budget": 1,
       "effective_line_budget": 3,
       "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": false,
+      "semantic_line_break_preferences": true,
       "page_line_counts": [
         1
       ],
@@ -7443,9 +7439,7 @@
           "text": "Nombril de Gaïa"
         }
       ],
-      "semantic_layout_fallback": true,
-      "choice_decoration_mode": "stripped_for_width",
-      "choice_decoration_anchor_fallback": true
+      "choice_decoration_mode": "stripped_for_width"
     },
     {
       "event_id": "00D0",
@@ -8270,8 +8264,7 @@
           "id": "C9:1D55",
           "text": "Dormir ?\nAllez-y, installez-vous là où il y a\nde la place."
         }
-      ],
-      "choice_decoration_anchor_fallback": true
+      ]
     },
     {
       "event_id": "00DC",
@@ -8328,8 +8321,7 @@
           "id": "C9:1D83",
           "text": "Hé là !\nC'est 10 pièces d'or, et d'avance !\n"
         }
-      ],
-      "choice_decoration_anchor_fallback": true
+      ]
     },
     {
       "event_id": "00DC",
@@ -8383,8 +8375,7 @@
           "id": "C9:1DA9",
           "text": "Pfff, d'accord."
         }
-      ],
-      "choice_decoration_anchor_fallback": true
+      ]
     },
     {
       "event_id": "00DC",
@@ -8439,8 +8430,7 @@
           "text": "Alors, non !"
         }
       ],
-      "choice_decoration_mode": "stripped_for_width",
-      "choice_decoration_anchor_fallback": true
+      "choice_decoration_mode": "stripped_for_width"
     },
     {
       "event_id": "00DF",
@@ -27626,6 +27616,177 @@
       ]
     },
     {
+      "event_id": "01B3",
+      "snes_ids": [
+        "C9:682E"
+      ],
+      "android_ids": [
+        560
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "WATTS:Change your mind?\n I'll do it for 100 GP.\n (",
+      "android_french_raw": "Watts : Tu as changé d'avis ? Pour 100 pièces d'or, je répare ton épée ! ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Watts : Tu as changé d'avis ? Pour 100 pièces d'or, je répare ton épée !",
+      "layout_markup_before_wrap": "Watts : Tu as changé d'avis ? Pour 100 pièces d'or, je répare ton épée !",
+      "layout_hints": [],
+      "formatted_markup": "Watts : Tu as changé d'avis ?\nPour 100 pièces d'or,\nje répare ton épée !\f (",
+      "line_widths_pixels": [
+        175,
+        128,
+        119
+      ],
+      "line_decoded_character_counts": [
+        29,
+        21,
+        20
+      ],
+      "line_parser_unit_counts": [
+        29,
+        21,
+        20
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 3,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        3
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:682E",
+          "text": "Watts : Tu as changé d'avis ?\nPour 100 pièces d'or,\nje répare ton épée !\f ("
+        }
+      ],
+      "choice_row_layout_repair": "restore_stock_choice_row_suffix_on_fresh_page"
+    },
+    {
+      "event_id": "01B3",
+      "snes_ids": [
+        "C9:6863"
+      ],
+      "android_ids": [
+        561
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "Please do!",
+      "android_french_raw": "   D'accord !   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "D'accord !",
+      "layout_markup_before_wrap": "D'accord !",
+      "layout_hints": [],
+      "formatted_markup": "D'accord !",
+      "line_widths_pixels": [
+        61
+      ],
+      "line_decoded_character_counts": [
+        10
+      ],
+      "line_parser_unit_counts": [
+        10
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:6863",
+          "text": "D'accord !"
+        }
+      ]
+    },
+    {
+      "event_id": "01B3",
+      "snes_ids": [
+        "C9:686F"
+      ],
+      "android_ids": [
+        562
+      ],
+      "confidence": "very_high_one_side_exact",
+      "source_display": "No thanks! )",
+      "android_french_raw": "   Non merci   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": [
+        "C9:686F"
+      ],
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Non merci",
+      "layout_markup_before_wrap": "Non merci",
+      "layout_hints": [],
+      "formatted_markup": "Non merci",
+      "line_widths_pixels": [
+        55
+      ],
+      "line_decoded_character_counts": [
+        9
+      ],
+      "line_parser_unit_counts": [
+        9
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:686F",
+          "text": "Non merci )"
+        }
+      ]
+    },
+    {
       "event_id": "01B4",
       "snes_ids": [
         "C9:6884"
@@ -34407,6 +34568,227 @@
       ]
     },
     {
+      "event_id": "01DF",
+      "snes_ids": [
+        "C9:8144"
+      ],
+      "android_ids": [
+        732
+      ],
+      "confidence": "very_high_equivalent_duplicate",
+      "source_display": "NEKO:Meow, busy travelers!\n I'll even save the game!\n",
+      "android_french_raw": "Exceptionnellement, je peux sauvegarder, miaou ! ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Exceptionnellement, je peux sauvegarder, miaou !",
+      "layout_markup_before_wrap": "Exceptionnellement, je peux sauvegarder, miaou !",
+      "layout_hints": [],
+      "formatted_markup": "Exceptionnellement, je peux\nsauvegarder, miaou !\n",
+      "line_widths_pixels": [
+        161,
+        123
+      ],
+      "line_decoded_character_counts": [
+        27,
+        20
+      ],
+      "line_parser_unit_counts": [
+        27,
+        20
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 2,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:8144",
+          "text": "Exceptionnellement, je peux\nsauvegarder, miaou !\n"
+        }
+      ]
+    },
+    {
+      "event_id": "01DF",
+      "snes_ids": [
+        "C9:817F"
+      ],
+      "android_ids": [
+        733
+      ],
+      "confidence": "very_high_equivalent_duplicate",
+      "source_display": "Save",
+      "android_french_raw": "   Sauvegarder   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Sauvegarder",
+      "layout_markup_before_wrap": "Sauvegarder",
+      "layout_hints": [],
+      "formatted_markup": "Sauvegarder",
+      "line_widths_pixels": [
+        75
+      ],
+      "line_decoded_character_counts": [
+        11
+      ],
+      "line_parser_unit_counts": [
+        11
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:817F",
+          "text": "Sauvegarder"
+        }
+      ]
+    },
+    {
+      "event_id": "01DF",
+      "snes_ids": [
+        "C9:8185"
+      ],
+      "android_ids": [
+        638
+      ],
+      "confidence": "very_high_equivalent_duplicate",
+      "source_display": "Buy",
+      "android_french_raw": "   Acheter   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Acheter",
+      "layout_markup_before_wrap": "Acheter",
+      "layout_hints": [],
+      "formatted_markup": "Acheter",
+      "line_widths_pixels": [
+        46
+      ],
+      "line_decoded_character_counts": [
+        7
+      ],
+      "line_parser_unit_counts": [
+        7
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:8185",
+          "text": "Acheter"
+        }
+      ]
+    },
+    {
+      "event_id": "01DF",
+      "snes_ids": [
+        "C9:818A"
+      ],
+      "android_ids": [
+        639
+      ],
+      "confidence": "very_high_equivalent_duplicate",
+      "source_display": "Sell )",
+      "android_french_raw": "   Vendre   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": [
+        "C9:818A"
+      ],
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Vendre",
+      "layout_markup_before_wrap": "Vendre",
+      "layout_hints": [],
+      "formatted_markup": "Vendre",
+      "line_widths_pixels": [
+        41
+      ],
+      "line_decoded_character_counts": [
+        6
+      ],
+      "line_parser_unit_counts": [
+        6
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:818A",
+          "text": "Vendre )"
+        }
+      ]
+    },
+    {
       "event_id": "01E1",
       "snes_ids": [
         "C9:81A5"
@@ -37282,8 +37664,7 @@
           "id": "C9:8C93",
           "text": "Rusalka : Cette épée est la véritable\nÉpée de Mana. Mais elle a perdu son\néclat, sa puissance s'est tarie."
         }
-      ],
-      "choice_decoration_anchor_fallback": true
+      ]
     },
     {
       "event_id": "0200",
@@ -37343,8 +37724,7 @@
           "id": "C9:8CCB",
           "text": "\u000bL'Épée sacrée a utilisé ce qui lui\nrestait d'énergie pour te choisir et\nt'appeler."
         }
-      ],
-      "choice_decoration_anchor_fallback": true
+      ]
     },
     {
       "event_id": "0200",
@@ -37398,8 +37778,7 @@
           "id": "C9:8D05",
           "text": "Pourquoi moi ?"
         }
-      ],
-      "choice_decoration_anchor_fallback": true
+      ]
     },
     {
       "event_id": "0200",
@@ -37454,8 +37833,7 @@
           "text": "Son énergie ?"
         }
       ],
-      "choice_decoration_mode": "stripped_for_width",
-      "choice_decoration_anchor_fallback": true
+      "choice_decoration_mode": "stripped_for_width"
     },
     {
       "event_id": "0201",
@@ -41997,6 +42375,287 @@
         {
           "id": "C9:9D38",
           "text": "C'est dans cette salle que doit se\ntrouver la Graine.\n"
+        }
+      ]
+    },
+    {
+      "event_id": "023C",
+      "snes_ids": [
+        "C9:9D5F"
+      ],
+      "android_ids": [
+        1205
+      ],
+      "confidence": "very_high_structural_review",
+      "source_display": "NEKO:Purrfect weather!",
+      "android_french_raw": "Niccolo : Vous êtes en voyage, miaou ? \nMoi aussi, figurez-vous ! ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Niccolo : Vous êtes en voyage, miaou ? Moi aussi, figurez-vous !",
+      "layout_markup_before_wrap": "Niccolo : Vous êtes en voyage, miaou ? Moi aussi, figurez-vous !",
+      "layout_hints": [],
+      "formatted_markup": "Niccolo : Vous êtes en voyage,\nmiaou ?\nMoi aussi, figurez-vous !",
+      "line_widths_pixels": [
+        182,
+        43,
+        149
+      ],
+      "line_decoded_character_counts": [
+        30,
+        7,
+        25
+      ],
+      "line_parser_unit_counts": [
+        30,
+        7,
+        25
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        3
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:9D5F",
+          "text": "Niccolo : Vous êtes en voyage,\nmiaou ?\nMoi aussi, figurez-vous !"
+        }
+      ]
+    },
+    {
+      "event_id": "023C",
+      "snes_ids": [
+        "C9:9D7C"
+      ],
+      "android_ids": [
+        1206
+      ],
+      "confidence": "very_high_structural_review",
+      "source_display": " What can I do for you?\n",
+      "android_french_raw": "Exceptionnellement, je peux sauvegarder, miaou ! ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Exceptionnellement, je peux sauvegarder, miaou !",
+      "layout_markup_before_wrap": "Exceptionnellement, je peux sauvegarder, miaou !",
+      "layout_hints": [],
+      "formatted_markup": "Exceptionnellement, je peux\nsauvegarder, miaou !\n",
+      "line_widths_pixels": [
+        161,
+        123
+      ],
+      "line_decoded_character_counts": [
+        27,
+        20
+      ],
+      "line_parser_unit_counts": [
+        27,
+        20
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:9D7C",
+          "text": "Exceptionnellement, je peux\nsauvegarder, miaou !\n"
+        }
+      ]
+    },
+    {
+      "event_id": "023C",
+      "snes_ids": [
+        "C9:9D9A"
+      ],
+      "android_ids": [
+        1207
+      ],
+      "confidence": "very_high_equivalent_duplicate",
+      "source_display": "Save",
+      "android_french_raw": "   Sauvegarder   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Sauvegarder",
+      "layout_markup_before_wrap": "Sauvegarder",
+      "layout_hints": [],
+      "formatted_markup": "Sauvegarder",
+      "line_widths_pixels": [
+        75
+      ],
+      "line_decoded_character_counts": [
+        11
+      ],
+      "line_parser_unit_counts": [
+        11
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:9D9A",
+          "text": "Sauvegarder"
+        }
+      ]
+    },
+    {
+      "event_id": "023C",
+      "snes_ids": [
+        "C9:9DA0"
+      ],
+      "android_ids": [
+        1208
+      ],
+      "confidence": "very_high_equivalent_duplicate",
+      "source_display": "Buy",
+      "android_french_raw": "   Acheter   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Acheter",
+      "layout_markup_before_wrap": "Acheter",
+      "layout_hints": [],
+      "formatted_markup": "Acheter",
+      "line_widths_pixels": [
+        46
+      ],
+      "line_decoded_character_counts": [
+        7
+      ],
+      "line_parser_unit_counts": [
+        7
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:9DA0",
+          "text": "Acheter"
+        }
+      ]
+    },
+    {
+      "event_id": "023C",
+      "snes_ids": [
+        "C9:9DA5"
+      ],
+      "android_ids": [
+        1209
+      ],
+      "confidence": "very_high_equivalent_duplicate",
+      "source_display": "Sell )",
+      "android_french_raw": "   Vendre   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": [
+        "C9:9DA5"
+      ],
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Vendre",
+      "layout_markup_before_wrap": "Vendre",
+      "layout_hints": [],
+      "formatted_markup": "Vendre",
+      "line_widths_pixels": [
+        41
+      ],
+      "line_decoded_character_counts": [
+        6
+      ],
+      "line_parser_unit_counts": [
+        6
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:9DA5",
+          "text": "Vendre )"
         }
       ]
     },
@@ -58090,6 +58749,291 @@
       ]
     },
     {
+      "event_id": "0318",
+      "snes_ids": [
+        "C9:CD5C"
+      ],
+      "android_ids": [
+        2376
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "NEKO:I love meow-ntain\n climbing! Need anything?",
+      "android_french_raw": "Niccolo : La montée a dû vous fatiguer, non ? Miaou ! ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Niccolo : La montée a dû vous fatiguer, non ? Miaou !",
+      "layout_markup_before_wrap": "Niccolo : La montée a dû vous fatiguer, non ? Miaou !",
+      "layout_hints": [],
+      "formatted_markup": "Niccolo : La montée a dû vous\nfatiguer, non ?\nMiaou !",
+      "line_widths_pixels": [
+        175,
+        90,
+        40
+      ],
+      "line_decoded_character_counts": [
+        29,
+        15,
+        7
+      ],
+      "line_parser_unit_counts": [
+        29,
+        15,
+        7
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 2,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        3
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:CD5C",
+          "text": "Niccolo : La montée a dû vous\nfatiguer, non ?\nMiaou !"
+        }
+      ]
+    },
+    {
+      "event_id": "0318",
+      "snes_ids": [
+        "C9:CD95"
+      ],
+      "android_ids": [
+        2377
+      ],
+      "confidence": "very_high_structural_review",
+      "source_display": " I'll even save your game!\n",
+      "android_french_raw": "Exceptionnellement, je peux sauvegarder, miaou ! ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Exceptionnellement, je peux sauvegarder, miaou !",
+      "layout_markup_before_wrap": "Exceptionnellement, je peux sauvegarder, miaou !",
+      "layout_hints": [],
+      "formatted_markup": "Exceptionnellement, je peux\nsauvegarder, miaou !\n",
+      "line_widths_pixels": [
+        161,
+        123
+      ],
+      "line_decoded_character_counts": [
+        27,
+        20
+      ],
+      "line_parser_unit_counts": [
+        27,
+        20
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": false,
+      "page_line_counts": [
+        2
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:CD95",
+          "text": "Exceptionnellement, je peux\nsauvegarder, miaou !\n"
+        }
+      ],
+      "structural_choice_prompt_split": true,
+      "choice_prompt_stock_shape": "separate_parenthesis_after_text_x",
+      "preserved_choice_opening_suffix": "(",
+      "choice_row_transition": "stock_newline"
+    },
+    {
+      "event_id": "0318",
+      "snes_ids": [
+        "C9:CDB6"
+      ],
+      "android_ids": [
+        2378
+      ],
+      "confidence": "very_high_short_bracketed",
+      "source_display": "Save",
+      "android_french_raw": "   Sauvegarder   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Sauvegarder",
+      "layout_markup_before_wrap": "Sauvegarder",
+      "layout_hints": [],
+      "formatted_markup": "Sauvegarder",
+      "line_widths_pixels": [
+        75
+      ],
+      "line_decoded_character_counts": [
+        11
+      ],
+      "line_parser_unit_counts": [
+        11
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:CDB6",
+          "text": "Sauvegarder"
+        }
+      ]
+    },
+    {
+      "event_id": "0318",
+      "snes_ids": [
+        "C9:CDBC"
+      ],
+      "android_ids": [
+        2379
+      ],
+      "confidence": "very_high_short_bracketed",
+      "source_display": "Buy",
+      "android_french_raw": "   Acheter   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Acheter",
+      "layout_markup_before_wrap": "Acheter",
+      "layout_hints": [],
+      "formatted_markup": "Acheter",
+      "line_widths_pixels": [
+        46
+      ],
+      "line_decoded_character_counts": [
+        7
+      ],
+      "line_parser_unit_counts": [
+        7
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:CDBC",
+          "text": "Acheter"
+        }
+      ]
+    },
+    {
+      "event_id": "0318",
+      "snes_ids": [
+        "C9:CDC1"
+      ],
+      "android_ids": [
+        2380
+      ],
+      "confidence": "very_high_equivalent_duplicate",
+      "source_display": "Sell )",
+      "android_french_raw": "   Vendre   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": [
+        "C9:CDC1"
+      ],
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Vendre",
+      "layout_markup_before_wrap": "Vendre",
+      "layout_hints": [],
+      "formatted_markup": "Vendre",
+      "line_widths_pixels": [
+        41
+      ],
+      "line_decoded_character_counts": [
+        6
+      ],
+      "line_parser_unit_counts": [
+        6
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:CDC1",
+          "text": "Vendre )"
+        }
+      ]
+    },
+    {
       "event_id": "0319",
       "snes_ids": [
         "C9:CDD2"
@@ -67867,6 +68811,367 @@
         {
           "id": "C9:EC54",
           "text": "Zico : Passons aux choses\nsérieuses ! Si vous arrivez à les\nvaincre, l'épreuve sera réussie."
+        }
+      ]
+    },
+    {
+      "event_id": "03DC",
+      "snes_ids": [
+        "C9:EC89"
+      ],
+      "android_ids": [
+        2466
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "JOCH:ZXYNDRA, QU...",
+      "android_french_raw": "Jach : Zxyndra, qr...",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Jach : Zxyndra, qr...",
+      "layout_markup_before_wrap": "Jach : Zxyndra, qr...",
+      "layout_hints": [],
+      "formatted_markup": "Jach : Zxyndra, qr...",
+      "line_widths_pixels": [
+        124
+      ],
+      "line_decoded_character_counts": [
+        21
+      ],
+      "line_parser_unit_counts": [
+        21
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:EC89",
+          "text": "Jach : Zxyndra, qr..."
+        }
+      ]
+    },
+    {
+      "event_id": "03DC",
+      "snes_ids": [
+        "C9:EC9F"
+      ],
+      "android_ids": [
+        2467
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "JEHK:Master speaks in the\n old tongue!\n Allow me!",
+      "android_french_raw": "Maître Jach parle la langue des anciens ! Permettez-moi de traduire ! ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Maître Jach parle la langue des anciens ! Permettez-moi de traduire !",
+      "layout_markup_before_wrap": "Maître Jach parle la langue des anciens ! Permettez-moi de traduire !",
+      "layout_hints": [],
+      "formatted_markup": "Maître Jach parle la langue des\nanciens !\nPermettez-moi de traduire !",
+      "line_widths_pixels": [
+        186,
+        54,
+        162
+      ],
+      "line_decoded_character_counts": [
+        31,
+        9,
+        27
+      ],
+      "line_parser_unit_counts": [
+        31,
+        9,
+        27
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 3,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        3
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:EC9F",
+          "text": "Maître Jach parle la langue des\nanciens !\nPermettez-moi de traduire !"
+        }
+      ]
+    },
+    {
+      "event_id": "03DC",
+      "snes_ids": [
+        "C9:ECD2"
+      ],
+      "android_ids": [
+        2468,
+        2469
+      ],
+      "confidence": "very_high_bracketed",
+      "source_display": "\n You must undergo a test.\n Conquer the ones within,\n and you'll find...courage.",
+      "android_french_raw": "\"Dans cette grotte se trouvent les Méandres de l'initiation, qui servent à éprouver le courage des braves.\" \"Si vous triomphez des adversaires qui vous attendent au bout, alors vous découvrirez le véritable courage.\"",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "“Dans cette grotte se trouvent les Méandres de l'initiation, qui servent à éprouver le courage des braves.” “Si vous triomphez des adversaires qui vous attendent au bout, alors vous découvrirez le véritable courage.”",
+      "layout_markup_before_wrap": "“Dans cette grotte se trouvent les Méandres de l'initiation, qui servent à éprouver le courage des braves.” “Si vous triomphez des adversaires qui vous attendent au bout, alors vous découvrirez le véritable courage.”",
+      "layout_hints": [],
+      "formatted_markup": "“Dans cette grotte se trouvent\nles Méandres de l'initiation,\nqui servent à éprouver le courage\fdes braves.” “Si vous triomphez\fdes adversaires qui vous\fattendent au bout, alors vous\ndécouvrirez le véritable courage.”\f",
+      "line_widths_pixels": [
+        184,
+        159,
+        202,
+        190,
+        149,
+        175,
+        204
+      ],
+      "line_decoded_character_counts": [
+        30,
+        29,
+        33,
+        31,
+        24,
+        29,
+        34
+      ],
+      "line_parser_unit_counts": [
+        30,
+        29,
+        33,
+        31,
+        24,
+        29,
+        34
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 3,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        3,
+        2,
+        2
+      ],
+      "inserted_page_break_count": 2,
+      "inserted_leading_clear": true,
+      "page_break_encoding": "WAIT $00 + TEXT_CLEAR",
+      "page_break_strategy": "balanced_word_boundaries_three_pages",
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:ECD2",
+          "text": "\u000b“Dans cette grotte se trouvent\nles Méandres de l'initiation,\nqui servent à éprouver le courage\fdes braves.” “Si vous triomphez\fdes adversaires qui vous\fattendent au bout, alors vous\ndécouvrirez le véritable courage.”"
+        }
+      ],
+      "trailing_page_break_stock_transition_repairs": [
+        {
+          "strategy": "reuse_immediate_stock_wait00_text_clear",
+          "text_id": "C9:ECD2",
+          "semantic_payload_changed": false,
+          "stock_commands_preserved": true
+        }
+      ]
+    },
+    {
+      "event_id": "03DC",
+      "snes_ids": [
+        "C9:ED25"
+      ],
+      "android_ids": [
+        2470
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": " Will you try?\n",
+      "android_french_raw": "Voulez-vous essayer ? ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Voulez-vous essayer ?",
+      "layout_markup_before_wrap": "Voulez-vous essayer ?",
+      "layout_hints": [],
+      "formatted_markup": "Voulez-vous essayer ?\n",
+      "line_widths_pixels": [
+        138
+      ],
+      "line_decoded_character_counts": [
+        21
+      ],
+      "line_parser_unit_counts": [
+        21
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:ED25",
+          "text": "Voulez-vous essayer ?\n"
+        }
+      ]
+    },
+    {
+      "event_id": "03DC",
+      "snes_ids": [
+        "C9:ED3A"
+      ],
+      "android_ids": [
+        2471
+      ],
+      "confidence": "very_high_short_bracketed",
+      "source_display": "Yes",
+      "android_french_raw": "   Oui   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Oui",
+      "layout_markup_before_wrap": "Oui",
+      "layout_hints": [],
+      "formatted_markup": "Oui",
+      "line_widths_pixels": [
+        17
+      ],
+      "line_decoded_character_counts": [
+        3
+      ],
+      "line_parser_unit_counts": [
+        3
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:ED3A",
+          "text": "Oui"
+        }
+      ]
+    },
+    {
+      "event_id": "03DC",
+      "snes_ids": [
+        "C9:ED3F"
+      ],
+      "android_ids": [
+        2472
+      ],
+      "confidence": "very_high_equivalent_duplicate",
+      "source_display": "No  )",
+      "android_french_raw": "   Non   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": [
+        "C9:ED3F"
+      ],
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Non",
+      "layout_markup_before_wrap": "Non",
+      "layout_hints": [],
+      "formatted_markup": "Non",
+      "line_widths_pixels": [
+        21
+      ],
+      "line_decoded_character_counts": [
+        3
+      ],
+      "line_parser_unit_counts": [
+        3
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "C9:ED3F",
+          "text": "Non  )"
         }
       ]
     },
@@ -91864,6 +93169,906 @@
       ]
     },
     {
+      "event_id": "05F8",
+      "snes_ids": [
+        "CA:7A0C",
+        "CA:7A1C",
+        "CA:7A43",
+        "CA:7A4B",
+        "CA:7A58",
+        "CA:7A7D",
+        "CA:7AB0",
+        "CA:7AC5",
+        "CA:7ADF",
+        "CA:7AE4",
+        "CA:7AEC",
+        "CA:7AF1",
+        "CA:7B01",
+        "CA:7B08",
+        "CA:7B32",
+        "CA:7B38",
+        "CA:7B69",
+        "CA:7B85",
+        "CA:7BA0",
+        "CA:7BC9",
+        "CA:7BF4",
+        "CA:7C54",
+        "CA:7C98",
+        "CA:7CBA",
+        "CA:7CF4",
+        "CA:7CF8",
+        "CA:7CFD",
+        "CA:7D03",
+        "CA:7D08",
+        "CA:7D32",
+        "CA:7D5E",
+        "CA:7D8D",
+        "CA:7DA9",
+        "CA:7DE1",
+        "CA:7DF0",
+        "CA:7E0E",
+        "CA:7E4B",
+        "CA:7E94",
+        "CA:7EC7",
+        "CA:7EFB",
+        "CA:7F40",
+        "CA:7F84",
+        "CA:7FC4",
+        "CA:8010",
+        "CA:805E",
+        "CA:80B4",
+        "CA:80C2",
+        "CA:80F2",
+        "CA:811D",
+        "CA:8132",
+        "CA:814D",
+        "CA:816B",
+        "CA:81B7",
+        "CA:81EF",
+        "CA:8236",
+        "CA:828E",
+        "CA:82AD",
+        "CA:82BC",
+        "CA:8300",
+        "CA:830C",
+        "CA:8323",
+        "CA:833E",
+        "CA:834B",
+        "CA:8368",
+        "CA:8381",
+        "CA:8384",
+        "CA:838A",
+        "CA:8396",
+        "CA:839E",
+        "CA:83A4",
+        "CA:83B3",
+        "CA:83BA",
+        "CA:83ED",
+        "CA:83F0",
+        "CA:8414",
+        "CA:843F",
+        "CA:8445",
+        "CA:844F",
+        "CA:8471",
+        "CA:84B2",
+        "CA:84B9",
+        "CA:84DE",
+        "CA:8528",
+        "CA:854C"
+      ],
+      "android_ids": [
+        3052,
+        3053,
+        3054,
+        3055,
+        3056,
+        3057,
+        3058,
+        3059,
+        3060,
+        3061,
+        3062,
+        3063,
+        3064,
+        3065,
+        3066,
+        3067,
+        3068,
+        3069,
+        3070,
+        3071,
+        3072,
+        3073,
+        3074,
+        3075,
+        3076,
+        3077,
+        3078,
+        3079,
+        3080,
+        3081,
+        3082,
+        3083,
+        3084,
+        3085,
+        3086,
+        3087,
+        3088,
+        3089,
+        3090,
+        3091,
+        3092,
+        3093,
+        3094,
+        3095,
+        3096,
+        3097,
+        3098,
+        3099,
+        3100,
+        3101,
+        3102,
+        3103,
+        3104,
+        3105,
+        3106,
+        3107,
+        3108,
+        3109,
+        3110,
+        3111,
+        3112,
+        3113,
+        3114,
+        3115,
+        3116,
+        3117,
+        3118,
+        3119,
+        3120,
+        3121,
+        3122,
+        3123,
+        3124,
+        3125,
+        3126,
+        3127,
+        3128,
+        3129,
+        3130,
+        3131,
+        3132
+      ],
+      "confidence": "user_validated_scene_semantic_redistribution",
+      "round68_user_validated_android_fr_scene": true,
+      "android_identity_count_changed": false,
+      "note": "Keep the original Android-FR scene semantics verbatim; only SNES carriers/pages and translated-only dynamic PLAYER_NAME placement are redistributed.",
+      "formatted_entries": [
+        {
+          "id": "CA:7A0C",
+          "text": ": Où sommes-nous ?"
+        },
+        {
+          "id": "CA:7A1C",
+          "text": "\u000b"
+        },
+        {
+          "id": "CA:7A43",
+          "text": "\u000b: Regardez !"
+        },
+        {
+          "id": "CA:7A4B",
+          "text": "\u000b"
+        },
+        {
+          "id": "CA:7A58",
+          "text": "\u000bC'est l'Arbre de Mana !"
+        },
+        {
+          "id": "CA:7A7D",
+          "text": "\u000b: Nous y sommes enfin !\n%S(0,0), nous allons pouvoir\nraviver l'Épée de Mana !"
+        },
+        {
+          "id": "CA:7AB0",
+          "text": ": J'ai l'impression de\nrêver..."
+        },
+        {
+          "id": "CA:7AC5",
+          "text": "\u000bEst-ce que tout ceci est réel ?\nNous y sommes vraiment arrivés ?"
+        },
+        {
+          "id": "CA:7ADF",
+          "text": ""
+        },
+        {
+          "id": "CA:7AE4",
+          "text": "...\n"
+        },
+        {
+          "id": "CA:7AEC",
+          "text": "\u000b...\nMerci."
+        },
+        {
+          "id": "CA:7AF1",
+          "text": "\u000bJe suis heureuse de t'avoir\nrencontré."
+        },
+        {
+          "id": "CA:7B01",
+          "text": ""
+        },
+        {
+          "id": "CA:7B08",
+          "text": "\u000bToi aussi,\n"
+        },
+        {
+          "id": "CA:7B32",
+          "text": "."
+        },
+        {
+          "id": "CA:7B38",
+          "text": ": Ouais !\nJ'ai eu de la chance de tomber sur\nd'aussi bons serviteurs que vous !"
+        },
+        {
+          "id": "CA:7B69",
+          "text": ": Il s'en est passé, des\nchoses, en peu de temps..."
+        },
+        {
+          "id": "CA:7B85",
+          "text": "Mais grâce à vous deux...\nj'ai réussi à arriver jusqu'ici."
+        },
+        {
+          "id": "CA:7BA0",
+          "text": "\u000bMerci.\fIl nous reste une chose à faire !"
+        },
+        {
+          "id": "CA:7BC9",
+          "text": "\u000bQuand l'Épée sera ravivée,\nnous serons\nprêts à affronter la Forteresse !"
+        },
+        {
+          "id": "CA:7BF4",
+          "text": "\u000bAllons-y !"
+        },
+        {
+          "id": "CA:7C54",
+          "text": "\u000bHa ha ha ha...\nAdmirez la puissance de la\nForteresse\nde Mana !\fFeu !!"
+        },
+        {
+          "id": "CA:7C98",
+          "text": "\u000b: Ah !\n%S(0,0) !\n%S(1,0) !\n"
+        },
+        {
+          "id": "CA:7CBA",
+          "text": ": Aaaah !!"
+        },
+        {
+          "id": "CA:7CF4",
+          "text": "\u000b...\n..."
+        },
+        {
+          "id": "CA:7CF8",
+          "text": ""
+        },
+        {
+          "id": "CA:7CFD",
+          "text": ""
+        },
+        {
+          "id": "CA:7D03",
+          "text": ""
+        },
+        {
+          "id": "CA:7D08",
+          "text": "\u000b%S(0,0)...\fRéveille-toi, %S(0,0)..."
+        },
+        {
+          "id": "CA:7D32",
+          "text": "\u000b: Où suis-je ? Ah ! L'Arbre\nde Mana a disparu ! Non..."
+        },
+        {
+          "id": "CA:7D5E",
+          "text": ": Flûte !!\nOn avait enfin réussi à trouver\nl'Arbre !\fSaleté de Thanatos !"
+        },
+        {
+          "id": "CA:7D8D",
+          "text": ""
+        },
+        {
+          "id": "CA:7DA9",
+          "text": ": C'est terrible !\nQue va-t-il arriver à notre monde...\nà Durac ?"
+        },
+        {
+          "id": "CA:7DE1",
+          "text": ""
+        },
+        {
+          "id": "CA:7DF0",
+          "text": "...\nJe vous attendais,\ntoi et tes compagnons...\fJe suis l'Arbre de Mana...\nJe protège ce monde...\fNe soyez pas tristes...\nMême si j'ai disparu,\nmon esprit reste auprès de vous..."
+        },
+        {
+          "id": "CA:7E0E",
+          "text": "Le pouvoir de Mana s'est presque\néteint de ce monde à cause de la\nrésurrection de la Forteresse..."
+        },
+        {
+          "id": "CA:7E4B",
+          "text": "Bientôt les bénévodons du monde\nentier\nse rassembleront et fusionneront\fen\nun\nêtre unique et immense..."
+        },
+        {
+          "id": "CA:7E94",
+          "text": "Seul ce formidable bénévodon est\ncapable de restaurer le pouvoir\nperdu\nde Mana."
+        },
+        {
+          "id": "CA:7EC7",
+          "text": "Mais lorsque ce pouvoir disparaît\ntrop\nbrusquement, le bénévodon devient\nincontrôlable."
+        },
+        {
+          "id": "CA:7EFB",
+          "text": "S'il s'en prend à la Forteresse de\nMana, le monde sera perdu."
+        },
+        {
+          "id": "CA:7F40",
+          "text": "La seule manière d'empêcher cela\nest\nd'abattre le bénévodon avec l'Épée\nsacrée."
+        },
+        {
+          "id": "CA:7F84",
+          "text": "Cette épée ne peut être utilisée que\npar les descendants de la tribu de\nMana."
+        },
+        {
+          "id": "CA:7FC4",
+          "text": "C'est ton père,\nle chevalier Serynn de\nTasmanica, qui aurait dû retirer\nl'Épée.\fIl y a 15 ans, lors de la guerre, iI\naffronta l'Empereur mais fut\ngravement\nblessé."
+        },
+        {
+          "id": "CA:8010",
+          "text": "Pour vaincre définitivement\nl'Empereur\nressuscité, il usa de ses dernières\nforces pour venir chercher l'Épée."
+        },
+        {
+          "id": "CA:805E",
+          "text": "Hélas, il mourut en arrivant à\nPotos..."
+        },
+        {
+          "id": "CA:80B4",
+          "text": "\u000b: Hein !\nMais alors, le fantôme que j'ai vu à\nla cascade, c'était..."
+        },
+        {
+          "id": "CA:80C2",
+          "text": "mon père ?!"
+        },
+        {
+          "id": "CA:80F2",
+          "text": "\u000bOui, c'était Serynn.\nEt moi..."
+        },
+        {
+          "id": "CA:811D",
+          "text": "j'étais sa femme,"
+        },
+        {
+          "id": "CA:8132",
+          "text": "\u000bta mère."
+        },
+        {
+          "id": "CA:814D",
+          "text": "\u000bNous faisons partie de la tribu de\nMana."
+        },
+        {
+          "id": "CA:816B",
+          "text": "Les femmes de notre famille ont pour\ndestin d'enfanter avant de devenir\narbre pour protéger le monde."
+        },
+        {
+          "id": "CA:81B7",
+          "text": "\u000bLes hommes doivent brandir l'Épée,\ncomme le fit ton père,\net préserver la\npaix et l'ordre."
+        },
+        {
+          "id": "CA:81EF",
+          "text": "Va à la Forteresse !\nSes défenses en\nsont affaiblies, maintenant que\nl'énergie de Mana se dissipe."
+        },
+        {
+          "id": "CA:8236",
+          "text": "\u000bJe vais utiliser mes dernières\nforces\npour imprégner l'Épée de\fla\npuissance\ndes Graines."
+        },
+        {
+          "id": "CA:828E",
+          "text": "Le pouvoir de l'Épée est au\nmaximum !"
+        },
+        {
+          "id": "CA:82AD",
+          "text": "..."
+        },
+        {
+          "id": "CA:82BC",
+          "text": ", pardonne-moi.\nJe n'ai pas été une bonne mère."
+        },
+        {
+          "id": "CA:8300",
+          "text": "\u000b: Mère !"
+        },
+        {
+          "id": "CA:830C",
+          "text": "C'est vraiment toi ?!"
+        },
+        {
+          "id": "CA:8323",
+          "text": "\u000bTu vas disparaître comme ça ?!"
+        },
+        {
+          "id": "CA:833E",
+          "text": "\u000b...\n...\n...\f..."
+        },
+        {
+          "id": "CA:834B",
+          "text": "\u000b%S(0,0) : Non !\nJe t'avais enfin retrouvée...\fRéponds-moi, je t'en prie !"
+        },
+        {
+          "id": "CA:8368",
+          "text": "\u000bMèèère !!"
+        },
+        {
+          "id": "CA:8381",
+          "text": "\u000b:"
+        },
+        {
+          "id": "CA:8384",
+          "text": "..."
+        },
+        {
+          "id": "CA:838A",
+          "text": ": Mère..."
+        },
+        {
+          "id": "CA:8396",
+          "text": "\u000bNon...\nne me laisse pas !"
+        },
+        {
+          "id": "CA:839E",
+          "text": ": ..."
+        },
+        {
+          "id": "CA:83A4",
+          "text": "\u000bIdiot !"
+        },
+        {
+          "id": "CA:83B3",
+          "text": "\u000b"
+        },
+        {
+          "id": "CA:83BA",
+          "text": "Reprends-toi !\nRappelle-toi ce qu'elle t'a dit !\nTu as une mission !"
+        },
+        {
+          "id": "CA:83ED",
+          "text": ""
+        },
+        {
+          "id": "CA:83F0",
+          "text": "non plus n'a pas connu\nsa\nmère !"
+        },
+        {
+          "id": "CA:8414",
+          "text": "\u000bEt d'ailleurs, moi non plus !\fC'est pas le moment de pleurer !"
+        },
+        {
+          "id": "CA:843F",
+          "text": ": Désolé..."
+        },
+        {
+          "id": "CA:8445",
+          "text": "\u000bTu as raison."
+        },
+        {
+          "id": "CA:844F",
+          "text": "\u000bÇa va aller !"
+        },
+        {
+          "id": "CA:8471",
+          "text": ": Je suis de la tribu de\nMana... Je vais accomplir le destin de\nmes parents et protéger ce monde si\fmerveilleux !"
+        },
+        {
+          "id": "CA:84B2",
+          "text": "\u000b"
+        },
+        {
+          "id": "CA:84B9",
+          "text": ": J'aime mieux ça !\nJe reconnais bien là mon esclave\nn°1 !"
+        },
+        {
+          "id": "CA:84DE",
+          "text": ": Tu as raison !\nJ'ai l'impression d'avoir rencontré\nma\nmère, moi aussi !\fElle est sûrement dans mon cœur !"
+        },
+        {
+          "id": "CA:8528",
+          "text": ": Allez, on se motive !"
+        },
+        {
+          "id": "CA:854C",
+          "text": "\u000bUn, deux...\ntrois !"
+        }
+      ],
+      "automatic_216px_reflow": [
+        {
+          "id": "CA:7AF1",
+          "reflowed_lines": [
+            {
+              "source_line": "Je suis heureuse de t'avoir rencontré.",
+              "wrapped": "Je suis heureuse de t'avoir\nrencontré.",
+              "widths_pixels": [
+                162,
+                63
+              ],
+              "decoded_characters": [
+                27,
+                10
+              ],
+              "parser_units": [
+                27,
+                10
+              ]
+            }
+          ]
+        },
+        {
+          "id": "CA:7BC9",
+          "reflowed_lines": [
+            {
+              "source_line": "Quand l'Épée sera ravivée, nous serons",
+              "wrapped": "Quand l'Épée sera ravivée,\nnous serons",
+              "widths_pixels": [
+                157,
+                73
+              ],
+              "decoded_characters": [
+                26,
+                11
+              ],
+              "parser_units": [
+                26,
+                11
+              ]
+            }
+          ]
+        },
+        {
+          "id": "CA:7C54",
+          "reflowed_lines": [
+            {
+              "source_line": "Admirez la puissance de la Forteresse",
+              "wrapped": "Admirez la puissance de la\nForteresse",
+              "widths_pixels": [
+                153,
+                66
+              ],
+              "decoded_characters": [
+                26,
+                10
+              ],
+              "parser_units": [
+                26,
+                10
+              ]
+            }
+          ]
+        },
+        {
+          "id": "CA:7C98",
+          "reflowed_lines": [
+            {
+              "source_line": ": Ah ! %S(0,0) !",
+              "wrapped": ": Ah !\n%S(0,0) !",
+              "widths_pixels": [
+                34,
+                81
+              ],
+              "decoded_characters": [
+                6,
+                11
+              ],
+              "parser_units": [
+                6,
+                12
+              ]
+            }
+          ]
+        },
+        {
+          "id": "CA:7E4B",
+          "reflowed_lines": [
+            {
+              "source_line": "Bientôt les bénévodons du monde entier",
+              "wrapped": "Bientôt les bénévodons du monde\nentier",
+              "widths_pixels": [
+                193,
+                35
+              ],
+              "decoded_characters": [
+                31,
+                6
+              ],
+              "parser_units": [
+                31,
+                6
+              ]
+            },
+            {
+              "source_line": "se rassembleront et fusionneront en un",
+              "wrapped": "se rassembleront et fusionneront en\nun",
+              "widths_pixels": [
+                216,
+                14
+              ],
+              "decoded_characters": [
+                35,
+                2
+              ],
+              "parser_units": [
+                35,
+                2
+              ]
+            }
+          ]
+        },
+        {
+          "id": "CA:7E94",
+          "reflowed_lines": [
+            {
+              "source_line": "capable de restaurer le pouvoir perdu",
+              "wrapped": "capable de restaurer le pouvoir\nperdu",
+              "widths_pixels": [
+                187,
+                34
+              ],
+              "decoded_characters": [
+                31,
+                5
+              ],
+              "parser_units": [
+                31,
+                5
+              ]
+            }
+          ]
+        },
+        {
+          "id": "CA:7EC7",
+          "reflowed_lines": [
+            {
+              "source_line": "Mais lorsque ce pouvoir disparaît trop",
+              "wrapped": "Mais lorsque ce pouvoir disparaît\ntrop",
+              "widths_pixels": [
+                198,
+                25
+              ],
+              "decoded_characters": [
+                33,
+                4
+              ],
+              "parser_units": [
+                33,
+                4
+              ]
+            }
+          ]
+        },
+        {
+          "id": "CA:7F40",
+          "reflowed_lines": [
+            {
+              "source_line": "La seule manière d'empêcher cela est",
+              "wrapped": "La seule manière d'empêcher cela\nest",
+              "widths_pixels": [
+                195,
+                19
+              ],
+              "decoded_characters": [
+                32,
+                3
+              ],
+              "parser_units": [
+                32,
+                3
+              ]
+            }
+          ]
+        },
+        {
+          "id": "CA:7FC4",
+          "reflowed_lines": [
+            {
+              "source_line": "C'est ton père, le chevalier Serynn de",
+              "wrapped": "C'est ton père,\nle chevalier Serynn de",
+              "widths_pixels": [
+                88,
+                131
+              ],
+              "decoded_characters": [
+                15,
+                22
+              ],
+              "parser_units": [
+                15,
+                22
+              ]
+            },
+            {
+              "source_line": "affronta l'Empereur mais fut gravement",
+              "wrapped": "affronta l'Empereur mais fut\ngravement",
+              "widths_pixels": [
+                169,
+                60
+              ],
+              "decoded_characters": [
+                28,
+                9
+              ],
+              "parser_units": [
+                28,
+                9
+              ]
+            }
+          ]
+        },
+        {
+          "id": "CA:8010",
+          "reflowed_lines": [
+            {
+              "source_line": "Pour vaincre définitivement l'Empereur",
+              "wrapped": "Pour vaincre définitivement\nl'Empereur",
+              "widths_pixels": [
+                161,
+                61
+              ],
+              "decoded_characters": [
+                27,
+                10
+              ],
+              "parser_units": [
+                27,
+                10
+              ]
+            }
+          ]
+        },
+        {
+          "id": "CA:81B7",
+          "reflowed_lines": [
+            {
+              "source_line": "comme le fit ton père, et préserver la",
+              "wrapped": "comme le fit ton père,\net préserver la",
+              "widths_pixels": [
+                126,
+                90
+              ],
+              "decoded_characters": [
+                22,
+                15
+              ],
+              "parser_units": [
+                22,
+                15
+              ]
+            }
+          ]
+        },
+        {
+          "id": "CA:81EF",
+          "reflowed_lines": [
+            {
+              "source_line": "Va à la Forteresse ! Ses défenses en",
+              "wrapped": "Va à la Forteresse !\nSes défenses en",
+              "widths_pixels": [
+                118,
+                99
+              ],
+              "decoded_characters": [
+                20,
+                15
+              ],
+              "parser_units": [
+                20,
+                15
+              ]
+            }
+          ]
+        },
+        {
+          "id": "CA:8236",
+          "reflowed_lines": [
+            {
+              "source_line": "Je vais utiliser mes dernières forces",
+              "wrapped": "Je vais utiliser mes dernières\nforces",
+              "widths_pixels": [
+                173,
+                41
+              ],
+              "decoded_characters": [
+                30,
+                6
+              ],
+              "parser_units": [
+                30,
+                6
+              ]
+            },
+            {
+              "source_line": "pour imprégner l'Épée de la puissance",
+              "wrapped": "pour imprégner l'Épée de la\npuissance",
+              "widths_pixels": [
+                159,
+                59
+              ],
+              "decoded_characters": [
+                27,
+                9
+              ],
+              "parser_units": [
+                27,
+                9
+              ]
+            }
+          ]
+        },
+        {
+          "id": "CA:828E",
+          "reflowed_lines": [
+            {
+              "source_line": "Le pouvoir de l'Épée est au maximum !",
+              "wrapped": "Le pouvoir de l'Épée est au\nmaximum !",
+              "widths_pixels": [
+                160,
+                54
+              ],
+              "decoded_characters": [
+                27,
+                9
+              ],
+              "parser_units": [
+                27,
+                9
+              ]
+            }
+          ]
+        },
+        {
+          "id": "CA:84B9",
+          "reflowed_lines": [
+            {
+              "source_line": "Je reconnais bien là mon esclave n°1 !",
+              "wrapped": "Je reconnais bien là mon esclave\nn°1 !",
+              "widths_pixels": [
+                192,
+                30
+              ],
+              "decoded_characters": [
+                32,
+                5
+              ],
+              "parser_units": [
+                32,
+                5
+              ]
+            }
+          ]
+        },
+        {
+          "id": "CA:84DE",
+          "reflowed_lines": [
+            {
+              "source_line": "J'ai l'impression d'avoir rencontré ma",
+              "wrapped": "J'ai l'impression d'avoir rencontré\nma",
+              "widths_pixels": [
+                201,
+                14
+              ],
+              "decoded_characters": [
+                35,
+                2
+              ],
+              "parser_units": [
+                35,
+                2
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
       "event_id": "0602",
       "snes_ids": [
         "CA:85CC"
@@ -92588,6 +94793,230 @@
         {
           "id": "CA:892F",
           "text": "Ah... Il y a un bouclier ! On\nn'arrivera pas à entrer ! Partons..."
+        }
+      ]
+    },
+    {
+      "event_id": "065F",
+      "snes_ids": [
+        "CA:8967"
+      ],
+      "android_ids": [
+        1827
+      ],
+      "confidence": "very_high_seeded",
+      "source_display": "NEKO:Purrrr, it's cold!\n Save your game? Or?",
+      "android_french_raw": "Niccolo : Brrr, mes moustaches sont hérissées par le froid ! Une sauvegarde ?",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Niccolo : Brrr, mes moustaches sont hérissées par le froid ! Une sauvegarde ?",
+      "layout_markup_before_wrap": "Niccolo : Brrr, mes moustaches sont hérissées par le froid ! Une sauvegarde ?",
+      "layout_hints": [],
+      "formatted_markup": "Niccolo : Brrr, mes moustaches sont\nhérissées par le froid !\nUne sauvegarde ?",
+      "line_widths_pixels": [
+        212,
+        139,
+        106
+      ],
+      "line_decoded_character_counts": [
+        35,
+        24,
+        16
+      ],
+      "line_parser_unit_counts": [
+        35,
+        24,
+        16
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 2,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        3
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "CA:8967",
+          "text": "Niccolo : Brrr, mes moustaches sont\nhérissées par le froid !\nUne sauvegarde ?"
+        }
+      ]
+    },
+    {
+      "event_id": "065F",
+      "snes_ids": [
+        "CA:899C"
+      ],
+      "android_ids": [
+        1828
+      ],
+      "confidence": "very_high_short_bracketed",
+      "source_display": "Save",
+      "android_french_raw": "   Sauvegarder   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Sauvegarder",
+      "layout_markup_before_wrap": "Sauvegarder",
+      "layout_hints": [],
+      "formatted_markup": "Sauvegarder",
+      "line_widths_pixels": [
+        75
+      ],
+      "line_decoded_character_counts": [
+        11
+      ],
+      "line_parser_unit_counts": [
+        11
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "CA:899C",
+          "text": "Sauvegarder"
+        }
+      ]
+    },
+    {
+      "event_id": "065F",
+      "snes_ids": [
+        "CA:89A2"
+      ],
+      "android_ids": [
+        1829
+      ],
+      "confidence": "very_high_short_bracketed",
+      "source_display": "Buy",
+      "android_french_raw": "   Acheter   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": null,
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Acheter",
+      "layout_markup_before_wrap": "Acheter",
+      "layout_hints": [],
+      "formatted_markup": "Acheter",
+      "line_widths_pixels": [
+        46
+      ],
+      "line_decoded_character_counts": [
+        7
+      ],
+      "line_parser_unit_counts": [
+        7
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "CA:89A2",
+          "text": "Acheter"
+        }
+      ]
+    },
+    {
+      "event_id": "065F",
+      "snes_ids": [
+        "CA:89A7"
+      ],
+      "android_ids": [
+        1830
+      ],
+      "confidence": "very_high_equivalent_duplicate",
+      "source_display": "Sell )",
+      "android_french_raw": "   Vendre   ",
+      "structural_markers_removed": [],
+      "preserved_choice_terminal_suffix_ids": [
+        "CA:89A7"
+      ],
+      "adjacent_nonsemantic_carrier_ids": null,
+      "adjacent_player_carrier_indexes": null,
+      "preserved_static_speaker_dynamic_addressee": null,
+      "preserved_leading_snes_player_prefix": null,
+      "positional_player_rebindings": null,
+      "ignored_alignment_trailing_player_context": null,
+      "android_french_normalized": "Vendre",
+      "layout_markup_before_wrap": "Vendre",
+      "layout_hints": [],
+      "formatted_markup": "Vendre",
+      "line_widths_pixels": [
+        41
+      ],
+      "line_decoded_character_counts": [
+        6
+      ],
+      "line_parser_unit_counts": [
+        6
+      ],
+      "leading_text_x_position": null,
+      "leading_text_x_padding_pixels": 0,
+      "leading_text_x_parser_units": 0,
+      "source_visible_line_budget": 1,
+      "effective_line_budget": 3,
+      "physical_page_capacity_mode": true,
+      "semantic_line_break_preferences": true,
+      "page_line_counts": [
+        1
+      ],
+      "inserted_page_break_count": 0,
+      "inserted_leading_clear": false,
+      "page_break_encoding": null,
+      "page_break_strategy": null,
+      "event_level_forced_page_break": false,
+      "formatted_entries": [
+        {
+          "id": "CA:89A7",
+          "text": "Vendre )"
         }
       ]
     },
@@ -94468,2090 +96897,6 @@
           "text": "\ndevait s'achever là..."
         }
       ]
-    },
-    {
-      "event_id": "01B3",
-      "snes_ids": [
-        "C9:682E"
-      ],
-      "android_ids": [
-        560
-      ],
-      "confidence": "very_high_seeded",
-      "source_display": "WATTS:Change your mind?\n I'll do it for 100 GP.\n (",
-      "android_french_raw": "Watts : Tu as changé d'avis ? Pour 100 pièces d'or, je répare ton épée ! ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Watts : Tu as changé d'avis ? Pour 100 pièces d'or, je répare ton épée !",
-      "layout_markup_before_wrap": "Watts : Tu as changé d'avis ? Pour 100 pièces d'or, je répare ton épée !",
-      "layout_hints": [],
-      "formatted_markup": "Watts : Tu as changé d'avis ?\nPour 100 pièces d'or,\nje répare ton épée !",
-      "line_widths_pixels": [
-        175,
-        128,
-        119
-      ],
-      "line_decoded_character_counts": [
-        29,
-        21,
-        20
-      ],
-      "line_parser_unit_counts": [
-        29,
-        21,
-        20
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 3,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        3
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:682E",
-          "text": "Watts : Tu as changé d'avis ?\nPour 100 pièces d'or,\nje répare ton épée !\f ("
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "01B3",
-      "snes_ids": [
-        "C9:6863"
-      ],
-      "android_ids": [
-        561
-      ],
-      "confidence": "very_high_seeded",
-      "source_display": "Please do!",
-      "android_french_raw": "   D'accord !   ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "D'accord !",
-      "layout_markup_before_wrap": "D'accord !",
-      "layout_hints": [],
-      "formatted_markup": "D'accord !",
-      "line_widths_pixels": [
-        61
-      ],
-      "line_decoded_character_counts": [
-        10
-      ],
-      "line_parser_unit_counts": [
-        10
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:6863",
-          "text": "D'accord !"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "01B3",
-      "snes_ids": [
-        "C9:686F"
-      ],
-      "android_ids": [
-        562
-      ],
-      "confidence": "very_high_one_side_exact",
-      "source_display": "No thanks! )",
-      "android_french_raw": "   Non merci   ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": [
-        "C9:686F"
-      ],
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Non merci",
-      "layout_markup_before_wrap": "Non merci",
-      "layout_hints": [],
-      "formatted_markup": "Non merci",
-      "line_widths_pixels": [
-        55
-      ],
-      "line_decoded_character_counts": [
-        9
-      ],
-      "line_parser_unit_counts": [
-        9
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:686F",
-          "text": "Non merci )"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "01DF",
-      "snes_ids": [
-        "C9:8144"
-      ],
-      "android_ids": [
-        732
-      ],
-      "confidence": "very_high_equivalent_duplicate",
-      "source_display": "NEKO:Meow, busy travelers!\n I'll even save the game!\n",
-      "android_french_raw": "Exceptionnellement, je peux sauvegarder, miaou ! ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Exceptionnellement, je peux sauvegarder, miaou !",
-      "layout_markup_before_wrap": "Exceptionnellement, je peux sauvegarder, miaou !",
-      "layout_hints": [],
-      "formatted_markup": "Exceptionnellement, je peux\nsauvegarder, miaou !\n",
-      "line_widths_pixels": [
-        161,
-        123
-      ],
-      "line_decoded_character_counts": [
-        27,
-        20
-      ],
-      "line_parser_unit_counts": [
-        27,
-        20
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 2,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        2
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:8144",
-          "text": "Exceptionnellement, je peux\nsauvegarder, miaou !\n"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "01DF",
-      "snes_ids": [
-        "C9:817F"
-      ],
-      "android_ids": [
-        733
-      ],
-      "confidence": "very_high_equivalent_duplicate",
-      "source_display": "Save",
-      "android_french_raw": "   Sauvegarder   ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Sauvegarder",
-      "layout_markup_before_wrap": "Sauvegarder",
-      "layout_hints": [],
-      "formatted_markup": "Sauvegarder",
-      "line_widths_pixels": [
-        75
-      ],
-      "line_decoded_character_counts": [
-        11
-      ],
-      "line_parser_unit_counts": [
-        11
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:817F",
-          "text": "Sauvegarder"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "01DF",
-      "snes_ids": [
-        "C9:8185"
-      ],
-      "android_ids": [
-        638
-      ],
-      "confidence": "very_high_equivalent_duplicate",
-      "source_display": "Buy",
-      "android_french_raw": "   Acheter   ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Acheter",
-      "layout_markup_before_wrap": "Acheter",
-      "layout_hints": [],
-      "formatted_markup": "Acheter",
-      "line_widths_pixels": [
-        46
-      ],
-      "line_decoded_character_counts": [
-        7
-      ],
-      "line_parser_unit_counts": [
-        7
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:8185",
-          "text": "Acheter"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "01DF",
-      "snes_ids": [
-        "C9:818A"
-      ],
-      "android_ids": [
-        639
-      ],
-      "confidence": "very_high_equivalent_duplicate",
-      "source_display": "Sell )",
-      "android_french_raw": "   Vendre   ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": [
-        "C9:818A"
-      ],
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Vendre",
-      "layout_markup_before_wrap": "Vendre",
-      "layout_hints": [],
-      "formatted_markup": "Vendre",
-      "line_widths_pixels": [
-        41
-      ],
-      "line_decoded_character_counts": [
-        6
-      ],
-      "line_parser_unit_counts": [
-        6
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:818A",
-          "text": "Vendre )"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "023C",
-      "snes_ids": [
-        "C9:9D5F"
-      ],
-      "android_ids": [
-        1205
-      ],
-      "confidence": "very_high_structural_review",
-      "source_display": "NEKO:Purrfect weather!",
-      "android_french_raw": "Niccolo : Vous êtes en voyage, miaou ? \nMoi aussi, figurez-vous ! ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Niccolo : Vous êtes en voyage, miaou ? Moi aussi, figurez-vous !",
-      "layout_markup_before_wrap": "Niccolo : Vous êtes en voyage, miaou ? Moi aussi, figurez-vous !",
-      "layout_hints": [],
-      "formatted_markup": "Niccolo : Vous êtes en voyage,\nmiaou ?\nMoi aussi, figurez-vous !",
-      "line_widths_pixels": [
-        182,
-        43,
-        149
-      ],
-      "line_decoded_character_counts": [
-        30,
-        7,
-        25
-      ],
-      "line_parser_unit_counts": [
-        30,
-        7,
-        25
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        3
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:9D5F",
-          "text": "Niccolo : Vous êtes en voyage,\nmiaou ?\nMoi aussi, figurez-vous !"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "023C",
-      "snes_ids": [
-        "C9:9D7C"
-      ],
-      "android_ids": [
-        1206
-      ],
-      "confidence": "very_high_structural_review",
-      "source_display": " What can I do for you?\n",
-      "android_french_raw": "Exceptionnellement, je peux sauvegarder, miaou ! ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Exceptionnellement, je peux sauvegarder, miaou !",
-      "layout_markup_before_wrap": "Exceptionnellement, je peux sauvegarder, miaou !",
-      "layout_hints": [],
-      "formatted_markup": "Exceptionnellement, je peux\nsauvegarder, miaou !\n",
-      "line_widths_pixels": [
-        161,
-        123
-      ],
-      "line_decoded_character_counts": [
-        27,
-        20
-      ],
-      "line_parser_unit_counts": [
-        27,
-        20
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        2
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:9D7C",
-          "text": "Exceptionnellement, je peux\nsauvegarder, miaou !\n"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "023C",
-      "snes_ids": [
-        "C9:9D9A"
-      ],
-      "android_ids": [
-        1207
-      ],
-      "confidence": "very_high_equivalent_duplicate",
-      "source_display": "Save",
-      "android_french_raw": "   Sauvegarder   ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Sauvegarder",
-      "layout_markup_before_wrap": "Sauvegarder",
-      "layout_hints": [],
-      "formatted_markup": "Sauvegarder",
-      "line_widths_pixels": [
-        75
-      ],
-      "line_decoded_character_counts": [
-        11
-      ],
-      "line_parser_unit_counts": [
-        11
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:9D9A",
-          "text": "Sauvegarder"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "023C",
-      "snes_ids": [
-        "C9:9DA0"
-      ],
-      "android_ids": [
-        1208
-      ],
-      "confidence": "very_high_equivalent_duplicate",
-      "source_display": "Buy",
-      "android_french_raw": "   Acheter   ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Acheter",
-      "layout_markup_before_wrap": "Acheter",
-      "layout_hints": [],
-      "formatted_markup": "Acheter",
-      "line_widths_pixels": [
-        46
-      ],
-      "line_decoded_character_counts": [
-        7
-      ],
-      "line_parser_unit_counts": [
-        7
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:9DA0",
-          "text": "Acheter"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "023C",
-      "snes_ids": [
-        "C9:9DA5"
-      ],
-      "android_ids": [
-        1209
-      ],
-      "confidence": "very_high_equivalent_duplicate",
-      "source_display": "Sell )",
-      "android_french_raw": "   Vendre   ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": [
-        "C9:9DA5"
-      ],
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Vendre",
-      "layout_markup_before_wrap": "Vendre",
-      "layout_hints": [],
-      "formatted_markup": "Vendre",
-      "line_widths_pixels": [
-        41
-      ],
-      "line_decoded_character_counts": [
-        6
-      ],
-      "line_parser_unit_counts": [
-        6
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:9DA5",
-          "text": "Vendre )"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "0318",
-      "snes_ids": [
-        "C9:CD5C"
-      ],
-      "android_ids": [
-        2376
-      ],
-      "confidence": "very_high_seeded",
-      "source_display": "NEKO:I love meow-ntain\n climbing! Need anything?",
-      "android_french_raw": "Niccolo : La montée a dû vous fatiguer, non ? Miaou ! ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Niccolo : La montée a dû vous fatiguer, non ? Miaou !",
-      "layout_markup_before_wrap": "Niccolo : La montée a dû vous fatiguer, non ? Miaou !",
-      "layout_hints": [],
-      "formatted_markup": "Niccolo : La montée a dû vous\nfatiguer, non ?\nMiaou !",
-      "line_widths_pixels": [
-        175,
-        90,
-        40
-      ],
-      "line_decoded_character_counts": [
-        29,
-        15,
-        7
-      ],
-      "line_parser_unit_counts": [
-        29,
-        15,
-        7
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 2,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        3
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:CD5C",
-          "text": "Niccolo : La montée a dû vous\nfatiguer, non ?\nMiaou !"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "0318",
-      "snes_ids": [
-        "C9:CD95"
-      ],
-      "android_ids": [
-        2377
-      ],
-      "confidence": "very_high_structural_review",
-      "source_display": " I'll even save your game!\n",
-      "android_french_raw": "Exceptionnellement, je peux sauvegarder, miaou ! ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Exceptionnellement, je peux sauvegarder, miaou !",
-      "layout_markup_before_wrap": "Exceptionnellement, je peux sauvegarder, miaou !",
-      "layout_hints": [],
-      "formatted_markup": "Exceptionnellement, je peux\nsauvegarder, miaou !\n",
-      "line_widths_pixels": [
-        161,
-        123
-      ],
-      "line_decoded_character_counts": [
-        27,
-        20
-      ],
-      "line_parser_unit_counts": [
-        27,
-        20
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": false,
-      "page_line_counts": [
-        2
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:CD95",
-          "text": "Exceptionnellement, je peux\nsauvegarder, miaou !\n"
-        }
-      ],
-      "structural_choice_prompt_split": true,
-      "choice_prompt_stock_shape": "separate_parenthesis_after_text_x",
-      "preserved_choice_opening_suffix": "(",
-      "choice_row_transition": "stock_newline",
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "0318",
-      "snes_ids": [
-        "C9:CDB6"
-      ],
-      "android_ids": [
-        2378
-      ],
-      "confidence": "very_high_short_bracketed",
-      "source_display": "Save",
-      "android_french_raw": "   Sauvegarder   ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Sauvegarder",
-      "layout_markup_before_wrap": "Sauvegarder",
-      "layout_hints": [],
-      "formatted_markup": "Sauvegarder",
-      "line_widths_pixels": [
-        75
-      ],
-      "line_decoded_character_counts": [
-        11
-      ],
-      "line_parser_unit_counts": [
-        11
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:CDB6",
-          "text": "Sauvegarder"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "0318",
-      "snes_ids": [
-        "C9:CDBC"
-      ],
-      "android_ids": [
-        2379
-      ],
-      "confidence": "very_high_short_bracketed",
-      "source_display": "Buy",
-      "android_french_raw": "   Acheter   ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Acheter",
-      "layout_markup_before_wrap": "Acheter",
-      "layout_hints": [],
-      "formatted_markup": "Acheter",
-      "line_widths_pixels": [
-        46
-      ],
-      "line_decoded_character_counts": [
-        7
-      ],
-      "line_parser_unit_counts": [
-        7
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:CDBC",
-          "text": "Acheter"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "0318",
-      "snes_ids": [
-        "C9:CDC1"
-      ],
-      "android_ids": [
-        2380
-      ],
-      "confidence": "very_high_equivalent_duplicate",
-      "source_display": "Sell )",
-      "android_french_raw": "   Vendre   ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": [
-        "C9:CDC1"
-      ],
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Vendre",
-      "layout_markup_before_wrap": "Vendre",
-      "layout_hints": [],
-      "formatted_markup": "Vendre",
-      "line_widths_pixels": [
-        41
-      ],
-      "line_decoded_character_counts": [
-        6
-      ],
-      "line_parser_unit_counts": [
-        6
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:CDC1",
-          "text": "Vendre )"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "03DC",
-      "snes_ids": [
-        "C9:EC89"
-      ],
-      "android_ids": [
-        2466
-      ],
-      "confidence": "very_high_seeded",
-      "source_display": "JOCH:ZXYNDRA, QU...",
-      "android_french_raw": "Jach : Zxyndra, qr...",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Jach : Zxyndra, qr...",
-      "layout_markup_before_wrap": "Jach : Zxyndra, qr...",
-      "layout_hints": [],
-      "formatted_markup": "Jach : Zxyndra, qr...",
-      "line_widths_pixels": [
-        124
-      ],
-      "line_decoded_character_counts": [
-        21
-      ],
-      "line_parser_unit_counts": [
-        21
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:EC89",
-          "text": "Jach : Zxyndra, qr..."
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "03DC",
-      "snes_ids": [
-        "C9:EC9F"
-      ],
-      "android_ids": [
-        2467
-      ],
-      "confidence": "very_high_seeded",
-      "source_display": "JEHK:Master speaks in the\n old tongue!\n Allow me!",
-      "android_french_raw": "Maître Jach parle la langue des anciens ! Permettez-moi de traduire ! ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Maître Jach parle la langue des anciens ! Permettez-moi de traduire !",
-      "layout_markup_before_wrap": "Maître Jach parle la langue des anciens ! Permettez-moi de traduire !",
-      "layout_hints": [],
-      "formatted_markup": "Maître Jach parle la langue des\nanciens !\nPermettez-moi de traduire !",
-      "line_widths_pixels": [
-        186,
-        54,
-        162
-      ],
-      "line_decoded_character_counts": [
-        31,
-        9,
-        27
-      ],
-      "line_parser_unit_counts": [
-        31,
-        9,
-        27
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 3,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        3
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:EC9F",
-          "text": "Maître Jach parle la langue des\nanciens !\nPermettez-moi de traduire !"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "03DC",
-      "snes_ids": [
-        "C9:ECD2"
-      ],
-      "android_ids": [
-        2468,
-        2469
-      ],
-      "confidence": "very_high_bracketed",
-      "source_display": "\n You must undergo a test.\n Conquer the ones within,\n and you'll find...courage.",
-      "android_french_raw": "\"Dans cette grotte se trouvent les Méandres de l'initiation, qui servent à éprouver le courage des braves.\" \"Si vous triomphez des adversaires qui vous attendent au bout, alors vous découvrirez le véritable courage.\"",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "“Dans cette grotte se trouvent les Méandres de l'initiation, qui servent à éprouver le courage des braves.” “Si vous triomphez des adversaires qui vous attendent au bout, alors vous découvrirez le véritable courage.”",
-      "layout_markup_before_wrap": "“Dans cette grotte se trouvent les Méandres de l'initiation, qui servent à éprouver le courage des braves.” “Si vous triomphez des adversaires qui vous attendent au bout, alors vous découvrirez le véritable courage.”",
-      "layout_hints": [],
-      "formatted_markup": "“Dans cette grotte se trouvent\nles Méandres de l'initiation,\nqui servent à éprouver le courage\fdes braves.” “Si vous triomphez\fdes adversaires qui vous\fattendent au bout, alors vous\ndécouvrirez le véritable courage.”\f",
-      "line_widths_pixels": [
-        184,
-        159,
-        202,
-        190,
-        149,
-        175,
-        204
-      ],
-      "line_decoded_character_counts": [
-        30,
-        29,
-        33,
-        31,
-        24,
-        29,
-        34
-      ],
-      "line_parser_unit_counts": [
-        30,
-        29,
-        33,
-        31,
-        24,
-        29,
-        34
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 3,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        3,
-        2,
-        2
-      ],
-      "inserted_page_break_count": 2,
-      "inserted_leading_clear": true,
-      "page_break_encoding": "WAIT $00 + TEXT_CLEAR",
-      "page_break_strategy": "balanced_word_boundaries_three_pages",
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:ECD2",
-          "text": "\u000b“Dans cette grotte se trouvent\nles Méandres de l'initiation,\nqui servent à éprouver le courage\fdes braves.” “Si vous triomphez\fdes adversaires qui vous\fattendent au bout, alors vous\ndécouvrirez le véritable courage.”"
-        }
-      ],
-      "trailing_page_break_stock_transition_repairs": [
-        {
-          "strategy": "reuse_immediate_stock_wait00_text_clear",
-          "text_id": "C9:ECD2",
-          "semantic_payload_changed": false,
-          "stock_commands_preserved": true
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "03DC",
-      "snes_ids": [
-        "C9:ED25"
-      ],
-      "android_ids": [
-        2470
-      ],
-      "confidence": "very_high_seeded",
-      "source_display": " Will you try?\n",
-      "android_french_raw": "Voulez-vous essayer ? ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Voulez-vous essayer ?",
-      "layout_markup_before_wrap": "Voulez-vous essayer ?",
-      "layout_hints": [],
-      "formatted_markup": "Voulez-vous essayer ?\n",
-      "line_widths_pixels": [
-        138
-      ],
-      "line_decoded_character_counts": [
-        21
-      ],
-      "line_parser_unit_counts": [
-        21
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:ED25",
-          "text": "Voulez-vous essayer ?\n"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "03DC",
-      "snes_ids": [
-        "C9:ED3A"
-      ],
-      "android_ids": [
-        2471
-      ],
-      "confidence": "very_high_short_bracketed",
-      "source_display": "Yes",
-      "android_french_raw": "   Oui   ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Oui",
-      "layout_markup_before_wrap": "Oui",
-      "layout_hints": [],
-      "formatted_markup": "Oui",
-      "line_widths_pixels": [
-        17
-      ],
-      "line_decoded_character_counts": [
-        3
-      ],
-      "line_parser_unit_counts": [
-        3
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:ED3A",
-          "text": "Oui"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "03DC",
-      "snes_ids": [
-        "C9:ED3F"
-      ],
-      "android_ids": [
-        2472
-      ],
-      "confidence": "very_high_equivalent_duplicate",
-      "source_display": "No  )",
-      "android_french_raw": "   Non   ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": [
-        "C9:ED3F"
-      ],
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Non",
-      "layout_markup_before_wrap": "Non",
-      "layout_hints": [],
-      "formatted_markup": "Non",
-      "line_widths_pixels": [
-        21
-      ],
-      "line_decoded_character_counts": [
-        3
-      ],
-      "line_parser_unit_counts": [
-        3
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:ED3F",
-          "text": "Non  )"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "065F",
-      "snes_ids": [
-        "CA:8967"
-      ],
-      "android_ids": [
-        1827
-      ],
-      "confidence": "very_high_seeded",
-      "source_display": "NEKO:Purrrr, it's cold!\n Save your game? Or?",
-      "android_french_raw": "Niccolo : Brrr, mes moustaches sont hérissées par le froid ! Une sauvegarde ?",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Niccolo : Brrr, mes moustaches sont hérissées par le froid ! Une sauvegarde ?",
-      "layout_markup_before_wrap": "Niccolo : Brrr, mes moustaches sont hérissées par le froid ! Une sauvegarde ?",
-      "layout_hints": [],
-      "formatted_markup": "Niccolo : Brrr, mes moustaches sont\nhérissées par le froid !\nUne sauvegarde ?",
-      "line_widths_pixels": [
-        212,
-        139,
-        106
-      ],
-      "line_decoded_character_counts": [
-        35,
-        24,
-        16
-      ],
-      "line_parser_unit_counts": [
-        35,
-        24,
-        16
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 2,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        3
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "CA:8967",
-          "text": "Niccolo : Brrr, mes moustaches sont\nhérissées par le froid !\nUne sauvegarde ?"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "065F",
-      "snes_ids": [
-        "CA:899C"
-      ],
-      "android_ids": [
-        1828
-      ],
-      "confidence": "very_high_short_bracketed",
-      "source_display": "Save",
-      "android_french_raw": "   Sauvegarder   ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Sauvegarder",
-      "layout_markup_before_wrap": "Sauvegarder",
-      "layout_hints": [],
-      "formatted_markup": "Sauvegarder",
-      "line_widths_pixels": [
-        75
-      ],
-      "line_decoded_character_counts": [
-        11
-      ],
-      "line_parser_unit_counts": [
-        11
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "CA:899C",
-          "text": "Sauvegarder"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "065F",
-      "snes_ids": [
-        "CA:89A2"
-      ],
-      "android_ids": [
-        1829
-      ],
-      "confidence": "very_high_short_bracketed",
-      "source_display": "Buy",
-      "android_french_raw": "   Acheter   ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Acheter",
-      "layout_markup_before_wrap": "Acheter",
-      "layout_hints": [],
-      "formatted_markup": "Acheter",
-      "line_widths_pixels": [
-        46
-      ],
-      "line_decoded_character_counts": [
-        7
-      ],
-      "line_parser_unit_counts": [
-        7
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "CA:89A2",
-          "text": "Acheter"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "065F",
-      "snes_ids": [
-        "CA:89A7"
-      ],
-      "android_ids": [
-        1830
-      ],
-      "confidence": "very_high_equivalent_duplicate",
-      "source_display": "Sell )",
-      "android_french_raw": "   Vendre   ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": [
-        "CA:89A7"
-      ],
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Vendre",
-      "layout_markup_before_wrap": "Vendre",
-      "layout_hints": [],
-      "formatted_markup": "Vendre",
-      "line_widths_pixels": [
-        41
-      ],
-      "line_decoded_character_counts": [
-        6
-      ],
-      "line_parser_unit_counts": [
-        6
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "CA:89A7",
-          "text": "Vendre )"
-        }
-      ],
-      "round72_auto216_complete_recovery": true
-    },
-    {
-      "event_id": "05F8",
-      "snes_ids": [
-        "CA:7A0C",
-        "CA:7A1C",
-        "CA:7A43",
-        "CA:7A4B",
-        "CA:7A58",
-        "CA:7A7D",
-        "CA:7AB0",
-        "CA:7AC5",
-        "CA:7ADF",
-        "CA:7AE4",
-        "CA:7AEC",
-        "CA:7AF1",
-        "CA:7B01",
-        "CA:7B08",
-        "CA:7B32",
-        "CA:7B38",
-        "CA:7B69",
-        "CA:7B85",
-        "CA:7BA0",
-        "CA:7BC9",
-        "CA:7BF4",
-        "CA:7C54",
-        "CA:7C98",
-        "CA:7CBA",
-        "CA:7CF4",
-        "CA:7CF8",
-        "CA:7CFD",
-        "CA:7D03",
-        "CA:7D08",
-        "CA:7D32",
-        "CA:7D5E",
-        "CA:7D8D",
-        "CA:7DA9",
-        "CA:7DE1",
-        "CA:7DF0",
-        "CA:7E0E",
-        "CA:7E4B",
-        "CA:7E94",
-        "CA:7EC7",
-        "CA:7EFB",
-        "CA:7F40",
-        "CA:7F84",
-        "CA:7FC4",
-        "CA:8010",
-        "CA:805E",
-        "CA:80B4",
-        "CA:80C2",
-        "CA:80F2",
-        "CA:811D",
-        "CA:8132",
-        "CA:814D",
-        "CA:816B",
-        "CA:81B7",
-        "CA:81EF",
-        "CA:8236",
-        "CA:828E",
-        "CA:82AD",
-        "CA:82BC",
-        "CA:8300",
-        "CA:830C",
-        "CA:8323",
-        "CA:833E",
-        "CA:834B",
-        "CA:8368",
-        "CA:8381",
-        "CA:8384",
-        "CA:838A",
-        "CA:8396",
-        "CA:839E",
-        "CA:83A4",
-        "CA:83B3",
-        "CA:83BA",
-        "CA:83ED",
-        "CA:83F0",
-        "CA:8414",
-        "CA:843F",
-        "CA:8445",
-        "CA:844F",
-        "CA:8471",
-        "CA:84B2",
-        "CA:84B9",
-        "CA:84DE",
-        "CA:8528",
-        "CA:854C"
-      ],
-      "android_ids": [
-        3052,
-        3053,
-        3054,
-        3055,
-        3056,
-        3057,
-        3058,
-        3059,
-        3060,
-        3061,
-        3062,
-        3063,
-        3064,
-        3065,
-        3066,
-        3067,
-        3068,
-        3069,
-        3070,
-        3071,
-        3072,
-        3073,
-        3074,
-        3075,
-        3076,
-        3077,
-        3078,
-        3079,
-        3080,
-        3081,
-        3082,
-        3083,
-        3084,
-        3085,
-        3086,
-        3087,
-        3088,
-        3089,
-        3090,
-        3091,
-        3092,
-        3093,
-        3094,
-        3095,
-        3096,
-        3097,
-        3098,
-        3099,
-        3100,
-        3101,
-        3102,
-        3103,
-        3104,
-        3105,
-        3106,
-        3107,
-        3108,
-        3109,
-        3110,
-        3111,
-        3112,
-        3113,
-        3114,
-        3115,
-        3116,
-        3117,
-        3118,
-        3119,
-        3120,
-        3121,
-        3122,
-        3123,
-        3124,
-        3125,
-        3126,
-        3127,
-        3128,
-        3129,
-        3130,
-        3131,
-        3132
-      ],
-      "confidence": "user_validated_scene_semantic_redistribution",
-      "round68_user_validated_android_fr_scene": true,
-      "round72_auto216_complete_recovery": true,
-      "android_identity_count_changed": false,
-      "note": "Android-FR scene payload preserved; Round72 layout generated under 216px/38-unit contract and independently simulator-clean.",
-      "formatted_entries": [
-        {
-          "id": "CA:7A0C",
-          "text": ": Où sommes-nous ?"
-        },
-        {
-          "id": "CA:7A1C",
-          "text": "\u000b"
-        },
-        {
-          "id": "CA:7A43",
-          "text": "\u000b: Regardez !"
-        },
-        {
-          "id": "CA:7A4B",
-          "text": "\u000b"
-        },
-        {
-          "id": "CA:7A58",
-          "text": "\u000bC'est l'Arbre de Mana !"
-        },
-        {
-          "id": "CA:7A7D",
-          "text": "\u000b: Nous y sommes enfin !\n%S(0,0), nous allons pouvoir\nraviver l'Épée de Mana !"
-        },
-        {
-          "id": "CA:7AB0",
-          "text": ": J'ai l'impression de\nrêver..."
-        },
-        {
-          "id": "CA:7AC5",
-          "text": "\u000bEst-ce que tout ceci est réel ?\nNous y sommes vraiment arrivés ?"
-        },
-        {
-          "id": "CA:7ADF",
-          "text": ""
-        },
-        {
-          "id": "CA:7AE4",
-          "text": "...\n"
-        },
-        {
-          "id": "CA:7AEC",
-          "text": "\u000b...\nMerci."
-        },
-        {
-          "id": "CA:7AF1",
-          "text": "\u000bJe suis heureuse de t'avoir\nrencontré."
-        },
-        {
-          "id": "CA:7B01",
-          "text": ""
-        },
-        {
-          "id": "CA:7B08",
-          "text": "\u000bToi aussi,\n"
-        },
-        {
-          "id": "CA:7B32",
-          "text": "."
-        },
-        {
-          "id": "CA:7B38",
-          "text": ": Ouais !\nJ'ai eu de la chance de tomber sur\nd'aussi bons serviteurs que vous !"
-        },
-        {
-          "id": "CA:7B69",
-          "text": ": Il s'en est passé, des\nchoses, en peu de temps..."
-        },
-        {
-          "id": "CA:7B85",
-          "text": "Mais grâce à vous deux...\nj'ai réussi à arriver jusqu'ici."
-        },
-        {
-          "id": "CA:7BA0",
-          "text": "\u000bMerci.\fIl nous reste une chose à faire !"
-        },
-        {
-          "id": "CA:7BC9",
-          "text": "\u000bQuand l'Épée sera ravivée,\nnous serons\nprêts à affronter la Forteresse !"
-        },
-        {
-          "id": "CA:7BF4",
-          "text": "\u000bAllons-y !"
-        },
-        {
-          "id": "CA:7C54",
-          "text": "\u000bHa ha ha ha...\nAdmirez la puissance de la\nForteresse\nde Mana !\fFeu !!"
-        },
-        {
-          "id": "CA:7C98",
-          "text": "\u000b: Ah !\n%S(0,0) !\n%S(1,0) !\n"
-        },
-        {
-          "id": "CA:7CBA",
-          "text": ": Aaaah !!"
-        },
-        {
-          "id": "CA:7CF4",
-          "text": "\u000b...\n..."
-        },
-        {
-          "id": "CA:7CF8",
-          "text": ""
-        },
-        {
-          "id": "CA:7CFD",
-          "text": ""
-        },
-        {
-          "id": "CA:7D03",
-          "text": ""
-        },
-        {
-          "id": "CA:7D08",
-          "text": "\u000b%S(0,0)...\fRéveille-toi, %S(0,0)..."
-        },
-        {
-          "id": "CA:7D32",
-          "text": "\u000b: Où suis-je ? Ah ! L'Arbre\nde Mana a disparu ! Non..."
-        },
-        {
-          "id": "CA:7D5E",
-          "text": ": Flûte !!\nOn avait enfin réussi à trouver\nl'Arbre !\fSaleté de Thanatos !"
-        },
-        {
-          "id": "CA:7D8D",
-          "text": ""
-        },
-        {
-          "id": "CA:7DA9",
-          "text": ": C'est terrible !\nQue va-t-il arriver à notre monde...\nà Durac ?"
-        },
-        {
-          "id": "CA:7DE1",
-          "text": ""
-        },
-        {
-          "id": "CA:7DF0",
-          "text": "...\nJe vous attendais,\ntoi et tes compagnons...\fJe suis l'Arbre de Mana...\nJe protège ce monde...\fNe soyez pas tristes...\nMême si j'ai disparu,\nmon esprit reste auprès de vous..."
-        },
-        {
-          "id": "CA:7E0E",
-          "text": "Le pouvoir de Mana s'est presque\néteint de ce monde à cause de la\nrésurrection de la Forteresse..."
-        },
-        {
-          "id": "CA:7E4B",
-          "text": "Bientôt les bénévodons du monde\nentier\nse rassembleront et fusionneront\fen\nun\nêtre unique et immense..."
-        },
-        {
-          "id": "CA:7E94",
-          "text": "Seul ce formidable bénévodon est\ncapable de restaurer le pouvoir\nperdu\nde Mana."
-        },
-        {
-          "id": "CA:7EC7",
-          "text": "Mais lorsque ce pouvoir disparaît\ntrop\nbrusquement, le bénévodon devient\nincontrôlable."
-        },
-        {
-          "id": "CA:7EFB",
-          "text": "S'il s'en prend à la Forteresse de\nMana, le monde sera perdu."
-        },
-        {
-          "id": "CA:7F40",
-          "text": "La seule manière d'empêcher cela\nest\nd'abattre le bénévodon avec l'Épée\nsacrée."
-        },
-        {
-          "id": "CA:7F84",
-          "text": "Cette épée ne peut être utilisée que\npar les descendants de la tribu de\nMana."
-        },
-        {
-          "id": "CA:7FC4",
-          "text": "C'est ton père,\nle chevalier Serynn de\nTasmanica, qui aurait dû retirer\nl'Épée.\fIl y a 15 ans, lors de la guerre, iI\naffronta l'Empereur mais fut\ngravement\nblessé."
-        },
-        {
-          "id": "CA:8010",
-          "text": "Pour vaincre définitivement\nl'Empereur\nressuscité, il usa de ses dernières\nforces pour venir chercher l'Épée."
-        },
-        {
-          "id": "CA:805E",
-          "text": "Hélas, il mourut en arrivant à\nPotos..."
-        },
-        {
-          "id": "CA:80B4",
-          "text": "\u000b: Hein !\nMais alors, le fantôme que j'ai vu à\nla cascade, c'était..."
-        },
-        {
-          "id": "CA:80C2",
-          "text": "mon père ?!"
-        },
-        {
-          "id": "CA:80F2",
-          "text": "\u000bOui, c'était Serynn.\nEt moi..."
-        },
-        {
-          "id": "CA:811D",
-          "text": "j'étais sa femme,"
-        },
-        {
-          "id": "CA:8132",
-          "text": "\u000bta mère."
-        },
-        {
-          "id": "CA:814D",
-          "text": "\u000bNous faisons partie de la tribu de\nMana."
-        },
-        {
-          "id": "CA:816B",
-          "text": "Les femmes de notre famille ont pour\ndestin d'enfanter avant de devenir\narbre pour protéger le monde."
-        },
-        {
-          "id": "CA:81B7",
-          "text": "\u000bLes hommes doivent brandir l'Épée,\ncomme le fit ton père,\net préserver la\npaix et l'ordre."
-        },
-        {
-          "id": "CA:81EF",
-          "text": "Va à la Forteresse !\nSes défenses en\nsont affaiblies, maintenant que\nl'énergie de Mana se dissipe."
-        },
-        {
-          "id": "CA:8236",
-          "text": "\u000bJe vais utiliser mes dernières\nforces\npour imprégner l'Épée de\fla\npuissance\ndes Graines."
-        },
-        {
-          "id": "CA:828E",
-          "text": "Le pouvoir de l'Épée est au\nmaximum !"
-        },
-        {
-          "id": "CA:82AD",
-          "text": "..."
-        },
-        {
-          "id": "CA:82BC",
-          "text": ", pardonne-moi.\nJe n'ai pas été une bonne mère."
-        },
-        {
-          "id": "CA:8300",
-          "text": "\u000b: Mère !"
-        },
-        {
-          "id": "CA:830C",
-          "text": "C'est vraiment toi ?!"
-        },
-        {
-          "id": "CA:8323",
-          "text": "\u000bTu vas disparaître comme ça ?!"
-        },
-        {
-          "id": "CA:833E",
-          "text": "\u000b...\n...\n...\f..."
-        },
-        {
-          "id": "CA:834B",
-          "text": "\u000b%S(0,0) : Non !\nJe t'avais enfin retrouvée...\fRéponds-moi, je t'en prie !"
-        },
-        {
-          "id": "CA:8368",
-          "text": "\u000bMèèère !!"
-        },
-        {
-          "id": "CA:8381",
-          "text": "\u000b:"
-        },
-        {
-          "id": "CA:8384",
-          "text": "..."
-        },
-        {
-          "id": "CA:838A",
-          "text": ": Mère..."
-        },
-        {
-          "id": "CA:8396",
-          "text": "\u000bNon...\nne me laisse pas !"
-        },
-        {
-          "id": "CA:839E",
-          "text": ": ..."
-        },
-        {
-          "id": "CA:83A4",
-          "text": "\u000bIdiot !"
-        },
-        {
-          "id": "CA:83B3",
-          "text": "\u000b"
-        },
-        {
-          "id": "CA:83BA",
-          "text": "Reprends-toi !\nRappelle-toi ce qu'elle t'a dit !\nTu as une mission !"
-        },
-        {
-          "id": "CA:83ED",
-          "text": ""
-        },
-        {
-          "id": "CA:83F0",
-          "text": "non plus n'a pas connu\nsa\nmère !"
-        },
-        {
-          "id": "CA:8414",
-          "text": "\u000bEt d'ailleurs, moi non plus !\fC'est pas le moment de pleurer !"
-        },
-        {
-          "id": "CA:843F",
-          "text": ": Désolé..."
-        },
-        {
-          "id": "CA:8445",
-          "text": "\u000bTu as raison."
-        },
-        {
-          "id": "CA:844F",
-          "text": "\u000bÇa va aller !"
-        },
-        {
-          "id": "CA:8471",
-          "text": ": Je suis de la tribu de\nMana... Je vais accomplir le destin de\nmes parents et protéger ce monde si\fmerveilleux !"
-        },
-        {
-          "id": "CA:84B2",
-          "text": "\u000b"
-        },
-        {
-          "id": "CA:84B9",
-          "text": ": J'aime mieux ça !\nJe reconnais bien là mon esclave\nn°1 !"
-        },
-        {
-          "id": "CA:84DE",
-          "text": ": Tu as raison !\nJ'ai l'impression d'avoir rencontré\nma\nmère, moi aussi !\fElle est sûrement dans mon cœur !"
-        },
-        {
-          "id": "CA:8528",
-          "text": ": Allez, on se motive !"
-        },
-        {
-          "id": "CA:854C",
-          "text": "\u000bUn, deux...\ntrois !"
-        }
-      ]
     }
   ],
   "choice_row_layout_repairs": [
@@ -96609,6 +96954,14 @@
       "strategy": "restore_stock_choice_row_suffix",
       "text_id": "C9:6587",
       "restored_suffix": "\n (",
+      "choice_commands_unchanged": true
+    },
+    {
+      "event_id": "01B3",
+      "strategy": "restore_stock_choice_row_suffix_on_fresh_page",
+      "text_id": "C9:682E",
+      "restored_suffix": "\n (",
+      "generated_page_transition": true,
       "choice_commands_unchanged": true
     }
   ],
@@ -96694,6 +97047,26 @@
       "choice_commands_preserved_except_coordinate": true
     },
     {
+      "event_id": "01DF",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 11,
+      "source_position": 12,
+      "translated_position": 16,
+      "previous_text_id": "C9:817F",
+      "decoded_label_cells": 11,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "01DF",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 13,
+      "source_position": 18,
+      "translated_position": 23,
+      "previous_text_id": "C9:8185",
+      "decoded_label_cells": 7,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
       "event_id": "0200",
       "strategy": "shift_choice_option_right_for_decoded_vwf_label",
       "token_index": 10,
@@ -96711,6 +97084,26 @@
       "translated_position": 20,
       "previous_text_id": "C9:9329",
       "decoded_label_cells": 16,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "023C",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 13,
+      "source_position": 12,
+      "translated_position": 16,
+      "previous_text_id": "C9:9D9A",
+      "decoded_label_cells": 11,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "023C",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 15,
+      "source_position": 18,
+      "translated_position": 23,
+      "previous_text_id": "C9:9DA0",
+      "decoded_label_cells": 7,
       "choice_commands_preserved_except_coordinate": true
     },
     {
@@ -96734,12 +97127,52 @@
       "choice_commands_preserved_except_coordinate": true
     },
     {
+      "event_id": "0318",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 16,
+      "source_position": 12,
+      "translated_position": 16,
+      "previous_text_id": "C9:CDB6",
+      "decoded_label_cells": 11,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "0318",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 18,
+      "source_position": 18,
+      "translated_position": 23,
+      "previous_text_id": "C9:CDBC",
+      "decoded_label_cells": 7,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
       "event_id": "0319",
       "strategy": "shift_choice_option_right_for_decoded_vwf_label",
       "token_index": 13,
       "source_position": 10,
       "translated_position": 12,
       "previous_text_id": "C9:CE1F",
+      "decoded_label_cells": 7,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "065F",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 12,
+      "source_position": 12,
+      "translated_position": 16,
+      "previous_text_id": "CA:899C",
+      "decoded_label_cells": 11,
+      "choice_commands_preserved_except_coordinate": true
+    },
+    {
+      "event_id": "065F",
+      "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+      "token_index": 14,
+      "source_position": 18,
+      "translated_position": 23,
+      "previous_text_id": "CA:89A2",
       "decoded_label_cells": 7,
       "choice_commands_preserved_except_coordinate": true
     }
@@ -96752,7 +97185,8 @@
       "closing_text_id": "C9:11A6",
       "removed_opening_suffix": " (",
       "removed_closing_suffix": " )",
-      "choice_commands_unchanged": true
+      "choice_commands_unchanged": true,
+      "reviewed_layout_recipe": true
     },
     {
       "event_id": "0081",
@@ -96761,7 +97195,8 @@
       "closing_text_id": "C9:1387",
       "removed_opening_suffix": "  (",
       "removed_closing_suffix": " )",
-      "choice_commands_unchanged": true
+      "choice_commands_unchanged": true,
+      "reviewed_layout_recipe": true
     },
     {
       "event_id": "00CE",
@@ -96779,7 +97214,8 @@
       "closing_text_id": "C9:1B67",
       "removed_opening_suffix": " (",
       "removed_closing_suffix": " )",
-      "choice_commands_unchanged": true
+      "choice_commands_unchanged": true,
+      "reviewed_layout_recipe": true
     },
     {
       "event_id": "00D0",
@@ -96806,7 +97242,8 @@
       "closing_text_id": "C9:1DB6",
       "removed_opening_suffix": " (",
       "removed_closing_suffix": " )",
-      "choice_commands_unchanged": true
+      "choice_commands_unchanged": true,
+      "reviewed_layout_recipe": true
     },
     {
       "event_id": "0133",
@@ -96815,7 +97252,8 @@
       "closing_text_id": "C9:3CC4",
       "removed_opening_suffix": "(",
       "removed_closing_suffix": " )",
-      "choice_commands_unchanged": true
+      "choice_commands_unchanged": true,
+      "reviewed_layout_recipe": true
     },
     {
       "event_id": "01BD",
@@ -96824,7 +97262,8 @@
       "closing_text_id": "C9:6F3C",
       "removed_opening_suffix": "(",
       "removed_closing_suffix": ")",
-      "choice_commands_unchanged": true
+      "choice_commands_unchanged": true,
+      "reviewed_layout_recipe": true
     },
     {
       "event_id": "0200",
@@ -96833,7 +97272,8 @@
       "closing_text_id": "C9:8D0E",
       "removed_opening_suffix": "(",
       "removed_closing_suffix": " )",
-      "choice_commands_unchanged": true
+      "choice_commands_unchanged": true,
+      "reviewed_layout_recipe": true
     },
     {
       "event_id": "0202",
@@ -96843,6 +97283,74 @@
       "removed_opening_suffix": " (",
       "removed_closing_suffix": " )",
       "choice_commands_unchanged": true
+    }
+  ],
+  "reviewed_choice_layout_recipes": [
+    {
+      "event_id": "0062",
+      "strategy": "strip_outer_choice_decoration",
+      "opening_text_id": "C9:1176",
+      "closing_text_id": "C9:11A6"
+    },
+    {
+      "event_id": "0081",
+      "strategy": "strip_outer_choice_decoration",
+      "opening_text_id": "C9:135F",
+      "closing_text_id": "C9:1387"
+    },
+    {
+      "event_id": "00CF",
+      "strategy": "strip_outer_choice_decoration",
+      "opening_text_id": "C9:1B42",
+      "closing_text_id": "C9:1B67"
+    },
+    {
+      "event_id": "00DC",
+      "strategy": "strip_outer_choice_decoration",
+      "opening_text_id": "C9:1DA4",
+      "closing_text_id": "C9:1DB6"
+    },
+    {
+      "event_id": "0133",
+      "strategy": "strip_outer_choice_decoration",
+      "opening_text_id": "C9:3C97",
+      "closing_text_id": "C9:3CC4"
+    },
+    {
+      "event_id": "01BD",
+      "strategy": "strip_outer_choice_decoration",
+      "opening_text_id": "C9:6F23",
+      "closing_text_id": "C9:6F3C"
+    },
+    {
+      "event_id": "0200",
+      "strategy": "strip_outer_choice_decoration",
+      "opening_text_id": "C9:8D01",
+      "closing_text_id": "C9:8D0E"
+    }
+  ],
+  "reviewed_choice_compact_repairs": [
+    {
+      "event_id": "0062",
+      "strategy": "compact_android_prompt_before_reviewed_choice_row",
+      "snes_ids": [
+        "C9:1176"
+      ],
+      "android_ids": [
+        191
+      ],
+      "localized_prose_unchanged": true
+    },
+    {
+      "event_id": "00CF",
+      "strategy": "compact_android_prompt_before_reviewed_choice_row",
+      "snes_ids": [
+        "C9:1B42"
+      ],
+      "android_ids": [
+        1254
+      ],
+      "localized_prose_unchanged": true
     }
   ],
   "wait00_overlap_repairs": [],
@@ -97062,6 +97570,20 @@
     }
   ],
   "carrier_repack_repairs": [],
+  "live_player_prefix_reflow_repairs": [
+    {
+      "event_id": "05F8",
+      "repairs": [
+        {
+          "strategy": "live_player_name_prefix_reflow",
+          "text_id": "CA:83F0",
+          "prefix_pixels": 72,
+          "prefix_parser_units": 9,
+          "semantic_payload_changed": false
+        }
+      ]
+    }
+  ],
   "source_derived_layout_search_repairs": [
     {
       "event_id": "010C",
@@ -97220,6 +97742,25 @@
           "text_id": "CA:76B2",
           "source_offset": 26,
           "step": 3,
+          "semantic_payload_changed": false
+        }
+      ]
+    },
+    {
+      "event_id": "05F8",
+      "repairs": [
+        {
+          "strategy": "unpaused_scroll_word_page_boundary",
+          "text_id": "CA:7E4B",
+          "source_offset": 71,
+          "step": 1,
+          "semantic_payload_changed": false
+        },
+        {
+          "strategy": "unpaused_scroll_word_page_boundary",
+          "text_id": "CA:8236",
+          "source_offset": 63,
+          "step": 2,
           "semantic_payload_changed": false
         }
       ]
@@ -97842,43 +98383,6 @@
           "note": "Round-47 unreferenced sign audit: $0603 ('Topaz Falls') is the only $0600-$0609 sign event with no incoming event reference, map trigger or map-object reference in the canonical routing tables, and Android scrtxt/systxt contains no Topaz Falls anchor. Preserve it as an orphan stock sign rather than inventing an identity."
         }
       ]
-    }
-  ],
-  "round72_automatic_completion_recoveries": [
-    {
-      "event_id": "01B3",
-      "semantic_payload_source": "Android FR / validated redistribution metadata",
-      "manual_text_override": false
-    },
-    {
-      "event_id": "01DF",
-      "semantic_payload_source": "Android FR / validated redistribution metadata",
-      "manual_text_override": false
-    },
-    {
-      "event_id": "023C",
-      "semantic_payload_source": "Android FR / validated redistribution metadata",
-      "manual_text_override": false
-    },
-    {
-      "event_id": "0318",
-      "semantic_payload_source": "Android FR / validated redistribution metadata",
-      "manual_text_override": false
-    },
-    {
-      "event_id": "03DC",
-      "semantic_payload_source": "Android FR / validated redistribution metadata",
-      "manual_text_override": false
-    },
-    {
-      "event_id": "05F8",
-      "semantic_payload_source": "Android FR / validated redistribution metadata",
-      "manual_text_override": false
-    },
-    {
-      "event_id": "065F",
-      "semantic_payload_source": "Android FR / validated redistribution metadata",
-      "manual_text_override": false
     }
   ]
 }

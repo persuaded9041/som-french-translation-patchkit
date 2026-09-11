@@ -484,6 +484,8 @@ for binding only when the actual future event tokens prove the same `PLAYER_NAME
 after linear `WAIT`/`TEXT_CLEAR`/`OP_32`/`COMPLETE_ACTIONS` controls; the command itself
 stays in its original SNES position.
 
+Round 72 adds a reproducibility layer for the reviewed decoration decisions that had already been accepted in the generated checkpoint. `mappings/android/dialogues_choice_layout_recipes.json` records only the exact event/opening/closing carrier identities; it contains no French prose. These reviewed strips are reapplied even when the newer choice-specific simulator geometry would make the decorated row simulator-clean. If restoring the stock choice-row newline would otherwise create a fresh page, only the owning Android-FR mapping is reformatted with the existing compact wrapper before stripping. This preserves the reviewed output while keeping extraction/insertion fully source-derived.
+
 `PLAYER_NAME` presentation mismatches are normalized only when the SNES structure
 proves that no event command needs to be invented or moved. An exact leading
 Android-French `%S(n,0) :` speaker label is removed when the mapped SNES source

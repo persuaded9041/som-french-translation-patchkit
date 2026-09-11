@@ -67,6 +67,7 @@ DEFAULT_DIALOGUE_REVIEW_ROUND6_OUTPUT = ROOT / "mappings" / "android" / "dialogu
 DEFAULT_DIALOGUE_REVIEW_ROUND7_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round7.json"
 DEFAULT_DIALOGUE_REVIEW_ROUND8_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round8.json"
 DIALOGUE_REDISTRIBUTION_RECIPES = ROOT / "mappings" / "android" / "dialogues_redistribution_recipes.json"
+DIALOGUE_CHOICE_LAYOUT_RECIPES = ROOT / "mappings" / "android" / "dialogues_choice_layout_recipes.json"
 DEFAULT_DIALOGUE_REVIEW_ROUND11_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round11.json"
 DEFAULT_DIALOGUE_REVIEW_ROUND18_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round18.json"
 DEFAULT_DIALOGUE_REVIEW_ROUND20_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round20.json"
@@ -1609,6 +1610,48 @@ def _load_dialogue_redistribution_recipes(french: dict[int, str]) -> tuple[dict[
         rendered[event_id] = values
         event_meta[event_id] = {"android_ids": android_ids, "round": int(event_recipe.get("round", 0) or 0)}
     return rendered, event_meta
+
+
+def _load_reviewed_choice_layout_recipes(source_document: dict) -> dict[str, dict]:
+    """Load structural-only reviewed choice presentation decisions.
+
+    These recipes deliberately contain no localized prose.  They only pin the
+    exact canonical SNES event/carrier pair whose outer stock parentheses were
+    reviewed away during Round 72.  Source-shape validation prevents a stale
+    recipe from silently applying after extraction changes.
+    """
+    document = json.loads(DIALOGUE_CHOICE_LAYOUT_RECIPES.read_text(encoding="utf-8"))
+    if document.get("format_version") != 1:
+        raise ValueError("Unsupported dialogue choice-layout recipe format")
+
+    events = {event["event_id"]: event for event in source_document.get("events", [])}
+    recipes: dict[str, dict] = {}
+    for recipe in document.get("recipes", []):
+        event_id = str(recipe.get("event_id", "")).upper()
+        if not event_id or event_id in recipes:
+            raise ValueError(f"Duplicate/invalid reviewed choice-layout event {event_id!r}")
+        if recipe.get("strategy") != "strip_outer_choice_decoration":
+            raise ValueError(f"Unsupported reviewed choice-layout strategy for ${event_id}")
+        event = events.get(event_id)
+        if event is None:
+            raise ValueError(f"Reviewed choice-layout recipe references unknown event ${event_id}")
+        token_ids = {
+            token.get("id") for token in event.get("tokens", [])
+            if token.get("type") in {"text", "ending_text"}
+        }
+        opening_id = recipe.get("opening_text_id")
+        closing_id = recipe.get("closing_text_id")
+        if opening_id not in token_ids or closing_id not in token_ids:
+            raise ValueError(
+                f"Reviewed choice-layout recipe ${event_id} carrier IDs no longer match source"
+            )
+        recipes[event_id] = {
+            "event_id": event_id,
+            "strategy": recipe["strategy"],
+            "opening_text_id": opening_id,
+            "closing_text_id": closing_id,
+        }
+    return recipes
 
 
 def require_parallel_scrtxt(english: dict[int, str], french: dict[int, str]) -> None:
@@ -12784,6 +12827,168 @@ def _choice_decoration_reports(
     return updated_reports
 
 
+
+def _apply_reviewed_choice_layout_recipe(
+    *,
+    base_rom: bytes,
+    source_document: dict,
+    event: dict,
+    event_mappings: list[dict],
+    translations: dict[str, str],
+    reports: list[dict],
+    advances: dict[str, int],
+    french: dict[int, str],
+    font,
+    simulation,
+    recipe: dict,
+) -> tuple[dict[str, str], list[dict], object, list[dict], list[dict], list[dict]]:
+    """Reapply one reviewed Round-72 choice presentation decision.
+
+    The recipe contains only canonical event/carrier identities.  No French
+    prose is stored here.  If restoring the canonical choice-row newline would
+    otherwise force a fresh page, retry only the mapped opening prompt with the
+    already-supported compact wrapper before restoring the row.  Finally strip
+    the exact canonical outer parentheses and resimulate.  Later CHOICE_OPTION
+    anchor repair remains the responsibility of the ordinary generic pass.
+    """
+    from shared.dialogue_simulator import simulate_event
+
+    event_id = event.get("event_id")
+    if recipe.get("event_id") != event_id:
+        raise ValueError(f"Reviewed choice-layout recipe/event mismatch: {event_id}")
+
+    original_translations = dict(translations)
+    original_reports = [dict(report) for report in reports]
+
+    row_translations, row_reports, row_simulation, row_repairs = (
+        _try_restore_stock_choice_row_prefix(
+            base_rom=base_rom,
+            event=event,
+            translations=translations,
+            reports=reports,
+            font=font,
+            simulation=simulation,
+        )
+    )
+    compact_repairs: list[dict] = []
+
+    # A reviewed stripped row needs only the canonical NEWLINE before the first
+    # option, not a new page containing an opening parenthesis.  When semantic
+    # wrapping made the prompt three lines and therefore forced the helper onto
+    # a fresh page, retry that one Android-backed mapping with the compact VWF
+    # wrapper.  This is deterministic source reflow, not a text override.
+    if row_repairs and any(
+        repair.get("strategy") == "restore_stock_choice_row_suffix_on_fresh_page"
+        for repair in row_repairs
+    ):
+        opening_id = recipe["opening_text_id"]
+        owner = [mapping for mapping in event_mappings if opening_id in mapping.get("snes_ids", [])]
+        if len(owner) == 1:
+            mapping = owner[0]
+            try:
+                compact_values, compact_report = _format_mass_mapping(
+                    source_document,
+                    mapping,
+                    advances,
+                    base_rom=base_rom,
+                    french=french,
+                    prefer_semantic_line_breaks=False,
+                )
+                compact_values, compact_report, _ = _collapse_trailing_page_break_into_stock_transition(
+                    source_document, mapping, compact_values, compact_report
+                )
+            except ValueError:
+                compact_values = {}
+                compact_report = None
+
+            if compact_values and compact_report is not None:
+                compact_translations = dict(original_translations)
+                compact_translations.update(compact_values)
+                compact_reports: list[dict] = []
+                replaced = False
+                for report in original_reports:
+                    if (
+                        report.get("snes_ids") == mapping.get("snes_ids")
+                        and report.get("android_ids") == mapping.get("android_ids")
+                    ):
+                        compact_reports.append(compact_report)
+                        replaced = True
+                    else:
+                        compact_reports.append(report)
+                if replaced:
+                    try:
+                        compact_simulation = simulate_event(
+                            base_rom,
+                            event,
+                            compact_translations,
+                            font=font,
+                            player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+                        )
+                    except ValueError:
+                        compact_simulation = None
+                    if compact_simulation is not None:
+                        (
+                            compact_row_translations,
+                            compact_row_reports,
+                            compact_row_simulation,
+                            compact_row_repairs,
+                        ) = _try_restore_stock_choice_row_prefix(
+                            base_rom=base_rom,
+                            event=event,
+                            translations=compact_translations,
+                            reports=compact_reports,
+                            font=font,
+                            simulation=compact_simulation,
+                        )
+                        if compact_row_repairs and not any(
+                            repair.get("strategy") == "restore_stock_choice_row_suffix_on_fresh_page"
+                            for repair in compact_row_repairs
+                        ):
+                            row_translations = compact_row_translations
+                            row_reports = compact_row_reports
+                            row_simulation = compact_row_simulation
+                            row_repairs = compact_row_repairs
+                            compact_repairs = [{
+                                "event_id": event_id,
+                                "strategy": "compact_android_prompt_before_reviewed_choice_row",
+                                "snes_ids": list(mapping.get("snes_ids", [])),
+                                "android_ids": list(mapping.get("android_ids", [])),
+                                "localized_prose_unchanged": True,
+                            }]
+
+    stripped, decoration_repair = _strip_canonical_choice_decoration(
+        event, row_translations
+    )
+    if decoration_repair is None:
+        raise ValueError(f"Reviewed choice-layout recipe ${event_id} no longer matches canonical decoration")
+    if (
+        decoration_repair.get("opening_text_id") != recipe.get("opening_text_id")
+        or decoration_repair.get("closing_text_id") != recipe.get("closing_text_id")
+    ):
+        raise ValueError(f"Reviewed choice-layout recipe ${event_id} resolved different carriers")
+
+    stripped_reports = _choice_decoration_reports(
+        row_reports, stripped, decoration_repair
+    )
+    stripped_simulation = simulate_event(
+        base_rom,
+        event,
+        stripped,
+        font=font,
+        player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+    )
+    decoration_repair = dict(decoration_repair)
+    decoration_repair["reviewed_layout_recipe"] = True
+    return (
+        stripped,
+        stripped_reports,
+        stripped_simulation,
+        row_repairs,
+        [decoration_repair],
+        compact_repairs,
+    )
+
+
 def _try_restore_stock_choice_row_prefix(
     *,
     base_rom: bytes,
@@ -13919,6 +14124,7 @@ def make_dialogue_format_mass(
         source_document,
     )
     redistribution_values, redistribution_meta = _load_dialogue_redistribution_recipes(french)
+    reviewed_choice_layout_recipes = _load_reviewed_choice_layout_recipes(source_document)
     round68_events = {"0555", "0429", "05F8"}
     round69_events = {
         "010C", "015A", "01C5", "0204", "0205", "0227", "04E2", "04E5", "04E6", "04E9", "04FD", "0559", "0592", "05B4"
@@ -13963,6 +14169,7 @@ def make_dialogue_format_mass(
     choice_row_layout_repairs_by_event: dict[str, list[dict]] = {}
     adaptive_choice_decoration_repairs_by_event: dict[str, list[dict]] = {}
     adaptive_choice_anchor_repairs_by_event: dict[str, list[dict]] = {}
+    reviewed_choice_compact_repairs_by_event: dict[str, list[dict]] = {}
     choice_option_position_overrides_by_event: dict[str, dict[int, int]] = {}
     manual_supplement_reports_by_event: dict[str, list[dict]] = {}
     android_extra_reports_by_event: dict[str, list[dict]] = {}
@@ -14571,6 +14778,33 @@ def make_dialogue_format_mass(
             simulation=simulation,
         )
         live_line_compact_repairs_by_event[event_id] = live_line_compact_repairs
+        if event_id in reviewed_choice_layout_recipes:
+            (
+                event_translations,
+                event_reports,
+                simulation,
+                reviewed_row_repairs,
+                reviewed_decoration_repairs,
+                reviewed_compact_repairs,
+            ) = _apply_reviewed_choice_layout_recipe(
+                base_rom=base_rom,
+                source_document=source_document,
+                event=event,
+                event_mappings=event_mappings,
+                translations=event_translations,
+                reports=event_reports,
+                advances=advances,
+                french=french,
+                font=font,
+                simulation=simulation,
+                recipe=reviewed_choice_layout_recipes[event_id],
+            )
+            if reviewed_row_repairs:
+                choice_row_layout_repairs_by_event[event_id] = reviewed_row_repairs
+            if reviewed_decoration_repairs:
+                adaptive_choice_decoration_repairs_by_event[event_id] = reviewed_decoration_repairs
+            if reviewed_compact_repairs:
+                reviewed_choice_compact_repairs_by_event[event_id] = reviewed_compact_repairs
         unpaused_scroll_repairs: list[dict] = []
         cross_mapping_sentence_repairs: list[dict] = []
         blocking_issues = [
@@ -16346,6 +16580,7 @@ def make_dialogue_format_mass(
             "choice_row_prefix_restore_policy": "when Android prose reflow removes the stock final NEWLINE + optional spaces + '(' immediately before CHOICE_BEGIN and the first stock CHOICE_OPTION would rewind over translated prompt text, restore only that stock row suffix; for a standalone decorative '(' carrier after dynamic stock output, one explicit NEWLINE may be prefixed for the same first-anchor condition; no option coordinate changes are made by this repair and unrelated new simulator defects reject it",
             "adaptive_choice_anchor_policy": "keep the first CHOICE_OPTION stock; when a later stock coordinate would overwrite the preceding localized label in the decoded row, move only that later coordinate right to the minimum cell immediately after the label; accept only a rightward <32 coordinate whose whole event passes the independent zero-error/zero-warning/zero-wrap simulation; runtime validated by the $03/$11 -> $03/$12 Temple de l'Eau/Pandora diagnostic",
             "adaptive_choice_decoration_policy": "preserve the canonical outer ( ... ) decoration whenever the normal choice event is simulator-clean; only after a width/layout rejection, retry by removing the proven opening/closing parenthesis pair plus its adjacent horizontal padding; when stripping alone is insufficient, it may be composed with the already validated later-anchor-only right shift, while the first CHOICE_OPTION remains stock; accept only if the whole event passes the same zero-error/zero-warning/zero-wrap gate",
+            "reviewed_choice_layout_recipe_policy": "Round-72 reviewed decoration removals are stored as structural event/carrier recipes with no French prose. They are reapplied deterministically after Android-FR formatting; if restoring the choice-row newline would otherwise force a fresh page, only the owning Android-backed prompt is retried with the existing compact wrapper before the reviewed decoration is stripped.",
         },
         "coverage": {
             "semantic_source_event_count": sum(
@@ -16514,6 +16749,11 @@ def make_dialogue_format_mass(
                 len(adaptive_choice_decoration_repairs_by_event.get(event_id, []))
                 for event_id in accepted_events
             ),
+            "reviewed_choice_layout_recipe_event_count": len(reviewed_choice_layout_recipes),
+            "reviewed_choice_compact_reflow_event_count": sum(
+                bool(reviewed_choice_compact_repairs_by_event.get(event_id))
+                for event_id in accepted_events
+            ),
             "excluded_event_count": len(excluded_events),
             "excluded_stage_counts": stage_counts,
         },
@@ -16544,6 +16784,15 @@ def make_dialogue_format_mass(
             {"event_id": event_id, **repair}
             for event_id in accepted_events
             for repair in adaptive_choice_decoration_repairs_by_event.get(event_id, [])
+        ],
+        "reviewed_choice_layout_recipes": [
+            reviewed_choice_layout_recipes[event_id]
+            for event_id in sorted(reviewed_choice_layout_recipes, key=lambda value: int(value, 16))
+        ],
+        "reviewed_choice_compact_repairs": [
+            {"event_id": event_id, **repair}
+            for event_id in accepted_events
+            for repair in reviewed_choice_compact_repairs_by_event.get(event_id, [])
         ],
         "wait00_overlap_repairs": [
             {"event_id": event_id, **repair}
