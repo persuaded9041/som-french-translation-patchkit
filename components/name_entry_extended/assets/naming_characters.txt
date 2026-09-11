@@ -1,9 +1,8 @@
-# Four character rows used by the Name Entry screen.
+# Generic rows used by the extended Name Entry screen.
 #
-# Uppercase/lowercase/symbol rows must resolve to exactly 26 selectable entries.
-# The extended row may contain fewer; build_patch.py pads it to 26 with $80
-# spaces. Those blank-looking cells are therefore selectable spaces and count
-# toward the 9-character name limit.
+# Each authored row must resolve to exactly 26 selectable entries. The builder
+# renders exactly these three rows; localization components may add further
+# rows without owning the generic 9-character/name-entry engine.
 #
 # Supported named tokens:
 #   <QUOTE_OPEN>  byte C3
@@ -13,9 +12,6 @@
 #   <GLYPH_D0>    original font glyph D0
 #   <GLYPH_D1>    original font glyph D1
 #   <GLYPH_D2>    original font glyph D2
-#
-# Row framing (two leading blanks, one trailing blank and final $7F control)
-# is generated automatically and is not authored here.
 
 [uppercase]
 ABCDEFGHIJKLMNOPQRSTUVWXYZ
@@ -25,9 +21,3 @@ abcdefghijklmnopqrstuvwxyz
 
 [symbols]
 0123456789.,/'<QUOTE_OPEN><QUOTE_CLOSE>-<SPACE>!?()<GLYPH_CF><GLYPH_D0><GLYPH_D1><GLYPH_D2>
-
-# Naming-safe canonical French range $D4-$E0 plus the shared extended
-# dialogue/name glyphs $D3=♪, $E6=° and $E7=;. $E1-$E5 stay untouched because
-# those slots are used by Name Entry graphics.
-[accents]
-Çàâçéèêëîïôùû♪°;

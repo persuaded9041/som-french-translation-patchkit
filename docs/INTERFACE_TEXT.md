@@ -26,7 +26,7 @@ Blank rows used only as layout spacing are omitted from the JSON. The stock
 Name Entry rows also carry one leading `$80` layout margin; that framing byte is
 not part of their extracted source strings.
 
-Every visible row has a globally unique ROM-position `id`. No redundant semantic per-row key is stored. Existing `name_entry_extended` / `french_menus` French rows live in `translations/interface_text_french.json` and are bound directly by those IDs.
+Every visible row has a globally unique ROM-position `id`. No redundant semantic per-row key is stored. Existing `french_name_entry_extended` / `french_menus` French rows live in `translations/interface_text_french.json` and are bound directly by those IDs.
 
 Regenerate only this family with:
 

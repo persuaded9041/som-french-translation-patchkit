@@ -5,10 +5,11 @@ aggregate build. Their IPS write maps are then compared byte-for-byte.
 
 ## Shared French glyph writes
 
-`french_menus` installs the naming-safe `$D4-$E0` subset. `name_entry_extended`
+`french_menus` installs the naming-safe `$D4-$E0` subset. `french_name_entry_extended`
 installs that same French subset plus the disjoint shared glyphs `$D3=♪`,
 `$E6=°` and `$E7=;`, while deliberately leaving `$E1-$E5` untouched because
-Name Entry uses those slots for graphics. `french_intro` installs the
+Name Entry uses those slots for graphics. `name_entry_extended` itself owns no
+French glyph data. `french_intro` installs the
 unchanged French `$D4-$E5` range. `vwf_dialogues` / `french_dialogues` use the full extended
 dialogue span `$D3-$E7`. Identical overlapping glyph bytes all come from
 `shared/french_charset/french_glyphs.png`.
@@ -18,11 +19,11 @@ dialogue span `$D3-$E7`. Identical overlapping glyph bytes all come from
 `french_menus` retains its historical standalone immediate `$E1` threshold and
 `french_intro` keeps `$C0:16F6 = $E6` standalone; `vwf_intro` no longer writes the DTE threshold.
 
-`name_entry_extended` now uses the small `shared/name_dte.py` router standalone. Ordinary
-event sources still use `$E1`; the relocated Name Entry resource in bank `$E4`
+`french_name_entry_extended` uses the small `shared/name_dte.py` router when layered on
+`name_entry_extended`. Ordinary event sources still use `$E1`; the relocated Name Entry resource in bank `$E4`
 and the stock `PLAYER_NAME` scratch stream at `$7E:A22F` use `$E8`, allowing
 `$E6/$E7` on the character grid and inside a selected name without reinterpreting
-normal DTE bytes. This route is runtime-validated. If 02 is combined with a later legacy charset
+normal DTE bytes. This route is runtime-validated. If the French Name Entry overlay is combined with a later legacy charset
 component but without `vwf_dialogues` / `french_dialogues`, the root combiner stores the historical max
 threshold in the router's `$C7:4C86` base-config byte and restores its JML after
 all standalone patches have been applied.
@@ -34,7 +35,7 @@ all standalone patches have been applied.
 - non-dialogue parser callers: `$E6`;
 - event `$0400`: `$E6`;
 - ordinary event-engine dialogue when the dialogue profile is enabled: `$E8`;
-- `name_entry_extended` Name Entry resource in bank `$E4`: `$E8`.
+- `name_entry_extended` resource in bank `$E4` when the French overlay is present: `$E8`.
 
 The event-engine caller is identified by the established `$114B` stacked return
 address, so GAME SELECT does not enter the dialogue `$E8` path. Event `$0400`
@@ -43,10 +44,40 @@ uses `vwf_intro`'s configured intro runtime end when present and the clean-USA
 changing the intro's 25 private DTE pairs.
 
 In aggregate builds containing `vwf_dialogues` / `french_dialogues`, their full router supersedes both the
-legacy immediate-threshold byte and `name_entry_extended`'s smaller name-only hook.
-Without `vwf_dialogues` / `french_dialogues`, `name_entry_extended`'s router preserves the historical max-threshold
+legacy immediate-threshold byte and `french_name_entry_extended`'s smaller name-only hook.
+Without `vwf_dialogues` / `french_dialogues`, `french_name_entry_extended`'s router preserves the historical max-threshold
 merge through its base-config byte. Without any router, the original immediate
 max-threshold merge remains unchanged.
+
+
+## Dependent Name Entry overlays
+
+`name_entry_extended` is the generic base and owns the 9-character engine,
+exactly three rows (uppercase/lowercase/symbols), three-row navigation/layout using the physical selector states `$60/$70/$80`,
+and the relocated `$E4:4000` resource. Its stock English help is extracted
+directly from the clean USA ROM at build time. `french_name_entry_extended` and
+`name_entry_prefill` both declare `requires: ["name_entry_extended"]`. The root
+builder expands selected dependencies automatically and verifies that every
+dependency has an earlier `build_order`.
+
+`french_name_entry_extended` intentionally overrides the generic navigation, initial selector (`$C7:5019=$50`) and
+private layout to expose a fourth row, and replaces `$E4:40B4-$41FF` (the point
+where generic English help begins) with the French fourth row + localized
+help/tail. These differing overlaps are explicitly declared in the component
+manifest and are accepted only for that dependency/range; undeclared differing
+overlaps remain fatal. The combined generic+French bytes reproduce the former
+runtime-validated four-row French Name Entry exactly after checksum
+recomputation.
+
+`french_name_entry_prefill` is a second-level dependent overlay. It requires both
+`name_entry_prefill` and `french_name_entry_extended`, so selecting it also
+selects the generic Name Entry base transitively. It intentionally overrides the
+generic prefill helper/data ranges: the helper adds token class `$C0-$DF` for
+the fourth row and the records come from its own French JSON (`Randy`, `Prim`,
+`Popoï`). It does not own the hook or the fourth-row glyph/layout resource.
+The complete dependency-composed Name Entry stack is runtime-validated, including
+a first-screen diagnostic that exercised `Popoï` immediately and confirmed the
+real fourth-row `ï` insertion path. The diagnostic is not part of canonical data.
 
 ## Opening-font local glyph
 

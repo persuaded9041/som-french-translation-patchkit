@@ -22,11 +22,13 @@ def hx(value: str) -> bytes:
 
 
 # C0:3583/C0:3595 replace the former Name Entry resource with Up/Down handlers.
-# Selector states are $50/$60/$70/$80 for uppercase/lowercase/symbols/accents.
+# Selector states are $60/$70/$80 for uppercase/lowercase/symbols.
+# These are the physical rows used by the stock/three-row geometry; the French
+# four-row overlay adds a row above them and switches to $50/$60/$70/$80.
 NAVIGATION_CODE = hx(
     """
-    20 4A 32 AD 5A A1 38 E9 10 C9 41 B0 02 A9 80 4C A4 35
-    20 4A 32 AD 5A A1 18 69 10 C9 81 90 02 A9 50 8D 5A A1
+    20 4A 32 AD 5A A1 38 E9 10 C9 51 B0 02 A9 80 4C A4 35
+    20 4A 32 AD 5A A1 18 69 10 C9 81 90 02 A9 60 8D 5A A1
     22 3D 50 C7 20 AA 1B 60
     """
 )
@@ -34,18 +36,18 @@ NAVIGATION_CODE = hx(
 # SoM Plus-derived control bytes retained byte-for-byte.
 LAYOUT_CONTROL = hx("02 06 1E 01 C0 04 06 1E 81 8A 00 02 0A")
 
-# Complete private four-row Name Entry script at C7:4E00.
-# It is the original three-row script with these changes:
-#   $02C0 -> $0240, height 6 -> 8, plus draw command 08 AA 02.
-FOUR_ROW_LAYOUT_SCRIPT = hx(
+# Complete private three-row Name Entry script at C7:4E00.
+# The French dependent overlay replaces this with the historical four-row
+# version.  The generic window uses $02C0 / height 6 and draws three rows.
+THREE_ROW_LAYOUT_SCRIPT = hx(
     """
-    01 40 02 08 1E 01 C0 04 06 1E 81 8A 00 02 0A 00
-    03 E8 02 04 10 03 08 2A 01 08 AA 01 08 2A 02 08 AA
-    02 02 E4 00 0C 02 64 01 10 02 E4 01 08 01 02 00 02
-    07 01 C0 04 06 1E 00 07 6C 00 04 1C 03 02 44 01 10
-    02 64 01 08 02 44 02 14 02 64 02 0C 01 00 00 02 09
-    41 08 01 02 07 41 28 01 02 07 41 08 02 02 07 41 28
-    02 02 07 01 40 04 08 1E 00
+    01 C0 02 06 1E 01 C0 04 06 1E 81 8A 00 02 0A 00
+    03 E8 02 04 10 03 08 2A 01 08 AA 01 08 2A 02 02
+    E4 00 0C 02 64 01 10 02 E4 01 08 01 02 00 02 07
+    01 C0 04 06 1E 00 07 6C 00 04 1C 03 02 44 01 10
+    02 64 01 08 02 44 02 14 02 64 02 0C 01 00 00 02
+    09 41 08 01 02 07 41 28 01 02 07 41 08 02 02 07
+    41 28 02 02 07 01 40 04 08 1E 00
     """
 )
 
@@ -64,9 +66,8 @@ STATIC_EDITS = (
         0x003583,
         hx("80 AD 9F A6 9F 9D AE 80 9B 80 A6 9F AE AE 9F AC 80 AF AD A3 A8 A1 80 AE A2 9F 80 9D A9 A8 AE AC A9 A6 80 AA 9B 9E BF 80 AA AC 9F AD"),
         NAVIGATION_CODE,
-        "four-row naming navigation",
+        "three-row naming navigation",
     ),
-    PatchEdit(0x075019, hx("60"), hx("50"), "initial cursor vertical state = first row"),
     PatchEdit(0x07502A, hx("12"), hx("0C"), "naming grid/lookup parameter"),
     PatchEdit(
         0x0750A6,
@@ -82,9 +83,9 @@ STATIC_EDITS = (
     ),
     PatchEdit(
         0x074E00,
-        bytes((0xFF,)) * len(FOUR_ROW_LAYOUT_SCRIPT),
-        FOUR_ROW_LAYOUT_SCRIPT,
-        "private four-row Name Entry layout script",
+        bytes((0xFF,)) * len(THREE_ROW_LAYOUT_SCRIPT),
+        THREE_ROW_LAYOUT_SCRIPT,
+        "private three-row Name Entry layout script",
     ),
     PatchEdit(
         0x07781C,
@@ -95,4 +96,4 @@ STATIC_EDITS = (
 )
 
 assert len(NAVIGATION_CODE) == 0x2C
-assert len(FOUR_ROW_LAYOUT_SCRIPT) == 110
+assert len(THREE_ROW_LAYOUT_SCRIPT) == 107

@@ -5,8 +5,12 @@ for the owning component even when the current generated payload is shorter.
 
 | Component | ROM | CPU/SNES | Purpose |
 |---|---:|---:|---|
-| 9-char names | `0x074E00-0x074E6D` | `$C7:4E00-$4E6D` | private four-row Name Entry layout script |
-| 9-char names | `0x244000-0x2441FF` | `$E4:4000-$41FF` | reserved generated character/help resource |
+| extended Name Entry | `0x074E00-0x074E6A` | `$C7:4E00-$4E6A` | private generic three-row Name Entry layout script; French overlay expands through `$4E6D` |
+| extended Name Entry | `0x244000-0x2441FF` | `$E4:4000-$41FF` | generic 3-row character/help resource; `$40B4-$41FF` is overlaid by `french_name_entry_extended` with row 4 + French help |
+| name prefill | `0x074630-0x0746A0` | `$C7:4630-$46A0` | generic editable default-name one-shot helper |
+| French name prefill | `0x074630-0x0746B1` | `$C7:4630-$46B1` | dependent French-capable helper overlay; adds fourth-row token class |
+| name prefill | `0x0746D0-0x0746E7` | `$C7:46D0-$46E7` | three default-name records; French overlay replaces these from its own JSON |
+| name prefill | `0x075039-0x07503C` | `$C7:5039-$503C` | Name Entry init-tail hook |
 | GAME SELECT | `0x074400-0x07442C` | `$C7:4400-$442C` | 45-byte relocated label resource |
 | GAME FILE | `0x074D40-0x074DBE` | `$C7:4D40-$4DBE` | relocated save/load-menu resource for expanded `Fichier` label |
 | GAME SELECT | `0x2D8000-0x2D83FF` | `$ED:8000-$83FF` | relocated GAME SELECT welcome/help text |
@@ -21,7 +25,7 @@ for the owning component even when the current generated payload is shorter.
 | shared VWF framing | `0x0744C0-0x074557` | `$C7:44C0-$4557` | 152-byte runtime framing selector bundle shared by `vwf_intro` / `vwf_dialogues` |
 | shared VWF row renderer | `0x074560-0x07456C` | `$C7:4560-$456C` | 13-byte stock-font row load + framing + compositor helper installed byte-identically by `vwf_intro` / `vwf_dialogues` |
 | dialogue DTE router | `0x074570-0x0745EE` | `$C7:4570-$45EE` | 127-byte context-sensitive `$E6/$E8` direct/DTE decision helper installed byte-identically by `vwf_dialogues` / `french_dialogues`; bank `$E4` Name Entry resource uses `$E8` |
-| Name Entry DTE router | `0x0745F0-0x07462F` | `$C7:45F0-$462F` | 64-byte reserved Name Entry / PLAYER_NAME helper region used by 02 standalone |
+| Name Entry DTE router | `0x0745F0-0x07462F` | `$C7:45F0-$462F` | 64-byte Name Entry / PLAYER_NAME helper region owned by `french_name_entry_extended` |
 | shared VWF parser | `0x074AC0-0x074BE9` | `$C7:4AC0-$4BE9` | shared caller-gated buffer init / previous-char / capacity helpers (with gaps) |
 | French intro | `0x074C40-0x074C6B` | `$C7:4C40-$4C6B` | intro-private DTE loader |
 | shared VWF/config | `0x074C80-0x074C86` | `$C7:4C80-$4C86` | intro marker/end (`05`), dialogue VWF marker (`06`), dialogue-DTE `$E8` marker, Name Entry base threshold (`02`) |

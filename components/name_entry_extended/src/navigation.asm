@@ -1,12 +1,11 @@
-; Secret of Mana (USA) - four-row Name Entry navigation
+; Secret of Mana (USA) - three-row Name Entry navigation
 ;
 ; $A15A is the vertical selector state used by the naming screen:
-;   $50 uppercase
-;   $60 lowercase
-;   $70 symbols
-;   $80 French accents
+;   $60 uppercase
+;   $70 lowercase
+;   $80 symbols
 ;
-; Up/Down changes the state by $10 and wraps across exactly those four rows.
+; Up/Down changes the state by $10 and wraps across exactly those three rows.
 
 ; ROM $003583 / SNES $C0:3583
 hirom
@@ -17,7 +16,7 @@ name_row_up:
     lda $A15A
     sec
     sbc #$10
-    cmp #$41
+    cmp #$51
     bcs .commit
     lda #$80
 .commit:
@@ -32,7 +31,7 @@ name_row_down:
     adc #$10
     cmp #$81
     bcc name_row_commit
-    lda #$50
+    lda #$60
 
 name_row_commit:
     sta $A15A
@@ -40,9 +39,6 @@ name_row_commit:
     jsr $1BAA
     rts
 
-; The screen originally initialized the vertical byte of X to $60 via
-; LDX #$6013 / STX $A159. The four-row window was moved up by one row, so the
-; initial state must be $50 to open on uppercase.
-; ROM $075019 / SNES $C7:5019
-org $C75019
-db $50
+; The generic three-row keyboard intentionally retains the stock initial
+; vertical selector $60. The French four-row overlay moves the first row to
+; $50 and owns that override.

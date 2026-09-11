@@ -31,7 +31,20 @@ def resolve_selection(values: list[str], components):
             raise SystemExit(f"Unknown component: {value}")
         if component not in selected:
             selected.append(component)
+
+    by_id = {component.id: component for component in components}
     selected_ids = {component.id for component in selected}
+
+    # Selecting a dependent component also rebuilds its declared prerequisites.
+    # Patches are still authored against the clean USA ROM; `requires` expresses
+    # application/aggregate order, not source-byte inheritance.
+    pending = list(selected_ids)
+    while pending:
+        component_id = pending.pop()
+        for required_id in by_id[component_id].metadata.get("requires", []):
+            if required_id not in selected_ids:
+                selected_ids.add(required_id)
+                pending.append(required_id)
     return [component for component in components if component.id in selected_ids]
 
 

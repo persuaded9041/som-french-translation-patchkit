@@ -25,9 +25,7 @@ middle of decoding. `french_intro` therefore keeps all 25 of its private
 
 Current consumers:
 
-- `name_entry_extended`: `basic_french` for ordinary text, plus the shared disjoint
-  `$D3/$E6/$E7` name glyphs and `shared/name_dte.py` for the relocated Name Entry
-  resource and temporary `PLAYER_NAME` parsing.
+- `french_name_entry_extended`: `basic_french` plus the shared disjoint `$D3/$E6/$E7` name glyphs and `shared/name_dte.py` for the relocated Name Entry resource and temporary `PLAYER_NAME` parsing.
 - `french_menus`: `basic_french`.
 - `french_intro`: `full_french`.
 - `vwf_intro`: runtime consumer only; no charset threshold ownership.

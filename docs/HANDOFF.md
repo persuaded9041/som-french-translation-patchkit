@@ -1,4 +1,4 @@
-# Development handoff — Round 76
+# Development handoff — Round 84
 
 Operational handoff only. Historical evidence remains in `docs/ANDROID_TEXT_ALIGNMENT.md`,
 `docs/DIALOGUE_FORMAT.md`, `docs/TEXT_RESEARCH_NOTES.md`, and the archived review files.
@@ -6,7 +6,7 @@ Operational handoff only. Historical evidence remains in `docs/ANDROID_TEXT_ALIG
 ## Current checkpoint
 
 - Reference ROM: unheadered **Secret of Mana (USA)**, `0x200000`, SHA-256 `4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f`. Never store or redistribute it.
-- Current state: **Round 76 — semantic component naming cleanup**. Dialogue payload remains the locked Round-72 automatic 216 px build.
+- Current state: **Round 84 — Name Entry prefill cleanup / fully runtime-validated checkpoint**. The generic three-row selector/prefill, French four-row Name Entry, and French prefill values `Randy`, `Prim`, `Popoï` are runtime-validated. The dedicated first-screen diagnostic that temporarily prefills `Popoï` for the boy also validated the fourth-row `ï` path immediately at Name Entry startup. Round 84 is a cleanup/handoff checkpoint only: no production ROM behavior changes from the validated Round 83 build. Dialogue payload remains the locked Round-72 automatic 216 px build.
 - Android semantic alignment: **1798 / 1838 (97.8%)**, 40 unresolved semantic IDs. Do not inflate identity to reach 100%.
 - Playable dialogue corpus: **701 events = 701 complete + 0 PARTIEL**.
 - Translation output: **1810 accepted semantic source IDs / 1943 active sparse JSON entries**.
@@ -91,6 +91,121 @@ python3 tools/simulate_dialogues.py "Secret of Mana (USA).sfc" \
 
 Rebuild only changed components, then recombine stored component IPS files. Never include a ROM in an archive.
 
+## Round 84 — Name Entry prefill cleanup / fully validated checkpoint
+
+The complete Name Entry stack is now runtime-validated by the user. The generic
+three-row path (`name_entry_extended + name_entry_prefill`) has aligned selection,
+correct vertical wrapping and editable US defaults. The French overlay keeps the
+validated four-row keyboard and the production defaults are exactly `Randy`,
+`Prim`, `Popoï`, authored directly in
+`components/french_name_entry_prefill/assets/name_entry_defaults_fr.json`. No
+Android extraction is used.
+
+`french_name_entry_prefill` depends on both `name_entry_prefill` and
+`french_name_entry_extended` (and transitively `name_entry_extended`). Its
+helper at `$C7:4630` understands token class `$C0-$DF` as the fourth French row,
+so `Popoï` inserts the real `ï` through the same stock insertion/editing path as
+manual input. The one-shot Name Entry hook remains owned by `name_entry_prefill`.
+
+The temporary first-screen diagnostic that substituted `Popoï` for the boy was
+also runtime-validated. It proves that the fourth-row `ï` path works immediately
+when the initial Name Entry opens; that diagnostic value is **not** stored in the
+project and no diagnostic IPS belongs in the clean checkpoint archive.
+
+Round 84 is intentionally a cleanup/handoff checkpoint. Production patch bytes
+remain those of the validated Round 83 build. The rebuilt 14-component aggregate
+therefore keeps SHA-256
+`3587a98bea5b8903c3af40e50254ad792cdba532ffc21ca41a8bd38cafba52d2`
+and final SNES checksum `$C4D9`.
+
+## Round 80 candidate — generic 3-row Name Entry / French 4-row overlay
+
+Round 79's dependency-composed `name_entry_extended + name_entry_prefill` was
+runtime-validated by the user: the editable defaults work correctly. One design
+issue remained: the generic `name_entry_extended` still exposed a blank fourth
+row solely to reserve the French extension slot. Round 80 removes that leak.
+
+`name_entry_extended` is now genuinely generic and renders **exactly three**
+rows: uppercase, lowercase and symbols. Round 81 corrects the physical selector
+alignment: the three visible rows use `$60/$70/$80`, matching the stock/three-row
+vertical geometry, rather than the Round-80 `$50/$60/$70` states that placed the
+selection one row too high. Its private `$C7:4E00` layout uses the three-row
+`$02C0` / height-6 geometry, and its relocated resource places English help
+immediately after the third row at `$E4:40B4`. The stock English Name Entry help is now
+extracted directly from the clean USA ROM during the component build; the
+generic component no longer reads `assets/interface_text.json` for prose. It
+still makes only the functional 6→9-letter adaptation (and omits the decorative
+quotes around `ATTACK` in the relocated copy).
+
+`french_name_entry_extended` remains a dependent overlay and now explicitly
+owns the **four-row expansion** as well as the localized content. It overrides
+the generic navigation at `$C0:3583-$35AE`, replaces the private three-row
+layout at `$C7:4E00` with the previously runtime-validated four-row layout, then
+overlays `$E4:40B4-$41FF` with the fourth row
+`Çàâçéèêëîïôùû♪°;`, French help and cleared tail. Its glyph/DTE ownership is
+unchanged. These differing dependency overlaps are declared in
+`component.json`; all undeclared differing overlaps remain fatal.
+
+The full French build is binary-neutral: the new
+`name_entry_extended + french_name_entry_extended` composition is byte-for-byte
+identical to the Round-79 composition after checksum recomputation, and the
+13-component `all.ips` remains exactly SHA-256
+`dcac747b7df0bc9b9519150c4e30f167622bacc84814c0838f5f049159aa2132`, final
+checksum `$CD55`. Thus the already validated French/all.ips Name Entry behavior
+is unchanged.
+
+`name_entry_prefill` still requires `name_entry_extended` and still owns only
+the one-shot prefill hook/helper plus `assets/name_entry_defaults.json`
+(`Randi`, `Primm`, `Popoi`). Its mechanism is unchanged. The only new runtime
+validation needed for Round 81 is the corrected generic dependency-composed test: apply
+`name_entry_extended + name_entry_prefill` to a clean USA ROM and confirm that
+there are exactly three keyboard rows, Up/Down wraps across those three rows,
+and prefilled names remain editable/deletable/replaceable/confirmable.
+
+Static validation: source hygiene OK; all 2048 event scripts parse; dialogue and
+resource round-trips remain exact; translation bindings pass.
+
+## Round 81 candidate — three-row selector alignment fix
+
+Runtime testing of the Round-80 generic `name_entry_extended + name_entry_prefill`
+composition showed that the three character rows rendered correctly, but the
+selection/highlight targeted the row above the visible glyphs. The cause was the
+selector state range, not the layout resource: `$A15A=$50/$60/$70` is the
+four-row geometry. The generic three-row layout must retain the stock physical
+vertical origin and therefore uses `$60/$70/$80`. Up wraps `$60 -> $80`; Down
+wraps `$80 -> $60`; the initial selector at `$C7:5019` remains the stock `$60`.
+
+`french_name_entry_extended` explicitly owns the four-row override: it installs
+the already runtime-validated `$50/$60/$70/$80` navigation **and** patches
+`$C7:5019` to `$50`. Thus the French 4-row composition is byte-for-byte identical
+to the Round-80 validated French test, while only the generic 3-row composition
+changes. `name_entry_prefill` needs no code change because its helper derives
+uppercase/lowercase rows from the installed initial selector (`initial`,
+`initial + $10`).
+
+Focused runtime validation required: `name_entry_extended + name_entry_prefill`
+on clean USA ROM must show three rows with the selection aligned to the rendered
+row on all three states, correct Up/Down wrapping, and editable Randi/Primm/Popoi.
+The French 4-row test is already user-validated and the Round-81 composition is
+binary-identical to that Round-80 test.
+
+The canonical component list is:
+
+- `mana_tree_original`
+- `name_entry_extended`
+- `french_name_entry_extended`
+- `name_entry_prefill`
+- `french_name_entry_prefill`
+- `french_menus`
+- `french_opening`
+- `french_intro`
+- `vwf_intro`
+- `vwf_dialogues`
+- `intro_skip`
+- `french_dialogues`
+- `vwf_ui`
+- `french_resources`
+
 ## Round 77 — split `french_intro` / `vwf_intro`
 
 The former hybrid `vwf_intro` component has been split by responsibility without changing the aggregate ROM. `french_intro` now owns the validated French event-$0400 payload, layout metadata, French glyph installation, `$E6` intro DTE threshold, private 25-pair intro DTE table/loader, and the event-$0401-$040F relocation required by the enlarged payload. `vwf_intro` now owns only the intro VWF runtime: renderer hook, private parser bridge, width/framing/compositor/outline path, WAIT cursor repair, and the validated intro runtime window.
@@ -105,6 +220,7 @@ The canonical component list is now:
 
 - `mana_tree_original`
 - `name_entry_extended`
+- `name_entry_prefill`
 - `french_menus`
 - `french_opening`
 - `french_intro`
@@ -121,6 +237,7 @@ Component IDs are now semantic and intentionally unnumbered. The migration is st
 
 - `mana_tree_original`
 - `name_entry_extended`
+- `name_entry_prefill`
 - `french_menus`
 - `french_opening`
 - `french_intro`

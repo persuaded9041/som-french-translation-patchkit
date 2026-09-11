@@ -28,10 +28,17 @@ RETIRED_NAMES = {
 # These components intentionally own no translatable prose.
 NO_TRANSLATION_COMPONENTS = {
     "mana_tree_original",
+    "name_entry_extended",
+    "name_entry_prefill",
     "vwf_intro",
     "vwf_dialogues",
     "intro_skip",
 }
+
+# `name_entry_extended` legitimately reads the clean-USA interface source so it
+# can reproduce the relocated English help with the functional 9-character
+# limit. It still must never consume a translation JSON.
+NO_ROOT_TEXT_COMPONENTS = NO_TRANSLATION_COMPONENTS - {"name_entry_extended"}
 
 
 def fail(message: str) -> None:
@@ -70,8 +77,10 @@ def main() -> None:
         text = builder.read_text(encoding="utf-8")
         if "translation_json" in text or "translations/" in text or 'PROJECT_ROOT / "translations"' in text:
             problems.append(f"{component_id} unexpectedly depends on translation JSON")
-        # Root canonical text assets are also unnecessary for these components.
-        if 'PROJECT_ROOT / "assets"' in text:
+        # Root canonical text assets are unnecessary for pure runtime/data
+        # components, but the generic Name Entry intentionally reads its clean
+        # USA help source while remaining translation-free.
+        if component_id in NO_ROOT_TEXT_COMPONENTS and 'PROJECT_ROOT / "assets"' in text:
             problems.append(f"{component_id} unexpectedly depends on root text assets")
 
     if problems:
@@ -84,7 +93,7 @@ def main() -> None:
     print("  - no component CSV translation sources")
     print("  - no retired component-local prose BIN/CSV paths")
     print("  - upstream Android prose is isolated under sources/android/")
-    print("  - `mana_tree_original` / `vwf_intro` / `vwf_dialogues` / `intro_skip` own no translation-JSON dependencies")
+    print("  - `mana_tree_original` / `name_entry_extended` / `name_entry_prefill` / `vwf_intro` / `vwf_dialogues` / `intro_skip` own no translation-JSON dependencies")
     print("  - remaining component-local .bin/.txt assets are explicit non-prose data")
     return 0
 

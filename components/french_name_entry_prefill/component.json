@@ -1,0 +1,24 @@
+{
+  "id": "french_name_entry_prefill",
+  "short_name": "name-prefill-fr",
+  "name": "French editable default player-name prefill",
+  "build_order": 27,
+  "requires": [
+    "name_entry_prefill",
+    "french_name_entry_extended"
+  ],
+  "overrides": [
+    {
+      "component": "name_entry_prefill",
+      "start": "0x074630",
+      "end": "0x0746A1",
+      "reason": "French prefill extends the generic token decoder with the fourth Name Entry row for accented characters"
+    },
+    {
+      "component": "name_entry_prefill",
+      "start": "0x0746D0",
+      "end": "0x0746E8",
+      "reason": "French prefill replaces the editable US default-name records with component-local French defaults"
+    }
+  ]
+}

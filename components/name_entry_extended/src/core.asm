@@ -22,6 +22,3 @@ dw $3595
 org $C033BE
 dl $E44000
 
-; Direct-glyph/DTE routing is documented in name_dte.asm. Ordinary text
-; still uses the $E1 base threshold; the relocated bank-$E4 Name Entry
-; resource and PLAYER_NAME scratch source use $E8 so ♪, ° and ; stay direct.

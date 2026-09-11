@@ -47,4 +47,18 @@ def discover_components(root: Path) -> list[Component]:
     short_names = [component.short_name for component in components]
     if len(short_names) != len(set(short_names)):
         raise SystemExit("Duplicate component short_name in component.json")
+
+    by_id = {component.id: component for component in components}
+    for component in components:
+        requires = component.metadata.get("requires", [])
+        if not isinstance(requires, list) or any(not isinstance(item, str) for item in requires):
+            raise SystemExit(f"{component.id}: requires must be a list of component IDs")
+        for required_id in requires:
+            required = by_id.get(required_id)
+            if required is None:
+                raise SystemExit(f"{component.id}: unknown required component {required_id!r}")
+            if required.metadata["build_order"] >= component.metadata["build_order"]:
+                raise SystemExit(
+                    f"{component.id}: dependency {required_id!r} must have a lower build_order"
+                )
     return components

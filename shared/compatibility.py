@@ -26,6 +26,27 @@ def _threshold(component) -> int | None:
     return profile_threshold(profile) if profile else None
 
 
+
+
+def _declared_override(left, right, offset: int) -> bool:
+    """Return True for an explicitly declared dependency overlay byte."""
+    for owner, other in ((left, right), (right, left)):
+        for rule in owner.metadata.get("overrides", []):
+            if not isinstance(rule, dict) or rule.get("component") != other.id:
+                continue
+            try:
+                start = int(rule["start"], 0) if isinstance(rule["start"], str) else int(rule["start"])
+                end = int(rule["end"], 0) if isinstance(rule["end"], str) else int(rule["end"])
+            except (KeyError, TypeError, ValueError) as exc:
+                raise SystemExit(f"{owner.id}: malformed overrides rule: {rule!r}") from exc
+            if start <= offset < end:
+                if other.id not in owner.metadata.get("requires", []):
+                    raise SystemExit(
+                        f"{owner.id}: override of {other.id} must also declare it in requires"
+                    )
+                return True
+    return False
+
 def audit_overlaps(components, patch_data: dict[str, bytes]) -> tuple[int, int]:
     """Reject differing writes unless metadata declares a mergeable DTE threshold."""
     maps = {component.id: patch_write_map(patch_data[component.id])[0] for component in components}
@@ -43,10 +64,13 @@ def audit_overlaps(components, patch_data: dict[str, bytes]) -> tuple[int, int]:
                 if left_value == right_value:
                     identical += 1
                     continue
+                if _declared_override(left, right, offset):
+                    declared += 1
+                    continue
                 left_threshold = _threshold(left)
                 right_threshold = _threshold(right)
                 if offset == DTE_THRESHOLD_OFFSET:
-                    # Legacy threshold-only components (`name_entry_extended` / `french_menus` / `french_intro`) may overlap
+                    # Legacy threshold/profile components (`french_name_entry_extended` / `french_menus` / `french_intro`) may overlap
                     # the context-sensitive JML installed by `vwf_dialogues` / `french_dialogues` at the old
                     # immediate operand. In a combined build the later router
                     # owns this byte; without a router the historical max-
@@ -83,9 +107,9 @@ def apply_merge_rules(rom: bytearray, components) -> None:
 
     thresholds = [value for component in components if (value := _threshold(component)) is not None]
 
-    # `name_entry_extended` installs a smaller Name Entry / PLAYER_NAME router. A later legacy
+    # `french_name_entry_extended` installs a smaller Name Entry / PLAYER_NAME router. A later legacy
     # component (notably 05) still writes its immediate threshold byte while
-    # its standalone IPS is being applied, so restore 02's four-byte JML here
+    # its dependency overlay IPS is being applied, so restore the name router's four-byte JML here
     # and move the historical max-threshold merge into the router config byte.
     if any(_uses_name_dte_router(component) for component in components):
         rom[NAME_DTE_ROUTE_FILE:NAME_DTE_ROUTE_FILE + len(NAME_DTE_HOOK)] = NAME_DTE_HOOK

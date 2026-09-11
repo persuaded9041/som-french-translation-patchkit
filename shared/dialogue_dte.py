@@ -44,7 +44,7 @@ def _assemble_router() -> bytes:
     # `french_dialogues` standalone has no parser-mode owner, so only trust this
     # scratch byte when the `vwf_dialogues` runtime marker is present.
     a.emit(0x48)                          # PHA source byte (8-bit)
-    # `name_entry_extended` relocates the Name Entry character/help resource to bank
+    # `name_entry_extended` (with `french_name_entry_extended` in localized builds) relocates the Name Entry character/help resource to bank
     # $E4. That bank is reserved exclusively for the resource, so render its
     # grid bytes with the dialogue-style $E8 boundary. This keeps $E6/$E7 as
     # direct ° / ; instead of stock DTE pairs while leaving all other parser

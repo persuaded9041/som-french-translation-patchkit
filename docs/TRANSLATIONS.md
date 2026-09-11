@@ -87,7 +87,7 @@ translation ID exists in the declared source asset before using it.
 The validated translations that previously lived in component CSV/BIN files are
 now centralized as:
 
-- `translations/interface_text_french.json`: `name_entry_extended` Name Entry help and
+- `translations/interface_text_french.json`: `french_name_entry_extended` Name Entry help and
   `french_menus` GAME SELECT/GAME FILE help;
 - `translations/menu_text_french.json`: `french_menus` GAME SELECT/GAME FILE labels,
   including the two direct `L -> N` level-prefix writes;

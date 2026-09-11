@@ -39,8 +39,8 @@ spacing are runtime-validated.
 ### `basic_french`
 
 Direct range `$D4-$E0`; threshold `$E1`. GAME SELECT uses this profile directly.
-Name Entry keeps the same ordinary-text threshold and the same `$D4-$E0` French
-range, but also installs the disjoint shared glyphs `$D3=♪`, `$E6=°`, `$E7=;`.
+`french_name_entry_extended` keeps the same ordinary-text threshold and the same `$D4-$E0` French
+range, and also installs the disjoint shared glyphs `$D3=♪`, `$E6=°`, `$E7=;`.
 It preserves the stock graphics occupying `$E1-$E5` and switches to `$E8` for
 the relocated bank-`$E4` Name Entry resource and the temporary `PLAYER_NAME`
 source.
@@ -59,7 +59,7 @@ and 08. The threshold is context-sensitive rather than global:
 
 - translated intro / ordinary non-dialogue parser contexts: `$E6`;
 - real event-engine dialogue: `$E8`;
-- `name_entry_extended` Name Entry resource in reserved bank `$E4`: `$E8`.
+- French extended Name Entry resource in reserved bank `$E4`: `$E8`.
 
 `shared/dialogue_dte.py` owns that routing. It uses the established event-parser
 caller discriminator and protects event `$0400`; GAME SELECT remains on the
@@ -72,7 +72,7 @@ intro DTE codes during event `$0400`.
 - `french_glyphs.png` - editable 21-glyph 8×12 atlas, code order `$D3-$E7`.
 - `charset.py` - mapping/profile/PNG conversion helpers.
 - `../dialogue_dte.py` - context-sensitive dialogue DTE router.
-- `../name_dte.py` - Name Entry / PLAYER_NAME router used by `name_entry_extended` standalone.
+- `../name_dte.py` - Name Entry / PLAYER_NAME router owned by `french_name_entry_extended`.
 
 ## Rules
 

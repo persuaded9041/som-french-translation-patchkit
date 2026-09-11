@@ -2,7 +2,5 @@
   "id": "name_entry_extended",
   "short_name": "name-entry",
   "name": "Extended player-name entry",
-  "shared_charset_profile": "basic_french",
-  "name_dte_router": true,
   "build_order": 20
 }

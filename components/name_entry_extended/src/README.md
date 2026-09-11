@@ -1,16 +1,13 @@
-# 65C816 source map
+# Name Entry source map
 
-These files document the machine-code/data changes made by the component in
-assembly form. `build_patch.py` remains the canonical executable builder; the
-exact emitted byte payloads are centralized in `src/patch_data.py` so builds do
-not depend on an external assembler.
+Human-readable source equivalents for the exact payloads emitted by
+`build_patch.py` / `patch_data.py`.
 
-The split is intentional:
+- `core.asm`: 9-character limit, handler/resource redirects.
+- `navigation.asm`: generic three-row Up/Down states; the stock `$60` initial cursor position is intentionally retained.
+- `selection.asm`: grid parameter and relocated character lookup.
+- `layout.asm`: generic three-row keyboard geometry and layout pointer redirection.
 
-- `core.asm`: name length, handler hooks and relocated resource pointer.
-- `name_dte.asm`: Name Entry / PLAYER_NAME `$E8` direct/DTE routing for `♪`, `°`, `;`.
-- `navigation.asm`: four-row Up/Down states and initial cursor position.
-- `selection.asm`: selected-character lookup alignment and relocated resource read.
-- `layout.asm`: four-row window geometry and layout pointer redirection.
-
-All addresses are for the clean unheadered USA ROM.
+`french_name_entry_extended` is a dependent overlay that replaces only the
+navigation/layout pieces needed to expose a fourth row and then supplies the
+localized fourth-row resource/help/glyph routing.

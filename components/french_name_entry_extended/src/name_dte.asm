@@ -1,6 +1,6 @@
-; Secret of Mana (USA) - Name Entry PLAYER_NAME DTE routing
+; Secret of Mana (USA) - French Name Entry PLAYER_NAME DTE routing
 ;
-; Ordinary event parsing keeps the component's legacy threshold ($E1 alone,
+; Ordinary event parsing keeps the French overlay's legacy threshold ($E1 alone,
 ; raised by the root combiner when another legacy charset component requires
 ; it). The relocated Name Entry resource in bank $E4 and the temporary
 ; PLAYER_NAME source at $7E:A22F use $E8 so $D3=♪, $E6=° and $E7=; remain

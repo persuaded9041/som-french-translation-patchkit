@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Build the standalone 9-character French Name Entry component from the clean USA ROM.
-Editable character rows remain component-local; shared source/translation text
-lives at repository root and is bound by ROM-position ID. 65C816/data edits are
-centralized in src/patch_data.py and mirrored as readable assembly in src/*.asm.
+"""Build the generic extended Name Entry component from the clean USA ROM.
+
+This component owns only the functional extension: 9-character names, a
+three-row layout with uppercase/lowercase/symbol rows. Localized content and
+additional rows belong to dependent components such as
+``french_name_entry_extended``.
 """
 from __future__ import annotations
 
@@ -13,38 +15,17 @@ from pathlib import Path
 
 from src.patch_data import STATIC_EDITS
 
-
 ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
-from shared.french_charset import (  # noqa: E402
-    BASIC_FRENCH_CHARS,
-    CHAR_TO_CODE,
-    glyph_bytes,
-    profile_mapping,
-)
-from shared.rom import validate_base_rom, update_checksum, expand_rom  # noqa: E402
-from shared.name_dte import (  # noqa: E402
-    install as install_name_dte_router,
-    validate_stock as validate_name_dte_stock,
-)
+
 from shared.ips import make_ips  # noqa: E402
 from shared.interface_text import (  # noqa: E402
     NAME_HELP_GROUP,
     group_entries,
-    load_document as load_interface_text,
-    verify_against_rom as verify_interface_text,
+    extract_document as extract_interface_text,
 )
-from shared.translation_json import load_translation, require  # noqa: E402
-
-# Naming screen can safely use the original French-ROM range $D4-$E0. The
-# extended $E1-$E5 slots are still used by graphics on this screen.
-FONT_BASE = 0x12DC00
-GLYPH_HEIGHT = 12
-ACCENT_TO_SOM = profile_mapping("basic_french")
-ACCENT_FIRST = ACCENT_TO_SOM[BASIC_FRENCH_CHARS[0]]
-ACCENT_FONT_OFFSET = FONT_BASE + (ACCENT_FIRST - 0x80) * GLYPH_HEIGHT
-EXTRA_NAME_CHARS = "♪°;"
+from shared.rom import expand_rom, update_checksum, validate_base_rom  # noqa: E402
 
 NAMED_CHARACTER_TOKENS = {
     "<QUOTE_OPEN>": 0xC3,
@@ -57,8 +38,6 @@ NAMED_CHARACTER_TOKENS = {
 }
 
 ASCII_TO_SOM = {" ": 0x80}
-ASCII_TO_SOM.update(ACCENT_TO_SOM)
-ASCII_TO_SOM.update({char: CHAR_TO_CODE[char] for char in EXTRA_NAME_CHARS})
 ASCII_TO_SOM.update({chr(ord("a") + i): 0x81 + i for i in range(26)})
 ASCII_TO_SOM.update({chr(ord("A") + i): 0x9B + i for i in range(26)})
 ASCII_TO_SOM.update({str(i): 0xB5 + i for i in range(10)})
@@ -68,8 +47,10 @@ ASCII_TO_SOM.update({
     "?": 0xCA, "(": 0xCB, ")": 0xCC, "#": 0xCD,
 })
 
+ROW_SIZE = 60
+HELP_OFFSET = ROW_SIZE * 3
 MAX_RESOURCE_SIZE = 0x200
-
+GENERIC_HELP_MAX_BYTES = 153  # must not outgrow the French dependency overlay
 
 
 def parse_sections(path: Path) -> dict[str, str]:
@@ -91,7 +72,7 @@ def parse_sections(path: Path) -> dict[str, str]:
     return {name: "".join(lines) for name, lines in sections.items()}
 
 
-def encode_page_entries(source: str, section_name: str, *, allow_padding: bool = False) -> list[int]:
+def encode_page_entries(source: str, section_name: str) -> list[int]:
     result: list[int] = []
     token_re = re.compile(r"<[^>]+>")
     pos = 0
@@ -112,88 +93,91 @@ def encode_page_entries(source: str, section_name: str, *, allow_padding: bool =
         result.append(ASCII_TO_SOM[char])
         pos += 1
 
-    if allow_padding:
-        if len(result) > 26:
-            raise SystemExit(f"[{section_name}] has {len(result)} entries; at most 26 are allowed")
-        result.extend([0x80] * (26 - len(result)))
-    elif len(result) != 26:
+    if len(result) != 26:
         raise SystemExit(f"[{section_name}] has {len(result)} entries; exactly 26 are required")
     return result
 
 
+def frame_row(entries: list[int]) -> bytes:
+    if len(entries) != 26:
+        raise AssertionError("Name Entry rows must have 26 selectable cells")
+    framed = [0x80, 0x80] + entries + [0x80, 0x7F]
+    out = bytearray()
+    for value in framed:
+        out += bytes((0x80, value))
+    assert len(out) == ROW_SIZE
+    return bytes(out)
+
+
 def build_character_rows(path: Path) -> bytes:
     sections = parse_sections(path)
-    required = ("uppercase", "lowercase", "symbols", "accents")
+    required = ("uppercase", "lowercase", "symbols")
     missing = [name for name in required if name not in sections]
+    extra = sorted(set(sections) - set(required))
     if missing:
         raise SystemExit(f"Missing section(s) in {path.name}: {', '.join(missing)}")
+    if extra:
+        raise SystemExit(f"Unexpected section(s) in {path.name}: {', '.join(extra)}")
 
     output = bytearray()
     for name in required:
-        entries = encode_page_entries(sections[name], name, allow_padding=(name == "accents"))
-        # 30 16-bit cells: two leading blanks, 26 selectable cells, one blank,
-        # then the $7F row terminator. Every cell begins with $80.
-        framed = [0x80, 0x80] + entries + [0x80, 0x7F]
-        assert len(framed) == 30
-        for value in framed:
-            output += bytes((0x80, value))
+        output += frame_row(encode_page_entries(sections[name], name))
+    assert len(output) == HELP_OFFSET
     return bytes(output)
 
 
-def encode_help_text(interface_text: dict, translations: dict[str, str]) -> bytes:
-    source_entries = group_entries(interface_text, NAME_HELP_GROUP)
-    try:
-        texts = require(
-            translations, [entry["id"] for entry in source_entries], context="Name Entry help"
-        )
-    except ValueError as exc:
-        raise SystemExit(str(exc)) from exc
+def encode_help_text(interface_text: dict) -> bytes:
+    entries = group_entries(interface_text, NAME_HELP_GROUP)
+    if len(entries) != 3:
+        raise SystemExit(f"Expected 3 Name Entry help rows, got {len(entries)}")
+    texts = [entry["source"] for entry in entries]
+    old = "NAMES CAN BE UP TO 6 LETTERS LONG."
+    new = "NAMES CAN BE UP TO 9 LETTERS LONG."
+    if old not in texts[1]:
+        raise SystemExit("Unexpected clean-USA Name Entry length help text")
+    texts[1] = texts[1].replace(old, new, 1)
 
     encoded_lines: list[bytes] = []
     for line_number, text in enumerate(texts, 1):
-        out = bytearray((0x80,))  # stock resource begins each displayed line with a blank
-        quote_open = True
+        out = bytearray((0x80,))
         for char in text:
-            if char == '"':
-                out.append(0xC3 if quote_open else 0xC4)
-                quote_open = not quote_open
+            if char in {"“", "”"}:
+                # The generic relocated help drops the decorative quotes around
+                # ATTACK. This keeps the generic help no longer than the French
+                # overlay it may later receive, avoiding stale tail bytes in a
+                # dependency-composed IPS while preserving the instruction.
+                continue
             elif char in ASCII_TO_SOM:
                 out.append(ASCII_TO_SOM[char])
             else:
-                raise SystemExit(f"Unsupported character {char!r} in French Name Entry translation, row {line_number}")
-        if not quote_open:
-            raise SystemExit(f"Unbalanced double quote in French Name Entry translation, row {line_number}")
+                raise SystemExit(
+                    f"Unsupported character {char!r} in USA Name Entry help, row {line_number}"
+                )
         encoded_lines.append(bytes(out))
     return b"\x7f".join(encoded_lines)
 
 
 def build_naming_resource(base: bytes) -> bytes:
-    interface_text = load_interface_text(PROJECT_ROOT / "assets" / "interface_text.json")
+    # Generic English help is read directly from the clean USA ROM.  No JSON
+    # asset or translation source owns stock text in this component.
     try:
-        verify_interface_text(base, interface_text)
-    except ValueError as exc:
-        raise SystemExit(str(exc)) from exc
-    try:
-        translations = load_translation(
-            PROJECT_ROOT / "translations" / "interface_text_french.json",
-            interface_text,
-            source_asset="interface_text.json",
-        )
+        interface_text = extract_interface_text(base)
     except ValueError as exc:
         raise SystemExit(str(exc)) from exc
     rows = build_character_rows(ROOT / "assets" / "naming_characters.txt")
-    help_text = encode_help_text(interface_text, translations)
-    # Explicit terminator/guard bytes complete the relocated resource.
+    help_text = encode_help_text(interface_text)
+    if len(help_text) > GENERIC_HELP_MAX_BYTES:
+        raise SystemExit(
+            f"Generic Name Entry help is {len(help_text)} bytes; dependency overlay limit is {GENERIC_HELP_MAX_BYTES}"
+        )
     resource = rows + help_text + bytes(16)
     if len(resource) > MAX_RESOURCE_SIZE:
         raise SystemExit(f"Naming resource is {len(resource)} bytes; maximum is {MAX_RESOURCE_SIZE}")
     return resource
 
 
-
 def apply_source_edits(base: bytes, resource: bytes) -> bytearray:
     rom = expand_rom(base)
-
     for edit in STATIC_EDITS:
         actual = base[edit.offset:edit.offset + len(edit.expected)]
         if actual != edit.expected:
@@ -203,32 +187,15 @@ def apply_source_edits(base: bytes, resource: bytes) -> bytearray:
             )
         rom[edit.offset:edit.offset + len(edit.payload)] = edit.payload
 
-    # Install the shared naming-safe French range plus the three validated
-    # extended symbols. $E1-$E5 remain untouched because Name Entry uses those
-    # slots for its own graphics.
-    accent_glyphs = glyph_bytes(BASIC_FRENCH_CHARS)
-    rom[ACCENT_FONT_OFFSET:ACCENT_FONT_OFFSET + len(accent_glyphs)] = accent_glyphs
-    for char in EXTRA_NAME_CHARS:
-        code = CHAR_TO_CODE[char]
-        offset = FONT_BASE + (code - 0x80) * GLYPH_HEIGHT
-        rom[offset:offset + GLYPH_HEIGHT] = glyph_bytes(char)
-
-    # Ordinary event text keeps the historical $E1 boundary. Only the stock
-    # PLAYER_NAME temporary parser source uses $E8, allowing $E6/$E7 in names
-    # without reinterpreting normal DTE bytes.
-    validate_name_dte_stock(base)
-    install_name_dte_router(rom)
-
-    # Expanded-ROM metadata and generated Name Entry resource.
+    # Expanded-ROM metadata and generated generic Name Entry resource.
     rom[0x00FFD7:0x00FFDC] = bytes.fromhex("0C0301C300")
     rom[0x244000:0x244000 + len(resource)] = resource
     update_checksum(rom)
     return rom
 
 
-
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Build the Secret of Mana French Name Entry component.")
+    parser = argparse.ArgumentParser(description="Build the generic extended Secret of Mana Name Entry component.")
     parser.add_argument("rom", type=Path, help="clean unheadered Secret of Mana (USA) ROM")
     parser.add_argument("-o", "--output", type=Path, default=Path("build/patch.ips"), help="output IPS path")
     parser.add_argument("--patched-rom", type=Path, help="optional patched ROM output")
@@ -250,7 +217,7 @@ def main() -> None:
         print(f"Patched ROM: {patched_path}")
 
     print(f"Base ROM verified: {args.rom}")
-    print(f"Naming resource: {len(resource)} bytes")
+    print(f"Generic naming resource: {len(resource)} bytes")
     print(f"IPS: {output}")
     print(f"IPS size: {len(ips)} bytes")
 

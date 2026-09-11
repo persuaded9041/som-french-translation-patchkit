@@ -1,0 +1,31 @@
+{
+  "id": "french_name_entry_extended",
+  "short_name": "name-entry-fr",
+  "name": "French extension for player-name entry",
+  "shared_charset_profile": "basic_french",
+  "name_dte_router": true,
+  "requires": [
+    "name_entry_extended"
+  ],
+  "build_order": 22,
+  "overrides": [
+    {
+      "component": "name_entry_extended",
+      "start": "0x003583",
+      "end": "0x0035AF",
+      "reason": "French extension expands generic three-row navigation to four rows"
+    },
+    {
+      "component": "name_entry_extended",
+      "start": "0x074E00",
+      "end": "0x074E6E",
+      "reason": "French extension expands generic three-row layout script to four rows"
+    },
+    {
+      "component": "name_entry_extended",
+      "start": "0x2440B4",
+      "end": "0x244200",
+      "reason": "French fourth row and localized Name Entry help replace generic English help from the three-row resource boundary"
+    }
+  ]
+}
