@@ -569,7 +569,7 @@ The formatter:
 - removes Android-only presentation wrapping (`_`, Android line breaks and
   ideographic spaces) without rewriting translated prose;
 - reflows against **two independent runtime constraints**: a conservative
-  240-pixel VWF target and component 06's validated 38-decoded-character parser
+  historical 240-pixel VWF target (superseded by the Round-70 runtime-validated 216-pixel safe ceiling) and component 06's validated 38-decoded-character parser
   capacity;
 - budgets a dynamic player name as the worst-case 9-character VWF width and,
   after batch-1 runtime testing, reserves one additional parser-safety unit on

@@ -20,7 +20,7 @@ These locations are both extraction sources and active runtime mirrors. The full
 | `0x077374` | `MONEY` | 6 cells in the relocated build (5 stock + adjacent padding) |
 | `0x077394` | `GP` | 2 cells |
 | `0x077398` | `COUNTER` | 8 cells in the relocated build (7 stock + adjacent padding) |
-| `0x0773AA` | `MANA POWER` | 10 cells |
+| `0x0773AA` | `MANA POWER` | 12 cells in the relocated build (10 stock + adjacent padding) |
 | `0x077805` | `Empty` | 5 cells |
 | `0x0033B8` | pointer to save-help text (`$C0:348D`) | 3 bytes |
 | `0x00348D-0x0034F8` | two-line save help block | 108 bytes |

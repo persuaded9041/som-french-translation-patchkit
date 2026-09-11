@@ -31,7 +31,7 @@ GLYPH_COUNT = 128
 DIALOGUE_DTE_THRESHOLD = 0xE8
 RUNTIME_MAX_DECODED = 38
 RUNTIME_BITMAP_PIXELS = 256
-FORMATTER_TARGET_PIXELS = 240
+FORMATTER_TARGET_PIXELS = 216
 PAGE_LINES = 3
 
 STRUCTURAL_GLYPH_TEXT = {
@@ -327,8 +327,12 @@ class _Simulator:
             self.issue("error", "PARSER_SAFETY_EXCEEDED", f"Line uses {line.parser_units} conservative parser units (> {RUNTIME_MAX_DECODED}).", line=line_no)
         if line.visible_extent_pixels > RUNTIME_BITMAP_PIXELS:
             self.issue("error", "VISIBLE_BITMAP_OVERFLOW", f"Visible ink reaches {line.visible_extent_pixels}px (> {RUNTIME_BITMAP_PIXELS}px runtime bitmap).", line=line_no)
-        if line.advance_pixels > FORMATTER_TARGET_PIXELS:
-            self.issue("warning", "FORMATTER_PIXEL_TARGET_EXCEEDED", f"Line advance is {line.advance_pixels}px (> {FORMATTER_TARGET_PIXELS}px formatter target).", line=line_no)
+        # The calibrated 216px contract applies to ordinary VWF dialogue
+        # lines. Interactive choice rows use the separately runtime-validated
+        # stock/choice geometry (absolute cell anchors across the 32-cell row),
+        # so their padded row advance is not a dialogue-line width measurement.
+        if line.break_kind != "choice" and line.advance_pixels > FORMATTER_TARGET_PIXELS:
+            self.issue("error", "SAFE_LINE_WIDTH_EXCEEDED", f"Line advance is {line.advance_pixels}px (> {FORMATTER_TARGET_PIXELS}px runtime-validated safe line width).", line=line_no)
         if self.content_lines_since_pause > PAGE_LINES:
             self.issue(
                 "error",

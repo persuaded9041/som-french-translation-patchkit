@@ -40,6 +40,8 @@ from shared.dialogue_translation import (  # noqa: E402
     _markup_width,
     semantic_wrap_markup,
     make_dialogue_advances,
+    player_placeholder_width,
+    MAX_PLAYER_NAME_CHARS,
     make_translation_document as make_dialogue_translation_document,
 )
 from shared.dialogue_codec import (  # noqa: E402
@@ -9854,7 +9856,7 @@ def _format_structurally_reviewed_choice_destination_list(
     widths = [sum(advances.get(char, 8) for char in line) for line in lines]
     parser_units = [len(line) for line in lines]
     if any(width > DIALOGUE_WRAP_PIXELS for width in widths):
-        raise ValueError("Choice destination list exceeds the 240px line target")
+        raise ValueError("Choice destination list exceeds the 216px safe line target")
     if any(units > DIALOGUE_WRAP_CHARS for units in parser_units):
         raise ValueError("Choice destination list exceeds parser line capacity")
     text_id = snes_ids[0]
@@ -10420,6 +10422,63 @@ def _reviewed_partial_layout_defer(
         return None
     key = tuple(mapping.get("snes_ids", []))
     return DIALOGUE_REVIEWED_PARTIAL_LAYOUT_DEFERRALS.get(event_id, {}).get(key)
+
+
+def _collapse_trailing_page_break_into_stock_transition(
+    source_document: dict,
+    mapping: dict,
+    values: dict[str, str],
+    report: dict,
+) -> tuple[dict[str, str], dict, list[dict]]:
+    """Reuse an immediately following stock WAIT $00 + TEXT_CLEAR.
+
+    A formatter may need a page break after the final word of a translated
+    carrier. If the canonical SNES stream already supplies exactly WAIT $00
+    followed by TEXT_CLEAR immediately after that carrier, serializing another
+    generated ``\f`` would duplicate the transition. Remove only that trailing
+    layout marker and let the unchanged stock commands own the page change.
+    Printable payload and command order are untouched.
+    """
+    event = next(
+        event for event in source_document["events"]
+        if event["event_id"] == mapping["event_id"]
+    )
+    token_indexes = {
+        token.get("id"): index
+        for index, token in enumerate(event["tokens"])
+        if token.get("type") in {"text", "ending_text"}
+    }
+    out = dict(values)
+    repairs: list[dict] = []
+    for text_id, value in list(out.items()):
+        if not value.endswith("\f"):
+            continue
+        index = token_indexes.get(text_id)
+        if index is None or index + 2 >= len(event["tokens"]):
+            continue
+        wait, clear = event["tokens"][index + 1:index + 3]
+        if not (
+            wait.get("type") == "command" and wait.get("name") == "WAIT"
+            and wait.get("args") == "00"
+            and clear.get("type") == "command" and clear.get("name") == "TEXT_CLEAR"
+        ):
+            continue
+        out[text_id] = value[:-1]
+        repairs.append({
+            "strategy": "reuse_immediate_stock_wait00_text_clear",
+            "text_id": text_id,
+            "semantic_payload_changed": False,
+            "stock_commands_preserved": True,
+        })
+    if not repairs:
+        return values, report, []
+    updated = dict(report)
+    updated["formatted_entries"] = [
+        {"id": text_id, "text": out[text_id]}
+        for text_id in out
+    ]
+    updated["trailing_page_break_stock_transition_repairs"] = repairs
+    return out, updated, repairs
 
 
 def _mapping_has_unserializable_trailing_page_break(
@@ -12388,9 +12447,11 @@ def _apply_round48_0127_pagination(event: dict, translations: dict[str, str]) ->
     }
     if not all(text_id in translations for text_id in expected):
         return []
-    for text_id, value in expected.items():
-        if translations[text_id] != value:
-            raise ValueError(f"Round-48 $0127 formatted carrier {text_id} changed")
+    # The 216px formatter may already have reflowed/paginated this scene.
+    # In that case do not force the historical 240px byte layout back onto it;
+    # the generic simulator gate below will validate the newly generated form.
+    if any(translations[text_id] != value for text_id, value in expected.items()):
+        return []
 
     translations["C9:3A8C"] = expected["C9:3A8C"].replace(
         "ici... Demandons à cette fille.\n",
@@ -12816,6 +12877,41 @@ def _try_restore_stock_choice_row_prefix(
     except ValueError:
         return translations, reports, simulation, []
 
+    # If restoring the canonical NEWLINE + '(' would create a fourth visible
+    # line before the choice, reuse the same proven choice-row boundary as a
+    # generated page transition instead. This is still source-derived: only the
+    # stock suffix is restored and no printable Android-FR prose changes.
+    if (
+        repair is not None
+        and repair.get("strategy") == "restore_stock_choice_row_suffix"
+        and any(
+            issue.code == "UNPAUSED_SCROLL"
+            and issue.severity in {"error", "warning"}
+            for issue in candidate_simulation.issues
+        )
+    ):
+        suffix = repair["restored_suffix"]
+        page_suffix = "\f" + suffix.lstrip("\n")
+        page_candidate = dict(translations)
+        page_candidate[text_id] = current.rstrip(" ") + page_suffix
+        try:
+            page_simulation = simulate_event(
+                base_rom, event, page_candidate, font=font,
+                player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+            )
+        except ValueError:
+            page_simulation = None
+        if page_simulation is not None:
+            candidate = page_candidate
+            candidate_simulation = page_simulation
+            repair = {
+                "strategy": "restore_stock_choice_row_suffix_on_fresh_page",
+                "text_id": text_id,
+                "restored_suffix": suffix,
+                "generated_page_transition": True,
+                "choice_commands_unchanged": True,
+            }
+
     candidate_first_overlap = any(
         issue.code == "CHOICE_OPTION_OVERLAP"
         and issue.severity in {"error", "warning"}
@@ -13133,6 +13229,332 @@ def _simulation_blocking_score(simulation) -> tuple[int, int, int]:
     return (len(blocking) + wraps, len(blocking), wraps)
 
 
+def _try_single_carrier_boundary_newline(
+    *,
+    base_rom: bytes,
+    event: dict,
+    translations: dict[str, str],
+    font,
+    structural_command_overrides: dict[int, tuple[str, str] | None] | None = None,
+) -> tuple[dict[str, str], object | None, list[dict]]:
+    """Try one deterministic presentation NEWLINE at a translated carrier edge.
+
+    This is a generic layout candidate, never a prose exception. Candidate order
+    follows canonical event token order and tries appending to the preceding
+    carrier before prepending to the following carrier. A candidate is accepted
+    only when the independent simulator reports zero errors, zero warnings and
+    zero implicit wraps. Existing control bytes and carrier assignments remain
+    otherwise unchanged.
+    """
+    from shared.dialogue_simulator import simulate_event
+
+    if not translations:
+        return translations, None, []
+
+    token_ids = [
+        token.get("id")
+        for token in event.get("tokens", [])
+        if token.get("type") in {"text", "ending_text"}
+        and token.get("id") in translations
+    ]
+    if len(token_ids) < 2:
+        return translations, None, []
+
+    player_names = {0: "000000000", 1: "000000000", 2: "000000000"}
+    # A boundary is defined between consecutive translated carriers in canonical
+    # token order. The commands between them are intentionally left untouched.
+    for index in range(len(token_ids) - 1):
+        previous_id = token_ids[index]
+        next_id = token_ids[index + 1]
+        previous = translations[previous_id]
+        following = translations[next_id]
+        candidates = []
+        if previous and not previous.endswith(("\n", "\v", "\f")):
+            candidates.append(("append", previous_id, previous + "\n"))
+        if following and not following.startswith(("\n", "\v", "\f")):
+            candidates.append(("prepend", next_id, "\n" + following))
+        for mode, text_id, replacement in candidates:
+            candidate = dict(translations)
+            candidate[text_id] = replacement
+            try:
+                simulation = simulate_event(
+                    base_rom,
+                    event,
+                    candidate,
+                    font=font,
+                    player_names=player_names,
+                    structural_command_overrides=structural_command_overrides,
+                )
+            except ValueError:
+                continue
+            if _simulation_blocking_score(simulation)[0] != 0:
+                continue
+            return candidate, simulation, [{
+                "strategy": "single_carrier_boundary_newline",
+                "boundary_after_id": previous_id,
+                "boundary_before_id": next_id,
+                "modified_id": text_id,
+                "mode": mode,
+                "semantic_payload_changed": False,
+            }]
+
+    return translations, None, []
+
+
+def _automatic_layout_search_score(simulation) -> tuple[int, int, int, int]:
+    """Rank rejected layouts for the bounded source-derived fallback search."""
+    if simulation is None:
+        return (999, 9999, 999, 999)
+    blocking = [
+        issue for issue in simulation.issues
+        if issue.severity in {"error", "warning"}
+    ]
+    wraps = sum(
+        line.implicit_wrap
+        for box in simulation.boxes
+        for page in box.pages
+        for line in page.lines
+    )
+    width_excess = 0
+    unpaused_scroll = 0
+    for issue in blocking:
+        match = re.search(r"Line advance is (\d+)px \(> (\d+)px", issue.message)
+        if match:
+            width_excess += int(match.group(1)) - int(match.group(2))
+        if issue.code == "UNPAUSED_SCROLL":
+            unpaused_scroll += 1
+    return (len(blocking) + wraps, width_excess, unpaused_scroll, len(blocking))
+
+
+def _try_unpaused_scroll_page_repairs(
+    *,
+    base_rom: bytes,
+    event: dict,
+    translations: dict[str, str],
+    font,
+    structural_command_overrides: dict[int, tuple[str, str] | None] | None = None,
+) -> tuple[dict[str, str], object | None, list[dict]]:
+    """Repair pure pagination overflow with deterministic generated page breaks.
+
+    This fallback is intentionally narrow. It runs only when every blocking
+    simulator issue is ``UNPAUSED_SCROLL``. It tests a generated WAIT $00 +
+    TEXT_CLEAR marker (``\f`` in translation markup) at ordinary word
+    boundaries inside already-multiline translated carriers, and keeps only a
+    candidate that *strictly* reduces the blocking score. Printable Android-FR
+    payload and carrier ownership are unchanged. The process repeats at most
+    once per initial scroll defect and returns only a completely clean event.
+
+    Restricting candidates to multiline carriers keeps very long scenes
+    tractable while targeting the actual cause: four visible lines accumulated
+    between pauses. If no strictly improving boundary exists, the event remains
+    rejected for later review rather than guessing.
+    """
+    from shared.dialogue_simulator import simulate_event
+
+    player_names = {0: "000000000", 1: "000000000", 2: "000000000"}
+    try:
+        simulation = simulate_event(
+            base_rom, event, translations, font=font, player_names=player_names,
+            structural_command_overrides=structural_command_overrides,
+        )
+    except ValueError:
+        return translations, None, []
+
+    blocking = [
+        issue for issue in simulation.issues
+        if issue.severity in {"error", "warning"}
+    ]
+    if not blocking or any(issue.code != "UNPAUSED_SCROLL" for issue in blocking):
+        return translations, None, []
+
+    current = dict(translations)
+    current_simulation = simulation
+    current_score = _automatic_layout_search_score(simulation)
+    repairs: list[dict] = []
+    max_steps = len(blocking)
+
+    canonical_ids = [
+        token.get("id")
+        for token in event.get("tokens", [])
+        if token.get("type") in {"text", "ending_text"}
+        and token.get("id") in current
+    ]
+    canonical_ids.extend(sorted(set(current) - set(canonical_ids)))
+
+    for step in range(1, max_steps + 1):
+        best = None
+        for carrier_order, text_id in enumerate(canonical_ids):
+            value = current[text_id]
+            # A page break can only solve a rolling four-line defect if the
+            # carrier contributes multiple visible lines. This also prevents a
+            # combinatorial scan across every word in a long scripted scene.
+            if value.count("\n") < 2:
+                continue
+            for match in reversed(list(re.finditer(r"(?<=\S) (?=[^\s:;!?])", value))):
+                pos = match.start()
+                replacement = value[:pos] + "\f" + value[pos + 1:]
+                candidate = dict(current)
+                candidate[text_id] = replacement
+                try:
+                    candidate_simulation = simulate_event(
+                        base_rom, event, candidate, font=font,
+                        player_names=player_names,
+                        structural_command_overrides=structural_command_overrides,
+                    )
+                except ValueError:
+                    continue
+                candidate_score = _automatic_layout_search_score(candidate_simulation)
+                if candidate_score >= current_score:
+                    continue
+                # Stable tie-break: best simulator score, canonical carrier,
+                # then latest word boundary to preserve as much preceding layout
+                # as possible.
+                key = (candidate_score, carrier_order, -pos)
+                if best is None or key < best[0]:
+                    best = (
+                        key, candidate, candidate_simulation,
+                        {
+                            "strategy": "unpaused_scroll_word_page_boundary",
+                            "text_id": text_id,
+                            "source_offset": pos,
+                            "step": step,
+                            "semantic_payload_changed": False,
+                        },
+                    )
+        if best is None:
+            break
+        _, current, current_simulation, repair = best
+        current_score = _automatic_layout_search_score(current_simulation)
+        repairs.append(repair)
+        if _simulation_blocking_score(current_simulation)[0] == 0:
+            return current, current_simulation, repairs
+
+    return translations, None, []
+
+
+def _try_source_derived_layout_search(
+    *,
+    base_rom: bytes,
+    event: dict,
+    translations: dict[str, str],
+    font,
+    structural_command_overrides: dict[int, tuple[str, str] | None] | None = None,
+    max_steps: int = 3,
+    max_translated_carriers: int = 40,
+) -> tuple[dict[str, str], object | None, list[dict]]:
+    """Search a tiny deterministic layout-only neighborhood around Android FR.
+
+    The search never changes printable characters or carrier ownership. It may
+    replace one inter-word space by NEWLINE, or one existing sentence/word
+    boundary by the already-supported generated WAIT $00 + TEXT_CLEAR page
+    marker. Sentence page boundaries are preferred; arbitrary word-boundary page
+    breaks are considered only on the final search step. At each step the whole
+    event is independently simulated, and the best non-worsening candidate is
+    retained. A result is returned only if the final event is completely clean.
+
+    The carrier-count bound deliberately keeps very large scripted scenes out of
+    this brute-force fallback; those need a more structural solver rather than a
+    costly exhaustive presentation search.
+    """
+    from shared.dialogue_simulator import simulate_event
+
+    if not translations or len(translations) > max_translated_carriers:
+        return translations, None, []
+
+    player_names = {0: "000000000", 1: "000000000", 2: "000000000"}
+    try:
+        simulation = simulate_event(
+            base_rom, event, translations, font=font, player_names=player_names,
+            structural_command_overrides=structural_command_overrides,
+        )
+    except ValueError:
+        return translations, None, []
+    if _simulation_blocking_score(simulation)[0] == 0:
+        return translations, simulation, []
+
+    canonical_ids = [
+        token.get("id")
+        for token in event.get("tokens", [])
+        if token.get("type") in {"text", "ending_text"}
+        and token.get("id") in translations
+    ]
+    # Keep dictionary-only generated carriers deterministic as well.
+    canonical_ids.extend(sorted(set(translations) - set(canonical_ids)))
+
+    current = dict(translations)
+    current_simulation = simulation
+    current_score = _automatic_layout_search_score(simulation)
+    repairs: list[dict] = []
+
+    for step in range(1, max_steps + 1):
+        allow_word_page = step == max_steps
+        best = None
+        for carrier_order, text_id in enumerate(canonical_ids):
+            value = current[text_id]
+            operations: list[tuple[str, int, int, str]] = []
+
+            # Ordinary word-boundary line break. Never strand punctuation such
+            # as a speaker colon at the beginning of the next line.
+            for match in reversed(list(re.finditer(r"(?<=\S) (?=[^\s:;!?])", value))):
+                pos = match.start()
+                operations.append(("newline_word_boundary", 1, pos, value[:pos] + "\n" + value[pos + 1:]))
+
+            # Prefer a generated page transition after complete sentences.
+            for match in reversed(list(re.finditer(r"(?<=[.!?…])(?: +|\n)(?=\S)", value))):
+                pos, end = match.start(), match.end()
+                operations.append(("page_sentence_boundary", 0, pos, value[:pos] + "\f" + value[end:]))
+
+            # If two earlier layout operations still cannot serialize the event,
+            # permit the already-proven word-boundary page fallback used by the
+            # three-page formatter. This remains presentation-only.
+            if allow_word_page:
+                for match in reversed(list(re.finditer(r"(?<=\S) (?=[^\s:;!?])", value))):
+                    pos = match.start()
+                    operations.append(("page_word_boundary", 2, pos, value[:pos] + "\f" + value[pos + 1:]))
+
+            for strategy, strategy_rank, pos, replacement in operations:
+                candidate = dict(current)
+                candidate[text_id] = replacement
+                try:
+                    candidate_simulation = simulate_event(
+                        base_rom, event, candidate, font=font, player_names=player_names,
+                        structural_command_overrides=structural_command_overrides,
+                    )
+                except ValueError:
+                    continue
+                candidate_score = _automatic_layout_search_score(candidate_simulation)
+                # Stable tie-break: semantic page boundaries, then NEWLINE, then
+                # word-page fallback; canonical carrier order; latest boundary.
+                key = (candidate_score, strategy_rank, carrier_order, -pos)
+                if best is None or key < best[0]:
+                    best = (
+                        key, candidate, candidate_simulation,
+                        {
+                            "strategy": strategy,
+                            "text_id": text_id,
+                            "source_offset": pos,
+                            "step": step,
+                            "semantic_payload_changed": False,
+                        },
+                    )
+
+        if best is None:
+            break
+        best_score = best[0][0]
+        # Allow an equal-score bridge operation because two layout boundaries
+        # can jointly remove a rolling-window defect even when the first one is
+        # neutral in isolation. Never accept a worsening intermediate state.
+        if best_score > current_score:
+            break
+        _, current, current_simulation, repair = best
+        current_score = best_score
+        repairs.append(repair)
+        if _simulation_blocking_score(current_simulation)[0] == 0:
+            return current, current_simulation, repairs
+
+    return translations, None, []
+
+
 def _try_direct_simulator_safe_subset(
     *,
     base_rom: bytes,
@@ -13250,6 +13672,208 @@ def _try_direct_simulator_safe_subset(
 
     return translations, reports, None, []
 
+
+def _auto_reflow_fixed_translation_carriers(
+    values: dict[str, str],
+    advances: dict[str, int],
+) -> tuple[dict[str, str], list[dict]]:
+    """Reflow already-proven carrier text to the current VWF line contract.
+
+    This is deliberately presentation-only. Existing carrier boundaries,
+    explicit NEWLINEs and translation control markers (TEXT_CLEAR / page
+    controls) are preserved. Only an individual visible line that no longer
+    fits the current ``DIALOGUE_WRAP_PIXELS`` / ``DIALOGUE_WRAP_CHARS`` limits
+    is word-wrapped. No prose, identity, command order or carrier assignment is
+    changed here; any resulting page/command incompatibility is left for the
+    independent simulator to reject.
+    """
+    out: dict[str, str] = {}
+    reports: list[dict] = []
+
+    for text_id, value in values.items():
+        # Preserve translation control markers byte-for-byte. Reflow each
+        # visible segment independently so an existing TEXT_CLEAR cannot move.
+        control_parts = re.split(r'([\v\f])', value)
+        rebuilt_parts: list[str] = []
+        changed = False
+        line_reports: list[dict] = []
+        for part in control_parts:
+            if part in {"\v", "\f"}:
+                rebuilt_parts.append(part)
+                continue
+            # Preserve every explicit hard newline. Only rewrap the text that
+            # lies between two already-reviewed hard boundaries.
+            hard_lines = part.split("\n")
+            rebuilt_lines: list[str] = []
+            for line in hard_lines:
+                if not line.strip():
+                    rebuilt_lines.append(line)
+                    continue
+                width = _markup_width(line, advances, 0)
+                # PLAYER_NAME markup, when present, must use the conservative
+                # dynamic-name wrapper rather than raw-width measurement.
+                needs_wrap = width > DIALOGUE_WRAP_PIXELS or len(line) > DIALOGUE_WRAP_CHARS
+                if "%S(" in line:
+                    try:
+                        wrapped, widths, chars, units = semantic_wrap_markup(line, advances)
+                    except ValueError:
+                        raise
+                    needs_wrap = len(widths) > 1 or any(
+                        w > DIALOGUE_WRAP_PIXELS or u > DIALOGUE_WRAP_CHARS
+                        for w, u in zip(widths, units, strict=True)
+                    )
+                elif needs_wrap:
+                    wrapped, widths, chars, units = semantic_wrap_markup(line, advances)
+                else:
+                    wrapped = line
+                    widths = [width]
+                    chars = [len(line)]
+                    units = [len(line)]
+                rebuilt_lines.append(wrapped)
+                if wrapped != line:
+                    changed = True
+                    line_reports.append({
+                        "source_line": line,
+                        "wrapped": wrapped,
+                        "widths_pixels": widths,
+                        "decoded_characters": chars,
+                        "parser_units": units,
+                    })
+            rebuilt_parts.append("\n".join(rebuilt_lines))
+        rebuilt = "".join(rebuilt_parts)
+        out[text_id] = rebuilt
+        if changed:
+            reports.append({"id": text_id, "reflowed_lines": line_reports})
+    return out, reports
+
+
+
+def _try_live_player_prefix_reflow(
+    *,
+    base_rom: bytes,
+    event: dict,
+    translations: dict[str, str],
+    advances: dict[str, int],
+    font,
+    structural_command_overrides: dict[int, tuple[str, str] | None] | None = None,
+) -> tuple[dict[str, str], object | None, list[dict]]:
+    """Reflow only carriers that continue directly after ``PLAYER_NAME``.
+
+    Android-FR carrier payload does not include stock PLAYER_NAME commands.  A
+    carrier immediately following one therefore has less live first-line room
+    than its standalone string suggests.  Generate a conservative candidate
+    using the validated 9-character worst-case name width.  Keep the candidate
+    only when whole-event simulation strictly improves; printable text and
+    carrier ownership are unchanged.
+    """
+    from shared.dialogue_simulator import simulate_event
+
+    tokens = event.get("tokens", [])
+    candidate = dict(translations)
+    repairs: list[dict] = []
+    prefix_pixels = player_placeholder_width(advances)
+    for index, token in enumerate(tokens):
+        if token.get("type") not in {"text", "ending_text"} or index == 0:
+            continue
+        text_id = token.get("id")
+        if text_id not in candidate:
+            continue
+        previous = tokens[index - 1]
+        if previous.get("type") != "command" or previous.get("name") != "PLAYER_NAME":
+            continue
+        value = candidate[text_id]
+        # A leading page/clear control resets the live prefix before prose.
+        if not value or value.startswith(("\v", "\f")):
+            continue
+        parts = value.split("\n")
+        first = parts[0]
+        if not first.strip():
+            continue
+        try:
+            wrapped, widths, chars, units = semantic_wrap_markup(
+                first,
+                advances,
+                first_line_prefix_pixels=prefix_pixels,
+                first_line_prefix_units=MAX_PLAYER_NAME_CHARS,
+            )
+        except ValueError:
+            continue
+        if wrapped == first:
+            continue
+        replacement = "\n".join([wrapped, *parts[1:]])
+        candidate[text_id] = replacement
+        repairs.append({
+            "strategy": "live_player_name_prefix_reflow",
+            "text_id": text_id,
+            "prefix_pixels": prefix_pixels,
+            "prefix_parser_units": MAX_PLAYER_NAME_CHARS,
+            "semantic_payload_changed": False,
+        })
+
+    if not repairs:
+        return translations, None, []
+    player_names = {0: "000000000", 1: "000000000", 2: "000000000"}
+    try:
+        before = simulate_event(
+            base_rom, event, translations, font=font, player_names=player_names,
+            structural_command_overrides=structural_command_overrides,
+        )
+        after = simulate_event(
+            base_rom, event, candidate, font=font, player_names=player_names,
+            structural_command_overrides=structural_command_overrides,
+        )
+    except ValueError:
+        return translations, None, []
+    if _automatic_layout_search_score(after) >= _automatic_layout_search_score(before):
+        return translations, None, []
+    return candidate, after, repairs
+
+def _repack_fixed_translation_carriers(
+    values: dict[str, str],
+    advances: dict[str, int],
+) -> tuple[dict[str, str], list[dict]]:
+    """Repack historical hard NEWLINE layout inside fixed carrier segments.
+
+    Secondary candidate generator only: preserve carrier assignments and page
+    controls, normalize old hard NEWLINEs inside each visible segment to spaces,
+    then reapply the calibrated 216px / 38-unit wrapper. The whole event must
+    independently simulate clean before callers may accept the candidate.
+    """
+    out: dict[str, str] = {}
+    reports: list[dict] = []
+    for text_id, value in values.items():
+        parts = re.split(r'([\v\f])', value)
+        rebuilt: list[str] = []
+        changes: list[dict] = []
+        for part in parts:
+            if part in {"\v", "\f"}:
+                rebuilt.append(part)
+                continue
+            if not part:
+                rebuilt.append(part)
+                continue
+            logical = re.sub(r"[ \t]*\n[ \t]*", " ", part)
+            logical = re.sub(r"[ \t]+", " ", logical)
+            if not logical.strip():
+                rebuilt.append(logical)
+                continue
+            wrapped, widths, chars, units = semantic_wrap_markup(logical, advances)
+            rebuilt.append(wrapped)
+            if wrapped != part:
+                changes.append({
+                    "source_segment": part,
+                    "logical_segment": logical,
+                    "wrapped": wrapped,
+                    "widths_pixels": widths,
+                    "decoded_characters": chars,
+                    "parser_units": units,
+                })
+        out[text_id] = "".join(rebuilt)
+        if changes:
+            reports.append({"id": text_id, "repacked_segments": changes})
+    return out, reports
+
+
 def make_dialogue_format_mass(
     english: dict[int, str],
     french: dict[int, str],
@@ -13331,6 +13955,11 @@ def make_dialogue_format_mass(
     round49_04e9_wait00_clear_repairs_by_event: dict[str, list[dict]] = {}
     round50_01ce_choice_page_clear_repairs_by_event: dict[str, list[dict]] = {}
     round54_nonsemantic_android_supplements_by_event: dict[str, list[dict]] = {}
+    automatic_216px_reflows_by_event: dict[str, list[dict]] = {}
+    carrier_boundary_newline_repairs_by_event: dict[str, list[dict]] = {}
+    carrier_repack_repairs_by_event: dict[str, list[dict]] = {}
+    live_player_prefix_reflow_repairs_by_event: dict[str, list[dict]] = {}
+    source_derived_layout_search_repairs_by_event: dict[str, list[dict]] = {}
     choice_row_layout_repairs_by_event: dict[str, list[dict]] = {}
     adaptive_choice_decoration_repairs_by_event: dict[str, list[dict]] = {}
     adaptive_choice_anchor_repairs_by_event: dict[str, list[dict]] = {}
@@ -13360,6 +13989,7 @@ def make_dialogue_format_mass(
 
         if event_id in round68_events:
             values = dict(redistribution_values[event_id])
+            values, automatic_reflow = _auto_reflow_fixed_translation_carriers(values, advances)
             canonical_ids = {
                 token.get("id") for token in event["tokens"]
                 if token.get("type") in {"text", "ending_text"}
@@ -13377,10 +14007,84 @@ def make_dialogue_format_mass(
                 for box in simulation.boxes for page in box.pages for line in page.lines
             )
             if blocking or wraps:
-                raise ValueError(
-                    f"Round-68 ${event_id} reviewed scene no longer simulator-clean: "
-                    f"{len(blocking)} issue(s), {wraps} wrap(s)"
+                candidate_values, candidate_simulation, boundary_repairs = _try_single_carrier_boundary_newline(
+                    base_rom=base_rom, event=event, translations=values, font=font
                 )
+                if boundary_repairs:
+                    values = candidate_values
+                    simulation = candidate_simulation
+                    blocking = []
+                    wraps = 0
+                    carrier_boundary_newline_repairs_by_event[event_id] = boundary_repairs
+            if blocking or wraps:
+                repacked_values, repack_repairs = _repack_fixed_translation_carriers(
+                    dict(redistribution_values[event_id]), advances
+                )
+                try:
+                    repacked_simulation = simulate_event(
+                        base_rom, event, repacked_values, font=font,
+                        player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+                    )
+                except ValueError:
+                    repacked_simulation = None
+                if repacked_simulation is not None and _simulation_blocking_score(repacked_simulation)[0] == 0:
+                    values = repacked_values
+                    simulation = repacked_simulation
+                    blocking = []
+                    wraps = 0
+                    carrier_repack_repairs_by_event[event_id] = repack_repairs
+                elif repacked_simulation is not None:
+                    candidate_values, candidate_simulation, boundary_repairs = _try_single_carrier_boundary_newline(
+                        base_rom=base_rom, event=event, translations=repacked_values, font=font
+                    )
+                    if boundary_repairs:
+                        values = candidate_values
+                        simulation = candidate_simulation
+                        blocking = []
+                        wraps = 0
+                        carrier_repack_repairs_by_event[event_id] = repack_repairs
+                        carrier_boundary_newline_repairs_by_event[event_id] = boundary_repairs
+            if blocking or wraps:
+                prefix_values, prefix_simulation, prefix_repairs = _try_live_player_prefix_reflow(
+                    base_rom=base_rom, event=event, translations=values, advances=advances, font=font
+                )
+                if prefix_repairs:
+                    values = prefix_values
+                    simulation = prefix_simulation
+                    live_player_prefix_reflow_repairs_by_event[event_id] = prefix_repairs
+                    blocking = [issue for issue in simulation.issues if issue.severity in {"error", "warning"}]
+                    wraps = sum(line.implicit_wrap for box in simulation.boxes for page in box.pages for line in page.lines)
+            if blocking or wraps:
+                page_values, page_simulation, page_repairs = _try_unpaused_scroll_page_repairs(
+                    base_rom=base_rom, event=event, translations=values, font=font
+                )
+                if page_repairs:
+                    values = page_values
+                    simulation = page_simulation
+                    blocking = []
+                    wraps = 0
+                    source_derived_layout_search_repairs_by_event[event_id] = page_repairs
+            if blocking or wraps:
+                searched_values, searched_simulation, search_repairs = _try_source_derived_layout_search(
+                    base_rom=base_rom, event=event, translations=values, font=font
+                )
+                if search_repairs:
+                    values = searched_values
+                    simulation = searched_simulation
+                    blocking = []
+                    wraps = 0
+                    source_derived_layout_search_repairs_by_event[event_id] = search_repairs
+            if blocking or wraps:
+                excluded_events.append({
+                    "event_id": event_id,
+                    "stage": "reviewed_redistribution_automatic_reflow",
+                    "reason": "automatic_216px_reflow_not_simulator_clean",
+                    "reviewed_redistribution_round": 68,
+                    "blocking_issue_codes": [issue.code for issue in blocking],
+                    "implicit_wraps": wraps,
+                    "automatic_216px_reflow": automatic_reflow,
+                })
+                continue
             accepted_events.append(event_id)
             formatter_candidate_count += 1
             if event_id != "05F8":
@@ -13395,11 +14099,13 @@ def make_dialogue_format_mass(
                 "android_identity_count_changed": False,
                 "note": "Keep the original Android-FR scene semantics verbatim; only SNES carriers/pages and translated-only dynamic PLAYER_NAME placement are redistributed.",
                 "formatted_entries": [{"id": k, "text": v} for k, v in values.items()],
+                "automatic_216px_reflow": automatic_reflow,
             }]
             continue
 
         if event_id in round69_events:
             values = dict(redistribution_values[event_id])
+            values, automatic_reflow = _auto_reflow_fixed_translation_carriers(values, advances)
             canonical_ids = {
                 token.get("id") for token in event["tokens"]
                 if token.get("type") in {"text", "ending_text"}
@@ -13407,10 +14113,11 @@ def make_dialogue_format_mass(
             unknown = sorted(set(values) - canonical_ids)
             if unknown:
                 raise ValueError(f"Round-69 ${event_id} unknown carrier(s): {unknown}")
+            structural_overrides = structural_command_overrides_by_event.get(event_id)
             simulation = simulate_event(
                 base_rom, event, values, font=font,
                 player_names={0: "000000000", 1: "000000000", 2: "000000000"},
-                structural_command_overrides=structural_command_overrides_by_event.get(event_id),
+                structural_command_overrides=structural_overrides,
             )
             blocking = [issue for issue in simulation.issues if issue.severity in {"error", "warning"}]
             wraps = sum(
@@ -13418,11 +14125,69 @@ def make_dialogue_format_mass(
                 for box in simulation.boxes for page in box.pages for line in page.lines
             )
             if blocking or wraps:
-                detail = "; ".join(f"{i.code}: {i.message}" for i in blocking[:3])
-                raise ValueError(
-                    f"Round-69 ${event_id} reviewed redistribution no longer simulator-clean: "
-                    f"{len(blocking)} issue(s), {wraps} wrap(s) {detail}"
+                candidate_values, candidate_simulation, boundary_repairs = _try_single_carrier_boundary_newline(
+                    base_rom=base_rom, event=event, translations=values, font=font,
+                    structural_command_overrides=structural_overrides,
                 )
+                if boundary_repairs:
+                    values = candidate_values
+                    simulation = candidate_simulation
+                    blocking = []
+                    wraps = 0
+                    carrier_boundary_newline_repairs_by_event[event_id] = boundary_repairs
+            if blocking or wraps:
+                repacked_values, repack_repairs = _repack_fixed_translation_carriers(
+                    dict(redistribution_values[event_id]), advances
+                )
+                try:
+                    repacked_simulation = simulate_event(
+                        base_rom, event, repacked_values, font=font,
+                        player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+                        structural_command_overrides=structural_overrides,
+                    )
+                except ValueError:
+                    repacked_simulation = None
+                if repacked_simulation is not None and _simulation_blocking_score(repacked_simulation)[0] == 0:
+                    values = repacked_values
+                    simulation = repacked_simulation
+                    blocking = []
+                    wraps = 0
+                    carrier_repack_repairs_by_event[event_id] = repack_repairs
+                elif repacked_simulation is not None:
+                    candidate_values, candidate_simulation, boundary_repairs = _try_single_carrier_boundary_newline(
+                        base_rom=base_rom, event=event, translations=repacked_values, font=font,
+                        structural_command_overrides=structural_overrides,
+                    )
+                    if boundary_repairs:
+                        values = candidate_values
+                        simulation = candidate_simulation
+                        blocking = []
+                        wraps = 0
+                        carrier_repack_repairs_by_event[event_id] = repack_repairs
+                        carrier_boundary_newline_repairs_by_event[event_id] = boundary_repairs
+            if blocking or wraps:
+                searched_values, searched_simulation, search_repairs = _try_source_derived_layout_search(
+                    base_rom=base_rom, event=event, translations=values, font=font,
+                    structural_command_overrides=structural_overrides,
+                )
+                if search_repairs:
+                    values = searched_values
+                    simulation = searched_simulation
+                    blocking = []
+                    wraps = 0
+                    source_derived_layout_search_repairs_by_event[event_id] = search_repairs
+            if blocking or wraps:
+                excluded_events.append({
+                    "event_id": event_id,
+                    "stage": "reviewed_redistribution_automatic_reflow",
+                    "reason": "automatic_216px_reflow_not_simulator_clean",
+                    "reviewed_redistribution_round": 69,
+                    "blocking_issue_codes": [issue.code for issue in blocking],
+                    "blocking_issue_messages": [issue.message for issue in blocking[:8]],
+                    "implicit_wraps": wraps,
+                    "automatic_216px_reflow": automatic_reflow,
+                })
+                continue
             accepted_events.append(event_id)
             formatter_candidate_count += 1
             complete_aligned_count += 1
@@ -13436,6 +14201,7 @@ def make_dialogue_format_mass(
                 "android_identity_count_changed": False,
                 "note": "Reviewed Android-FR/SNES resegmentation; no new weak Android identity is created.",
                 "formatted_entries": [{"id": k, "text": v} for k, v in values.items()],
+                "automatic_216px_reflow": automatic_reflow,
             }]
             continue
 
@@ -13531,6 +14297,9 @@ def make_dialogue_format_mass(
                     }
                 )
                 continue
+            values, mapping_report, trailing_transition_repairs = _collapse_trailing_page_break_into_stock_transition(
+                source_document, mapping, values, mapping_report
+            )
             if _mapping_has_unserializable_trailing_page_break(
                 source_document, mapping, values
             ):
@@ -13636,6 +14405,14 @@ def make_dialogue_format_mass(
         round54_nonsemantic_android_supplements_by_event[event_id] = _apply_round54_nonsemantic_android_supplement(
             event, event_translations, english=english, french=french
         )
+        # Final presentation-only pass: legacy/manual/redistributed inserts may
+        # have bypassed the ordinary mapping wrapper. Reflow each existing
+        # carrier line to the current 216px / 38-unit contract before the
+        # independent simulator decides whether the event remains admissible.
+        event_translations, automatic_reflow = _auto_reflow_fixed_translation_carriers(
+            event_translations, advances
+        )
+        automatic_216px_reflows_by_event[event_id] = automatic_reflow
         direct_subset_translations = dict(event_translations)
         direct_subset_reports = [dict(report) for report in event_reports]
         if complete_layout_deferred_ids:
@@ -14141,6 +14918,64 @@ def make_dialogue_format_mass(
                 unpaused_scroll_repairs_by_event[event_id] = []
                 cross_mapping_sentence_repairs_by_event[event_id] = []
                 structural_reaction_page_repairs_by_event[event_id] = reaction_repairs
+                continue
+
+            (
+                boundary_translations,
+                boundary_simulation,
+                boundary_repairs,
+            ) = _try_single_carrier_boundary_newline(
+                base_rom=base_rom,
+                event=event,
+                translations=event_translations,
+                font=font,
+                structural_command_overrides=structural_command_overrides_by_event.get(event_id),
+            )
+            if boundary_repairs:
+                accepted_events.append(event_id)
+                translations_by_event[event_id] = boundary_translations
+                reports_by_event[event_id] = event_reports
+                wait00_repairs_by_event[event_id] = wait00_repairs
+                unpaused_scroll_repairs_by_event[event_id] = []
+                cross_mapping_sentence_repairs_by_event[event_id] = []
+                structural_reaction_page_repairs_by_event[event_id] = []
+                carrier_boundary_newline_repairs_by_event[event_id] = boundary_repairs
+                continue
+
+            searched_translations, searched_simulation, search_repairs = _try_source_derived_layout_search(
+                base_rom=base_rom,
+                event=event,
+                translations=event_translations,
+                font=font,
+                structural_command_overrides=structural_command_overrides_by_event.get(event_id),
+            )
+            if search_repairs:
+                accepted_events.append(event_id)
+                translations_by_event[event_id] = searched_translations
+                reports_by_event[event_id] = event_reports
+                wait00_repairs_by_event[event_id] = wait00_repairs
+                unpaused_scroll_repairs_by_event[event_id] = []
+                cross_mapping_sentence_repairs_by_event[event_id] = []
+                structural_reaction_page_repairs_by_event[event_id] = []
+                source_derived_layout_search_repairs_by_event[event_id] = search_repairs
+                continue
+
+            page_translations, page_simulation, page_repairs = _try_unpaused_scroll_page_repairs(
+                base_rom=base_rom,
+                event=event,
+                translations=event_translations,
+                font=font,
+                structural_command_overrides=structural_command_overrides_by_event.get(event_id),
+            )
+            if page_repairs:
+                accepted_events.append(event_id)
+                translations_by_event[event_id] = page_translations
+                reports_by_event[event_id] = event_reports
+                wait00_repairs_by_event[event_id] = wait00_repairs
+                unpaused_scroll_repairs_by_event[event_id] = []
+                cross_mapping_sentence_repairs_by_event[event_id] = []
+                structural_reaction_page_repairs_by_event[event_id] = []
+                source_derived_layout_search_repairs_by_event[event_id] = page_repairs
                 continue
 
             (
@@ -14792,6 +15627,15 @@ def make_dialogue_format_mass(
             event_id, event_translations, source_text_by_id=source_text_by_id
         )
         _apply_wait_semantics_layout_compat(event_id, event_translations)
+        # Alignment-incomplete/locked reviewed scenes use the same calibrated
+        # presentation wrapper as complete events before their independent
+        # mixed-event simulation. This changes layout only; unresolved carriers
+        # remain absent and reviewed Android-FR payload remains source-derived.
+        event_translations, partial_automatic_reflow = _auto_reflow_fixed_translation_carriers(
+            event_translations, advances
+        )
+        if partial_automatic_reflow:
+            automatic_216px_reflows_by_event.setdefault(event_id, []).extend(partial_automatic_reflow)
         try:
             simulation = simulate_event(
                 base_rom,
@@ -15371,12 +16215,15 @@ def make_dialogue_format_mass(
     translation_document["user_validated_visually_complete_events"] = [
         complete_event_metadata(event_id) for event_id in user_validated_complete_events
     ]
-    translation_document["user_validated_structural_omissions"] = list(
-        DIALOGUE_USER_VALIDATED_STRUCTURAL_OMISSIONS
-    )
-    translation_document["user_validated_structural_command_overrides"] = list(
-        DIALOGUE_USER_VALIDATED_STRUCTURAL_COMMAND_OVERRIDES
-    )
+    accepted_event_set = set(accepted_events)
+    translation_document["user_validated_structural_omissions"] = [
+        entry for entry in DIALOGUE_USER_VALIDATED_STRUCTURAL_OMISSIONS
+        if entry.get("event_id") in accepted_event_set
+    ]
+    translation_document["user_validated_structural_command_overrides"] = [
+        entry for entry in DIALOGUE_USER_VALIDATED_STRUCTURAL_COMMAND_OVERRIDES
+        if entry.get("event_id") in accepted_event_set
+    ]
     translation_document["user_validated_partial_layout_preservations"] = []
     translation_document["manual_dialogue_supplements"] = [
         {
@@ -15717,6 +16564,31 @@ def make_dialogue_format_mass(
             {"event_id": event_id, **repair}
             for event_id in accepted_events
             for repair in round50_01ce_choice_page_clear_repairs_by_event.get(event_id, [])
+        ],
+        "automatic_216px_reflows": [
+            {"event_id": event_id, "reflows": repairs}
+            for event_id, repairs in automatic_216px_reflows_by_event.items()
+            if repairs
+        ],
+        "carrier_boundary_newline_repairs": [
+            {"event_id": event_id, "repairs": repairs}
+            for event_id, repairs in carrier_boundary_newline_repairs_by_event.items()
+            if repairs
+        ],
+        "carrier_repack_repairs": [
+            {"event_id": event_id, "repairs": repairs}
+            for event_id, repairs in carrier_repack_repairs_by_event.items()
+            if repairs
+        ],
+        "live_player_prefix_reflow_repairs": [
+            {"event_id": event_id, "repairs": repairs}
+            for event_id, repairs in live_player_prefix_reflow_repairs_by_event.items()
+            if repairs
+        ],
+        "source_derived_layout_search_repairs": [
+            {"event_id": event_id, "repairs": repairs}
+            for event_id, repairs in source_derived_layout_search_repairs_by_event.items()
+            if repairs
         ],
         "round54_nonsemantic_android_supplements": [
             repair

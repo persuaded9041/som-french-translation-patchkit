@@ -262,7 +262,7 @@ python3 tools/import_android_text.py --only dialogue-format-batch1 --rom <clean-
 python3 tools/import_android_text.py --only dialogue-format-page-pilot --rom <clean-USA-ROM>
 ```
 
-`$0107` validates the dual 240-pixel / 38-unit constraints with `PLAYER_NAME`, and
+`$0107` validates the dual 216-pixel safe-width / 38-unit constraints with `PLAYER_NAME`, and
 `$010F` validates sentence-aware `WAIT $00` + `TEXT_CLEAR` pagination. Historical
 formatter reports are not committed; the current canonical outputs are the mass-pass
 translation, report and exclusion CSV.

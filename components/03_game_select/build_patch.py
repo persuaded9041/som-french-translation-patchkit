@@ -72,7 +72,7 @@ GAME_FILE_RESOURCE_FIELDS = {
     "MONEY":       (0x077374, 6),
     "GP":          (0x077394, 2),
     "COUNTER":     (0x077398, 8),
-    "MANA_POWER":  (0x0773AA, 10),
+    "MANA_POWER":  (0x0773AA, 12),
 }
 # FILE_LABEL is special: the stock path has only four cells, so it receives
 # the first four encoded cells ("Fich" for the current translation), while the

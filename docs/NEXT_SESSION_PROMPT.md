@@ -1,9 +1,11 @@
-Je poursuis le projet Secret of Mana FR à partir du **Round 69 — zéro PARTIEL**.
+Je poursuis le projet Secret of Mana FR à partir du **Round 72 — automatic 216 px completion**.
 
-Lire `README.md`, puis `docs/HANDOFF.md`. L’archive fournie est prioritaire sur GitHub.
+Commence par lire `README.md`, puis `docs/HANDOFF.md`. L’archive fournie est prioritaire sur GitHub.
 
-État : Android **1798/1838** ; corpus **701 événements = 701 complets + 0 PARTIEL** ; **1810 IDs sémantiques / 1946 entrées JSON** ; 3 exclusions orphelines/inaccessibles ; simulation **0 erreur / 0 warning / 0 wrap implicite**.
+État dialogues : **701/701 événements jouables complets, 0 PARTIEL, 0 erreur, 0 warning, 0 wrap implicite**. Contrat VWF runtime validé : **38 glyphes max et 216 px max** pour une ligne de dialogue ordinaire. Préserver toutes les décisions Round 67–72 et ne pas rouvrir les dialogues.
 
-Round 69 clôt les dialogues jouables à 100 %. Les 15 anciens PARTIEL ont été promus complets après revue sémantique de scène ; conserver leur provenance dans `user_validated_visually_complete_events`. Préserver les décisions Round 67/68 et ne pas rouvrir `$04E1`, `$013A/C9:40D7`, `$035F/C9:D1B8 = Dryade`, ni les scènes `$0555/$0429/$05F8`.
+Prochaine étape : préparer la **traduction des objets**. **Ne lance aucune traduction ni insertion tout de suite.** Je veux d’abord discuter et valider la procédure.
 
-Après modification : round-trip + simulation clean ; ne reconstruire que les composants modifiés, puis recombiner `all.ips`.
+Inspecte `docs/TEXT_RESOURCES.md`, `assets/text_resources.json`, les sources Android disponibles et les outils d’extraction/import pertinents. Le premier périmètre envisagé est `$0B9-$0C5` (13 `item/special names`). Propose une méthode entièrement reproductible : identification SNES ↔ Android, provenance EN/FR, contraintes de longueur/charset/UI, stratégie d’insertion ou de repacking si nécessaire, fichier de traduction sparse, checks déterministes et HTML de revue avant insertion.
+
+Ne mets pas de texte français en dur dans le code : les traductions devront pouvoir être régénérées depuis les sources Android, sauf éventuels suppléments explicitement revus plus tard.

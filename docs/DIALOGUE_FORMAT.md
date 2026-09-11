@@ -357,7 +357,7 @@ sentence boundary (`.`, `!`, `?`, or ellipsis) for which both sides fit within
 three safe lines. It chooses the latest such boundary, so a complete sentence
 may use all three lines of the current page rather than being split merely to
 avoid a one-line following page. Each page is then balanced internally while
-respecting the same 240-pixel and 38-parser-unit limits. If no safe sentence
+respecting the same 216-pixel safe-width and 38-parser-unit limits. If no safe sentence
 boundary exists, the previous deterministic balanced distribution remains a
 conservative fallback. The runtime-validated pilot itself uses one generated extra
 page. The mass generator may use a second transition only for the stricter case where
@@ -465,7 +465,7 @@ SNES event already carries the corresponding direct `$CF` / `$D0` glyph. The
 independent simulator also understands `TEXT_X $nn` only at the start of a fresh
 line, where component 06 renders the `nn` prefilled `$80` cells before the text.
 The formatter now reserves those same proven padding cells against the first
-generated line's 38-unit and 240-pixel budgets; following wrapped lines return to
+generated line's 38-unit and 216-pixel safe-width budgets; following wrapped lines return to
 the normal full budget. Android `▽` is removed only when the event itself proves a
 `CHOICE_BEGIN` / `CHOICE_END` block. Choice recovery always keeps the first stock
 `CHOICE_OPTION` anchor; after a simulator rejection, a later absolute anchor may move only

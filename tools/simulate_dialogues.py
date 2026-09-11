@@ -52,9 +52,10 @@ def render_page_png(lines: list[SimLine], font: DialogueFont, *, scale: int = 2)
     logical_w, logical_h = 272, 48
     image = Image.new("RGB", (logical_w * scale, logical_h * scale), (25, 67, 150))
     draw = ImageDraw.Draw(image)
-    # Border and usable 256-pixel renderer strip.
+    # Border, 256-pixel renderer strip, and runtime-validated 216-pixel safe text limit.
     draw.rectangle((1 * scale, 1 * scale, (logical_w - 2) * scale, (logical_h - 2) * scale), outline=(226, 226, 226), width=scale)
     draw.line((8 * scale, 0, 8 * scale, logical_h * scale), fill=(82, 120, 190), width=1)
+    draw.line(((8 + 216) * scale, 0, (8 + 216) * scale, logical_h * scale), fill=(255, 196, 80), width=1)
     draw.line(((8 + 256) * scale, 0, (8 + 256) * scale, logical_h * scale), fill=(82, 120, 190), width=1)
 
     for line_index, line in enumerate(lines[:4]):
@@ -282,7 +283,7 @@ pre {{ white-space:pre-wrap; margin:10px 0 5px; font:14px ui-monospace,SFMono-Re
 <body><main>
 <h1>Simulateur de boîtes de dialogue — composant 06/08</h1>
 <p>Ce rapport repart des <strong>octets événement réellement sérialisés</strong>, puis redécode le flux avec le profil dialogue <code>$E8</code> et les métriques VWF validées. Chaque événement compare maintenant le <strong>français simulé à gauche</strong> et la <strong>source SNES USA canonique à droite</strong>, conservée sans VWF.</p>
-<div class="note"><strong>Nom dynamique de test :</strong> <code>{escape(player_name)}</code>. Le défaut est volontairement un nom de 9 caractères larges pour tester le pire cas. Le simulateur vérifie 38 glyphes, la marge empirique de source <code>PLAYER_NAME</code>, le bitmap physique 256 px, la cible de formatage 240 px, les retours implicites et les 3 lignes physiques par page. Il ne remplace pas un test runtime pour les timings, animations ou artefacts de compositor.</div>
+<div class="note"><strong>Nom dynamique de test :</strong> <code>{escape(player_name)}</code>. Le défaut est volontairement un nom de 9 caractères larges pour tester le pire cas. Le simulateur vérifie 38 glyphes, la marge empirique de source <code>PLAYER_NAME</code>, le bitmap physique 256 px, la largeur sûre runtime-validée de 216 px, les retours implicites et les 3 lignes physiques par page. Il ne remplace pas un test runtime pour les timings, animations ou artefacts de compositor.</div>
 <div class="stats">
 <div class="stat"><strong>{len(simulations)}</strong>événements</div><div class="stat"><strong>{total_boxes}</strong>boîtes</div><div class="stat"><strong>{total_pages}</strong>pages</div><div class="stat"><strong>{errors}</strong>erreurs</div><div class="stat"><strong>{warnings}</strong>avertissements</div><div class="stat"><strong>{implicit}</strong>wraps implicites</div>
 </div>

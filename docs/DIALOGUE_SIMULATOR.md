@@ -69,10 +69,12 @@ a static guardrail rather than a substitute for runtime validation of selection/
 behavior.
 
 The source comparison column is informational only; it is not fed back into the
-formatter or simulator. The simulator cannot prove timing, animation interaction or compositor pixel
-artifacts. Runtime playthrough remains the final validation. In particular, the
-known position-dependent final `e` artifact from `cascade` remains a separate
-component-06 follow-up.
+formatter or simulator. The simulator cannot yet prove timing, animation interaction or exact compositor
+pixel placement. Runtime playthrough remains the final validation. The active next engineering task is the
+position-dependent component-06 artifact where a glyph near the end of some long lines can shift
+horizontally by a few pixels. Fix that runtime defect first; then use the corrected runtime behavior as the
+reference for making this HTML simulator pixel-identical, including framing, cursor advances and spill
+merging. Do not work around the artifact by changing translated text.
 
 ## Intended mass-import workflow
 

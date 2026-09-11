@@ -139,14 +139,15 @@ shared_vwf_capacity:
     cmp #$01
     beq .intro
 
-    ; Dialogue: preserve remaining-line calculation, then grant six extra
-    ; parser units. A fresh line therefore becomes 39 units = 38 glyphs plus
+    ; Dialogue: preserve remaining-line calculation, then grant ten extra
+    ; parser units. Runtime calibration on $0107 proved the stock fresh-line
+    ; remainder is 29 units here, so +10 exposes 39 units = 38 glyphs plus
     ; the following control. Cap at $27.
     lda $A16A
     sec
     sbc $A181
     clc
-    adc #$06
+    adc #$0A
     cmp #$28
     bcc .store
     lda #$27

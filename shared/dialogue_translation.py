@@ -5,7 +5,7 @@ already-established Android/SNES mapping and binds localized prose to existing
 SNES text-token slots. Event commands are preserved unless a narrowly validated
 layout rule explicitly emits the stock ``WAIT $00 + TEXT_CLEAR`` page transition.
 
-The formatter enforces the runtime-validated 240-pixel target, 38-parser-unit
+The formatter enforces the runtime-validated 216-pixel safe target, 38-parser-unit
 capacity and three-line page limit. Dynamic names and structural boundaries are
 handled only when the canonical event stream proves their placement; unsupported
 structures are rejected rather than inferred.
@@ -24,7 +24,7 @@ from shared.vwf_metrics import validated_advance
 FONT_BASE = 0x12DC00
 FONT_GLYPH_COUNT = 128
 FONT_ROWS = 12
-DIALOGUE_WRAP_PIXELS = 240
+DIALOGUE_WRAP_PIXELS = 216
 DIALOGUE_WRAP_CHARS = 38
 DIALOGUE_PAGE_LINES = 3
 MAX_PLAYER_NAME_CHARS = 9
@@ -918,25 +918,86 @@ def _sentence_aware_three_page_wrap(
             score = (max(counts) - min(counts), -min(counts), -first_boundary, -second_boundary)
             candidates.append((score, results))
 
-    if not candidates:
-        raise ValueError(
-            "Three-page formatter requires two complete-sentence boundaries "
-            "that keep every page within 3 lines"
+    if candidates:
+        _, results = min(candidates, key=lambda item: item[0])
+        wrapped_parts = [result[0] for result in results]
+        widths = [value for result in results for value in result[1]]
+        chars = [value for result in results for value in result[2]]
+        units = [value for result in results for value in result[3]]
+        counts = tuple(len(result[1]) for result in results)
+        return (
+            "\f".join(wrapped_parts),
+            widths,
+            chars,
+            units,
+            counts,
+            "sentence_boundaries_three_pages",
         )
 
-    _, results = min(candidates, key=lambda item: item[0])
-    wrapped_parts = [result[0] for result in results]
-    widths = [value for result in results for value in result[1]]
-    chars = [value for result in results for value in result[2]]
-    units = [value for result in results for value in result[3]]
-    counts = tuple(len(result[1]) for result in results)
-    return (
-        "\f".join(wrapped_parts),
-        widths,
-        chars,
-        units,
-        counts,
-        "sentence_boundaries_three_pages",
+    # A sentence can itself require more than one physical page. In that case
+    # insisting that *both* page transitions end a sentence makes otherwise
+    # legal Android-FR prose impossible to serialize. Fall back to the same
+    # deterministic word-boundary optimizer used by the two-page formatter,
+    # while keeping every physical page within the validated three-line limit.
+    # Existing hard semantic NEWLINE hints are not movable by the balanced
+    # optimizer; leave those cases to the caller/simulator rather than silently
+    # discarding them.
+    if "\n" not in text:
+        balanced_candidates = []
+        for first_count in range(1, DIALOGUE_PAGE_LINES + 1):
+            for second_count in range(1, DIALOGUE_PAGE_LINES + 1):
+                for third_count in range(1, DIALOGUE_PAGE_LINES + 1):
+                    page_counts = (first_count, second_count, third_count)
+                    line_count = sum(page_counts)
+                    try:
+                        result = _balanced_wrap_markup(
+                            text,
+                            advances,
+                            line_count=line_count,
+                            page_line_counts=page_counts,
+                            max_pixels=max_pixels,
+                            max_chars=max_chars,
+                            first_line_prefix_pixels=first_line_prefix_pixels,
+                            first_line_prefix_units=first_line_prefix_units,
+                        )
+                    except ValueError:
+                        continue
+                    wrapped, widths, chars, units = result
+                    # Prefer fewer total lines, then the most even distribution,
+                    # then retain more material on earlier pages.
+                    score = (
+                        line_count,
+                        max(page_counts) - min(page_counts),
+                        -first_count,
+                        -second_count,
+                    )
+                    balanced_candidates.append(
+                        (score, wrapped, widths, chars, units, page_counts)
+                    )
+        if balanced_candidates:
+            _, wrapped, widths, chars, units, page_counts = min(
+                balanced_candidates, key=lambda item: item[0]
+            )
+            lines = wrapped.split("\n")
+            first_end = page_counts[0]
+            second_end = first_end + page_counts[1]
+            wrapped_pages = (
+                "\n".join(lines[:first_end]),
+                "\n".join(lines[first_end:second_end]),
+                "\n".join(lines[second_end:]),
+            )
+            return (
+                "\f".join(wrapped_pages),
+                widths,
+                chars,
+                units,
+                page_counts,
+                "balanced_word_boundaries_three_pages",
+            )
+
+    raise ValueError(
+        "Three-page formatter found no safe sentence- or word-boundary layout "
+        "that keeps every page within 3 lines"
     )
 
 def event_text_index(document: dict) -> tuple[dict[str, dict], dict[str, dict]]:

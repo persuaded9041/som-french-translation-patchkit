@@ -76,6 +76,19 @@ The codec can already serialize a supplied translated string deterministically,
 but **growth/repacking of the live 513-resource table is intentionally not enabled
 yet**. That policy will be designed only when this family is actually translated.
 
+## Planned next work: item/special names
+
+The next translation family to study is resource IDs `$0B9-$0C5` (13 item/special names).
+**No translation or insertion procedure is approved yet.** The next session must first compare
+the SNES resource table with the available Android source containers, establish identity/provenance,
+measure every relevant display constraint, and decide whether in-place serialization is sufficient or
+whether deterministic repacking/relocation is required.
+
+The intended architecture is the same as elsewhere in the repository: clean-ROM data stays in
+`assets/`, Android upstream material stays in `sources/android/`, and French output should be generated
+into a sparse `translations/text_resources_french.json` only after the mapping/import procedure has been
+reviewed. Avoid embedding French item names directly in component code or one-off scripts.
+
 ## Validation
 
 Run:

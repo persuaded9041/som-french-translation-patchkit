@@ -176,14 +176,16 @@ def _assemble_capacity() -> bytes:
     a.emit(0xC9, 0x01)
     a.rel8(0xF0, "intro")
 
-    # Dialogue mode keeps the stock remaining-line calculation but grants six
-    # extra parser units: 33 -> 39 on a fresh line, i.e. 38 visible glyphs plus
-    # the following control. Cap at 39 for defensive consistency.
+    # Dialogue mode keeps the stock remaining-line calculation but grants ten
+    # extra parser units. Runtime calibration on $0107 proved that the stock
+    # fresh-line remainder is 29 units here, so +10 is required to expose the
+    # intended 39-unit budget = 38 visible glyphs plus the following control.
+    # Cap at 39 for defensive consistency.
     a.emit(0xAD, *lo16(0xA16A))
     a.emit(0x38)
     a.emit(0xED, *lo16(0xA181))
     a.emit(0x18)
-    a.emit(0x69, 0x06)
+    a.emit(0x69, 0x0A)
     a.emit(0xC9, 0x28)                     # >= 40?
     a.rel8(0x90, "store")
     a.emit(0xA9, 0x27)
