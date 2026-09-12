@@ -7,28 +7,31 @@ for the owning component even when the current generated payload is shorter.
 |---|---:|---:|---|
 | extended Name Entry | `0x074E00-0x074E6A` | `$C7:4E00-$4E6A` | private generic three-row Name Entry layout script; French overlay expands through `$4E6D` |
 | extended Name Entry | `0x244000-0x2441FF` | `$E4:4000-$41FF` | generic 3-row character/help resource; `$40B4-$41FF` is overlaid by `french_name_entry_extended` with row 4 + French help |
-| name prefill | `0x074630-0x0746A0` | `$C7:4630-$46A0` | generic editable default-name one-shot helper |
+| name prefill | `0x074630-0x0746A0` | `$C7:4630-$46A0` | 113-byte generic editable default-name one-shot helper |
 | French name prefill | `0x074630-0x0746B1` | `$C7:4630-$46B1` | dependent French-capable helper overlay; adds fourth-row token class |
-| name prefill | `0x0746D0-0x0746E7` | `$C7:46D0-$46E7` | three default-name records; French overlay replaces these from its own JSON |
+| name prefill | `0x0746D0-0x0746E7` | `$C7:46D0-$46E7` | three 8-byte default-name records (length + up to 7 tokens); French overlay replaces them |
 | name prefill | `0x075039-0x07503C` | `$C7:5039-$503C` | Name Entry init-tail hook |
 | GAME SELECT | `0x074400-0x07442C` | `$C7:4400-$442C` | 45-byte relocated label resource |
 | GAME FILE | `0x074D40-0x074DBE` | `$C7:4D40-$4DBE` | relocated save/load-menu resource for expanded `Fichier` label |
 | GAME SELECT | `0x2D8000-0x2D83FF` | `$ED:8000-$83FF` | relocated GAME SELECT welcome/help text |
 | GAME FILE | `0x2D8400-0x2DFFFF` | `$ED:8400-$FFFF` | relocated GAME FILE save-help text / reserved component text space |
-| French opening helper | `0x2E9000-0x2E9FFF` | `$EE:9000-$9FFF` | opening renderer helper |
+| French opening helper | `0x2E9000-0x2E9FFF` | `$EE:9000-$9FFF` | reserved helper region; current 37-byte renderer helper is `$EE:9000-$9024` |
 | French opening arrangement | `0x2EA000-0x2EBFFF` | `$EE:A000-$BFFF` | literal-only stock-format stream, loaded through `$C1:0014` |
-| French opening | `0x2F8000-0x2F9C55` | `$EF:8000-$9C55` | raw relocated title arrangement (current 7,254-byte build; reserve through `$EF:BFFF`) |
-| Mana Tree | `0x2FC000-0x2FF5FF` | `$EF:C000-$F5FF` | Japanese Mana Tree resource |
-| Mana Tree | `0x2FF800-0x2FF89F` | `$EF:F800-$F89F` | 160-byte resource-loader helper |
+| Mana Tree | `0x2FC000-0x2FF5FF` | `$EF:C000-$F5FF` | 0x3600-byte Japanese Mana Tree resource (`$D2A9`) |
+| Mana Tree | `0x2FF800-0x2FF89F` | `$EF:F800-$F89F` | 160-byte resource-loader helper; `$D2A9` only, otherwise stock fall-through |
 | intro VWF | `0x074285-0x07437C` | `$C7:4285-$437C` | intro VWF renderer using the runtime-validated shared compositor |
 | shared VWF parser | `0x0743D0-0x0743E7` | `$C7:43D0-$43E7` | byte-identical private/stock parser-write helper installed by `vwf_intro` / `vwf_dialogues` |
 | intro VWF | `0x074440-0x0744BF` | `$C7:4440-$44BF` | 128-byte width table |
 | shared VWF framing | `0x0744C0-0x074557` | `$C7:44C0-$4557` | 152-byte runtime framing selector bundle shared by `vwf_intro` / `vwf_dialogues` |
 | shared VWF row renderer | `0x074560-0x07456C` | `$C7:4560-$456C` | 13-byte stock-font row load + framing + compositor helper installed byte-identically by `vwf_intro` / `vwf_dialogues` |
+| shared VWF outline prep | `0x00163D` | `$C0:163D` | one-byte `ROL` -> `ASL` preparation installed byte-identically by `vwf_intro` / `vwf_dialogues` |
 | dialogue DTE router | `0x074570-0x0745EE` | `$C7:4570-$45EE` | 127-byte context-sensitive `$E6/$E8` direct/DTE decision helper installed byte-identically by `vwf_dialogues` / `french_dialogues`; bank `$E4` Name Entry resource uses `$E8` |
 | Name Entry DTE router | `0x0745F0-0x07462F` | `$C7:45F0-$462F` | 64-byte Name Entry / PLAYER_NAME helper region owned by `french_name_entry_extended` |
-| shared VWF parser | `0x074AC0-0x074BE9` | `$C7:4AC0-$4BE9` | shared caller-gated buffer init / previous-char / capacity helpers (with gaps) |
+| shared VWF parser | `0x074AC0-0x074C01` | `$C7:4AC0-$4C01` | shared caller-gated buffer init / previous-char / capacity helpers (with gaps); capacity helper ends at `$4C01` |
 | French intro | `0x074C40-0x074C6B` | `$C7:4C40-$4C6B` | intro-private DTE loader |
+| French intro + intro VWF | `0x0A0002-0x0A001F` | `$C9:F802-$F81F` | byte-identical 15-pointer rewrite for relocated stock events `$0401-$040F` |
+| French intro | `0x12DFF0-0x12E0C7` | `$D2:DFF0-$E0C7` | canonical `$D4-$E5` French glyph span |
+| dialogue French glyphs | `0x12DFE4-0x12E0DF` | `$D2:DFE4-$E0DF` | `dialogue_french` `$D3-$E7` span installed byte-identically by dialogue/resource components where needed; contains the intro `$D4-$E5` subset |
 | shared VWF/config | `0x074C80-0x074C86` | `$C7:4C80-$4C86` | intro marker/end (`05`), dialogue VWF marker (`06`), dialogue-DTE `$E8` marker, Name Entry base threshold (`02`) |
 | shared VWF compositor | `0x074C90-0x074CCE` | `$C7:4C90-$4CCE` | byte-identical 8×12 shift/merge/spill helper installed by `vwf_intro` / `vwf_dialogues` |
 | shared UI VWF config | `0x074C87` | `$C7:4C87` | `vwf_ui` marker `$09`; shared capacity/renderer infrastructure stays dormant without it |
@@ -42,8 +45,9 @@ for the owning component even when the current generated payload is shorter.
 | intro skip | `0x0AFFC0-0x0AFFC7` | `$CA:FFC0-$FFC7` | runtime-validated R-triggered end-of-intro cleanup + direct-waterfall event |
 | dialogue text relocation | `0x01E794-0x01E799` | `$C1:E794-$E799` | runtime-validated sparse-event resolver hook; installed only when relocation is used |
 | dialogue text relocation | `0x280000-0x2817FF` | `$E8:0000-$17FF` | sparse 2048-entry 24-bit relocation table |
-| dialogue text relocation | `0x281800-0x281FFF` | `$E8:1800-$1FFF` | reserved event-loader resolver helper |
+| dialogue text relocation | `0x281800-0x281FFF` | `$E8:1800-$1FFF` | reserved event-loader resolver helper; current helper is 83 bytes at `$E8:1800-$1852` |
 | dialogue text relocation | `0x282000-0x2CFFFF` | `$E8:2000-$EC:FFFF` | reserved deterministic relocated-event pool |
+| dialogue VWF | `0x2D7040-0x2D72E9` | `$ED:7040-$72E9` | caller gate, render/advance helpers, width table and post-outline repair (fixed blocks with intentional gaps) |
 | dialogue VWF | `0x2D7340-0x2D73AA` | `$ED:7340-$73AA` | runtime-validated generic interrupted-chunk physical-cell commit/snapshot helpers |
 | dialogue VWF | `0x2D73B0-0x2D73B8` | `$ED:73B0-$73B8` | runtime-validated renderer-active scope helper |
 | intro skip | `0x2D7400-0x2D74FF` | `$ED:7400-$74FF` | reserved intro-skip input helper region |
@@ -100,9 +104,10 @@ intentionally avoids duplicating renderer status and calibration details.
 ## vwf_ui — non-dialogue UI VWF
 
 `vwf_ui` reuses shared framing/compositor/stock-row helpers but owns its own
-renderer. `$7E:93C1` is its one-shot exact-builder tag; `$7E:93C3-$93C9` are
-renderer-only scratch. It may reuse `$7E:9390-$93BB` only after stock parsing has
-completed, so it does not enable the private parser mode used by `vwf_intro` / `vwf_dialogues`.
+renderer. `$7E:93C1` is its only UI-private one-shot exact-builder tag; the current
+backend has no additional `$93C3-$93C9` scratch. It reuses shared runtime scratch
+`$7E:9382/$9385/$938E-$938F` and may reuse `$7E:9390-$93BB` only after stock parsing
+has completed, so it does not enable the private parser mode used by `vwf_intro` / `vwf_dialogues`.
 The accepted Forge path keeps the stock parser/buffer, grants +3 logical units
 only under the exact tag, then compacts the suffix visually under VWF.
 

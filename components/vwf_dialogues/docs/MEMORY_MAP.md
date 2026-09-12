@@ -13,12 +13,14 @@ cross-component view.
 | ROM `$C7:43D0-$43E7` | 24 bytes | Shared parser write helper | Runtime-validated |
 | ROM `$C7:4AC0-$4B3B` | 124 bytes | Shared caller-gated buffer initializer | Runtime-validated |
 | ROM `$C7:4B40-$4B5A` | 27 bytes | Shared previous-character helper | Runtime-validated |
-| ROM `$C7:4BC0-$4BE9` | 42 bytes | Shared capacity helper | Runtime-validated |
+| ROM `$C7:4BC0-$4C01` | 66 bytes | Shared capacity helper | Runtime-validated; byte-identical with `vwf_intro` / `vwf_ui` infrastructure |
 | ROM `$C7:4C84` | 1 byte | `vwf_dialogues` dialogue private-buffer feature marker `$06` | Runtime-validated |
 | ROM `$C7:4C85` | 1 byte | Extended dialogue DTE marker `$E8` | Runtime-validated; byte-identical with `french_dialogues` |
-| ROM `$C7:4C90-$4CCE` | 63 bytes | Shared 8x12 row shift/merge/spill compositor | Runtime-validated; byte-identical with `vwf_intro` and with prior validated 06 compositor bytes |
+| ROM `$C7:4570-$45EE` | 127 bytes | Shared context-sensitive direct/DTE router | Runtime-validated; byte-identical with `french_dialogues` |
+| ROM `$C7:4C90-$4CCE` | 63 bytes | Shared 8x12 row shift/merge/spill compositor | Runtime-validated; byte-identical with `vwf_intro` and the previously validated dialogue compositor bytes |
 | ROM `$C7:44C0-$4557` | 152 bytes | Shared runtime framing selector bundle | Runtime-validated; byte-identical overlap with `vwf_intro` |
 | ROM `$C7:4560-$456C` | 13 bytes | Shared stock-font row load + framing + compositor helper | Runtime-validated; byte-identical overlap with `vwf_intro` |
+| ROM `$C0:163D` | 1 byte | Shared outline preparation (`ROL` -> `ASL`) | Runtime-validated; byte-identical with `vwf_intro` |
 | ROM `$C0:1168-$116B` | 4 bytes | Post-stock-outline hook | Runtime-validated exact-tag scope for stock `$C9/$CA` and relocated `$E8-$EC` dialogue |
 | ROM `$C0:167D-$1680` | 4 bytes | Shared-renderer entry / caller classification hook | Runtime-validated |
 | ROM `$C0:1686-$1689` | 4 bytes | Per-character destination hook | Runtime-validated |
@@ -28,9 +30,9 @@ cross-component view.
 | ROM `$C0:1B5F-$1B6C` | 14 bytes | Choice highlight geometry hook; private measured-end bounds when valid, stock `$A1D7[]` otherwise | Runtime-validated on wide and decorated Potos choices |
 | ROM `$C0:16EA-$16ED` | 4 bytes | Dialogue-only source-fetch / pixel-wrap preflight hook | Runtime-validated on known right-edge overflow case; stock replay outside parser mode 2 |
 | ROM `$ED:7040-$7092` | 83 bytes | Caller/bank gate + normal bitmap/decoded-count/38-slot VWF initialization for every accepted event-render invocation, including choices | Ordinary dialogue scope runtime-validated; choice rows intentionally use the same path |
-| ROM `$ED:70C0-$70F0` | 49 bytes | Table-driven cursor advance / termination helper | Runtime-validated |
+| ROM `$ED:70C0-$70F4` | 53 bytes | Table-driven cursor advance / termination helper | Runtime-validated |
 | ROM `$ED:7100-$710F` | 16 bytes | Dialogue scope wrapper; shared-row call or stock font-row fallback | Runtime-validated shared-row path |
-| ROM `$ED:7180-$71DE` | 95 bytes | Per-character Y helper + chunk-boundary snapshot + stock-choice option/terminal anchor resync + private-buffer load | Runtime-validated on `$0331`; GAME SELECT remains stock |
+| ROM `$ED:7180-$71D9` | 90 bytes | Per-character Y helper + chunk-boundary snapshot + stock-choice option/terminal anchor resync + private-buffer load | Runtime-validated on `$0331`; GAME SELECT remains stock |
 | ROM `$ED:7200-$727F` | 128 bytes | Dialogue advance table | Runtime-validated |
 | ROM `$ED:7280-$72E9` | 106 bytes | Cross-cell outline-boundary repair | Runtime-validated exact-tag repair on stock and relocated dialogue |
 | ROM `$ED:7340-$736D` | 46 bytes | Generic physical-cell commit + >32 line-break safety conversion | Runtime-validated ordinary-dialogue path; no choice-only state remains |
@@ -42,6 +44,8 @@ cross-component view.
 | ROM `$ED:7800-$782D` | 46 bytes | Choice highlight geometry helper | Runtime-validated on `$00CE/$00CF/$00D0/$00D1/$0202` and short-choice fallback |
 | ROM `$ED:7880-$7901` | 130 bytes | Two-option visual-boundary helper with decorated-choice fallback, two-cell private left compaction and late-first-option right-edge compaction | Runtime-validated on `$00CE/$00CF/$00D0/$00D1/$0202` |
 | ROM `$ED:7910-$792A` | 27 bytes | Last non-space VWF endpoint tracker for active two-option rows | Runtime-validated as part of the measured-end path |
+| ROM `$ED:7A00-$7A2B` | 44 bytes | Shared renderer-entry dispatcher installed by `vwf_dialogues` / `vwf_ui` | Current payload inside the shared `$ED:7A00-$7A7F` reservation; choice-helper growth is guarded before this block |
+| ROM `$D2:DFE4-$E0DF` | 252 bytes | `dialogue_french` glyph span `$D3-$E7` | Canonical shared glyph bytes; overlaps the intro `$D4-$E5` subset byte-identically |
 | WRAM `$7E:9380` | 1 byte | Shared parser mode (`2` during `vwf_dialogues` private dialogue decoding) | Runtime-validated; parser phase only |
 | WRAM `$7E:9390-$93BB` | 44 bytes | Shared decoded-text private buffer; up to 38 dialogue glyphs + control/padding | Runtime-validated |
 | WRAM `$7E:9382` | 1 byte | Private dialogue pixel cursor | Tagged event render (`$C9/$CA` or validated `$E8-$EC`) |

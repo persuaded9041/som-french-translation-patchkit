@@ -50,7 +50,6 @@ ASCII_TO_SOM.update({
 ROW_SIZE = 60
 HELP_OFFSET = ROW_SIZE * 3
 MAX_RESOURCE_SIZE = 0x200
-GENERIC_HELP_MAX_BYTES = 153  # must not outgrow the French dependency overlay
 
 
 def parse_sections(path: Path) -> dict[str, str]:
@@ -142,10 +141,9 @@ def encode_help_text(interface_text: dict) -> bytes:
         out = bytearray((0x80,))
         for char in text:
             if char in {"“", "”"}:
-                # The generic relocated help drops the decorative quotes around
-                # ATTACK. This keeps the generic help no longer than the French
-                # overlay it may later receive, avoiding stale tail bytes in a
-                # dependency-composed IPS while preserving the instruction.
+                # Preserve the validated generic relocated-help presentation:
+                # decorative quotes around ATTACK are omitted, while the
+                # instruction itself remains unchanged.
                 continue
             elif char in ASCII_TO_SOM:
                 out.append(ASCII_TO_SOM[char])
@@ -166,10 +164,6 @@ def build_naming_resource(base: bytes) -> bytes:
         raise SystemExit(str(exc)) from exc
     rows = build_character_rows(ROOT / "assets" / "naming_characters.txt")
     help_text = encode_help_text(interface_text)
-    if len(help_text) > GENERIC_HELP_MAX_BYTES:
-        raise SystemExit(
-            f"Generic Name Entry help is {len(help_text)} bytes; dependency overlay limit is {GENERIC_HELP_MAX_BYTES}"
-        )
     resource = rows + help_text + bytes(16)
     if len(resource) > MAX_RESOURCE_SIZE:
         raise SystemExit(f"Naming resource is {len(resource)} bytes; maximum is {MAX_RESOURCE_SIZE}")

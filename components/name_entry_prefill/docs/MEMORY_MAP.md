@@ -2,8 +2,8 @@
 
 | ROM | CPU/SNES | Purpose |
 |---:|---:|---|
-| `0x074630-0x0746A0` | `$C7:4630-$46A0` | one-shot editable-name prefill helper |
-| `0x0746D0-0x0746E7` | `$C7:46D0-$46E7` | three fixed 8-byte default-name records |
+| `0x074630-0x0746A0` | `$C7:4630-$46A0` | 113-byte one-shot editable-name prefill helper |
+| `0x0746D0-0x0746E7` | `$C7:46D0-$46E7` | three 8-byte records: 1-byte length + up to 7 tokens |
 | `0x075039-0x07503C` | `$C7:5039-$503C` | Name Entry init tail: `JML $C7:4630` |
 
 The clean-USA bytes in `$C7:4630-$46A0` and `$C7:46D0-$46E7` are `$FF` and are

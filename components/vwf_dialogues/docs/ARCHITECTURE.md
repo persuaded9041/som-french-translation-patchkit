@@ -46,8 +46,7 @@ to perform the caller-based test normally.
 
 The stock decoded buffer cannot be enlarged in place: `$A1C5/$A1C6` are active
 parser state and `$A1C7` is renderer scratch. Dialogue mode therefore decodes to
-the same 44-byte private buffer `$7E:9390-$93BB` already validated by component
-05. A fresh line gets 39 parser units (38 glyphs + following control); on a
+the same 44-byte private buffer `$7E:9390-$93BB` already validated by `vwf_intro`. A fresh line gets 39 parser units (38 glyphs + following control); on a
 partially used line the stock remaining-line capacity is increased by six and
 capped at 39.
 
@@ -74,8 +73,7 @@ the helper merges the current-cell half and writes right-side spill to the next
 For `vwf_dialogues` those 63 bytes are byte-for-byte the previously runtime-validated
 composition sequence formerly embedded in `$ED:7100`. The framing/advance policy
 lives in `shared/vwf_metrics.py`, and the common runtime selector lives at
-`$C7:44C0-$4557`. The stock-font/framing path is runtime-validated in component
-05.
+`$C7:44C0-$4557`. The stock-font/framing path is runtime-validated in `vwf_intro`.
 
 The runtime-validated shared row renderer adds a 13-byte helper at `$C7:4560`: it
 reads `$D2:DC00,X`, applies the shared framing selector, then calls the shared

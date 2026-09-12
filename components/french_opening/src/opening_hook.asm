@@ -37,5 +37,5 @@ opening_char:
     inc $02
     rtl
 
-; build_patch.py also relocates the compressed title arrangement to $EE:8000
+; build_patch.py also relocates the title arrangement stream to $EE:A000
 ; and patches the title renderer to call this helper.

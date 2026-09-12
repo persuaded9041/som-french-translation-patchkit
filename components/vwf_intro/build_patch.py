@@ -48,9 +48,11 @@ INTRO_RUNTIME_END = 0x0E8B
 EVENT_POINTER_TABLE = 0x09F800
 RELOC_FIRST_EVENT = 0x0401
 RELOC_LAST_EVENT = 0x040F
-RELOC_SOURCE_START = 0x0E44
+INTRO_EVENT_END_STOCK = 0x0E44
+RELOC_SOURCE_START = INTRO_EVENT_END_STOCK
 RELOC_SOURCE_END = 0x0E8C
 RELOC_TARGET_START = 0xFF70
+RELOC_TARGET_LIMIT = 0xFFC0  # intro_skip begins here
 
 FRENCH_CHARS = FULL_FRENCH_CHARS
 ASCII_TO_SOM = {" ": 0x80}
@@ -70,6 +72,8 @@ def relocate_following_events(base: bytes, rom: bytearray) -> None:
     relocate_len = RELOC_SOURCE_END - RELOC_SOURCE_START
     source_file = 0x0A0000 + RELOC_SOURCE_START
     target_file = 0x0A0000 + RELOC_TARGET_START
+    if RELOC_TARGET_START + relocate_len > RELOC_TARGET_LIMIT:
+        raise SystemExit("Relocated intro-following events exceed the reserved CA:$FF70-$FFBF window")
     if any(value != 0xFF for value in rom[target_file : target_file + relocate_len]):
         raise SystemExit("Expected CA:$FF70 relocation area to be empty")
     rom[target_file : target_file + relocate_len] = rom[source_file : source_file + relocate_len]

@@ -37,7 +37,7 @@
 hirom
 
 ; Shared parser hooks/helpers are emitted byte-identically by `vwf_intro`
-; and 06 from ../../shared/vwf_text_buffer.py. `vwf_dialogues` writes marker $06
+; and `vwf_dialogues` from ../../shared/vwf_text_buffer.py. `vwf_dialogues` writes marker $06
 ; at $C7:4C84, which enables mode 2 only for the event-engine parser caller
 ; ($C0:1149 -> $16B8, stacked return $114B) and stock banks $C9/$CA or `french_dialogues` relocated banks $E8-$EC. GAME SELECT's
 ; parser caller ($235B) remains stock. See ../../shared/vwf_text_buffer.asm.

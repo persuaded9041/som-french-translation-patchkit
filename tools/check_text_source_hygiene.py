@@ -164,6 +164,28 @@ def main() -> None:
         if component_id in NO_ROOT_TEXT_COMPONENTS and 'PROJECT_ROOT / "assets"' in text:
             problems.append(f"{component_id} unexpectedly depends on root text assets")
 
+    french_resources_builder = (COMPONENTS / "french_resources" / "build_patch.py").read_text(encoding="utf-8")
+    for needle in (
+        'PROJECT_ROOT / "translations" / "text_resources_french.json"',
+        "text_resources_french.json').read",
+        'text_resources_french.json").read',
+    ):
+        if needle in french_resources_builder:
+            problems.append(
+                "french_resources normal build depends on generated text_resources_french.json: " + needle
+            )
+
+    french_dialogue_builder = (COMPONENTS / "french_dialogues" / "build_patch.py").read_text(encoding="utf-8")
+    for needle in (
+        'TRANSLATION_FILE = PROJECT_ROOT / "translations" / "dialogues_french.json"',
+        "default=TRANSLATION_FILE",
+        "default=GENERATED_TRANSLATION_FILE",
+    ):
+        if needle in french_dialogue_builder:
+            problems.append(
+                "french_dialogues normal build depends on generated dialogues_french.json: " + needle
+            )
+
     check_dialogue_pipeline(problems)
 
     if problems:
@@ -179,6 +201,8 @@ def main() -> None:
     print("  - `mana_tree_original` / `name_entry_extended` / `name_entry_prefill` / `vwf_intro` / `vwf_dialogues` / `intro_skip` own no translation-JSON dependencies")
     print("  - remaining component-local .bin/.txt assets are explicit non-prose data")
     print("  - dialogue generation never consumes dialogues_french.json as an input")
+    print("  - french_dialogues normal build regenerates its translation in memory; generated dialogues_french.json is optional")
+    print("  - french_resources normal build regenerates Android resource mapping/translation in memory; generated resource JSON outputs are optional")
     print("  - dialogue alignment/layout recipes contain structural references only, never translated prose payloads")
     return 0
 

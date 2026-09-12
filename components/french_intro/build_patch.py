@@ -51,17 +51,20 @@ INTRO_EVENT_FILE = 0x0A0000 + INTRO_EVENT_START
 EVENT_POINTER_TABLE = 0x09F800
 RELOC_FIRST_EVENT = 0x0401
 RELOC_LAST_EVENT = 0x040F
-RELOC_SOURCE_START = 0x0E44
+RELOC_SOURCE_START = INTRO_EVENT_END_STOCK
 RELOC_SOURCE_END = 0x0E8C
 RELOC_TARGET_START = 0xFF70
+RELOC_TARGET_LIMIT = 0xFFC0  # intro_skip begins here
 
 # Runtime-validated payload endpoint from the pre-split Round 75/76 component.
 VALIDATED_FRENCH_INTRO_END = 0x0E8B
 
 DTE_LOADER_CPU = 0xC74C40
 DTE_LOADER_FILE = 0x074C40
+DTE_LOADER_LIMIT = 0x074C80  # shared VWF config begins here
 CUSTOM_DTE_CPU = 0xC74D00
 CUSTOM_DTE_FILE = 0x074D00
+CUSTOM_DTE_LIMIT = 0x074D40  # relocated GAME FILE begins here
 STOCK_DTE_CPU = 0xC77299
 
 LINE_CHAR_LIMIT = 38
@@ -248,6 +251,8 @@ def relocate_following_events(base: bytes, rom: bytearray) -> None:
     relocate_len = RELOC_SOURCE_END - RELOC_SOURCE_START
     source_file = 0x0A0000 + RELOC_SOURCE_START
     target_file = 0x0A0000 + RELOC_TARGET_START
+    if RELOC_TARGET_START + relocate_len > RELOC_TARGET_LIMIT:
+        raise SystemExit("Relocated intro-following events exceed the reserved CA:$FF70-$FFBF window")
     if any(value != 0xFF for value in rom[target_file : target_file + relocate_len]):
         raise SystemExit("Expected CA:$FF70 relocation area to be empty")
     rom[target_file : target_file + relocate_len] = rom[source_file : source_file + relocate_len]
@@ -336,6 +341,10 @@ def main(source_rom: Path, output_path: Path, patched_rom: Path | None = None) -
     rom[INTRO_EVENT_FILE : INTRO_EVENT_FILE + len(new_event)] = new_event
 
     dte_loader = assemble_dte_loader(intro_end_ptr)
+    if DTE_LOADER_FILE + len(dte_loader) > DTE_LOADER_LIMIT:
+        raise SystemExit("Intro DTE loader exceeds its reserved $C7:4C40-$4C7F window")
+    if CUSTOM_DTE_FILE + len(custom_dte) > CUSTOM_DTE_LIMIT:
+        raise SystemExit("Private intro DTE table exceeds its reserved $C7:4D00-$4D3F window")
     if any(value != 0xFF for value in rom[DTE_LOADER_FILE : DTE_LOADER_FILE + len(dte_loader)]):
         raise SystemExit("Expected free space for intro DTE loader is not empty")
     if any(value != 0xFF for value in rom[CUSTOM_DTE_FILE : CUSTOM_DTE_FILE + len(custom_dte)]):

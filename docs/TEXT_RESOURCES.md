@@ -67,31 +67,41 @@ resource index used by the game:
 `id`, `resource_id`, `category` and `source` are checked against a fresh clean-ROM
 extraction. Pointers and raw source bytes are deliberately omitted.
 
-French text will live in a separate sparse
-`translations/text_resources_french.json` when translation of this family begins.
-For an unchanged resource the serializer recovers the exact source bytes from the
-ROM, so the translation-free path remains byte-identical.
+French localization is generated from the reviewed Android identity recipe rather than
+maintained as independent hand-authored prose. `tools/import_android_resources.py`
+rebuilds both `mappings/android/text_resources_android.json` and
+`translations/text_resources_french.json` for review. Those two files are generated
+outputs: the production `french_resources` component reconstructs the same mapping and
+French payload in memory from `assets/text_resources.json`,
+`mappings/android/text_resources_layout.json`, and Android `systxt_en/fr.bin`.
 
-The codec can already serialize a supplied translated string deterministically,
-but **growth/repacking of the live 513-resource table is intentionally not enabled
-yet**. That policy will be designed only when this family is actually translated.
+For unchanged or unsupported resources the serializer recovers the exact source bytes
+from the clean USA ROM, so fallback serialization remains byte-identical.
 
-## Planned next work: item/special names
+## Current production insertion
 
-The next translation family to study is resource IDs `$0B9-$0C5` (13 item/special names).
-**No translation or insertion procedure is approved yet.** The next session must first compare
-the SNES resource table with the available Android source containers, establish identity/provenance,
-measure every relevant display constraint, and decide whether in-place serialization is sufficient or
-whether deterministic repacking/relocation is required.
+`french_resources` is the production component for the reviewed **name families** only:
+magic, Mana spirits, weapons, helmets, armor, accessories, reviewed item/special names,
+enemies and locations. It rebuilds the full pointer table/blob in place and is included
+in the aggregate patch. Descriptions and menu/status labels are not currently inserted
+by this component even when Android identities exist.
 
-The intended architecture is the same as elsewhere in the repository: clean-ROM data stays in
-`assets/`, Android upstream material stays in `sources/android/`, and French output should be generated
-into a sparse `translations/text_resources_french.json` only after the mapping/import procedure has been
-reviewed. Avoid embedding French item names directly in component code or one-off scripts.
+The current production build translates **349 resources**. Three mapped enemy names
+(`Double n°1`, `Double n°2`, `Double n°3`) deliberately remain stock because `°` uses
+direct code `$E6` while ordinary non-event `$CA` resources still treat `$E6` as the
+start of their upper DTE range. No substitution is guessed.
+
+Stock-DTE compression keeps the selected name-family build at **7,056 bytes** versus
+the original **7,315-byte** allocation. The rebuilt blob therefore remains entirely
+in place at `$CA:98E1-$B470`; the allocation ends at `$CA:B573`. No resource relocation
+is used.
+
+Do not add new object/item wording during component-maintenance audits. New families or
+wording changes first require the normal identity/provenance and display-geometry review.
 
 ## Validation
 
-Run:
+Run the clean-source round-trip check:
 
 ```bash
 python3 tools/check_text_roundtrip.py \
@@ -101,66 +111,31 @@ python3 tools/check_text_roundtrip.py \
 Current clean-USA guarantees:
 
 - 513/513 resources decode structurally;
-- 7,315/7,315 string bytes round-trip exactly;
+- 7,315/7,315 stock string bytes round-trip exactly;
 - the 1,026-byte pointer table round-trips exactly;
-- a translation-free no-op reinsertion is byte-for-byte identical;
-- two fresh extractions produce byte-identical JSON.
+- translation-free reinsertion is byte-for-byte identical;
+- two fresh source extractions produce byte-identical JSON.
 
-No French translation file is committed for this family yet.
+Verify the generated Android mapping/review payload with:
 
-## Round 72 Android-FR pre-insertion audit
+```bash
+python3 tools/import_android_resources.py --check
+```
 
-The Android-FR mapping scaffold is now followed by a deterministic, insertion-free
-layout/encoding audit:
+The current mapping contains 475 mapped resources, 34 deliberately excluded resources
+and 4 unresolved locations. The component filters that mapping to its reviewed name
+families and applies the current encoding profile.
+
+## Layout/encoding review tool
+
+`tools/audit_text_resource_layout.py` remains a review tool for mapped resources:
 
 ```bash
 python3 tools/audit_text_resource_layout.py "Secret of Mana (USA).sfc"
 python3 tools/audit_text_resource_layout.py "Secret of Mana (USA).sfc" --check
 ```
 
-The audit JSON/HTML are generated review material and are no longer versioned.
-Write them to a temporary/output path when a fresh review is needed. The former
-focused name-only review is historical and can be recovered from Git history.
-
-The audit treats the maximum line/line-count observed in the clean USA resources as a
-**conservative review envelope only**. It is not claimed to be a renderer hard limit.
-Current result over the 475 mapped Android-FR resources is 302 inside the observed
-stock envelope, 170 requiring geometry review, and 3 blocked by the current direct/DTE
-profile.
-
-### Stock-DTE compression makes in-place storage viable
-
-Direct-byte French serialization was misleadingly large because the stock CA family
-itself uses DTE. `shared.stock_text.encode_text_with_stock_dte()` now provides a
-translation-only encoder that reuses only the stock DTE pairs that remain DTE under
-the ordinary/full-French runtime boundary: lower `$60-$7C` plus upper `$E6-$FF`.
-The DTE table is not modified and decoded text is unchanged.
-
-With representation-only normalization (`U+3000 -> space`, straight double quotes to
-the stock directional quote glyphs), every currently profile-compatible mapped
-translation plus untouched stock fallbacks serializes to **7,304 bytes**, compared
-with the stock allocation of **7,315 bytes**. Therefore the resource table/blob can be
-rebuilt **in place** without touching the data immediately following the stock blob;
-relocation is not required for storage capacity.
-
-Three Android-FR enemy names remain intentionally untranslated by the current test
-path because they contain `°` (`Double n°1`, `Double n°2`, `Double n°3`). In the shared
-charset `°` is direct code `$E6`, while ordinary non-event CA resources currently use
-`$E6` as the start of the upper stock-DTE range. Do not silently substitute another
-character. Either prove a CA-resource-specific `$E8` routing context later or keep
-those three stock names until a safe solution exists.
-
-### Experimental name-only IPS
-
-`tools/build_text_resources_test_patch.py` builds a **research-only autonomous IPS
-against the clean USA ROM**. It first applies the current `patches/all.ips`, then
-rebuilds the CA table/blob in place with only selected resource categories. It refuses
-to cross the original 7,315-byte allocation and skips translations incompatible with
-the current `$E6` runtime profile instead of guessing.
-
-Default categories are all mapped name families (magic, Mana spirits, weapons,
-helmets, armor, accessories, items, enemies and locations). Current default result:
-**349 translated names**, **3 profile-skipped `n°` enemy names**, blob **7,056 bytes**
-(`-259` bytes versus stock). This is for visual/runtime testing only; it is not yet a
-production component and must not be folded into `all.ips` until menu geometry is
-reviewed.
+Its stock-derived line/line-count envelope is conservative review evidence, not a
+claimed renderer hard limit. It is especially useful before enabling additional resource
+families. Production insertion itself is owned solely by `french_resources`; the old
+experimental aggregate-patch builder was removed once this component became canonical.

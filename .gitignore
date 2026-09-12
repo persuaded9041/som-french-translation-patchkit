@@ -24,3 +24,8 @@ mappings/android/dialogues_pilot.json
 mappings/android/dialogue_04E2_android_fr_round67.html
 mappings/ui_vwf_round*_review.html
 artifacts/
+
+# Deterministic generated translation/resource outputs (not canonical inputs)
+translations/dialogues_french.json
+translations/text_resources_french.json
+mappings/android/text_resources_android.json

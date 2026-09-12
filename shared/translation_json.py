@@ -29,37 +29,50 @@ def source_entries(document: dict) -> list[dict]:
     return found
 
 
-def load_translation(path: Path, source_document: dict, *, source_asset: str) -> dict[str, str]:
-    document = json.loads(path.read_text(encoding="utf-8"))
+def resolve_translation(
+    document: dict,
+    source_document: dict,
+    *,
+    source_asset: str,
+    label: str = "translation document",
+) -> dict[str, str]:
+    """Validate a sparse translation document already loaded in memory."""
     if document.get("format_version") != FORMAT_VERSION:
-        raise ValueError(f"{path.name}: unsupported translation format")
+        raise ValueError(f"{label}: unsupported translation format")
     if document.get("language") != "fr":
-        raise ValueError(f"{path.name}: expected language 'fr'")
+        raise ValueError(f"{label}: expected language 'fr'")
     if document.get("source_asset") != source_asset:
         raise ValueError(
-            f"{path.name}: source_asset must be {source_asset!r}, got {document.get('source_asset')!r}"
+            f"{label}: source_asset must be {source_asset!r}, got {document.get('source_asset')!r}"
         )
 
     canonical = {entry["id"]: entry for entry in source_entries(source_document)}
     translations: dict[str, str] = {}
     groups = document.get("groups")
     if not isinstance(groups, list):
-        raise ValueError(f"{path.name}: missing groups list")
+        raise ValueError(f"{label}: missing groups list")
     for group in groups:
         entries = group.get("entries")
         if not isinstance(entries, list):
-            raise ValueError(f"{path.name}: group {group.get('group')!r} has no entries list")
+            raise ValueError(f"{label}: group {group.get('group')!r} has no entries list")
         for entry in entries:
             text_id = entry.get("id")
             text = entry.get("text")
             if not isinstance(text_id, str) or not isinstance(text, str):
-                raise ValueError(f"{path.name}: every translation entry needs string id/text")
+                raise ValueError(f"{label}: every translation entry needs string id/text")
             if text_id in translations:
-                raise ValueError(f"{path.name}: duplicate translation ID {text_id}")
+                raise ValueError(f"{label}: duplicate translation ID {text_id}")
             if text_id not in canonical and not text_id.startswith("new:"):
-                raise ValueError(f"{path.name}: translation ID {text_id} is absent from {source_asset}")
+                raise ValueError(f"{label}: translation ID {text_id} is absent from {source_asset}")
             translations[text_id] = text
     return translations
+
+
+def load_translation(path: Path, source_document: dict, *, source_asset: str) -> dict[str, str]:
+    document = json.loads(path.read_text(encoding="utf-8"))
+    return resolve_translation(
+        document, source_document, source_asset=source_asset, label=path.name
+    )
 
 
 

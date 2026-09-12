@@ -46,35 +46,82 @@ from shared.translation_json import (  # noqa: E402
     load_structural_command_overrides,
     load_choice_option_position_overrides,
     load_translation,
+    resolve_choice_option_position_overrides,
+    resolve_structural_command_overrides,
+    resolve_structural_omission_token_indexes,
+    resolve_translation,
 )
+from tools.dialogue_pipeline.common import (  # noqa: E402
+    DEFAULT_SCRTXT_EN,
+    DEFAULT_SCRTXT_FR,
+    read_scrtxt,
+)
+from tools.dialogue_pipeline.formatter import make_dialogue_format_mass  # noqa: E402
 
 DIALOGUE_FILE = PROJECT_ROOT / "assets" / "dialogues.json"
-TRANSLATION_FILE = PROJECT_ROOT / "translations" / "dialogues_french.json"
 FONT_BASE = 0x12DC00
 DIALOGUE_CHARS = DIALOGUE_FRENCH_CHARS
 GLYPH_FIRST = min(CHAR_TO_CODE[ch] for ch in DIALOGUE_CHARS)
 INTRO_EVENT_ID = 0x0400
 
-def build(base: bytes, dialogue_file: Path = DIALOGUE_FILE, translation_file: Path = TRANSLATION_FILE) -> tuple[bytes, bytearray, list[str]]:
+def _generate_translation_document(base: bytes) -> tuple[dict, dict]:
+    """Regenerate the dialogue translation from canonical Android/source inputs."""
+    english = read_scrtxt(DEFAULT_SCRTXT_EN)
+    french = read_scrtxt(DEFAULT_SCRTXT_FR)
+    return make_dialogue_format_mass(
+        english,
+        french,
+        english_path=DEFAULT_SCRTXT_EN,
+        french_path=DEFAULT_SCRTXT_FR,
+        base_rom=base,
+    )
+
+
+def build(
+    base: bytes,
+    dialogue_file: Path = DIALOGUE_FILE,
+    translation_file: Path | None = None,
+) -> tuple[bytes, bytearray, list[str]]:
     validate_base_rom(base)
     document = load_document(dialogue_file)
     try:
-        translations = load_translation(translation_file, document, source_asset="dialogues.json")
-        structural_omissions = load_structural_omission_token_indexes(
-            translation_file, document, translations=translations
-        )
-        structural_command_overrides = load_structural_command_overrides(
-            translation_file, document
-        )
-        choice_option_overrides = load_choice_option_position_overrides(
-            translation_file, document
-        )
-    except ValueError as exc:
+        if translation_file is None:
+            translation_document, format_report = _generate_translation_document(base)
+            translations = resolve_translation(
+                translation_document, document, source_asset="dialogues.json", label="generated dialogue translation"
+            )
+            structural_omissions = resolve_structural_omission_token_indexes(
+                translation_document, document, translations=translations
+            )
+            structural_command_overrides = resolve_structural_command_overrides(
+                translation_document, document
+            )
+            choice_option_overrides = resolve_choice_option_position_overrides(
+                translation_document, document
+            )
+            translation_source_report = (
+                "Dialogue translation regenerated from canonical Android/source inputs: "
+                f"{len(format_report.get('accepted_events', []))} accepted event(s)"
+            )
+        else:
+            translations = load_translation(translation_file, document, source_asset="dialogues.json")
+            structural_omissions = load_structural_omission_token_indexes(
+                translation_file, document, translations=translations
+            )
+            structural_command_overrides = load_structural_command_overrides(
+                translation_file, document
+            )
+            choice_option_overrides = load_choice_option_position_overrides(
+                translation_file, document
+            )
+            translation_source_report = f"Dialogue translation override: {translation_file}"
+    except (OSError, ValueError) as exc:
         raise SystemExit(str(exc)) from exc
 
     event_count, byte_count = verify_source_roundtrip(base, document)
     reports = [
-        f"Source round-trip OK: {event_count} event(s), {byte_count} bytes byte-identical"
+        translation_source_report,
+        f"Source round-trip OK: {event_count} event(s), {byte_count} bytes byte-identical",
     ]
 
     edits = count_edited_text_tokens(document, translations)
@@ -206,12 +253,20 @@ def main() -> None:
     parser.add_argument("rom", type=Path, help="clean unheadered Secret of Mana (USA) ROM")
     parser.add_argument("-o", "--output", type=Path, default=ROOT / "build" / "patch.ips")
     parser.add_argument("--dialogues", type=Path, default=DIALOGUE_FILE, help="canonical dialogue source JSON")
-    parser.add_argument("--translation", type=Path, default=TRANSLATION_FILE, help="sparse French translation JSON")
+    parser.add_argument(
+        "--translation",
+        type=Path,
+        help=(
+            "explicit sparse French translation JSON override; by default the canonical "
+            "Android-FR dialogue translation is regenerated in memory"
+        ),
+    )
     parser.add_argument("--patched-rom", type=Path, help="optional local patched ROM output")
     args = parser.parse_args()
 
     base = args.rom.resolve().read_bytes()
-    patch, patched, reports = build(base, args.dialogues.resolve(), args.translation.resolve())
+    translation = args.translation.resolve() if args.translation else None
+    patch, patched, reports = build(base, args.dialogues.resolve(), translation)
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(patch)

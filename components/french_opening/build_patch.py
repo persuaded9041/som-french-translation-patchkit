@@ -37,8 +37,10 @@ TITLE_ARR_ROM = 0x07B480
 TITLE_FONT_ROM = 0x07C1C0
 
 CUSTOM_CODE_ROM = 0x2E9000
+CUSTOM_CODE_END_ROM = 0x2EA000
 
 RELOCATED_ARR_ROM = 0x2EA000
+RELOCATED_ARR_END_ROM = 0x2EC000
 
 ACUTE_TILE_CODE = 0x7D
 GRAVE_TILE_CODE = 0x7E
@@ -708,10 +710,10 @@ def main():
     arr_cmp = compress_block_literals(new_arr, arr_key)
     font_cmp = compress_block(new_font, font_key)
 
-    if RELOCATED_ARR_ROM + len(arr_cmp) > 0x2EC000:
+    if RELOCATED_ARR_ROM + len(arr_cmp) > RELOCATED_ARR_END_ROM:
         raise ValueError("Literal-only opening arrangement exceeds the reserved $EE:A000-$BFFF region")
-    if CUSTOM_CODE_ROM + len(helper) > RELOCATED_ARR_ROM:
-        raise ValueError("Opening helper exceeds its reserved $EE:9000 allocation")
+    if CUSTOM_CODE_ROM + len(helper) > CUSTOM_CODE_END_ROM:
+        raise ValueError("Opening helper exceeds its reserved $EE:9000-$9FFF region")
 
     if len(code_cmp) > code_capacity:
         raise ValueError(

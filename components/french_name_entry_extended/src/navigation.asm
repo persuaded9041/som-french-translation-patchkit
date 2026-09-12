@@ -1,6 +1,7 @@
 ; Secret of Mana (USA) - French four-row Name Entry navigation overlay
 ;
-; Depends on name_entry_extended.  Adds the $80 fourth-row selector state.
+; Depends on name_entry_extended. Adds the $50 selector and wraps across
+; the validated four-row states $50/$60/$70/$80.
 
 hirom
 

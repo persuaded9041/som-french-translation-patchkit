@@ -4,7 +4,8 @@
 
 - ROM `0x074400-0x07442C` / `$C7:4400-$442C`: 45-byte relocated GAME SELECT label resource.
 - ROM `0x074D40-0x074DBE` / `$C7:4D40-$4DBE`: relocated GAME FILE/save-menu resource (127 bytes with current `Fichier` translation).
-- ROM `0x2D8000-0x2DFFFF` / `$ED:8000-$FFFF`: reserved GAME SELECT/help-text region.
+- ROM `0x2D8000-0x2D83FF` / `$ED:8000-$83FF`: GAME SELECT welcome/help allocation. Current payload is 181 bytes.
+- ROM `0x2D8400-0x2DFFFF` / `$ED:8400-$FFFF`: GAME FILE save-help allocation. Current payload is 110 bytes; remaining space is reserved to this component.
 - ROM `0x12DFF0-0x12E08B`: 13 shared French glyphs.
 - ROM `0x0016F6`: standalone direct/DTE threshold `$E1`.
 
@@ -35,3 +36,12 @@ The builder preserves every validated stock field boundary above and mirrors the
 - ROM `0x077810-0x077811` / `$C7:7810-$7811`: resource pointer `$7340 -> $4D40`.
 - ROM `0x077816-0x077817` / `$C7:7816-$7817`: second state/resource pointer `$7340 -> $4D40`.
 - Stock resource source: ROM `0x077340-0x0773BB` (`$C7:7340-$73BB`). `FILE_SELECT`, `FILE_LABEL` prefix, `SAVE_POINT`, `MONEY`, `GP`, `COUNTER`, and `MANA_POWER` are mirrored in place because a runtime path still reads them there.
+
+## Other fixed writes
+
+- ROM `0x07780A-0x07780B` / `$C7:780A-$780B`: GAME SELECT text pointer `$7313 -> $4400` (builder validates/replaces the stock pointer through the generated IPS).
+- ROM `0x07756D`, `0x077572`, `0x077577`: GAME SELECT frame widths derived from the translated encoded cell counts; current validated values remain `$07/$05/$06`.
+- ROM `0x0033B5-0x0033B7`: GAME SELECT welcome/help pointer redirected to `$ED:8000`.
+- ROM `0x0016F6`: standalone direct/DTE threshold `$D3 -> $E1` for the `basic_french` glyph profile. Aggregate builds may supersede this legacy immediate with the shared context router documented in `docs/COMPATIBILITY.md`.
+
+No private WRAM is allocated by this component.

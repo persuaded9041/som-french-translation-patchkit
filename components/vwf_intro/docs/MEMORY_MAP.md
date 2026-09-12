@@ -10,6 +10,7 @@
 | `0x0016C6-0x0016CF` | `$C0:16C6-$16CF` | shared parser-capacity hook |
 | `0x0017CE-0x0017D1` | `$C0:17CE-$17D1` | shared parser private-write hook |
 | `0x0018DE-0x0018E1` | `$C0:18DE-$18E1` | shared previous-character source hook |
+| `0x0A0002-0x0A001F` | `$C9:F802-$F81F` | 15 pointers rewritten for relocated stock events `$0401-$040F` |
 
 `vwf_intro` no longer owns `$C0:16F6` (French direct/DTE threshold) or
 `$C0:1719` (intro-private DTE loader); those belong to `french_intro`.
@@ -25,10 +26,10 @@
 | `0x074560-0x07456C` | `$C7:4560-$456C` | shared stock-font row renderer helper |
 | `0x074AC0-0x074B3B` | `$C7:4AC0-$4B3B` | shared private-buffer initializer |
 | `0x074B40-0x074B5A` | `$C7:4B40-$4B5A` | shared previous-character helper |
-| `0x074BC0-0x074BE9` | `$C7:4BC0-$4BE9` | shared capacity helper |
+| `0x074BC0-0x074C01` | `$C7:4BC0-$4C01` | shared 66-byte capacity helper |
 | `0x074C80-0x074C82` | `$C7:4C80-$4C82` | intro VWF marker + exclusive end `$0E8B` |
 | `0x074C90-0x074CCE` | `$C7:4C90-$4CCE` | shared 8×12 compositor |
-| `0x0AFF70-0x0AFFB7` | `$CA:FF70-$FFB7` | unchanged stock events `$0401-$040F`, relocated |
+| `0x0AFF70-0x0AFFB7` | `$CA:FF70-$FFB7` | unchanged stock events `$0401-$040F`, relocated; must remain below `intro_skip` at `$CA:FFC0` |
 
 ## WRAM
 

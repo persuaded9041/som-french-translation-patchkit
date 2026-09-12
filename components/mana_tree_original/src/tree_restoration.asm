@@ -5,7 +5,6 @@ hirom
 
 !TREE_RESOURCE = $EFC000
 !TREE_HELPER   = $EFF800
-!TREE_ID       = $D2A9
 
 org $C14CF6
     jml !TREE_HELPER

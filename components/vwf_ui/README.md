@@ -25,8 +25,11 @@ exact chain rather than using a broad menu/renderer gate:
   is armed.  The +3 margin was stress-tested with 19-character French weapon
   names and keeps the full `GP` suffix on the same line.
 
-The final component contains no temporary weapon-name override.  Resource/name
-translation remains owned by the text-resource pipeline.  The standalone component
+The final component contains no temporary weapon-name override and no legacy
+Forge-mode gate. Resource/name translation remains owned by the text-resource
+pipeline. The renderer uses only the one-shot `$7E:93C1` tag plus shared VWF
+scratch; old `$93C3-$93C9` experimental scratch is not part of the current backend.
+The standalone component
 was runtime-validated on a clean USA ROM: the Forge weapon row uses VWF, GAME SELECT
 remains stock/non-glitched, and Watts' ordinary dialogue remains stock/non-VWF.
 

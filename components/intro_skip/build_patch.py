@@ -15,17 +15,23 @@ from shared.rom import ROM_SIZE_OFFSET, expand_rom, update_checksum, validate_ba
 from shared.asm65816 import MiniAssembler, lo24  # noqa: E402
 
 EVENT_HOOK_FILE = 0x00012C
+EVENT_RETURN_SNES = 0xC00131
 EVENT_HOOK_STOCK = bytes.fromhex("08 E2 20 C2")
-EVENT_HOOK_PATCH = bytes.fromhex("5C 00 74 ED")  # JML $ED7400
 
 NMI_RELEASE_HOOK_FILE = 0x0000AC34
+NMI_RETURN_SNES = 0xC0AC3A
 NMI_RELEASE_HOOK_STOCK = bytes.fromhex("AD 0E 00 2D")  # LDA $000E / first byte of AND $000F
-NMI_RELEASE_HOOK_PATCH = bytes.fromhex("5C 90 74 ED")  # JML $ED7490
 
 SKIP_SCRIPT_FILE = 0x0AFFC0
+SKIP_SCRIPT_SNES = 0xCAFFC0
 HELPER_FILE = 0x2D7400
-HELPER_RESERVED_END = 0x2D74FF
+HELPER_SNES = 0xED7400
 NMI_HELPER_FILE = 0x2D7490
+NMI_HELPER_SNES = 0xED7490
+HELPER_RESERVED_END = 0x2D74FF
+
+EVENT_HOOK_PATCH = bytes((0x5C, *lo24(HELPER_SNES)))
+NMI_RELEASE_HOOK_PATCH = bytes((0x5C, *lo24(NMI_HELPER_SNES)))
 INTRO_START = 0x0C02
 INTRO_END = 0x0E8B
 HOLD_FRAMES = 0x78
@@ -37,7 +43,7 @@ SKIP_SCRIPT = bytes.fromhex("51 18 00 2A F8 11 06 00")
 
 
 def build_helper() -> bytes:
-    a = MiniAssembler(0xED7400)
+    a = MiniAssembler(HELPER_SNES)
 
     # Reproduce the stock prologue overwritten at C0:012C.
     a.emit(0x08)                    # PHP
@@ -111,7 +117,7 @@ def build_helper() -> bytes:
     a.label("done16")
     a.emit(0xE2, 0x20)              # SEP #$20
     a.label("done8")
-    a.emit(0x5C, 0x31, 0x01, 0xC0)  # JML $C00131
+    a.emit(0x5C, *lo24(EVENT_RETURN_SNES))  # JML $C00131
     return a.resolve()
 
 
@@ -124,7 +130,7 @@ def build_nmi_release_helper() -> bytes:
     This is deliberately tiny and non-blocking. It restores the stock
     instructions overwritten at C0:AC34 before returning to C0:AC3A.
     """
-    a = MiniAssembler(0xED7490)
+    a = MiniAssembler(NMI_HELPER_SNES)
 
     # NMI is already in 8-bit A at this point. Do not touch X/Y.
     a.emit(0xAF, *lo24(HOLD_ACTIVE_WRAM))  # LDA.l $7E938B
@@ -138,7 +144,7 @@ def build_nmi_release_helper() -> bytes:
     a.label("stock")
     a.emit(0xAD, 0x0E, 0x00)                # LDA $000E
     a.emit(0x2D, 0x0F, 0x00)                # AND $000F
-    a.emit(0x5C, 0x3A, 0xAC, 0xC0)          # JML $C0AC3A
+    a.emit(0x5C, *lo24(NMI_RETURN_SNES))      # JML $C0AC3A
     return a.resolve()
 
 

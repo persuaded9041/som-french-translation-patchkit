@@ -61,9 +61,11 @@ builder expands selected dependencies automatically and verifies that every
 dependency has an earlier `build_order`.
 
 `french_name_entry_extended` intentionally overrides the generic navigation, initial selector (`$C7:5019=$50`) and
-private layout to expose a fourth row, and replaces `$E4:40B4-$41FF` (the point
-where generic English help begins) with the French fourth row + localized
-help/tail. These differing overlaps are explicitly declared in the component
+private layout to expose a fourth row, and owns the `$E4:40B4-$41FF` tail (the point
+where generic English help begins). Its fourth row + localized help currently
+extend through `$E4:4188`, beyond the generic payload end at `$E4:415C`; the
+remaining reserved tail is zero in the builder image and need not be encoded in
+the standalone IPS. Differing overlaps are explicitly declared in the component
 manifest and are accepted only for that dependency/range; undeclared differing
 overlaps remain fatal. The combined generic+French bytes reproduce the former
 runtime-validated four-row French Name Entry exactly after checksum
@@ -71,10 +73,13 @@ recomputation.
 
 `french_name_entry_prefill` is a second-level dependent overlay. It requires both
 `name_entry_prefill` and `french_name_entry_extended`, so selecting it also
-selects the generic Name Entry base transitively. It intentionally overrides the
-generic prefill helper/data ranges: the helper adds token class `$C0-$DF` for
-the fourth row and the records come from its own French JSON (`Randy`, `Prim`,
-`Popoï`). It does not own the hook or the fourth-row glyph/layout resource.
+selects the generic Name Entry base transitively. It intentionally overrides
+`$C7:4630-$46A0` of the generic prefill helper and the records at
+`$C7:46D0-$46E7`; its 130-byte helper continues through `$C7:46B1` in otherwise
+unused clean-ROM space and adds token class `$C0-$DF` for the fourth row. The
+records come from its own French JSON (`Randy`, `Prim`, `Popoï`). It does not
+own the hook or the fourth-row glyph/layout resource and allocates no private
+WRAM.
 The complete dependency-composed Name Entry stack is runtime-validated, including
 a first-screen diagnostic that exercised `Popoï` immediately and confirmed the
 real fourth-row `ï` insertion path. The diagnostic is not part of canonical data.

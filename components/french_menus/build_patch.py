@@ -10,6 +10,8 @@ from pathlib import Path
 # only a 16-bit pointer and the translated fields no longer fit the stock blob.
 MENU_RESOURCE_RELOC_OFFSET = 0x074400  # C7:4400, stock free space
 MENU_RESOURCE_RELOC_PTR = 0x4400
+# Keep the resource below the shared VWF width-table allocation at C7:4440.
+MENU_RESOURCE_RELOC_LIMIT = 0x074440
 MENU_DESCRIPTOR_TEXT_PTR_OFFSET = 0x07780A
 
 # The D-pad label occupies eight decoded cells after the initial prefix.
@@ -37,6 +39,7 @@ MENU_RESOURCE_SAFE_SOURCE_SIZE = 45
 WELCOME_POINTER_OFFSET = 0x0033B5       # stock pointer = C0:33F0
 WELCOME_RELOC_OFFSET = 0x2D8000         # SNES ED:8000
 WELCOME_RELOC_SNES = 0xED8000
+WELCOME_RELOC_LIMIT = 0x2D8400          # stop before GAME FILE save help
 
 # GAME FILE / save-menu text uses two stock runtime paths.  The full resource
 # is relocated so FILE_LABEL can grow from the 4-cell stock "FILE" to the
@@ -444,8 +447,8 @@ def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, s
     # Relocate the label resource and derive all three frame widths directly
     # from the translated text so field segmentation and window geometry stay aligned.
     menu_resource, frame_widths = build_menu_resource(rows)
-    if MENU_RESOURCE_RELOC_OFFSET + len(menu_resource) > 0x075000:
-        raise SystemExit("Relocated GAME SELECT resource exceeded reserved C7:4400-C7:4FFF")
+    if MENU_RESOURCE_RELOC_OFFSET + len(menu_resource) > MENU_RESOURCE_RELOC_LIMIT:
+        raise SystemExit("Relocated GAME SELECT resource exceeded reserved C7:4400-C7:443F")
     rom[MENU_RESOURCE_RELOC_OFFSET:MENU_RESOURCE_RELOC_OFFSET + len(menu_resource)] = menu_resource
     rom[MENU_DESCRIPTOR_TEXT_PTR_OFFSET:MENU_DESCRIPTOR_TEXT_PTR_OFFSET + 2] = MENU_RESOURCE_RELOC_PTR.to_bytes(2, "little")
 
@@ -464,8 +467,8 @@ def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, s
     # Relocate the long help text now, so its translation will no longer be
     # constrained by the 156-byte stock allocation at C0:33F0.
     welcome = build_welcome(rows)
-    if WELCOME_RELOC_OFFSET + len(welcome) > 0x2E0000:
-        raise SystemExit("WELCOME text exceeded the reserved ED:8000-ED:FFFF region")
+    if WELCOME_RELOC_OFFSET + len(welcome) > WELCOME_RELOC_LIMIT:
+        raise SystemExit("WELCOME text exceeded the reserved ED:8000-ED:83FF region")
     rom[WELCOME_RELOC_OFFSET:WELCOME_RELOC_OFFSET + len(welcome)] = welcome
     rom[WELCOME_POINTER_OFFSET:WELCOME_POINTER_OFFSET + 3] = WELCOME_RELOC_SNES.to_bytes(3, "little")
 

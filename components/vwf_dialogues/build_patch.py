@@ -10,7 +10,7 @@ only its boundary calculation is hooked when those private bounds are valid.
 The pixel-aware parser preflight that prevents right-edge glyph loss is
 runtime-validated on the known early-game overflow case. The stock
 $C0:168A-$C0:16B0 character-to-glyph lookup remains intact. Component
-06 composes the already-selected stock row at a cumulative pixel cursor, reads
+`vwf_dialogues` composes the already-selected stock row at a cumulative pixel cursor, reads
 advances from the validated 128-entry table at $ED:7200, and frames glyphs only
 through the small validated selectors.
 
@@ -78,6 +78,7 @@ from shared.vwf_ui import (  # noqa: E402
     validate_stock as validate_shared_ui_dispatch_stock,
     install_dispatcher as install_shared_ui_dispatcher,
     RENDER_ENTRY_HOOK as SHARED_RENDER_ENTRY_HOOK,
+    DISPATCH_FILE as SHARED_UI_DISPATCH_FILE,
 )
 from shared.vwf_text_buffer import (  # noqa: E402
     validate_stock as validate_shared_text_buffer_stock,
@@ -1096,7 +1097,7 @@ def validate_helper_layout() -> None:
         ("right-edge table", RIGHT_EDGE_TABLE_FILE, 128, CHOICE_GEOMETRY_HELPER_FILE),
         ("choice geometry helper", CHOICE_GEOMETRY_HELPER_FILE, len(CHOICE_GEOMETRY_HELPER), CHOICE_VISUAL_HELPER_FILE),
         ("choice visual helper", CHOICE_VISUAL_HELPER_FILE, len(CHOICE_VISUAL_HELPER), CHOICE_TRACKER_HELPER_FILE),
-        ("choice tracker helper", CHOICE_TRACKER_HELPER_FILE, len(CHOICE_TRACKER_HELPER), 0x2D8000),
+        ("choice tracker helper", CHOICE_TRACKER_HELPER_FILE, len(CHOICE_TRACKER_HELPER), SHARED_UI_DISPATCH_FILE),
     )
     for label, start, size, next_start in blocks:
         if start + size > next_start:

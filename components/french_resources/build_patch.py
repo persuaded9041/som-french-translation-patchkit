@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 from pathlib import Path
 import sys
 
@@ -28,6 +27,7 @@ from shared.dialogue_dte import (
     install as install_dialogue_dte_router,
     enable_extended_dialogue as enable_extended_dialogue_dte,
 )
+from tools.import_android_resources import build_mapping, build_translation, load_inputs as load_android_inputs
 from shared.french_charset import (
     CHAR_TO_CODE,
     DIALOGUE_FRENCH_CHARS,
@@ -35,7 +35,6 @@ from shared.french_charset import (
 )
 
 ASSET = PROJECT_ROOT / "assets" / "text_resources.json"
-TRANSLATION = PROJECT_ROOT / "translations" / "text_resources_french.json"
 STOCK_BLOB_BYTES = 7315
 FONT_BASE = 0x12DC00
 GLYPH_FIRST = min(CHAR_TO_CODE[ch] for ch in DIALOGUE_FRENCH_CHARS)
@@ -53,7 +52,15 @@ DEFAULT_CATEGORIES = (
 
 
 def load_translation_entries() -> dict[str, tuple[str, str]]:
-    doc = json.loads(TRANSLATION.read_text(encoding="utf-8"))
+    """Regenerate the reviewed Android-FR resource payload in memory.
+
+    ``translations/text_resources_french.json`` and the Android mapping JSON are
+    review artifacts emitted by ``tools/import_android_resources.py``.  The
+    component deliberately does not consume either generated file as a build
+    source.
+    """
+    source, layout, android_en, android_fr = load_android_inputs()
+    doc = build_translation(build_mapping(source, layout, android_en, android_fr))
     result: dict[str, tuple[str, str]] = {}
     for group in doc["groups"]:
         category = group["group"].split(".")[-1]

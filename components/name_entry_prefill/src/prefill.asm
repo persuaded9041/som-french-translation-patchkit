@@ -31,7 +31,7 @@ name_entry_prefill_init:
     asl a
     asl a
     asl a
-    tax                         ; 8-byte record per character
+    tax                         ; 8-byte record per role (boy/girl/sprite)
     lda.l name_entry_prefill_data,x
     and #$0F
     sta $A1CD

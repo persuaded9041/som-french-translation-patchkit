@@ -35,9 +35,6 @@ HOOK_ORIGINAL = bytes.fromhex("5c 0b af 7e")
 HOOK_PATCHED = bytes.fromhex("5c 00 f8 ef")
 
 
-FF_START = 0x2FF5E3
-FF_LENGTH = 29
-
 def build(us_rom_path: Path, tree_path: Path, output_path: Path, patched_rom: Path | None = None):
     original = bytearray(us_rom_path.read_bytes())
     tree = tree_path.read_bytes()
@@ -63,8 +60,7 @@ def build(us_rom_path: Path, tree_path: Path, output_path: Path, patched_rom: Pa
 
     rom[TREE_DEST_ROM:TREE_DEST_ROM+TREE_SIZE] = tree
 
-    # Preserve the resource layout expected by the helper.
-    rom[FF_START:FF_START+FF_LENGTH] = b"\xFF" * FF_LENGTH
+    # The validated resource already contains its required trailing $FF bytes.
     rom[ROUTINE_ROM:ROUTINE_ROM+len(ROUTINE)] = ROUTINE
 
     rom[HOOK_ROM:HOOK_ROM+4] = HOOK_PATCHED

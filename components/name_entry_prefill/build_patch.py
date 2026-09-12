@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from shared.asm65816 import MiniAssembler, lo24  # noqa: E402
 from shared.ips import make_ips  # noqa: E402
 from shared.rom import update_checksum, validate_base_rom  # noqa: E402
 
@@ -18,24 +19,90 @@ HOOK_OFFSET = 0x075039
 HOOK_EXPECTED = bytes.fromhex("9C CC A1 6B")  # STZ $A1CC / RTL
 HOOK_PAYLOAD = bytes.fromhex("5C 30 46 C7")   # JML $C7:4630
 HELPER_OFFSET = 0x074630
+HELPER_ORIGIN = 0xC74630
 HELPER_LIMIT = 0x0746A1
 DATA_OFFSET = 0x0746D0
 RECORD_SIZE = 8
 ROLE_ORDER = ("boy", "girl", "sprite")
 MAX_PREFILL_NAME = RECORD_SIZE - 1
 
-# See src/prefill.asm. Machine code is fixed; localized/default content lives
-# only in the records generated from assets/name_entry_defaults.json.
-HELPER = bytes.fromhex(
-    "08 C2 10 DA 5A AE 59 A1 DA E2 20 9C CC A1 9C CD A1 "
-    "AD 2B A2 C9 03 B0 4E 0A 0A 0A AA BF D0 46 C7 29 0F "
-    "8D CD A1 F0 3F E8 BF D0 46 C7 48 29 1F 0A 0A 0A 18 "
-    "69 13 8D 59 A1 68 30 06 AF 19 50 C7 80 07 AF 19 50 "
-    "C7 18 69 10 8D 5A A1 DA 22 E0 50 C7 B0 0D 22 24 51 "
-    "C7 EE 57 A1 EE 57 A1 EE CC A1 FA E8 CE CD A1 D0 C2 "
-    "9C CD A1 FA 8E 59 A1 7A FA 28 6B"
-)
-assert HELPER_OFFSET + len(HELPER) == HELPER_LIMIT
+# See src/prefill.asm. The builder emits the helper structurally so the
+# readable instruction sequence and the generated machine code cannot drift.
+
+
+def build_helper() -> bytes:
+    """Emit the generic ASCII upper/lowercase prefill helper."""
+    a = MiniAssembler(HELPER_ORIGIN)
+    data_addr = 0xC746D0
+    selector_addr = 0xC75019
+
+    a.emit(0x08)                         # PHP
+    a.emit(0xC2, 0x10)                   # REP #$10
+    a.emit(0xDA, 0x5A)                   # PHX / PHY
+    a.emit(0xAE, 0x59, 0xA1)             # LDX $A159
+    a.emit(0xDA)                         # PHX
+    a.emit(0xE2, 0x20)                   # SEP #$20
+    a.emit(0x9C, 0xCC, 0xA1)             # STZ $A1CC
+    a.emit(0x9C, 0xCD, 0xA1)             # STZ $A1CD
+
+    a.emit(0xAD, 0x2B, 0xA2)             # LDA $A22B
+    a.emit(0xC9, 0x03)                   # CMP #$03
+    a.rel8(0xB0, "restore")             # BCS .restore
+    a.emit(0x0A, 0x0A, 0x0A)             # ASL x3
+    a.emit(0xAA)                         # TAX
+    a.emit(0xBF, *lo24(data_addr))        # LDA.l data,x
+    a.emit(0x29, 0x0F)                   # AND #$0F
+    a.emit(0x8D, 0xCD, 0xA1)             # STA $A1CD
+    a.rel8(0xF0, "restore")             # BEQ .restore
+    a.emit(0xE8)                         # INX
+
+    a.label("loop")
+    a.emit(0xBF, *lo24(data_addr))        # LDA.l data,x
+    a.emit(0x48)                         # PHA
+    a.emit(0x29, 0x1F)                   # AND #$1F
+    a.emit(0x0A, 0x0A, 0x0A)             # ASL x3
+    a.emit(0x18)                         # CLC
+    a.emit(0x69, 0x13)                   # ADC #$13
+    a.emit(0x8D, 0x59, 0xA1)             # STA $A159
+    a.emit(0x68)                         # PLA
+    a.rel8(0x30, "lower")               # BMI .lower
+    a.emit(0xAF, *lo24(selector_addr))    # LDA.l $C75019
+    a.rel8(0x80, "row_done")            # BRA .row_done
+
+    a.label("lower")
+    a.emit(0xAF, *lo24(selector_addr))
+    a.emit(0x18)                         # CLC
+    a.emit(0x69, 0x10)                   # ADC #$10
+
+    a.label("row_done")
+    a.emit(0x8D, 0x5A, 0xA1)             # STA $A15A
+    a.emit(0xDA)                         # PHX
+    a.emit(0x22, *lo24(0xC750E0))        # JSL $C750E0
+    a.rel8(0xB0, "skip_insert")         # BCS .skip_insert
+    a.emit(0x22, *lo24(0xC75124))        # JSL $C75124
+    a.emit(0xEE, 0x57, 0xA1)             # INC $A157
+    a.emit(0xEE, 0x57, 0xA1)
+    a.emit(0xEE, 0xCC, 0xA1)             # INC $A1CC
+
+    a.label("skip_insert")
+    a.emit(0xFA)                         # PLX
+    a.emit(0xE8)                         # INX
+    a.emit(0xCE, 0xCD, 0xA1)             # DEC $A1CD
+    a.rel8(0xD0, "loop")                # BNE .loop
+
+    a.label("restore")
+    a.emit(0x9C, 0xCD, 0xA1)             # STZ $A1CD
+    a.emit(0xFA)                         # PLX
+    a.emit(0x8E, 0x59, 0xA1)             # STX $A159
+    a.emit(0x7A, 0xFA, 0x28, 0x6B)       # PLY / PLX / PLP / RTL
+
+    helper = a.resolve()
+    if HELPER_OFFSET + len(helper) != HELPER_LIMIT:
+        raise SystemExit(
+            f"Generic prefill helper ends at {HELPER_OFFSET + len(helper):#08x}; expected {HELPER_LIMIT:#08x}"
+        )
+    return helper
+
 
 
 def load_defaults(path: Path) -> dict[str, str]:
@@ -89,14 +156,14 @@ def build_records(defaults: dict[str, str]) -> bytes:
     return bytes(out)
 
 
-def verify_stock_space(base: bytes) -> None:
+def verify_stock_space(base: bytes, helper: bytes) -> None:
     hook = base[HOOK_OFFSET:HOOK_OFFSET + len(HOOK_EXPECTED)]
     if hook != HOOK_EXPECTED:
         raise SystemExit(
             f"Unexpected Name Entry init tail at {HOOK_OFFSET:#08x}: expected {HOOK_EXPECTED.hex(' ')}, got {hook.hex(' ')}"
         )
     for start, size, label in (
-        (HELPER_OFFSET, len(HELPER), "prefill helper"),
+        (HELPER_OFFSET, len(helper), "prefill helper"),
         (DATA_OFFSET, RECORD_SIZE * len(ROLE_ORDER), "prefill data"),
     ):
         actual = base[start:start + size]
@@ -104,11 +171,11 @@ def verify_stock_space(base: bytes) -> None:
             raise SystemExit(f"Clean-USA {label} reserve at {start:#08x} is not all $FF")
 
 
-def apply(base: bytes, records: bytes) -> bytearray:
-    verify_stock_space(base)
+def apply(base: bytes, helper: bytes, records: bytes) -> bytearray:
+    verify_stock_space(base, helper)
     rom = bytearray(base)
     rom[HOOK_OFFSET:HOOK_OFFSET + len(HOOK_PAYLOAD)] = HOOK_PAYLOAD
-    rom[HELPER_OFFSET:HELPER_OFFSET + len(HELPER)] = HELPER
+    rom[HELPER_OFFSET:HELPER_OFFSET + len(helper)] = helper
     rom[DATA_OFFSET:DATA_OFFSET + len(records)] = records
     update_checksum(rom)
     return rom
@@ -125,7 +192,8 @@ def main() -> None:
     validate_base_rom(base)
     defaults = load_defaults(ROOT / "assets" / "name_entry_defaults.json")
     records = build_records(defaults)
-    patched = apply(base, records)
+    helper = build_helper()
+    patched = apply(base, helper, records)
     ips = make_ips(base, patched)
 
     output = args.output if args.output.is_absolute() else ROOT / args.output

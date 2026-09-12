@@ -29,8 +29,12 @@ this component:
 ```
 
 The names are intentionally authored directly; they are not extracted from
-Android or another localization. `french_name_entry_prefill` is a separate dependent overlay with its own JSON;
-the generic component remains the sole owner of these USA defaults.
+Android or another localization. Each record has one length byte plus seven
+token slots, so this prefill format accepts at most 7 characters even though
+the extended editor itself accepts up to 9. The current defaults fit without
+truncation. `french_name_entry_prefill` is a separate dependent overlay with
+its own JSON; the generic component remains the sole owner of these USA
+defaults.
 
 ## Runtime architecture
 
@@ -47,9 +51,15 @@ is fed through the existing Name Entry selection/insertion path:
 - `$C7:5124` inserts/draws that pair in the editable name field;
 - `$A157` and `$A1CC` are advanced exactly as the normal input handler does.
 
-The original grid cursor is restored when the prefill is complete. The proposed
-text therefore remains normal editable Name Entry state: deletion and ordinary
-confirmation keep using the game's existing handlers.
+The original grid cursor is restored when the prefill is complete. `$A1CD` is
+used only as a transient loop counter and is cleared before returning; no
+persistent private WRAM is allocated. The proposed text therefore remains
+normal editable Name Entry state: deletion and ordinary confirmation keep
+using the game's existing handlers.
+
+`build_patch.py` emits the helper with the repository's small label-aware
+65C816 assembler. `src/prefill.asm` is the readable maintenance mirror of that
+instruction sequence, not a second binary source.
 
 ## Validation status
 

@@ -21,11 +21,12 @@ The safe repository state for further work is the resource-insertion-study check
 
 - Android `systxt` -> SNES `$CA` mapping is deterministic;
 - 475/513 resources map, with 4 unresolved and 34 deliberately excluded;
-- the research-only names IPS inserts 349 translated names and leaves three `n°` enemies
-  stock because `°=$E6` conflicts with the current non-event DTE boundary;
+- the production `french_resources` component inserts 349 translated names and leaves
+  three `n°` enemies stock because `°=$E6` conflicts with the current non-event DTE boundary;
 - the user runtime-tested the names experiment and reported that it works **mostly**;
 - the known blocker is the Watts weapon-upgrade line for long names;
-- no forge VWF experiment described below belongs in the canonical build.
+- the rejected experiments below remain historical; the later exact-submit Forge backend is
+  production-owned by `vwf_ui` and documented in `docs/UI_VWF.md`.
 
 The `capacity24` experiment restored normal Watts introduction text but **did not enable
 VWF** in the weapon-upgrade line. Treat it as historical diagnostics only, not as an
