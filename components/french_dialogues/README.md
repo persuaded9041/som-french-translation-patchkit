@@ -14,7 +14,7 @@ Canonical inputs are:
 - `assets/dialogues.json` — clean-USA source events;
 - `sources/android/scrtxt_en.bin` — Android-English identity layer;
 - `sources/android/scrtxt_fr.bin` — Android-French localized prose;
-- reviewed structural recipe files under `mappings/android/`;
+- reviewed structural recipe files under `recipes/android/`;
 - `translations/dialogues_manual_supplements.json` — only reviewed material that
   genuinely does not derive from Android FR;
 - the clean USA ROM — source bytes plus VWF/layout metrics for formatter gating.
@@ -87,7 +87,7 @@ The runtime renderer itself remains owned by `vwf_dialogues`.
 ## Structural recipes and manual supplements
 
 Reviewed scene redistributions and layout decisions live in prose-free recipe
-files under `mappings/android/`. They store identities, Android token references,
+files under `recipes/android/`. They store identities, Android token references,
 SNES carriers and structural/layout operations, never copied French prose.
 
 `translations/dialogues_manual_supplements.json` is the only manual staging

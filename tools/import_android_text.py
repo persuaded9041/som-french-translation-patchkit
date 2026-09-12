@@ -77,11 +77,11 @@ def make_intro_translation(scrtxt: dict[int, str]) -> dict:
 
 # ---- Conservative whole-dialogue Android alignment -------------------------
 
-DEFAULT_DIALOGUE_AUTO_OUTPUT = ROOT / "mappings" / "android" / "dialogues_auto.json"
-DEFAULT_DIALOGUE_UNMAPPED_CSV = ROOT / "mappings" / "android" / "dialogues_unmapped.csv"
+DEFAULT_DIALOGUE_AUTO_OUTPUT = ROOT / "reports" / "android" / "dialogues_auto.json"
+DEFAULT_DIALOGUE_UNMAPPED_CSV = ROOT / "reports" / "android" / "dialogues_unmapped.csv"
 DEFAULT_DIALOGUE_FORMAT_MASS_OUTPUT = ROOT / "translations" / "dialogues_french.json"
-DEFAULT_DIALOGUE_FORMAT_MASS_REPORT = ROOT / "mappings" / "android" / "dialogues_format_mass.json"
-DEFAULT_DIALOGUE_FORMAT_MASS_EXCLUDED_CSV = ROOT / "mappings" / "android" / "dialogues_format_mass_excluded.csv"
+DEFAULT_DIALOGUE_FORMAT_MASS_REPORT = ROOT / "reports" / "android" / "dialogues_format_mass.json"
+DEFAULT_DIALOGUE_FORMAT_MASS_EXCLUDED_CSV = ROOT / "reports" / "android" / "dialogues_format_mass_excluded.csv"
 # These two stress-test sources were explicitly reviewed and have no confident
 # standalone Android-English equivalent. Automatic passes must never force them.
 
@@ -411,7 +411,7 @@ def main() -> None:
     parser.add_argument(
         "--unmapped-csv",
         type=Path,
-        help="dialogue-auto unresolved CSV destination (default: mappings/android/dialogues_unmapped.csv)",
+        help="dialogue-auto unresolved CSV destination (default: reports/android/dialogues_unmapped.csv)",
     )
     parser.add_argument(
         "--rom",

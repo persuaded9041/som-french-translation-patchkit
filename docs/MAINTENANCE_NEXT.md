@@ -26,7 +26,7 @@ Round 85.6 measured the cleaned canonical path. Pure memoization of alignment no
 
 ## Refactor checkpoint after Round 85.6
 
-Before further performance work, reviewed alignment history was moved out of executable Python into `dialogues_reviewed_alignment_recipes.json`. The importer no longer embeds `DIALOGUE_REVIEW_ROUND*` tables or round-named active helpers. Redistribution and mapping-layout recipes now share one Android-token renderer and one recipe-document validator. Static call-graph audit reports every top-level importer function reachable from the active CLI. Outputs remain byte-identical.
+Before further performance work, reviewed alignment history was moved out of executable Python into `dialogues_reviewed_alignment.json`. The importer no longer embeds `DIALOGUE_REVIEW_ROUND*` tables or round-named active helpers. Redistribution and mapping-layout recipes now share one Android-token renderer and one recipe-document validator. Static call-graph audit reports every top-level importer function reachable from the active CLI. Outputs remain byte-identical.
 
 
 ## Round 85.8 modular split

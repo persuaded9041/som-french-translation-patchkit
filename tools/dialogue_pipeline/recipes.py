@@ -9,10 +9,10 @@ from .common import ROOT, _load_recipe_document, normalize_android_prose, senten
 from .policies import *
 from shared.dialogue_translation import event_text_index, normalize_android_french, semantic_wrap_markup, format_mapping as format_dialogue_mapping
 
-DIALOGUE_REDISTRIBUTION_RECIPES = ROOT / "mappings" / "android" / "dialogues_redistribution_recipes.json"
-DIALOGUE_MAPPING_LAYOUT_RECIPES = ROOT / "mappings" / "android" / "dialogues_mapping_layout_recipes.json"
-DIALOGUE_CHOICE_LAYOUT_RECIPES = ROOT / "mappings" / "android" / "dialogues_choice_layout_recipes.json"
-DIALOGUE_COVERAGE_REPAIR_RECIPES = ROOT / "mappings" / "android" / "dialogues_coverage_repair_recipes.json"
+DIALOGUE_REDISTRIBUTION_RECIPES = ROOT / "recipes" / "android" / "dialogues_redistribution.json"
+DIALOGUE_MAPPING_LAYOUT_RECIPES = ROOT / "recipes" / "android" / "dialogues_mapping_layout.json"
+DIALOGUE_CHOICE_LAYOUT_RECIPES = ROOT / "recipes" / "android" / "dialogues_choice_layout.json"
+DIALOGUE_COVERAGE_REPAIR_RECIPES = ROOT / "recipes" / "android" / "dialogues_coverage_repair.json"
 DIALOGUE_MANUAL_SUPPLEMENTS = ROOT / "translations" / "dialogues_manual_supplements.json"
 
 _REDISTRIBUTION_TOKEN_RE = re.compile(r"%S\(\d+,0\)|[\wÀ-ÿŒœ’'-]+|[^\w\s]", re.UNICODE)

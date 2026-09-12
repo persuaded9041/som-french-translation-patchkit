@@ -437,7 +437,7 @@ for binding only when the actual future event tokens prove the same `PLAYER_NAME
 after linear `WAIT`/`TEXT_CLEAR`/`OP_32`/`COMPLETE_ACTIONS` controls; the command itself
 stays in its original SNES position.
 
-Round 72 adds a reproducibility layer for the reviewed decoration decisions that had already been accepted in the generated checkpoint. `mappings/android/dialogues_choice_layout_recipes.json` records only the exact event/opening/closing carrier identities; it contains no French prose. These reviewed strips are reapplied even when the newer choice-specific simulator geometry would make the decorated row simulator-clean. If restoring the stock choice-row newline would otherwise create a fresh page, only the owning Android-FR mapping is reformatted with the existing compact wrapper before stripping. This preserves the reviewed output while keeping extraction/insertion fully source-derived.
+Round 72 adds a reproducibility layer for the reviewed decoration decisions that had already been accepted in the generated checkpoint. `recipes/android/dialogues_choice_layout.json` records only the exact event/opening/closing carrier identities; it contains no French prose. These reviewed strips are reapplied even when the newer choice-specific simulator geometry would make the decorated row simulator-clean. If restoring the stock choice-row newline would otherwise create a fresh page, only the owning Android-FR mapping is reformatted with the existing compact wrapper before stripping. This preserves the reviewed output while keeping extraction/insertion fully source-derived.
 
 `PLAYER_NAME` presentation mismatches are normalized only when the SNES structure
 proves that no event command needs to be invented or moved. An exact leading
@@ -560,8 +560,8 @@ that the older simulator did not detect.
 `french_dialogues` relocates 515 growing events at the Round-32 checkpoint; the final relocated payload
 now extends into `$E9`; the highest current relocated payload still remains well inside the runtime-validated reserved `$E8-$EC` pool.
 
-When explicitly materialized, `mappings/android/dialogues_format_mass.json` records every accepted/rejected
-stage and `mappings/android/dialogues_format_mass_excluded.csv` gives a reviewable
+When explicitly materialized, `reports/android/dialogues_format_mass.json` records every accepted/rejected
+stage and `reports/android/dialogues_format_mass_excluded.csv` gives a reviewable
 row for every semantic source phrase belonging to an excluded event. Both are ignored
 generated reports; regression checks rebuild the same report in memory. The generated
 mass translation remains a runtime candidate until a full playthrough is completed.

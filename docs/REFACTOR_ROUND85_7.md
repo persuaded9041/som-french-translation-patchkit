@@ -4,7 +4,7 @@ This checkpoint is intentionally a refactor/simplification pass, not a translati
 
 ## Changes
 
-- Moved 406 user-reviewed alignment records out of `tools/import_android_text.py` into `mappings/android/dialogues_reviewed_alignment_recipes.json`.
+- Moved 406 user-reviewed alignment records out of `tools/import_android_text.py` into `recipes/android/dialogues_reviewed_alignment.json`.
 - Removed the executable `DIALOGUE_PILOT_SCENES` / `DIALOGUE_REVIEW_ROUND*` tables from the importer.
 - Reviewed identity recipes contain SNES carriers / structural `PLAYER_NAME` references, Android IDs and provenance only; translated payload still comes from Android resources at generation time.
 - Replaced round-numbered active helper names with semantic names.

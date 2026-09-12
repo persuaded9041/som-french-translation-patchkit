@@ -7,30 +7,31 @@ __pycache__/
 dialogue_preview*.html
 dialogue_preview*_issues.csv
 # Legacy/generated dialogue review artifacts (regenerable, not canonical inputs)
-mappings/android/dialogues_review_round*.json
-mappings/android/dialogues_review_round*_context.html
-mappings/android/dialogues_review_worklist*.html
-mappings/android/dialogues_omission_review_round*.*
-mappings/android/dialogues_android_exhaustion_status.html
-mappings/android/dialogues_coverage_repair_lot*.html
-mappings/android/dialogues_coverage_repair_lot*_issues.csv
+reports/android/dialogues_review_round*.json
+reports/android/dialogues_review_round*_context.html
+reports/android/dialogues_review_worklist*.html
+reports/android/dialogues_omission_review_round*.*
+reports/android/dialogues_android_exhaustion_status.html
+reports/android/dialogues_coverage_repair_lot*.html
+reports/android/dialogues_coverage_repair_lot*_issues.csv
 # Ephemeral Android mapping/audit reports
-mappings/android/dialogue_charset_audit.csv
-mappings/android/text_resources_android_review.html
-mappings/android/text_resources_layout_audit.json
-mappings/android/text_resources_layout_audit.html
-mappings/android/text_resource_names_geometry_review.html
-mappings/android/dialogues_pilot.json
-mappings/android/dialogue_04E2_android_fr_round67.html
-mappings/ui_vwf_round*_review.html
+reports/android/dialogues_manual_supplements.html
+reports/android/dialogue_charset_audit.csv
+reports/android/text_resources_android_review.html
+reports/android/text_resources_layout_audit.json
+reports/android/text_resources_layout_audit.html
+reports/android/text_resource_names_geometry_review.html
+reports/android/dialogues_pilot.json
+reports/android/dialogue_04E2_android_fr_round67.html
+reports/ui_vwf_round*_review.html
 artifacts/
 
 # Deterministic generated translation/resource outputs (not canonical inputs)
 translations/dialogues_french.json
 translations/text_resources_french.json
-mappings/android/text_resources_android.json
+reports/android/text_resources_android.json
 # Deterministic generated dialogue alignment/format reports (not canonical inputs)
-mappings/android/dialogues_auto.json
-mappings/android/dialogues_unmapped.csv
-mappings/android/dialogues_format_mass.json
-mappings/android/dialogues_format_mass_excluded.csv
+reports/android/dialogues_auto.json
+reports/android/dialogues_unmapped.csv
+reports/android/dialogues_format_mass.json
+reports/android/dialogues_format_mass_excluded.csv

@@ -54,11 +54,11 @@ Strict from-scratch generation with `translations/dialogues_french.json` physica
 
 The following remain byte-identical to Round 85.9:
 
-- `mappings/android/dialogues_auto.json`
-- `mappings/android/dialogues_unmapped.csv`
+- `reports/android/dialogues_auto.json`
+- `reports/android/dialogues_unmapped.csv`
 - `translations/dialogues_french.json`
-- `mappings/android/dialogues_format_mass.json`
-- `mappings/android/dialogues_format_mass_excluded.csv`
+- `reports/android/dialogues_format_mass.json`
+- `reports/android/dialogues_format_mass_excluded.csv`
 - all 14 component IPS files and `patches/all.ips`
 
 `dialogues_french.json` remains 264,463 bytes with SHA-256 `bcc26f2c6fe137e64a80644fcead4c7b50a00f881748236ed8323f68bba465da`.

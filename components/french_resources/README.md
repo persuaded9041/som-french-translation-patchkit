@@ -25,11 +25,11 @@ The normal standalone build regenerates the Android mapping and French payload
 **in memory** from:
 
 - `assets/text_resources.json` — clean-USA 513-resource source inventory;
-- `mappings/android/text_resources_layout.json` — reviewed identity/layout recipe;
+- `recipes/android/text_resources_layout.json` — reviewed identity/layout recipe;
 - `sources/android/systxt_en.bin` — Android identity layer;
 - `sources/android/systxt_fr.bin` — Android French prose.
 
-`mappings/android/text_resources_android.json` and
+`reports/android/text_resources_android.json` and
 `translations/text_resources_french.json` are deterministic **generated review
 artifacts** produced by `tools/import_android_resources.py`; neither is required
 by the component builder.

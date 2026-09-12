@@ -28,7 +28,7 @@ from .recipes import (
     _format_manual_supplement, _format_android_extra_page, _parameterized_inn_prompt,
 )
 
-DIALOGUE_LAYOUT_SEARCH_RECIPES = ROOT / "mappings" / "android" / "dialogues_layout_search_recipes.json"
+DIALOGUE_LAYOUT_SEARCH_RECIPES = ROOT / "recipes" / "android" / "dialogues_layout_search.json"
 
 DIALOGUE_RUNTIME_VALIDATED_WAIT00_OVERLAP_EVENTS = frozenset()
 
@@ -2861,7 +2861,7 @@ def _apply_reviewed_scene_redistributions(
             "semantic_alignment_count_changed": False,
             "stock_player_name_commands_unchanged": True,
             "round67_user_reviewed_scene_redistribution": True,
-            "source": "mappings/android/dialogues_redistribution_recipes.json + sources/android/scrtxt_fr.bin",
+            "source": "recipes/android/dialogues_redistribution.json + sources/android/scrtxt_fr.bin",
             "note": (
                 "Use the complete official Android-FR Thanatos monologue through token-index "
                 "redistribution recipes. CA:2C84 remains the separately validated suppressed page."
@@ -2889,7 +2889,7 @@ def _apply_reviewed_scene_redistributions(
             "translated_player_name_resegmentation": True,
             "android_fr_1280_intentionally_omitted": True,
             "round67_user_reviewed_scene_redistribution": True,
-            "source": "mappings/android/dialogues_redistribution_recipes.json + sources/android/scrtxt_fr.bin",
+            "source": "recipes/android/dialogues_redistribution.json + sources/android/scrtxt_fr.bin",
             "note": (
                 "User-directed Android-FR 1281 split reproduced from the token-index recipe; "
                 "PLAYER_NAME(2) owns both carriers through translated-only command metadata."
@@ -5001,7 +5001,7 @@ def make_dialogue_format_mass(
         raise ValueError(
             "Round-85 $0559 coverage recipe missing/drifted: expected "
             "CA:6787 <- Android 2151..2155. Refresh "
-            "mappings/android/dialogues_coverage_repair_recipes.json."
+            "recipes/android/dialogues_coverage_repair.json."
         )
     if lot6[0].get("separator") != "\f" or lot6[0].get("android_separator") != "\f" or not lot6[0].get("wrap_android_units"):
         raise ValueError("Round-85 $0559 coverage recipe structural settings drifted")
@@ -7509,7 +7509,7 @@ def make_dialogue_format_mass(
     report_document = {
         "format_version": 1,
         "status": "simulator_filtered_partial_runtime_candidate",
-        "source_alignment": "mappings/android/dialogues_auto.json (regenerated from Android EN/FR)",
+        "source_alignment": "reports/android/dialogues_auto.json (regenerated from Android EN/FR)",
         "policy": {
             "event_selection": "complete semantic events plus simulator-clean partial events",
             "alignment_must_already_be_accepted": True,

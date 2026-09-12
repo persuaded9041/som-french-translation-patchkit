@@ -7,7 +7,8 @@ cross-version mappings and generated French data:
 ```text
 sources/android/   original Android resources
 assets/            canonical text extracted from the clean USA SNES ROM
-mappings/android/  reviewed SNES <-> Android correspondence metadata
+recipes/android/  reviewed project-owned structural recipes
+reports/android/  generated review/audit outputs (ignored)
 translations/      generated/sparse French text bound to SNES position IDs
 ```
 
@@ -70,7 +71,7 @@ python3 tools/import_android_text.py --only dialogue-auto
 python3 tools/import_android_text.py --only dialogue-auto --check
 ```
 
-The whole-game correspondence pass writes only `mappings/android/`. The first
+The whole-game correspondence pass can materialize review outputs under `reports/android/`; canonical reviewed decisions live under `recipes/android/`. The first
 SNES-layout checkpoint is a separate, deliberately narrow operation:
 
 ```bash

@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "translations" / "dialogues_manual_supplements.json"
-OUTPUT = ROOT / "mappings" / "android" / "dialogues_manual_supplements.html"
+OUTPUT = ROOT / "reports" / "android" / "dialogues_manual_supplements.html"
 
 
 def esc(value: object) -> str:
@@ -99,7 +99,7 @@ def render() -> str:
     fr_hash = refs.get("snes_fr_rev1", {}).get("sha256", "")
     return f"""<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Secret of Mana — surcharges manuelles Round 67</title>
+<title>Secret of Mana — surcharges manuelles</title>
 <style>
 :root{{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#202530;background:#f5f6f8}}
 body{{max-width:1280px;margin:0 auto;padding:28px 18px 60px}}h1{{margin-bottom:6px}}.lead{{color:#5b6472;max-width:950px}}
@@ -111,7 +111,7 @@ body{{max-width:1280px;margin:0 auto;padding:28px 18px 60px}}h1{{margin-bottom:6
 .text{{white-space:normal;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;line-height:1.45}}.meta{{border-top:1px solid #e5e8ed;padding:12px 16px;color:#56606e;font-size:.9rem;line-height:1.45}}.evidence{{margin-top:9px;color:#67717f;font-size:.82rem}}.muted{{color:#8a929e;font-style:italic}}
 .hashes{{font-size:.78rem;color:#687281;word-break:break-all}}code{{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}}@media(max-width:760px){{.grid{{grid-template-columns:1fr}}}}
 </style></head><body>
-<h1>Surcharges manuelles — Round 67</h1>
+<h1>Surcharges manuelles</h1>
 <p class="lead">Comparaison destinée à la validation humaine. Le sens du SNES japonais est prioritaire ; la localisation française officielle sert de référence de terminologie et de ton. Une proposition marquée « À valider » n'est jamais injectée : le build conserve le texte USA tant que <code>status=needs_manual_translation</code>. Une entrée « SUPPRIMÉ » conserve ses trois sources pour provenance mais n'affiche aucun texte.</p>
 <div class="banner"><b>Règle de provenance :</b> <code>original_jp</code> ne contient que du japonais attribué au SNES original avec suffisamment de certitude. Un champ JP non encore transcrit reste volontairement vide ; Android JP n'est jamais substitué à l'original SNES.</div>
 <div class="stats"><div class="stat"><b>{len(rows)}</b> carriers manuels</div><div class="stat"><b>{pending}</b> proposition(s) à valider</div><div class="stat"><b>{translated}</b> traduction(s) validée(s)</div><div class="stat"><b>{suppressed}</b> suppression(s) validée(s)</div></div>
@@ -130,6 +130,7 @@ def main() -> None:
             raise SystemExit(f"stale generated file: {OUTPUT.relative_to(ROOT)}")
         print("Manual supplement HTML is up to date")
         return
+    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(text, encoding="utf-8")
     print(f"Generated {OUTPUT.relative_to(ROOT)}")
 

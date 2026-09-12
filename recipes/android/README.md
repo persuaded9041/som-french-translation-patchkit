@@ -1,4 +1,4 @@
-# Android dialogue mapping data
+# Android structural recipes
 
 This directory deliberately contains only data that is still useful to the active
 pipeline or to current regression checks. Historical review snapshots belong in Git
@@ -7,7 +7,8 @@ history, not in the working tree.
 ```text
 assets/            clean-USA canonical source
 sources/android/   untouched upstream Android binaries
-mappings/android/  active recipes, reproducible mapping/cache data, current guardrail reports
+recipes/android/  canonical structural recipes
+reports/android/  ignored on-demand review/audit outputs
 translations/      generated or explicitly validated French bound to SNES IDs
 ```
 
@@ -15,20 +16,20 @@ translations/      generated or explicitly validated French bound to SNES IDs
 
 These files encode reviewed project decisions and must remain versioned:
 
-- `dialogues_reviewed_alignment_recipes.json` — user-validated SNES/Android identity/provenance recipes;
-- `dialogues_redistribution_recipes.json` — prose-free whole-scene Android-FR resegmentation recipes;
-- `dialogues_coverage_repair_recipes.json` — prose-free coverage repair recipes;
-- `dialogues_mapping_layout_recipes.json` — mapping-local Android-token/layout recipes;
-- `dialogues_layout_search_recipes.json` — reviewed structural layout-search operations;
-- `dialogues_choice_layout_recipes.json` — reviewed choice-layout decisions;
+- `dialogues_reviewed_alignment.json` — user-validated SNES/Android identity/provenance recipes;
+- `dialogues_redistribution.json` — prose-free whole-scene Android-FR resegmentation recipes;
+- `dialogues_coverage_repair.json` — prose-free coverage repair recipes;
+- `dialogues_mapping_layout.json` — mapping-local Android-token/layout recipes;
+- `dialogues_layout_search.json` — reviewed structural layout-search operations;
+- `dialogues_choice_layout.json` — reviewed choice-layout decisions;
 - `text_resources_layout.json` — prose-free text-resource layout recipes.
 
 Genuinely non-Android French prose belongs only in
 `translations/dialogues_manual_supplements.json`.
 
-## Generated mapping / guardrail reports
+## Generated reports
 
-The following are deterministic **on-demand outputs** and are ignored by Git:
+The following are deterministic **on-demand outputs** under `reports/android/` and are ignored by Git:
 
 - `dialogues_auto.json` — conservative SNES ↔ Android-English semantic alignment;
 - `dialogues_unmapped.csv` — unresolved semantic carriers emitted with that alignment;
@@ -43,12 +44,11 @@ inspection, diffs or review.
 `translations/dialogues_french.json` and `translations/text_resources_french.json` follow
 the same rule: deterministic review outputs, never build sources.
 
-## Current human review sheet
+## Manual supplement review sheet
 
-- `dialogues_manual_supplements.html` is the one current human-readable provenance
-  sheet retained for the active manual-supplement set. It is deterministically generated
-  and may later move to fully ephemeral output once its checker no longer requires an
-  on-disk reference copy.
+`reports/android/dialogues_manual_supplements.html` is a deterministic on-demand review rendering of
+`translations/dialogues_manual_supplements.json`. It is ignored by Git and is not read by
+any build or regression check. Generate it only when a human review sheet is useful.
 
 ## Generated on demand, not versioned
 
@@ -72,7 +72,7 @@ from being accidentally recommitted.
 ```bash
 python3 tools/check_dialogue_redistribution_recipes.py
 python3 tools/check_manual_dialogue_supplements.py
-python3 tools/generate_manual_dialogue_supplements_html.py --check
+python3 tools/generate_manual_dialogue_supplements_html.py
 python3 tools/check_dialogue_regressions.py --rom <clean-USA-ROM>
 python3 tools/check_text_source_hygiene.py
 python3 tools/check_text_roundtrip.py <clean-USA-ROM> --scan-all-events
@@ -102,5 +102,5 @@ python3 tools/audit_text_resource_layout.py <clean-USA-ROM> \
 ## Non-event `$CA` system resources
 
 `tools/import_android_resources.py` remains the deterministic Android `systxt` bridge for
-`assets/text_resources.json`. It emits `text_resources_android.json` plus
+`assets/text_resources.json`. It can emit `reports/android/text_resources_android.json` plus
 `translations/text_resources_french.json`; optional HTML review output is ephemeral.

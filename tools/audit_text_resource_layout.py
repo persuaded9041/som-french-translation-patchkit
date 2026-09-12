@@ -34,8 +34,8 @@ from shared.text_resource_translation import normalize_for_snes  # noqa: E402
 
 ASSET = ROOT / "assets" / "text_resources.json"
 TRANSLATION = ROOT / "translations" / "text_resources_french.json"
-DEFAULT_JSON = ROOT / "mappings" / "android" / "text_resources_layout_audit.json"
-DEFAULT_HTML = ROOT / "mappings" / "android" / "text_resources_layout_audit.html"
+DEFAULT_JSON = ROOT / "reports" / "android" / "text_resources_layout_audit.json"
+DEFAULT_HTML = ROOT / "reports" / "android" / "text_resources_layout_audit.html"
 
 
 def load_translations(path: Path) -> dict[str, str]:

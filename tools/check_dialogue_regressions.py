@@ -15,8 +15,8 @@ from tools.dialogue_pipeline.common import DEFAULT_SCRTXT_EN, DEFAULT_SCRTXT_FR,
 from tools.dialogue_pipeline.formatter import make_dialogue_format_mass  # noqa: E402
 
 MANUAL = ROOT / "translations/dialogues_manual_supplements.json"
-RECIPES = ROOT / "mappings/android/dialogues_redistribution_recipes.json"
-COVERAGE_RECIPES = ROOT / "mappings/android/dialogues_coverage_repair_recipes.json"
+RECIPES = ROOT / "recipes/android/dialogues_redistribution.json"
+COVERAGE_RECIPES = ROOT / "recipes/android/dialogues_coverage_repair.json"
 
 ROUND69_EVENTS = {
     "010C", "015A", "01C5", "0204", "0205", "0227", "04E2", "04E5", "04E6",

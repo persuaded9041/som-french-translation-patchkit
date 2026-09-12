@@ -1,4 +1,4 @@
-# Development handoff — Round 85.29 generated-dialogue-report refactor
+# Development handoff — Round 85.31 recipes/reports layout cleanup
 
 Operational handoff. The accompanying archive is authoritative over GitHub.
 
@@ -22,24 +22,24 @@ Canonical inputs are:
 - `assets/dialogues.json` — clean-USA SNES event source;
 - `sources/android/scrtxt_en.bin` — Android-English identity layer;
 - `sources/android/scrtxt_fr.bin` — Android-French localized prose;
-- reviewed structural recipes under `mappings/android/`;
+- reviewed structural recipes under `recipes/android/`;
 - `translations/dialogues_manual_supplements.json` only for genuine reviewed non-Android material/suppressions;
 - clean USA ROM for VWF metrics during mass formatting.
 
 Active structural recipe files:
 
-- `dialogues_reviewed_alignment_recipes.json`;
-- `dialogues_redistribution_recipes.json`;
-- `dialogues_mapping_layout_recipes.json`;
-- `dialogues_layout_search_recipes.json`;
-- `dialogues_coverage_repair_recipes.json`;
-- `dialogues_choice_layout_recipes.json`.
+- `dialogues_reviewed_alignment.json`;
+- `dialogues_redistribution.json`;
+- `dialogues_mapping_layout.json`;
+- `dialogues_layout_search.json`;
+- `dialogues_coverage_repair.json`;
+- `dialogues_choice_layout.json`.
 
 Recipes may store identities, Android token references, SNES carriers, punctuation, case transforms, offsets and layout/control operations. They must **not** store translated prose. `tools/check_text_source_hygiene.py` enforces the key provenance constraints.
 
-Generated outputs/reports include `translations/dialogues_french.json`, `mappings/android/dialogues_auto.json`, `dialogues_unmapped.csv`, `dialogues_format_mass.json` and `dialogues_format_mass_excluded.csv`. They are not source dependencies.
+Generated outputs/reports include `translations/dialogues_french.json`, `reports/android/dialogues_auto.json`, `reports/android/dialogues_unmapped.csv`, `reports/android/dialogues_format_mass.json` and `reports/android/dialogues_format_mass_excluded.csv`. They are not source dependencies.
 
-Round 85.28 removed the generated dialogue/resource translation JSONs from the tracked checkpoint. Round 85.29 completes that policy for the dialogue alignment/formatter reports: `dialogues_auto.json`, `dialogues_unmapped.csv`, `dialogues_format_mass.json` and `dialogues_format_mass_excluded.csv` are now ignored and absent too. `check_dialogue_regressions.py` regenerates alignment + mass-format documents in memory from canonical inputs, and `audit_android_dialogue_charset.py` regenerates alignment in memory by default. No normal build/check path consumes these generated files.
+Round 85.28 removed the generated dialogue/resource translation JSONs from the tracked checkpoint. Round 85.30 completes that policy for the dialogue alignment/formatter reports: `dialogues_auto.json`, `dialogues_unmapped.csv`, `dialogues_format_mass.json` and `dialogues_format_mass_excluded.csv` are now ignored and absent too. `check_dialogue_regressions.py` regenerates alignment + mass-format documents in memory from canonical inputs, and `audit_android_dialogue_charset.py` regenerates alignment in memory by default. No normal build/check path consumes these generated files.
 
 ## Active tool surface
 
@@ -92,3 +92,10 @@ Do not reopen dialogue wording/identity without a concrete regression. Do not st
 ## Next work
 
 The component-by-component audit is complete. Continue with repository-wide consolidation only: root documentation/manifests, shared helpers, generated-output policy and dead historical references. Do not reopen runtime-validated functionality without a concrete regression, and do not begin the next translation feature phase during this maintenance pass.
+
+## Round 85.31 — recipes/reports layout cleanup
+
+- Moved the seven canonical Android structural inputs from `mappings/android/` to `recipes/android/` and removed the redundant `_recipes` suffix from their filenames.
+- Removed the old `mappings/` root entirely.
+- Generated Android JSON/CSV/HTML review outputs now default to `reports/android/`, which is ignored and non-canonical.
+- Normal builds/checks consume only canonical inputs from `recipes/android/`; no generated report is required.

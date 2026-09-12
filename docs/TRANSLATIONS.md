@@ -170,7 +170,7 @@ python3 tools/import_android_text.py --only intro --check
 
 Dialogue work adds `sources/android/scrtxt_en.bin` as the matching bridge.
 Reviewed SNES <-> Android correspondence is kept separately under
-`mappings/android/`; clean-USA `assets/` and original Android binaries remain
+`recipes/android/`; clean-USA `assets/` and original Android binaries remain
 unchanged. The original dialogue-alignment pilot checkpoint contained only seven
 very-high-confidence English anchors and explicit ambiguous examples. It is kept
 as research/regression evidence and does not directly feed `french_dialogues`.
@@ -199,8 +199,8 @@ official SNES-FR terminology/tone, then VWF-friendly French. It remains non-acti
 `status=needs_manual_translation`; the build continues to emit canonical `original_en` until
 the user explicitly approves the proposal. A missing exact Japanese transcription is represented
 as `original_jp: null`, never by Android-JP text. The deterministic human review sheet is
-`mappings/android/dialogues_manual_supplements.html`; regenerate/check it with
-`tools/generate_manual_dialogue_supplements_html.py [--check]`. `tools/check_manual_dialogue_supplements.py`
+`reports/android/dialogues_manual_supplements.html` is a generated review sheet and is intentionally ignored by Git. Regenerate it on demand with
+`tools/generate_manual_dialogue_supplements_html.py`; `--check` only verifies a locally materialized copy. `tools/check_manual_dialogue_supplements.py`
 verifies provenance, canonical English binding, status values and codec-encodability of every
 proposed French string. Round 59 records the user's explicit approval of ten proposals and the reopening
 of `$035F/C9:D1B8` after exact JP transcription. Round 60 records the user's explicit approval of the
@@ -209,8 +209,8 @@ five no-equivalent manual-review records. Round 65 validates `$00EE`, `$00F1`, `
 Round 67 validates the `$013A/C9:40D7` suppression. There are now **0 pending manual records**. The older
 expanded payload `Dryade fera réagir l'orbe !` remains withdrawn. The current Round-69 mass pass is **701 events with 0 errors, 0 warnings and 0 implicit wraps**.
 
-On request it can materialize `mappings/android/dialogues_auto.json` plus
-`mappings/android/dialogues_unmapped.csv`; normal checks regenerate the same alignment in memory. After the reviewed rounds, semantic Android
+On request it can materialize `reports/android/dialogues_auto.json` plus
+`reports/android/dialogues_unmapped.csv`; normal checks regenerate the same alignment in memory. After the reviewed rounds, semantic Android
 alignment is **1798 / 1838 (97.8%)**, leaving **40 deliberately classified unresolved carriers**
 rather than forcing weak matches. Whole-game matching remains separate from SNES layout.
 The former focused formatter modes have been retired; their validated runtime
@@ -236,4 +236,4 @@ Fresh-line `TEXT_X` padding reduces the formatter's first-line capacity exactly 
 modeled by the independent simulator. If compact fallback still leaves only an
 `UNPAUSED_SCROLL`, one sentence-boundary extra page may be tried and is accepted
 only after clean whole-event resimulation. The reviewable exclusions can be materialized on demand as
-`mappings/android/dialogues_format_mass_excluded.csv`; the regression checker validates the same exclusion set directly in memory.
+`reports/android/dialogues_format_mass_excluded.csv`; the regression checker validates the same exclusion set directly in memory.

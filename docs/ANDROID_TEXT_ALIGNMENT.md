@@ -395,10 +395,10 @@ python3 tools/import_android_text.py --only dialogue-auto \
 
 When explicitly materialized, it deterministically generates:
 
-- `mappings/android/dialogues_auto.json`: accepted correspondence blocks,
+- `reports/android/dialogues_auto.json`: accepted correspondence blocks,
   evidence, recovered French localization slots, coverage statistics and the
   unresolved set;
-- `mappings/android/dialogues_unmapped.csv`: only unresolved **semantic** SNES
+- `reports/android/dialogues_unmapped.csv`: only unresolved **semantic** SNES
   phrases, with the best two Android-English candidates for later review.
 
 The aligner requires `RapidFuzz`, declared in the repository `requirements.txt`.
@@ -1104,7 +1104,7 @@ Reproducible evidence is stored in the importer's Round-51 reproducible evidence
 
 ## Round 52 exact structural formatter recovery
 
-Round 52 changes **no Android identity, no automatic matcher and no namespace rule**. Semantic alignment therefore remains **1798 / 1838 (97.8%)**, with the same **40 unresolved** carriers fully accounted by the Round-51 residual audit. The round instead serializes six already-owned mappings that were previously kept stock because their French payload crossed stock WAIT/action boundaries. Every case remains an explicit reviewed structural mapping. Its current serialization is expressed through `dialogues_mapping_layout_recipes.json`; no generic WAIT/action fallback is widened.
+Round 52 changes **no Android identity, no automatic matcher and no namespace rule**. Semantic alignment therefore remains **1798 / 1838 (97.8%)**, with the same **40 unresolved** carriers fully accounted by the Round-51 residual audit. The round instead serializes six already-owned mappings that were previously kept stock because their French payload crossed stock WAIT/action boundaries. Every case remains an explicit reviewed structural mapping. Its current serialization is expressed through `dialogues_mapping_layout.json`; no generic WAIT/action fallback is widened.
 
 - `$01B5/C9:6921+C9:6954 -> Android 577`: Android FR already moved the axe instruction into the preceding owned slot 575. The remaining two French sentences therefore split at `J'ai compris !` around the unchanged stock `WAIT $00 / TEXT_CLOSE / action / WAIT $08 / TEXT_OPEN` scene bridge.
 - `$01B9/C9:6C0F+C9:6C21 -> Android 593`: the elder reprimand remains before the stock actor action + `WAIT $04`; `Excusez-le...` resumes after it.
@@ -1142,7 +1142,7 @@ The strict semantic alignment remains **1798/1838** because these classification
 
 ## Round 69 — targeted scene completion and playable-dialogue closure
 
-Round 69 adds **no new Android semantic identities**: alignment remains **1798/1838**. Instead it applies user-reviewed, deterministic regional resegmentations for `$010C`, `$015A`, `$01C5`, `$0204/$0205`, `$0227`, `$04E2`, `$04E5`, `$04E6`, `$04E9`, `$04FD`, `$0559`, `$0592`, plus the unchanged numeric `$05B4` carrier. The layouts are stored in `mappings/android/dialogues_redistribution_recipes.json` and are guarded by `tools/check_dialogue_regressions.py`.
+Round 69 adds **no new Android semantic identities**: alignment remains **1798/1838**. Instead it applies user-reviewed, deterministic regional resegmentations for `$010C`, `$015A`, `$01C5`, `$0204/$0205`, `$0227`, `$04E2`, `$04E5`, `$04E6`, `$04E9`, `$04FD`, `$0559`, `$0592`, plus the unchanged numeric `$05B4` carrier. The layouts are stored in `recipes/android/dialogues_redistribution.json` and are guarded by `tools/check_dialogue_regressions.py`.
 
 The formatter now admits **701 simulator-clean events = 701 complete + 0 PARTIEL**, **1810 accepted semantic source IDs / 1946 JSON entries**, with **3 exclusions**, all `alignment_incomplete` because they are routing-audited unused/orphan stock content: `$0269/C9:A49C`, `$02DE/C9:C4FB`, `$0603/CA:85FC`. After scene-level semantic review, the former 15 provenance-only PARTIEL events were promoted to complete. Their manual-JP, validated-suppression, and shared-prefix provenance remains preserved in `user_validated_visually_complete_events` rather than in `partial_events`.
 
@@ -1151,4 +1151,4 @@ Accordingly, Round 69 is the first checkpoint that can claim **100% French cover
 
 ### Resegmentation provenance
 
-Whole-scene and targeted resegmentations store **no translated prose**. `mappings/android/dialogues_redistribution_recipes.json` contains only Android FR IDs, token indexes, `PLAYER_NAME` placeholders, punctuation, and layout separators. The final carrier text is reconstructed from `sources/android/scrtxt_fr.bin` on every deterministic import. Non-Android French remains exclusively in `translations/dialogues_manual_supplements.json`. `tools/check_dialogue_redistribution_recipes.py` rejects alphabetic literals in the recipe manifest and verifies the regenerated payload.
+Whole-scene and targeted resegmentations store **no translated prose**. `recipes/android/dialogues_redistribution.json` contains only Android FR IDs, token indexes, `PLAYER_NAME` placeholders, punctuation, and layout separators. The final carrier text is reconstructed from `sources/android/scrtxt_fr.bin` on every deterministic import. Non-Android French remains exclusively in `translations/dialogues_manual_supplements.json`. `tools/check_dialogue_redistribution_recipes.py` rejects alphabetic literals in the recipe manifest and verifies the regenerated payload.

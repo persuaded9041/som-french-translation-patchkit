@@ -13,7 +13,7 @@ DEFAULT_SCRTXT_EN = ROOT / "sources" / "android" / "scrtxt_en.bin"
 DEFAULT_SCRTXT_FR = ROOT / "sources" / "android" / "scrtxt_fr.bin"
 DEFAULT_SYSTXT_EN = ROOT / "sources" / "android" / "systxt_en.bin"
 DEFAULT_SYSTXT_FR = ROOT / "sources" / "android" / "systxt_fr.bin"
-DIALOGUE_REVIEWED_ALIGNMENT_RECIPES = ROOT / "mappings" / "android" / "dialogues_reviewed_alignment_recipes.json"
+DIALOGUE_REVIEWED_ALIGNMENT_RECIPES = ROOT / "recipes" / "android" / "dialogues_reviewed_alignment.json"
 DIALOGUE_SOURCE = ROOT / "assets" / "dialogues.json"
 
 from shared.dialogue_translation import normalize_android_french

@@ -90,7 +90,7 @@ files. The validated translations formerly stored in component CSV/BIN inputs fo
 
 `french_dialogues` uses the **simulator-filtered Android-FR mass pass** directly during a normal standalone build. `translations/dialogues_french.json` is a generated review artifact, not a required source or build input; the same pipeline can regenerate it from canonical Android/source inputs. The current corpus contains **701 simulator-clean playable events / 1815 accepted semantic source IDs / 1947 active sparse translation entries**: **701 complete + 0 PARTIEL**. Semantic Android alignment remains **1798 / 1838 (97.8%)**, with **40 unresolved semantic IDs**; the only exclusions are the three routing-audited unused/orphan events `$0269`, `$02DE`, `$0603`. Independent simulation reports **0 errors / 0 warnings / 0 implicit runtime wraps**. Manual-JP, validated-suppression and shared-prefix provenance remains explicit in the canonical metadata. `$035F/C9:D1B8` remains strictly `Dryade`; never restore `Dryade fera réagir l'orbe !`.
 
-`french_resources` follows the same provenance rule: `mappings/android/text_resources_android.json` and `translations/text_resources_french.json` are deterministic review outputs, not normal build inputs. The component rebuilds the mapping/French payload in memory from `assets/text_resources.json`, `mappings/android/text_resources_layout.json`, and Android `systxt_en/fr.bin`.
+`french_resources` follows the same provenance rule: `reports/android/text_resources_android.json` and `translations/text_resources_french.json` are deterministic review outputs, not normal build inputs. The component rebuilds the mapping/French payload in memory from `assets/text_resources.json`, `recipes/android/text_resources_layout.json`, and Android `systxt_en/fr.bin`.
 
 ## Dialogue checkpoint
 
@@ -111,7 +111,7 @@ reviewed dialogue serialization. No French prose was hard-coded to solve the mig
 page transitions, live `PLAYER_NAME` prefix accounting, stock transition reuse and
 choice-specific layout handling are generic and independently simulator-gated.
 A reproducibility amendment stores the seven reviewed outer-choice-decoration removals
-in `mappings/android/dialogues_choice_layout_recipes.json`; that file contains only
+in `recipes/android/dialogues_choice_layout.json`; that file contains only
 canonical event/carrier identities, never French text. When one of those reviewed rows
 would otherwise force a fresh page, the owning Android-backed prompt is retried with the
 existing compact wrapper before the decoration is removed. Thus a fresh
@@ -120,27 +120,29 @@ silently restoring stock parentheses. Reviewed Round 67/68/69 identities, wordin
 scene redistributions remain locked.
 
 Restructured dialogue prose is **not stored in clear text** outside the canonical
-sources. The active structural recipe layer is split by responsibility:
+sources. All canonical Android structural decisions live under `recipes/android/`. Generated review/audit material belongs under `reports/android/` and is never a build input.
 
-- `dialogues_reviewed_alignment_recipes.json` — reviewed SNES/Android identities and structural provenance;
-- `dialogues_redistribution_recipes.json` — scene/carrier redistribution from Android tokens;
-- `dialogues_mapping_layout_recipes.json` — mapping-local token/layout reconstruction;
-- `dialogues_layout_search_recipes.json` — reviewed carrier/offset layout operations;
-- `dialogues_coverage_repair_recipes.json` — source-derived coverage repairs;
-- `dialogues_choice_layout_recipes.json` — reviewed choice geometry/layout operations.
+The active structural recipe layer is split by responsibility:
+
+- `dialogues_reviewed_alignment.json` — reviewed SNES/Android identities and structural provenance;
+- `dialogues_redistribution.json` — scene/carrier redistribution from Android tokens;
+- `dialogues_mapping_layout.json` — mapping-local token/layout reconstruction;
+- `dialogues_layout_search.json` — reviewed carrier/offset layout operations;
+- `dialogues_coverage_repair.json` — source-derived coverage repairs;
+- `dialogues_choice_layout.json` — reviewed choice geometry/layout operations.
 
 These files contain IDs, token references, punctuation and structural operations only.
 Actual localized prose is read from `sources/android/scrtxt_fr.bin` on every generation.
 Genuine non-Android French remains isolated in `translations/dialogues_manual_supplements.json`.
-`translations/dialogues_french.json`, `mappings/android/dialogues_auto.json`, the unmapped/exclusion CSVs and the mass-format reports are generated-on-demand outputs. They are ignored by Git and never required inputs.
+`translations/dialogues_french.json`, `reports/android/dialogues_auto.json`, the unmapped/exclusion CSVs and the mass-format reports are generated-on-demand outputs. They are ignored by Git and never required inputs.
 
 Operational material:
 
 - `docs/HANDOFF.md` — authoritative current state and next work;
 - `docs/DIALOGUE_FORMAT.md` / `docs/DIALOGUE_SIMULATOR.md` — formatting/runtime model;
-- `mappings/android/dialogues_manual_supplements.html` — manual provenance review;
-- `mappings/android/dialogues_redistribution_recipes.json` — source-derived scene recipes.
-- `mappings/android/dialogues_choice_layout_recipes.json` — structural-only reviewed choice-layout recipes; no localized prose.
+- `reports/android/dialogues_manual_supplements.html` — generated manual-provenance review sheet (ignored; regenerate on demand);
+- `recipes/android/dialogues_redistribution.json` — source-derived scene recipes.
+- `recipes/android/dialogues_choice_layout.json` — structural-only reviewed choice-layout recipes; no localized prose.
 
 Historical investigation is retained only where it still documents active runtime invariants or rejected paths worth preserving; obsolete round-specific audit snapshots have been removed.
 

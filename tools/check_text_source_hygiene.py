@@ -68,7 +68,7 @@ def check_dialogue_pipeline(problems: list[str]) -> None:
                     f"dialogue generator reads its own generated output in {generator_file.relative_to(ROOT)}: {needle}"
                 )
 
-    recipe_path = ROOT / "mappings" / "android" / "dialogues_mapping_layout_recipes.json"
+    recipe_path = ROOT / "recipes" / "android" / "dialogues_mapping_layout.json"
     document = json.loads(recipe_path.read_text(encoding="utf-8"))
     if document.get("source") != "sources/android/scrtxt_fr.bin":
         problems.append("mapping-layout recipes do not declare Android FR as their source")
@@ -92,7 +92,7 @@ def check_dialogue_pipeline(problems: list[str]) -> None:
                 elif part[0] not in {"a", "p", "x"}:
                     problems.append(f"mapping-layout ${event_id}/{text_id}: unknown part {part!r}")
 
-    reviewed_path = ROOT / "mappings" / "android" / "dialogues_reviewed_alignment_recipes.json"
+    reviewed_path = ROOT / "recipes" / "android" / "dialogues_reviewed_alignment.json"
     reviewed_doc = json.loads(reviewed_path.read_text(encoding="utf-8"))
     if reviewed_doc.get("format") != "dialogues-reviewed-alignment-recipes-v1":
         problems.append("reviewed-alignment recipes use an unsupported format")
@@ -118,7 +118,7 @@ def check_dialogue_pipeline(problems: list[str]) -> None:
             else:
                 problems.append(f"reviewed-alignment ${event_id}: invalid part {part!r}")
 
-    search_path = ROOT / "mappings" / "android" / "dialogues_layout_search_recipes.json"
+    search_path = ROOT / "recipes" / "android" / "dialogues_layout_search.json"
     search_doc = json.loads(search_path.read_text(encoding="utf-8"))
     allowed = {"strategy", "text_id", "boundary_before_id", "source_offset", "step", "semantic_payload_changed"}
     for event_id, operations in search_doc.get("events", {}).items():

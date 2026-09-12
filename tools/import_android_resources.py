@@ -4,7 +4,7 @@
 This tool does not patch a ROM.  It binds Android ``systxt`` records to the
 position-based IDs in ``assets/text_resources.json`` and emits:
 
-* ``mappings/android/text_resources_android.json``: identity/provenance trace;
+* ``reports/android/text_resources_android.json``: identity/provenance trace;
 * ``translations/text_resources_french.json``: sparse French review payload
   reproduced in memory by the production ``french_resources`` component;
 * optional HTML review output.
@@ -28,10 +28,10 @@ import unicodedata
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE_ASSET = ROOT / "assets" / "text_resources.json"
-LAYOUT = ROOT / "mappings" / "android" / "text_resources_layout.json"
+LAYOUT = ROOT / "recipes" / "android" / "text_resources_layout.json"
 SYSTXT_EN = ROOT / "sources" / "android" / "systxt_en.bin"
 SYSTXT_FR = ROOT / "sources" / "android" / "systxt_fr.bin"
-DEFAULT_MAPPING = ROOT / "mappings" / "android" / "text_resources_android.json"
+DEFAULT_MAPPING = ROOT / "reports" / "android" / "text_resources_android.json"
 DEFAULT_TRANSLATION = ROOT / "translations" / "text_resources_french.json"
 
 
@@ -189,7 +189,7 @@ def build_mapping(source: dict, layout: dict, en: dict[int, str], fr: dict[int, 
             "en": {"path": "sources/android/systxt_en.bin", "sha256": sha256(SYSTXT_EN)},
             "fr": {"path": "sources/android/systxt_fr.bin", "sha256": sha256(SYSTXT_FR)},
         },
-        "layout_recipe": "mappings/android/text_resources_layout.json",
+        "layout_recipe": "recipes/android/text_resources_layout.json",
         "records": records,
     }
 
@@ -212,7 +212,7 @@ def build_translation(mapping: dict) -> dict:
         "language": "fr",
         "source_asset": "text_resources.json",
         "generated_from": "sources/android/systxt_fr.bin",
-        "mapping": "mappings/android/text_resources_android.json",
+        "mapping": "reports/android/text_resources_android.json",
         "groups": [{"group": f"resources.{cat}", "entries": entries} for cat, entries in groups.items()],
     }
 
@@ -256,7 +256,7 @@ def write_or_check(path: Path, content: str, check: bool) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--check", action="store_true", help="verify committed generated JSON files")
+    ap.add_argument("--check", action="store_true", help="verify materialized generated JSON files")
     ap.add_argument("--html", type=Path, help="write a human-readable mapping review")
     args = ap.parse_args()
     source, layout, en, fr = load_inputs()
@@ -267,6 +267,7 @@ def main() -> None:
     write_or_check(DEFAULT_MAPPING, mapping_text, args.check)
     write_or_check(DEFAULT_TRANSLATION, translation_text, args.check)
     if args.html:
+        args.html.parent.mkdir(parents=True, exist_ok=True)
         args.html.write_text(render_html(mapping), encoding="utf-8")
         print(f"Wrote {args.html}")
     status = defaultdict(int)

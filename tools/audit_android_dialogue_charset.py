@@ -21,7 +21,7 @@ from shared.stock_text import TEXT_TO_CODE  # noqa: E402
 from tools.dialogue_pipeline.alignment import make_dialogue_auto_alignment  # noqa: E402
 from tools.dialogue_pipeline.common import DEFAULT_SCRTXT_EN, DEFAULT_SCRTXT_FR, read_scrtxt  # noqa: E402
 
-DEFAULT_OUTPUT = ROOT / "mappings" / "android" / "dialogue_charset_audit.csv"
+DEFAULT_OUTPUT = ROOT / "reports" / "android" / "dialogue_charset_audit.csv"
 
 ACTIONS = {
     '"': (

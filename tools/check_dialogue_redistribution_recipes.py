@@ -8,8 +8,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-RECIPES = ROOT / "mappings/android/dialogues_redistribution_recipes.json"
-COVERAGE = ROOT / "mappings/android/dialogues_coverage_repair_recipes.json"
+RECIPES = ROOT / "recipes/android/dialogues_redistribution.json"
+COVERAGE = ROOT / "recipes/android/dialogues_coverage_repair.json"
 FRENCH = ROOT / "translations/dialogues_french.json"
 SCRTXT_FR = ROOT / "sources/android/scrtxt_fr.bin"
 
