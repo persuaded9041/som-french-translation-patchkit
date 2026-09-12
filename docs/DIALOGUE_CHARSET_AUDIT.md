@@ -39,7 +39,7 @@ The editable shared atlas contains:
 
 Ordinary event dialogue therefore needs `$E8` as its upper DTE boundary. The
 intro must **not** inherit that boundary: `french_intro` uses all 25 `$E6-$FF`
-private DTE slots and is already runtime-validated. `shared/dialogue_dte.py`
+private DTE slots and is already runtime-validated. `shared/dialogue/dte.py`
 solves this by routing only true event-engine dialogue to `$E8`, while event
 `$0400` and non-dialogue parser callers keep `$E6`.
 

@@ -23,14 +23,14 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from shared.stock_text import TEXT_TO_CODE, encode_text_with_stock_dte  # noqa: E402
-from shared.text_resources import (  # noqa: E402
+from shared.text.stock import TEXT_TO_CODE, encode_text_with_stock_dte  # noqa: E402
+from shared.text.resources import (  # noqa: E402
     FIRST_RESOURCE_POINTER,
     load_document,
     serialize_table_and_blob,
 )
-from shared.rom import validate_base_rom  # noqa: E402
-from shared.text_resource_translation import normalize_for_snes  # noqa: E402
+from shared.core.rom import validate_base_rom  # noqa: E402
+from shared.text.resource_translation import normalize_for_snes  # noqa: E402
 
 ASSET = ROOT / "assets" / "text_resources.json"
 TRANSLATION = ROOT / "translations" / "text_resources_french.json"

@@ -93,18 +93,18 @@ SAVE_HELP_RELOC_LIMIT = 0x2E0000         # end of component reserved bank
 ASCII_TO_SOM = {" ": 0x80}
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
-from shared.french_charset import BASIC_FRENCH_CHARS, glyph_bytes, profile_mapping, profile_threshold
-from shared.rom import validate_base_rom, update_checksum, expand_rom, ROM_SIZE_OFFSET
-from shared.ips import make_ips
-from shared.interface_text import (
+from shared.charset import BASIC_FRENCH_CHARS, glyph_bytes, profile_mapping, profile_threshold
+from shared.core.rom import validate_base_rom, update_checksum, expand_rom, ROM_SIZE_OFFSET
+from shared.core.ips import make_ips
+from shared.text.interface import (
     load_document as load_interface_text,
     verify_against_rom as verify_interface_text,
 )
-from shared.menu_text import (
+from shared.text.menu import (
     load_document as load_menu_text,
     verify_against_rom as verify_menu_text,
 )
-from shared.translation_json import load_translation, require
+from shared.text.translation_json import load_translation, require
 
 ACCENT_TO_SOM = profile_mapping("basic_french")
 ASCII_TO_SOM.update(ACCENT_TO_SOM)
@@ -439,7 +439,7 @@ def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, s
     rom[DTE_COMPARE_IMMEDIATE_OFFSET] = DTE_NEW_THRESHOLD
 
     # Replace the 13 otherwise-unused direct-glyph slots $D4-$E0 with the
-    # editable 8x12 glyph atlas in shared/french_charset/french_glyphs.png.
+    # editable 8x12 glyph atlas in shared/charset/french_glyphs.png.
     glyph_start = FONT_BASE + (ACCENT_FIRST - 0x80) * GLYPH_HEIGHT
     glyph_blob = load_accent_glyphs()
     rom[glyph_start:glyph_start + len(glyph_blob)] = glyph_blob

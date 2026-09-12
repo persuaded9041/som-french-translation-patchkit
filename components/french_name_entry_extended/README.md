@@ -22,8 +22,8 @@ private WRAM is allocated here.
 
 - `assets/name_entry_extension.json` — extra-row repertoire;
 - `translations/interface_text_french.json` — localized help prose;
-- `shared/french_charset/` — canonical shared glyph artwork/codes;
-- `shared/name_dte.py` — executable Name Entry / `PLAYER_NAME` DTE router;
+- `shared/charset/` — canonical shared glyph artwork/codes;
+- `shared/name_entry/dte.py` — executable Name Entry / `PLAYER_NAME` DTE router;
 - `src/patch_data.py` — static four-row navigation/layout payloads.
 
 `src/*.asm` is the readable 65C816/data representation used for maintenance;
@@ -48,7 +48,7 @@ generated-data dependency.
 The router at `$C0:16F5` sends only the relocated Name Entry resource (bank
 `$E4`) and the stock `PLAYER_NAME` scratch source (`$7E:A22F` range) through
 the `$E8` direct-glyph boundary. Ordinary event sources keep the component's
-base `$E1` threshold. In aggregate builds, `shared/compatibility.py` either
+base `$E1` threshold. In aggregate builds, `shared/build/compatibility.py` either
 merges that base threshold or lets the full dialogue DTE router supersede this
 smaller hook.
 

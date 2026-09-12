@@ -16,7 +16,7 @@ DEFAULT_SYSTXT_FR = ROOT / "sources" / "android" / "systxt_fr.bin"
 DIALOGUE_REVIEWED_ALIGNMENT_RECIPES = ROOT / "recipes" / "android" / "dialogues_reviewed_alignment.json"
 DIALOGUE_SOURCE = ROOT / "assets" / "dialogues.json"
 
-from shared.dialogue_translation import normalize_android_french
+from shared.dialogue.translation import normalize_android_french
 
 def _load_recipe_document(path: Path, *, label: str, expected: dict) -> dict:
     """Load a structural recipe document and validate its schema markers."""

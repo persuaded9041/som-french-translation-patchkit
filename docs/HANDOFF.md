@@ -1,4 +1,4 @@
-# Development handoff — Round 85.31 recipes/reports layout cleanup
+# Development handoff — Round 85.32 shared-library refactor
 
 Operational handoff. The accompanying archive is authoritative over GitHub.
 
@@ -99,3 +99,12 @@ The component-by-component audit is complete. Continue with repository-wide cons
 - Removed the old `mappings/` root entirely.
 - Generated Android JSON/CSV/HTML review outputs now default to `reports/android/`, which is ignored and non-canonical.
 - Normal builds/checks consume only canonical inputs from `recipes/android/`; no generated report is required.
+
+## Round 85.32 — shared-library refactor
+
+- Replaced the flat `shared/` module pile with responsibility-based packages: `core/`, `build/`, `text/`, `dialogue/`, `vwf/`, `name_entry/` and `charset/`.
+- Renamed modules inside those packages to remove redundant prefixes (`vwf_*`, `dialogue_*`, `*_text`) where the package already supplies the context.
+- Moved readable ASM mirrors beside their executable Python modules. They remain documentation/reference, not parallel build sources.
+- Kept aggregate compatibility rules outside `core/` because they intentionally depend on domain-specific charset/Name Entry knowledge.
+- Removed two unreferenced public helper functions (`decode_japanese_text` and `decode_text_bytes_with_dte_threshold`) after repository-wide reference checks.
+- Added `shared/README.md` documenting ownership and dependency direction. No compatibility aliases for the former flat import paths are retained; all repository consumers use the new package paths directly.

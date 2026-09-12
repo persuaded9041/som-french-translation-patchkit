@@ -16,7 +16,7 @@ Reviewed recipes are now attempted first where applicable. They are still indepe
 
 ### Prepared immutable source index inside the formatter
 
-`shared.dialogue_translation.event_text_index()` was called 8,536 times during a representative mass run and spent close to ten seconds repeatedly indexing the same immutable parsed `assets/dialogues.json`.
+`shared.dialogue.translation.event_text_index()` was called 8,536 times during a representative mass run and spent close to ten seconds repeatedly indexing the same immutable parsed `assets/dialogues.json`.
 
 A private `_format_event_text_index()` caches only the last source-document object used by formatting internals. The public `event_text_index()` remains unchanged and uncached for extraction/checking callers. A different document object immediately rebuilds the formatting index.
 

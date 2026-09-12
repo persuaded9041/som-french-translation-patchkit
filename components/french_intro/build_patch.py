@@ -19,18 +19,18 @@ ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from shared.asm65816 import MiniAssembler, lo16, lo24  # noqa: E402
-from shared.dialogue_codec import parse_event  # noqa: E402
-from shared.french_charset import (  # noqa: E402
+from shared.core.asm import MiniAssembler, lo16, lo24  # noqa: E402
+from shared.dialogue.codec import parse_event  # noqa: E402
+from shared.charset import (  # noqa: E402
     CHAR_TO_CODE,
     FULL_DTE_THRESHOLD,
     FULL_FRENCH_CHARS,
     glyph_bytes,
 )
-from shared.intro_event_text import load_document as load_intro_source, make_document as make_intro_source  # noqa: E402
-from shared.ips import make_ips  # noqa: E402
-from shared.rom import update_checksum, validate_base_rom  # noqa: E402
-from shared.translation_json import load_translation, require  # noqa: E402
+from shared.text.intro_event import load_document as load_intro_source, make_document as make_intro_source  # noqa: E402
+from shared.core.ips import make_ips  # noqa: E402
+from shared.core.rom import update_checksum, validate_base_rom  # noqa: E402
+from shared.text.translation_json import load_translation, require  # noqa: E402
 
 DTE_COMPARE_IMMEDIATE_OFFSET = 0x0016F6
 DTE_STOCK_THRESHOLD = 0xD3

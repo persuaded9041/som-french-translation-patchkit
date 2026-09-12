@@ -27,10 +27,10 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
-from shared.rom import validate_base_rom, update_checksum, expand_rom, EXPANDED_SIZE, ROM_SIZE_OFFSET  # noqa: E402
-from shared.ips import apply_ips, make_ips  # noqa: E402
-from shared.opening_text import load_document as load_opening_source, verify_against_rom as verify_opening_source  # noqa: E402
-from shared.translation_json import load_translation, require  # noqa: E402
+from shared.core.rom import validate_base_rom, update_checksum, expand_rom, EXPANDED_SIZE, ROM_SIZE_OFFSET  # noqa: E402
+from shared.core.ips import apply_ips, make_ips  # noqa: E402
+from shared.text.opening import load_document as load_opening_source, verify_against_rom as verify_opening_source  # noqa: E402
+from shared.text.translation_json import load_translation, require  # noqa: E402
 
 TITLE_CODE_ROM = 0x077C00
 TITLE_ARR_ROM = 0x07B480

@@ -180,37 +180,15 @@ model and ID scheme, `docs/ANDROID_TEXT_ALIGNMENT.md` for the Android English/Fr
 ownership and legacy-source cleanup, and `docs/TEXT_RESEARCH_NOTES.md` for the
 reverse-engineering trail behind the inventory.
 
-## Shared code and charset
+## Shared library
 
-`shared/rom.py` contains the canonical base-ROM identity and common SNES checksum
-helpers. `shared/ips.py` contains the generic IPS reader/writer used for aggregate
-builds. `shared/asm65816.py` provides the tiny label-aware emitter used by Python
-builders that generate 65C816 routines. `shared/vwf_geometry.py` contains the
-renderer-neutral 8×12 glyph measurement/left-compaction primitives shared by
-the intro and dialogue VWF builders. `shared/vwf_metrics.py` contains the
-canonical validated framing/advance policy used by both VWF builders.
-`shared/vwf_framing.py` is the common runtime-selector source; its readable
-65816 reference is `shared/vwf_framing.asm`. Both VWF components install the
-same selector bundle at `$C7:44C0-$4557`.
-`shared/vwf_text_buffer.py` generates the
-byte-identical private decoded-text buffer bridge used by `vwf_intro` and `vwf_dialogues`;
-its readable 65816 reference is `shared/vwf_text_buffer.asm`.
-`shared/vwf_compositor.py` generates the byte-identical 8x12 shift/merge/spill
-primitive now shared by both VWF renderers; its readable reference is
-`shared/vwf_compositor.asm`. `shared/vwf_row_renderer.py` adds the runtime-validated
-shared stock-font row load + framing + compositor helper used by both VWF paths;
-`shared/vwf_row_renderer.asm` is its readable reference. `shared/vwf_outline.py`
-owns the common stock-outline `ROL -> ASL` preparation installed by both VWF
-components; `shared/vwf_outline.asm` documents that one-byte fix.
-`shared/translation_json.py` binds sparse language files to canonical source IDs.
-`shared/dialogue_codec.py` owns the stock event/dialogue parser and deterministic serializer used by root text tools and `french_intro` / `french_dialogues`. `shared/dialogue_relocation.py` owns the validated sparse expanded-ROM event relocation mechanism consumed by `french_dialogues`. `shared/dialogue_translation.py` owns the conservative Android-French normalization, PLAYER_NAME rebinding and dual-limit VWF/38-character offline formatter. Keeping these modules under `shared/` avoids cross-component Python imports.
-`shared/text_ids.py` defines the position-based source-ID scheme. `shared/components.py` discovers component
-manifests and `shared/compatibility.py` owns cross-component merge rules.
+Reusable project code is organized by responsibility under `shared/` rather than
+in one flat module namespace. The main packages are `core/`, `build/`, `text/`,
+`dialogue/`, `vwf/`, `name_entry/` and `charset/`. See `shared/README.md` for
+ownership, dependency direction and the executable-source/ASM-reference policy.
 
-`shared/french_charset/` is the canonical source for French direct-glyph codes
-and artwork. Name Entry, GAME SELECT, French intro payload, intro VWF, dialogue VWF and dialogue text rendering consume this definition while
-each standalone IPS still writes the bytes required for independent operation.
-See `docs/SHARED_CHARSET.md`.
+`shared/charset/` remains the canonical editable source for French direct-glyph
+codes and artwork. See also `docs/SHARED_CHARSET.md`.
 
 ## Build
 
@@ -303,7 +281,7 @@ Allowed overlaps are:
 Name Entry and GAME SELECT keep `basic_french`; the intro keeps the validated
 `full_french` `$E6` boundary. Dialogue VWF/text use `dialogue_french`, which adds
 `♪`, `°` and `;` and selects `$E8` only for real event-engine dialogue through
-`shared/dialogue_dte.py`. This avoids changing `french_intro`'s private intro DTE table.
+`shared/dialogue/dte.py`. This avoids changing `french_intro`'s private intro DTE table.
 Any other differing functional overlap aborts the build.
 
 See `docs/COMPATIBILITY.md` and `docs/MEMORY_MAP.md`. Component-specific renderer notes stay under each component; for dialogue VWF start with `components/vwf_dialogues/README.md`. The stock event/dialogue format notes are in `docs/DIALOGUE_FORMAT.md`; the 513 non-event resources are documented in `docs/TEXT_RESOURCES.md`. The repository-wide text map is `docs/TEXT_INVENTORY.md`, with family details in `docs/INTERFACE_TEXT.md`, `docs/MENU_TEXT.md`, `docs/BATTLE_TEXT.md` and `docs/OPENING_TEXT.md`. `french_dialogues` build details remain in `components/french_dialogues/README.md`.

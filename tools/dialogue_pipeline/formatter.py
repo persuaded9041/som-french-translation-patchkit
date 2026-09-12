@@ -7,7 +7,7 @@ import math
 from pathlib import Path
 import re
 
-from shared.dialogue_translation import (
+from shared.dialogue.translation import (
     DIALOGUE_PAGE_LINES, DIALOGUE_WRAP_CHARS, DIALOGUE_WRAP_PIXELS,
     format_mapping as format_dialogue_mapping,
     format_mapping_across_existing_wait_boundaries, format_mapping_across_existing_timed_wait_boundary,
@@ -15,9 +15,9 @@ from shared.dialogue_translation import (
     _sentence_boundary_positions, _markup_width, semantic_wrap_markup, make_dialogue_advances,
     player_placeholder_width, MAX_PLAYER_NAME_CHARS, make_translation_document as make_dialogue_translation_document,
 )
-from shared.dialogue_codec import TRANSLATION_CLEAR, TRANSLATION_TRAILING_PAGE_BREAK_ALLOWLIST, parse_event
-from shared.translation_json import resolve_structural_omission_token_indexes, resolve_structural_command_overrides
-from shared.rom import validate_base_rom
+from shared.dialogue.codec import TRANSLATION_CLEAR, TRANSLATION_TRAILING_PAGE_BREAK_ALLOWLIST, parse_event
+from shared.text.translation_json import resolve_structural_omission_token_indexes, resolve_structural_command_overrides
+from shared.core.rom import validate_base_rom
 from .common import ROOT, DIALOGUE_SOURCE, _load_recipe_document, normalize_android_prose, normalize_alignment_text, sentence_break_positions
 from .policies import *
 from .alignment import make_dialogue_auto_alignment, _auto_semantic
@@ -246,7 +246,7 @@ def _repair_unique_post_wait_sentence_newline(
     space (there is no stock newline), and exactly one possible leading NEWLINE
     makes the entire event simulator-clean.  WAIT itself is never changed.
     """
-    from shared.dialogue_simulator import simulate_event
+    from shared.dialogue.simulator import simulate_event
 
     blocking = [
         issue for issue in simulation.issues
@@ -378,7 +378,7 @@ def _repair_wait00_page_overlaps(
     font,
 ):
     """Greedily keep only simulator-proven reductions of WAIT $00 overlap."""
-    from shared.dialogue_simulator import simulate_event
+    from shared.dialogue.simulator import simulate_event
 
     current = dict(translations)
     simulation = simulate_event(
@@ -463,7 +463,7 @@ def _repair_live_line_scroll_risk_with_compact_wrap(
     failure where ``Gestahl : Ha ! Imbécile !`` had been expanded from one safe
     line to two and pushed the following utterance through the rolling window.
     """
-    from shared.dialogue_simulator import simulate_event
+    from shared.dialogue.simulator import simulate_event
 
     def risk_count(sim) -> int:
         return sum(issue.code == "UNPAUSED_LIVE_LINE_SCROLL_RISK" for issue in sim.issues)
@@ -606,7 +606,7 @@ def _repair_pure_unpaused_scroll(
     This deliberately ignores events that also contain unsupported layout
     commands or runtime wraps; those need separate structural work.
     """
-    from shared.dialogue_simulator import simulate_event
+    from shared.dialogue.simulator import simulate_event
 
     blocking = [
         issue for issue in simulation.issues
@@ -727,7 +727,7 @@ def _repair_cross_mapping_sentence_overflow(
 
     Unsupported commands or any other simulator defect keep the event excluded.
     """
-    from shared.dialogue_simulator import simulate_event
+    from shared.dialogue.simulator import simulate_event
 
     blocking = [
         issue for issue in simulation.issues
@@ -3054,7 +3054,7 @@ def _repair_structural_reaction_page_boundary(
     following answer with the reaction's VWF width as first-line prefix. Only
     the older page-boundary fallback remains below for already-supported shapes.
     """
-    from shared.dialogue_simulator import simulate_event
+    from shared.dialogue.simulator import simulate_event
 
     blocking = [i for i in simulation.issues if i.severity in {"error", "warning"}]
     codes = {i.code for i in blocking}
@@ -3550,7 +3550,7 @@ def _apply_reviewed_choice_layout_recipe(
     the exact canonical outer parentheses and resimulate.  Later CHOICE_OPTION
     anchor repair remains the responsibility of the ordinary generic pass.
     """
-    from shared.dialogue_simulator import simulate_event
+    from shared.dialogue.simulator import simulate_event
 
     event_id = event.get("event_id")
     if recipe.get("event_id") != event_id:
@@ -3712,7 +3712,7 @@ def _try_restore_stock_choice_row_prefix(
     of error/warning or an implicit wrap; later-anchor overlap may remain for
     the separately gated adaptive-anchor pass.
     """
-    from shared.dialogue_simulator import simulate_event
+    from shared.dialogue.simulator import simulate_event
 
     tokens = event.get("tokens", [])
     begins = [
@@ -3878,7 +3878,7 @@ def _try_adaptive_choice_anchor_positions(
     `vwf_dialogues` and the stock highlight then consume the same moved coordinate,
     matching the runtime-validated $03/$11 -> $03/$12 long-label diagnostic.
     """
-    from shared.dialogue_simulator import simulate_event
+    from shared.dialogue.simulator import simulate_event
 
     if not any(
         issue.code == "CHOICE_OPTION_OVERLAP" and issue.severity in {"error", "warning"}
@@ -3994,7 +3994,7 @@ def _try_adaptive_choice_decoration(
     zero-implicit-wrap gate.  This keeps the fallback width-driven and avoids a
     global visual rewrite of short choices.
     """
-    from shared.dialogue_simulator import simulate_event
+    from shared.dialogue.simulator import simulate_event
 
     blocking = [issue for issue in simulation.issues if issue.severity in {"error", "warning"}]
     wraps = sum(
@@ -4060,7 +4060,7 @@ def _try_adaptive_choice_decoration_with_anchor_positions(
     stock; only later coordinates may move right under the existing independent
     simulator gate.
     """
-    from shared.dialogue_simulator import simulate_event
+    from shared.dialogue.simulator import simulate_event
 
     candidate, repair = _strip_canonical_choice_decoration(event, translations)
     if repair is None:
@@ -4167,7 +4167,7 @@ def _try_single_carrier_boundary_newline(
     zero implicit wraps. Existing control bytes and carrier assignments remain
     otherwise unchanged.
     """
-    from shared.dialogue_simulator import simulate_event
+    from shared.dialogue.simulator import simulate_event
 
     if not translations:
         return translations, None, []
@@ -4285,7 +4285,7 @@ def _apply_reviewed_layout_search_recipe(
     or the resulting event is not clean, return no repair so the historical
     exhaustive solver can remain the conservative fallback.
     """
-    from shared.dialogue_simulator import simulate_event
+    from shared.dialogue.simulator import simulate_event
 
     steps = _reviewed_layout_search_recipe_index().get(str(event.get("event_id")))
     if not steps:
@@ -4371,7 +4371,7 @@ def _try_unpaused_scroll_page_repairs(
     between pauses. If no strictly improving boundary exists, the event remains
     rejected for later review rather than guessing.
     """
-    from shared.dialogue_simulator import simulate_event
+    from shared.dialogue.simulator import simulate_event
 
     player_names = {0: "000000000", 1: "000000000", 2: "000000000"}
     try:
@@ -4478,7 +4478,7 @@ def _try_source_derived_layout_search(
     this brute-force fallback; those need a more structural solver rather than a
     costly exhaustive presentation search.
     """
-    from shared.dialogue_simulator import simulate_event
+    from shared.dialogue.simulator import simulate_event
 
     if not translations or len(translations) > max_translated_carriers:
         return translations, None, []
@@ -4623,7 +4623,7 @@ def _try_direct_simulator_safe_subset(
     No command, identity, line layout, compact wrapper, or adaptive repair is
     changed by this helper.
     """
-    from shared.dialogue_simulator import simulate_event
+    from shared.dialogue.simulator import simulate_event
 
     if not translations or max_deferred_mappings < 1:
         return translations, reports, None, []
@@ -4812,7 +4812,7 @@ def _try_live_player_prefix_reflow(
     only when whole-event simulation strictly improves; printable text and
     carrier ownership are unchanged.
     """
-    from shared.dialogue_simulator import simulate_event
+    from shared.dialogue.simulator import simulate_event
 
     tokens = event.get("tokens", [])
     candidate = dict(translations)
@@ -4966,7 +4966,7 @@ def make_dialogue_format_mass(
     the whole event. Unsupported layout commands therefore remain English until
     the simulator models them explicitly.
     """
-    from shared.dialogue_simulator import make_dialogue_font, simulate_event
+    from shared.dialogue.simulator import make_dialogue_font, simulate_event
 
     validate_base_rom(base_rom)
     if alignment is None:

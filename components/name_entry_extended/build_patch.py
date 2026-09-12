@@ -19,13 +19,13 @@ ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from shared.ips import make_ips  # noqa: E402
-from shared.interface_text import (  # noqa: E402
+from shared.core.ips import make_ips  # noqa: E402
+from shared.text.interface import (  # noqa: E402
     NAME_HELP_GROUP,
     group_entries,
     extract_document as extract_interface_text,
 )
-from shared.rom import expand_rom, update_checksum, validate_base_rom  # noqa: E402
+from shared.core.rom import expand_rom, update_checksum, validate_base_rom  # noqa: E402
 
 NAMED_CHARACTER_TOKENS = {
     "<QUOTE_OPEN>": 0xC3,

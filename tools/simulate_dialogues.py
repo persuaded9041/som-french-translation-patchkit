@@ -16,8 +16,8 @@ PROJECT_ROOT = ROOT.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from PIL import Image, ImageDraw  # noqa: E402
-from shared.dialogue_codec import load_document  # noqa: E402
-from shared.dialogue_simulator import (  # noqa: E402
+from shared.dialogue.codec import load_document  # noqa: E402
+from shared.dialogue.simulator import (  # noqa: E402
     DialogueFont,
     EventSimulation,
     Glyph,
@@ -26,8 +26,8 @@ from shared.dialogue_simulator import (  # noqa: E402
     make_dialogue_font,
     simulate_event,
 )
-from shared.rom import validate_base_rom  # noqa: E402
-from shared.translation_json import (  # noqa: E402
+from shared.core.rom import validate_base_rom  # noqa: E402
+from shared.text.translation_json import (  # noqa: E402
     load_structural_omission_token_indexes,
     load_structural_command_overrides,
     load_choice_option_position_overrides,

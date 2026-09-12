@@ -8,7 +8,7 @@ import sys
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from shared.dialogue_codec import encode_translated_dialogue_text  # noqa: E402
+from shared.dialogue.codec import encode_translated_dialogue_text  # noqa: E402
 MANUAL = ROOT / "translations" / "dialogues_manual_supplements.json"
 SOURCE = ROOT / "assets" / "dialogues.json"
 EXPECTED_IDS = {

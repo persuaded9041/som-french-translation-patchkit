@@ -7,7 +7,7 @@ import json
 import math
 import re
 
-from shared.dialogue_translation import normalize_android_french
+from shared.dialogue.translation import normalize_android_french
 from .common import (DEFAULT_SYSTXT_EN, DEFAULT_SYSTXT_FR, DIALOGUE_REVIEWED_ALIGNMENT_RECIPES, DIALOGUE_SOURCE, _load_recipe_document, read_scrtxt, require_parallel_scrtxt, normalize_alignment_text, load_dialogue_text_entries, english_anchor_interval, sha256, render_snes_review_parts, android_anchor_units)
 from .policies import DIALOGUE_FORCED_UNMAPPED, DIALOGUE_VALIDATED_ANDROID_OMISSIONS, DIALOGUE_VALIDATED_CONTEXTUAL_TEMPLATES, DIALOGUE_REVIEWED_AUTO_OVERRIDES, DIALOGUE_VALIDATED_ALTERNATIVE_GROUPS
 

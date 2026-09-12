@@ -11,9 +11,9 @@ ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from shared.asm65816 import MiniAssembler, lo24  # noqa: E402
-from shared.ips import make_ips  # noqa: E402
-from shared.rom import update_checksum, validate_base_rom  # noqa: E402
+from shared.core.asm import MiniAssembler, lo24  # noqa: E402
+from shared.core.ips import make_ips  # noqa: E402
+from shared.core.rom import update_checksum, validate_base_rom  # noqa: E402
 
 HOOK_OFFSET = 0x075039
 HOOK_EXPECTED = bytes.fromhex("9C CC A1 6B")  # STZ $A1CC / RTL

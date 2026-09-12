@@ -19,8 +19,8 @@ EXPECTED_TREE_SHA256 = "9e1baa9cdca30db9bb0cf4ae57a7705b0970ce95dd1ab15090bfe64a
 ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
-from shared.rom import validate_base_rom, update_checksum, expand_rom, ROM_SIZE_OFFSET  # noqa: E402
-from shared.ips import make_ips  # noqa: E402
+from shared.core.rom import validate_base_rom, update_checksum, expand_rom, ROM_SIZE_OFFSET  # noqa: E402
+from shared.core.ips import make_ips  # noqa: E402
 
 TREE_DEST_ROM = 0x2FC000
 TREE_SIZE = 0x3600

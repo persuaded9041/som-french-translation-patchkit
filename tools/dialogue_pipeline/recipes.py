@@ -7,7 +7,7 @@ import re
 
 from .common import ROOT, _load_recipe_document, normalize_android_prose, sentence_break_positions
 from .policies import *
-from shared.dialogue_translation import event_text_index, normalize_android_french, semantic_wrap_markup, format_mapping as format_dialogue_mapping
+from shared.dialogue.translation import event_text_index, normalize_android_french, semantic_wrap_markup, format_mapping as format_dialogue_mapping
 
 DIALOGUE_REDISTRIBUTION_RECIPES = ROOT / "recipes" / "android" / "dialogues_redistribution.json"
 DIALOGUE_MAPPING_LAYOUT_RECIPES = ROOT / "recipes" / "android" / "dialogues_mapping_layout.json"

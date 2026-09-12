@@ -16,7 +16,7 @@ import sys
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from shared.intro_event_text import load_document as load_intro_source  # noqa: E402
+from shared.text.intro_event import load_document as load_intro_source  # noqa: E402
 from dialogue_pipeline.common import (  # noqa: E402
     DEFAULT_SCRTXT_EN, DEFAULT_SCRTXT_FR, DIALOGUE_SOURCE,
     read_scrtxt, normalize_android_prose,

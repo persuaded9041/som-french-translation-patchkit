@@ -1,6 +1,6 @@
 # Shared French charset
 
-`shared/french_charset/` is the canonical editable source for project-owned
+`shared/charset/` is the canonical editable source for project-owned
 direct glyph codes and artwork. The mapping is a patchkit convention, not a
 claim about every stock Secret of Mana font slot.
 
@@ -61,7 +61,7 @@ and 08. The threshold is context-sensitive rather than global:
 - real event-engine dialogue: `$E8`;
 - French extended Name Entry resource in reserved bank `$E4`: `$E8`.
 
-`shared/dialogue_dte.py` owns that routing. It uses the established event-parser
+`shared/dialogue/dte.py` owns that routing. It uses the established event-parser
 caller discriminator and protects event `$0400`; GAME SELECT remains on the
 base `$E6` path. This lets `$E6/$E7` mean `°`/`;` in dialogue while they remain
 intro DTE codes during event `$0400`.

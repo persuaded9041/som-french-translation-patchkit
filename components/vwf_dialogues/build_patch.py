@@ -42,45 +42,45 @@ ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from shared.ips import make_ips  # noqa: E402
-from shared.asm65816 import MiniAssembler, lo24  # noqa: E402
-from shared.rom import ROM_SIZE_OFFSET, expand_rom, update_checksum, validate_base_rom  # noqa: E402
-from shared.french_charset import CHAR_TO_CODE, DIALOGUE_DTE_THRESHOLD, DIALOGUE_FRENCH_CHARS, glyph_bytes  # noqa: E402
-from shared.dialogue_dte import (  # noqa: E402
+from shared.core.ips import make_ips  # noqa: E402
+from shared.core.asm import MiniAssembler, lo24  # noqa: E402
+from shared.core.rom import ROM_SIZE_OFFSET, expand_rom, update_checksum, validate_base_rom  # noqa: E402
+from shared.charset import CHAR_TO_CODE, DIALOGUE_DTE_THRESHOLD, DIALOGUE_FRENCH_CHARS, glyph_bytes  # noqa: E402
+from shared.dialogue.dte import (  # noqa: E402
     enable_extended_dialogue as enable_extended_dialogue_dte,
     install as install_dialogue_dte_router,
     validate_stock as validate_dialogue_dte_stock,
 )
-from shared.vwf_geometry import ink_bounds  # noqa: E402
-from shared.vwf_metrics import (  # noqa: E402
+from shared.vwf.geometry import ink_bounds  # noqa: E402
+from shared.vwf.metrics import (  # noqa: E402
     apply_validated_framing,
     validated_advance,
     validated_left_shift,
 )
-from shared.vwf_framing import (  # noqa: E402
+from shared.vwf.framing import (  # noqa: E402
     validate_stock as validate_shared_framing_stock,
     install as install_shared_framing,
 )
-from shared.vwf_compositor import (  # noqa: E402
+from shared.vwf.compositor import (  # noqa: E402
     validate_stock as validate_shared_compositor_stock,
     install as install_shared_compositor,
 )
-from shared.vwf_row_renderer import (  # noqa: E402
+from shared.vwf.row_renderer import (  # noqa: E402
     ROW_RENDERER_CALL,
     validate_stock as validate_shared_row_renderer_stock,
     install as install_shared_row_renderer,
 )
-from shared.vwf_outline import (  # noqa: E402
+from shared.vwf.outline import (  # noqa: E402
     validate_stock as validate_shared_outline_stock,
     install as install_shared_outline,
 )
-from shared.vwf_ui import (  # noqa: E402
+from shared.vwf.ui import (  # noqa: E402
     validate_stock as validate_shared_ui_dispatch_stock,
     install_dispatcher as install_shared_ui_dispatcher,
     RENDER_ENTRY_HOOK as SHARED_RENDER_ENTRY_HOOK,
     DISPATCH_FILE as SHARED_UI_DISPATCH_FILE,
 )
-from shared.vwf_text_buffer import (  # noqa: E402
+from shared.vwf.text_buffer import (  # noqa: E402
     validate_stock as validate_shared_text_buffer_stock,
     install_common as install_shared_text_buffer,
     enable_dialogue as enable_dialogue_private_buffer,
@@ -1042,7 +1042,7 @@ OUTLINE_POST_HELPER = make_outline_post_helper()
 def make_width_table(base: bytes) -> bytes:
     """Build the canonical validated VWF advance table.
 
-    The policy lives in ``shared.vwf_metrics`` so `vwf_intro` and `vwf_dialogues` can
+    The policy lives in ``shared.vwf.metrics`` so `vwf_intro` and `vwf_dialogues` can
     generate the same metrics while keeping their different runtime glyph
     selection paths.
     """

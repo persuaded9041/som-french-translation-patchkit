@@ -14,10 +14,10 @@ import unicodedata
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from shared.dialogue_codec import parse_event  # noqa: E402
-from shared.dialogue_translation import PLAYER_PLACEHOLDER_RE, normalize_android_french  # noqa: E402
-from shared.rom import validate_base_rom  # noqa: E402
-from shared.stock_text import TEXT_TO_CODE  # noqa: E402
+from shared.dialogue.codec import parse_event  # noqa: E402
+from shared.dialogue.translation import PLAYER_PLACEHOLDER_RE, normalize_android_french  # noqa: E402
+from shared.core.rom import validate_base_rom  # noqa: E402
+from shared.text.stock import TEXT_TO_CODE  # noqa: E402
 from tools.dialogue_pipeline.alignment import make_dialogue_auto_alignment  # noqa: E402
 from tools.dialogue_pipeline.common import DEFAULT_SCRTXT_EN, DEFAULT_SCRTXT_FR, read_scrtxt  # noqa: E402
 

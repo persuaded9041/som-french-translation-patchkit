@@ -23,25 +23,25 @@ from src.patch_data import (
     STOCK_NAVIGATION_BYTES,
 )
 
-from shared.french_charset import (  # noqa: E402
+from shared.charset import (  # noqa: E402
     BASIC_FRENCH_CHARS,
     CHAR_TO_CODE,
     glyph_bytes,
     profile_mapping,
 )
-from shared.interface_text import (  # noqa: E402
+from shared.text.interface import (  # noqa: E402
     NAME_HELP_GROUP,
     group_entries,
     load_document as load_interface_text,
     verify_against_rom as verify_interface_text,
 )
-from shared.ips import make_ips  # noqa: E402
-from shared.name_dte import (  # noqa: E402
+from shared.core.ips import make_ips  # noqa: E402
+from shared.name_entry.dte import (  # noqa: E402
     install as install_name_dte_router,
     validate_stock as validate_name_dte_stock,
 )
-from shared.rom import expand_rom, update_checksum, validate_base_rom  # noqa: E402
-from shared.translation_json import load_translation, require  # noqa: E402
+from shared.core.rom import expand_rom, update_checksum, validate_base_rom  # noqa: E402
+from shared.text.translation_json import load_translation, require  # noqa: E402
 
 FONT_BASE = 0x12DC00
 GLYPH_HEIGHT = 12

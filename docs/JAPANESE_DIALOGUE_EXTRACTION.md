@@ -59,12 +59,12 @@ whole JP event is safer than inventing a USA-to-JP carrier mapping.
 
 ## Japanese codec
 
-`shared/japanese_dialogue.py` contains the recovered original-SFC dialogue
+`shared/dialogue/japanese.py` contains the recovered original-SFC dialogue
 character tables and decoder. Direct bytes `$80-$FF` use the default 128-entry
 page. Prefixes `$60-$67`, `$68-$6B` and `$6C-$6F` select 1-8 / 1-4 / 1-4
 characters through the overlapping S1/S2/S3 shifted pages; `$7F` is newline.
 Event commands are parsed with the shared stock command definitions from
-`shared/dialogue_codec.py`.
+`shared/dialogue/codec.py`.
 
 The regression checker locks known exact source material from `$0207`, `$0208`,
 `$024F` and `$035F`, and locks `$0278` as deliberately resegmented. It also

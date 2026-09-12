@@ -10,9 +10,9 @@ ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from shared.ips import make_ips  # noqa: E402
-from shared.rom import ROM_SIZE_OFFSET, expand_rom, update_checksum, validate_base_rom  # noqa: E402
-from shared.asm65816 import MiniAssembler, lo24  # noqa: E402
+from shared.core.ips import make_ips  # noqa: E402
+from shared.core.rom import ROM_SIZE_OFFSET, expand_rom, update_checksum, validate_base_rom  # noqa: E402
+from shared.core.asm import MiniAssembler, lo24  # noqa: E402
 
 EVENT_HOOK_FILE = 0x00012C
 EVENT_RETURN_SNES = 0xC00131

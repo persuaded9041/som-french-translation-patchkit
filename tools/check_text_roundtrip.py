@@ -10,21 +10,21 @@ import sys
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from shared.dialogue_codec import (  # noqa: E402
+from shared.dialogue.codec import (  # noqa: E402
     EVENT_COUNT,
     load_document as load_dialogues,
     parse_event,
     verify_source_roundtrip as verify_dialogue_source,
     verify_unedited_reinsertion as verify_dialogue_noop,
 )
-from shared.battle_text import load_document as load_battle, verify_against_rom as verify_battle  # noqa: E402
-from shared.interface_text import load_document as load_interface, verify_against_rom as verify_interface  # noqa: E402
-from shared.intro_event_text import load_document as load_intro, make_document as extract_intro  # noqa: E402
-from shared.menu_text import load_document as load_menu, verify_against_rom as verify_menu  # noqa: E402
-from shared.opening_text import load_document as load_opening, verify_against_rom as verify_opening  # noqa: E402
-from shared.shop_text import load_document as load_shop, verify_against_rom as verify_shop  # noqa: E402
-from shared.translation_json import load_translation, source_entries  # noqa: E402
-from shared.text_resources import (  # noqa: E402
+from shared.text.battle import load_document as load_battle, verify_against_rom as verify_battle  # noqa: E402
+from shared.text.interface import load_document as load_interface, verify_against_rom as verify_interface  # noqa: E402
+from shared.text.intro_event import load_document as load_intro, make_document as extract_intro  # noqa: E402
+from shared.text.menu import load_document as load_menu, verify_against_rom as verify_menu  # noqa: E402
+from shared.text.opening import load_document as load_opening, verify_against_rom as verify_opening  # noqa: E402
+from shared.text.shop import load_document as load_shop, verify_against_rom as verify_shop  # noqa: E402
+from shared.text.translation_json import load_translation, source_entries  # noqa: E402
+from shared.text.resources import (  # noqa: E402
     load_document as load_resources,
     verify_pointer_table_and_blob,
     verify_source_roundtrip as verify_resource_source,

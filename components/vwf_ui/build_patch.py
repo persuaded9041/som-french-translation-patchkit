@@ -15,18 +15,18 @@ ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from shared.asm65816 import MiniAssembler, lo24  # noqa: E402
-from shared.french_charset import CHAR_TO_CODE, DIALOGUE_FRENCH_CHARS, glyph_bytes  # noqa: E402
-from shared.ips import make_ips  # noqa: E402
-from shared.rom import ROM_SIZE_OFFSET, expand_rom, update_checksum, validate_base_rom  # noqa: E402
-from shared.vwf_compositor import validate_stock as validate_compositor, install as install_compositor  # noqa: E402
-from shared.vwf_framing import validate_stock as validate_framing, install as install_framing  # noqa: E402
-from shared.vwf_metrics import validated_advance  # noqa: E402
-from shared.vwf_outline import validate_stock as validate_outline, install as install_outline  # noqa: E402
-from shared.vwf_row_renderer import validate_stock as validate_row_renderer, install as install_row_renderer  # noqa: E402
-from shared.vwf_renderer_runtime import validate_stock as validate_renderer_runtime, install as install_renderer_runtime  # noqa: E402
-from shared.vwf_text_buffer import validate_stock as validate_text_buffer, install_common as install_text_buffer  # noqa: E402
-from shared.vwf_ui import (  # noqa: E402
+from shared.core.asm import MiniAssembler, lo24  # noqa: E402
+from shared.charset import CHAR_TO_CODE, DIALOGUE_FRENCH_CHARS, glyph_bytes  # noqa: E402
+from shared.core.ips import make_ips  # noqa: E402
+from shared.core.rom import ROM_SIZE_OFFSET, expand_rom, update_checksum, validate_base_rom  # noqa: E402
+from shared.vwf.compositor import validate_stock as validate_compositor, install as install_compositor  # noqa: E402
+from shared.vwf.framing import validate_stock as validate_framing, install as install_framing  # noqa: E402
+from shared.vwf.metrics import validated_advance  # noqa: E402
+from shared.vwf.outline import validate_stock as validate_outline, install as install_outline  # noqa: E402
+from shared.vwf.row_renderer import validate_stock as validate_row_renderer, install as install_row_renderer  # noqa: E402
+from shared.vwf.renderer_runtime import validate_stock as validate_renderer_runtime, install as install_renderer_runtime  # noqa: E402
+from shared.vwf.text_buffer import validate_stock as validate_text_buffer, install_common as install_text_buffer  # noqa: E402
+from shared.vwf.ui import (  # noqa: E402
     validate_stock as validate_ui_dispatch,
     install_dispatcher,
     enable_ui,

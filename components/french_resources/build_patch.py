@@ -10,11 +10,11 @@ ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from shared.ips import make_ips
-from shared.rom import update_checksum, validate_base_rom
-from shared.text_resource_translation import normalize_for_snes
-from shared.stock_text import encode_text_with_stock_dte
-from shared.text_resources import (
+from shared.core.ips import make_ips
+from shared.core.rom import update_checksum, validate_base_rom
+from shared.text.resource_translation import normalize_for_snes
+from shared.text.stock import encode_text_with_stock_dte
+from shared.text.resources import (
     CA_BASE,
     FIRST_RESOURCE_POINTER,
     RESOURCE_COUNT,
@@ -22,13 +22,13 @@ from shared.text_resources import (
     load_document,
     serialize_table_and_blob,
 )
-from shared.dialogue_dte import (
+from shared.dialogue.dte import (
     validate_stock as validate_dialogue_dte_stock,
     install as install_dialogue_dte_router,
     enable_extended_dialogue as enable_extended_dialogue_dte,
 )
 from tools.import_android_resources import build_mapping, build_translation, load_inputs as load_android_inputs
-from shared.french_charset import (
+from shared.charset import (
     CHAR_TO_CODE,
     DIALOGUE_FRENCH_CHARS,
     glyph_bytes,

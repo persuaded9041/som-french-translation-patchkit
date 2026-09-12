@@ -8,10 +8,10 @@ from pathlib import Path
 import subprocess
 import sys
 
-from shared.compatibility import apply_merge_rules, audit_overlaps
-from shared.components import discover_components
-from shared.ips import apply_ips, make_ips
-from shared.rom import update_checksum, validate_base_rom
+from shared.build.compatibility import apply_merge_rules, audit_overlaps
+from shared.build.components import discover_components
+from shared.core.ips import apply_ips, make_ips
+from shared.core.rom import update_checksum, validate_base_rom
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_PATCH_DIR = ROOT / "patches"

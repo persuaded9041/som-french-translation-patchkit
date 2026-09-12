@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from shared.dialogue_codec import (  # noqa: E402
+from shared.dialogue.codec import (  # noqa: E402
     count_edited_text_tokens,
     load_document,
     read_event,
@@ -30,20 +30,20 @@ from shared.dialogue_codec import (  # noqa: E402
     verify_source_roundtrip,
     verify_unedited_reinsertion,
 )
-from shared.dialogue_relocation import (  # noqa: E402
+from shared.dialogue.relocation import (  # noqa: E402
     install as install_relocation,
     pack_events,
     validate_stock as validate_relocation_stock,
 )
-from shared.french_charset import CHAR_TO_CODE, DIALOGUE_FRENCH_CHARS, glyph_bytes  # noqa: E402
-from shared.dialogue_dte import (  # noqa: E402
+from shared.charset import CHAR_TO_CODE, DIALOGUE_FRENCH_CHARS, glyph_bytes  # noqa: E402
+from shared.dialogue.dte import (  # noqa: E402
     enable_extended_dialogue as enable_extended_dialogue_dte,
     install as install_dialogue_dte_router,
     validate_stock as validate_dialogue_dte_stock,
 )
-from shared.ips import make_ips  # noqa: E402
-from shared.rom import ROM_SIZE_OFFSET, expand_rom, update_checksum, validate_base_rom  # noqa: E402
-from shared.translation_json import (  # noqa: E402
+from shared.core.ips import make_ips  # noqa: E402
+from shared.core.rom import ROM_SIZE_OFFSET, expand_rom, update_checksum, validate_base_rom  # noqa: E402
+from shared.text.translation_json import (  # noqa: E402
     load_structural_omission_token_indexes,
     load_structural_command_overrides,
     load_choice_option_position_overrides,

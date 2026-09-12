@@ -187,7 +187,7 @@ into a reusable analysis tool. Given a canonical USA carrier from
 `assets/dialogues.json`, `tools/extract_japanese_dialogue.py` resolves the owning
 event and decodes that event from a clean user-supplied Japanese SFC ROM. It uses
 the original Japanese direct/S1/S2/S3 character pages in
-`shared/japanese_dialogue.py` and deliberately returns event context rather than
+`shared/dialogue/japanese.py` and deliberately returns event context rather than
 guessing through regional resegmentation. See
 `docs/JAPANESE_DIALOGUE_EXTRACTION.md` for the exact policy and known limits.
 

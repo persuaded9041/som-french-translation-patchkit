@@ -9,7 +9,7 @@ import sys
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from shared.japanese_dialogue import (  # noqa: E402
+from shared.dialogue.japanese import (  # noqa: E402
     extract_for_us_carrier,
     parse_japanese_event,
     validate_japanese_rom,

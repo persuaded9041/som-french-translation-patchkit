@@ -10,14 +10,14 @@ import sys
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from shared.dialogue_codec import EVENT_COUNT, extract_default_document, extract_document, parse_event  # noqa: E402
-from shared.battle_text import extract_document as extract_battle_document  # noqa: E402
-from shared.interface_text import extract_document as extract_interface_document  # noqa: E402
-from shared.intro_event_text import make_document as extract_intro_document  # noqa: E402
-from shared.menu_text import extract_document as extract_menu_document  # noqa: E402
-from shared.opening_text import extract_document as extract_opening_document  # noqa: E402
-from shared.shop_text import extract_document as extract_shop_document  # noqa: E402
-from shared.text_resources import extract_document as extract_resource_document  # noqa: E402
+from shared.dialogue.codec import EVENT_COUNT, extract_default_document, extract_document, parse_event  # noqa: E402
+from shared.text.battle import extract_document as extract_battle_document  # noqa: E402
+from shared.text.interface import extract_document as extract_interface_document  # noqa: E402
+from shared.text.intro_event import make_document as extract_intro_document  # noqa: E402
+from shared.text.menu import extract_document as extract_menu_document  # noqa: E402
+from shared.text.opening import extract_document as extract_opening_document  # noqa: E402
+from shared.text.shop import extract_document as extract_shop_document  # noqa: E402
+from shared.text.resources import extract_document as extract_resource_document  # noqa: E402
 
 DEFAULT_ASSETS = ROOT / "assets"
 KINDS = ("dialogues", "resources", "interface", "menu", "battle", "shop", "opening", "intro")
