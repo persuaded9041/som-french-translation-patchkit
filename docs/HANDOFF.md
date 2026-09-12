@@ -1,4 +1,4 @@
-# Development handoff — Round 85.8 modular dialogue pipeline
+# Development handoff — Round 85.9 dialogue pipeline optimization
 
 Operational handoff. The accompanying archive is authoritative over GitHub.
 
@@ -49,7 +49,7 @@ python3 tools/import_android_text.py --only dialogue-auto
 python3 tools/import_android_text.py --only dialogue-format-mass --rom "Secret of Mana (USA).sfc"
 ```
 
-Historical pilot/review/batch modes were removed. Their useful runtime/identity decisions were consolidated into the canonical alignment and structural recipe layers. Round 85.7 moved reviewed identity tables out of executable Python. Round 85.8 then split the former monolithic importer into `tools/dialogue_pipeline/` modules while keeping `tools/import_android_text.py` as the stable CLI facade.
+Historical pilot/review/batch modes were removed. Their useful runtime/identity decisions were consolidated into the canonical alignment and structural recipe layers. Round 85.7 moved reviewed identity tables out of executable Python. Round 85.8 then split the former monolithic importer into `tools/dialogue_pipeline/` modules while keeping `tools/import_android_text.py` as the stable CLI facade. Round 85.9 keeps that architecture and removes two measured sources of repeated work without changing serialized outputs.
 
 Current module boundaries:
 
@@ -61,7 +61,9 @@ Current module boundaries:
 
 `import_android_text.py` is intentionally small and should not reacquire formatter/alignment internals.
 
-A from-scratch mass generation currently reproduces `translations/dialogues_french.json` **byte-for-byte**: 701 complete events / 1947 entries. The reviewed layout-search recipes avoid rediscovering the same accepted structural cuts by brute force; every applied recipe is independently simulated and the exhaustive solver remains the fallback if the current Android-derived text no longer matches.
+A from-scratch mass generation currently reproduces `translations/dialogues_french.json` **byte-for-byte**: 701 complete events / 1947 entries. Reviewed layout-search recipes are tried before generic fallback searches when applicable; every applied recipe is independently simulated, and the historical generic/exhaustive fallback remains available if a recipe no longer fits current Android-derived text.
+
+Round 85.9 also prepares the canonical `assets/dialogues.json` text/event index once for the internal shared formatting hot path instead of rebuilding the same index thousands of times. The public `event_text_index()` helper keeps its original uncached semantics for extraction/checking tools. On the checkpoint environment, a canonical mass run dropped from about **21.7 s to ~7.0 s** while all dialogue outputs remained byte-identical. `dialogue-auto` remains fully recomputed from Android/SNES sources and is not replaced by a generated-output cache.
 
 For clean temporary verification, all outputs can be redirected:
 
@@ -89,4 +91,4 @@ Do not reopen dialogue wording/identity without a concrete regression. Do not st
 
 ## Next work
 
-The dialogue-generation refactor and modular split are now checkpointed. The next phase may focus on performance only: profile the **canonical** generation path, optimize measured hotspots, preserve from-scratch reproducibility, and require byte-identical `dialogues_french.json` between optimized and reference paths. Prefer removing repeated work/memoizing pure calculations before reconsidering multiprocessing.
+Round 85.9 is the optimized serial reference path. Do not add multiprocessing merely because the target PC has many threads: the remaining measured work is roughly ~4 s of alignment plus ~1–1.5 s of simulation in this environment, and the serial mass run is already around seven seconds. Re-profile only after a functional pipeline change or if generation becomes materially slower. Any future `--jobs N` experiment must remain optional, deterministic and byte-identical to this serial reference.

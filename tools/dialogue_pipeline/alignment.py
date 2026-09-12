@@ -12,6 +12,13 @@ from .common import (DEFAULT_SYSTXT_EN, DEFAULT_SYSTXT_FR, DIALOGUE_REVIEWED_ALI
 from .policies import DIALOGUE_FORCED_UNMAPPED, DIALOGUE_VALIDATED_ANDROID_OMISSIONS, DIALOGUE_VALIDATED_CONTEXTUAL_TEMPLATES, DIALOGUE_REVIEWED_AUTO_OVERRIDES, DIALOGUE_VALIDATED_ALTERNATIVE_GROUPS
 
 @lru_cache(maxsize=None)
+def _auto_metric_tokens(normalized: str) -> tuple[tuple[str, ...], frozenset[str]]:
+    """Token views shared across lexical comparisons of the same normalized text."""
+    tokens = tuple(normalized.split())
+    return tokens, frozenset(tokens)
+
+
+@lru_cache(maxsize=None)
 def _auto_metrics(source: str, candidate: str) -> dict[str, float]:
     """Fast deterministic lexical metrics used only by the automatic aligner."""
     try:
@@ -30,8 +37,8 @@ def _auto_metrics(source: str, candidate: str) -> dict[str, float]:
             "lexical_score": 0.0,
         }
     character_similarity = float(fuzz.ratio(source_norm, candidate_norm))
-    source_tokens = source_norm.split()
-    candidate_tokens = set(candidate_norm.split())
+    source_tokens, _ = _auto_metric_tokens(source_norm)
+    _, candidate_tokens = _auto_metric_tokens(candidate_norm)
     covered = sum(token in candidate_tokens for token in source_tokens)
     source_token_coverage = 100.0 * covered / len(source_tokens)
     lexical_score = character_similarity * 0.75 + source_token_coverage * 0.25

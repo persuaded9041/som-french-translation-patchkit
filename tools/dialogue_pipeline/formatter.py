@@ -5099,6 +5099,31 @@ def make_dialogue_format_mass(
                 line.implicit_wrap
                 for box in simulation.boxes for page in box.pages for line in page.lines
             )
+            if (blocking or wraps) and event_id in _reviewed_layout_search_recipe_index():
+                # Some reviewed plans (currently $05F8) are defined after the
+                # validated live PLAYER_NAME-prefix reflow. Reproduce that cheap
+                # structural prerequisite first, then try the reviewed plan. If
+                # either step no longer applies, fall through to the historical
+                # generic repair sequence unchanged.
+                fast_values = values
+                fast_simulation = simulation
+                prefix_values, prefix_simulation, prefix_repairs = _try_live_player_prefix_reflow(
+                    base_rom=base_rom, event=event, translations=fast_values, advances=advances, font=font
+                )
+                if prefix_repairs:
+                    fast_values = prefix_values
+                    fast_simulation = prefix_simulation
+                reviewed_values, reviewed_simulation, reviewed_repairs = _apply_reviewed_layout_search_recipe(
+                    base_rom=base_rom, event=event, translations=fast_values, font=font
+                )
+                if reviewed_repairs:
+                    values = reviewed_values
+                    simulation = reviewed_simulation
+                    blocking = []
+                    wraps = 0
+                    if prefix_repairs:
+                        live_player_prefix_reflow_repairs_by_event[event_id] = prefix_repairs
+                    source_derived_layout_search_repairs_by_event[event_id] = reviewed_repairs
             if blocking or wraps:
                 candidate_values, candidate_simulation, boundary_repairs = _try_single_carrier_boundary_newline(
                     base_rom=base_rom, event=event, translations=values, font=font
@@ -5235,6 +5260,17 @@ def make_dialogue_format_mass(
                 for box in simulation.boxes for page in box.pages for line in page.lines
             )
             if blocking or wraps:
+                reviewed_values, reviewed_simulation, reviewed_repairs = _apply_reviewed_layout_search_recipe(
+                    base_rom=base_rom, event=event, translations=values, font=font,
+                    structural_command_overrides=structural_overrides,
+                )
+                if reviewed_repairs:
+                    values = reviewed_values
+                    simulation = reviewed_simulation
+                    blocking = []
+                    wraps = 0
+                    source_derived_layout_search_repairs_by_event[event_id] = reviewed_repairs
+            if blocking or wraps:
                 candidate_values, candidate_simulation, boundary_repairs = _try_single_carrier_boundary_newline(
                     base_rom=base_rom, event=event, translations=values, font=font,
                     structural_command_overrides=structural_overrides,
@@ -5275,17 +5311,6 @@ def make_dialogue_format_mass(
                         wraps = 0
                         carrier_repack_repairs_by_event[event_id] = repack_repairs
                         carrier_boundary_newline_repairs_by_event[event_id] = boundary_repairs
-            if blocking or wraps:
-                reviewed_values, reviewed_simulation, reviewed_repairs = _apply_reviewed_layout_search_recipe(
-                    base_rom=base_rom, event=event, translations=values, font=font,
-                    structural_command_overrides=structural_overrides,
-                )
-                if reviewed_repairs:
-                    values = reviewed_values
-                    simulation = reviewed_simulation
-                    blocking = []
-                    wraps = 0
-                    source_derived_layout_search_repairs_by_event[event_id] = reviewed_repairs
             if blocking or wraps:
                 searched_values, searched_simulation, search_repairs = _try_source_derived_layout_search(
                     base_rom=base_rom, event=event, translations=values, font=font,
@@ -6086,6 +6111,28 @@ def make_dialogue_format_mass(
                 structural_reaction_page_repairs_by_event[event_id] = reaction_repairs
                 continue
 
+            # Reviewed layout recipes are deterministic structural plans discovered
+            # by the historical fallback search. Try them before rescanning the
+            # generic carrier-boundary neighborhood; if a recipe has drifted, the
+            # original generic fallback remains immediately below.
+            reviewed_translations, reviewed_simulation, reviewed_repairs = _apply_reviewed_layout_search_recipe(
+                base_rom=base_rom,
+                event=event,
+                translations=event_translations,
+                font=font,
+                structural_command_overrides=structural_command_overrides_by_event.get(event_id),
+            )
+            if reviewed_repairs:
+                accepted_events.append(event_id)
+                translations_by_event[event_id] = reviewed_translations
+                reports_by_event[event_id] = event_reports
+                wait00_repairs_by_event[event_id] = wait00_repairs
+                unpaused_scroll_repairs_by_event[event_id] = []
+                cross_mapping_sentence_repairs_by_event[event_id] = []
+                structural_reaction_page_repairs_by_event[event_id] = []
+                source_derived_layout_search_repairs_by_event[event_id] = reviewed_repairs
+                continue
+
             (
                 boundary_translations,
                 boundary_simulation,
@@ -6106,24 +6153,6 @@ def make_dialogue_format_mass(
                 cross_mapping_sentence_repairs_by_event[event_id] = []
                 structural_reaction_page_repairs_by_event[event_id] = []
                 carrier_boundary_newline_repairs_by_event[event_id] = boundary_repairs
-                continue
-
-            reviewed_translations, reviewed_simulation, reviewed_repairs = _apply_reviewed_layout_search_recipe(
-                base_rom=base_rom,
-                event=event,
-                translations=event_translations,
-                font=font,
-                structural_command_overrides=structural_command_overrides_by_event.get(event_id),
-            )
-            if reviewed_repairs:
-                accepted_events.append(event_id)
-                translations_by_event[event_id] = reviewed_translations
-                reports_by_event[event_id] = event_reports
-                wait00_repairs_by_event[event_id] = wait00_repairs
-                unpaused_scroll_repairs_by_event[event_id] = []
-                cross_mapping_sentence_repairs_by_event[event_id] = []
-                structural_reaction_page_repairs_by_event[event_id] = []
-                source_derived_layout_search_repairs_by_event[event_id] = reviewed_repairs
                 continue
 
             searched_translations, searched_simulation, search_repairs = _try_source_derived_layout_search(

@@ -1021,6 +1021,25 @@ def event_text_index(document: dict) -> tuple[dict[str, dict], dict[str, dict]]:
     return by_id, by_event
 
 
+_FORMAT_INDEX_DOCUMENT: dict | None = None
+_FORMAT_INDEX_VALUE: tuple[dict[str, dict], dict[str, dict]] | None = None
+
+
+def _format_event_text_index(document: dict) -> tuple[dict[str, dict], dict[str, dict]]:
+    """Reuse the canonical source index during one formatting process.
+
+    Dialogue formatting treats its parsed source document as immutable.  Keep a
+    one-document identity cache for that hot path without changing the public
+    ``event_text_index`` semantics used by extraction/checking tools.  Supplying
+    any other document object rebuilds the index immediately.
+    """
+    global _FORMAT_INDEX_DOCUMENT, _FORMAT_INDEX_VALUE
+    if document is not _FORMAT_INDEX_DOCUMENT or _FORMAT_INDEX_VALUE is None:
+        _FORMAT_INDEX_DOCUMENT = document
+        _FORMAT_INDEX_VALUE = event_text_index(document)
+    return _FORMAT_INDEX_VALUE
+
+
 def mapping_leading_text_x_position(document: dict, mapping: dict) -> int:
     """Return a proven line-start ``TEXT_X`` padding before this mapping.
 
@@ -1034,7 +1053,7 @@ def mapping_leading_text_x_position(document: dict, mapping: dict) -> int:
     Other placements remain unmodeled here and are left to the simulator's
     unsupported-structure gate rather than inferred.
     """
-    by_id, by_event = event_text_index(document)
+    by_id, by_event = _format_event_text_index(document)
     source_ids = mapping.get("snes_ids", [])
     if not source_ids:
         return 0
@@ -1094,7 +1113,7 @@ def strip_proven_structural_android_markers(
     event_id = mapping.get("event_id")
     if not event_id:
         return text, []
-    _, by_event = event_text_index(document)
+    _, by_event = _format_event_text_index(document)
     event = by_event.get(event_id)
     if event is None:
         return text, []
@@ -1150,7 +1169,7 @@ def binding_slots(document: dict, mapping: dict) -> list[BindingSlot]:
     Any other command, glyph, or unmapped text crossed by a mapping is still
     rejected. This preserves the conservative structural contract.
     """
-    by_id, by_event = event_text_index(document)
+    by_id, by_event = _format_event_text_index(document)
     snes_ids = mapping.get("snes_ids", [])
     if not snes_ids:
         raise ValueError("Dialogue mapping has no SNES text IDs")
@@ -1347,7 +1366,7 @@ def _leading_newline_follows_wait(document: dict, text_id: str) -> bool:
     chunks we can keep the existing WAIT, emit one TEXT_CLEAR, and drop that
     synthetic blank line instead.
     """
-    by_id, by_event = event_text_index(document)
+    by_id, by_event = _format_event_text_index(document)
     meta = by_id[text_id]
     tokens = by_event[meta["event_id"]]["tokens"]
     index = meta["token_index"]
@@ -1447,7 +1466,7 @@ def _extend_slots_through_adjacent_nonsemantic_player_carrier(
     if re.search(r"[A-Za-z0-9À-ÖØ-öø-ÿŒœ]", carrier.source):
         return slots, []
 
-    by_id, by_event = event_text_index(document)
+    by_id, by_event = _format_event_text_index(document)
     meta = by_id.get(carrier.text_id)
     if meta is None:
         return slots, []
@@ -1701,7 +1720,7 @@ def format_mapping(
     # CHOICE_END terminal-boundary semantics without translating or inventing
     # prose.
     preserved_choice_terminal_suffix_ids: list[str] = []
-    _, by_event = event_text_index(document)
+    _, by_event = _format_event_text_index(document)
     event = by_event.get(mapping.get("event_id", ""))
     if event is not None:
         token_index_by_id = {
@@ -1842,7 +1861,7 @@ def format_mapping_across_existing_wait_boundaries(
             )
         leading_player_index = source_players[0]
 
-    by_id, by_event = event_text_index(document)
+    by_id, by_event = _format_event_text_index(document)
     metas = []
     for text_id in snes_ids:
         meta = by_id.get(text_id)
@@ -2072,7 +2091,7 @@ def format_mapping_across_existing_timed_wait_boundary(
     if PLAYER_PLACEHOLDER_RE.search(mapping.get("french_display", "")):
         raise ValueError("Existing timed-WAIT distribution does not handle French PLAYER_NAME")
 
-    by_id, by_event = event_text_index(document)
+    by_id, by_event = _format_event_text_index(document)
     first_meta = by_id.get(snes_ids[0])
     second_meta = by_id.get(snes_ids[1])
     if first_meta is None or second_meta is None:
@@ -2211,7 +2230,7 @@ def format_mapping_across_existing_action_boundary(
     if source_player_indexes != french_player_indexes or len(source_player_indexes) > 1:
         raise ValueError("Existing-action split requires at most one unchanged PLAYER_NAME")
 
-    by_id, by_event = event_text_index(document)
+    by_id, by_event = _format_event_text_index(document)
     first_meta = by_id.get(snes_ids[0])
     second_meta = by_id.get(snes_ids[1])
     if first_meta is None or second_meta is None:

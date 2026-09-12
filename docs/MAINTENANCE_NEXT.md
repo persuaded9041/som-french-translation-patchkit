@@ -1,4 +1,4 @@
-# Maintenance target — profile the modular dialogue pipeline
+# Maintenance target — Round 85.9 optimized serial dialogue pipeline
 
 `docs/HANDOFF.md` is the authoritative operational state.
 
@@ -35,16 +35,24 @@ The historical `tools/import_android_text.py` monolith is now a thin compatibili
 
 This is the final planned maintainability refactor before performance work. Do not fragment `formatter.py` further unless profiling or a concrete maintenance problem gives a clear module boundary; avoid decomposition for line-count aesthetics alone.
 
-## Next step: profiling and optimization
+## Round 85.9 optimization result
 
-Profile `dialogue-format-mass` as it exists now. The current from-scratch run is already dramatically shorter because the cleaned process no longer repeatedly rediscovers reviewed layout cuts; treat that as an architectural consequence, not the end of profiling.
+Profiling the modular Round-85.8 path found two dominant forms of repeated work:
 
-Optimization order:
+1. Reviewed layout-search events still ran generic carrier-boundary searches first, even though those searches were known to fail before the validated structural recipe was reached. Round 85.9 tries the independently simulated reviewed recipe first, then falls back to the previous generic sequence if the recipe has drifted. This especially removes repeated multi-second scans on `$05F8`.
+2. The shared formatter rebuilt the complete `text ID -> event/token` index of the immutable canonical dialogue source thousands of times. Round 85.9 keeps a one-document private formatting index while leaving public `event_text_index()` behavior unchanged.
 
-1. measure the remaining hot functions on a complete canonical run;
-2. eliminate redundant work and memoize pure calculations where outputs remain identical;
-3. verify `dialogues_french.json` byte-identical after every change;
-4. only if meaningful coarse event-local CPU work remains, benchmark deterministic `--jobs N` multiprocessing on the target i5-10600K (start around 4–6 workers);
-5. keep serial generation as the reference behavior.
+A small cache of tokenized normalized alignment strings was also retained; it avoids repeated `split()/set` work across the same normalized Android/SNES strings.
 
-Do not hardcode Android-derived prose, weaken simulation/layout checks, or make generated JSON files into hidden caches.
+Measured checkpoint results in this environment:
+
+- Round 85.8 mass baseline: about **21.68 s**;
+- Round 85.9 mass runs: **6.90 / 7.05 / 6.96 s** (median **6.96 s**);
+- all five dialogue outputs remain byte-identical;
+- all 14 component patches and `all.ips` remain byte-identical.
+
+The remaining profile is no longer dominated by accidental repeated work: alignment is roughly ~4 s and independent simulation ~1.3 s on a representative run. Stop here rather than complicating the pipeline for small gains. Multiprocessing is not warranted at this checkpoint; reconsider only after a future functional change or on evidence from the actual i5-10600K target.
+
+## Next step
+
+Treat Round 85.9 as the serial performance reference. The next project phase should be chosen by product need (for example the planned object/item translation procedure), not by further micro-optimization. If performance work resumes later, benchmark against this checkpoint and preserve from-scratch Android/SNES provenance and byte-identical outputs.

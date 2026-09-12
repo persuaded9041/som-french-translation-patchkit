@@ -178,7 +178,7 @@ checker is `tools/check_japanese_dialogue_extractor.py`; usage and confidence
 levels are documented in `docs/JAPANESE_DIALOGUE_EXTRACTION.md`. It is not part of
 the build and never creates Android identity.
 
-For the current development checkpoint and next work, see `docs/HANDOFF.md`. `docs/MAINTENANCE_NEXT.md` tracks the remaining maintenance work. The dialogue pipeline cleanup is complete enough that performance profiling can now target the canonical path rather than legacy review machinery. The accepted non-dialogue UI-VWF architecture and extension rules are summarized in `docs/UI_VWF.md`. The rejected Watts forge experiments and the runtime proof chain remain in `docs/FORGE_VWF_RESEARCH.md`; read both files before extending `vwf_ui`.
+For the current development checkpoint and next work, see `docs/HANDOFF.md`. `docs/MAINTENANCE_NEXT.md` tracks the remaining maintenance work. The dialogue pipeline cleanup/modularization is complete, and Round 85.9 establishes an optimized serial reference path (~7 s mass generation in the checkpoint environment) without changing Android/SNES provenance or serialized outputs. The accepted non-dialogue UI-VWF architecture and extension rules are summarized in `docs/UI_VWF.md`. The rejected Watts forge experiments and the runtime proof chain remain in `docs/FORGE_VWF_RESEARCH.md`; read both files before extending `vwf_ui`.
 
 See `docs/TEXT_INVENTORY.md` for coverage, `docs/TRANSLATIONS.md` for the source/translation
 model and ID scheme, `docs/ANDROID_TEXT_ALIGNMENT.md` for the Android English/French alignment method and conservative whole-dialogue mapping, `docs/TEXT_COMPONENT_AUDIT.md` for component
