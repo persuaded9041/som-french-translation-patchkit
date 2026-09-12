@@ -18,8 +18,9 @@ from shared.dialogue_codec import parse_event  # noqa: E402
 from shared.dialogue_translation import PLAYER_PLACEHOLDER_RE, normalize_android_french  # noqa: E402
 from shared.rom import validate_base_rom  # noqa: E402
 from shared.stock_text import TEXT_TO_CODE  # noqa: E402
+from tools.dialogue_pipeline.alignment import make_dialogue_auto_alignment  # noqa: E402
+from tools.dialogue_pipeline.common import DEFAULT_SCRTXT_EN, DEFAULT_SCRTXT_FR, read_scrtxt  # noqa: E402
 
-DEFAULT_MAPPING = ROOT / "mappings" / "android" / "dialogues_auto.json"
 DEFAULT_OUTPUT = ROOT / "mappings" / "android" / "dialogue_charset_audit.csv"
 
 ACTIONS = {
@@ -126,13 +127,29 @@ def scan_stock_high_dte(rom: bytes) -> Counter[int]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--mapping", type=Path, default=DEFAULT_MAPPING)
+    parser.add_argument(
+        "--mapping",
+        type=Path,
+        help="optional pre-generated alignment JSON; default regenerates alignment from canonical Android EN/FR inputs",
+    )
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--rom", type=Path, help="optional clean unheadered USA ROM for stock $D3-$FF event-text scan")
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
 
-    mapping = json.loads(args.mapping.read_text(encoding="utf-8"))
+    if args.mapping is not None:
+        mapping = json.loads(args.mapping.read_text(encoding="utf-8"))
+        mapping_source = str(args.mapping)
+    else:
+        english = read_scrtxt(DEFAULT_SCRTXT_EN)
+        french = read_scrtxt(DEFAULT_SCRTXT_FR)
+        mapping = make_dialogue_auto_alignment(
+            english,
+            french,
+            english_path=DEFAULT_SCRTXT_EN,
+            french_path=DEFAULT_SCRTXT_FR,
+        )
+        mapping_source = "canonical Android EN/FR + reviewed alignment recipes"
     csv_bytes, unique_count, occurrence_count = make_csv(mapping)
 
     if args.check:
@@ -144,6 +161,7 @@ def main() -> None:
         args.output.write_bytes(csv_bytes)
         print(f"Generated {args.output}")
 
+    print(f"Alignment source: {mapping_source}")
     print(f"Unsupported after layout/placeholder normalization: {unique_count} unique / {occurrence_count} occurrences")
 
     if args.rom:

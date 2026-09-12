@@ -132,8 +132,7 @@ sources. The active structural recipe layer is split by responsibility:
 These files contain IDs, token references, punctuation and structural operations only.
 Actual localized prose is read from `sources/android/scrtxt_fr.bin` on every generation.
 Genuine non-Android French remains isolated in `translations/dialogues_manual_supplements.json`.
-`translations/dialogues_french.json`, `dialogues_auto.json` and the mass-format reports are
-generated outputs, never required inputs.
+`translations/dialogues_french.json`, `mappings/android/dialogues_auto.json`, the unmapped/exclusion CSVs and the mass-format reports are generated-on-demand outputs. They are ignored by Git and never required inputs.
 
 Operational material:
 

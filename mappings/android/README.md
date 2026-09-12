@@ -26,10 +26,9 @@ These files encode reviewed project decisions and must remain versioned:
 Genuinely non-Android French prose belongs only in
 `translations/dialogues_manual_supplements.json`.
 
-## Reproducible mapping / current guardrail data
+## Generated mapping / guardrail reports
 
-These are generated from canonical inputs, but are still retained because current
-checks or downstream tooling consume them:
+The following are deterministic **on-demand outputs** and are ignored by Git:
 
 - `dialogues_auto.json` — conservative SNES ↔ Android-English semantic alignment;
 - `dialogues_unmapped.csv` — unresolved semantic carriers emitted with that alignment;
@@ -37,13 +36,12 @@ checks or downstream tooling consume them:
 - `dialogues_format_mass_excluded.csv` — current unused/orphan exclusions;
 - `text_resources_android.json` — Android text-resource identity/provenance trace.
 
-They are **not** permission to use generated French output as an input. In particular,
-`translations/dialogues_french.json` remains a generated product and may be absent from
-a clean checkout in the future.
+No checker or component build requires these files to exist. Regression checks regenerate
+the relevant documents in memory from canonical inputs. Materialize the files only for
+inspection, diffs or review.
 
-These files may be retained as convenient regression/audit snapshots, but the canonical
-dialogue generator does not consume them. A from-scratch mass run has been verified with
-`translations/dialogues_french.json` absent.
+`translations/dialogues_french.json` and `translations/text_resources_french.json` follow
+the same rule: deterministic review outputs, never build sources.
 
 ## Current human review sheet
 
@@ -72,17 +70,26 @@ from being accidentally recommitted.
 ## Current regeneration / checks
 
 ```bash
-python3 tools/import_android_text.py --only dialogue-auto --check
 python3 tools/check_dialogue_redistribution_recipes.py
 python3 tools/check_manual_dialogue_supplements.py
 python3 tools/generate_manual_dialogue_supplements_html.py --check
-python3 tools/import_android_text.py --only dialogue-format-mass --rom <clean-USA-ROM> --check
-python3 tools/check_dialogue_regressions.py
+python3 tools/check_dialogue_regressions.py --rom <clean-USA-ROM>
 python3 tools/check_text_source_hygiene.py
 python3 tools/check_text_roundtrip.py <clean-USA-ROM> --scan-all-events
 ```
 
-Optional reports should be written only when needed, for example:
+Materialize dialogue alignment/format reports only when needed, preferably outside the repository:
+
+```bash
+python3 tools/import_android_text.py --only dialogue-auto \
+  --output /tmp/dialogues_auto.json --unmapped-csv /tmp/dialogues_unmapped.csv
+python3 tools/import_android_text.py --only dialogue-format-mass --rom <clean-USA-ROM> \
+  --output /tmp/dialogues_french.json \
+  --format-report /tmp/dialogues_format_mass.json \
+  --excluded-csv /tmp/dialogues_format_mass_excluded.csv
+```
+
+Optional reports should likewise be written only when needed, for example:
 
 ```bash
 python3 tools/audit_android_dialogue_charset.py --output /tmp/dialogue_charset_audit.csv

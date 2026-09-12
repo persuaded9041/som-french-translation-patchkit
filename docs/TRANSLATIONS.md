@@ -186,9 +186,12 @@ are part of the current structural alignment data; only the canonical whole-dial
 aligner remains exposed:
 
 ```bash
-python3 tools/import_android_text.py --only dialogue-auto
-python3 tools/import_android_text.py --only dialogue-auto --check
+python3 tools/import_android_text.py --only dialogue-auto \
+  --output /tmp/dialogues_auto.json \
+  --unmapped-csv /tmp/dialogues_unmapped.csv
 ```
+
+The alignment is normally regenerated in memory by regression/audit tools; this command is only needed to materialize a review snapshot.
 
 Round 58 manual-supplement schema uses `original_jp`, `original_en`, `original_fr` and
 `translation_fr`. `translation_fr` is proposed in this order: SNES-JP meaning, event context,
@@ -206,14 +209,14 @@ five no-equivalent manual-review records. Round 65 validates `$00EE`, `$00F1`, `
 Round 67 validates the `$013A/C9:40D7` suppression. There are now **0 pending manual records**. The older
 expanded payload `Dryade fera réagir l'orbe !` remains withdrawn. The current Round-69 mass pass is **701 events with 0 errors, 0 warnings and 0 implicit wraps**.
 
-It writes `mappings/android/dialogues_auto.json` plus
-`mappings/android/dialogues_unmapped.csv`. After the reviewed rounds, semantic Android
+On request it can materialize `mappings/android/dialogues_auto.json` plus
+`mappings/android/dialogues_unmapped.csv`; normal checks regenerate the same alignment in memory. After the reviewed rounds, semantic Android
 alignment is **1798 / 1838 (97.8%)**, leaving **40 deliberately classified unresolved carriers**
 rather than forcing weak matches. Whole-game matching remains separate from SNES layout.
 The former focused formatter modes have been retired; their validated runtime
 invariants are covered by the current simulator and regression checks.
-`translations/dialogues_french.json` is generated only by `--only dialogue-format-mass`: **701 simulator-clean events / 1810 accepted
-semantic source IDs / 1946 JSON entries**, comprising **701 complete + 0 PARTIEL**.
+`translations/dialogues_french.json` may be materialized by `--only dialogue-format-mass`, but is not required by builds or checks: **701 simulator-clean events / 1815 accepted
+semantic source IDs / 1947 JSON entries**, comprising **701 complete + 0 PARTIEL**.
 Exclusions are exactly **3 alignment-incomplete routing-audited unused/orphan events**.
 The former PARTIEL provenance remains preserved in the generated completion metadata. `$0278` is special because accepted Android text is preserved,
 its two SNES-specific controller lines come from `translations/dialogues_manual_supplements.json`,
@@ -232,6 +235,5 @@ scroll lines immediately after an existing WAIT into a clear-only `TEXT_CLEAR`.
 Fresh-line `TEXT_X` padding reduces the formatter's first-line capacity exactly as
 modeled by the independent simulator. If compact fallback still leaves only an
 `UNPAUSED_SCROLL`, one sentence-boundary extra page may be tried and is accepted
-only after clean whole-event resimulation. The
-reviewable exclusions are written to
-`mappings/android/dialogues_format_mass_excluded.csv`.
+only after clean whole-event resimulation. The reviewable exclusions can be materialized on demand as
+`mappings/android/dialogues_format_mass_excluded.csv`; the regression checker validates the same exclusion set directly in memory.

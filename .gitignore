@@ -29,3 +29,8 @@ artifacts/
 translations/dialogues_french.json
 translations/text_resources_french.json
 mappings/android/text_resources_android.json
+# Deterministic generated dialogue alignment/format reports (not canonical inputs)
+mappings/android/dialogues_auto.json
+mappings/android/dialogues_unmapped.csv
+mappings/android/dialogues_format_mass.json
+mappings/android/dialogues_format_mass_excluded.csv

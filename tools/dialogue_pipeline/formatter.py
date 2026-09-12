@@ -4948,6 +4948,7 @@ def make_dialogue_format_mass(
     english_path: Path,
     french_path: Path,
     base_rom: bytes,
+    alignment: dict | None = None,
 ) -> tuple[dict, dict]:
     """Generate the largest conservative complete-event set accepted by the simulator.
 
@@ -4968,12 +4969,13 @@ def make_dialogue_format_mass(
     from shared.dialogue_simulator import make_dialogue_font, simulate_event
 
     validate_base_rom(base_rom)
-    alignment = make_dialogue_auto_alignment(
-        english,
-        french,
-        english_path=english_path,
-        french_path=french_path,
-    )
+    if alignment is None:
+        alignment = make_dialogue_auto_alignment(
+            english,
+            french,
+            english_path=english_path,
+            french_path=french_path,
+        )
     source_document = json.loads(DIALOGUE_SOURCE.read_text(encoding="utf-8"))
     manual_supplements_by_event = _load_manual_dialogue_supplements(source_document)
     inn_template = _parameterized_inn_prompt(english, french)

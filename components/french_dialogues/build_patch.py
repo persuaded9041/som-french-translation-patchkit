@@ -3,8 +3,10 @@
 
 `french_dialogues` deliberately owns dialogue *data*, not the runtime VWF engine.
 The root source asset contains every text-bearing stock event script except event
-$0400, whose translated payload is owned by `french_intro`. French edits live separately in
-translations/dialogues_french.json. Unchanged text reuses its exact source encoding.
+$0400, whose translated payload is owned by `french_intro`. The normal build regenerates
+French dialogue data in memory from canonical Android/source inputs; an explicit
+`--translation` JSON is only a diagnostic override. Unchanged text reuses its exact
+source encoding.
 
 Edited events are rebuilt in place when they still fit their original pointer
 span. If an event grows, it is relocated deterministically to the `french_dialogues`

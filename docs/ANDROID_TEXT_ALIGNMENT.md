@@ -296,9 +296,13 @@ encoded as structural correspondence data used by the canonical aligner. The act
 commands are:
 
 ```bash
-python3 tools/import_android_text.py --only intro [--check]
-python3 tools/import_android_text.py --only dialogue-auto [--check]
-python3 tools/import_android_text.py --only dialogue-format-mass --rom <clean-USA-ROM> [--check]
+python3 tools/import_android_text.py --only intro
+python3 tools/import_android_text.py --only dialogue-auto \
+  --output /tmp/dialogues_auto.json --unmapped-csv /tmp/dialogues_unmapped.csv
+python3 tools/import_android_text.py --only dialogue-format-mass --rom <clean-USA-ROM> \
+  --output /tmp/dialogues_french.json \
+  --format-report /tmp/dialogues_format_mass.json \
+  --excluded-csv /tmp/dialogues_format_mass_excluded.csv
 ```
 
 `dialogue-auto` rebuilds the reviewed SNES/Android identity report from
@@ -384,11 +388,12 @@ source IDs when the three pilot duplicate/alternative cases are included. The
 first whole-dialogue automatic pass is implemented as:
 
 ```bash
-python3 tools/import_android_text.py --only dialogue-auto
-python3 tools/import_android_text.py --only dialogue-auto --check
+python3 tools/import_android_text.py --only dialogue-auto \
+  --output /tmp/dialogues_auto.json \
+  --unmapped-csv /tmp/dialogues_unmapped.csv
 ```
 
-It deterministically generates:
+When explicitly materialized, it deterministically generates:
 
 - `mappings/android/dialogues_auto.json`: accepted correspondence blocks,
   evidence, recovered French localization slots, coverage statistics and the

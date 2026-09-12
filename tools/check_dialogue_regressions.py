@@ -2,17 +2,21 @@
 """Validate locked dialogue decisions and current playable-dialogue coverage."""
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from tools.dialogue_pipeline.alignment import make_dialogue_auto_alignment  # noqa: E402
+from tools.dialogue_pipeline.common import DEFAULT_SCRTXT_EN, DEFAULT_SCRTXT_FR, read_scrtxt  # noqa: E402
+from tools.dialogue_pipeline.formatter import make_dialogue_format_mass  # noqa: E402
+
 MANUAL = ROOT / "translations/dialogues_manual_supplements.json"
-FRENCH = ROOT / "translations/dialogues_french.json"
-MASS = ROOT / "mappings/android/dialogues_format_mass.json"
-AUTO = ROOT / "mappings/android/dialogues_auto.json"
 RECIPES = ROOT / "mappings/android/dialogues_redistribution_recipes.json"
 COVERAGE_RECIPES = ROOT / "mappings/android/dialogues_coverage_repair_recipes.json"
-EXCLUDED = ROOT / "mappings/android/dialogues_format_mass_excluded.csv"
 
 ROUND69_EVENTS = {
     "010C", "015A", "01C5", "0204", "0205", "0227", "04E2", "04E5", "04E6",
@@ -168,11 +172,6 @@ def check_scene_recipes(french: dict, mass: dict, auto: dict, recipes: dict) -> 
     if auto.get("coverage", {}).get("mapped_semantic_source_id_count") != 1798 or auto.get("coverage", {}).get("unmapped_semantic_source_id_count") != 40:
         die("Android semantic identity changed from 1798/1838")
 
-    csv_text = EXCLUDED.read_text(encoding="utf-8-sig")
-    for eid in ORPHANS:
-        if eid not in csv_text:
-            die(f"{eid} missing from exclusion CSV")
-
     if french.get("partial_events"):
         die("PARTIEL should remain empty")
     complete_meta = {x["event_id"]: x for x in french.get("user_validated_visually_complete_events", [])}
@@ -205,16 +204,40 @@ def check_postaudit(french: dict, mass: dict, manual: dict) -> None:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--rom",
+        type=Path,
+        required=True,
+        help="clean unheadered Secret of Mana (USA) ROM used by the mass formatter/simulator",
+    )
+    args = parser.parse_args()
+
     manual = json.loads(MANUAL.read_text(encoding="utf-8"))
-    french = json.loads(FRENCH.read_text(encoding="utf-8"))
-    mass = json.loads(MASS.read_text(encoding="utf-8"))
-    auto = json.loads(AUTO.read_text(encoding="utf-8"))
     recipes = json.loads(RECIPES.read_text(encoding="utf-8"))["events"]
+    english = read_scrtxt(DEFAULT_SCRTXT_EN)
+    french_android = read_scrtxt(DEFAULT_SCRTXT_FR)
+    base_rom = args.rom.resolve().read_bytes()
+
+    auto = make_dialogue_auto_alignment(
+        english,
+        french_android,
+        english_path=DEFAULT_SCRTXT_EN,
+        french_path=DEFAULT_SCRTXT_FR,
+    )
+    french, mass = make_dialogue_format_mass(
+        english,
+        french_android,
+        english_path=DEFAULT_SCRTXT_EN,
+        french_path=DEFAULT_SCRTXT_FR,
+        base_rom=base_rom,
+        alignment=auto,
+    )
 
     check_targeted_reviews(manual, french, mass)
     check_scene_recipes(french, mass, auto, recipes)
     check_postaudit(french, mass, manual)
-    print("Dialogue regressions verified: targeted reviews, scene redistributions, 701/701 completion, 3 validated exclusions, Android identity 1798/1838, post-audit coverage repairs")
+    print("Dialogue regressions verified from canonical inputs: targeted reviews, scene redistributions, 701/701 completion, 3 validated exclusions, Android identity 1798/1838, post-audit coverage repairs")
 
 
 if __name__ == "__main__":

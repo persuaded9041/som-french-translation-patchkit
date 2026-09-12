@@ -560,10 +560,11 @@ that the older simulator did not detect.
 `french_dialogues` relocates 515 growing events at the Round-32 checkpoint; the final relocated payload
 now extends into `$E9`; the highest current relocated payload still remains well inside the runtime-validated reserved `$E8-$EC` pool.
 
-`mappings/android/dialogues_format_mass.json` records every accepted/rejected
+When explicitly materialized, `mappings/android/dialogues_format_mass.json` records every accepted/rejected
 stage and `mappings/android/dialogues_format_mass_excluded.csv` gives a reviewable
-row for every semantic source phrase belonging to an excluded event. This mass
-output is a runtime candidate until a full playthrough is completed.
+row for every semantic source phrase belonging to an excluded event. Both are ignored
+generated reports; regression checks rebuild the same report in memory. The generated
+mass translation remains a runtime candidate until a full playthrough is completed.
 
 ## 8.7 WAIT $00 rolling-window preservation
 

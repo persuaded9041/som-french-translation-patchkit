@@ -188,6 +188,23 @@ def main() -> None:
 
     check_dialogue_pipeline(problems)
 
+    # Regression/audit consumers must regenerate dialogue alignment/format data
+    # from canonical inputs rather than read ignored generated snapshots.
+    generated_dialogue_consumers = {
+        ROOT / "tools" / "check_dialogue_regressions.py": (
+            "dialogues_french.json", "dialogues_auto.json", "dialogues_format_mass.json",
+            "dialogues_format_mass_excluded.csv", "dialogues_unmapped.csv",
+        ),
+        ROOT / "tools" / "audit_android_dialogue_charset.py": ("DEFAULT_MAPPING",),
+    }
+    for consumer, needles in generated_dialogue_consumers.items():
+        text = consumer.read_text(encoding="utf-8")
+        for needle in needles:
+            if needle in text:
+                problems.append(
+                    f"{consumer.relative_to(ROOT)} still depends on generated dialogue snapshot marker {needle!r}"
+                )
+
     if problems:
         print("Text-source hygiene FAILED:")
         for problem in problems:
@@ -201,6 +218,7 @@ def main() -> None:
     print("  - `mana_tree_original` / `name_entry_extended` / `name_entry_prefill` / `vwf_intro` / `vwf_dialogues` / `intro_skip` own no translation-JSON dependencies")
     print("  - remaining component-local .bin/.txt assets are explicit non-prose data")
     print("  - dialogue generation never consumes dialogues_french.json as an input")
+    print("  - dialogue regression/charset checks regenerate ignored alignment/format snapshots in memory")
     print("  - french_dialogues normal build regenerates its translation in memory; generated dialogues_french.json is optional")
     print("  - french_resources normal build regenerates Android resource mapping/translation in memory; generated resource JSON outputs are optional")
     print("  - dialogue alignment/layout recipes contain structural references only, never translated prose payloads")

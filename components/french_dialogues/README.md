@@ -119,17 +119,15 @@ python3 components/french_dialogues/build_patch.py \
 Useful checks after dialogue-pipeline changes:
 
 ```bash
-python3 tools/import_android_text.py --only dialogue-format-mass \
-  --rom "Secret of Mana (USA).sfc" --check
-python3 tools/check_dialogue_regressions.py
+python3 tools/check_dialogue_regressions.py --rom "Secret of Mana (USA).sfc"
 python3 tools/check_dialogue_redistribution_recipes.py
 python3 tools/check_manual_dialogue_supplements.py
 python3 tools/check_text_source_hygiene.py
 python3 tools/check_text_roundtrip.py "Secret of Mana (USA).sfc" --scan-all-events
 ```
 
-For a strict generated-artifact independence test, temporarily remove or rename
-`translations/dialogues_french.json` and rebuild the component normally. The IPS
+Generated dialogue/alignment/report artifacts are absent from a clean checkout by design.
+Rebuild the component normally; the IPS
 must remain byte-identical.
 
 ## Intentional limits
