@@ -1,4 +1,4 @@
-# Development handoff — Round 85.7 dialogue-generation refactor
+# Development handoff — Round 85.8 modular dialogue pipeline
 
 Operational handoff. The accompanying archive is authoritative over GitHub.
 
@@ -49,7 +49,17 @@ python3 tools/import_android_text.py --only dialogue-auto
 python3 tools/import_android_text.py --only dialogue-format-mass --rom "Secret of Mana (USA).sfc"
 ```
 
-Historical pilot/review/batch modes were removed. Their useful runtime/identity decisions were consolidated into the canonical alignment and structural recipe layers. Round 85.7 additionally moves all reviewed `DIALOGUE_REVIEW_ROUND*` identity tables out of executable Python into `dialogues_reviewed_alignment_recipes.json`; the importer no longer contains round-named active helpers.
+Historical pilot/review/batch modes were removed. Their useful runtime/identity decisions were consolidated into the canonical alignment and structural recipe layers. Round 85.7 moved reviewed identity tables out of executable Python. Round 85.8 then split the former monolithic importer into `tools/dialogue_pipeline/` modules while keeping `tools/import_android_text.py` as the stable CLI facade.
+
+Current module boundaries:
+
+- `common.py` — Android binary decoding and shared source/alignment helpers;
+- `policies.py` — reviewed non-prose policy constants;
+- `alignment.py` — Android/SNES automatic alignment and reviewed-identity integration;
+- `recipes.py` — structural recipe loading, validation and Android-token rendering;
+- `formatter.py` — dialogue formatting, layout repair, simulation gating and mass-generation orchestration.
+
+`import_android_text.py` is intentionally small and should not reacquire formatter/alignment internals.
 
 A from-scratch mass generation currently reproduces `translations/dialogues_french.json` **byte-for-byte**: 701 complete events / 1947 entries. The reviewed layout-search recipes avoid rediscovering the same accepted structural cuts by brute force; every applied recipe is independently simulated and the exhaustive solver remains the fallback if the current Android-derived text no longer matches.
 
@@ -79,4 +89,4 @@ Do not reopen dialogue wording/identity without a concrete regression. Do not st
 
 ## Next work
 
-The dialogue-generation refactor is now checkpointed. The next phase may focus on performance only: profile the **canonical** generation path, optimize measured hotspots, preserve from-scratch reproducibility, and require byte-identical `dialogues_french.json` between optimized and reference paths. Prefer removing repeated work/memoizing pure calculations before reconsidering multiprocessing.
+The dialogue-generation refactor and modular split are now checkpointed. The next phase may focus on performance only: profile the **canonical** generation path, optimize measured hotspots, preserve from-scratch reproducibility, and require byte-identical `dialogues_french.json` between optimized and reference paths. Prefer removing repeated work/memoizing pure calculations before reconsidering multiprocessing.

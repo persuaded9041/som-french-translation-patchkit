@@ -54,16 +54,19 @@ def rel(path: Path) -> str:
 
 def check_dialogue_pipeline(problems: list[str]) -> None:
     """Guard the Android-derived dialogue provenance architecture."""
-    importer = ROOT / "tools" / "import_android_text.py"
-    text = importer.read_text(encoding="utf-8")
+    generator_files = [ROOT / "tools" / "import_android_text.py"] + sorted((ROOT / "tools" / "dialogue_pipeline").glob("*.py"))
     forbidden_reads = (
         "DEFAULT_DIALOGUE_FORMAT_MASS_OUTPUT.read",
         "dialogues_french.json\").read",
         "dialogues_french.json').read",
     )
-    for needle in forbidden_reads:
-        if needle in text:
-            problems.append(f"dialogue generator reads its own generated output: {needle}")
+    for generator_file in generator_files:
+        text = generator_file.read_text(encoding="utf-8")
+        for needle in forbidden_reads:
+            if needle in text:
+                problems.append(
+                    f"dialogue generator reads its own generated output in {generator_file.relative_to(ROOT)}: {needle}"
+                )
 
     recipe_path = ROOT / "mappings" / "android" / "dialogues_mapping_layout_recipes.json"
     document = json.loads(recipe_path.read_text(encoding="utf-8"))

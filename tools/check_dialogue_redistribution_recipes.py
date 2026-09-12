@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Verify that dialogue resegmentation recipes contain no translated prose."""
 from __future__ import annotations
-import importlib.util
 import json
 import re
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 RECIPES = ROOT / "mappings/android/dialogues_redistribution_recipes.json"
 COVERAGE = ROOT / "mappings/android/dialogues_coverage_repair_recipes.json"
 FRENCH = ROOT / "translations/dialogues_french.json"
@@ -59,13 +59,11 @@ def main() -> None:
                 if part[0] not in {"a", "p", "x"}:
                     die(f"{ev}/{sid}: unknown part kind {part!r}")
 
-    spec = importlib.util.spec_from_file_location("import_android_text_recipe_check", ROOT / "tools/import_android_text.py")
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    assert spec.loader is not None
-    spec.loader.exec_module(module)
-    fr = module.read_scrtxt(SCRTXT_FR)
-    rendered, _ = module._load_dialogue_redistribution_recipes(fr)
+    from dialogue_pipeline.common import read_scrtxt
+    from dialogue_pipeline.recipes import _load_dialogue_redistribution_recipes
+
+    fr = read_scrtxt(SCRTXT_FR)
+    rendered, _ = _load_dialogue_redistribution_recipes(fr)
     coverage = json.loads(COVERAGE.read_text(encoding="utf-8")) if COVERAGE.exists() else {"repairs": []}
     coverage_append = {(r.get("event_id"), r.get("carrier_id")) for r in coverage.get("repairs", []) if r.get("mode") == "append"}
     active = (

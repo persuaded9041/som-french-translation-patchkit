@@ -1,4 +1,4 @@
-# Maintenance target — profile the cleaned dialogue pipeline
+# Maintenance target — profile the modular dialogue pipeline
 
 `docs/HANDOFF.md` is the authoritative operational state.
 
@@ -27,6 +27,13 @@ Round 85.6 measured the cleaned canonical path. Pure memoization of alignment no
 ## Refactor checkpoint after Round 85.6
 
 Before further performance work, reviewed alignment history was moved out of executable Python into `dialogues_reviewed_alignment_recipes.json`. The importer no longer embeds `DIALOGUE_REVIEW_ROUND*` tables or round-named active helpers. Redistribution and mapping-layout recipes now share one Android-token renderer and one recipe-document validator. Static call-graph audit reports every top-level importer function reachable from the active CLI. Outputs remain byte-identical.
+
+
+## Round 85.8 modular split
+
+The historical `tools/import_android_text.py` monolith is now a thin compatibility CLI facade (~500 lines). Dialogue internals live under `tools/dialogue_pipeline/`: `common.py`, `policies.py`, `alignment.py`, `recipes.py`, and `formatter.py`. The split is mechanical: algorithms and serialized outputs are unchanged. Existing user commands remain valid. Checkers now target the owning modules instead of importing private helpers from the CLI facade, and text-source hygiene scans the whole pipeline package.
+
+This is the final planned maintainability refactor before performance work. Do not fragment `formatter.py` further unless profiling or a concrete maintenance problem gives a clear module boundary; avoid decomposition for line-count aesthetics alone.
 
 ## Next step: profiling and optimization
 
