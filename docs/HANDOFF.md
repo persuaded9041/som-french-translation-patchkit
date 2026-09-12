@@ -1,4 +1,4 @@
-# Development handoff — Round 85.9 dialogue pipeline optimization
+# Development handoff — Round 85.10 dialogue pipeline optimization
 
 Operational handoff. The accompanying archive is authoritative over GitHub.
 
@@ -49,7 +49,7 @@ python3 tools/import_android_text.py --only dialogue-auto
 python3 tools/import_android_text.py --only dialogue-format-mass --rom "Secret of Mana (USA).sfc"
 ```
 
-Historical pilot/review/batch modes were removed. Their useful runtime/identity decisions were consolidated into the canonical alignment and structural recipe layers. Round 85.7 moved reviewed identity tables out of executable Python. Round 85.8 then split the former monolithic importer into `tools/dialogue_pipeline/` modules while keeping `tools/import_android_text.py` as the stable CLI facade. Round 85.9 keeps that architecture and removes two measured sources of repeated work without changing serialized outputs.
+Historical pilot/review/batch modes were removed. Their useful runtime/identity decisions were consolidated into the canonical alignment and structural recipe layers. Round 85.7 moved reviewed identity tables out of executable Python. Round 85.8 then split the former monolithic importer into `tools/dialogue_pipeline/` modules while keeping `tools/import_android_text.py` as the stable CLI facade. Round 85.9 established the first optimized serial path. Round 85.10 keeps the same architecture and removes a second set of small, measurable sources of repeated work without changing serialized outputs.
 
 Current module boundaries:
 
@@ -63,7 +63,7 @@ Current module boundaries:
 
 A from-scratch mass generation currently reproduces `translations/dialogues_french.json` **byte-for-byte**: 701 complete events / 1947 entries. Reviewed layout-search recipes are tried before generic fallback searches when applicable; every applied recipe is independently simulated, and the historical generic/exhaustive fallback remains available if a recipe no longer fits current Android-derived text.
 
-Round 85.9 also prepares the canonical `assets/dialogues.json` text/event index once for the internal shared formatting hot path instead of rebuilding the same index thousands of times. The public `event_text_index()` helper keeps its original uncached semantics for extraction/checking tools. On the checkpoint environment, a canonical mass run dropped from about **21.7 s to ~7.0 s** while all dialogue outputs remained byte-identical. `dialogue-auto` remains fully recomputed from Android/SNES sources and is not replaced by a generated-output cache.
+Round 85.9 prepares the canonical `assets/dialogues.json` text/event index once for the internal shared formatting hot path instead of rebuilding the same index thousands of times. Round 85.10 makes all formatter-owned lookups consistently use that prepared index, prepares repeated source/Android spans once per alignment session, reuses ranking results inside one immutable candidate index, prepares positional-neighborhood evidence once per alignment pass, and keys lexical metric reuse by the normalized strings that actually define the metric. On the checkpoint environment, five canonical mass checks measured **5.72 / 5.78 / 5.86 / 5.77 / 5.84 s** (median **5.78 s**) while all dialogue outputs remained byte-identical. `dialogue-auto` remains fully recomputed from Android/SNES sources and is not replaced by a generated-output cache.
 
 For clean temporary verification, all outputs can be redirected:
 
@@ -91,4 +91,4 @@ Do not reopen dialogue wording/identity without a concrete regression. Do not st
 
 ## Next work
 
-Round 85.9 is the optimized serial reference path. Do not add multiprocessing merely because the target PC has many threads: the remaining measured work is roughly ~4 s of alignment plus ~1–1.5 s of simulation in this environment, and the serial mass run is already around seven seconds. Re-profile only after a functional pipeline change or if generation becomes materially slower. Any future `--jobs N` experiment must remain optional, deterministic and byte-identical to this serial reference.
+Round 85.10 is the optimized serial reference path. Do not add multiprocessing merely because the target PC has many threads: the remaining measured work is dominated by real alignment/scoring and independent simulation rather than obvious repeated-work hotspots, and the serial mass run is already around six seconds. Re-profile only after a functional pipeline change or if generation becomes materially slower. Any future `--jobs N` experiment must remain optional, deterministic and byte-identical to this serial reference.

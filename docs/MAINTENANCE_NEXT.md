@@ -1,4 +1,4 @@
-# Maintenance target — Round 85.9 optimized serial dialogue pipeline
+# Maintenance target — Round 85.10 optimized serial dialogue pipeline
 
 `docs/HANDOFF.md` is the authoritative operational state.
 
@@ -52,7 +52,21 @@ Measured checkpoint results in this environment:
 - all 14 component patches and `all.ips` remain byte-identical.
 
 The remaining profile is no longer dominated by accidental repeated work: alignment is roughly ~4 s and independent simulation ~1.3 s on a representative run. Stop here rather than complicating the pipeline for small gains. Multiprocessing is not warranted at this checkpoint; reconsider only after a future functional change or on evidence from the actual i5-10600K target.
+## Round 85.10 second conservative optimization pass
+
+A second profile of Round 85.9 found several smaller but still clear sources of redundant serial work. The retained changes are intentionally local and maintenance-friendly:
+
+- `_auto_align_session()` prepares each short SNES span and Android span once per session instead of rebuilding the same strings across the dynamic-programming grid;
+- `_AutoCandidateIndex.rank()` reuses rankings for the same normalized source/limit inside one immutable candidate index;
+- repeated positional tie-break probes flatten their immutable context records once per pass instead of rebuilding the same evidence list for every target;
+- lexical metric caching is keyed by normalized source/candidate forms, which are the actual inputs to the metric;
+- alignment hot paths that already hold normalized strings call the normalized metric helper directly;
+- formatter-internal source-index lookups consistently use the existing prepared immutable formatting index.
+
+No simulator state or acceptance rule was changed. An incremental simulator-metrics redesign was deliberately avoided because it would increase maintenance risk for a comparatively small remaining hotspot. No multiprocessing or generated-output cache was introduced.
+
+Measured mass `--check` runs in the checkpoint environment: **5.72 / 5.78 / 5.86 / 5.77 / 5.84 s**, median **5.78 s**. A strict run with `translations/dialogues_french.json` physically absent rebuilt the exact 264,463-byte file in **5.64 s**. All five dialogue outputs and all component IPS files remain byte-identical to Round 85.9.
 
 ## Next step
 
-Treat Round 85.9 as the serial performance reference. The next project phase should be chosen by product need (for example the planned object/item translation procedure), not by further micro-optimization. If performance work resumes later, benchmark against this checkpoint and preserve from-scratch Android/SNES provenance and byte-identical outputs.
+Treat Round 85.10 as the serial performance reference. Further optimization should require a new concrete hotspot or a material slowdown; do not pursue simulator incremental-state changes or multiprocessing merely for benchmark aesthetics.

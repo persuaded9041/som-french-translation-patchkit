@@ -19,8 +19,8 @@ def _auto_metric_tokens(normalized: str) -> tuple[tuple[str, ...], frozenset[str
 
 
 @lru_cache(maxsize=None)
-def _auto_metrics(source: str, candidate: str) -> dict[str, float]:
-    """Fast deterministic lexical metrics used only by the automatic aligner."""
+def _auto_metrics_normalized(source_norm: str, candidate_norm: str) -> dict[str, float]:
+    """Lexical metrics keyed by the normalized forms that actually define them."""
     try:
         from rapidfuzz import fuzz
     except ImportError as exc:  # pragma: no cover - user environment diagnostic
@@ -28,8 +28,6 @@ def _auto_metrics(source: str, candidate: str) -> dict[str, float]:
             "Automatic dialogue alignment requires RapidFuzz; install requirements.txt"
         ) from exc
 
-    source_norm = normalize_alignment_text(source)
-    candidate_norm = normalize_alignment_text(candidate)
     if not source_norm or not candidate_norm:
         return {
             "character_similarity": 0.0,
@@ -47,6 +45,14 @@ def _auto_metrics(source: str, candidate: str) -> dict[str, float]:
         "source_token_coverage": round(source_token_coverage, 1),
         "lexical_score": round(lexical_score, 1),
     }
+
+
+def _auto_metrics(source: str, candidate: str) -> dict[str, float]:
+    """Fast deterministic lexical metrics used only by the automatic aligner."""
+    return _auto_metrics_normalized(
+        normalize_alignment_text(source),
+        normalize_alignment_text(candidate),
+    )
 
 
 def _auto_semantic(text: str) -> bool:
@@ -179,6 +185,7 @@ class _AutoCandidateIndex:
         for text_id, normalized in self.choices.items():
             self.exact.setdefault(normalized, []).append(text_id)
         self.english = english
+        self._rank_cache: dict[tuple[str, int], tuple[dict, ...]] = {}
 
     def rank(self, source: str, *, limit: int = 20) -> list[dict]:
         from rapidfuzz import fuzz
@@ -186,6 +193,10 @@ class _AutoCandidateIndex:
         normalized = normalize_alignment_text(source)
         if not normalized:
             return []
+        cache_key = (normalized, limit)
+        cached = self._rank_cache.get(cache_key)
+        if cached is not None:
+            return [dict(item) for item in cached]
         candidate_ids: list[int] = list(self.exact.get(normalized, ()))
         candidate_ids.extend(
             item[2]
@@ -202,11 +213,15 @@ class _AutoCandidateIndex:
             if text_id in seen:
                 continue
             seen.add(text_id)
-            ranked.append({"android_id": text_id, **_auto_metrics(source, self.english[text_id])})
+            ranked.append({
+                "android_id": text_id,
+                **_auto_metrics_normalized(normalized, self.choices[text_id]),
+            })
         ranked.sort(
             key=lambda item: (item["lexical_score"], item["character_similarity"]),
             reverse=True,
         )
+        self._rank_cache[cache_key] = tuple(dict(item) for item in ranked)
         return ranked
 
 
@@ -323,6 +338,31 @@ def _auto_align_session(
     android_ids = index.anchor_ids[lo : hi + 1]
     android_count = len(android_ids)
     negative = -1.0e18
+    # These short comparison spans are reused throughout the dynamic-programming
+    # grid. Build each structural span once per session instead of repeatedly
+    # rendering/joining it for every opposite-side position.
+    source_spans = {
+        (source_index, width): _auto_render_span(
+            session, source_index, source_index + width - 1
+        )
+        for source_index in range(source_count)
+        for width in range(1, min(3, source_count - source_index) + 1)
+    }
+    android_spans = {
+        (android_index, width): " ".join(
+            english[text_id]
+            for text_id in android_ids[android_index : android_index + width]
+        )
+        for android_index in range(android_count)
+        for width in range(1, min(3, android_count - android_index) + 1)
+    }
+    normalized_source_spans = {
+        key: normalize_alignment_text(value) for key, value in source_spans.items()
+    }
+    normalized_android_spans = {
+        key: normalize_alignment_text(value) for key, value in android_spans.items()
+    }
+
     scores = [[negative] * (android_count + 1) for _ in range(source_count + 1)]
     previous = [[None] * (android_count + 1) for _ in range(source_count + 1)]
     scores[0][0] = 0.0
@@ -352,15 +392,13 @@ def _auto_align_session(
                     None,
                 )
             for source_width in range(1, min(3, source_count - source_index) + 1):
-                source = _auto_render_span(
-                    session,
-                    source_index,
-                    source_index + source_width - 1,
-                )
+                source = source_spans[(source_index, source_width)]
                 for android_width in range(1, min(3, android_count - android_index) + 1):
                     candidate_ids = android_ids[android_index : android_index + android_width]
-                    candidate = " ".join(english[text_id] for text_id in candidate_ids)
-                    evidence = _auto_metrics(source, candidate)
+                    evidence = _auto_metrics_normalized(
+                        normalized_source_spans[(source_index, source_width)],
+                        normalized_android_spans[(android_index, android_width)],
+                    )
                     lexical = evidence["lexical_score"]
                     coverage = evidence["source_token_coverage"]
                     if lexical < 45:
@@ -2519,12 +2557,50 @@ def _auto_android_group_raw_payload(
     )
 
 
+def _auto_position_context_occurrences(
+    context_records: list[dict],
+    source: dict[str, dict],
+    index: _AutoCandidateIndex,
+) -> list[dict]:
+    """Flatten immutable positional evidence once for repeated target probes."""
+    occurrences: list[dict] = []
+    for record in context_records:
+        if not record.get("android_ids"):
+            continue
+        android_positions = [
+            index.anchor_pos[text_id]
+            for text_id in record["android_ids"]
+            if text_id in index.anchor_pos
+        ]
+        if not android_positions:
+            continue
+        android_min = min(android_positions)
+        android_max = max(android_positions)
+        for neighbor_id in record.get("snes_ids", []):
+            neighbor_position = _auto_source_rom_position(neighbor_id)
+            if neighbor_position is None or neighbor_id not in source:
+                continue
+            occurrences.append(
+                {
+                    "snes_id": neighbor_id,
+                    "event_id": source[neighbor_id]["event_id"],
+                    "snes_position": neighbor_position,
+                    "android_ids": list(record["android_ids"]),
+                    "android_min": android_min,
+                    "android_max": android_max,
+                }
+            )
+    return occurrences
+
+
 def _auto_equivalent_group_position_prediction(
     snes_ids: list[str] | tuple[str, ...],
     android_groups: list[list[int]] | tuple[tuple[int, ...], ...],
     context_records: list[dict],
     source: dict[str, dict],
     index: _AutoCandidateIndex,
+    *,
+    context_occurrences: list[dict] | None = None,
 ) -> dict | None:
     """Pick one translation-equivalent Android occurrence from frozen context.
 
@@ -2546,34 +2622,28 @@ def _auto_equivalent_group_position_prediction(
     }
     target_set = set(snes_ids)
 
+    prepared = context_occurrences
+    if prepared is None:
+        prepared = _auto_position_context_occurrences(context_records, source, index)
     occurrences: list[dict] = []
-    for record in context_records:
-        if not record.get("android_ids") or target_set.intersection(record.get("snes_ids", [])):
+    for occurrence in prepared:
+        if occurrence["snes_id"] in target_set:
             continue
-        android_positions = [
-            index.anchor_pos[text_id]
-            for text_id in record["android_ids"]
-            if text_id in index.anchor_pos
-        ]
-        if not android_positions:
+        snes_distance = min(
+            abs(occurrence["snes_position"] - target) for target in target_positions
+        )
+        if snes_distance > 0x300:
             continue
-        for neighbor_id in record.get("snes_ids", []):
-            neighbor_position = _auto_source_rom_position(neighbor_id)
-            if neighbor_position is None or neighbor_id not in source:
-                continue
-            snes_distance = min(abs(neighbor_position - target) for target in target_positions)
-            if snes_distance > 0x300:
-                continue
-            occurrences.append(
-                {
-                    "snes_id": neighbor_id,
-                    "event_id": source[neighbor_id]["event_id"],
-                    "snes_distance": snes_distance,
-                    "android_ids": list(record["android_ids"]),
-                    "android_min": min(android_positions),
-                    "android_max": max(android_positions),
-                }
-            )
+        occurrences.append(
+            {
+                "snes_id": occurrence["snes_id"],
+                "event_id": occurrence["event_id"],
+                "snes_distance": snes_distance,
+                "android_ids": occurrence["android_ids"],
+                "android_min": occurrence["android_min"],
+                "android_max": occurrence["android_max"],
+            }
+        )
     occurrences.sort(key=lambda item: item["snes_distance"])
     neighbors = occurrences[:12]
     if not neighbors:
@@ -2645,6 +2715,7 @@ def _auto_add_equivalent_duplicate_positional_tiebreak(
     English has identified the candidate payload; it never proves identity.
     """
     frozen_context = [record for record in records if record.get("android_ids")]
+    position_context = _auto_position_context_occurrences(frozen_context, source, index)
 
     payload_groups: dict[tuple[str, tuple[str, ...]], list[int]] = {}
     for android_id in index.anchor_ids:
@@ -2741,7 +2812,7 @@ def _auto_add_equivalent_duplicate_positional_tiebreak(
             continue
         android_groups = [[android_id] for android_id in qualified["android_ids"]]
         prediction = _auto_equivalent_group_position_prediction(
-            [snes_id], android_groups, frozen_context, source, index
+            [snes_id], android_groups, frozen_context, source, index, context_occurrences=position_context
         )
         if prediction is None:
             continue
@@ -2782,7 +2853,7 @@ def _auto_add_equivalent_duplicate_positional_tiebreak(
         if not payloads or len(set(payloads)) != 1 or not payloads[0][1]:
             continue
         prediction = _auto_equivalent_group_position_prediction(
-            record.get("snes_ids", []), alternatives, frozen_context, source, index
+            record.get("snes_ids", []), alternatives, frozen_context, source, index, context_occurrences=position_context
         )
         if prediction is None:
             continue
@@ -2828,6 +2899,7 @@ def _auto_add_isolated_event_rom_neighborhood_fuzzy(
     remain outside this rule.  Android FR is never used to establish identity.
     """
     frozen_context = [record for record in records if record.get("android_ids")]
+    position_context = _auto_position_context_occurrences(frozen_context, source, index)
     owner = {snes_id for record in records for snes_id in record.get("snes_ids", [])}
     android_owned = {
         android_id
@@ -2873,7 +2945,7 @@ def _auto_add_isolated_event_rom_neighborhood_fuzzy(
                 return None
 
         positional = _auto_equivalent_group_position_prediction(
-            [snes_id], [[android_id]], frozen_context, source, index
+            [snes_id], [[android_id]], frozen_context, source, index, context_occurrences=position_context
         )
         if positional is None or positional["neighbor_count"] < 4:
             return None
@@ -3019,6 +3091,7 @@ def _auto_add_isolated_event_local_extension(
     Android French never participates in semantic candidate selection.
     """
     frozen_context = [record for record in records if record.get("android_ids")]
+    position_context = _auto_position_context_occurrences(frozen_context, source, index)
     owner = {snes_id for record in records for snes_id in record.get("snes_ids", [])}
     android_owned = {
         android_id for record in records for android_id in record.get("android_ids", [])
@@ -3061,7 +3134,7 @@ def _auto_add_isolated_event_local_extension(
         if len(android_norm.split()) <= len(source_words):
             return None
         positional = _auto_equivalent_group_position_prediction(
-            [snes_id], [[android_id]], frozen_context, source, index
+            [snes_id], [[android_id]], frozen_context, source, index, context_occurrences=position_context
         )
         if positional is None:
             return None
