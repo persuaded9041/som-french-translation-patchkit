@@ -14334,6 +14334,29 @@ def make_dialogue_format_mass(
     )
     redistribution_values, redistribution_meta = _load_dialogue_redistribution_recipes(french)
     coverage_repair_recipes = _load_dialogue_coverage_repair_recipes(french, source_document)
+
+    # Round 85 reproducibility guardrails. These two changes must survive a
+    # completely fresh --only dialogue-format-mass regeneration; silently
+    # falling back to a stale recipe/manual file is worse than failing fast.
+    lot6 = [
+        recipe for recipe in coverage_repair_recipes.get("0559", [])
+        if recipe.get("carrier_id") == "CA:6787"
+    ]
+    if len(lot6) != 1 or lot6[0].get("android_ids") != [2151, 2152, 2153, 2154, 2155]:
+        raise ValueError(
+            "Round-85 $0559 coverage recipe missing/drifted: expected "
+            "CA:6787 <- Android 2151..2155. Refresh "
+            "mappings/android/dialogues_coverage_repair_recipes.json."
+        )
+    if lot6[0].get("separator") != "\f" or lot6[0].get("android_separator") != "\f" or not lot6[0].get("wrap_android_units"):
+        raise ValueError("Round-85 $0559 coverage recipe structural settings drifted")
+
+    if "C9:902F" in manual_supplements_by_event.get("0204", {}):
+        raise ValueError(
+            "Round-85 $0204 migration drifted: C9:902F must no longer be an active "
+            "manual supplement; it is reproduced by the proven Android redistribution."
+        )
+
     reviewed_choice_layout_recipes = _load_reviewed_choice_layout_recipes(source_document)
     round68_events = {"0555", "0429", "05F8"}
     round69_events = {
@@ -14522,6 +14545,13 @@ def make_dialogue_format_mass(
 
         if event_id in round69_events:
             values = dict(redistribution_values[event_id])
+            # Coverage repairs must also apply to reviewed Round-69 redistribution
+            # events. Previously this special branch continued before the generic
+            # repair stage, so the Round-85 $0559 Android 2151..2155 extension was
+            # present only in a pre-generated JSON and vanished on regeneration.
+            round69_coverage_reports = _apply_dialogue_coverage_repairs(
+                event_id, values, coverage_repair_recipes, french, advances
+            )
             values, automatic_reflow = _auto_reflow_fixed_translation_carriers(values, advances)
             canonical_ids = {
                 token.get("id") for token in event["tokens"]
@@ -14609,7 +14639,7 @@ def make_dialogue_format_mass(
             formatter_candidate_count += 1
             complete_aligned_count += 1
             translations_by_event[event_id] = values
-            reports_by_event[event_id] = [{
+            base_round69_report = {
                 "event_id": event_id,
                 "snes_ids": list(values),
                 "android_ids": redistribution_meta[event_id]["android_ids"],
@@ -14619,7 +14649,15 @@ def make_dialogue_format_mass(
                 "note": "Reviewed Android-FR/SNES resegmentation; no new weak Android identity is created.",
                 "formatted_entries": [{"id": k, "text": v} for k, v in values.items()],
                 "automatic_216px_reflow": automatic_reflow,
-            }]
+            }
+            # Refresh coverage-report payloads after reflow so the report proves
+            # the exact final generated value, not a pre-reflow intermediate.
+            for coverage_report in round69_coverage_reports:
+                coverage_report["formatted_entries"] = [
+                    {"id": sid, "text": values.get(sid, "")}
+                    for sid in coverage_report.get("snes_ids", [])
+                ]
+            reports_by_event[event_id] = [base_round69_report, *round69_coverage_reports]
             continue
 
         event_mappings = mappings_by_event.get(event_id, [])
@@ -16693,6 +16731,15 @@ def make_dialogue_format_mass(
         }
         for event_id in sorted(manual_supplements_by_event)
         for text_id, entry in sorted(manual_supplements_by_event[event_id].items())
+    ]
+    translation_document["migrated_manual_dialogue_supplements"] = [
+        {
+            "event_id": "0204",
+            "id": "C9:902F",
+            "status": "migrated_to_android_redistribution",
+            "reason": "same_scene_android_fr_843_844_round69_redistribution",
+            "active_manual_supplement": False,
+        }
     ]
     translation_document["user_validated_stock_english_overrides"] = [
         {

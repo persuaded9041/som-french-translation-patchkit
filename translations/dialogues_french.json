@@ -8160,12 +8160,6 @@
       "reason": "user_validated_snes_jp_absent_suppression"
     },
     {
-      "event_id": "0204",
-      "id": "C9:902F",
-      "status": "translated",
-      "reason": "user_requested_unmapped_carrier_review"
-    },
-    {
       "event_id": "0207",
       "id": "C9:916F",
       "status": "translated",
@@ -8236,6 +8230,15 @@
       "id": "CA:437D",
       "status": "translated",
       "reason": "user_requested_unmapped_carrier_review"
+    }
+  ],
+  "migrated_manual_dialogue_supplements": [
+    {
+      "event_id": "0204",
+      "id": "C9:902F",
+      "status": "migrated_to_android_redistribution",
+      "reason": "same_scene_android_fr_843_844_round69_redistribution",
+      "active_manual_supplement": false
     }
   ],
   "user_validated_stock_english_overrides": [],

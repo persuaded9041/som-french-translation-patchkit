@@ -180,3 +180,13 @@ batch. Prefer several small deletion/move batches over one irreversible purge.
 - Previously validated French wording merely as part of performance/repository cleanup.
 
 Reference ROMs must never be included in archives.
+
+## Round 85.1 reproducibility guard
+
+A fresh `--only dialogue-format-mass` regeneration must preserve the Round-85
+post-audit additions. In particular `$0559/CA:6787` is source-derived from
+Android FR 2151–2155 through `mappings/android/dialogues_coverage_repair_recipes.json`.
+The importer now fails fast if that recipe is missing or stale. `$0204/C9:902F`
+is intentionally no longer an active manual supplement: the same-scene Android
+redistribution owns it, and generated metadata records that migration explicitly.
+Run `python3 tools/check_round85_postaudit_reproducibility.py` after regeneration.

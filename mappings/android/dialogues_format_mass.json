@@ -1202,12 +1202,6 @@
       "reason": "user_validated_snes_jp_absent_suppression"
     },
     {
-      "event_id": "0204",
-      "id": "C9:902F",
-      "status": "translated",
-      "reason": "user_requested_unmapped_carrier_review"
-    },
-    {
       "event_id": "0207",
       "id": "C9:916F",
       "status": "translated",
@@ -11133,7 +11127,7 @@
         },
         {
           "id": "C9:2649",
-          "text": " : Qui est\nlà ?"
+          "text": " : Qui est là ?\n"
         },
         {
           "id": "C9:265A",
@@ -11177,11 +11171,11 @@
         },
         {
           "id": "C9:271E",
-          "text": "..."
+          "text": "\n..."
         },
         {
           "id": "C9:2735",
-          "text": "Je te\nconfie"
+          "text": "Je te confie"
         },
         {
           "id": "C9:2745",
@@ -71017,7 +71011,7 @@
       "formatted_entries": [
         {
           "id": "CA:0FE3",
-          "text": ": Regardez ! C'est...\nle Bénévodon !\n"
+          "text": ": Regardez !\nC'est...\nle Bénévodon !\n"
         },
         {
           "id": "CA:0FF9",
@@ -71025,11 +71019,11 @@
         },
         {
           "id": "CA:1012",
-          "text": ": Les dragons comme\nFlammie devaient être des\nbénévodons,\nà l'origine..."
+          "text": ": Les dragons comme\nFlammie devaient être des\nbénévodons, à l'origine..."
         },
         {
           "id": "CA:1042",
-          "text": "\n: Dépêchons-nous, ou il va\ns'en prendre à notre monde !"
+          "text": ": Dépêchons-nous, ou il\nva s'en prendre à notre monde !"
         },
         {
           "id": "CA:1082",
@@ -71037,7 +71031,7 @@
         },
         {
           "id": "CA:109B",
-          "text": ": ...\fJe ne peux pas..."
+          "text": ": ...\nJe ne peux pas..."
         },
         {
           "id": "CA:10D2",
@@ -71053,7 +71047,7 @@
         },
         {
           "id": "CA:110A",
-          "text": "!\fTu disparaîtras, toi aussi, non ?"
+          "text": "!\nTu disparaîtras, toi aussi, non ?"
         },
         {
           "id": "CA:1143",
@@ -81240,7 +81234,7 @@
         },
         {
           "id": "CA:3ED6",
-          "text": "Chef : ...\fAh, te voilà, "
+          "text": "Chef : ...\nAh, te voilà, "
         },
         {
           "id": "CA:3EE7",
@@ -81248,11 +81242,11 @@
         },
         {
           "id": "CA:3F11",
-          "text": "Ce que tu as fait est grave.\nCette épée protégeait notre\nvillage..."
+          "text": "Ce que tu as fait est grave.\nCette épée protégeait notre\nvillage...\n"
         },
         {
           "id": "CA:3F48",
-          "text": "Et c'est probablement parce que tu\nl'as retirée que des monstres\font\nfait\nleur apparition."
+          "text": "Et c'est probablement parce que tu\nl'as retirée que des monstres ont\nfait\nleur apparition."
         },
         {
           "id": "CA:3F97",
@@ -88121,7 +88115,7 @@
         },
         {
           "id": "CA:6787",
-          "text": "Je dois y croire !"
+          "text": "Je dois y croire !\f...\f...\f...\fDurac : La salle derrière cet autel !\nVite !\f%S(0,0) : Allons-y !"
         }
       ],
       "automatic_216px_reflow": [
@@ -88145,6 +88139,28 @@
               ]
             }
           ]
+        }
+      ]
+    },
+    {
+      "event_id": "0559",
+      "snes_ids": [
+        "CA:6787"
+      ],
+      "android_ids": [
+        2151,
+        2152,
+        2153,
+        2154,
+        2155
+      ],
+      "confidence": "coverage_audit_confirmed_android_fr_repair",
+      "coverage_repair": true,
+      "coverage_repair_mode": "append",
+      "formatted_entries": [
+        {
+          "id": "CA:6787",
+          "text": "Je dois y croire !\f...\f...\f...\fDurac : La salle derrière cet autel !\nVite !\f%S(0,0) : Allons-y !"
         }
       ]
     },
@@ -91494,11 +91510,11 @@
         },
         {
           "id": "CA:752E",
-          "text": "J'accepte de te tenir compagnie\njusque-là...\falors sois reconnaissant,\nhein ?"
+          "text": "J'accepte de te tenir compagnie\njusque-là...\falors sois reconnaissant,\nhein ?\n"
         },
         {
           "id": "CA:7565",
-          "text": " : (soupir) Comme\ntu\nvoudras..."
+          "text": " : (soupir) Comme tu\nvoudras..."
         }
       ],
       "automatic_216px_reflow": [
@@ -93515,7 +93531,7 @@
         },
         {
           "id": "CA:83F0",
-          "text": "non plus n'a pas connu\nsa\nmère !"
+          "text": "non plus n'a pas connu\nsa mère !"
         },
         {
           "id": "CA:8414",
@@ -93535,7 +93551,7 @@
         },
         {
           "id": "CA:8471",
-          "text": ": Je suis de la tribu de\nMana... Je vais accomplir le destin de\nmes parents et protéger ce monde si\fmerveilleux !"
+          "text": ": Je suis de la tribu de\nMana... Je vais accomplir le destin de\nmes parents et protéger ce monde si\nmerveilleux !"
         },
         {
           "id": "CA:84B2",
@@ -97652,10 +97668,10 @@
       "repairs": [
         {
           "strategy": "single_carrier_boundary_newline",
-          "boundary_after_id": "C9:0F4D",
-          "boundary_before_id": "C9:0F75",
+          "boundary_after_id": "C9:0F75",
+          "boundary_before_id": "C9:0F8F",
           "modified_id": "C9:0F75",
-          "mode": "prepend",
+          "mode": "append",
           "semantic_payload_changed": false
         }
       ]
@@ -97682,19 +97698,6 @@
           "boundary_before_id": "C9:F18D",
           "modified_id": "C9:F13C",
           "mode": "append",
-          "semantic_payload_changed": false
-        }
-      ]
-    },
-    {
-      "event_id": "0429",
-      "repairs": [
-        {
-          "strategy": "single_carrier_boundary_newline",
-          "boundary_after_id": "CA:1012",
-          "boundary_before_id": "CA:1042",
-          "modified_id": "CA:1042",
-          "mode": "prepend",
           "semantic_payload_changed": false
         }
       ]
@@ -97742,11 +97745,79 @@
   "carrier_repack_repairs": [],
   "live_player_prefix_reflow_repairs": [
     {
+      "event_id": "0429",
+      "repairs": [
+        {
+          "strategy": "live_player_name_prefix_reflow",
+          "text_id": "CA:0FE3",
+          "prefix_pixels": 72,
+          "prefix_parser_units": 9,
+          "semantic_payload_changed": false
+        },
+        {
+          "strategy": "live_player_name_prefix_reflow",
+          "text_id": "CA:1012",
+          "prefix_pixels": 72,
+          "prefix_parser_units": 9,
+          "semantic_payload_changed": false
+        },
+        {
+          "strategy": "live_player_name_prefix_reflow",
+          "text_id": "CA:1042",
+          "prefix_pixels": 72,
+          "prefix_parser_units": 9,
+          "semantic_payload_changed": false
+        },
+        {
+          "strategy": "live_player_name_prefix_reflow",
+          "text_id": "CA:109B",
+          "prefix_pixels": 72,
+          "prefix_parser_units": 9,
+          "semantic_payload_changed": false
+        },
+        {
+          "strategy": "live_player_name_prefix_reflow",
+          "text_id": "CA:110A",
+          "prefix_pixels": 72,
+          "prefix_parser_units": 9,
+          "semantic_payload_changed": false
+        },
+        {
+          "strategy": "live_player_name_prefix_reflow",
+          "text_id": "CA:1158",
+          "prefix_pixels": 72,
+          "prefix_parser_units": 9,
+          "semantic_payload_changed": false
+        }
+      ]
+    },
+    {
       "event_id": "05F8",
       "repairs": [
         {
           "strategy": "live_player_name_prefix_reflow",
+          "text_id": "CA:7AB0",
+          "prefix_pixels": 72,
+          "prefix_parser_units": 9,
+          "semantic_payload_changed": false
+        },
+        {
+          "strategy": "live_player_name_prefix_reflow",
+          "text_id": "CA:7B69",
+          "prefix_pixels": 72,
+          "prefix_parser_units": 9,
+          "semantic_payload_changed": false
+        },
+        {
+          "strategy": "live_player_name_prefix_reflow",
           "text_id": "CA:83F0",
+          "prefix_pixels": 72,
+          "prefix_parser_units": 9,
+          "semantic_payload_changed": false
+        },
+        {
+          "strategy": "live_player_name_prefix_reflow",
+          "text_id": "CA:8471",
           "prefix_pixels": 72,
           "prefix_parser_units": 9,
           "semantic_payload_changed": false
@@ -97759,23 +97830,26 @@
       "event_id": "0103",
       "repairs": [
         {
-          "strategy": "newline_word_boundary",
-          "text_id": "C9:2735",
-          "source_offset": 5,
+          "strategy": "newline_carrier_boundary",
+          "text_id": "C9:271E",
+          "boundary_before_id": null,
+          "source_offset": -1,
           "step": 1,
           "semantic_payload_changed": false
         },
         {
           "strategy": "newline_word_boundary",
           "text_id": "C9:27E4",
+          "boundary_before_id": null,
           "source_offset": 21,
           "step": 2,
           "semantic_payload_changed": false
         },
         {
-          "strategy": "newline_word_boundary",
+          "strategy": "newline_before_carrier_via_previous",
           "text_id": "C9:2649",
-          "source_offset": 10,
+          "boundary_before_id": "C9:265A",
+          "source_offset": -1,
           "step": 3,
           "semantic_payload_changed": false
         }
@@ -97787,6 +97861,7 @@
         {
           "strategy": "page_sentence_boundary",
           "text_id": "C9:2ED2",
+          "boundary_before_id": null,
           "source_offset": 30,
           "step": 1,
           "semantic_payload_changed": false
@@ -97794,6 +97869,7 @@
         {
           "strategy": "page_sentence_boundary",
           "text_id": "C9:2CC5",
+          "boundary_before_id": null,
           "source_offset": 2,
           "step": 2,
           "semantic_payload_changed": false
@@ -97806,21 +97882,24 @@
         {
           "strategy": "page_sentence_boundary",
           "text_id": "C9:7D15",
+          "boundary_before_id": null,
           "source_offset": 34,
           "step": 1,
           "semantic_payload_changed": false
         },
         {
-          "strategy": "newline_word_boundary",
+          "strategy": "newline_before_carrier_via_previous",
           "text_id": "C9:7E64",
-          "source_offset": 5,
+          "boundary_before_id": "C9:7E72",
+          "source_offset": -1,
           "step": 2,
           "semantic_payload_changed": false
         },
         {
-          "strategy": "page_sentence_boundary",
-          "text_id": "C9:7E72",
-          "source_offset": 22,
+          "strategy": "newline_before_carrier_via_previous",
+          "text_id": "C9:7E12",
+          "boundary_before_id": "C9:7E64",
+          "source_offset": -1,
           "step": 3,
           "semantic_payload_changed": false
         }
@@ -97830,15 +97909,17 @@
       "event_id": "01F6",
       "repairs": [
         {
-          "strategy": "newline_word_boundary",
+          "strategy": "newline_carrier_boundary",
           "text_id": "C9:8AE8",
-          "source_offset": 24,
+          "boundary_before_id": null,
+          "source_offset": -1,
           "step": 1,
           "semantic_payload_changed": false
         },
         {
           "strategy": "page_sentence_boundary",
           "text_id": "C9:8A03",
+          "boundary_before_id": null,
           "source_offset": 3,
           "step": 2,
           "semantic_payload_changed": false
@@ -97851,6 +97932,7 @@
         {
           "strategy": "newline_word_boundary",
           "text_id": "CA:3235",
+          "boundary_before_id": null,
           "source_offset": 20,
           "step": 1,
           "semantic_payload_changed": false
@@ -97858,6 +97940,7 @@
         {
           "strategy": "page_sentence_boundary",
           "text_id": "CA:3617",
+          "boundary_before_id": null,
           "source_offset": 32,
           "step": 2,
           "semantic_payload_changed": false
@@ -97865,6 +97948,7 @@
         {
           "strategy": "page_word_boundary",
           "text_id": "CA:3548",
+          "boundary_before_id": null,
           "source_offset": 63,
           "step": 3,
           "semantic_payload_changed": false
@@ -97877,22 +97961,17 @@
         {
           "strategy": "page_sentence_boundary",
           "text_id": "CA:40E6",
+          "boundary_before_id": null,
           "source_offset": 63,
           "step": 1,
           "semantic_payload_changed": false
         },
         {
-          "strategy": "page_sentence_boundary",
-          "text_id": "CA:3ED6",
-          "source_offset": 10,
+          "strategy": "newline_before_carrier_via_previous",
+          "text_id": "CA:3F11",
+          "boundary_before_id": "CA:3F48",
+          "source_offset": -1,
           "step": 2,
-          "semantic_payload_changed": false
-        },
-        {
-          "strategy": "page_word_boundary",
-          "text_id": "CA:3F48",
-          "source_offset": 64,
-          "step": 3,
           "semantic_payload_changed": false
         }
       ]
@@ -97903,14 +97982,16 @@
         {
           "strategy": "page_sentence_boundary",
           "text_id": "CA:752E",
+          "boundary_before_id": null,
           "source_offset": 44,
           "step": 1,
           "semantic_payload_changed": false
         },
         {
-          "strategy": "newline_word_boundary",
-          "text_id": "CA:7565",
-          "source_offset": 17,
+          "strategy": "newline_before_carrier_via_previous",
+          "text_id": "CA:752E",
+          "boundary_before_id": "CA:7565",
+          "source_offset": -1,
           "step": 2,
           "semantic_payload_changed": false
         }
@@ -97920,15 +98001,17 @@
       "event_id": "059B",
       "repairs": [
         {
-          "strategy": "newline_word_boundary",
-          "text_id": "CA:76C2",
-          "source_offset": 18,
+          "strategy": "newline_before_carrier_via_previous",
+          "text_id": "CA:76B2",
+          "boundary_before_id": "CA:76C2",
+          "source_offset": -1,
           "step": 1,
           "semantic_payload_changed": false
         },
         {
           "strategy": "page_sentence_boundary",
           "text_id": "CA:76C2",
+          "boundary_before_id": null,
           "source_offset": 56,
           "step": 2,
           "semantic_payload_changed": false
@@ -97936,6 +98019,7 @@
         {
           "strategy": "page_word_boundary",
           "text_id": "CA:76B2",
+          "boundary_before_id": null,
           "source_offset": 26,
           "step": 3,
           "semantic_payload_changed": false

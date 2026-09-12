@@ -11,3 +11,4 @@ Priorité de cette session : **maintenance du pipeline**, pas nouvelle traductio
 3. Mettre README/HANDOFF au propre pour que l’état courant soit compréhensible sans connaître tous les anciens rounds.
 
 Ne commence pas encore la traduction des objets/items. Préserver toutes les décisions fonctionnelles/runtime validées et le caractère reproductible depuis Android FR.
+Round 85.1 hotfix: preserve `$0559/CA:6787` Android-FR 2151–2155 during a fresh `dialogue-format-mass` run. The prior Round-85 artifact contained the expanded generated JSON but the Round-69 special formatter branch skipped coverage repairs on regeneration. `tools/import_android_text.py` now applies coverage repairs inside that branch and fails fast if the required recipe drifts. `$0204/C9:902F` intentionally remains migrated out of manual supplements and is recorded in generated migration metadata.
