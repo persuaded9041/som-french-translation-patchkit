@@ -117,48 +117,81 @@ def compress_payload(data, mask):
     choice = [None] * (n + 1)
     best[n] = 0
 
-    for index in range(n - 1, -1, -1):
-        remaining = n - index
-
-        for lit_len in range(1, min(0x80, remaining) + 1):
-            cost = 1 + lit_len + best[index + lit_len]
-            if cost < best[index]:
-                best[index] = cost
-                choice[index] = ("lit", lit_len, 0)
-
-        window_start = max(0, index - max_offset)
-        max_search = min(max_match_length, remaining)
-
-        for candidate in range(index - 1, window_start - 1, -1):
-            if data[candidate] != data[index]:
-                continue
-            match_len = 1
-            while (
-                match_len < max_search
-                and data[candidate + match_len] == data[index + match_len]
-            ):
-                match_len += 1
-            if match_len < 3:
-                continue
-
-            distance = index - candidate
-            high = (distance - 1) // 0x100
-
-            for length in range(3, match_len + 1):
-                token = 0x80 + (length - 3) * divisor + high
-                if token > 0xFF:
-                    break
-                cost = 2 + best[index + length]
+    if mask <= 3:
+        lcp_next = [0] * (max_offset + 1)
+        for index in range(n - 1, -1, -1):
+            remaining = n - index
+            for lit_len in range(1, min(0x80, remaining) + 1):
+                cost = 1 + lit_len + best[index + lit_len]
                 if cost < best[index]:
                     best[index] = cost
-                    choice[index] = ("match", length, distance)
+                    choice[index] = ("lit", lit_len, 0)
+
+            max_search = min(max_match_length, remaining)
+            max_distance = min(max_offset, index)
+            lcp_current = [0] * (max_offset + 1)
+            seen_length = [False] * (max_search + 1)
+            for distance in range(1, max_distance + 1):
+                if data[index - distance] != data[index]:
+                    continue
+                match_len = min(1 + lcp_next[distance], max_search)
+                lcp_current[distance] = match_len
+                if match_len < 3:
+                    continue
+                for length in range(3, match_len + 1):
+                    if seen_length[length]:
+                        continue
+                    seen_length[length] = True
+                    token = 0x80 + (length - 3) * divisor + (distance - 1) // 0x100
+                    if token > 0xFF:
+                        break
+                    cost = 2 + best[index + length]
+                    if cost < best[index]:
+                        best[index] = cost
+                        choice[index] = ("match", length, distance)
+            lcp_next = lcp_current
+    else:
+        previous_same = [-1] * n
+        latest = [-1] * 256
+        for pos, value in enumerate(data):
+            previous_same[pos] = latest[value]
+            latest[value] = pos
+
+        for index in range(n - 1, -1, -1):
+            remaining = n - index
+            for lit_len in range(1, min(0x80, remaining) + 1):
+                cost = 1 + lit_len + best[index + lit_len]
+                if cost < best[index]:
+                    best[index] = cost
+                    choice[index] = ("lit", lit_len, 0)
+
+            window_start = max(0, index - max_offset)
+            max_search = min(max_match_length, remaining)
+            candidate = previous_same[index]
+            while candidate >= window_start:
+                match_len = 1
+                while (
+                    match_len < max_search
+                    and data[candidate + match_len] == data[index + match_len]
+                ):
+                    match_len += 1
+                if match_len >= 3:
+                    distance = index - candidate
+                    high = (distance - 1) // 0x100
+                    for length in range(3, match_len + 1):
+                        token = 0x80 + (length - 3) * divisor + high
+                        if token > 0xFF:
+                            break
+                        cost = 2 + best[index + length]
+                        if cost < best[index]:
+                            best[index] = cost
+                            choice[index] = ("match", length, distance)
+                candidate = previous_same[candidate]
 
     out = bytearray()
     index = 0
-
     while index < n:
         kind, length, distance = choice[index]
-
         if kind == "lit":
             out.append(length - 1)
             out.extend(data[index:index + length])
@@ -169,11 +202,8 @@ def compress_payload(data, mask):
                 + (distance - 1) // 0x100
             )
             out.append((distance - 1) & 0xFF)
-
         index += length
-
     return bytes(out)
-
 
 def compress_block(data, key):
     payload = compress_payload(data, COMPRESSION_TYPES[key])

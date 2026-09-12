@@ -92,3 +92,11 @@ Do not reopen dialogue wording/identity without a concrete regression. Do not st
 ## Next work
 
 Round 85.10 is the optimized serial reference path. Do not add multiprocessing merely because the target PC has many threads: the remaining measured work is dominated by real alignment/scoring and independent simulation rather than obvious repeated-work hotspots, and the serial mass run is already around six seconds. Re-profile only after a functional pipeline change or if generation becomes materially slower. Any future `--jobs N` experiment must remain optional, deterministic and byte-identical to this serial reference.
+
+## French opening builder performance
+
+`components/french_opening/build_patch.py` now keeps the same exact optimal
+compression/tie-breaking while avoiding redundant Python-level match scans.
+Standalone `french-opening` rebuild time dropped from ~14.7 s to ~3.3 s in the
+maintenance benchmark; the generated IPS is byte-identical. See
+`docs/OPTIMIZATION_FRENCH_OPENING.md`.
