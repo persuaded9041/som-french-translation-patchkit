@@ -19,6 +19,7 @@ sys.path.insert(0, str(ROOT))
 from shared.text.android_resources import (
     DEFAULT_MAPPING, DEFAULT_TRANSLATION, build_mapping, build_translation, load_inputs,
 )
+from shared.text.resource_cache import store as store_translation_cache
 
 def render_html(mapping: dict) -> str:
     counts = defaultdict(int)
@@ -70,6 +71,8 @@ def main() -> None:
     translation_text = json.dumps(translation, ensure_ascii=False, indent=2) + "\n"
     write_or_check(DEFAULT_MAPPING, mapping_text, args.check)
     write_or_check(DEFAULT_TRANSLATION, translation_text, args.check)
+    if not args.check:
+        store_translation_cache(translation, args.rom.resolve().read_bytes(), source)
     if args.html:
         args.html.parent.mkdir(parents=True, exist_ok=True)
         args.html.write_text(render_html(mapping), encoding="utf-8")

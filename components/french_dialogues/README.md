@@ -7,9 +7,10 @@ intro event `$0400`.
 
 ## Canonical inputs
 
-The normal standalone build regenerates the French dialogue translation **in
-memory**. It does not require `translations/dialogues_french.json` to exist.
-Canonical inputs are:
+The normal standalone build uses `translations/dialogues_french.json` as a
+**local performance cache only**. If the cache is absent or stale, the complete
+French dialogue translation is regenerated from canonical inputs, written
+atomically to that path, and reused by subsequent builds. Canonical inputs are:
 
 - `assets/dialogues.json` — optional materialized cache of clean-USA source events;
 - `sources/android/scrtxt_en.bin` — Android-English identity layer;
@@ -19,17 +20,21 @@ Canonical inputs are:
   genuinely does not derive from Android FR;
 - the clean USA ROM — source bytes plus VWF/layout metrics for formatter gating.
 
-`translations/dialogues_french.json` is a **generated review/build artifact**.
-The canonical command
+`translations/dialogues_french.json` is a **generated local cache/review artifact**,
+never canonical provenance. Its validity is tied to a fingerprint of the clean ROM,
+source dialogue document, Android EN/FR, dialogue recipes/manual supplements and
+relevant generator code. A stale or edited cache is automatically regenerated.
+
+The explicit materialization command
 
 ```bash
 python3 tools/dialogue/import_android.py --only dialogue-format-mass \
   --rom "Secret of Mana (USA).sfc"
 ```
 
-regenerates it from the inputs above. The component builder calls the same
-`make_dialogue_format_mass()` pipeline directly in memory, so deleting the
-artifact does not break a normal standalone build.
+regenerates it from the inputs above and seeds the same cache metadata. Deleting
+the artifact or `build/cache/dialogues_french.meta.json` does not break a normal
+standalone build; it merely forces one regeneration.
 
 `--translation <file.json>` remains available on `build_patch.py` only as an
 explicit diagnostic/testing override. It is not the default source path.

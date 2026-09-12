@@ -5,8 +5,8 @@ This tool does not patch a ROM.  It binds Android ``systxt`` records to the
 position-based IDs in ``assets/text_resources.json`` and emits:
 
 * ``reports/android/text_resources_android.json``: identity/provenance trace;
-* ``translations/text_resources_french.json``: sparse French review payload
-  reproduced in memory by the production ``french_resources`` component;
+* ``translations/text_resources_french.json``: sparse French review payload and
+  fingerprint-validated local performance cache for ``french_resources``;
 * optional HTML review output.
 
 Identity is deliberately conservative.  Reviewed ordered blocks may survive

@@ -218,7 +218,7 @@ alignment is **1798 / 1838 (97.8%)**, leaving **40 deliberately classified unres
 rather than forcing weak matches. Whole-game matching remains separate from SNES layout.
 The former focused formatter modes have been retired; their validated runtime
 invariants are covered by the current simulator and regression checks.
-`translations/dialogues_french.json` may be materialized by `--only dialogue-format-mass`, but is not required by builds or checks: **701 simulator-clean events / 1815 accepted
+`translations/dialogues_french.json` is an automatically persisted, fingerprint-validated local cache. `--only dialogue-format-mass` may also materialize/refresh it explicitly; it is never canonical provenance and can be deleted safely: **701 simulator-clean events / 1815 accepted
 semantic source IDs / 1947 JSON entries**, comprising **701 complete + 0 PARTIEL**.
 Exclusions are exactly **3 alignment-incomplete routing-audited unused/orphan events**.
 The former PARTIEL provenance remains preserved in the generated completion metadata. `$0278` is special because accepted Android text is preserved,

@@ -19,26 +19,31 @@ It does **not** own dialogue events, descriptions, menu/status labels or UI VWF
 rendering. No new object/item translation should be added during component
 maintenance audits.
 
-## Canonical inputs and generated review outputs
+## Canonical inputs and local generated cache
 
-The normal standalone build regenerates the Android mapping and French payload
-**in memory** from:
+The normal standalone build derives the Android mapping and French payload from:
 
 - `assets/text_resources.json` — optional materialized cache of the clean-USA 513-resource inventory;
 - `recipes/android/text_resources_layout.json` — reviewed identity/layout recipe;
 - `sources/android/systxt_en.bin` — Android identity layer;
 - `sources/android/systxt_fr.bin` — Android French prose.
 
-`reports/android/text_resources_android.json` and
-`translations/text_resources_french.json` are deterministic **generated review
-artifacts** produced by `tools/text/import_android_resources.py`; neither is required
-by the component builder.
+`translations/text_resources_french.json` is a deterministic **local performance
+cache/review artifact**, never canonical provenance. Its validity is tied to a
+fingerprint of the clean ROM, extracted source inventory, reviewed layout recipe,
+Android `systxt` inputs and generator code. A missing, stale or edited cache is
+regenerated automatically and persisted for later builds.
 
-Verify/regenerate them with:
+`reports/android/text_resources_android.json` remains an optional review report and is
+never consumed by the build. To materialize/refresh both review outputs explicitly:
 
 ```bash
-python3 tools/text/import_android_resources.py --check
+python3 tools/text/import_android_resources.py "Secret of Mana (USA).sfc"
 ```
+
+Deleting `translations/text_resources_french.json` or
+`build/cache/text_resources_french.meta.json` is always safe; the next build recreates
+them from canonical inputs.
 
 ## Storage/runtime architecture
 

@@ -28,6 +28,7 @@ from shared.dialogue.dte import (
     enable_extended_dialogue as enable_extended_dialogue_dte,
 )
 from shared.text.android_resources import build_mapping, build_translation, load_inputs as load_android_inputs
+from shared.text.resource_cache import load as load_translation_cache, store as store_translation_cache
 from shared.charset import (
     CHAR_TO_CODE,
     DIALOGUE_FRENCH_CHARS,
@@ -52,22 +53,27 @@ DEFAULT_CATEGORIES = (
 )
 
 
-def load_translation_entries(base: bytes) -> dict[str, tuple[str, str]]:
-    """Regenerate the reviewed Android-FR resource payload in memory.
-
-    ``translations/text_resources_french.json`` and the Android mapping JSON are
-    review artifacts emitted by ``tools/text/import_android_resources.py``.  The
-    component deliberately does not consume either generated file as a build
-    source.
-    """
-    source, layout, android_en, android_fr = load_android_inputs(base)
-    doc = build_translation(build_mapping(source, layout, android_en, android_fr))
+def _translation_entries_from_document(doc: dict) -> dict[str, tuple[str, str]]:
     result: dict[str, tuple[str, str]] = {}
     for group in doc["groups"]:
         category = group["group"].split(".")[-1]
         for entry in group["entries"]:
             result[entry["id"]] = (category, entry["text"])
     return result
+
+
+def load_translation_entries(base: bytes, source: dict) -> tuple[dict[str, tuple[str, str]], bool]:
+    """Load a valid local cache or regenerate and persist it atomically."""
+    cached = load_translation_cache(base, source)
+    if cached is not None:
+        return _translation_entries_from_document(cached), True
+
+    loaded_source, layout, android_en, android_fr = load_android_inputs(base)
+    if loaded_source != source:
+        raise ValueError("resource extraction changed while generating French resource cache")
+    doc = build_translation(build_mapping(source, layout, android_en, android_fr))
+    store_translation_cache(doc, base, source)
+    return _translation_entries_from_document(doc), False
 
 
 def main() -> None:
@@ -79,7 +85,7 @@ def main() -> None:
     base = args.rom.read_bytes()
     validate_base_rom(base)
     document = load_or_extract_resources(base, ASSET)
-    entries = load_translation_entries(base)
+    entries, cache_hit = load_translation_entries(base, document)
 
     translations: dict[str, str] = {}
     skipped: list[tuple[str, str]] = []
@@ -131,6 +137,7 @@ def main() -> None:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(patch)
 
+    print("Resource translation cache reused: translations/text_resources_french.json" if cache_hit else "Resource translation regenerated and cached: translations/text_resources_french.json")
     print(f"Translated resources: {len(translations)}")
     print(f"Skipped for current profile: {len(skipped)}")
     print(f"Blob: {len(blob)} / {STOCK_BLOB_BYTES} bytes")

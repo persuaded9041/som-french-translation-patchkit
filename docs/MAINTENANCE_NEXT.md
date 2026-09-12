@@ -18,7 +18,7 @@
 
 **Human-reviewed structural inputs:** the six dialogue recipe JSON families plus the small manual-supplement file for genuine non-Android exceptions.
 
-**Generated outputs:** `dialogues_french.json`, `dialogues_auto.json`, unmapped/exclusion CSVs and mass-format reports. They are ignored, materialized only on demand, and none is required by normal builds/checks.
+**Generated outputs:** `dialogues_french.json` is retained as a fingerprint-validated local performance cache and is regenerated automatically when absent/stale. `dialogues_auto.json`, unmapped/exclusion CSVs and mass-format reports remain on-demand review outputs. None is canonical provenance.
 
 ## Profiling checkpoint
 

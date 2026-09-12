@@ -70,10 +70,12 @@ extraction. Pointers and raw source bytes are deliberately omitted.
 French localization is generated from the reviewed Android identity recipe rather than
 maintained as independent hand-authored prose. `tools/text/import_android_resources.py`
 rebuilds both `reports/android/text_resources_android.json` and
-`translations/text_resources_french.json` for review. Those two files are generated
-outputs: the production `french_resources` component reconstructs the same mapping and
-French payload in memory from `assets/text_resources.json`,
-`recipes/android/text_resources_layout.json`, and Android `systxt_en/fr.bin`.
+`translations/text_resources_french.json` for review. The mapping report remains
+ephemeral. The French JSON is also a generated artifact, but the production
+`french_resources` component may reuse it as a **fingerprint-validated local cache**;
+if it is missing, stale or edited, the component regenerates and persists it from the
+clean-ROM resource inventory, `recipes/android/text_resources_layout.json`, and
+Android `systxt_en/fr.bin`. It is never canonical provenance.
 
 For unchanged or unsupported resources the serializer recovers the exact source bytes
 from the clean USA ROM, so fallback serialization remains byte-identical.

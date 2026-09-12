@@ -165,6 +165,10 @@ def main() -> None:
             problems.append(f"{component_id} unexpectedly depends on root text assets")
 
     french_resources_builder = (COMPONENTS / "french_resources" / "build_patch.py").read_text(encoding="utf-8")
+    # The generated translation may be reused only through the fingerprint-validated
+    # persistent cache. Direct reads would silently promote it back to canonical input.
+    if "shared.text.resource_cache" not in french_resources_builder:
+        problems.append("french_resources does not use the validated text-resource cache layer")
     for needle in (
         'PROJECT_ROOT / "translations" / "text_resources_french.json"',
         "text_resources_french.json').read",
@@ -172,7 +176,7 @@ def main() -> None:
     ):
         if needle in french_resources_builder:
             problems.append(
-                "french_resources normal build depends on generated text_resources_french.json: " + needle
+                "french_resources directly reads generated text_resources_french.json: " + needle
             )
 
     french_dialogue_builder = (COMPONENTS / "french_dialogues" / "build_patch.py").read_text(encoding="utf-8")
@@ -218,10 +222,10 @@ def main() -> None:
     print("  - upstream Android prose is isolated under sources/android/")
     print("  - `mana_tree_original` / `name_entry_extended` / `name_entry_prefill` / `vwf_intro` / `vwf_dialogues` / `intro_skip` own no translation-JSON dependencies")
     print("  - remaining component-local .bin/.txt assets are explicit non-prose data")
-    print("  - dialogue generation never consumes dialogues_french.json as an input")
+    print("  - dialogues_french.json is only a fingerprint-validated local cache, never canonical provenance")
     print("  - dialogue regression/charset checks regenerate ignored alignment/format snapshots in memory")
-    print("  - french_dialogues normal build regenerates its translation in memory; generated dialogues_french.json is optional")
-    print("  - french_resources normal build regenerates Android resource mapping/translation in memory; generated resource JSON outputs are optional")
+    print("  - french_dialogues reuses a valid dialogues_french.json cache or regenerates and persists it automatically")
+    print("  - french_resources reuses a valid text_resources_french.json cache or regenerates and persists it automatically; mapping reports remain optional")
     print("  - dialogue alignment/layout recipes contain structural references only, never translated prose payloads")
     return 0
 

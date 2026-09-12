@@ -23,6 +23,7 @@ from shared.dialogue.pipeline.common import (  # noqa: E402
 )
 from shared.dialogue.pipeline.alignment import make_dialogue_auto_alignment, is_semantic_text  # noqa: E402
 from shared.dialogue.pipeline.formatter import make_dialogue_format_mass  # noqa: E402
+from shared.dialogue.pipeline.cache import store as store_translation_cache  # noqa: E402
 from shared.extracted.assets import load_or_extract_dialogues, load_or_extract_intro_event  # noqa: E402
 
 DEFAULT_INTRO_OUTPUT = ROOT / "translations" / "intro_event_french.json"
@@ -483,6 +484,12 @@ def main() -> None:
         raise SystemExit(str(exc)) from exc
 
     write_or_check(output, serialized(document), check=args.check, source_label=source_label)
+    if (
+        args.only == "dialogue-format-mass"
+        and not args.check
+        and output == DEFAULT_DIALOGUE_FORMAT_MASS_OUTPUT.resolve()
+    ):
+        store_translation_cache(document, base_rom, source_document)
 
     if args.only == "dialogue-auto":
         csv_output = (args.unmapped_csv or DEFAULT_DIALOGUE_UNMAPPED_CSV).resolve()

@@ -33,7 +33,7 @@ The ROM itself is deliberately not included.
 - `intro_skip` - hold R for about two seconds during the introduction to skip directly to the waterfall scene.
 - `french_dialogues` - deterministic source/translation reinsertion for all stock text-bearing event scripts except intro `$0400`, with in-place rebuilds and deterministic expanded-ROM relocation for growth.
 - `vwf_ui` - standalone VWF extensions for non-dialogue UI paths; the first runtime-validated backend is Watts' Forge weapon row, with exact builder tagging, dynamic suffix compaction and a local +3 logical-line margin.
-- `french_resources` - deterministic reinsertion of reviewed French `$CA` name resources (magic, spirits, weapons, equipment, items, enemies and locations), regenerated in memory from the canonical resource asset, reviewed Android identity recipe and Android EN/FR sources.
+- `french_resources` - deterministic reinsertion of reviewed French `$CA` name resources (magic, spirits, weapons, equipment, items, enemies and locations), with a fingerprint-validated local French JSON cache regenerated from the clean-ROM resource inventory, reviewed Android identity recipe and Android EN/FR sources when stale or absent.
 
 Component metadata lives in `components/*/component.json`. Public component IDs are semantic and intentionally unnumbered. The aggregate builder discovers components from these manifests and applies their explicit `build_order`; folder names therefore do not control patch precedence. Adding a component does not require a hard-coded component list in the root scripts.
 
@@ -82,9 +82,9 @@ French text lives separately under `translations/` in sparse `*_french.json`
 files. The validated translations formerly stored in component CSV/BIN inputs for
 `french_name_entry_extended`, `french_menus`, `french_opening`, and `french_intro` have been migrated there.
 
-`french_dialogues` uses the **simulator-filtered Android-FR mass pass** directly during a normal standalone build. `translations/dialogues_french.json` is a generated review artifact, not a required source or build input; the same pipeline can regenerate it from canonical Android/source inputs. The current corpus contains **701 simulator-clean playable events / 1815 accepted semantic source IDs / 1947 active sparse translation entries**: **701 complete + 0 PARTIEL**. Semantic Android alignment remains **1798 / 1838 (97.8%)**, with **40 unresolved semantic IDs**; the only exclusions are the three routing-audited unused/orphan events `$0269`, `$02DE`, `$0603`. Independent simulation reports **0 errors / 0 warnings / 0 implicit runtime wraps**. Manual-JP, validated-suppression and shared-prefix provenance remains explicit in the canonical metadata. `$035F/C9:D1B8` remains strictly `Dryade`; never restore `Dryade fera réagir l'orbe !`.
+`french_dialogues` uses the **simulator-filtered Android-FR mass pass** during a normal standalone build. `translations/dialogues_french.json` is a generated local performance cache/review artifact, never canonical provenance: a fingerprint-valid copy is reused, otherwise the same pipeline regenerates and persists it from canonical Android/source inputs. The current corpus contains **701 simulator-clean playable events / 1815 accepted semantic source IDs / 1947 active sparse translation entries**: **701 complete + 0 PARTIEL**. Semantic Android alignment remains **1798 / 1838 (97.8%)**, with **40 unresolved semantic IDs**; the only exclusions are the three routing-audited unused/orphan events `$0269`, `$02DE`, `$0603`. Independent simulation reports **0 errors / 0 warnings / 0 implicit runtime wraps**. Manual-JP, validated-suppression and shared-prefix provenance remains explicit in the canonical metadata. `$035F/C9:D1B8` remains strictly `Dryade`; never restore `Dryade fera réagir l'orbe !`.
 
-`french_resources` follows the same provenance rule: `reports/android/text_resources_android.json` and `translations/text_resources_french.json` are deterministic review outputs, not normal build inputs. The component rebuilds the mapping/French payload in memory from the clean-USA text-resource extraction, `recipes/android/text_resources_layout.json`, and Android `systxt_en/fr.bin`.
+`french_resources` follows the same provenance rule: `reports/android/text_resources_android.json` is an optional review output, while `translations/text_resources_french.json` is a generated local performance cache/review artifact. A fingerprint-valid copy is reused; otherwise the component regenerates and persists it from the clean-USA text-resource extraction, `recipes/android/text_resources_layout.json`, and Android `systxt_en/fr.bin`. Neither file is canonical provenance.
 
 ## Dialogue checkpoint
 
@@ -128,7 +128,7 @@ The active structural recipe layer is split by responsibility:
 These files contain IDs, token references, punctuation and structural operations only.
 Actual localized prose is read from `sources/android/scrtxt_fr.bin` on every generation.
 Genuine non-Android French remains isolated in `translations/dialogues_manual_supplements.json`.
-`translations/dialogues_french.json`, `reports/android/dialogues_auto.json`, the unmapped/exclusion CSVs and the mass-format reports are generated-on-demand outputs. They are ignored by Git and never required inputs.
+`translations/dialogues_french.json` is a generated local cache that may be kept during development; it is never required as canonical input and can always be regenerated. `reports/android/dialogues_auto.json`, the unmapped/exclusion CSVs and the mass-format reports remain generated-on-demand review outputs.
 
 Operational material:
 

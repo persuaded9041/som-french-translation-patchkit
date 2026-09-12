@@ -41,8 +41,10 @@ No checker or component build requires these files to exist. Regression checks r
 the relevant documents in memory from canonical inputs. Materialize the files only for
 inspection, diffs or review.
 
-`translations/dialogues_french.json` and `translations/text_resources_french.json` follow
-the same rule: deterministic review outputs, never build sources.
+`translations/dialogues_french.json` and `translations/text_resources_french.json` are
+deterministic local performance caches/review outputs, never canonical sources. Builders
+reuse them only through fingerprint-validated cache layers and regenerate them from
+canonical inputs when absent, edited or stale.
 
 ## Manual supplement review sheet
 

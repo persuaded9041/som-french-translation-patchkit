@@ -58,6 +58,7 @@ from shared.dialogue.pipeline.common import (  # noqa: E402
     read_scrtxt,
 )
 from shared.dialogue.pipeline.formatter import make_dialogue_format_mass  # noqa: E402
+from shared.dialogue.pipeline.cache import load as load_translation_cache, store as store_translation_cache  # noqa: E402
 from shared.extracted.assets import load_or_extract_dialogues  # noqa: E402
 
 DIALOGUE_FILE = PROJECT_ROOT / "assets" / "dialogues.json"
@@ -66,11 +67,15 @@ DIALOGUE_CHARS = DIALOGUE_FRENCH_CHARS
 GLYPH_FIRST = min(CHAR_TO_CODE[ch] for ch in DIALOGUE_CHARS)
 INTRO_EVENT_ID = 0x0400
 
-def _generate_translation_document(base: bytes, source_document: dict) -> tuple[dict, dict]:
-    """Regenerate the dialogue translation from canonical Android/source inputs."""
+def _load_or_generate_translation_document(base: bytes, source_document: dict) -> tuple[dict, dict | None, bool]:
+    """Load a valid local cache or regenerate and persist it atomically."""
+    cached = load_translation_cache(base, source_document)
+    if cached is not None:
+        return cached, None, True
+
     english = read_scrtxt(DEFAULT_SCRTXT_EN)
     french = read_scrtxt(DEFAULT_SCRTXT_FR)
-    return make_dialogue_format_mass(
+    document, report = make_dialogue_format_mass(
         english,
         french,
         english_path=DEFAULT_SCRTXT_EN,
@@ -78,6 +83,8 @@ def _generate_translation_document(base: bytes, source_document: dict) -> tuple[
         base_rom=base,
         source_document=source_document,
     )
+    store_translation_cache(document, base, source_document)
+    return document, report, False
 
 
 def build(
@@ -89,7 +96,7 @@ def build(
     document = load_or_extract_dialogues(base, dialogue_file)
     try:
         if translation_file is None:
-            translation_document, format_report = _generate_translation_document(base, document)
+            translation_document, format_report, cache_hit = _load_or_generate_translation_document(base, document)
             translations = resolve_translation(
                 translation_document, document, source_asset="dialogues.json", label="generated dialogue translation"
             )
@@ -102,10 +109,16 @@ def build(
             choice_option_overrides = resolve_choice_option_position_overrides(
                 translation_document, document
             )
-            translation_source_report = (
-                "Dialogue translation regenerated from canonical Android/source inputs: "
-                f"{len(format_report.get('accepted_events', []))} accepted event(s)"
-            )
+            if cache_hit:
+                translation_source_report = (
+                    "Dialogue translation cache reused: translations/dialogues_french.json"
+                )
+            else:
+                assert format_report is not None
+                translation_source_report = (
+                    "Dialogue translation regenerated from canonical Android/source inputs and cached: "
+                    f"{len(format_report.get('accepted_events', []))} accepted event(s)"
+                )
         else:
             translations = load_translation(translation_file, document, source_asset="dialogues.json")
             structural_omissions = load_structural_omission_token_indexes(

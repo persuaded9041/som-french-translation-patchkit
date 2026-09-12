@@ -1,4 +1,22 @@
-# HANDOFF — Round 85.37 (automatic root extraction cache)
+# HANDOFF — Round 85.39 (persistent generated translation caches)
+
+## Round 85.39 — persistent `text_resources_french.json` cache
+
+`translations/text_resources_french.json` now follows the same local-cache contract as `dialogues_french.json`. A normal `french_resources` build reuses the file only when `build/cache/text_resources_french.meta.json` proves that the clean USA ROM, extracted source-resource document, Android `systxt_en/fr.bin`, reviewed `recipes/android/text_resources_layout.json`, generator code and cached payload all match. Missing, edited or stale caches are regenerated and rewritten atomically from canonical inputs. `reports/android/text_resources_android.json` remains an optional review report and is never consumed by the build. The explicit `tools/text/import_android_resources.py <ROM>` path seeds the same cache metadata when materializing the default French JSON.
+
+This is performance/workflow-only: `french_resources.ips` remains SHA-256 `dc585b3d94a9179136e975b717befa2259a83a76ab7de51227a045acf5490d84`, and `all.ips` remains SHA-256 `a12f3540ba2f086c9833b2503c49ca509957cf8b6cebf106ff98cca729cb290b`.
+
+Operational handoff. The accompanying archive is authoritative over GitHub.
+
+
+## Round 85.38 — persistent `dialogues_french.json` cache
+
+`translations/dialogues_french.json` is now retained automatically after normal `french_dialogues` generation and reused on later builds when a fingerprint proves it is still valid. The cache fingerprint covers the clean USA ROM, the extracted source dialogue document, Android EN/FR dialogue sources, dialogue recipes/manual supplements, and the relevant shared dialogue/VWF/charset generator code. A missing, edited or stale cache is regenerated from canonical inputs and rewritten atomically. Cache metadata lives under `build/cache/dialogues_french.meta.json`; deleting either cache file is safe and merely forces regeneration. The explicit `tools/dialogue/import_android.py --only dialogue-format-mass` path seeds the same cache metadata when writing the default translation path.
+
+Measured locally on this checkpoint: first standalone generation about 6.3 s; fingerprint-valid cache reuse about 1.1 s. Cache behavior is maintenance/performance-only: `french_dialogues.ips` and `all.ips` remain byte-for-byte identical to Round 85.37.
+
+Operational handoff. The accompanying archive is authoritative over GitHub.
+
 
 ## Round 85.37 — automatic ignored `assets/` cache
 
@@ -74,9 +92,9 @@ Active structural recipe files:
 
 Recipes may store identities, Android token references, SNES carriers, punctuation, case transforms, offsets and layout/control operations. They must **not** store translated prose. `tools/text/check_source_hygiene.py` enforces the key provenance constraints.
 
-Generated outputs/reports include `translations/dialogues_french.json`, `reports/android/dialogues_auto.json`, `reports/android/dialogues_unmapped.csv`, `reports/android/dialogues_format_mass.json` and `reports/android/dialogues_format_mass_excluded.csv`. They are not source dependencies.
+Generated outputs/reports include `translations/dialogues_french.json`, `reports/android/dialogues_auto.json`, `reports/android/dialogues_unmapped.csv`, `reports/android/dialogues_format_mass.json` and `reports/android/dialogues_format_mass_excluded.csv`. They are not canonical source dependencies. `dialogues_french.json` is now retained as a fingerprint-validated local performance cache: a valid copy is reused, while an absent/stale copy is regenerated and persisted automatically.
 
-Round 85.28 removed the generated dialogue/resource translation JSONs from the tracked checkpoint. Round 85.30 completes that policy for the dialogue alignment/formatter reports: `dialogues_auto.json`, `dialogues_unmapped.csv`, `dialogues_format_mass.json` and `dialogues_format_mass_excluded.csv` are now ignored and absent too. `check_dialogue_regressions.py` regenerates alignment + mass-format documents in memory from canonical inputs, and `audit_android_dialogue_charset.py` regenerates alignment in memory by default. No normal build/check path consumes these generated files.
+Round 85.28 removed the generated dialogue/resource translation JSONs from the tracked checkpoint. Round 85.30 completes that policy for the dialogue alignment/formatter reports: `dialogues_auto.json`, `dialogues_unmapped.csv`, `dialogues_format_mass.json` and `dialogues_format_mass_excluded.csv` are now ignored and absent too. `check_dialogue_regressions.py` regenerates alignment + mass-format documents in memory from canonical inputs, and `audit_android_dialogue_charset.py` regenerates alignment in memory by default. No normal check path requires these generated files. The `french_dialogues` build may consume `dialogues_french.json` only as a fingerprint-validated cache; canonical inputs remain sufficient to regenerate it.
 
 ## Active tool surface
 
