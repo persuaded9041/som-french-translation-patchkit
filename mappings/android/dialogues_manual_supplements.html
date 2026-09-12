@@ -15,7 +15,7 @@ body{max-width:1280px;margin:0 auto;padding:28px 18px 60px}h1{margin-bottom:6px}
 <h1>Surcharges manuelles — Round 67</h1>
 <p class="lead">Comparaison destinée à la validation humaine. Le sens du SNES japonais est prioritaire ; la localisation française officielle sert de référence de terminologie et de ton. Une proposition marquée « À valider » n'est jamais injectée : le build conserve le texte USA tant que <code>status=needs_manual_translation</code>. Une entrée « SUPPRIMÉ » conserve ses trois sources pour provenance mais n'affiche aucun texte.</p>
 <div class="banner"><b>Règle de provenance :</b> <code>original_jp</code> ne contient que du japonais attribué au SNES original avec suffisamment de certitude. Un champ JP non encore transcrit reste volontairement vide ; Android JP n'est jamais substitué à l'original SNES.</div>
-<div class="stats"><div class="stat"><b>18</b> carriers manuels</div><div class="stat"><b>0</b> proposition(s) à valider</div><div class="stat"><b>16</b> traduction(s) validée(s)</div><div class="stat"><b>2</b> suppression(s) validée(s)</div></div>
+<div class="stats"><div class="stat"><b>17</b> carriers manuels</div><div class="stat"><b>0</b> proposition(s) à valider</div><div class="stat"><b>15</b> traduction(s) validée(s)</div><div class="stat"><b>2</b> suppression(s) validée(s)</div></div>
 <div class="hashes">SNES JP SHA-256 : <code>7fd1747eb4333f502d5fe6df7267342e4b4a399ab65b57f0a139e5f9fc02ab9d</code><br>SNES USA SHA-256 : <code>4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f</code><br>SNES FR Rev 1 SHA-256 : <code>b730adcbb34a19f8fd1c2abe27455cc3256329a9b8a021291e3009ea33004127</code></div>
 
 <details class="card" data-status="translated" open>
@@ -77,18 +77,6 @@ body{max-width:1280px;margin:0 auto;padding:28px 18px 60px}h1{margin-bottom:6px}
   </div>
   <div class="meta"><b>Base de proposition :</b> snes_jp_primary; no distinct JP sentence exists; user validated suppression to match the official Android-FR adaptation; official_snes_fr_rev1 and snes_us retained as provenance<br>
   <b>Note :</b> Validation Round 67 : le SNES-JP termine la séquence après l&#x27;explication que la Lance évoluera comme l&#x27;Épée sacrée. Il n&#x27;existe aucun bloc japonais distinct correspondant à l&#x27;instruction US « There must be more weapons... Find them! ». L&#x27;utilisateur valide donc la suppression de ce carrier pour se rapprocher de l&#x27;adaptation Android FR, qui omet elle aussi cette instruction. Le patch supprime le carrier et uniquement son WAIT $00 immédiatement suivant afin d&#x27;éviter une page vide ; le TEXT_CLEAR/RETURN stock reste en place. La ROM FR Rev1 conserve l&#x27;ajout occidental et reste enregistrée comme provenance.</div>
-</details>
-<details class="card" data-status="translated" open>
-  <summary><code>$0204</code> · <code>C9:902F</code>
-    <span class="badge done">VALIDÉ</span></summary>
-  <div class="grid">
-    <section><h3>SNES japonais original</h3><div class="text">「これで世界のどこにおっても、<br>　その聖剣には種子からのパワーが　とどくはずじゃ。</div><div class="evidence"><b>État JP :</b> exact_snes_jp_transcription_resegmented_block_confirmed<br><b>Localisation JP :</b> événement <code>$0204</code> · carrier <code>C9:87E4</code><br><b>Octets JP conservés :</b> <code>86 93 B3 CE 6C BA 68 D9 A2 CF 93 9F 8E B8 9C AC 80 7F FF 98 A2 FB FC 9F A3 6D EE E4 8F B0 A2 61 D5 B5 84 C1 FF 9D CF 91 A3 C8 C7 B9 81</code></div></section>
-    <section><h3>SNES USA original</h3><div class="text"> You&#x27;ll be able to gain<br> power from the Mana seed<br> wherever you are!</div></section>
-    <section><h3>SNES France Rev 1</h3><div class="text">Où que tu sois, tu pourras<br>recevoir le pouvoir de la<br>graine Mana.</div></section>
-    <section class="proposal"><h3>Proposition du patch</h3><div class="text">Où que tu sois, le pouvoir de la Graine atteindra ton Épée.</div></section>
-  </div>
-  <div class="meta"><b>Base de proposition :</b> snes_jp_primary_resegmented; corresponding_snes_fr_segment_secondary; event_context<br>
-  <b>Note :</b> Le SNES-JP fusionne ici le sens de plusieurs carriers occidentaux : « où que tu sois dans le monde, le pouvoir de la Graine atteindra cette Épée ». Le bloc JP exact est conservé comme preuve resegmentée et n’est pas présenté comme une correspondance 1:1 avec le seul carrier USA C9:902F. Proposition validée par l’utilisateur au Round 66.</div>
 </details>
 <details class="card" data-status="translated" open>
   <summary><code>$0207</code> · <code>C9:916F</code>

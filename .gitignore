@@ -14,3 +14,13 @@ mappings/android/dialogues_omission_review_round*.*
 mappings/android/dialogues_android_exhaustion_status.html
 mappings/android/dialogues_coverage_repair_lot*.html
 mappings/android/dialogues_coverage_repair_lot*_issues.csv
+# Ephemeral Android mapping/audit reports
+mappings/android/dialogue_charset_audit.csv
+mappings/android/text_resources_android_review.html
+mappings/android/text_resources_layout_audit.json
+mappings/android/text_resources_layout_audit.html
+mappings/android/text_resource_names_geometry_review.html
+mappings/android/dialogues_pilot.json
+mappings/android/dialogue_04E2_android_fr_round67.html
+mappings/ui_vwf_round*_review.html
+artifacts/

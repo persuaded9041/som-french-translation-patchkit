@@ -9,7 +9,6 @@ ROOT = Path(__file__).resolve().parents[1]
 MANUAL = ROOT / "translations" / "dialogues_manual_supplements.json"
 FRENCH = ROOT / "translations" / "dialogues_french.json"
 MASS = ROOT / "mappings" / "android" / "dialogues_format_mass.json"
-FOCUSED = ROOT / "mappings" / "android" / "dialogue_04E2_android_fr_round67.html"
 
 
 def die(msg: str) -> None:
@@ -154,14 +153,6 @@ def main() -> None:
             die("$04E2 user-reviewed speaker redistribution report drifted")
     elif round69_04e2 is None:
         die("$04E2 user-reviewed redistribution report missing")
-
-    html = FOCUSED.read_text(encoding="utf-8")
-    for android_id in range(1274, 1309):
-        if f'<td class="id">{android_id}</td>' not in html:
-            die(f"focused $04E2 HTML no longer exposes Android {android_id}")
-    for sid in expected_04e2_deferred:
-        if sid not in html:
-            die(f"focused $04E2 HTML no longer highlights {sid}")
 
     print("Round-67 targeted dialogues verified: $013A suppression + $04E1 monologue + $04E2 speaker redistribution user-validated and locked")
 

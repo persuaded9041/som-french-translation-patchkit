@@ -1,44 +1,34 @@
-# Round 85 maintenance target — performance and repository simplification
+# Round 85.3 maintenance target — simplify before optimizing
 
-This document is a short working index for the next maintenance session. `docs/HANDOFF.md` remains
-the authoritative state description.
+`docs/HANDOFF.md` is the authoritative operational state. Repository cleanup is checkpointed in
+`docs/CLEANUP_ROUND85_3.md`.
 
-## Baseline
+## Current repository policy
 
-- Approximate file count before Round-85 cleanup: 327 files.
-- `mappings/android/` top-level files: 74.
-- Dialogue mass pass is CPU-bound enough to make normal iteration expensive and appears effectively
-  single-core on the user's i5-10600K (6C/12T).
-- Canonical output must stay deterministic; performance work must not change semantic decisions or
-  serialized output.
+- `artifacts/` is gone; one-off reports should be generated outside the repository.
+- historical round review HTML/CSV/JSON snapshots are not active inputs.
+- `mappings/android/` should contain only structural recipes, generated data still needed by
+  current guardrails, and small persistent review state.
+- `translations/dialogues_french.json` is a generated output, never a source/cache dependency.
+- `patches/` remains versioned for now because stored component IPS files are still an intentional
+  `build.py --combine` workflow.
 
-## Performance acceptance criteria
+## Next step: simplify dialogue import/generation
 
-Record a serial baseline first. For every optimization, compare:
+Before performance changes, inventory the active `import_android_text.py` modes and dataflow.
+Classify every file touched by `dialogue-auto` and `dialogue-format-mass` as:
 
-- wall-clock time;
-- peak memory if practical;
-- `translations/dialogues_french.json` hash;
-- `mappings/android/dialogues_format_mass.json` hash/content;
-- accepted/excluded counts and simulator defects;
-- regression-checker results.
+1. canonical source/input;
+2. structural human-reviewed recipe;
+3. optional reproducible cache;
+4. final generated output/report.
 
-Prefer cache/memoization when repeated pure computations dominate. If event-level work is independent,
-use process-based parallelism rather than threads for CPU-bound Python. Expose worker count explicitly,
-keep a serial mode, preserve deterministic collection/sorting, and benchmark 4–6 workers first.
+Remove or isolate legacy pilot/review code that no longer participates in current generation.
+A clean run must regenerate `dialogues_french.json` without reading an older copy.
 
-## Repository-cleanup acceptance criteria
+## Then optimize
 
-Classify each candidate as one of:
-
-1. canonical input required to regenerate outputs;
-2. canonical generated output/check input;
-3. current human-review artifact worth keeping;
-4. historical evidence worth moving to `docs/history/` or `mappings/android/history/`;
-5. redundant generated artifact safe to delete.
-
-Never infer safety from filename alone: grep/import-reference every candidate family first. Consolidate
-round-specific checkers only after their assertions are represented declaratively and the replacement
-checker catches intentional negative tests.
-
-The goal is a smaller active surface, not loss of provenance.
+Profile the simplified path. Prefer eliminating redundant work and memoizing pure repeated
+computations before parallelism. If coarse event-local work remains CPU-bound, benchmark explicit
+`--jobs N` process parallelism on the target i5-10600K starting around 4–6 workers. Serial and
+parallel output must be byte-identical and deterministically ordered.

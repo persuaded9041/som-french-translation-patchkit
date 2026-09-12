@@ -180,8 +180,10 @@ The pilot keeps failure cases visible rather than forcing a result:
 - SNES `C9:0B03` is one SNES text block, while Android splits the same content
   into `2449+2450`; the same pair is duplicated again at `2463+2464`.
 
-These remain `manual_review` in `mappings/android/dialogues_pilot.json` even
-though parts of their text match perfectly.
+These were deliberately left unresolved during the pilot rather than forced even
+though parts of their text matched perfectly. The old `dialogues_pilot.json` snapshot
+is no longer versioned; the decisions that survived the review are represented by the
+current alignment/recipe data.
 
 ## 8. User validation of the first pilot
 

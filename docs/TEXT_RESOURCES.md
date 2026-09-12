@@ -118,11 +118,9 @@ python3 tools/audit_text_resource_layout.py "Secret of Mana (USA).sfc"
 python3 tools/audit_text_resource_layout.py "Secret of Mana (USA).sfc" --check
 ```
 
-Generated review material:
-
-- `mappings/android/text_resources_layout_audit.json`;
-- `mappings/android/text_resources_layout_audit.html`;
-- `mappings/android/text_resource_names_geometry_review.html` (focused name-only review).
+The audit JSON/HTML are generated review material and are no longer versioned.
+Write them to a temporary/output path when a fresh review is needed. The former
+focused name-only review is historical and can be recovered from Git history.
 
 The audit treats the maximum line/line-count observed in the clean USA resources as a
 **conservative review envelope only**. It is not claimed to be a renderer hard limit.

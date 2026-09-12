@@ -1,14 +1,14 @@
-# Development handoff — Round 85
+# Development handoff — Round 85.3 maintenance checkpoint
 
 Operational handoff. The archive accompanying this file is authoritative over GitHub.
-Historical investigation remains available in the specialist docs and review files, but the next
-session should deliberately reduce that historical surface after proving which files are still
-consumed by the build/check pipeline.
+Historical investigation remains available in specialist docs and Git history. The active
+working tree has now been pruned so old generated review snapshots are no longer treated as
+pipeline inputs.
 
 ## Current checkpoint
 
 - Reference ROM: unheadered **Secret of Mana (USA)**, `0x200000`, SHA-256 `4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f`. Never store or redistribute it.
-- Current state: **Round 85 — post-audit dialogue coverage/layout cleanup**.
+- Current state: **Round 85.3 — repository cleanup after the post-audit dialogue checkpoint**.
 - The user accepts this checkpoint for continued development. Full runtime validation of the newly audited dialogue cases is **deferred to the next complete playthrough**; do not describe these new cases as individually runtime-validated yet.
 - Android semantic alignment remains **1798 / 1838 (97.8%)**. Do not force identity merely to reach 100%.
 - Playable dialogue corpus: **701 events = 701 complete + 0 PARTIEL**.
@@ -120,73 +120,20 @@ The Round-85 recipe checker baseline includes **18 redistribution events**. Manu
 
 Final cleanup rebuild proof: aggregate `patches/all.ips` builds from the 14 stored components to a 3 MiB ROM with SNES checksum **`$8E10`**. `patches/all.ips` SHA-256: `f4f8e8450882f8520b618814e53c043cf935462b6d29dbd31ed697fa48ed9ec0`.
 
-## NEXT WORK — performance + repository simplification
+## NEXT WORK — simplify dialogue generation, then optimize
 
-This is the priority for the next session. Do **not** start object/item translation yet.
+Do **not** start object/item translation yet. Repository cleanup is now checkpointed; see
+`docs/CLEANUP_ROUND85_3.md`.
 
-### 1. Profile and accelerate JSON generation
+Priority order:
 
-The user's development machine is an **Intel i5-10600K (6 cores / 12 threads)** and current
-`dialogue-format-mass` visibly uses only one core. Before parallelizing:
+1. simplify `import_android_text.py` / dialogue generation so canonical inputs, optional
+   reproducible caches and outputs are explicit;
+2. prove `translations/dialogues_french.json` can be regenerated when absent and is never
+   consumed as an input;
+3. reduce coupling of regression checks to generated `mappings/android/*.json` where practical;
+4. only then profile the simplified path and add memoization/other optimizations;
+5. revisit multiprocessing only if profiling still identifies coarse event-local CPU work.
 
-1. profile the canonical command (`cProfile` and/or `py-spy`) and record the top CPU consumers;
-2. separate truly event-local expensive work from global calibration/aggregation;
-3. add memoization/caching first where repeated width measurement, decode/encode, formatting or
-   simulation work dominates;
-4. only then evaluate `multiprocessing` / `ProcessPoolExecutor` for event-independent work;
-5. start around **4–6 workers**, not 12, and benchmark wall time / CPU / memory;
-6. preserve deterministic ordering and byte-identical JSON/report output between 1 worker and N workers;
-7. add an easy serial fallback and ideally a `--jobs N` option rather than making parallelism implicit.
-
-No optimization is accepted if it changes `dialogues_french.json`, alignment decisions, simulation
-results, recipe ownership or report ordering.
-
-### 2. Reduce historical repository clutter
-
-Current Round-85 archive before this cleanup contained roughly **327 files**, including **74 files
-at `mappings/android/` top level**. This is now an explicit maintenance problem.
-
-Do an evidence-based dependency audit before deleting anything. Major candidate families:
-
-- `mappings/android/dialogues_review_round*.json` and `*_context.html`;
-- old worklists (`dialogues_review_worklist_roundXX*.html`);
-- Round-56/57 omission review reports;
-- one-off generated review HTML/CSV files that are not build/check inputs;
-- per-round checker scripts `tools/check_round62_*` through `check_round69_*` that may be
-  consolidatable into one declarative regression checker;
-- specialist historical docs that can be moved under a single `docs/history/` area if still useful.
-
-Desired end state:
-
-- root `mappings/android/` contains only canonical machine inputs/outputs needed for regeneration,
-  current review artifacts, and compact provenance metadata;
-- historical human-review evidence is either removed if redundant or moved to a clearly named
-  archive/history directory;
-- checks use declarative data wherever possible instead of accumulating a new Python script per round;
-- generated review HTML/CSV should not be committed unless it is intentionally part of the handoff;
-- README/HANDOFF should describe the current system, not force readers through dozens of historical
-  rounds to understand what is active.
-
-Measure file count/size before and after, and run the canonical checks/build after every cleanup
-batch. Prefer several small deletion/move batches over one irreversible purge.
-
-## Do not reopen without evidence
-
-- Name Entry Round-84 behavior.
-- Runtime-validated 216 px / 38-glyph dialogue contract.
-- `WAIT != NEWLINE`.
-- Choice VWF architecture and validated anchor/decoration rules.
-- Forge/UI-VWF runtime-validated gates.
-- Previously validated French wording merely as part of performance/repository cleanup.
-
-Reference ROMs must never be included in archives.
-
-## Round 85.1 reproducibility guard
-
-A fresh `--only dialogue-format-mass` regeneration must preserve the Round-85
-post-audit additions. In particular `$0559/CA:6787` is source-derived from
-Android FR 2151–2155 through `mappings/android/dialogues_coverage_repair_recipes.json`.
-The importer now fails fast if that recipe is missing or stale. `$0204/C9:902F`
-is intentionally no longer an active manual supplement: the same-scene Android
-redistribution owns it, and generated metadata records that migration explicitly.
-Run `python3 tools/check_round85_postaudit_reproducibility.py` after regeneration.
+`patches/` is deliberately retained for now. `artifacts/` and obsolete generated mapping/review
+reports have been removed.

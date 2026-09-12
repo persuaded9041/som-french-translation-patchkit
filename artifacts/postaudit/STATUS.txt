@@ -1,7 +1,0 @@
-Post-audit candidate status
-- Combined autonomous IPS built successfully against clean unheadered USA ROM.
-- Selected 20 changed dialogue events simulate with 0 errors, 0 warnings, 0 implicit wraps.
-- Manual supplements source: 17 entries = 15 translated + 2 validated suppressions.
-- Dialogue redistribution checker: 18 events, source-derived payload verified.
-- Text source hygiene: OK.
-- The embedded mappings/android/dialogues_format_mass.json predates the final $0204 manual-supplement removal and still reports manual_supplement_entry_count=18. A full dialogue-format-mass regeneration is required to refresh that bookkeeping field; the source manual supplement file and guardrail correctly contain 17 entries.

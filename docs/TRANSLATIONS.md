@@ -171,7 +171,7 @@ python3 tools/import_android_text.py --only intro --check
 Dialogue work adds `sources/android/scrtxt_en.bin` as the matching bridge.
 Reviewed SNES <-> Android correspondence is kept separately under
 `mappings/android/`; clean-USA `assets/` and original Android binaries remain
-unchanged. The first `dialogues_pilot.json` checkpoint contains only seven
+unchanged. The original dialogue-alignment pilot checkpoint contained only seven
 very-high-confidence English anchors and explicit ambiguous examples. It is kept
 as research/regression evidence and does not directly feed `french_dialogues`.
 

@@ -1,61 +1,75 @@
-# Android dialogue mapping evidence
+# Android dialogue mapping data
 
-This directory contains reproducible correspondence, formatter decisions, review evidence and scene-redistribution metadata for component 08.
+This directory deliberately contains only data that is still useful to the active
+pipeline or to current regression checks. Historical review snapshots belong in Git
+history, not in the working tree.
 
 ```text
 assets/            clean-USA canonical source
 sources/android/   untouched upstream Android binaries
-mappings/android/  alignment / formatter / review evidence
-translations/      generated or validated French bound to SNES IDs
+mappings/android/  active recipes, reproducible mapping/cache data, current guardrail reports
+translations/      generated or explicitly validated French bound to SNES IDs
 ```
 
-## Current Round 69 state
+## Canonical structural inputs
+
+These files encode reviewed project decisions and must remain versioned:
+
+- `dialogues_redistribution_recipes.json` — prose-free whole-scene Android-FR resegmentation recipes;
+- `dialogues_coverage_repair_recipes.json` — prose-free coverage repair recipes;
+- `dialogues_choice_layout_recipes.json` — reviewed choice-layout decisions;
+- `text_resources_layout.json` — prose-free text-resource layout recipes.
+
+Genuinely non-Android French prose belongs only in
+`translations/dialogues_manual_supplements.json`.
+
+## Reproducible mapping / current guardrail data
+
+These are generated from canonical inputs, but are still retained because current
+checks or downstream tooling consume them:
+
+- `dialogues_auto.json` — conservative SNES ↔ Android-English semantic alignment;
+- `dialogues_unmapped.csv` — unresolved semantic carriers emitted with that alignment;
+- `dialogues_format_mass.json` — formatter/simulator decision trace;
+- `dialogues_format_mass_excluded.csv` — current unused/orphan exclusions;
+- `text_resources_android.json` — Android text-resource identity/provenance trace.
+
+They are **not** permission to use generated French output as an input. In particular,
+`translations/dialogues_french.json` remains a generated product and may be absent from
+a clean checkout in the future.
+
+The next maintenance step is to reduce the remaining checker/importer coupling to these
+generated mapping files so they can eventually become optional caches or outputs.
+
+## Small persistent review state
+
+- `dialogue_preview_state.json` stores intentionally persistent preview tags/badges.
+- `dialogues_manual_supplements.html` is the one current human-readable provenance
+  sheet retained for the active manual-supplement set. It is deterministically generated
+  and may later move to fully ephemeral output once its checker no longer requires an
+  on-disk reference copy.
+
+## Generated on demand, not versioned
+
+Historical round HTML, pilot snapshots, charset CSVs, resource-layout audit HTML/JSON,
+and focused review pages are no longer kept in the repository. Generate them into a
+working/output path when needed. `.gitignore` prevents the former default report paths
+from being accidentally recommitted.
+
+## Current state
 
 - Android-English semantic alignment: **1798 / 1838 (97.8%)**, **40 deliberately unresolved**.
-- Simulator-clean payload: **701 events = 701 complete + 0 PARTIEL**.
-- Translation output: **1810 accepted semantic source IDs / 1946 JSON entries**.
-- Exclusions: **3 alignment-incomplete**, all canonical-routing-audited unused/orphan content: `$0269`, `$02DE`, `$0603`.
-- Simulation: **0 errors / 0 warnings / 0 implicit wraps**.
+- Reachable dialogue corpus: **701 complete events, 0 PARTIEL**.
 - Reachable dialogue coverage under the audited routing graph: **100% French**.
+- The three alignment-incomplete exclusions remain audited unused/orphan content:
+  `$0269`, `$02DE`, `$0603`.
 
-`docs/HANDOFF.md` is the authoritative operational state. Round-specific review files are historical evidence and must not be used as the current queue or current counters.
-
-## Authoritative files
-
-- `dialogues_auto.json` — conservative SNES ↔ Android-English semantic alignment.
-- `dialogues_unmapped.csv` — semantic SNES carriers without Android identity.
-- `dialogues_format_mass.json` — formatter/simulator decision trace.
-- `dialogues_format_mass_excluded.csv` — the three current unused/orphan exclusions and their reasons.
-- `dialogues_redistribution_recipes.json` — **prose-free** recipes for reviewed whole-scene Android-FR resegmentations.
-- `dialogue_charset_audit.csv` — Android-French character inventory.
-- `dialogue_preview_state.json` — persistent preview badges.
-- `dialogues_manual_supplements.html` — generated human-readable review/provenance sheet for the manual supplement JSON.
-
-Component 08 consumes only `translations/dialogues_french.json`. The importer rebuilds reviewed resegmentations directly from `sources/android/scrtxt_fr.bin`; French prose must not be stored in `dialogues_redistribution_recipes.json`. Any genuinely non-Android dialogue French belongs exclusively in `translations/dialogues_manual_supplements.json`.
-
-## Identity policy
-
-Android **English** is the identity layer. Android French supplies localization payload but does not create semantic identity by itself. Manual supplements and whole-scene redistributions likewise do not increase the 1798/1838 alignment count.
-
-The generic automatic candidate index is `scrtxt`-only. Reviewed `systxt` exceptions remain limited to the documented item/chest corrections. Short generic strings are never promoted globally without structural evidence; do not weaken matcher thresholds merely to reduce the unresolved count.
-
-`validated_no_equivalent`, `validated_android_omission` and `validated_contextual_template` are negative/contextual evidence, not Android identities. The 40 unresolved semantic IDs are intentionally retained where identity is not independently proven.
-
-## Manual and redistributed text provenance
-
-`translations/dialogues_manual_supplements.json` contains **18 records = 16 validated translations + 2 validated suppressions + 0 pending**. `$035F/C9:D1B8` is strictly `Dryade`; the older expanded proposal remains withdrawn.
-
-Reviewed Android-FR restructurings are represented only as recipes containing Android IDs/token references, `PLAYER_NAME` references, punctuation and layout/control metadata. `tools/check_dialogue_redistribution_recipes.py` rejects prose in that manifest and verifies the generated payload.
-
-## Historical evidence
-
-`dialogues_review_round*.json`, omission-review JSON and older HTML review snapshots document how earlier decisions were reached. They are evidence only. Historical methodology and detailed round summaries live in `docs/ANDROID_TEXT_ALIGNMENT.md` and `docs/DIALOGUE_FORMAT.md`.
+`docs/HANDOFF.md` is authoritative for the current operational state.
 
 ## Current regeneration / checks
 
 ```bash
 python3 tools/import_android_text.py --only dialogue-auto --check
-python3 tools/audit_android_dialogue_charset.py --check
 python3 tools/check_dialogue_redistribution_recipes.py
 python3 tools/check_manual_dialogue_supplements.py
 python3 tools/generate_manual_dialogue_supplements_html.py --check
@@ -65,25 +79,20 @@ python3 tools/check_round68_scene_redistributions.py
 python3 tools/check_round69_dialogue_completion.py
 python3 tools/check_text_source_hygiene.py
 python3 tools/check_text_roundtrip.py <clean-USA-ROM> --scan-all-events
-python3 tools/simulate_dialogues.py <clean-USA-ROM> -o dialogue_preview.html \
-  --issues-csv dialogue_preview_issues.csv \
-  --preserve-tags mappings/android/dialogue_preview_state.json
 ```
 
-Use `docs/HANDOFF.md` before changing dialogue alignment or serialization.
+Optional reports should be written only when needed, for example:
+
+```bash
+python3 tools/audit_android_dialogue_charset.py --output /tmp/dialogue_charset_audit.csv
+python3 tools/import_android_resources.py --html /tmp/text_resources_android_review.html
+python3 tools/audit_text_resource_layout.py <clean-USA-ROM> \
+  --json /tmp/text_resources_layout_audit.json \
+  --html /tmp/text_resources_layout_audit.html
+```
 
 ## Non-event `$CA` system resources
 
-`tools/import_android_resources.py` is the deterministic Android `systxt` bridge for
-`assets/text_resources.json`. It deliberately remains separate from dialogue alignment.
-It emits `text_resources_android.json` (identity/provenance) and
-`translations/text_resources_french.json` (generated FR payload), plus an optional HTML
-review. Mapping recipes live in the prose-free `text_resources_layout.json`.
-
-```bash
-python3 tools/import_android_resources.py --html mappings/android/text_resources_android_review.html
-python3 tools/import_android_resources.py --check
-```
-
-This layer does not patch the ROM. Resource insertion must be added only after the stock
-UI geometry/charset/bank-capacity constraints have been measured.
+`tools/import_android_resources.py` remains the deterministic Android `systxt` bridge for
+`assets/text_resources.json`. It emits `text_resources_android.json` plus
+`translations/text_resources_french.json`; optional HTML review output is ephemeral.
