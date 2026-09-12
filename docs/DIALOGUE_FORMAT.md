@@ -317,74 +317,27 @@ Once at least one translation changes source text, the builder installs the
 `dialogue_french` `$D3-$E7` glyph span plus the same context-sensitive DTE router
 as `vwf_dialogues`.
 
-## 8.1 First complete-event formatting batch
+## 8.1 Consolidated runtime checkpoints
 
-`tools/import_android_text.py --only dialogue-format-batch1 --rom <clean-USA-ROM>`
-regenerates the current sparse French dialogue file from the original Android
-EN/FR sources and the accepted whole-game alignment. The selected events are:
+The early `dialogue-format-pilot`, `dialogue-format-batch1` and
+`dialogue-format-page-pilot` CLI modes have been retired. Their useful results are
+now permanent constraints of the canonical mass pipeline rather than separate
+generators:
 
-- `$0107` — existing runtime-validated waterfall-village pilot;
-- `$010E` — early village dialogue;
-- `$0116`, `$0117`, `$0118`, `$011D` — complete early village NPC speeches.
+- ordinary physical lines must stay within 216 px and 38 parser units;
+- dynamic `PLAYER_NAME` placeholders are budgeted conservatively for a 9-character name;
+- generated page transitions use the validated `WAIT $00` + `TEXT_CLEAR` shape;
+- sentence boundaries are preferred when pagination is required;
+- every accepted event is independently simulator-gated.
 
-Every semantic source text token in a selected event must be covered by an
-accepted mapping. This is stricter than merely formatting whichever mappings
-happen to pass: the generator aborts instead of creating a half-translated event.
-The 8 translated text tokens across these six events have been runtime-tested
-successfully. They grow and are relocated deterministically in ascending event
-order from `$E8:2000`.
+The current and only dialogue-output command is:
 
-`$010F` was part of the first runtime attempt but is not part of the validated
-batch-1 baseline. With a 9-character hero name its line
-`Te voilà, <nom> ! Bob et Ness sont` hit the exact capacity boundary and split in
-game. The conservative dynamic-name parser reserve therefore makes the Android
-French require four safe lines.
-
-## 8.2 Explicit extra-page formatting
-
-`tools/import_android_text.py --only dialogue-format-page-pilot --rom <clean-USA-ROM>`
-keeps the six runtime-validated batch-1 events and adds `$010F`. The generated
-page transition itself is **runtime-validated**: a form-feed marker `\f` in the
-translation compiles to the stock `WAIT $00` + `TEXT_CLEAR` sequence, waits for
-player input, clears the box, renders the next page and then continues the event
-normally. Canonical `assets/dialogues.json` remains structurally unchanged.
-Leading, trailing or repeated page-break markers are rejected.
-
-The first validated `$010F` checkpoint used a mechanically balanced 2+2 layout.
-The later sentence-aware placement is also **runtime-validated** and is now the
-reference rule. When prose needs an additional page, it now searches for a complete
-sentence boundary (`.`, `!`, `?`, or ellipsis) for which both sides fit within
-three safe lines. It chooses the latest such boundary, so a complete sentence
-may use all three lines of the current page rather than being split merely to
-avoid a one-line following page. Each page is then balanced internally while
-respecting the same 216-pixel safe-width and 38-parser-unit limits. If no safe sentence
-boundary exists, the previous deterministic balanced distribution remains a
-conservative fallback. The runtime-validated pilot itself uses one generated extra
-page. The mass generator may use a second transition only for the stricter case where
-two complete-sentence boundaries yield three independently safe pages; it never
-creates an arbitrary three-page split.
-
-For `$010F`, the runtime-validated sentence-aware layout is:
-
-```text
-Te voilà, <nom> !
-Bob et Ness sont revenus
-tout pâles tout à l'heure.
-
-[WAIT $00 + TEXT_CLEAR]
-
-Il s'est passé quelque chose ?
+```bash
+python3 tools/import_android_text.py --only dialogue-format-mass --rom <clean-USA-ROM>
 ```
 
-The four lines measure 134 / 151 / 147 / 179 pixels and use 22 / 24 / 26 / 30
-parser units under the conservative nine-character dynamic-name assumption. Both
-the transition and this 3+1 sentence-boundary placement are runtime-validated.
-
-## 8.3 Historical batch checkpoints
-
-The earlier pilot/batch CLI modes remain available to reproduce focused runtime
-checkpoints, but their generated reports are no longer committed. The canonical
-current output is the simulator-filtered mass pass described below.
+Historical runtime evidence remains documented below where it explains a current
+rule, but historical report-generation modes are no longer part of the tool surface.
 
 ## 8.4 Semantic line-layout refinements
 
@@ -796,7 +749,7 @@ The Round-50 candidate corpus is **686 simulator-clean events = 660 complete + 2
 
 ## Round 52 exact bridge allow-list
 
-Round 52 deliberately does **not** generalize the existing action/WAIT fallbacks. Six mappings with already-proven Android-English identity are handled only when event ID, SNES carrier sequence, Android ID sequence, canonical source text, Android EN/FR payload and every intervening command all match an exact allow-list record. Any drift becomes a hard formatter error.
+Round 52 deliberately does **not** generalize the existing action/WAIT fallbacks. The six reviewed mappings are now represented by mapping-local structural recipes: SNES identities and Android token references determine the payload, while the formatter still validates the surrounding stock command shape. No translated prose is stored in those recipes.
 
 The admitted bridges are `$01B5` Android 577, three `$01B9` mappings (593/596/599), `$04E6` Android 86 and `$04E7` Android 95. Stock WAIT/action commands are never moved or removed. Two layout-only newline carriers are promoted to page clears only after already-existing waits: the formatter-generated leading page reset before `$01B9/C9:6CDD`, and explicit newline-only `$01B9/C9:6DBC -> TEXT_CLEAR`; `$04E7` additionally emits one `TEXT_CLEAR` at the beginning of the goodbye carrier immediately after the stock `WAIT $08`. `WAIT` itself remains a pause, never a newline.
 
@@ -805,7 +758,7 @@ The mass corpus becomes **686 events = 663 complete + 23 PARTIEL**, **1658 visib
 
 ## Round 54 exact Android-FR completion allow-list
 
-Round 54 runs only after the Round-53 Android source audit proved that no additional identity can be recovered under the current policy. It adds **no Android ID, no matcher, no namespace expansion and no generic formatter relaxation**. Five already-owned units are serialized only when event ID, SNES carrier set, Android ID, Android EN/FR payload and a canonical stock token window all match an exact allow-list.
+Round 54 runs only after the Round-53 Android source audit proved that no additional identity can be recovered under the current policy. It adds **no Android ID, no matcher, no namespace expansion and no generic formatter relaxation**. The reviewed units are now serialized from Android token references plus exact structural conditions; translated French is not embedded in the formatter.
 
 - `$0040 / Android 681`: preserve both stock `PLAYER_NAME(1)` commands and serialize only ` : Moi, c'est ` / ` !` around the second name.
 - `$0041 / Android 625`: split the official French at the complete sentence boundary across the unchanged `OP_38 01 + OP_10 42` bridge.

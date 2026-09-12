@@ -1,40 +1,39 @@
-# Maintenance target — simplify before optimizing
+# Maintenance target — profile the cleaned dialogue pipeline
 
-`docs/HANDOFF.md` is the authoritative operational state. Obsolete round-specific cleanup/audit notes are intentionally not retained.
+`docs/HANDOFF.md` is the authoritative operational state.
 
-## Current repository policy
+## Cleanup completed
 
-- `artifacts/` is gone; one-off reports should be generated outside the repository.
-- historical round review HTML/CSV/JSON snapshots are not active inputs.
-- `mappings/android/` should contain only structural recipes, generated data still needed by
-  current guardrails, and small persistent review state.
-- `translations/dialogues_french.json` is a generated output, never a source/cache dependency.
-- `patches/` remains versioned for now because stored component IPS files are still an intentional
-  `build.py --combine` workflow.
+- `artifacts/` and obsolete generated review snapshots are gone.
+- historical pilot/review/batch CLI modes have been removed from `import_android_text.py`.
+- old round-specific formatter payloads were migrated to structural Android-token recipes.
+- layout-search decisions already reviewed by the user are represented as structural strategy/carrier/offset recipes with simulator validation and exhaustive fallback.
+- `dialogues_french.json` is proven regenerable from scratch and remains a generated output only.
+- temporary mass runs can redirect translation, report and exclusion CSV outputs outside the repository.
+- text-source hygiene now checks the dialogue recipe/provenance architecture.
 
+## Source / recipe / output model
 
-## Reproducibility issue exposed by cleanup
+**Sources:** clean-USA assets, Android EN/FR binaries, clean USA ROM metrics.
 
-A clean rebuild of all 14 components from the current sources changes only `french_dialogues.ips`.
-The stored accepted patch is SHA-256 `7d45be250c6f496570eec74c71e65e5155f72fbd87bbc61de66f98c6cba04958`; a fresh rebuild produces `9066ac6d83d3dfc544280e77e5da57eb7b36d312d0444b34fe27606c029ee98b`.
-Consequently the aggregate changes from the accepted `$8E10` baseline to `$84C5`. Treat this as a concrete pipeline reproducibility regression to resolve before performance optimization. The stored patches remain untouched in the checkpoint.
+**Human-reviewed structural inputs:** the five dialogue recipe JSON families plus the small manual-supplement file for genuine non-Android exceptions.
 
-## Next step: simplify dialogue import/generation
+**Generated outputs:** `dialogues_french.json`, `dialogues_auto.json`, unmapped/exclusion CSVs and mass-format reports. None should be required to generate another output.
 
-Before performance changes, inventory the active `import_android_text.py` modes and dataflow.
-Classify every file touched by `dialogue-auto` and `dialogue-format-mass` as:
+## Profiling checkpoint
 
-1. canonical source/input;
-2. structural human-reviewed recipe;
-3. optional reproducible cache;
-4. final generated output/report.
+Round 85.6 measured the cleaned canonical path. Pure memoization of alignment normalization/metrics/ROM-position decoding reduced `dialogue-auto` from about 9.3 s to about 5.2 s and the complete mass run from about 25.2 s to about 21.8 s in the checkpoint environment, with byte-identical outputs. A per-simulation line-metrics cache was rejected because it regressed the mass run to about 30.4 s.
 
-Remove or isolate legacy pilot/review code that no longer participates in current generation.
-A clean run must regenerate `dialogues_french.json` without reading an older copy.
+## Next step: profiling and optimization
 
-## Then optimize
+Profile `dialogue-format-mass` as it exists now. The current from-scratch run is already dramatically shorter because the cleaned process no longer repeatedly rediscovers reviewed layout cuts; treat that as an architectural consequence, not the end of profiling.
 
-Profile the simplified path. Prefer eliminating redundant work and memoizing pure repeated
-computations before parallelism. If coarse event-local work remains CPU-bound, benchmark explicit
-`--jobs N` process parallelism on the target i5-10600K starting around 4–6 workers. Serial and
-parallel output must be byte-identical and deterministically ordered.
+Optimization order:
+
+1. measure the remaining hot functions on a complete canonical run;
+2. eliminate redundant work and memoize pure calculations where outputs remain identical;
+3. verify `dialogues_french.json` byte-identical after every change;
+4. only if meaningful coarse event-local CPU work remains, benchmark deterministic `--jobs N` multiprocessing on the target i5-10600K (start around 4–6 workers);
+5. keep serial generation as the reference behavior.
+
+Do not hardcode Android-derived prose, weaken simulation/layout checks, or make generated JSON files into hidden caches.

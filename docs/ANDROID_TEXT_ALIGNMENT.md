@@ -289,41 +289,23 @@ than truncated at the English anchor ID.
 Round 4 was visually accepted in full by the user. All 37 units are now
 recorded as `user_validated`.
 
-## 12. Reproducible checkpoint
+## 12. Reproducible current workflow
 
-`tools/import_android_text.py` keeps translation generation separate from
-alignment research:
+Historical pilot/review CLI modes have been retired. Their validated identities remain
+encoded as structural correspondence data used by the canonical aligner. The active
+commands are:
 
 ```bash
-# Existing runtime-validated intro generation
-python3 tools/import_android_text.py --only intro
-python3 tools/import_android_text.py --only intro --check
-
-# Validated pilot alignment checkpoint
-python3 tools/import_android_text.py --only dialogue-pilot
-python3 tools/import_android_text.py --only dialogue-pilot --check
-
-# User-validated round 2
-python3 tools/import_android_text.py --only dialogue-review
-python3 tools/import_android_text.py --only dialogue-review --check
-
-# User-validated round 3
-python3 tools/import_android_text.py --only dialogue-review-round3
-python3 tools/import_android_text.py --only dialogue-review-round3 --check
-
-# User-validated round-4 diversity batch
-python3 tools/import_android_text.py --only dialogue-review-round4
-python3 tools/import_android_text.py --only dialogue-review-round4 --check
-
-# Final pre-automation stress-test review
-python3 tools/import_android_text.py --only dialogue-review-round5
-python3 tools/import_android_text.py --only dialogue-review-round5 --check
+python3 tools/import_android_text.py --only intro [--check]
+python3 tools/import_android_text.py --only dialogue-auto [--check]
+python3 tools/import_android_text.py --only dialogue-format-mass --rom <clean-USA-ROM> [--check]
 ```
 
-The dialogue modes read `assets/dialogues.json`, `scrtxt_en.bin` and
-`scrtxt_fr.bin`, recompute the evidence and slot intervals, and write only under
-`mappings/android/`. `translations/dialogues_french.json`, `french_dialogues` and the
-existing build outputs remain unchanged.
+`dialogue-auto` rebuilds the reviewed SNES/Android identity report from
+`assets/dialogues.json`, `scrtxt_en.bin` and `scrtxt_fr.bin`.
+`dialogue-format-mass` recomputes alignment in memory and generates the playable French
+corpus; it does not consume an existing `dialogues_auto.json` or
+`translations/dialogues_french.json`. Historical round reports are no longer inputs.
 
 ## 13. Round-5 stress test: auditing non-monotonic events
 
@@ -551,18 +533,9 @@ left unresolved rather than forcing a binding across the SNES WAIT/name structur
 generation is still conservative and separate from matching, but a first
 runtime-validated formatting checkpoint exists for event `$0107`:
 
-```bash
-python3 tools/import_android_text.py --only dialogue-format-pilot \
-  --rom "Secret of Mana (USA).sfc"
-python3 tools/import_android_text.py --only dialogue-format-pilot \
-  --rom "Secret of Mana (USA).sfc" --check
-```
-
-The historical pilot now writes its three translated entries to
-`mappings/android/dialogues_format_pilot_translation.json` plus the reproducible
-trace report `dialogues_format_pilot.json`, so rerunning the pilot cannot overwrite
-the current translation batch. The runtime validation remains restricted to
-event `$0107`.
+The dedicated pilot command and its generated reports have been retired. Its runtime
+validation remains relevant to event `$0107` and is preserved as an invariant of the
+canonical mass formatter.
 The formatter:
 
 - regenerates the accepted alignment from the original Android EN/FR sources;
@@ -596,12 +569,8 @@ expansion step is therefore charset/structural normalization, documented in
 After charset/structural normalization was established, the formatter was expanded
 to the first deliberately small complete-event batch:
 
-```bash
-python3 tools/import_android_text.py --only dialogue-format-batch1 \
-  --rom "Secret of Mana (USA).sfc"
-python3 tools/import_android_text.py --only dialogue-format-batch1 \
-  --rom "Secret of Mana (USA).sfc" --check
-```
+The dedicated batch command has been retired; these validated events are now covered
+by the canonical mass generator and regression checks.
 
 The first batch runtime test validated `$010E`, `$0116`, `$0117`, `$0118` and
 `$011D` in addition to the already validated `$0107`. Event `$010F` was rejected:
@@ -1130,7 +1099,7 @@ Reproducible evidence is stored in the importer's Round-51 reproducible evidence
 
 ## Round 52 exact structural formatter recovery
 
-Round 52 changes **no Android identity, no automatic matcher and no namespace rule**. Semantic alignment therefore remains **1798 / 1838 (97.8%)**, with the same **40 unresolved** carriers fully accounted by the Round-51 residual audit. The round instead serializes six already-owned mappings that were previously kept stock because their French payload crossed stock WAIT/action boundaries. Every case is an explicit allow-list entry in `DIALOGUE_ROUND52_STRUCTURAL_DISTRIBUTIONS`; no generic WAIT/action fallback is widened.
+Round 52 changes **no Android identity, no automatic matcher and no namespace rule**. Semantic alignment therefore remains **1798 / 1838 (97.8%)**, with the same **40 unresolved** carriers fully accounted by the Round-51 residual audit. The round instead serializes six already-owned mappings that were previously kept stock because their French payload crossed stock WAIT/action boundaries. Every case remains an explicit reviewed structural mapping. Its current serialization is expressed through `dialogues_mapping_layout_recipes.json`; no generic WAIT/action fallback is widened.
 
 - `$01B5/C9:6921+C9:6954 -> Android 577`: Android FR already moved the axe instruction into the preceding owned slot 575. The remaining two French sentences therefore split at `J'ai compris !` around the unchanged stock `WAIT $00 / TEXT_CLOSE / action / WAIT $08 / TEXT_OPEN` scene bridge.
 - `$01B9/C9:6C0F+C9:6C21 -> Android 593`: the elder reprimand remains before the stock actor action + `WAIT $04`; `Excusez-le...` resumes after it.

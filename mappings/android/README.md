@@ -17,6 +17,8 @@ These files encode reviewed project decisions and must remain versioned:
 
 - `dialogues_redistribution_recipes.json` — prose-free whole-scene Android-FR resegmentation recipes;
 - `dialogues_coverage_repair_recipes.json` — prose-free coverage repair recipes;
+- `dialogues_mapping_layout_recipes.json` — mapping-local Android-token/layout recipes;
+- `dialogues_layout_search_recipes.json` — reviewed structural layout-search operations;
 - `dialogues_choice_layout_recipes.json` — reviewed choice-layout decisions;
 - `text_resources_layout.json` — prose-free text-resource layout recipes.
 
@@ -38,12 +40,12 @@ They are **not** permission to use generated French output as an input. In parti
 `translations/dialogues_french.json` remains a generated product and may be absent from
 a clean checkout in the future.
 
-The next maintenance step is to reduce the remaining checker/importer coupling to these
-generated mapping files so they can eventually become optional caches or outputs.
+These files may be retained as convenient regression/audit snapshots, but the canonical
+dialogue generator does not consume them. A from-scratch mass run has been verified with
+`translations/dialogues_french.json` absent.
 
-## Small persistent review state
+## Current human review sheet
 
-- `dialogue_preview_state.json` stores intentionally persistent preview tags/badges.
 - `dialogues_manual_supplements.html` is the one current human-readable provenance
   sheet retained for the active manual-supplement set. It is deterministically generated
   and may later move to fully ephemeral output once its checker no longer requires an

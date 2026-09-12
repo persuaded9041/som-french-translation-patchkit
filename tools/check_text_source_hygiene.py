@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
+import re
 import sys
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -49,6 +51,56 @@ def rel(path: Path) -> str:
     return path.relative_to(ROOT).as_posix()
 
 
+
+def check_dialogue_pipeline(problems: list[str]) -> None:
+    """Guard the Android-derived dialogue provenance architecture."""
+    importer = ROOT / "tools" / "import_android_text.py"
+    text = importer.read_text(encoding="utf-8")
+    forbidden_reads = (
+        "DEFAULT_DIALOGUE_FORMAT_MASS_OUTPUT.read",
+        "dialogues_french.json\").read",
+        "dialogues_french.json').read",
+    )
+    for needle in forbidden_reads:
+        if needle in text:
+            problems.append(f"dialogue generator reads its own generated output: {needle}")
+
+    recipe_path = ROOT / "mappings" / "android" / "dialogues_mapping_layout_recipes.json"
+    document = json.loads(recipe_path.read_text(encoding="utf-8"))
+    if document.get("source") != "sources/android/scrtxt_fr.bin":
+        problems.append("mapping-layout recipes do not declare Android FR as their source")
+    prose_re = re.compile(r"[A-Za-zÀ-ÿŒœ]")
+    for recipe in document.get("recipes", []):
+        event_id = recipe.get("event_id", "?")
+        for text_id, carrier in recipe.get("carriers", {}).items():
+            parts = carrier.get("parts", [])
+            seps = carrier.get("seps", [])
+            if len(seps) != len(parts) + 1:
+                problems.append(f"mapping-layout ${event_id}/{text_id}: invalid separator count")
+            for sep in seps:
+                if prose_re.search(str(sep)):
+                    problems.append(f"mapping-layout ${event_id}/{text_id}: prose in separator {sep!r}")
+            for part in parts:
+                if not isinstance(part, list) or not part:
+                    problems.append(f"mapping-layout ${event_id}/{text_id}: invalid part {part!r}")
+                    continue
+                if part[0] == "x" and (len(part) != 2 or prose_re.search(str(part[1]))):
+                    problems.append(f"mapping-layout ${event_id}/{text_id}: prose literal {part!r}")
+                elif part[0] not in {"a", "p", "x"}:
+                    problems.append(f"mapping-layout ${event_id}/{text_id}: unknown part {part!r}")
+
+    search_path = ROOT / "mappings" / "android" / "dialogues_layout_search_recipes.json"
+    search_doc = json.loads(search_path.read_text(encoding="utf-8"))
+    allowed = {"strategy", "text_id", "boundary_before_id", "source_offset", "step", "semantic_payload_changed"}
+    for event_id, operations in search_doc.get("events", {}).items():
+        for operation in operations:
+            extra = set(operation) - allowed
+            if extra:
+                problems.append(f"layout-search ${event_id}: unsupported payload keys {sorted(extra)}")
+            if operation.get("semantic_payload_changed") is not False:
+                problems.append(f"layout-search ${event_id}: recipe may not change semantic payload")
+
+
 def main() -> None:
     problems: list[str] = []
 
@@ -83,6 +135,8 @@ def main() -> None:
         if component_id in NO_ROOT_TEXT_COMPONENTS and 'PROJECT_ROOT / "assets"' in text:
             problems.append(f"{component_id} unexpectedly depends on root text assets")
 
+    check_dialogue_pipeline(problems)
+
     if problems:
         print("Text-source hygiene FAILED:")
         for problem in problems:
@@ -95,6 +149,8 @@ def main() -> None:
     print("  - upstream Android prose is isolated under sources/android/")
     print("  - `mana_tree_original` / `name_entry_extended` / `name_entry_prefill` / `vwf_intro` / `vwf_dialogues` / `intro_skip` own no translation-JSON dependencies")
     print("  - remaining component-local .bin/.txt assets are explicit non-prose data")
+    print("  - dialogue generation never consumes dialogues_french.json as an input")
+    print("  - dialogue layout recipes contain structural references only, never translated prose")
     return 0
 
 

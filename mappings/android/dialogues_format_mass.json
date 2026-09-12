@@ -91,8 +91,6 @@
     "round49_04e9_wait00_clear_repair_count": 0,
     "round50_01ce_choice_page_clear_repaired_event_count": 1,
     "round50_01ce_choice_page_clear_repair_count": 1,
-    "round54_nonsemantic_android_supplement_event_count": 0,
-    "round54_nonsemantic_android_supplement_count": 0,
     "wait00_overlap_repaired_event_count": 0,
     "wait00_overlap_repair_count": 0,
     "unpaused_scroll_repaired_event_count": 9,
@@ -103,7 +101,7 @@
     "cross_mapping_sentence_repair_count": 0,
     "structural_reaction_page_repaired_event_count": 0,
     "structural_reaction_page_repair_count": 0,
-    "android_leading_player_label_removed_mapping_count": 43,
+    "android_leading_player_label_removed_mapping_count": 42,
     "adjacent_nonsemantic_player_carrier_mapping_count": 30,
     "adjacent_nonsemantic_player_carrier_entry_count": 30,
     "adjacent_player_through_carrier_mapping_count": 1,
@@ -1495,49 +1493,13 @@
       ],
       "confidence": "very_high_structural_review",
       "source_display": " Don't come with me!\n",
+      "android_english_display": "And don't follow me!",
       "android_french_raw": "C'est compris ? Et ne t'avise pas de me suivre, surtout. ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "C'est compris ? Et ne t'avise pas de me suivre, surtout.",
-      "layout_markup_before_wrap": "C'est compris ? Et ne t'avise pas de me suivre, surtout.",
-      "layout_hints": [],
-      "formatted_markup": "C'est compris ?\nEt ne t'avise pas de me suivre,\nsurtout.\n",
-      "line_widths_pixels": [
-        90,
-        180,
-        48
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round44_local_sequence_anchor",
+      "android_fr_provenance_ids": [
+        378
       ],
-      "line_decoded_character_counts": [
-        15,
-        31,
-        8
-      ],
-      "line_parser_unit_counts": [
-        15,
-        31,
-        8
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        3
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
       "formatted_entries": [
         {
           "id": "C9:090A",
@@ -1633,9 +1595,11 @@
       "source_display": "JEHK:Go away!\n The Sage is out!\n",
       "android_english_display": "The Sage is out!",
       "android_french_raw": "Le maître est absent. ",
-      "round44_reviewed_redistribution": true,
-      "round44_relation": "round44_jehk_out_with_return_layout",
-      "round44_note": "Keep one terminal NEWLINE before returning to the caller reaction; Android drops the redundant older 'Go away!' clause.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round44_jehk_out_with_return_layout",
+      "android_fr_provenance_ids": [
+        2451
+      ],
       "formatted_entries": [
         {
           "id": "C9:0983",
@@ -1900,49 +1864,17 @@
       ],
       "confidence": "very_high_structural_review",
       "source_display": "All:Where is Joch?",
+      "android_english_display": "Where is Joch?",
       "android_french_raw": "%S(0,0) : Encore ?! ",
-      "structural_markers_removed": [
-        "%S(0,0) :"
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "speaker_reattribution",
+      "android_fr_provenance_ids": [
+        2454
       ],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Encore ?!",
-      "layout_markup_before_wrap": "Encore ?!",
-      "layout_hints": [],
-      "formatted_markup": "Encore ?!",
-      "line_widths_pixels": [
-        58
-      ],
-      "line_decoded_character_counts": [
-        9
-      ],
-      "line_parser_unit_counts": [
-        9
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
       "formatted_entries": [
         {
           "id": "C9:0A44",
-          "text": "Encore ?!"
+          "text": "Encore ?!\f "
         }
       ]
     },
@@ -3369,11 +3301,11 @@
       "source_display": "%S(1,0):Okay!\n You can call me %S(1,0)",
       "android_english_display": "%S(1,0): Okay! You can call me %S(1,0)!",
       "android_french_raw": "Moi, c'est %S(1,0) !",
-      "round54_exact_structural_recovery": true,
-      "round54_strategy": "preserve_two_stock_player_name_commands",
-      "android_identity_unchanged": true,
-      "stock_commands_unchanged": true,
-      "note": "Keep both stock PLAYER_NAME(1) commands; serialize only the official French literals around the second name.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "",
+      "android_fr_provenance_ids": [
+        681
+      ],
       "formatted_entries": [
         {
           "id": "C9:0F75",
@@ -3595,11 +3527,11 @@
       "source_display": "%S(2,0)? What kinda\n name is that?\n Like, ah, nice to meet ya!",
       "android_english_display": "%S(2,0)?\nWhat kinda name is that? Like, ah,\nnice to meet ya!_",
       "android_french_raw": "%S(2,0)... Bof, drôle de nom. Enfin, pourquoi pas,_",
-      "round54_exact_structural_recovery": true,
-      "round54_strategy": "split_fr_at_exact_stock_action_subevent_bridge",
-      "android_identity_unchanged": true,
-      "stock_commands_unchanged": true,
-      "note": "Split at the complete French sentence boundary on the unchanged OP_38 01 + OP_10 42 bridge.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "exact_segmentation",
+      "android_fr_provenance_ids": [
+        625
+      ],
       "formatted_entries": [
         {
           "id": "C9:0FF1",
@@ -6983,49 +6915,13 @@
       ],
       "confidence": "very_high_structural_review",
       "source_display": "Huh!? All gone?",
+      "android_english_display": "Huh!? All gone?",
       "android_french_raw": "\n... Ah bon ? Il n'existe plus ? ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "... Ah bon ? Il n'existe plus ?",
-      "layout_markup_before_wrap": "... Ah bon ? Il n'existe plus ?",
-      "layout_hints": [],
-      "formatted_markup": "...\nAh bon ?\nIl n'existe plus ?",
-      "line_widths_pixels": [
-        12,
-        51,
-        97
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round45_exact_duplicate_scene_position",
+      "android_fr_provenance_ids": [
+        1626
       ],
-      "line_decoded_character_counts": [
-        3,
-        8,
-        18
-      ],
-      "line_parser_unit_counts": [
-        3,
-        8,
-        18
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        3
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
       "formatted_entries": [
         {
           "id": "C9:1A62",
@@ -10953,50 +10849,17 @@
       ],
       "confidence": "very_high_seeded",
       "source_display": "%S(0,0):Ouch! Phew..!\n",
+      "android_english_display": "%S(0,0): Ouch! Phew!_",
       "android_french_raw": "%S(0,0) : Aïe... Pfiouh._",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "%S(0,0) : Aïe... Pfiouh.",
-      "layout_markup_before_wrap": "%S(0,0) : Aïe... Pfiouh.",
-      "layout_hints": [],
-      "formatted_markup": "%S(0,0) : Aïe...\nPfiouh.\n",
-      "line_widths_pixels": [
-        120,
-        42
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "",
+      "android_fr_provenance_ids": [
+        3410
       ],
-      "line_decoded_character_counts": [
-        18,
-        7
-      ],
-      "line_parser_unit_counts": [
-        19,
-        7
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        2
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
       "formatted_entries": [
         {
           "id": "C9:258F",
-          "text": " : Aïe...\nPfiouh.\n"
+          "text": " : Aïe... Pfiouh.\n"
         }
       ]
     },
@@ -11010,46 +10873,13 @@
       ],
       "confidence": "very_high_seeded",
       "source_display": " No way to get back up!\n Now what am I going to do?",
+      "android_english_display": "No way to get back up! Now what am I going to do?",
       "android_french_raw": "Pas moyen de remonter ! Comment je vais faire ? ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Pas moyen de remonter ! Comment je vais faire ?",
-      "layout_markup_before_wrap": "Pas moyen de remonter ! Comment je vais faire ?",
-      "layout_hints": [],
-      "formatted_markup": "Pas moyen de remonter !\nComment je vais faire ?",
-      "line_widths_pixels": [
-        143,
-        136
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "",
+      "android_fr_provenance_ids": [
+        3411
       ],
-      "line_decoded_character_counts": [
-        23,
-        23
-      ],
-      "line_parser_unit_counts": [
-        23,
-        23
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 2,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        2
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
       "formatted_entries": [
         {
           "id": "C9:25A1",
@@ -15224,9 +15054,11 @@
       "source_display": ":I can cut through\n with this sword!",
       "android_english_display": "%S(0,0): I can cut through with this!",
       "android_french_raw": "%S(0,0) : Avec cette épée, je vais pouvoir me frayer un chemin. ",
-      "round44_reviewed_redistribution": true,
-      "round44_relation": "round44_player_name_followup_layout",
-      "round44_note": "Keep stock PLAYER_NAME(0), then serialize the official spaced colon and an explicit NEWLINE so a maximum nine-character name remains wrap-free.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round44_player_name_followup_layout",
+      "android_fr_provenance_ids": [
+        3438
+      ],
       "formatted_entries": [
         {
           "id": "C9:3A39",
@@ -15365,7 +15197,7 @@
       ],
       "confidence": "very_high_seeded",
       "source_display": "JEMA:Hey! How rude!",
-      "android_french_raw": "Gemma : Voyons ! Un peu de respect !_",
+      "android_french_raw": "Gemma : Voyons ! Un peu de respect !",
       "structural_markers_removed": [],
       "preserved_choice_terminal_suffix_ids": null,
       "adjacent_nonsemantic_carrier_ids": null,
@@ -16891,11 +16723,11 @@
       "source_display": " It will grow and regain\n it's power just like your\n Mana Sword. There must be more weapons\n like this spear in the\n world. Find them!",
       "android_english_display": "It will grow and regain its power just like your Mana Sword. There must be more weapons like this spear in the world. Find them!",
       "android_french_raw": "Rusalka : Tout comme l'Épée, elle gagnera en puissance à mesure que tu l'utiliseras.",
-      "round54_exact_structural_recovery": true,
-      "round54_strategy": "serialize_android_fr_first_sentence_only_keep_omitted_snes_sentence_stock",
-      "android_identity_unchanged": true,
-      "stock_commands_unchanged": true,
-      "note": "Android 848 identifies both SNES sentences, but official FR translates only the first. Serialize the complete FR payload on the first stock carrier and leave C9:40D7 stock because Android FR omits that instruction.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "",
+      "android_fr_provenance_ids": [
+        848
+      ],
       "formatted_entries": [
         {
           "id": "C9:4094",
@@ -27708,131 +27540,12 @@
       ],
       "confidence": "very_high_structural_review",
       "source_display": "Wait! I know...!\n Try holding this axe! That's it! Mana power in\n these weapons doesn't work\n until you hold them!",
+      "android_english_display": "Wait! I know! Try holding this axe! That's it! Mana power in these weapons doesn't work until you hold them!",
       "android_french_raw": "J'ai compris !\nTant que ces armes n'ont pas été en contact avec l'Épée sacrée, leur potentiel est scellé !",
-      "round52_exact_structural_distribution": true,
-      "round52_strategy": "round52_scene_bridge_sentence_distribution",
-      "android_identity_unchanged": true,
-      "stock_bridge_commands_unchanged": true,
-      "note": "Android FR already moves the axe instruction into the preceding owned slot 575. The remaining 577 payload therefore splits at the complete sentence 'J'ai compris !' around the unchanged stock WAIT/TEXT_CLOSE/action/WAIT/TEXT_OPEN bridge.",
-      "distributed_french_parts": [
-        "J'ai compris !",
-        "Tant que ces armes n'ont pas été en contact avec l'Épée sacrée, leur potentiel est scellé !"
-      ],
-      "subreports": [
-        {
-          "event_id": "01B5",
-          "snes_ids": [
-            "C9:6921"
-          ],
-          "android_ids": [
-            577
-          ],
-          "confidence": "very_high_structural_review",
-          "source_display": "Wait! I know...!\n Try holding this axe!",
-          "android_french_raw": "J'ai compris !",
-          "structural_markers_removed": [],
-          "preserved_choice_terminal_suffix_ids": null,
-          "adjacent_nonsemantic_carrier_ids": null,
-          "adjacent_player_carrier_indexes": null,
-          "preserved_static_speaker_dynamic_addressee": null,
-          "preserved_leading_snes_player_prefix": null,
-          "positional_player_rebindings": null,
-          "ignored_alignment_trailing_player_context": null,
-          "android_french_normalized": "J'ai compris !",
-          "layout_markup_before_wrap": "J'ai compris !",
-          "layout_hints": [],
-          "formatted_markup": "J'ai compris !",
-          "line_widths_pixels": [
-            78
-          ],
-          "line_decoded_character_counts": [
-            14
-          ],
-          "line_parser_unit_counts": [
-            14
-          ],
-          "leading_text_x_position": null,
-          "leading_text_x_padding_pixels": 0,
-          "leading_text_x_parser_units": 0,
-          "source_visible_line_budget": 2,
-          "effective_line_budget": 3,
-          "physical_page_capacity_mode": true,
-          "semantic_line_break_preferences": true,
-          "page_line_counts": [
-            1
-          ],
-          "inserted_page_break_count": 0,
-          "inserted_leading_clear": false,
-          "page_break_encoding": null,
-          "page_break_strategy": null,
-          "event_level_forced_page_break": false,
-          "formatted_entries": [
-            {
-              "id": "C9:6921",
-              "text": "J'ai compris !"
-            }
-          ]
-        },
-        {
-          "event_id": "01B5",
-          "snes_ids": [
-            "C9:6954"
-          ],
-          "android_ids": [
-            577
-          ],
-          "confidence": "very_high_structural_review",
-          "source_display": " That's it! Mana power in\n these weapons doesn't work\n until you hold them!",
-          "android_french_raw": "Tant que ces armes n'ont pas été en contact avec l'Épée sacrée, leur potentiel est scellé !",
-          "structural_markers_removed": [],
-          "preserved_choice_terminal_suffix_ids": null,
-          "adjacent_nonsemantic_carrier_ids": null,
-          "adjacent_player_carrier_indexes": null,
-          "preserved_static_speaker_dynamic_addressee": null,
-          "preserved_leading_snes_player_prefix": null,
-          "positional_player_rebindings": null,
-          "ignored_alignment_trailing_player_context": null,
-          "android_french_normalized": "Tant que ces armes n'ont pas été en contact avec l'Épée sacrée, leur potentiel est scellé !",
-          "layout_markup_before_wrap": "Tant que ces armes n'ont pas été en contact avec l'Épée sacrée, leur potentiel est scellé !",
-          "layout_hints": [],
-          "formatted_markup": "Tant que ces armes n'ont pas été en\ncontact avec l'Épée sacrée, leur\npotentiel est scellé !",
-          "line_widths_pixels": [
-            214,
-            192,
-            121
-          ],
-          "line_decoded_character_counts": [
-            35,
-            32,
-            22
-          ],
-          "line_parser_unit_counts": [
-            35,
-            32,
-            22
-          ],
-          "leading_text_x_position": null,
-          "leading_text_x_padding_pixels": 0,
-          "leading_text_x_parser_units": 0,
-          "source_visible_line_budget": 3,
-          "effective_line_budget": 3,
-          "physical_page_capacity_mode": true,
-          "semantic_line_break_preferences": true,
-          "page_line_counts": [
-            3
-          ],
-          "inserted_page_break_count": 0,
-          "inserted_leading_clear": false,
-          "page_break_encoding": null,
-          "page_break_strategy": null,
-          "event_level_forced_page_break": false,
-          "formatted_entries": [
-            {
-              "id": "C9:6954",
-              "text": "Tant que ces armes n'ont pas été en\ncontact avec l'Épée sacrée, leur\npotentiel est scellé !"
-            }
-          ]
-        }
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "many_snes_to_one_android",
+      "android_fr_provenance_ids": [
+        577
       ],
       "formatted_entries": [
         {
@@ -28245,9 +27958,12 @@
       "source_display": "\n And only I can do it!\n Now, let me show you a\n short cut.WATTS:This will make it\n a lot easier for you!",
       "android_english_display": "Watts: And only I can do it! Now, let me\nshow you a shortcut. This will make it a lot easier for you!",
       "android_french_raw": "Watts : Tu verras, c'est beaucoup plus rapide par ce chemin ! ",
-      "round45_reviewed_redistribution": true,
-      "round45_relation": "round45_watts_shortcut_redistribution",
-      "round45_note": "Android FR moved the shortcut introduction into already-rendered slot 583; leave the pre-movement carrier empty and serialize FR-only slot 585 after the unchanged movement sequence.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round45_watts_shortcut_redistribution",
+      "android_fr_provenance_ids": [
+        583,
+        585
+      ],
       "formatted_entries": [
         {
           "id": "C9:6AD2",
@@ -28394,128 +28110,12 @@
       ],
       "confidence": "very_high_lexical",
       "source_display": "\nELDER:Hey!\n Sorry about that.",
+      "android_english_display": "Elder: Hey! Sorry about that.",
       "android_french_raw": "Chef : Dis donc, toi ! Jeune ingrat !\nExcusez-le...",
-      "round52_exact_structural_distribution": true,
-      "round52_strategy": "round52_timed_wait_sentence_distribution",
-      "android_identity_unchanged": true,
-      "stock_bridge_commands_unchanged": true,
-      "note": "The apology remains after the stock actor action + WAIT $04. The first French unit contains only the elder's reprimand; 'Excusez-le...' resumes after the same pause.",
-      "distributed_french_parts": [
-        "Chef : Dis donc, toi ! Jeune ingrat !",
-        "Excusez-le..."
-      ],
-      "subreports": [
-        {
-          "event_id": "01B9",
-          "snes_ids": [
-            "C9:6C0F"
-          ],
-          "android_ids": [
-            593
-          ],
-          "confidence": "very_high_lexical",
-          "source_display": "\nELDER:Hey!\n",
-          "android_french_raw": "Chef : Dis donc, toi ! Jeune ingrat !",
-          "structural_markers_removed": [],
-          "preserved_choice_terminal_suffix_ids": null,
-          "adjacent_nonsemantic_carrier_ids": null,
-          "adjacent_player_carrier_indexes": null,
-          "preserved_static_speaker_dynamic_addressee": null,
-          "preserved_leading_snes_player_prefix": null,
-          "positional_player_rebindings": null,
-          "ignored_alignment_trailing_player_context": null,
-          "android_french_normalized": "Chef : Dis donc, toi ! Jeune ingrat !",
-          "layout_markup_before_wrap": "Chef : Dis donc, toi ! Jeune ingrat !",
-          "layout_hints": [],
-          "formatted_markup": "Chef : Dis donc, toi !\nJeune ingrat !\n",
-          "line_widths_pixels": [
-            124,
-            83
-          ],
-          "line_decoded_character_counts": [
-            22,
-            14
-          ],
-          "line_parser_unit_counts": [
-            22,
-            14
-          ],
-          "leading_text_x_position": null,
-          "leading_text_x_padding_pixels": 0,
-          "leading_text_x_parser_units": 0,
-          "source_visible_line_budget": 1,
-          "effective_line_budget": 3,
-          "physical_page_capacity_mode": true,
-          "semantic_line_break_preferences": true,
-          "page_line_counts": [
-            2
-          ],
-          "inserted_page_break_count": 0,
-          "inserted_leading_clear": true,
-          "page_break_encoding": null,
-          "page_break_strategy": null,
-          "event_level_forced_page_break": false,
-          "formatted_entries": [
-            {
-              "id": "C9:6C0F",
-              "text": "\u000bChef : Dis donc, toi !\nJeune ingrat !\n"
-            }
-          ]
-        },
-        {
-          "event_id": "01B9",
-          "snes_ids": [
-            "C9:6C21"
-          ],
-          "android_ids": [
-            593
-          ],
-          "confidence": "very_high_lexical",
-          "source_display": " Sorry about that.",
-          "android_french_raw": "Excusez-le...",
-          "structural_markers_removed": [],
-          "preserved_choice_terminal_suffix_ids": null,
-          "adjacent_nonsemantic_carrier_ids": null,
-          "adjacent_player_carrier_indexes": null,
-          "preserved_static_speaker_dynamic_addressee": null,
-          "preserved_leading_snes_player_prefix": null,
-          "positional_player_rebindings": null,
-          "ignored_alignment_trailing_player_context": null,
-          "android_french_normalized": "Excusez-le...",
-          "layout_markup_before_wrap": "Excusez-le...",
-          "layout_hints": [],
-          "formatted_markup": "Excusez-le...",
-          "line_widths_pixels": [
-            79
-          ],
-          "line_decoded_character_counts": [
-            13
-          ],
-          "line_parser_unit_counts": [
-            13
-          ],
-          "leading_text_x_position": null,
-          "leading_text_x_padding_pixels": 0,
-          "leading_text_x_parser_units": 0,
-          "source_visible_line_budget": 1,
-          "effective_line_budget": 3,
-          "physical_page_capacity_mode": true,
-          "semantic_line_break_preferences": true,
-          "page_line_counts": [
-            1
-          ],
-          "inserted_page_break_count": 0,
-          "inserted_leading_clear": false,
-          "page_break_encoding": null,
-          "page_break_strategy": null,
-          "event_level_forced_page_break": false,
-          "formatted_entries": [
-            {
-              "id": "C9:6C21",
-              "text": "Excusez-le..."
-            }
-          ]
-        }
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "",
+      "android_fr_provenance_ids": [
+        593
       ],
       "formatted_entries": [
         {
@@ -28666,131 +28266,12 @@
       ],
       "confidence": "very_high_lexical",
       "source_display": "\nSPRITE:Come on old timer!\n Give me a break.\n Take it easy!",
+      "android_english_display": "Sprite: Come on, old timer! Give me a break. Take it easy!",
       "android_french_raw": "Lutin : Bah, ma mémoire finira bien par revenir !\nFaut être positif dans la vie, hé hé hé !",
-      "round52_exact_structural_distribution": true,
-      "round52_strategy": "round52_action_sentence_distribution",
-      "android_identity_unchanged": true,
-      "stock_bridge_commands_unchanged": true,
-      "note": "Both Android languages contain a complete thought boundary. The stock OP_34 remains between the two French sentences; the formatter's leading page clear replaces only the stock newline immediately after the already-existing WAIT $00.",
-      "distributed_french_parts": [
-        "Lutin : Bah, ma mémoire finira bien par revenir !",
-        "Faut être positif dans la vie, hé hé hé !"
-      ],
-      "subreports": [
-        {
-          "event_id": "01B9",
-          "snes_ids": [
-            "C9:6CDD"
-          ],
-          "android_ids": [
-            596
-          ],
-          "confidence": "very_high_lexical",
-          "source_display": "\nSPRITE:Come on old timer!\n Give me a break.\n",
-          "android_french_raw": "Lutin : Bah, ma mémoire finira bien par revenir !",
-          "structural_markers_removed": [],
-          "preserved_choice_terminal_suffix_ids": null,
-          "adjacent_nonsemantic_carrier_ids": null,
-          "adjacent_player_carrier_indexes": null,
-          "preserved_static_speaker_dynamic_addressee": null,
-          "preserved_leading_snes_player_prefix": null,
-          "positional_player_rebindings": null,
-          "ignored_alignment_trailing_player_context": null,
-          "android_french_normalized": "Lutin : Bah, ma mémoire finira bien par revenir !",
-          "layout_markup_before_wrap": "Lutin : Bah, ma mémoire finira bien par revenir !",
-          "layout_hints": [],
-          "formatted_markup": "Lutin : Bah, ma mémoire finira bien\npar revenir !\n",
-          "line_widths_pixels": [
-            200,
-            76
-          ],
-          "line_decoded_character_counts": [
-            35,
-            13
-          ],
-          "line_parser_unit_counts": [
-            35,
-            13
-          ],
-          "leading_text_x_position": null,
-          "leading_text_x_padding_pixels": 0,
-          "leading_text_x_parser_units": 0,
-          "source_visible_line_budget": 2,
-          "effective_line_budget": 3,
-          "physical_page_capacity_mode": true,
-          "semantic_line_break_preferences": true,
-          "page_line_counts": [
-            2
-          ],
-          "inserted_page_break_count": 0,
-          "inserted_leading_clear": true,
-          "page_break_encoding": null,
-          "page_break_strategy": null,
-          "event_level_forced_page_break": false,
-          "formatted_entries": [
-            {
-              "id": "C9:6CDD",
-              "text": "\u000bLutin : Bah, ma mémoire finira bien\npar revenir !\n"
-            }
-          ]
-        },
-        {
-          "event_id": "01B9",
-          "snes_ids": [
-            "C9:6D0D"
-          ],
-          "android_ids": [
-            596
-          ],
-          "confidence": "very_high_lexical",
-          "source_display": " Take it easy!",
-          "android_french_raw": "Faut être positif dans la vie, hé hé hé !",
-          "structural_markers_removed": [],
-          "preserved_choice_terminal_suffix_ids": null,
-          "adjacent_nonsemantic_carrier_ids": null,
-          "adjacent_player_carrier_indexes": null,
-          "preserved_static_speaker_dynamic_addressee": null,
-          "preserved_leading_snes_player_prefix": null,
-          "positional_player_rebindings": null,
-          "ignored_alignment_trailing_player_context": null,
-          "android_french_normalized": "Faut être positif dans la vie, hé hé hé !",
-          "layout_markup_before_wrap": "Faut être positif dans la vie, hé hé hé !",
-          "layout_hints": [],
-          "formatted_markup": "Faut être positif dans la vie, hé hé\nhé !",
-          "line_widths_pixels": [
-            205,
-            23
-          ],
-          "line_decoded_character_counts": [
-            36,
-            4
-          ],
-          "line_parser_unit_counts": [
-            36,
-            4
-          ],
-          "leading_text_x_position": null,
-          "leading_text_x_padding_pixels": 0,
-          "leading_text_x_parser_units": 0,
-          "source_visible_line_budget": 1,
-          "effective_line_budget": 3,
-          "physical_page_capacity_mode": true,
-          "semantic_line_break_preferences": true,
-          "page_line_counts": [
-            2
-          ],
-          "inserted_page_break_count": 0,
-          "inserted_leading_clear": false,
-          "page_break_encoding": null,
-          "page_break_strategy": null,
-          "event_level_forced_page_break": false,
-          "formatted_entries": [
-            {
-              "id": "C9:6D0D",
-              "text": "Faut être positif dans la vie, hé hé\nhé !"
-            }
-          ]
-        }
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "",
+      "android_fr_provenance_ids": [
+        596
       ],
       "formatted_entries": [
         {
@@ -28938,128 +28419,12 @@
       ],
       "confidence": "very_high_lexical",
       "source_display": "SPRITE:What? Really?\n I'll go now, right now!!!",
+      "android_english_display": "Sprite: What? Really? I'll go now, right now!!!",
       "android_french_raw": "Lutin : Quoi ! Fallait le dire ! J'y vais tout de suite ! ",
-      "round52_exact_structural_distribution": true,
-      "round52_strategy": "round52_action_reaction_page_distribution",
-      "android_identity_unchanged": true,
-      "stock_bridge_commands_unchanged": true,
-      "note": "The stock newline-only C9:6DBC follows WAIT $00 and precedes the unchanged OP_32 + COMPLETE_ACTIONS reaction. Replacing only that layout carrier with TEXT_CLEAR starts a fresh page before the Sprite speaks; the unchanged OP_34 then remains between the two complete French reaction sentences.",
-      "distributed_french_parts": [
-        "Lutin : Quoi ! Fallait le dire !",
-        "J'y vais tout de suite !"
-      ],
-      "subreports": [
-        {
-          "event_id": "01B9",
-          "snes_ids": [
-            "C9:6DC1"
-          ],
-          "android_ids": [
-            599
-          ],
-          "confidence": "very_high_lexical",
-          "source_display": "SPRITE:What? Really?\n",
-          "android_french_raw": "Lutin : Quoi ! Fallait le dire !",
-          "structural_markers_removed": [],
-          "preserved_choice_terminal_suffix_ids": null,
-          "adjacent_nonsemantic_carrier_ids": null,
-          "adjacent_player_carrier_indexes": null,
-          "preserved_static_speaker_dynamic_addressee": null,
-          "preserved_leading_snes_player_prefix": null,
-          "positional_player_rebindings": null,
-          "ignored_alignment_trailing_player_context": null,
-          "android_french_normalized": "Lutin : Quoi ! Fallait le dire !",
-          "layout_markup_before_wrap": "Lutin : Quoi ! Fallait le dire !",
-          "layout_hints": [],
-          "formatted_markup": "Lutin : Quoi !\nFallait le dire !\n",
-          "line_widths_pixels": [
-            77,
-            85
-          ],
-          "line_decoded_character_counts": [
-            14,
-            17
-          ],
-          "line_parser_unit_counts": [
-            14,
-            17
-          ],
-          "leading_text_x_position": null,
-          "leading_text_x_padding_pixels": 0,
-          "leading_text_x_parser_units": 0,
-          "source_visible_line_budget": 1,
-          "effective_line_budget": 3,
-          "physical_page_capacity_mode": true,
-          "semantic_line_break_preferences": true,
-          "page_line_counts": [
-            2
-          ],
-          "inserted_page_break_count": 0,
-          "inserted_leading_clear": false,
-          "page_break_encoding": null,
-          "page_break_strategy": null,
-          "event_level_forced_page_break": false,
-          "formatted_entries": [
-            {
-              "id": "C9:6DC1",
-              "text": "Lutin : Quoi !\nFallait le dire !\n"
-            }
-          ]
-        },
-        {
-          "event_id": "01B9",
-          "snes_ids": [
-            "C9:6DD9"
-          ],
-          "android_ids": [
-            599
-          ],
-          "confidence": "very_high_lexical",
-          "source_display": " I'll go now, right now!!!",
-          "android_french_raw": "J'y vais tout de suite !",
-          "structural_markers_removed": [],
-          "preserved_choice_terminal_suffix_ids": null,
-          "adjacent_nonsemantic_carrier_ids": null,
-          "adjacent_player_carrier_indexes": null,
-          "preserved_static_speaker_dynamic_addressee": null,
-          "preserved_leading_snes_player_prefix": null,
-          "positional_player_rebindings": null,
-          "ignored_alignment_trailing_player_context": null,
-          "android_french_normalized": "J'y vais tout de suite !",
-          "layout_markup_before_wrap": "J'y vais tout de suite !",
-          "layout_hints": [],
-          "formatted_markup": "J'y vais tout de suite !",
-          "line_widths_pixels": [
-            134
-          ],
-          "line_decoded_character_counts": [
-            24
-          ],
-          "line_parser_unit_counts": [
-            24
-          ],
-          "leading_text_x_position": null,
-          "leading_text_x_padding_pixels": 0,
-          "leading_text_x_parser_units": 0,
-          "source_visible_line_budget": 1,
-          "effective_line_budget": 3,
-          "physical_page_capacity_mode": true,
-          "semantic_line_break_preferences": true,
-          "page_line_counts": [
-            1
-          ],
-          "inserted_page_break_count": 0,
-          "inserted_leading_clear": false,
-          "page_break_encoding": null,
-          "page_break_strategy": null,
-          "event_level_forced_page_break": false,
-          "formatted_entries": [
-            {
-              "id": "C9:6DD9",
-              "text": "J'y vais tout de suite !"
-            }
-          ]
-        }
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "",
+      "android_fr_provenance_ids": [
+        599
       ],
       "formatted_entries": [
         {
@@ -33600,9 +32965,12 @@
       "source_display": "%S(0,0):My name is %S(0,0).\nGIRL:Okay, %S(0,0)!\n I'm ",
       "android_english_display": "%S(0,0): My name is %S(0,0). Girl: %S(0,0)? What a funny name. I'm",
       "android_french_raw": "%S(0,0) : Je m'appelle %S(0,0). Hum... Drôle de nom.\nMoi, c'est... ",
-      "round45_reviewed_redistribution": true,
-      "round45_relation": "round45_girl_name_resegmentation",
-      "round45_note": "Keep the first two PLAYER_NAME(0) commands for Android FR 676, omit only the third PLAYER_NAME immediately before the empty C9:7E81 carrier, and let the existing terminal $CE naming glyph follow official FR 677.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round45_girl_name_resegmentation",
+      "android_fr_provenance_ids": [
+        676,
+        677
+      ],
       "formatted_entries": [
         {
           "id": "C9:7E64",
@@ -41470,9 +40838,11 @@
       "source_display": "We can't leave %S(2,0)'s\nlike this.",
       "android_english_display": "We can't leave %S(2,0) like this.",
       "android_french_raw": "On ne peut pas laisser %S(2,0) comme ça ! Il faut l'aider à retrouver la mémoire ! ",
-      "round43_reviewed_redistribution": true,
-      "round43_relation": "round43_player_name_resegmentation",
-      "round43_note": "Keep PLAYER_NAME(2) in place; explicit page boundary prevents max-name overflow.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round43_player_name_resegmentation",
+      "android_fr_provenance_ids": [
+        1005
+      ],
       "formatted_entries": [
         {
           "id": "C9:9B1B",
@@ -43972,43 +43342,13 @@
       ],
       "confidence": "very_high_structural_review",
       "source_display": "The king's inside.",
+      "android_english_display": "The king is in his chambers.",
       "android_french_raw": "Le roi est dans la salle du fond.",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Le roi est dans la salle du fond.",
-      "layout_markup_before_wrap": "Le roi est dans la salle du fond.",
-      "layout_hints": [],
-      "formatted_markup": "Le roi est dans la salle du fond.",
-      "line_widths_pixels": [
-        188
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round44_local_sequence_anchor",
+      "android_fr_provenance_ids": [
+        1362
       ],
-      "line_decoded_character_counts": [
-        33
-      ],
-      "line_parser_unit_counts": [
-        33
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
       "formatted_entries": [
         {
           "id": "C9:A255",
@@ -52555,9 +51895,11 @@
       "source_display": "Salamando is gone! He lived\nin the Fire Palace.",
       "android_english_display": "Salamando is gone! He lived in the Fire Palace. We always used to play together...",
       "android_french_raw": "Athanor a disparu ! Il jouait tout le temps avec moi, avant... ",
-      "round43_reviewed_redistribution": true,
-      "round43_relation": "round43_shared_branch_prefix_redistribution",
-      "round43_note": "Remove only the shared pre-branch prefix; localize the fallthrough branch with Android 1618.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round43_shared_branch_prefix_redistribution",
+      "android_fr_provenance_ids": [
+        1618
+      ],
       "formatted_entries": [
         {
           "id": "C9:BAD6",
@@ -56124,49 +55466,13 @@
       ],
       "confidence": "very_high_structural_review",
       "source_display": "The Emperor's after our\nKing!",
+      "android_english_display": "Emperor Vandole's after our king! That scoundrel!",
       "android_french_raw": "L'Empire a osé attenter à la vie de notre roi ! C'est impardonnable ! ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "L'Empire a osé attenter à la vie de notre roi ! C'est impardonnable !",
-      "layout_markup_before_wrap": "L'Empire a osé attenter à la vie de notre roi ! C'est impardonnable !",
-      "layout_hints": [],
-      "formatted_markup": "L'Empire a osé attenter à la vie de\nnotre roi !\nC'est impardonnable !",
-      "line_widths_pixels": [
-        201,
-        61,
-        125
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round44_local_sequence_anchor",
+      "android_fr_provenance_ids": [
+        2567
       ],
-      "line_decoded_character_counts": [
-        35,
-        11,
-        21
-      ],
-      "line_parser_unit_counts": [
-        35,
-        11,
-        21
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 2,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        3
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
       "formatted_entries": [
         {
           "id": "C9:C68A",
@@ -57891,53 +57197,17 @@
       ],
       "confidence": "very_high_seeded",
       "source_display": " Your\n Highness! The Mana Knight\n has beaten the spy!",
+      "android_english_display": "Your Highness! The Mana Knight has defeated the spy!",
       "android_french_raw": "Majesté, je vous avais parlé de ces jeunes gens. Ils ont déjoué un attentat ! ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Majesté, je vous avais parlé de ces jeunes gens. Ils ont déjoué un attentat !",
-      "layout_markup_before_wrap": "Majesté, je vous avais parlé de ces jeunes gens. Ils ont déjoué un attentat !",
-      "layout_hints": [],
-      "formatted_markup": "Majesté, je vous avais parlé de ces\njeunes gens.\nIls ont déjoué un attentat !",
-      "line_widths_pixels": [
-        207,
-        75,
-        158
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "",
+      "android_fr_provenance_ids": [
+        2583
       ],
-      "line_decoded_character_counts": [
-        35,
-        12,
-        28
-      ],
-      "line_parser_unit_counts": [
-        35,
-        12,
-        28
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 3,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        3
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
       "formatted_entries": [
         {
           "id": "C9:CB57",
-          "text": "Majesté, je vous avais parlé de ces\njeunes gens.\nIls ont déjoué un attentat !"
+          "text": "\nMajesté, je vous avais\nparlé de ces jeunes gens.\fIls ont déjoué un attentat !"
         }
       ]
     },
@@ -59355,43 +58625,13 @@
       ],
       "confidence": "very_high_structural_review",
       "source_display": "Gnome",
+      "android_english_display": "Gnome's magic will work!",
       "android_french_raw": "Gnome fera réagir l'orbe !",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Gnome fera réagir l'orbe !",
-      "layout_markup_before_wrap": "Gnome fera réagir l'orbe !",
-      "layout_hints": [],
-      "formatted_markup": "Gnome fera réagir l'orbe !",
-      "line_widths_pixels": [
-        153
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round43_shared_magic_prefix",
+      "android_fr_provenance_ids": [
+        2839
       ],
-      "line_decoded_character_counts": [
-        26
-      ],
-      "line_parser_unit_counts": [
-        26
-      ],
-      "leading_text_x_position": 6,
-      "leading_text_x_padding_pixels": 24,
-      "leading_text_x_parser_units": 6,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
       "formatted_entries": [
         {
           "id": "C9:D12C",
@@ -59409,43 +58649,13 @@
       ],
       "confidence": "very_high_structural_review",
       "source_display": "Undine",
+      "android_english_display": "Undine's magic will work!",
       "android_french_raw": "Ondine fera réagir l'orbe !",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Ondine fera réagir l'orbe !",
-      "layout_markup_before_wrap": "Ondine fera réagir l'orbe !",
-      "layout_hints": [],
-      "formatted_markup": "Ondine fera réagir l'orbe !",
-      "line_widths_pixels": [
-        156
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round43_shared_magic_prefix",
+      "android_fr_provenance_ids": [
+        2844
       ],
-      "line_decoded_character_counts": [
-        27
-      ],
-      "line_parser_unit_counts": [
-        27
-      ],
-      "leading_text_x_position": 6,
-      "leading_text_x_padding_pixels": 24,
-      "leading_text_x_parser_units": 6,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
       "formatted_entries": [
         {
           "id": "C9:D13F",
@@ -59463,43 +58673,13 @@
       ],
       "confidence": "very_high_structural_review",
       "source_display": "Sylphid",
+      "android_english_display": "Sylphid's magic will work!",
       "android_french_raw": "Sylphide fera réagir l'orbe !",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Sylphide fera réagir l'orbe !",
-      "layout_markup_before_wrap": "Sylphide fera réagir l'orbe !",
-      "layout_hints": [],
-      "formatted_markup": "Sylphide fera réagir l'orbe !",
-      "line_widths_pixels": [
-        166
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round43_shared_magic_prefix",
+      "android_fr_provenance_ids": [
+        2852
       ],
-      "line_decoded_character_counts": [
-        29
-      ],
-      "line_parser_unit_counts": [
-        29
-      ],
-      "leading_text_x_position": 5,
-      "leading_text_x_padding_pixels": 20,
-      "leading_text_x_parser_units": 5,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
       "formatted_entries": [
         {
           "id": "C9:D153",
@@ -59517,43 +58697,13 @@
       ],
       "confidence": "very_high_structural_review",
       "source_display": "Salamando",
+      "android_english_display": "Salamando's magic will work!",
       "android_french_raw": "Athanor fera réagir l'orbe !",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Athanor fera réagir l'orbe !",
-      "layout_markup_before_wrap": "Athanor fera réagir l'orbe !",
-      "layout_hints": [],
-      "formatted_markup": "Athanor fera réagir l'orbe !",
-      "line_widths_pixels": [
-        164
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round43_shared_magic_prefix",
+      "android_fr_provenance_ids": [
+        2857
       ],
-      "line_decoded_character_counts": [
-        28
-      ],
-      "line_parser_unit_counts": [
-        28
-      ],
-      "leading_text_x_position": 4,
-      "leading_text_x_padding_pixels": 16,
-      "leading_text_x_parser_units": 4,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
       "formatted_entries": [
         {
           "id": "C9:D168",
@@ -59571,43 +58721,13 @@
       ],
       "confidence": "very_high_structural_review",
       "source_display": "Lumina",
+      "android_english_display": "Lumina's magic will work!",
       "android_french_raw": "Lumina fera réagir l'orbe !",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Lumina fera réagir l'orbe !",
-      "layout_markup_before_wrap": "Lumina fera réagir l'orbe !",
-      "layout_hints": [],
-      "formatted_markup": "Lumina fera réagir l'orbe !",
-      "line_widths_pixels": [
-        156
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round43_shared_magic_prefix",
+      "android_fr_provenance_ids": [
+        2865
       ],
-      "line_decoded_character_counts": [
-        27
-      ],
-      "line_parser_unit_counts": [
-        27
-      ],
-      "leading_text_x_position": 6,
-      "leading_text_x_padding_pixels": 24,
-      "leading_text_x_parser_units": 6,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
       "formatted_entries": [
         {
           "id": "C9:D17F",
@@ -59625,43 +58745,13 @@
       ],
       "confidence": "very_high_structural_review",
       "source_display": "Shade",
+      "android_english_display": "Shade's magic will work!",
       "android_french_raw": "Ombre fera réagir l'orbe !",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Ombre fera réagir l'orbe !",
-      "layout_markup_before_wrap": "Ombre fera réagir l'orbe !",
-      "layout_hints": [],
-      "formatted_markup": "Ombre fera réagir l'orbe !",
-      "line_widths_pixels": [
-        152
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round43_shared_magic_prefix",
+      "android_fr_provenance_ids": [
+        2870
       ],
-      "line_decoded_character_counts": [
-        26
-      ],
-      "line_parser_unit_counts": [
-        26
-      ],
-      "leading_text_x_position": 6,
-      "leading_text_x_padding_pixels": 24,
-      "leading_text_x_parser_units": 6,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
       "formatted_entries": [
         {
           "id": "C9:D193",
@@ -59679,43 +58769,13 @@
       ],
       "confidence": "very_high_structural_review",
       "source_display": "Luna",
+      "android_english_display": "Luna's magic will work!",
       "android_french_raw": "Luna fera réagir l'orbe !",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Luna fera réagir l'orbe !",
-      "layout_markup_before_wrap": "Luna fera réagir l'orbe !",
-      "layout_hints": [],
-      "formatted_markup": "Luna fera réagir l'orbe !",
-      "line_widths_pixels": [
-        146
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round43_shared_magic_prefix",
+      "android_fr_provenance_ids": [
+        2881
       ],
-      "line_decoded_character_counts": [
-        25
-      ],
-      "line_parser_unit_counts": [
-        25
-      ],
-      "leading_text_x_position": 7,
-      "leading_text_x_padding_pixels": 28,
-      "leading_text_x_parser_units": 7,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
       "formatted_entries": [
         {
           "id": "C9:D1A6",
@@ -59791,9 +58851,9 @@
       "source_display": "'s magic\nwill work!",
       "android_english_display": "Gnome's magic will work!",
       "android_french_raw": "Gnome fera réagir l'orbe !",
-      "round43_reviewed_redistribution": true,
-      "round43_relation": "round43_shared_magic_suffix_layout",
-      "round43_note": "Full localized spirit sentence is carried by each prefix; preserve only reviewed layout here.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round43_shared_magic_suffix_layout",
+      "android_fr_provenance_ids": [],
       "formatted_entries": [
         {
           "id": "C9:D1C0",
@@ -62609,8 +61669,12 @@
       "source_display": "BOSS:YOU again!? Didn't\n you recognize them?\nBOYS:Uh, sorry...",
       "android_english_display": "Boss: YOU again!? Didn't you recognize them? Boys: Uh, sorry...",
       "android_french_raw": "Scorpion : Quoi ! Encore vous ? Et toi, imbécile, tu ne les as pas reconnus ?!  Sbire : Désolé, chef...",
-      "round62_user_reviewed_redistribution": true,
-      "round62_note": "User-reviewed speaker redistribution across the existing actor-action bridge; no new page is inserted.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "",
+      "android_fr_provenance_ids": [
+        1815,
+        1816
+      ],
       "formatted_entries": [
         {
           "id": "C9:DAF5",
@@ -65365,49 +64429,13 @@
       ],
       "confidence": "very_high_structural_review",
       "source_display": "We once fought the\nRepublic.",
+      "android_english_display": "I lost my father in the battle with the republic fifteen years ago...",
       "android_french_raw": "J'ai perdu mon père dans la guerre contre la République de Tasmanica, il y a 15 ans.",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "J'ai perdu mon père dans la guerre contre la République de Tasmanica, il y a 15 ans.",
-      "layout_markup_before_wrap": "J'ai perdu mon père dans la guerre contre la République de Tasmanica, il y a 15 ans.",
-      "layout_hints": [],
-      "formatted_markup": "J'ai perdu mon père dans la guerre\ncontre la République de Tasmanica, il\ny a 15 ans.",
-      "line_widths_pixels": [
-        205,
-        214,
-        66
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round44_local_sequence_anchor",
+      "android_fr_provenance_ids": [
+        1950
       ],
-      "line_decoded_character_counts": [
-        34,
-        37,
-        11
-      ],
-      "line_parser_unit_counts": [
-        34,
-        37,
-        11
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 2,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        3
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
       "formatted_entries": [
         {
           "id": "C9:E32D",
@@ -69919,8 +68947,11 @@
       "source_display": " Oh, my heart brea-ks when\n she's not a-round,\n And I mi-ss her...",
       "android_english_display": "♪Oh, my heart brea-ks when\nshe's not a-round,\nAnd I mi-ss her... ♪",
       "android_french_raw": "\"♪ Mon cœur, mon amour (la la la), ma gorge se noue quand je te vois (la la la), et tout bouillonne dans ma tête... ♪ \"",
-      "round62_user_reviewed_redistribution": true,
-      "round62_note": "User-reviewed three-page song distribution; the two generated page boundaries are explicit WAIT $00 + TEXT_CLEAR and the stock OP_27 sound bridge stays in place.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "",
+      "android_fr_provenance_ids": [
+        2354
+      ],
       "formatted_entries": [
         {
           "id": "C9:F04C",
@@ -70662,197 +69693,12 @@
       ],
       "confidence": "very_high_exact_segmentation_equivalent_duplicate",
       "source_display": "...Gzzzaza...zzzz... Beeeep!",
+      "android_english_display": "...Gzzzaza... zzzz... Beeeep!",
       "android_french_raw": "... Krrr... bzzz... biiip !",
-      "round49_exact_sound_sequence": true,
-      "android_identity_unchanged": true,
-      "stock_commands_unchanged": true,
-      "preserved_bridge": [
-        {
-          "name": "PLAY_SOUND",
-          "args": "02 D5 00 88"
-        },
-        {
-          "name": "PLAY_SOUND",
-          "args": "02 B3 0F 88"
-        },
-        {
-          "name": "WAIT",
-          "args": "10"
-        },
-        {
-          "name": "PLAY_SOUND",
-          "args": "02 17 00 88"
-        }
-      ],
-      "inserted_layout_newline_before_existing_wait10": true,
-      "distributed_french_parts": [
-        "... Krrr...",
-        "bzzz...",
-        "biiip !"
-      ],
-      "subreports": [
-        {
-          "event_id": "03F0",
-          "snes_ids": [
-            "C9:F29A"
-          ],
-          "android_ids": [
-            2361
-          ],
-          "confidence": "very_high_exact_segmentation_equivalent_duplicate",
-          "source_display": "...Gzzzaza...",
-          "android_french_raw": "... Krrr...",
-          "structural_markers_removed": [],
-          "preserved_choice_terminal_suffix_ids": null,
-          "adjacent_nonsemantic_carrier_ids": null,
-          "adjacent_player_carrier_indexes": null,
-          "preserved_static_speaker_dynamic_addressee": null,
-          "preserved_leading_snes_player_prefix": null,
-          "positional_player_rebindings": null,
-          "ignored_alignment_trailing_player_context": null,
-          "android_french_normalized": "... Krrr...",
-          "layout_markup_before_wrap": "... Krrr...",
-          "layout_hints": [],
-          "formatted_markup": "... Krrr...",
-          "line_widths_pixels": [
-            53
-          ],
-          "line_decoded_character_counts": [
-            11
-          ],
-          "line_parser_unit_counts": [
-            11
-          ],
-          "leading_text_x_position": null,
-          "leading_text_x_padding_pixels": 0,
-          "leading_text_x_parser_units": 0,
-          "source_visible_line_budget": 1,
-          "effective_line_budget": 3,
-          "physical_page_capacity_mode": true,
-          "semantic_line_break_preferences": false,
-          "page_line_counts": [
-            1
-          ],
-          "inserted_page_break_count": 0,
-          "inserted_leading_clear": false,
-          "page_break_encoding": null,
-          "page_break_strategy": null,
-          "event_level_forced_page_break": false,
-          "formatted_entries": [
-            {
-              "id": "C9:F29A",
-              "text": "... Krrr..."
-            }
-          ]
-        },
-        {
-          "event_id": "03F0",
-          "snes_ids": [
-            "C9:F2AC"
-          ],
-          "android_ids": [
-            2361
-          ],
-          "confidence": "very_high_exact_segmentation_equivalent_duplicate",
-          "source_display": "zzzz...",
-          "android_french_raw": "bzzz...",
-          "structural_markers_removed": [],
-          "preserved_choice_terminal_suffix_ids": null,
-          "adjacent_nonsemantic_carrier_ids": null,
-          "adjacent_player_carrier_indexes": null,
-          "preserved_static_speaker_dynamic_addressee": null,
-          "preserved_leading_snes_player_prefix": null,
-          "positional_player_rebindings": null,
-          "ignored_alignment_trailing_player_context": null,
-          "android_french_normalized": "bzzz...",
-          "layout_markup_before_wrap": "bzzz...",
-          "layout_hints": [],
-          "formatted_markup": "bzzz...",
-          "line_widths_pixels": [
-            40
-          ],
-          "line_decoded_character_counts": [
-            7
-          ],
-          "line_parser_unit_counts": [
-            7
-          ],
-          "leading_text_x_position": null,
-          "leading_text_x_padding_pixels": 0,
-          "leading_text_x_parser_units": 0,
-          "source_visible_line_budget": 1,
-          "effective_line_budget": 3,
-          "physical_page_capacity_mode": true,
-          "semantic_line_break_preferences": false,
-          "page_line_counts": [
-            1
-          ],
-          "inserted_page_break_count": 0,
-          "inserted_leading_clear": false,
-          "page_break_encoding": null,
-          "page_break_strategy": null,
-          "event_level_forced_page_break": false,
-          "formatted_entries": [
-            {
-              "id": "C9:F2AC",
-              "text": "bzzz..."
-            }
-          ]
-        },
-        {
-          "event_id": "03F0",
-          "snes_ids": [
-            "C9:F2BA"
-          ],
-          "android_ids": [
-            2361
-          ],
-          "confidence": "very_high_exact_segmentation_equivalent_duplicate",
-          "source_display": " Beeeep!",
-          "android_french_raw": "biiip !",
-          "structural_markers_removed": [],
-          "preserved_choice_terminal_suffix_ids": null,
-          "adjacent_nonsemantic_carrier_ids": null,
-          "adjacent_player_carrier_indexes": null,
-          "preserved_static_speaker_dynamic_addressee": null,
-          "preserved_leading_snes_player_prefix": null,
-          "positional_player_rebindings": null,
-          "ignored_alignment_trailing_player_context": null,
-          "android_french_normalized": "biiip !",
-          "layout_markup_before_wrap": "biiip !",
-          "layout_hints": [],
-          "formatted_markup": "biiip !",
-          "line_widths_pixels": [
-            32
-          ],
-          "line_decoded_character_counts": [
-            7
-          ],
-          "line_parser_unit_counts": [
-            7
-          ],
-          "leading_text_x_position": null,
-          "leading_text_x_padding_pixels": 0,
-          "leading_text_x_parser_units": 0,
-          "source_visible_line_budget": 1,
-          "effective_line_budget": 3,
-          "physical_page_capacity_mode": true,
-          "semantic_line_break_preferences": false,
-          "page_line_counts": [
-            1
-          ],
-          "inserted_page_break_count": 0,
-          "inserted_leading_clear": false,
-          "page_break_encoding": null,
-          "page_break_strategy": null,
-          "event_level_forced_page_break": false,
-          "formatted_entries": [
-            {
-              "id": "C9:F2BA",
-              "text": "biiip !"
-            }
-          ]
-        }
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "exact_segmentation",
+      "android_fr_provenance_ids": [
+        2361
       ],
       "formatted_entries": [
         {
@@ -79040,7 +77886,8 @@
       "semantic_alignment_count_changed": false,
       "stock_player_name_commands_unchanged": true,
       "round67_user_reviewed_scene_redistribution": true,
-      "note": "Use the complete official Android-FR Thanatos monologue across newly paginated surviving SNES carriers. CA:2C84 remains the separately validated suppressed page.",
+      "source": "mappings/android/dialogues_redistribution_recipes.json + sources/android/scrtxt_fr.bin",
+      "note": "Use the complete official Android-FR Thanatos monologue through token-index redistribution recipes. CA:2C84 remains the separately validated suppressed page.",
       "formatted_entries": [
         {
           "id": "CA:2BED",
@@ -79481,8 +78328,12 @@
       "source_display": "TRUFFLE:Here at last!\n The legendary knight!\n%S(0,0)",
       "android_english_display": "Truffle: Here at last! The legendary knight! %S(0,0): ...?",
       "android_french_raw": "Truffaut : Vous voilà enfin ! Les héros de la légende !\nNous vous attendions ! %S(0,0) : Pardon ?",
-      "round62_user_reviewed_redistribution": true,
-      "round62_note": "User-reviewed three-page Truffaut/reaction distribution; PLAYER_NAME(0) stays canonical between the trailing page break and CA:36F6.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "",
+      "android_fr_provenance_ids": [
+        1384,
+        1385
+      ],
       "formatted_entries": [
         {
           "id": "CA:36C7",
@@ -81657,136 +80508,12 @@
       ],
       "confidence": "very_high_lexical",
       "source_display": "\n I truly hope you can find\n your mother someday.\n ...Good bye, %S(0,0)",
+      "android_english_display": "I truly hope you can find your mother someday.\n...Good bye, %S(0,0).",
       "android_french_raw": "Je prie pour qu'un jour tu retrouves ta mère.\nAdieu, %S(0,0), prends bien soin de toi.",
-      "round52_exact_structural_distribution": true,
-      "round52_strategy": "round52_timed_wait_page_clear_distribution",
-      "android_identity_unchanged": true,
-      "stock_bridge_commands_unchanged": true,
-      "note": "The two French sentences align exactly around the stock timed WAIT $08. The first carrier keeps its stock leading newline. A single TEXT_CLEAR is materialized at the start of the goodbye carrier after WAIT $08 so the longer French farewell cannot continue on the live line; PLAYER_NAME(0) stays in its stock position.",
-      "distributed_french_parts": [
-        "Je prie pour qu'un jour tu retrouves ta mère.",
-        "Adieu, %S(0,0), prends bien soin de toi."
-      ],
-      "subreports": [
-        {
-          "event_id": "04E7",
-          "snes_ids": [
-            "CA:4211"
-          ],
-          "android_ids": [
-            95
-          ],
-          "confidence": "very_high_lexical",
-          "source_display": "\n I truly hope you can find\n your mother someday.\n ...",
-          "android_french_raw": "Je prie pour qu'un jour tu retrouves ta mère.",
-          "structural_markers_removed": [],
-          "preserved_choice_terminal_suffix_ids": null,
-          "adjacent_nonsemantic_carrier_ids": null,
-          "adjacent_player_carrier_indexes": null,
-          "preserved_static_speaker_dynamic_addressee": null,
-          "preserved_leading_snes_player_prefix": null,
-          "positional_player_rebindings": null,
-          "ignored_alignment_trailing_player_context": null,
-          "android_french_normalized": "Je prie pour qu'un jour tu retrouves ta mère.",
-          "layout_markup_before_wrap": "Je prie pour qu'un jour tu retrouves ta mère.",
-          "layout_hints": [],
-          "formatted_markup": "Je prie pour qu'un jour tu retrouves\nta mère.",
-          "line_widths_pixels": [
-            215,
-            47
-          ],
-          "line_decoded_character_counts": [
-            36,
-            8
-          ],
-          "line_parser_unit_counts": [
-            36,
-            8
-          ],
-          "leading_text_x_position": null,
-          "leading_text_x_padding_pixels": 0,
-          "leading_text_x_parser_units": 0,
-          "source_visible_line_budget": 3,
-          "effective_line_budget": 3,
-          "physical_page_capacity_mode": true,
-          "semantic_line_break_preferences": true,
-          "page_line_counts": [
-            2
-          ],
-          "inserted_page_break_count": 0,
-          "inserted_leading_clear": true,
-          "page_break_encoding": null,
-          "page_break_strategy": null,
-          "event_level_forced_page_break": false,
-          "formatted_entries": [
-            {
-              "id": "CA:4211",
-              "text": "\u000bJe prie pour qu'un jour tu retrouves\nta mère."
-            }
-          ]
-        },
-        {
-          "event_id": "04E7",
-          "snes_ids": [
-            "CA:4249",
-            "CA:4255"
-          ],
-          "android_ids": [
-            95
-          ],
-          "confidence": "very_high_lexical",
-          "source_display": "Good bye, %S(0,0).",
-          "android_french_raw": "Adieu, %S(0,0), prends bien soin de toi.",
-          "structural_markers_removed": [],
-          "preserved_choice_terminal_suffix_ids": null,
-          "adjacent_nonsemantic_carrier_ids": null,
-          "adjacent_player_carrier_indexes": null,
-          "preserved_static_speaker_dynamic_addressee": null,
-          "preserved_leading_snes_player_prefix": null,
-          "positional_player_rebindings": null,
-          "ignored_alignment_trailing_player_context": null,
-          "android_french_normalized": "Adieu, %S(0,0), prends bien soin de toi.",
-          "layout_markup_before_wrap": "Adieu, %S(0,0), prends bien soin de toi.",
-          "layout_hints": [],
-          "formatted_markup": "Adieu, %S(0,0), prends bien soin\nde toi.",
-          "line_widths_pixels": [
-            216,
-            37
-          ],
-          "line_decoded_character_counts": [
-            34,
-            7
-          ],
-          "line_parser_unit_counts": [
-            35,
-            7
-          ],
-          "leading_text_x_position": null,
-          "leading_text_x_padding_pixels": 0,
-          "leading_text_x_parser_units": 0,
-          "source_visible_line_budget": 1,
-          "effective_line_budget": 3,
-          "physical_page_capacity_mode": true,
-          "semantic_line_break_preferences": true,
-          "page_line_counts": [
-            2
-          ],
-          "inserted_page_break_count": 0,
-          "inserted_leading_clear": false,
-          "page_break_encoding": null,
-          "page_break_strategy": null,
-          "event_level_forced_page_break": false,
-          "formatted_entries": [
-            {
-              "id": "CA:4249",
-              "text": "Adieu, "
-            },
-            {
-              "id": "CA:4255",
-              "text": ", prends bien soin\nde toi."
-            }
-          ]
-        }
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "",
+      "android_fr_provenance_ids": [
+        95
       ],
       "formatted_entries": [
         {
@@ -84061,46 +82788,13 @@
       ],
       "confidence": "very_high_structural_review",
       "source_display": "No one's allowed now!",
+      "android_english_display": "So, to be on the safe side, we're not letting anyone in right now. Sorry, but I'm going to have to ask you to leave.",
       "android_french_raw": "Je regrette, mais je ne dois laisser entrer personne.",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Je regrette, mais je ne dois laisser entrer personne.",
-      "layout_markup_before_wrap": "Je regrette, mais je ne dois laisser entrer personne.",
-      "layout_hints": [],
-      "formatted_markup": "Je regrette, mais je ne dois laisser\nentrer personne.",
-      "line_widths_pixels": [
-        205,
-        101
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round45_tasnica_object_state",
+      "android_fr_provenance_ids": [
+        2541
       ],
-      "line_decoded_character_counts": [
-        36,
-        16
-      ],
-      "line_parser_unit_counts": [
-        36,
-        16
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        2
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
       "formatted_entries": [
         {
           "id": "CA:4D71",
@@ -84231,9 +82925,11 @@
       "source_display": "Got Glove",
       "android_english_display": "Received Gloves Orb!",
       "android_french_raw": "\n　Vous obtenez une sphère de Poing !\n\n",
-      "round43_reviewed_redistribution": true,
-      "round43_relation": "round43_weapon_orb_prefix",
-      "round43_note": "Serialize the official weapon-specific phrase without terminal punctuation; shared $0509 owns ' !'.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round43_weapon_orb_prefix",
+      "android_fr_provenance_ids": [
+        952
+      ],
       "formatted_entries": [
         {
           "id": "CA:58B9",
@@ -84253,9 +82949,11 @@
       "source_display": "Got Sword",
       "android_english_display": "Received Sword Orb!",
       "android_french_raw": "\n　Vous obtenez une sphère d'Épée !\n\n",
-      "round43_reviewed_redistribution": true,
-      "round43_relation": "round43_weapon_orb_prefix",
-      "round43_note": "Serialize the official weapon-specific phrase without terminal punctuation; shared $0509 owns ' !'.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round43_weapon_orb_prefix",
+      "android_fr_provenance_ids": [
+        122
+      ],
       "formatted_entries": [
         {
           "id": "CA:58D5",
@@ -84275,9 +82973,11 @@
       "source_display": "Got Axe",
       "android_english_display": "Received Axe Orb!",
       "android_french_raw": "\n　Vous obtenez une sphère de Hache !\n\n",
-      "round43_reviewed_redistribution": true,
-      "round43_relation": "round43_weapon_orb_prefix",
-      "round43_note": "Serialize the official weapon-specific phrase without terminal punctuation; shared $0509 owns ' !'.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round43_weapon_orb_prefix",
+      "android_fr_provenance_ids": [
+        1008
+      ],
       "formatted_entries": [
         {
           "id": "CA:58F1",
@@ -84297,9 +82997,11 @@
       "source_display": "Got Spear",
       "android_english_display": "Received Spear Orb!",
       "android_french_raw": "\n　Vous obtenez une sphère de Lance !\n\n",
-      "round43_reviewed_redistribution": true,
-      "round43_relation": "round43_weapon_orb_prefix",
-      "round43_note": "Serialize the official weapon-specific phrase without terminal punctuation; shared $0509 owns ' !'.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round43_weapon_orb_prefix",
+      "android_fr_provenance_ids": [
+        631
+      ],
       "formatted_entries": [
         {
           "id": "CA:590B",
@@ -84319,9 +83021,11 @@
       "source_display": "Got Whip",
       "android_english_display": "Received Whip Orb!",
       "android_french_raw": "\n　Vous obtenez une sphère de Fouet !\n\n",
-      "round43_reviewed_redistribution": true,
-      "round43_relation": "round43_weapon_orb_prefix",
-      "round43_note": "Serialize the official weapon-specific phrase without terminal punctuation; shared $0509 owns ' !'.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round43_weapon_orb_prefix",
+      "android_fr_provenance_ids": [
+        901
+      ],
       "formatted_entries": [
         {
           "id": "CA:5927",
@@ -84341,9 +83045,11 @@
       "source_display": "Got Bow",
       "android_english_display": "Received Bow/Arrow Orb!",
       "android_french_raw": "\n　Vous obtenez une sphère d'Arc !\n\n",
-      "round43_reviewed_redistribution": true,
-      "round43_relation": "round43_weapon_orb_prefix",
-      "round43_note": "Serialize the official weapon-specific phrase without terminal punctuation; shared $0509 owns ' !'.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round43_weapon_orb_prefix",
+      "android_fr_provenance_ids": [
+        934
+      ],
       "formatted_entries": [
         {
           "id": "CA:5942",
@@ -84363,9 +83069,11 @@
       "source_display": "Got Boomerang",
       "android_english_display": "Received Boomerang Orb!",
       "android_french_raw": "\n　Vous obtenez une sphère de Boomerang !\n\n",
-      "round43_reviewed_redistribution": true,
-      "round43_relation": "round43_weapon_orb_prefix",
-      "round43_note": "Serialize the official weapon-specific phrase without terminal punctuation; shared $0509 owns ' !'.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round43_weapon_orb_prefix",
+      "android_fr_provenance_ids": [
+        786
+      ],
       "formatted_entries": [
         {
           "id": "CA:595C",
@@ -84385,9 +83093,11 @@
       "source_display": "Got Javelin",
       "android_english_display": "Received Javelin Orb!",
       "android_french_raw": "\n　Vous obtenez une sphère de Javelot !\n\n",
-      "round43_reviewed_redistribution": true,
-      "round43_relation": "round43_weapon_orb_prefix",
-      "round43_note": "Serialize the official weapon-specific phrase without terminal punctuation; shared $0509 owns ' !'.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round43_weapon_orb_prefix",
+      "android_fr_provenance_ids": [
+        1164
+      ],
       "formatted_entries": [
         {
           "id": "CA:597C",
@@ -84407,9 +83117,11 @@
       "source_display": "'s Orb!",
       "android_english_display": "Received Gloves Orb!",
       "android_french_raw": "\n　Vous obtenez une sphère de Poing !\n\n",
-      "round43_reviewed_redistribution": true,
-      "round43_relation": "round43_weapon_orb_suffix",
-      "round43_note": "Shared weapon-orb subevent keeps only the common French terminal punctuation.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round43_weapon_orb_suffix",
+      "android_fr_provenance_ids": [
+        952
+      ],
       "formatted_entries": [
         {
           "id": "CA:598C",
@@ -96439,9 +95151,11 @@
       "source_display": "them",
       "android_english_display": "Sadly, no trace of %S(0,0) was ever found...",
       "android_french_raw": "... Hélas, l'histoire de ces courageux jeunes gens devait s'achever là...",
-      "round43_reviewed_redistribution": true,
-      "round43_relation": "round43_gameover_plural_slot",
-      "round43_note": "Use only Android FR 6's plural dynamic slot; fixed frame remains in $07FF.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round43_gameover_plural_slot",
+      "android_fr_provenance_ids": [
+        6
+      ],
       "formatted_entries": [
         {
           "id": "CA:979D",
@@ -96461,9 +95175,11 @@
       "source_display": "them",
       "android_english_display": "Sadly, no trace of %S(0,0) was ever found...",
       "android_french_raw": "... Hélas, l'histoire de ces courageux jeunes gens devait s'achever là...",
-      "round43_reviewed_redistribution": true,
-      "round43_relation": "round43_gameover_plural_slot",
-      "round43_note": "Use only Android FR 6's plural dynamic slot; fixed frame remains in $07FF.",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round43_gameover_plural_slot",
+      "android_fr_provenance_ids": [
+        6
+      ],
       "formatted_entries": [
         {
           "id": "CA:97A8",
@@ -96777,9 +95493,11 @@
       "source_display": " Sadly, no trace of \n was ever found...",
       "android_english_display": "Sadly, no trace of %S(0,0) was ever found...",
       "android_french_raw": "... Hélas, l'histoire de %S(0,0) devait s'achever là...",
-      "round43_reviewed_redistribution": true,
-      "round43_relation": "round43_gameover_dynamic_frame",
-      "round43_note": "Serialize only Android FR 7's fixed frame; existing $07FB/$07FA/$07F3 call chain supplies plural text or PLAYER_NAME(0).",
+      "mapping_layout_recipe": true,
+      "mapping_layout_relation": "round43_gameover_dynamic_frame",
+      "android_fr_provenance_ids": [
+        7
+      ],
       "formatted_entries": [
         {
           "id": "CA:98B2",
@@ -98046,7 +96764,6 @@
       ]
     }
   ],
-  "round54_nonsemantic_android_supplements": [],
   "unpaused_scroll_repairs": [
     {
       "event_id": "00E1",

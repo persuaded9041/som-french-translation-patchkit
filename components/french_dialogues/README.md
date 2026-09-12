@@ -253,19 +253,13 @@ in `docs/DIALOGUE_FORMAT.md`; simulator behavior and unsupported structures are 
 
 ## Historical focused checkpoints
 
-The focused formatter modes remain available for regression/reproduction work without
-changing the canonical mass-pass policy:
+The old `dialogue-format-pilot`, `dialogue-format-batch1` and
+`dialogue-format-page-pilot` modes have been retired. Their runtime-validated
+constraints are permanent regression invariants of the canonical mass generator:
+216 px / 38 parser units, dynamic-name accounting, and sentence-aware
+`WAIT $00` + `TEXT_CLEAR` pagination. Only `dialogue-format-mass` generates the
+current translation corpus.
 
-```bash
-python3 tools/import_android_text.py --only dialogue-format-pilot --rom <clean-USA-ROM>
-python3 tools/import_android_text.py --only dialogue-format-batch1 --rom <clean-USA-ROM>
-python3 tools/import_android_text.py --only dialogue-format-page-pilot --rom <clean-USA-ROM>
-```
-
-`$0107` validates the dual 216-pixel safe-width / 38-unit constraints with `PLAYER_NAME`, and
-`$010F` validates sentence-aware `WAIT $00` + `TEXT_CLEAR` pagination. Historical
-formatter reports are not committed; the current canonical outputs are the mass-pass
-translation, report and exclusion CSV.
 ### WAIT does not imply NEWLINE
 
 Runtime testing on `$0106` established that `WAIT` pauses the dialogue renderer without advancing the live text cursor. The simulator therefore no longer treats WAIT as a line terminator. Reviewed translated continuations that were formatted under the former assumption now serialize an explicit `$7F` NEWLINE at the required boundary; if the three-line rolling window would scroll before the next pause, a reviewed `TEXT_CLEAR` is used instead. Those reviewed candidates remain TO REVIEW until runtime testing.

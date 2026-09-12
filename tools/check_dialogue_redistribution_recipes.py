@@ -13,6 +13,7 @@ COVERAGE = ROOT / "mappings/android/dialogues_coverage_repair_recipes.json"
 FRENCH = ROOT / "translations/dialogues_french.json"
 SCRTXT_FR = ROOT / "sources/android/scrtxt_fr.bin"
 
+EXPECTED_ROUND67 = {"04E1"}
 EXPECTED_ROUND68 = {"0555", "0429", "05F8"}
 EXPECTED_ROUND69 = {"010C", "015A", "01C5", "0204", "0205", "0227", "04E2", "04E5", "04E6", "04E9", "04FD", "0559", "0592", "05B4"}
 EXPECTED_ROUND85 = {"0103"}
@@ -32,8 +33,10 @@ def main() -> None:
     if doc.get("format_version") != 1 or doc.get("source") != "sources/android/scrtxt_fr.bin":
         die("recipe header/source drifted")
     events = doc.get("events", {})
-    if set(events) != EXPECTED_ROUND68 | EXPECTED_ROUND69 | EXPECTED_ROUND85:
+    if set(events) != EXPECTED_ROUND67 | EXPECTED_ROUND68 | EXPECTED_ROUND69 | EXPECTED_ROUND85:
         die(f"event set drifted: {sorted(events)}")
+    if {ev for ev, x in events.items() if x.get("round") == 67} != EXPECTED_ROUND67:
+        die("Round-67 event tags drifted")
     if {ev for ev, x in events.items() if x.get("round") == 68} != EXPECTED_ROUND68:
         die("Round-68 event tags drifted")
     if {ev for ev, x in events.items() if x.get("round") == 69} != EXPECTED_ROUND69:
@@ -65,7 +68,10 @@ def main() -> None:
     rendered, _ = module._load_dialogue_redistribution_recipes(fr)
     coverage = json.loads(COVERAGE.read_text(encoding="utf-8")) if COVERAGE.exists() else {"repairs": []}
     coverage_append = {(r.get("event_id"), r.get("carrier_id")) for r in coverage.get("repairs", []) if r.get("mode") == "append"}
-    active = active_entries(json.loads(FRENCH.read_text(encoding="utf-8")))
+    active = (
+        active_entries(json.loads(FRENCH.read_text(encoding="utf-8")))
+        if FRENCH.exists() else None
+    )
     def semantic_payload(text: str) -> str:
         # Formatter-owned layout may legitimately change when the calibrated
         # VWF limits change. Recipe provenance protects the Android-FR prose,
@@ -77,6 +83,8 @@ def main() -> None:
     filtered = 0
     for ev, values in rendered.items():
         for sid, expected in values.items():
+            if active is None:
+                continue
             actual = active.get(sid)
             if actual is None:
                 # Simulator-filtered generation may temporarily exclude a
@@ -95,7 +103,8 @@ def main() -> None:
 
     print(
         f"Dialogue redistribution recipes verified: {len(events)} events, no translated prose stored; "
-        f"{checked} active carrier(s) preserve Android-FR semantic payload; {filtered} carrier(s) currently simulator-filtered"
+        + (f"{checked} active carrier(s) preserve Android-FR semantic payload; {filtered} carrier(s) currently simulator-filtered"
+           if active is not None else "generated dialogues_french.json absent; provenance-only checks completed")
     )
 
 

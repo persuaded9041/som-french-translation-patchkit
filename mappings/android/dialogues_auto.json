@@ -32,9 +32,9 @@
     ]
   },
   "calibration": {
-    "reviewed_source_id_count": 457,
-    "automatic_attempts_on_reviewed_ids": 167,
-    "automatic_matches_on_reviewed_ids": 166,
+    "reviewed_source_id_count": 459,
+    "automatic_attempts_on_reviewed_ids": 169,
+    "automatic_matches_on_reviewed_ids": 167,
     "automatic_conflicts": 0,
     "rom_neighborhood_exact_duplicates": {
       "accepted_mapping_attempts": 25,
@@ -51,8 +51,8 @@
       "non_cascading": true
     },
     "isolated_event_rom_neighborhood_fuzzy": {
-      "accepted_mapping_attempts": 188,
-      "accepted_mapping_reproductions": 188,
+      "accepted_mapping_attempts": 187,
+      "accepted_mapping_reproductions": 187,
       "conflicts": 0,
       "new_mapping_count": 8,
       "non_cascading": true
@@ -77,8 +77,8 @@
     "mapped_semantic_percent": 97.8,
     "confidence_source_id_counts": {
       "user_validated_equivalent_alternatives": 4,
-      "very_high_seeded": 926,
-      "very_high_structural_review": 276,
+      "very_high_seeded": 924,
+      "very_high_structural_review": 278,
       "very_high_lexical": 113,
       "user_validated": 177,
       "very_high_context": 51,
@@ -108,7 +108,7 @@
     },
     "provenance_source_id_counts": {
       "pilot_manual_review": 4,
-      "automatic_session_alignment": 1138,
+      "automatic_session_alignment": 1136,
       "round44": 14,
       "round41": 4,
       "round6": 30,
@@ -144,6 +144,7 @@
       "round4": 42,
       "round43": 26,
       "round18": 10,
+      "round85": 2,
       "automatic_event_context": 11,
       "round3": 39,
       "round46": 4
@@ -8822,7 +8823,7 @@
       "confidence": "user_validated",
       "provenance": "round2",
       "relation": "one_to_one",
-      "note": "English is an exact match, but French slot 61 ('Reste là !') is not a literal/obvious translation; verify scene semantics.",
+      "note": "English is an exact match, but the corresponding French slot is not a literal/obvious translation; verify scene semantics.",
       "source_display": "ELLIOTT:It's your fault!",
       "android_namespace": "scrtxt",
       "android_unit_ids": [
@@ -50498,59 +50499,54 @@
     },
     {
       "event_id": "03BA",
-      "session_id": 0,
       "snes_ids": [
         "C9:E57D"
       ],
       "android_ids": [
-        1956
+        1956,
+        1957
       ],
-      "confidence": "very_high_seeded",
-      "provenance": "automatic_session_alignment",
+      "confidence": "very_high_structural_review",
+      "provenance": "round85",
+      "relation": "round85_android_fr_continuation_redistribution",
+      "note": "Android EN 1956 owns the full SNES thought, while Android FR splits it across 1956 (world war) and 1957 (fear for family). Keep both FR units on this NPC.",
       "source_display": "Why's the Emperor taking\non the world..?\nI fear for my family!",
-      "lexical_evidence": {
-        "character_similarity": 100.0,
-        "source_token_coverage": 100.0,
-        "lexical_score": 100.0
-      },
       "android_namespace": "scrtxt",
       "android_unit_ids": [
-        1956
+        1956,
+        1957
       ],
-      "android_english_display": "Why's the emperor taking on the world...? I fear for my family!",
+      "android_english_display": "Why's the emperor taking on the world...? I fear for my family! We have a big family here!",
       "french_nonempty_ids": [
-        1956
+        1956,
+        1957
       ],
-      "identity_french_display": "L'Empereur semble prêt à déclencher une guerre mondiale. ",
-      "french_display": "L'Empereur semble prêt à déclencher une guerre mondiale. "
+      "identity_french_display": "L'Empereur semble prêt à déclencher une guerre mondiale.  Même si notre armée est forte, je crains pour les miens. ",
+      "french_display": "L'Empereur semble prêt à déclencher une guerre mondiale.  Même si notre armée est forte, je crains pour les miens. "
     },
     {
       "event_id": "03BB",
-      "session_id": 0,
       "snes_ids": [
         "C9:E5BF"
       ],
       "android_ids": [
-        1957
+        1955
       ],
-      "confidence": "very_high_seeded",
-      "provenance": "automatic_session_alignment",
+      "confidence": "very_high_structural_review",
+      "provenance": "round85",
+      "relation": "round85_android_fr_local_redistribution",
+      "note": "Android FR 1957 is the continuation of the previous NPC, so this large-family NPC must instead receive local Android FR 1955, which carries the official large-family/cooking line.",
       "source_display": "We have a big family here!",
-      "lexical_evidence": {
-        "character_similarity": 100.0,
-        "source_token_coverage": 100.0,
-        "lexical_score": 100.0
-      },
       "android_namespace": "scrtxt",
       "android_unit_ids": [
-        1957
+        1955
       ],
-      "android_english_display": "We have a big family here!",
+      "android_english_display": "Geez! Our family is so big, it's a nightmare just making dinner!",
       "french_nonempty_ids": [
-        1957
+        1955
       ],
-      "identity_french_display": "Même si notre armée est forte, je crains pour les miens. ",
-      "french_display": "Même si notre armée est forte, je crains pour les miens. "
+      "identity_french_display": "C'est une sacrée besogne de cuisiner pour une grande famille comme la nôtre ! ",
+      "french_display": "C'est une sacrée besogne de cuisiner pour une grande famille comme la nôtre ! "
     },
     {
       "event_id": "03BC",

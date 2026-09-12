@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Import or analyze French translations from original Android text resources.
 
-The Android ``scrtxt`` reader is generic, but dialogue generation remains limited
-to already-established high-confidence SNES/Android mappings. The authoritative
-dialogue output is ``dialogue-format-mass``, which formats complete events and
-filters them through the independent simulator. Focused pilot/batch modes remain
-available only to reproduce earlier runtime-validated checkpoints.
+The Android ``scrtxt`` reader is generic, while dialogue generation is intentionally
+limited to established SNES/Android identities plus structural recipes. Translated
+prose is always read from the Android resources at generation time; recipe files may
+store IDs, token references, punctuation and layout operations, but never translated
+prose. ``dialogue-format-mass`` is the canonical dialogue generator and simulator gate.
 """
 from __future__ import annotations
 
@@ -13,6 +13,7 @@ import argparse
 import csv
 from difflib import SequenceMatcher
 import hashlib
+from functools import lru_cache
 from itertools import combinations
 import json
 import math
@@ -58,42 +59,11 @@ DEFAULT_SCRTXT_FR = ROOT / "sources" / "android" / "scrtxt_fr.bin"
 DEFAULT_SYSTXT_EN = ROOT / "sources" / "android" / "systxt_en.bin"
 DEFAULT_SYSTXT_FR = ROOT / "sources" / "android" / "systxt_fr.bin"
 DEFAULT_INTRO_OUTPUT = ROOT / "translations" / "intro_event_french.json"
-DEFAULT_DIALOGUE_PILOT_OUTPUT = ROOT / "mappings" / "android" / "dialogues_pilot.json"
-DEFAULT_DIALOGUE_REVIEW_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round2.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND3_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round3.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND4_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round4.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND5_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round5.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND6_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round6.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND7_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round7.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND8_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round8.json"
 DIALOGUE_REDISTRIBUTION_RECIPES = ROOT / "mappings" / "android" / "dialogues_redistribution_recipes.json"
+DIALOGUE_MAPPING_LAYOUT_RECIPES = ROOT / "mappings" / "android" / "dialogues_mapping_layout_recipes.json"
+DIALOGUE_LAYOUT_SEARCH_RECIPES = ROOT / "mappings" / "android" / "dialogues_layout_search_recipes.json"
 DIALOGUE_CHOICE_LAYOUT_RECIPES = ROOT / "mappings" / "android" / "dialogues_choice_layout_recipes.json"
 DIALOGUE_COVERAGE_REPAIR_RECIPES = ROOT / "mappings" / "android" / "dialogues_coverage_repair_recipes.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND11_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round11.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND18_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round18.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND20_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round20.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND21_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round21.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND22_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round22.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND25_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round25.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND31_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round31.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND33_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round33.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND34_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round34.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND39_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round39.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND40_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round40.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND41_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round41.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND42_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round42.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND43_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round43.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND44_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round44.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND45_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round45.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND46_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round46.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND47_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round47.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND48_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round48.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND49_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round49.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND50_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round50.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND51_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round51.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND52_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round52.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND53_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round53.json"
-DEFAULT_DIALOGUE_REVIEW_ROUND54_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round54.json"
 DIALOGUE_SOURCE = ROOT / "assets" / "dialogues.json"
 DIALOGUE_MANUAL_SUPPLEMENTS = ROOT / "translations" / "dialogues_manual_supplements.json"
 
@@ -136,23 +106,6 @@ DIALOGUE_PILOT_SCENES = (
 
 # Examples that must remain outside automatic import despite apparently strong
 # text matches. They exercise duplicate and one-to-many failure modes.
-DIALOGUE_PILOT_AMBIGUOUS = (
-    {
-        "snes_id": "C9:089B",
-        "reason": "exact Android-English duplicate; text alone cannot choose between IDs 3314 and 3360",
-        "candidate_android_ids": (3314, 3360),
-    },
-    {
-        "snes_id": "C9:0C19",
-        "reason": "exact Android-English duplicate in two distinct local blocks",
-        "candidate_android_ids": (2667, 2793),
-    },
-    {
-        "snes_id": "C9:0B03",
-        "reason": "one SNES text block corresponds to two adjacent Android strings, and that pair is duplicated",
-        "candidate_android_ids": (2449, 2450, 2463, 2464),
-    },
-)
 
 # Candidate round 2. Unlike DIALOGUE_PILOT_SCENES, these units are not yet
 # accepted mappings. They are deliberately richer review cases that exercise
@@ -177,7 +130,7 @@ DIALOGUE_REVIEW_ROUND2 = (
             (("C9:2FB3",), (54,), "one_to_one", "very_high_candidate", "Ordered local block."),
             (("C9:3003",), (56,), "one_to_one", "very_high_candidate", "Ordered local block; Android 55 is an empty localization slot."),
             (((("player_name", 0)), "C9:306A"), (58, 59), "one_snes_with_placeholder_to_many_android", "very_high_candidate", "SNES embeds two speakers in one text token after PLAYER_NAME; Android splits them."),
-            (("C9:30A8",), (61,), "one_to_one", "manual_review_semantic", "English is an exact match, but French slot 61 ('Reste là !') is not a literal/obvious translation; verify scene semantics."),
+            (("C9:30A8",), (61,), "one_to_one", "manual_review_semantic", "English is an exact match, but the corresponding French slot is not a literal/obvious translation; verify scene semantics."),
             ((("player_name", 0), "C9:3104"), (62,), "placeholder_plus_snes_to_one_android", "very_high_candidate", "Android omits the preceding standalone SNES 'ELLIOTT:You!' fragment; this unit covers only the player line."),
             (("C9:311F",), (63,), "one_to_one", "very_high_candidate", "Distinct earthquake line."),
             (("C9:3162",), (65,), "one_to_one", "very_high_candidate", "Distinct scream; Android 64 is empty."),
@@ -856,7 +809,6 @@ DIALOGUE_REVIEW_ROUND40 = (
 )
 
 
-
 # Round 41 records the user's validation of the determinate candidates from the
 # Round-40 contextual HTML.  The two genuinely unresolved HTML cases ($0235 and
 # $03CF) are intentionally not included here: no unique identity was proposed.
@@ -1505,7 +1457,6 @@ DIALOGUE_REVIEW_ROUND5 = (
 )
 
 
-
 def read_scrtxt(path: Path) -> dict[int, str]:
     """Read an Android scrtxt binary into ``android_id -> UTF-8 text``."""
     data = path.read_bytes()
@@ -1538,7 +1489,6 @@ def read_scrtxt(path: Path) -> dict[int, str]:
         except UnicodeDecodeError as exc:
             raise ValueError(f"{path}: text ID {text_id} is not valid UTF-8") from exc
     return result
-
 
 
 _REDISTRIBUTION_TOKEN_RE = re.compile(r"%S\(\d+,0\)|[\wÀ-ÿŒœ’'-]+|[^\w\s]", re.UNICODE)
@@ -1613,6 +1563,110 @@ def _load_dialogue_redistribution_recipes(french: dict[int, str]) -> tuple[dict[
     return rendered, event_meta
 
 
+@lru_cache(maxsize=1)
+def _mapping_layout_recipe_index() -> dict[tuple[str, tuple[str, ...], tuple[int, ...], str], dict]:
+    """Load mapping-local layout recipes without materializing translated prose.
+
+    The JSON stores only Android-FR token references, SNES carrier identities,
+    punctuation/layout separators and optional case transforms. Actual words are
+    always read from ``scrtxt_fr.bin`` at generation time.
+    """
+    document = json.loads(DIALOGUE_MAPPING_LAYOUT_RECIPES.read_text(encoding="utf-8"))
+    if document.get("format_version") != 1:
+        raise ValueError("Unsupported dialogue mapping-layout recipe format")
+    if document.get("source") != "sources/android/scrtxt_fr.bin":
+        raise ValueError("Dialogue mapping-layout recipes must source Android FR directly")
+    out = {}
+    for recipe in document.get("recipes", []):
+        key = (
+            str(recipe.get("event_id")),
+            tuple(str(x) for x in recipe.get("snes_ids", [])),
+            tuple(int(x) for x in recipe.get("android_ids", [])),
+            str(recipe.get("relation", "")),
+        )
+        if key in out:
+            raise ValueError(f"Duplicate mapping-layout recipe {key}")
+        out[key] = recipe
+    return out
+
+
+def _render_mapping_layout_recipe(mapping: dict, french: dict[int, str]) -> tuple[dict[str, str], dict] | None:
+    key = (
+        str(mapping.get("event_id")),
+        tuple(str(x) for x in mapping.get("snes_ids", [])),
+        tuple(int(x) for x in mapping.get("android_ids", [])),
+        str(mapping.get("relation", "")),
+    )
+    recipe = _mapping_layout_recipe_index().get(key)
+    if recipe is None:
+        return None
+
+    token_cache: dict[int, list[str]] = {}
+    values: dict[str, str] = {}
+    provenance_ids = sorted({
+        int(part[1])
+        for carrier in recipe.get("carriers", {}).values()
+        for part in carrier.get("parts", [])
+        if isinstance(part, list) and part and part[0] == "a"
+    })
+    for android_id in provenance_ids:
+        if android_id not in french:
+            raise ValueError(f"Mapping-layout recipe {key}: missing Android FR ID {android_id}")
+        token_cache[android_id] = _redistribution_tokens(french[android_id])
+
+    for text_id, carrier in recipe.get("carriers", {}).items():
+        parts = carrier.get("parts", [])
+        seps = carrier.get("seps", [])
+        if len(seps) != len(parts) + 1:
+            raise ValueError(f"Mapping-layout recipe {key}/{text_id}: invalid separator count")
+        chunks = [seps[0]]
+        for i, part in enumerate(parts):
+            if not isinstance(part, list) or not part:
+                raise ValueError(f"Mapping-layout recipe {key}/{text_id}: invalid part {part!r}")
+            kind = part[0]
+            if kind == "a":
+                if len(part) not in {3, 4}:
+                    raise ValueError(f"Mapping-layout recipe {key}/{text_id}: invalid Android token ref {part!r}")
+                android_id, token_index = int(part[1]), int(part[2])
+                tokens = token_cache[android_id]
+                if not 0 <= token_index < len(tokens):
+                    raise ValueError(f"Mapping-layout recipe {key}/{text_id}: token index out of range {part!r}")
+                token = tokens[token_index]
+                if len(part) == 4:
+                    transform = part[3]
+                    if transform == "capitalize":
+                        token = token[:1].upper() + token[1:]
+                    elif transform == "lower_first":
+                        token = token[:1].lower() + token[1:]
+                    else:
+                        raise ValueError(f"Mapping-layout recipe {key}/{text_id}: unknown transform {transform!r}")
+            elif kind == "p":
+                if len(part) != 2 or int(part[1]) not in {0, 1, 2}:
+                    raise ValueError(f"Mapping-layout recipe {key}/{text_id}: invalid PLAYER_NAME ref {part!r}")
+                token = f"%S({int(part[1])},0)"
+            elif kind == "x":
+                if len(part) != 2 or re.search(r"[A-Za-zÀ-ÿŒœ]", str(part[1])):
+                    raise ValueError(f"Mapping-layout recipe {key}/{text_id}: literal prose forbidden {part!r}")
+                token = str(part[1])
+            else:
+                raise ValueError(f"Mapping-layout recipe {key}/{text_id}: unknown part kind {kind!r}")
+            chunks.append(token)
+            chunks.append(seps[i + 1])
+        values[str(text_id)] = "".join(chunks)
+
+    return values, {
+        "event_id": key[0],
+        "snes_ids": list(key[1]),
+        "android_ids": list(key[2]),
+        "confidence": mapping.get("confidence"),
+        "source_display": mapping.get("source_display", ""),
+        "android_english_display": mapping.get("android_english_display", ""),
+        "android_french_raw": mapping.get("french_display", ""),
+        "mapping_layout_recipe": True,
+        "mapping_layout_relation": key[3],
+        "android_fr_provenance_ids": provenance_ids,
+        "formatted_entries": [{"id": text_id, "text": text} for text_id, text in values.items()],
+    }
 
 
 def _load_dialogue_coverage_repair_recipes(
@@ -1816,6 +1870,7 @@ def make_intro_translation(scrtxt: dict[int, str]) -> dict:
     }
 
 
+@lru_cache(maxsize=None)
 def normalize_alignment_text(text: str) -> str:
     """Normalize English text for cross-version comparison, not for translation output."""
     text = re.sub(r"%S\([^)]*\)", " playername ", text, flags=re.IGNORECASE)
@@ -1823,28 +1878,6 @@ def normalize_alignment_text(text: str) -> str:
     text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode("ascii")
     text = text.casefold()
     return " ".join(re.sub(r"[^a-z0-9]+", " ", text).split())
-
-
-def alignment_metrics(source: str, candidate: str) -> dict[str, float]:
-    """Return deliberately simple, explainable lexical metrics."""
-    source_norm = normalize_alignment_text(source)
-    candidate_norm = normalize_alignment_text(candidate)
-    if not source_norm or not candidate_norm:
-        return {"character_similarity": 0.0, "source_token_coverage": 0.0, "lexical_score": 0.0}
-
-    character_similarity = 100.0 * SequenceMatcher(
-        None, source_norm, candidate_norm, autojunk=False
-    ).ratio()
-    source_tokens = source_norm.split()
-    candidate_tokens = set(candidate_norm.split())
-    covered = sum(token in candidate_tokens for token in source_tokens)
-    source_token_coverage = 100.0 * covered / len(source_tokens)
-    lexical_score = character_similarity * 0.75 + source_token_coverage * 0.25
-    return {
-        "character_similarity": round(character_similarity, 1),
-        "source_token_coverage": round(source_token_coverage, 1),
-        "lexical_score": round(lexical_score, 1),
-    }
 
 
 def load_dialogue_text_entries(path: Path = DIALOGUE_SOURCE) -> dict[str, dict]:
@@ -1867,28 +1900,6 @@ def load_dialogue_text_entries(path: Path = DIALOGUE_SOURCE) -> dict[str, dict]:
                 "source": source,
             }
     return result
-
-
-def rank_android_candidates(source: str, english: dict[int, str], *, limit: int = 5) -> list[dict]:
-    ranked: list[tuple[float, float, int, dict[str, float]]] = []
-    for android_id, text in english.items():
-        if not normalize_alignment_text(text):
-            continue
-        metrics = alignment_metrics(source, text)
-        ranked.append(
-            (
-                metrics["lexical_score"],
-                metrics["character_similarity"],
-                android_id,
-                metrics,
-            )
-        )
-    ranked.sort(reverse=True)
-    return [
-        {"android_id": android_id, **metrics}
-        for _, _, android_id, metrics in ranked[:limit]
-    ]
-
 
 
 # Round 11 continues the PARTIEL review using the same conservative structural
@@ -1972,153 +1983,8 @@ def english_anchor_interval(anchor_id: int, english: dict[int, str]) -> list[int
     return ids
 
 
-def scrtxt_parallel_stats(english: dict[int, str], french: dict[int, str]) -> dict:
-    """Summarize observed slot usage without assigning semantic meaning to every empty ID."""
-    require_parallel_scrtxt(english, french)
-    anchors = [text_id for text_id in sorted(english) if english[text_id]]
-    widths: dict[int, int] = {}
-    continuation_used = 0
-    root_blank_continuation_used = 0
-    for anchor_id in anchors:
-        interval = english_anchor_interval(anchor_id, english)
-        widths[len(interval)] = widths.get(len(interval), 0) + 1
-        french_nonempty = [text_id for text_id in interval if french[text_id]]
-        if any(text_id != anchor_id for text_id in french_nonempty):
-            continuation_used += 1
-        if not french[anchor_id] and french_nonempty:
-            root_blank_continuation_used += 1
-    return {
-        "entry_count": len(english),
-        "english_nonempty_anchor_count": len(anchors),
-        "english_empty_slot_count": len(english) - len(anchors),
-        "english_anchor_interval_widths": {str(width): widths[width] for width in sorted(widths)},
-        "intervals_where_french_uses_following_english_empty_slot": continuation_used,
-        "intervals_where_french_root_is_empty_but_following_slot_is_used": root_blank_continuation_used,
-    }
-
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
-def make_dialogue_pilot_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Build the small, evidence-backed dialogue alignment checkpoint."""
-    require_parallel_scrtxt(english, french)
-    source = load_dialogue_text_entries()
-
-    scenes: list[dict] = []
-    for scene in DIALOGUE_PILOT_SCENES:
-        event_id = scene["event_id"]
-        entries: list[dict] = []
-        android_ids: list[int] = []
-        for snes_id, android_id in scene["pairs"]:
-            if snes_id not in source:
-                raise ValueError(f"Dialogue pilot source ID {snes_id} is absent from assets/dialogues.json")
-            if source[snes_id]["event_id"] != event_id:
-                raise ValueError(
-                    f"Dialogue pilot source ID {snes_id} moved from event {event_id} "
-                    f"to {source[snes_id]['event_id']}"
-                )
-            if android_id not in english or android_id not in french:
-                raise ValueError(f"Dialogue pilot Android ID {android_id} is missing")
-
-            ranked = rank_android_candidates(source[snes_id]["source"], english, limit=3)
-            if not ranked or ranked[0]["android_id"] != android_id:
-                best = ranked[0]["android_id"] if ranked else None
-                raise ValueError(
-                    f"Dialogue pilot {snes_id}: expected Android {android_id}, lexical best is {best}"
-                )
-            second_score = ranked[1]["lexical_score"] if len(ranked) > 1 else 0.0
-            best = ranked[0]
-            margin = round(best["lexical_score"] - second_score, 1)
-            unit_ids = english_anchor_interval(android_id, english)
-            french_nonempty_ids = [text_id for text_id in unit_ids if french[text_id]]
-            entries.append(
-                {
-                    "snes_id": snes_id,
-                    "android_id": android_id,
-                    "confidence": "very_high",
-                    "character_similarity": best["character_similarity"],
-                    "source_token_coverage": best["source_token_coverage"],
-                    "lexical_score": best["lexical_score"],
-                    "next_candidate_margin": margin,
-                    "android_unit_ids": unit_ids,
-                    "french_nonempty_ids": french_nonempty_ids,
-                    "requires_french_slot_merge": len(french_nonempty_ids) != 1 or french_nonempty_ids[0] != android_id,
-                }
-            )
-            android_ids.append(android_id)
-
-        if android_ids != sorted(android_ids) or len(set(android_ids)) != len(android_ids):
-            raise ValueError(f"Dialogue pilot event {event_id}: Android IDs are not strictly ordered")
-
-        gaps = [right - left for left, right in zip(android_ids, android_ids[1:])]
-        empty_bridge_ids = [
-            intermediate
-            for left, right in zip(android_ids, android_ids[1:])
-            for intermediate in range(left + 1, right)
-            if english.get(intermediate) == "" and french.get(intermediate) == ""
-        ]
-        scenes.append(
-            {
-                "event_id": event_id,
-                "label": scene["label"],
-                "confidence": "very_high",
-                "android_id_gaps": gaps,
-                "parallel_empty_bridge_ids": empty_bridge_ids,
-                "entries": entries,
-            }
-        )
-
-    ambiguous: list[dict] = []
-    for case in DIALOGUE_PILOT_AMBIGUOUS:
-        snes_id = case["snes_id"]
-        if snes_id not in source:
-            raise ValueError(f"Dialogue ambiguity source ID {snes_id} is absent")
-        ranked = rank_android_candidates(source[snes_id]["source"], english, limit=6)
-        ambiguous.append(
-            {
-                "snes_id": snes_id,
-                "event_id": source[snes_id]["event_id"],
-                "status": "manual_review",
-                "reason": case["reason"],
-                "candidate_android_ids": list(case["candidate_android_ids"]),
-                "top_lexical_candidates": ranked,
-            }
-        )
-
-    return {
-        "format_version": 1,
-        "status": "pilot_alignment_only",
-        "source_asset": "dialogues.json",
-        "parallel_slot_observations": scrtxt_parallel_stats(english, french),
-        "android_english": {
-            "path": "sources/android/scrtxt_en.bin",
-            "sha256": sha256(english_path),
-        },
-        "android_french": {
-            "path": "sources/android/scrtxt_fr.bin",
-            "sha256": sha256(french_path),
-        },
-        "policy": {
-            "automatic_translation_generation": False,
-            "accepted_confidence": "very_high",
-            "notes": [
-                "Lexical similarity is only one signal.",
-                "Accepted pilot entries must also belong to a coherent ordered local scene run.",
-                "Duplicate and one-to-many cases remain manual-review items even with strong text matches.",
-                "French text may occupy following IDs that are empty in English; dialogue generation remains disabled until slot merging and SNES layout policy are validated.",
-            ],
-        },
-        "scenes": scenes,
-        "ambiguous": ambiguous,
-    }
-
 
 
 def render_snes_review_parts(parts: tuple, source: dict[str, dict], *, event_id: str) -> tuple[list[str], str]:
@@ -2156,373 +2022,6 @@ def android_anchor_units(anchor_ids: tuple[int, ...], english: dict[int, str]) -
             if text_id not in result:
                 result.append(text_id)
     return result
-
-
-def make_dialogue_review_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-    batch: tuple,
-    round_name: str,
-    user_validated: bool,
-) -> dict:
-    """Build a reproducible scene-level Android dialogue review batch."""
-    require_parallel_scrtxt(english, french)
-    source = load_dialogue_text_entries()
-    scenes: list[dict] = []
-    for scene in batch:
-        event_id = scene["event_id"]
-        units: list[dict] = []
-        previous_last_anchor: int | None = None
-        for parts, android_ids, relation, proposed_confidence, note in scene["units"]:
-            snes_ids, source_display = render_snes_review_parts(parts, source, event_id=event_id)
-            for android_id in android_ids:
-                if android_id not in english or not english[android_id]:
-                    raise ValueError(
-                        f"Dialogue review event {event_id}: Android English ID {android_id} is not a non-empty anchor"
-                    )
-            if list(android_ids) != sorted(android_ids) or len(set(android_ids)) != len(android_ids):
-                raise ValueError(f"Dialogue review event {event_id}: Android anchors are not strictly ordered inside a unit")
-            if previous_last_anchor is not None and android_ids[0] <= previous_last_anchor:
-                raise ValueError(f"Dialogue review event {event_id}: units are not in increasing Android-ID order")
-            previous_last_anchor = android_ids[-1]
-
-            android_english = " ".join(english[text_id] for text_id in android_ids)
-            metrics = alignment_metrics(source_display, android_english)
-            unit_ids = android_anchor_units(android_ids, english)
-            french_nonempty_ids = [text_id for text_id in unit_ids if french[text_id]]
-            units.append(
-                {
-                    "snes_ids": snes_ids,
-                    "snes_parts": [list(part) if isinstance(part, tuple) else part for part in parts],
-                    "source_display": source_display,
-                    "android_anchor_ids": list(android_ids),
-                    "android_unit_ids": unit_ids,
-                    "android_english_display": android_english,
-                    "french_nonempty_ids": french_nonempty_ids,
-                    "french_display": " ".join(french[text_id] for text_id in french_nonempty_ids),
-                    "relation": relation,
-                    "proposed_confidence": proposed_confidence,
-                    "lexical_evidence": metrics,
-                    "note": note,
-                    "user_validation": "accepted" if user_validated else "pending",
-                }
-            )
-        scenes.append(
-            {
-                "event_id": event_id,
-                "label": scene["label"],
-                "status": "user_validated" if user_validated else "user_review_pending",
-                "units": units,
-            }
-        )
-    return {
-        "format_version": 1,
-        "status": f"{round_name}_user_validated" if user_validated else f"{round_name}_user_review_pending",
-        "source_asset": "dialogues.json",
-        "android_english": {
-            "path": "sources/android/scrtxt_en.bin",
-            "sha256": sha256(english_path),
-        },
-        "android_french": {
-            "path": "sources/android/scrtxt_fr.bin",
-            "sha256": sha256(french_path),
-        },
-        "policy": {
-            "automatic_translation_generation": False,
-            "english_identity_is_primary": True,
-            "notes": [
-                "SNES PLAYER_NAME commands are represented explicitly as Android-style %S(index,0) placeholders for comparison only.",
-                "Android anchor intervals include following English-empty localization slots.",
-                "Very-high-confidence SNES-to-Android-English identity is not rejected merely because French wording is freely adapted.",
-                "When French or Android segmentation crosses individual anchors, preserve and review the complete local sequence block rather than forcing a per-ID translation.",
-            ],
-        },
-        "scenes": scenes,
-    }
-
-
-def make_dialogue_review_round2_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the user-validated second alignment batch."""
-    return make_dialogue_review_report(
-        english,
-        french,
-        english_path=english_path,
-        french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND2,
-        round_name="round2",
-        user_validated=True,
-    )
-
-
-def make_dialogue_review_round3_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the user-validated third alignment batch."""
-    return make_dialogue_review_report(
-        english,
-        french,
-        english_path=english_path,
-        french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND3,
-        round_name="round3",
-        user_validated=True,
-    )
-
-
-def make_dialogue_review_round4_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the user-validated fourth diversity batch."""
-    return make_dialogue_review_report(
-        english,
-        french,
-        english_path=english_path,
-        french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND4,
-        round_name="round4",
-        user_validated=True,
-    )
-
-
-def make_dialogue_review_round5_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the user-validated final pre-automation stress-test batch."""
-    document = make_dialogue_review_report(
-        english,
-        french,
-        english_path=english_path,
-        french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND5,
-        round_name="round5",
-        user_validated=True,
-    )
-    document["stress_findings"] = [
-        "Four non-monotonic event-level anchor runs are explained by one SNES event spanning multiple Android subscene blocks.",
-        "Event 0204 contains a genuine local reorder: SNES C9:9076 appears after the Mana Seed ritual, while its unique Android-English equivalent is ID 824, before IDs 839-844.",
-        "Event-level monotonicity is therefore too coarse for automatic alignment; local dialogue/subscene order is the stronger signal.",
-        "Unmatched SNES prose must remain explicit rather than being forced onto a nearby Android anchor.",
-    ]
-    document["unmatched_snes_observations"] = [
-        {
-            "event_id": "0204",
-            "snes_id": "C9:902F",
-            "source": "You'll be able to gain power from the Mana seed wherever you are!",
-            "reason": "No confident standalone Android-English anchor was found in the local Water Palace block; nearby Android/French text compresses and redistributes this explanation.",
-        },
-        {
-            "event_id": "04E8",
-            "snes_id": "CA:437D",
-            "source": "...SHRIEK!",
-            "reason": "No confident English Android equivalent; the nearby Android ID 175 is a different exclamation. Leave unmapped rather than forcing a short generic match.",
-        },
-    ]
-    return document
-
-
-def make_dialogue_review_round6_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the structural review used by the current auto alignment."""
-    return make_dialogue_review_report(
-        english,
-        french,
-        english_path=english_path,
-        french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND6,
-        round_name="round6",
-        user_validated=False,
-    )
-
-
-def make_dialogue_review_round7_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the next conservative structural PARTIEL review."""
-    return make_dialogue_review_report(
-        english,
-        french,
-        english_path=english_path,
-        french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND7,
-        round_name="round7",
-        user_validated=False,
-    )
-
-
-def make_dialogue_review_round8_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the user-driven structural PARTIEL review."""
-    return make_dialogue_review_report(
-        english,
-        french,
-        english_path=english_path,
-        french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND8,
-        round_name="round8",
-        user_validated=False,
-    )
-
-
-def make_dialogue_review_round11_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the conservative PARTIEL follow-up derived from user review patterns."""
-    return make_dialogue_review_report(
-        english, french, english_path=english_path, french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND11, round_name="round11", user_validated=False,
-    )
-
-
-def make_dialogue_review_round18_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the speaker/resegmentation PARTIEL follow-up."""
-    return make_dialogue_review_report(
-        english, french, english_path=english_path, french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND18, round_name="round18", user_validated=False,
-    )
-
-
-def make_dialogue_review_round20_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the Cannon Travel / choice-anchor structural follow-up."""
-    return make_dialogue_review_report(
-        english, french, english_path=english_path, french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND20, round_name="round20", user_validated=False,
-    )
-
-
-def make_dialogue_review_round21_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the conservative PARTIEL resegmentation follow-up."""
-    return make_dialogue_review_report(
-        english, french, english_path=english_path, french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND21, round_name="round21", user_validated=False,
-    )
-
-
-def make_dialogue_review_round22_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the branch/staging PARTIEL resegmentation follow-up."""
-    return make_dialogue_review_report(
-        english, french, english_path=english_path, french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND22, round_name="round22", user_validated=False,
-    )
-
-
-def make_dialogue_review_round25_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the second high-leverage structural alignment pass."""
-    return make_dialogue_review_report(
-        english, french, english_path=english_path, french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND25, round_name="round25", user_validated=False,
-    )
-
-
-def make_dialogue_review_round31_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the Round-31 high-leverage structural follow-up."""
-    return make_dialogue_review_report(
-        english, french, english_path=english_path, french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND31, round_name="round31", user_validated=False,
-    )
-
-
-
-def make_dialogue_review_round33_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the user-validated Round-33 high-leverage review."""
-    return make_dialogue_review_report(
-        english, french, english_path=english_path, french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND33, round_name="round33", user_validated=True,
-    )
-
-
-def make_dialogue_review_round34_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the Round-34 high-leverage structural follow-up."""
-    return make_dialogue_review_report(
-        english, french, english_path=english_path, french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND34, round_name="round34", user_validated=False,
-    )
 
 
 # Round 44 promotes only structurally determinate identities recovered after
@@ -2684,1067 +2183,21 @@ DIALOGUE_REVIEW_ROUND46_SYSTEM = (
 )
 
 
-
-def make_dialogue_review_round39_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the user-validated Round-39 contextual/object review."""
-    return make_dialogue_review_report(
-        english, french, english_path=english_path, french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND39, round_name="round39", user_validated=True,
-    )
-
-def make_dialogue_review_round40_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the Round-40 structurally locked resegmentation review."""
-    return make_dialogue_review_report(
-        english, french, english_path=english_path, french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND40, round_name="round40", user_validated=False,
-    )
-
-
-def make_dialogue_review_round41_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the user-validated Round-41 contextual follow-up."""
-    return make_dialogue_review_report(
-        english, french, english_path=english_path, french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND41, round_name="round41", user_validated=True,
-    )
-
-
-
-def make_dialogue_review_round42_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the user-validated Round-42 structural/contextual follow-up."""
-    return make_dialogue_review_report(
-        english, french, english_path=english_path, french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND42, round_name="round42", user_validated=True,
-    )
-
-
-def make_dialogue_review_round43_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the user-validated Round-43 structural-family follow-up."""
-    return make_dialogue_review_report(
-        english, french, english_path=english_path, french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND43, round_name="round43", user_validated=True,
-    )
-
-
-def make_dialogue_review_round44_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the user-authorized no-doubt Round-44 structural follow-up."""
-    return make_dialogue_review_report(
-        english, french, english_path=english_path, french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND44, round_name="round44", user_validated=True,
-    )
-
-
-def make_dialogue_review_round45_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the user-authorized no-doubt Round-45 structural follow-up."""
-    return make_dialogue_review_report(
-        english, french, english_path=english_path, french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND45, round_name="round45", user_validated=True,
-    )
-
-
-def make_dialogue_review_round50_report(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-) -> dict:
-    """Regenerate the Round-50 exact choice-boundary resegmentation review."""
-    report = make_dialogue_review_report(
-        english, french, english_path=english_path, french_path=french_path,
-        batch=DIALOGUE_REVIEW_ROUND50, round_name="round50", user_validated=True,
-    )
-    report["policy"] = {
-        "automatic_identity_rule_added": False,
-        "android_identity_set_changed": False,
-        "segmentation_only": True,
-        "note": (
-            "The already-owned Android 536+537 unit is split only at the canonical SNES "
-            "CHOICE_BEGIN boundary; Android 538 remains the independently accepted No option."
-        ),
-    }
-    return report
-
-
-
-def make_dialogue_review_round51_report() -> dict:
-    """Regenerate the Round-51 residual unresolved-classification audit."""
-    source = load_dialogue_text_entries()
-    omission_ids = ("C9:A730", "C9:A74E", "C9:CE5A")
-    template_ids = ("C9:CEA3", "C9:CEB3")
-    expected_events = {
-        "C9:A730": "0278",
-        "C9:A74E": "0278",
-        "C9:CE5A": "0323",
-        "C9:CEA3": "0330",
-        "C9:CEB3": "0331",
-    }
-    entries = []
-    for snes_id in omission_ids:
-        item = source.get(snes_id)
-        if item is None or item.get("event_id") != expected_events[snes_id]:
-            raise ValueError(f"Round-51 omission carrier changed: {snes_id}")
-        note = DIALOGUE_VALIDATED_ANDROID_OMISSIONS.get(snes_id)
-        if not note or not note.startswith("Round-51"):
-            raise ValueError(f"Round-51 omission note missing: {snes_id}")
-        entries.append({
-            "event_id": item["event_id"],
-            "snes_id": snes_id,
-            "source": item["source"],
-            "classification": "validated_android_omission",
-            "note": note,
-        })
-    for snes_id in template_ids:
-        item = source.get(snes_id)
-        if item is None or item.get("event_id") != expected_events[snes_id]:
-            raise ValueError(f"Round-51 template carrier changed: {snes_id}")
-        note = DIALOGUE_VALIDATED_CONTEXTUAL_TEMPLATES.get(snes_id)
-        if not note or not note.startswith("Round-51"):
-            raise ValueError(f"Round-51 template note missing: {snes_id}")
-        entries.append({
-            "event_id": item["event_id"],
-            "snes_id": snes_id,
-            "source": item["source"],
-            "classification": "validated_contextual_template",
-            "note": note,
-        })
-
-    english = read_scrtxt(DEFAULT_SCRTXT_EN)
-    french = read_scrtxt(DEFAULT_SCRTXT_FR)
-    require_parallel_scrtxt(english, french)
-    standard_inn = {
-        text_id: english[text_id]
-        for text_id in (110, 229, 502, 1365, 1907, 1961, 2319, 2498)
-    }
-    expected_prices = ("5", "10", "15", "50", "100", "120", "150", "200")
-    for text_id, price in zip(standard_inn, expected_prices):
-        if standard_inn[text_id] != f"One night is {price} GP. Want to stay?":
-            raise ValueError(f"Round-51 standard inn Android record changed: {text_id}")
-    if english.get(194) != "30 GP a night would be purrrfect. Meow?":
-        raise ValueError("Round-51 Neko 30-GP Android record changed")
-    if any(text == "One night is 30 GP. Want to stay?" for text in english.values()):
-        raise ValueError("Round-51 expected standard 30-GP Android omission no longer holds")
-    controller_hits = {
-        "START": [text_id for text_id, text in english.items() if "start" in text.lower()],
-        "L/R": [text_id for text_id, text in english.items() if "l/r" in text.lower()],
-        "button": [text_id for text_id, text in english.items() if "button" in text.lower()],
-        "mode": [text_id for text_id, text in english.items() if "mode" in text.lower()],
-    }
-    if controller_hits["L/R"] or controller_hits["button"] or controller_hits["mode"]:
-        raise ValueError("Round-51 controller-term omission proof changed in Android scrtxt")
-
-    return {
-        "format_version": 1,
-        "status": "round51_residual_unresolved_audit",
-        "source_asset": "dialogues.json",
-        "android_english": {
-            "path": "sources/android/scrtxt_en.bin",
-            "sha256": sha256(DEFAULT_SCRTXT_EN),
-        },
-        "policy": {
-            "automatic_identity_rule_added": False,
-            "android_identity_assigned": False,
-            "translation_payload_changed": False,
-            "semantic_alignment_count_changed": False,
-            "notes": [
-                "The two $0278 controller lines were already user-validated as absent from Android; Round 51 formalizes that negative evidence.",
-                "$0323 is the missing standard 30-GP inn caller. Android 194 is a distinct Neko/meow prompt and remains forbidden as a substitute.",
-                "$0330/$0331 are shared runtime template fragments, not independently ownable Android records. The existing parameterized French serialization is unchanged.",
-                "These five records close the residual unclassified set without increasing 1798/1838 or changing ROM bytes.",
-            ],
-        },
-        "evidence": {
-            "standard_inn_android_records": [
-                {"android_id": text_id, "english": english[text_id], "french": french[text_id]}
-                for text_id in standard_inn
-            ],
-            "distinct_30gp_neko_record": {
-                "android_id": 194,
-                "english": english[194],
-                "french": french[194],
-            },
-            "standard_30gp_prompt_present": False,
-            "controller_term_hits": controller_hits,
-        },
-        "counts": {
-            "validated_android_omission": len(omission_ids),
-            "validated_contextual_template": len(template_ids),
-            "total_carriers": len(entries),
-        },
-        "entries": entries,
-        "scenes": [
-            {
-                "event_id": entry["event_id"],
-                "label": entry["classification"],
-                "status": "audited",
-                "units": [entry],
-            }
-            for entry in entries
-        ],
-    }
-
-
-
-def make_dialogue_review_round52_report() -> dict:
-    """Regenerate the Round-52 exact formatter-bridge candidate review."""
-    source_document = json.loads(DIALOGUE_SOURCE.read_text(encoding="utf-8"))
-    by_id, by_event = event_text_index(source_document)
-    english = read_scrtxt(DEFAULT_SCRTXT_EN)
-    french = read_scrtxt(DEFAULT_SCRTXT_FR)
-    require_parallel_scrtxt(english, french)
-
-    scenes = []
-    for (event_id, snes_ids, android_ids), expected in DIALOGUE_ROUND52_STRUCTURAL_DISTRIBUTIONS.items():
-        if len(android_ids) != 1:
-            raise ValueError("Round-52 review currently expects one Android identity per bridge")
-        android_id = android_ids[0]
-        actual_en = normalize_android_prose(english[android_id]).strip()
-        actual_fr = normalize_android_french(french[android_id]).strip()
-        if actual_en != normalize_android_prose(expected["android_en"]).strip():
-            raise ValueError(f"Round-52 Android EN changed at {android_id}")
-        if actual_fr != normalize_android_french(expected["android_fr"]).strip():
-            raise ValueError(f"Round-52 Android FR changed at {android_id}")
-        event = by_event.get(event_id)
-        if event is None:
-            raise ValueError(f"Round-52 source event missing: ${event_id}")
-        for text_id, source in zip(snes_ids, expected["sources"], strict=True):
-            meta = by_id.get(text_id)
-            if meta is None or meta.get("event_id") != event_id or meta.get("source") != source:
-                raise ValueError(f"Round-52 source carrier changed: {text_id}")
-        first_index = by_id[snes_ids[0]]["token_index"]
-        second_index = by_id[snes_ids[1]]["token_index"]
-        bridge = event["tokens"][first_index + 1:second_index]
-        actual_bridge = [
-            {"name": token.get("name"), "args": token.get("args", "")}
-            for token in bridge
-            if token.get("type") == "command"
-        ]
-        if len(actual_bridge) != len(bridge):
-            raise ValueError(f"Round-52 bridge unexpectedly contains text: ${event_id}")
-        if tuple((x["name"], x["args"]) for x in actual_bridge) != tuple(expected["bridge"]):
-            raise ValueError(f"Round-52 bridge changed: ${event_id}")
-        scenes.append({
-            "event_id": event_id,
-            "status": "user_validated",
-            "strategy": expected["strategy"],
-            "snes_ids": list(snes_ids),
-            "snes_sources": list(expected["sources"]),
-            "android_ids": list(android_ids),
-            "android_english": english[android_id],
-            "android_french": french[android_id],
-            "localized_parts": list(expected["localized_parts"]),
-            "stock_bridge_commands": actual_bridge,
-            "note": expected["note"],
-            "units": [{
-                "snes_ids": list(snes_ids),
-                "android_ids": list(android_ids),
-                "strategy": expected["strategy"],
-                "status": "user_validated",
-                "note": expected["note"],
-            }],
-        })
-
-    return {
-        "format_version": 1,
-        "status": "round52_exact_structural_formatter_user_validated",
-        "source_asset": "dialogues.json",
-        "android_english": {
-            "path": "sources/android/scrtxt_en.bin",
-            "sha256": sha256(DEFAULT_SCRTXT_EN),
-        },
-        "android_french": {
-            "path": "sources/android/scrtxt_fr.bin",
-            "sha256": sha256(DEFAULT_SCRTXT_FR),
-        },
-        "policy": {
-            "automatic_identity_rule_added": False,
-            "android_identity_set_changed": False,
-            "generic_formatter_rule_widened": False,
-            "stock_wait_action_commands_moved": False,
-            "wait_is_newline": False,
-            "note": (
-                "Only six exact already-identified mappings are serialized around their canonical "
-                "stock WAIT/action bridges. Ambiguous neighboring PARTIEL mappings remain deferred."
-            ),
-        },
-        "counts": {
-            "reviewed_mappings": len(scenes),
-            "events_touched": len({scene["event_id"] for scene in scenes}),
-        },
-        "scenes": scenes,
-    }
-
-
-def make_dialogue_review_round53_report() -> dict:
-    """Audit Android-FR-only residual text after the Round-52 runtime checkpoint.
-
-    This round deliberately changes no identity and no translation payload.  It
-    combines the already-exhaustive Android-English residual audit with an
-    explicit scan of every scrtxt entry whose English slot is empty but French
-    is non-empty.  The goal is to prove that no hidden Android-FR-only payload
-    remains safely assignable to the 40 residual semantic SNES carriers.
-    """
-    english = read_scrtxt(DEFAULT_SCRTXT_EN)
-    french = read_scrtxt(DEFAULT_SCRTXT_FR)
-    require_parallel_scrtxt(english, french)
-
-    auto_path = ROOT / "mappings" / "android" / "dialogues_auto.json"
-    auto_document = json.loads(auto_path.read_text(encoding="utf-8"))
-    owners: dict[int, list[dict]] = {}
-    for mapping in auto_document.get("mappings", []):
-        android_ids = mapping.get("android_unit_ids", mapping.get("android_ids", []))
-        for android_id in android_ids:
-            owners.setdefault(int(android_id), []).append({
-                "event_id": mapping["event_id"],
-                "snes_ids": list(mapping["snes_ids"]),
-            })
-
-    fr_only_ids = sorted(
-        android_id
-        for android_id in english
-        if not english[android_id].strip() and french[android_id].strip()
-    )
-    fr_only_entries = []
-    for android_id in fr_only_ids:
-        fr_only_entries.append({
-            "android_id": android_id,
-            "french": french[android_id],
-            "owners": owners.get(android_id, []),
-            "owned": android_id in owners,
-        })
-
-    expected_unowned = {1688, 2155, 3260, 3261}
-    actual_unowned = {entry["android_id"] for entry in fr_only_entries if not entry["owned"]}
-    if actual_unowned != expected_unowned:
-        raise ValueError(
-            "Round-53 Android-FR-only residual set changed: "
-            f"expected {sorted(expected_unowned)}, got {sorted(actual_unowned)}"
-        )
-
-    unowned_notes = {
-        1688: {
-            "classification": "android_fr_only_no_snes_residual",
-            "note": (
-                "French-only Kakkara embellishment 'Ça fait rêver !' follows Android 1687. "
-                "No residual SNES semantic carrier belongs to this Android scene, so it is Android-only localization prose, not a recoverable SNES identity."
-            ),
-        },
-        2155: {
-            "classification": "android_fr_only_no_snes_residual",
-            "note": (
-                "French-only player interjection '%S(0,0) : Allons-y !' follows Android 2154 in the Dyluck scene. "
-                "It has no residual SNES carrier in that scene; the superficially similar unresolved '$0042 Well, let's go!' belongs to a different naming branch and cannot reuse it."
-            ),
-        },
-        3260: {
-            "classification": "android_fr_only_locked_04e1_redistribution",
-            "note": (
-                "French-only Thanatos transition inside the explicitly locked $04E1 redistribution. Android EN is empty here, so this may not create a new identity; do not assign it to either locked SNES carrier."
-            ),
-        },
-        3261: {
-            "classification": "android_fr_only_locked_04e1_redistribution",
-            "note": (
-                "French-only Thanatos body-collapse prose inside the explicitly locked $04E1 redistribution. Android EN is empty here, so this may not create a new identity; do not assign it to either locked SNES carrier."
-            ),
-        },
-    }
-    for entry in fr_only_entries:
-        if entry["android_id"] in unowned_notes:
-            entry.update(unowned_notes[entry["android_id"]])
-
-    visual_adaptation_ids = {
-        "C9:2627", "C9:2728", "C9:2735", "C9:2745",  # $0103
-        "C9:55FC",  # $017F
-        "C9:804A",  # $01DC
-        "CA:85DD",  # $0602
-    }
-    explicit_lock_ids = {
-        "C9:0970",  # $001E
-        "C9:4B36",  # $015A
-        "C9:7140",  # $01C5
-        "C9:D1B8",  # $035F
-        "CA:2BED", "CA:2C3A",  # $04E1
-        "CA:7C98", "CA:8323", "CA:833E",  # $05F8
-    }
-    lock_notes = {
-        "C9:0970": "Shared Joch/Jehk prefix; Android FR repeats Maître Jach inside the destination-specific owned records, so no standalone identity is created.",
-        "C9:4B36": "Elman return greeting remains a validated adaptation gap; do not reopen the rejected remap.",
-        "C9:7140": "Choice-tail wording diverges structurally from Android; keep the explicit handoff lock.",
-        "C9:D1B8": "No Android-English Dryad identity was found; retain the approved manual French supplement without inflating Android alignment.",
-        "CA:2BED": "Known Thanatos Android block 3252-3256 redistributes the concepts across five Android records; explicit handoff lock remains in force.",
-        "CA:2C3A": "Known Thanatos Android block 3252-3256 redistributes Dyluck/body-weakness concepts across several records; explicit handoff lock remains in force.",
-        "CA:7C98": "Finale event $05F8 is explicitly frozen; nearby Android FR redistributes speaker turns and may not be rebound.",
-        "CA:8323": "Finale event $05F8 is explicitly frozen; FR-only Android 3111 is part of the neighboring owned 3110 localization and is not a new English identity.",
-        "CA:833E": "Finale event $05F8 is explicitly frozen; the mother/plea sequence is redistributed across Android 3104/3110/3111.",
-    }
-    visual_notes = {
-        "C9:2627": "Runtime-validated $0103 adaptation; Android 3413 owns a larger dots/name/remove-sword unit and must not be split merely to raise alignment.",
-        "C9:2728": "Runtime-validated $0103 timed-ellipsis adaptation; Android 3420-3430 repartitions the ghost voice over multiple punctuation/name records.",
-        "C9:2735": "Runtime-validated $0103 timed-ellipsis adaptation; no new carrier-level identity is required for the already-correct visible French sequence.",
-        "C9:2745": "Runtime-validated $0103 timed-ellipsis adaptation; Android 'I entrust the sword to you' is segmented differently across 3425-3429.",
-        "C9:55FC": "Runtime-validated $017F adaptation. Android 392 is the scene-equivalent soldier rebuke, but the event is intentionally frozen as visually complete rather than remapped for bookkeeping.",
-        "C9:804A": "Runtime-validated $01DC adaptation. Android 727-728 condenses the wounded-soldier/platform exchange; the suppressed SNES carrier remains intentionally identity-unassigned.",
-        "CA:85DD": "Runtime-validated visually complete $0602 status override; no visible English remains, so identity bookkeeping is intentionally left unresolved.",
-    }
-
-    with (ROOT / "mappings" / "android" / "dialogues_unmapped.csv").open(encoding="utf-8-sig", newline="") as fh:
-        unresolved_rows = list(csv.DictReader(fh, delimiter=";"))
-    if len(unresolved_rows) != 40:
-        raise ValueError(f"Round-53 expected 40 residual semantic carriers, found {len(unresolved_rows)}")
-
-    residual_entries = []
-    counts: dict[str, int] = {}
-    for row in unresolved_rows:
-        snes_id = row["snes_id"]
-        reason = row["raison"]
-        if reason == "validated_android_omission":
-            final_state = "ANDROID_ABSENT_VALIDATED"
-            note = row["note"]
-        elif reason == "validated_no_equivalent":
-            final_state = "NO_UNIQUE_ANDROID_EQUIVALENT"
-            note = row["note"]
-        elif reason == "validated_contextual_template":
-            final_state = "CONTEXTUAL_TEMPLATE_NO_SINGLE_ID"
-            note = row["note"]
-        elif snes_id in visual_adaptation_ids:
-            final_state = "VISUALLY_COMPLETE_ANDROID_ADAPTATION"
-            note = visual_notes[snes_id]
-        elif snes_id in explicit_lock_ids:
-            final_state = "EXPLICIT_HANDOFF_LOCK"
-            note = lock_notes[snes_id]
-        else:
-            raise ValueError(f"Round-53 residual carrier lacks final classification: {row['event_id']}/{snes_id}")
-        counts[final_state] = counts.get(final_state, 0) + 1
-        residual_entries.append({
-            "event_id": row["event_id"],
-            "snes_id": snes_id,
-            "source": row["texte_source_snes_usa"],
-            "previous_reason": reason,
-            "final_state": final_state,
-            "note": note,
-            "best_android_english_id": int(row["meilleur_id_android_anglais"]) if row["meilleur_id_android_anglais"] else None,
-            "best_android_english": row["meilleur_texte_anglais_android"],
-            "best_android_french_candidate": row["meilleur_texte_francais_candidat"],
-        })
-
-    expected_counts = {
-        "ANDROID_ABSENT_VALIDATED": 14,
-        "NO_UNIQUE_ANDROID_EQUIVALENT": 8,
-        "CONTEXTUAL_TEMPLATE_NO_SINGLE_ID": 2,
-        "VISUALLY_COMPLETE_ANDROID_ADAPTATION": 7,
-        "EXPLICIT_HANDOFF_LOCK": 9,
-    }
-    if counts != expected_counts:
-        raise ValueError(f"Round-53 residual classification counts changed: {counts}")
-
-    return {
-        "format_version": 1,
-        "status": "round53_android_fr_residual_exhaustion_audit",
-        "source_asset": "dialogues.json",
-        "android_english": {"path": "sources/android/scrtxt_en.bin", "sha256": sha256(DEFAULT_SCRTXT_EN)},
-        "android_french": {"path": "sources/android/scrtxt_fr.bin", "sha256": sha256(DEFAULT_SCRTXT_FR)},
-        "policy": {
-            "automatic_identity_rule_added": False,
-            "android_identity_assigned": False,
-            "translation_payload_changed": False,
-            "rom_bytes_changed": False,
-            "english_identity_remains_primary": True,
-            "generic_namespace_expanded": False,
-            "systxt_policy_changed": False,
-            "note": (
-                "Round 51 already exhausted the scrtxt English identity pool. Round 53 scans every "
-                "scrtxt ID with empty English and non-empty French plus the residual 40 carriers. "
-                "No additional provenance-safe SNES identity or French payload is admitted."
-            ),
-        },
-        "android_fr_only_audit": {
-            "total_nonempty_fr_with_empty_en": len(fr_only_entries),
-            "already_owned_by_existing_mappings": sum(1 for entry in fr_only_entries if entry["owned"]),
-            "unowned": sum(1 for entry in fr_only_entries if not entry["owned"]),
-            "entries": fr_only_entries,
-        },
-        "residual_semantic_audit": {
-            "total": len(residual_entries),
-            "counts": counts,
-            "entries": residual_entries,
-        },
-        "conclusion": {
-            "new_android_identities": 0,
-            "new_french_payloads": 0,
-            "semantic_alignment": "1798/1838 (97.8%)",
-            "unresolved_semantic_ids": 40,
-            "android_scrtxt_search_exhausted_under_current_policy": True,
-            "next_phase": "Defer PARTIEL cleanup until requested; keep the residual 40 visible by final-state category in the dedicated HTML review.",
-        },
-        "scenes": [
-            {
-                "event_id": entry["event_id"],
-                "label": entry["final_state"],
-                "status": "audited",
-                "units": [entry],
-            }
-            for entry in residual_entries
-        ],
-    }
-
-
-
-def make_dialogue_review_round54_report() -> dict:
-    """Document the exact PARTIEL recoveries attempted after Android exhaustion."""
-    source_document = json.loads(DIALOGUE_SOURCE.read_text(encoding="utf-8"))
-    english = read_scrtxt(DEFAULT_SCRTXT_EN)
-    french = read_scrtxt(DEFAULT_SCRTXT_FR)
-    require_parallel_scrtxt(english, french)
-    by_id, by_event = event_text_index(source_document)
-
-    scenes = []
-    for (event_id, snes_ids, android_ids), expected in DIALOGUE_ROUND54_STRUCTURAL_RECOVERIES.items():
-        if len(android_ids) != 1:
-            raise ValueError("Round-54 review expects one Android ID per structural recovery")
-        android_id = android_ids[0]
-        if normalize_android_prose(english[android_id]).strip() != normalize_android_prose(expected["android_en"]).strip():
-            raise ValueError(f"Round-54 Android EN {android_id} changed")
-        if normalize_android_french(french[android_id]).strip() != normalize_android_french(expected["android_fr"]).strip():
-            raise ValueError(f"Round-54 Android FR {android_id} changed")
-        event = by_event[event_id]
-        _round54_require_unique_window(event, tuple(expected["window"]), f"${event_id}")
-        scenes.append({
-            "event_id": event_id,
-            "status": "runtime_candidate",
-            "kind": "mapped_structural_recovery",
-            "snes_ids": list(snes_ids),
-            "android_ids": list(android_ids),
-            "android_english": english[android_id],
-            "android_french": french[android_id],
-            "strategy": expected["strategy"],
-            "stock_window": [list(item) for item in expected["window"]],
-            "serialized_entries": [{"id": k, "text": v} for k, v in expected["values"].items()],
-            "note": expected["note"],
-            "units": [{
-                "snes_ids": list(snes_ids), "android_ids": list(android_ids),
-                "status": "runtime_candidate", "strategy": expected["strategy"],
-                "note": expected["note"],
-            }],
-        })
-
-    for event_id, expected in DIALOGUE_ROUND54_NONSEMANTIC_ANDROID_SUPPLEMENTS.items():
-        android_id = expected["android_id"]
-        if normalize_android_prose(english[android_id]).strip() != normalize_android_prose(expected["android_en"]).strip():
-            raise ValueError(f"Round-54 Android EN {android_id} changed")
-        if normalize_android_french(french[android_id]).strip() != normalize_android_french(expected["android_fr"]).strip():
-            raise ValueError(f"Round-54 Android FR {android_id} changed")
-        _round54_require_unique_window(by_event[event_id], tuple(expected["window"]), f"${event_id} Android {android_id}")
-        scenes.append({
-            "event_id": event_id,
-            "status": "runtime_candidate",
-            "kind": "nonsemantic_android_bridge",
-            "snes_ids": list(expected["values"]),
-            "android_ids": [android_id],
-            "android_english": english[android_id],
-            "android_french": french[android_id],
-            "strategy": "exact_android_dynamic_name_bridge_on_nonsemantic_snes_carriers",
-            "stock_window": [list(item) for item in expected["window"]],
-            "serialized_entries": [{"id": k, "text": v} for k, v in expected["values"].items()],
-            "note": expected["note"],
-            "units": [{
-                "snes_ids": list(expected["values"]), "android_ids": [android_id],
-                "status": "runtime_candidate",
-                "strategy": "exact_android_dynamic_name_bridge_on_nonsemantic_snes_carriers",
-                "note": expected["note"],
-            }],
-        })
-
-    return {
-        "format_version": 1,
-        "status": "round54_exact_partial_recovery_runtime_candidate",
-        "source_asset": "dialogues.json",
-        "android_english": {"path": "sources/android/scrtxt_en.bin", "sha256": sha256(DEFAULT_SCRTXT_EN)},
-        "android_french": {"path": "sources/android/scrtxt_fr.bin", "sha256": sha256(DEFAULT_SCRTXT_FR)},
-        "policy": {
-            "android_search_reopened": False,
-            "automatic_identity_rule_added": False,
-            "generic_formatter_rule_widened": False,
-            "stock_player_name_commands_moved": False,
-            "stock_wait_action_commands_moved": False,
-            "wait_is_newline": False,
-            "note": "Round 53 exhausted Android discovery. Round 54 only serializes exact already-proven Android content across canonical stock structures.",
-        },
-        "counts": {
-            "recoveries": len(scenes),
-            "events_touched": len({scene["event_id"] for scene in scenes}),
-            "mapped_structural_recoveries": len(DIALOGUE_ROUND54_STRUCTURAL_RECOVERIES),
-            "nonsemantic_android_bridges": len(DIALOGUE_ROUND54_NONSEMANTIC_ANDROID_SUPPLEMENTS),
-        },
-        "known_deferrals": [
-            {"event_id": "013A", "android_id": 848, "snes_id": "C9:40D7", "reason": "Android EN 848 identifies the two-sentence SNES unit, but official Android FR translates only the first sentence; keep the second SNES instruction stock rather than inventing French text"},
-            {"event_id": "0592", "android_id": 1031, "reason": "official FR needs more than the two lines available before the following stock reaction unless a new pause/page is invented"},
-            {"event_id": "0559", "android_id": 2147, "reason": "Android FR introduces PLAYER_NAME(1) after PLAYER_NAME(2), absent from the stock command stream"},
-            {"event_id": "04E3", "android_ids": [1384, 1385], "reason": "first French Truffaut unit needs three lines before the existing PLAYER_NAME(0) reaction, which would become an unpaused fourth line"},
-            {"event_id": "04FD", "android_ids": [3369, 3370], "reason": "Android identity contains a leading PLAYER_NAME(0) speaker marker absent from the stock SNES sequence"},
-            {"event_id": "0227", "android_ids": [217, 218], "reason": "Android FR moves PLAYER_NAME(1) from the first maternal line into the following reassurance"},
-        ],
-        "scenes": scenes,
-    }
-
-
-def make_dialogue_review_round46_report() -> dict:
-    """Regenerate the user-authorized Round-46 chest namespace review."""
-    scr_en = read_scrtxt(DEFAULT_SCRTXT_EN)
-    scr_fr = read_scrtxt(DEFAULT_SCRTXT_FR)
-    sys_en = read_scrtxt(DEFAULT_SYSTXT_EN)
-    sys_fr = read_scrtxt(DEFAULT_SYSTXT_FR)
-    require_parallel_scrtxt(scr_en, scr_fr)
-    require_parallel_scrtxt(sys_en, sys_fr)
-    source = load_dialogue_text_entries()
-    scenes = []
-    for item in DIALOGUE_REVIEW_ROUND46_SYSTEM:
-        snes_ids = list(item["snes_ids"])
-        android_ids = list(item["android_ids"])
-        identity_namespace = item.get("identity_namespace", "systxt")
-        id_en, id_fr = (scr_en, scr_fr) if identity_namespace == "scrtxt" else (sys_en, sys_fr)
-        for snes_id in snes_ids:
-            if snes_id not in source or source[snes_id]["event_id"] != item["event_id"]:
-                raise ValueError(f"Round-46 review references invalid SNES carrier {snes_id}")
-        for android_id in android_ids:
-            if not id_en.get(android_id):
-                raise ValueError(f"Round-46 {identity_namespace} English ID {android_id} is missing/empty")
-        unit_ids = android_anchor_units(tuple(android_ids), id_en)
-        french_ids = [text_id for text_id in unit_ids if id_fr[text_id]]
-        unit = {
-            "snes_ids": snes_ids,
-            "source_display": " ".join(source[text_id]["source"] for text_id in snes_ids),
-            "android_identity_namespace": identity_namespace,
-            "android_anchor_ids": android_ids,
-            "android_unit_ids": unit_ids,
-            "android_english_display": " ".join(id_en[text_id] for text_id in android_ids),
-            "identity_french_display": " ".join(id_fr[text_id] for text_id in french_ids),
-            "relation": item["relation"],
-            "proposed_confidence": "user_validated",
-            "note": item["note"],
-            "user_validation": "accepted",
-        }
-        override_id = item.get("localization_systxt_id")
-        if override_id is not None:
-            unit["localization_override_namespace"] = "systxt"
-            unit["localization_override_id"] = override_id
-            unit["localization_override_source_en"] = sys_en[override_id]
-            unit["french_display"] = sys_fr[override_id]
-        else:
-            unit["french_nonempty_ids"] = french_ids
-            unit["french_display"] = " ".join(id_fr[text_id] for text_id in french_ids)
-        scenes.append({"event_id": item["event_id"], "label": item["label"], "status": "user_validated", "units": [unit]})
-    return {
-        "format_version": 1,
-        "status": "round46_user_validated",
-        "source_asset": "dialogues.json",
-        "android_sources": {
-            "scrtxt_en": {"path": "sources/android/scrtxt_en.bin", "sha256": sha256(DEFAULT_SCRTXT_EN)},
-            "scrtxt_fr": {"path": "sources/android/scrtxt_fr.bin", "sha256": sha256(DEFAULT_SCRTXT_FR)},
-            "systxt_en": {"path": "sources/android/systxt_en.bin", "sha256": sha256(DEFAULT_SYSTXT_EN)},
-            "systxt_fr": {"path": "sources/android/systxt_fr.bin", "sha256": sha256(DEFAULT_SYSTXT_FR)},
-        },
-        "policy": {
-            "automatic_translation_generation": False,
-            "english_identity_is_primary": True,
-            "generic_candidate_index_extended": False,
-            "notes": [
-                "Only 067E/067F use systxt 101254 as Android-English identity.",
-                "0687/0689 retain scrtxt English identities 469/769; systxt 101256/101255 is localization-correction evidence only because those systxt_en records are not English.",
-                "The generic dialogue aligner continues to search scrtxt only.",
-                "Parameterized $0d is materialized from the fixed SNES chest reward amount; no new runtime variable is invented.",
-            ],
-        },
-        "scenes": scenes,
-    }
-
-
-
-def make_dialogue_review_round47_report() -> dict:
-    """Regenerate the Round-47 non-text routing/omission audit."""
-    source = load_dialogue_text_entries()
-    groups = (
-        (
-            "validated_no_equivalent",
-            ("C9:2179", "C9:2208", "C9:2268", "C9:A49C", "C9:C4FB", "CA:85FC"),
-            DIALOGUE_FORCED_UNMAPPED,
-        ),
-        (
-            "validated_android_omission",
-            ("C9:1057", "C9:916F", "C9:9193", "C9:9F88", "C9:CAA6", "C9:CAC2", "C9:CB0C", "C9:CB28"),
-            DIALOGUE_VALIDATED_ANDROID_OMISSIONS,
-        ),
-    )
-    entries = []
-    for status, ids, notes in groups:
-        for snes_id in ids:
-            item = source.get(snes_id)
-            if item is None:
-                raise ValueError(f"Round-47 audit references missing SNES carrier {snes_id}")
-            note = notes.get(snes_id)
-            if not note or not note.startswith("Round-47"):
-                raise ValueError(f"Round-47 audit note missing for {snes_id}")
-            entries.append(
-                {
-                    "event_id": item["event_id"],
-                    "snes_id": snes_id,
-                    "source": item["source"],
-                    "classification": status,
-                    "note": note,
-                }
-            )
-    return {
-        "format_version": 1,
-        "status": "round47_routing_audit",
-        "source_asset": "dialogues.json",
-        "routing_evidence": {
-            "map_trigger_table": "ROM $084000",
-            "map_object_pointer_table": "ROM $087000",
-            "event_call_graph": "OP_10..27 event references",
-        },
-        "policy": {
-            "automatic_translation_generation": False,
-            "android_identity_assigned": False,
-            "translation_payload_changed": False,
-            "notes": [
-                "validated_no_equivalent means routing/provenance was audited and no unique Android-English identity may be assigned.",
-                "validated_android_omission means the SNES scene/branch is proven but the corresponding Android scene omits the carrier.",
-                "These classifications are negative evidence only: they do not increase the 1798/1838 semantic alignment count and do not authorize manual translation.",
-            ],
-        },
-        "counts": {
-            "validated_no_equivalent": sum(1 for entry in entries if entry["classification"] == "validated_no_equivalent"),
-            "validated_android_omission": sum(1 for entry in entries if entry["classification"] == "validated_android_omission"),
-            "total_carriers": len(entries),
-        },
-        "entries": entries,
-        "scenes": [
-            {
-                "event_id": entry["event_id"],
-                "label": entry["classification"],
-                "status": "audited",
-                "units": [entry],
-            }
-            for entry in entries
-        ],
-    }
-
-
 # ---- Conservative whole-dialogue Android alignment -------------------------
 
 DEFAULT_DIALOGUE_AUTO_OUTPUT = ROOT / "mappings" / "android" / "dialogues_auto.json"
 DEFAULT_DIALOGUE_UNMAPPED_CSV = ROOT / "mappings" / "android" / "dialogues_unmapped.csv"
-DEFAULT_DIALOGUE_FORMAT_PILOT_OUTPUT = ROOT / "mappings" / "android" / "dialogues_format_pilot_translation.json"
-DEFAULT_DIALOGUE_FORMAT_PILOT_REPORT = ROOT / "mappings" / "android" / "dialogues_format_pilot.json"
-DEFAULT_DIALOGUE_FORMAT_BATCH1_OUTPUT = ROOT / "translations" / "dialogues_french.json"
-DEFAULT_DIALOGUE_FORMAT_BATCH1_REPORT = ROOT / "mappings" / "android" / "dialogues_format_batch1.json"
-DEFAULT_DIALOGUE_FORMAT_PAGE_PILOT_OUTPUT = ROOT / "mappings" / "android" / "dialogues_format_page_pilot_translation.json"
-DEFAULT_DIALOGUE_FORMAT_PAGE_PILOT_REPORT = ROOT / "mappings" / "android" / "dialogues_format_page_pilot.json"
-DEFAULT_DIALOGUE_FORMAT_BATCH2_OUTPUT = ROOT / "translations" / "dialogues_french.json"
-DEFAULT_DIALOGUE_FORMAT_BATCH2_REPORT = ROOT / "mappings" / "android" / "dialogues_format_batch2.json"
 DEFAULT_DIALOGUE_FORMAT_MASS_OUTPUT = ROOT / "translations" / "dialogues_french.json"
 DEFAULT_DIALOGUE_FORMAT_MASS_REPORT = ROOT / "mappings" / "android" / "dialogues_format_mass.json"
 DEFAULT_DIALOGUE_FORMAT_MASS_EXCLUDED_CSV = ROOT / "mappings" / "android" / "dialogues_format_mass_excluded.csv"
-DIALOGUE_FORMAT_PILOT_EVENTS = ("0107",)
 # First post-pilot runtime batch. Every selected event is complete: all of its
 # semantic SNES text IDs are accepted by the Android aligner and pass the
 # conservative structural formatter. This prevents mixed EN/FR test scenes.
-DIALOGUE_FORMAT_BATCH1_EVENTS = ("0107", "010E", "0116", "0117", "0118", "011D")
 
 
-def make_dialogue_review_round48_report() -> dict:
-    """Regenerate the Round-48 formatter repair + Tasnica omission audit."""
-    source = load_dialogue_text_entries()
-    tasnica_id = "C9:C56C"
-    tasnica = source.get(tasnica_id)
-    if tasnica is None or tasnica.get("event_id") != "02E1":
-        raise ValueError("Round-48 Tasnica audit carrier changed")
-    omission_note = DIALOGUE_VALIDATED_ANDROID_OMISSIONS.get(tasnica_id)
-    if not omission_note or not omission_note.startswith("Round-48"):
-        raise ValueError("Round-48 Tasnica omission note missing")
-
-    vocatives = []
-    for (event_id, snes_id, android_id), expected in sorted(
-        DIALOGUE_ROUND48_ANDROID_ONLY_VOCATIVES.items(),
-        key=lambda item: (int(item[0][0], 16), item[0][1]),
-    ):
-        item = source.get(snes_id)
-        if item is None or item.get("event_id") != event_id or item.get("source") != expected["source"]:
-            raise ValueError(f"Round-48 vocative audit carrier changed: {snes_id}")
-        vocatives.append({
-            "event_id": event_id,
-            "snes_id": snes_id,
-            "android_id": android_id,
-            "android_english": expected["android_en"],
-            "android_french_before": expected["android_fr"],
-            "french_after_vocative_removal": expected["localized"],
-            "identity_unchanged": True,
-            "snes_player_name_commands_unchanged": True,
-            "status": "reviewed_exact_formatter_repair",
-        })
-
-    return {
-        "format_version": 1,
-        "status": "round48_formatter_and_tasnica_audit",
-        "source_asset": "dialogues.json",
-        "policy": {
-            "automatic_identity_rule_added": False,
-            "android_identity_changed": False,
-            "vocative_rule_generic": False,
-            "notes": [
-                "The seven Android-FR-only vocatives are exact carrier/Android-ID allow-list entries. Android EN and the canonical SNES carrier contain no dynamic addressee; no PLAYER_NAME command is created or moved.",
-                "$0127 pagination is exact-token-gated: two sentence-boundary WAIT $00 + TEXT_CLEAR transitions plus one TEXT_CLEAR-only after the existing WAIT $08. All actor actions, timed WAIT and PLAYER_NAME commands remain in stock order.",
-                "$02E1/C9:C56C is negative evidence only: it becomes validated_android_omission and receives no Android ID or French payload.",
-            ],
-        },
-        "tasnica_omission": {
-            "event_id": "02E1",
-            "snes_id": tasnica_id,
-            "source": tasnica["source"],
-            "classification": "validated_android_omission",
-            "map_id": "001A",
-            "object_index": 0,
-            "object_rom_offset": "089538",
-            "object_raw": "3C 0E 8C 16 50 B7 E1 C2",
-            "android_scene_block": "2539-2577",
-            "note": omission_note,
-        },
-        "android_fr_only_vocative_repairs": vocatives,
-        "event_0127_pagination": {
-            "event_id": "0127",
-            "status": "reviewed_exact_formatter_repair",
-            "page_break_after": ["ici...", "Quoi ?!"],
-            "text_clear_only_before": "C9:3ADC",
-            "stock_wait08_unchanged": True,
-            "player_name_commands_unchanged": True,
-        },
-        "counts": {
-            "validated_android_omission": 1,
-            "exact_android_fr_only_vocative_repairs": len(vocatives),
-            "exact_pagination_events": 1,
-        },
-        "scenes": [
-            {
-                "event_id": "02E1",
-                "label": "Tasnica live NPC omission",
-                "status": "audited",
-                "units": [{
-                    "event_id": "02E1",
-                    "snes_id": tasnica_id,
-                    "classification": "validated_android_omission",
-                }],
-            },
-            *[
-                {
-                    "event_id": item["event_id"],
-                    "label": "Android-FR-only vocative formatter repair",
-                    "status": "reviewed_exact_formatter_repair",
-                    "units": [item],
-                }
-                for item in vocatives
-            ],
-            {
-                "event_id": "0127",
-                "label": "exact pagination repair",
-                "status": "reviewed_exact_formatter_repair",
-                "units": [{
-                    "event_id": "0127",
-                    "strategy": "round48_exact_multi_boundary_pagination",
-                }],
-            },
-        ],
-    }
-
-
-def make_dialogue_review_round49_report() -> dict:
-    """Regenerate the Round-49 exact formatter-only recovery audit."""
-    source = load_dialogue_text_entries()
-
-    speaker_repairs = []
-    for (event_id, snes_id, android_ids), expected in sorted(
-        DIALOGUE_ROUND49_ANDROID_ONLY_SPEAKER_LABELS.items(),
-        key=lambda item: (int(item[0][0], 16), item[0][1]),
-    ):
-        item = source.get(snes_id)
-        if item is None or item.get("event_id") != event_id or item.get("source") != expected["source"]:
-            raise ValueError(f"Round-49 speaker-label audit carrier changed: {snes_id}")
-        speaker_repairs.append({
-            "event_id": event_id,
-            "snes_id": snes_id,
-            "android_ids": list(android_ids),
-            "android_english": expected["android_en"],
-            "android_french_before": expected["android_fr"],
-            "french_after_label_removal": expected["localized"],
-            "identity_unchanged": True,
-            "snes_player_name_commands_unchanged": True,
-            "status": "reviewed_exact_formatter_repair",
-        })
-
-    sound = DIALOGUE_ROUND49_SOUND_SEQUENCE
-    sound_units = []
-    for snes_id, source_text, localized in zip(
-        sound["snes_ids"], sound["sources"], sound["localized_parts"], strict=True
-    ):
-        item = source.get(snes_id)
-        if item is None or item.get("event_id") != sound["event_id"] or item.get("source") != source_text:
-            raise ValueError(f"Round-49 sound-sequence audit carrier changed: {snes_id}")
-        sound_units.append({
-            "snes_id": snes_id,
-            "source": source_text,
-            "localized_part": localized,
-        })
-
-    blocked = {
-        "event_id": "0205",
-        "snes_ids": ["C9:90DE", "C9:910D"],
-        "android_ids": [825],
-        "status": "TO_REVIEW",
-        "reason": (
-            "Android FR condenses the two SNES carriers into one sentence while the canonical SNES stream "
-            "keeps PLAYER_NAME(0), then WAIT $00 + TEXT_CLEAR between the carriers. No complete-sentence "
-            "redistribution preserves both stock pages without inventing or moving structure, so the event remains excluded."
-        ),
-    }
-    partial_04e9 = {
-        "event_id": "04E9",
-        "status": "PARTIEL",
-        "french_carriers": ["CA:46AC", "CA:46F5", "CA:4745", "CA:4797", "CA:47E7", "CA:4837", "CA:4886"],
-        "layout_deferred_carriers": ["CA:48DC", "CA:4925"],
-        "text_clear_before": ["CA:4745", "CA:4797"],
-        "reason": (
-            "The two three-line Android-FR paragraphs start immediately after existing WAIT $00 commands. "
-            "Exact TEXT_CLEAR-only resets make those pages simulator-clean without adding another pause. "
-            "The final Android-FR sentence jointly condenses CA:48DC+CA:4925 across WAIT $00, so that mapping stays stock/deferred."
-        ),
-    }
-
-    return {
-        "format_version": 1,
-        "status": "round49_exact_formatter_recovery_audit",
-        "source_asset": "dialogues.json",
-        "policy": {
-            "automatic_identity_rule_added": False,
-            "android_identity_changed": False,
-            "generic_formatter_rule_added": False,
-            "notes": [
-                "$02CD removes only the exact Android-FR-only %S(0,0) speaker label; Android EN and the entire SNES event contain no PLAYER_NAME command.",
-                "$03F0 distributes one already accepted Android unit across the exact three stock noise carriers. PLAY_SOUND and WAIT $10 remain byte-for-byte in place; one layout-only newline is inserted before the existing WAIT $10 so WAIT remains a pause, not a newline.",
-                "$04E9 becomes PARTIEL: seven mappings render in French; two exact TEXT_CLEAR-only resets follow existing WAIT $00 pauses; the final condensed two-carrier mapping remains stock/layout-deferred.",
-                "$0205 is deliberately left unresolved at the formatter layer because Android FR collapses two SNES pages into one sentence across PLAYER_NAME + WAIT $00 + TEXT_CLEAR.",
-            ],
-        },
-        "android_fr_only_speaker_label_repairs": speaker_repairs,
-        "sound_sequence_repair": {
-            "event_id": sound["event_id"],
-            "snes_ids": list(sound["snes_ids"]),
-            "android_ids": list(sound["android_ids"]),
-            "android_english": sound["android_en"],
-            "android_french": sound["android_fr"],
-            "units": sound_units,
-            "preserved_commands": [
-                "PLAY_SOUND 02 D5 00 88",
-                "PLAY_SOUND 02 B3 0F 88",
-                "WAIT 10",
-                "PLAY_SOUND 02 17 00 88",
-            ],
-            "inserted_layout_newline_before_existing_wait10": True,
-            "identity_unchanged": True,
-            "status": "reviewed_exact_formatter_repair",
-        },
-        "partial_event_recovery": partial_04e9,
-        "deferred": [blocked],
-        "counts": {
-            "exact_android_fr_only_speaker_label_repairs": len(speaker_repairs),
-            "exact_sound_sequence_repairs": 1,
-            "exact_wait00_clear_only_repairs": 2,
-            "formatter_or_simulator_events_recovered": 3,
-            "formatter_events_deferred": 1,
-        },
-        "scenes": [
-            *[
-                {
-                    "event_id": item["event_id"],
-                    "label": "Android-FR-only speaker label formatter repair",
-                    "status": item["status"],
-                    "units": [item],
-                }
-                for item in speaker_repairs
-            ],
-            {
-                "event_id": sound["event_id"],
-                "label": "exact machine-noise sound bridge",
-                "status": "reviewed_exact_formatter_repair",
-                "units": sound_units,
-            },
-            {
-                "event_id": partial_04e9["event_id"],
-                "label": "exact WAIT $00 clear-only PARTIEL recovery",
-                "status": "PARTIEL",
-                "units": [partial_04e9],
-            },
-            {
-                "event_id": blocked["event_id"],
-                "label": "condensed two-page Android-FR mapping",
-                "status": "TO_REVIEW",
-                "units": [blocked],
-            },
-        ],
-    }
-
-
-DIALOGUE_FORMAT_PAGE_PILOT_EVENTS = ("0107", "010E", "010F", "0116", "0117", "0118", "011D")
-DIALOGUE_FORMAT_EXTRA_PAGE_EVENTS = frozenset({"010F"})
 # First larger explicit expansion after the pagination rule was runtime-validated.
 # The list is intentionally frozen rather than discovered dynamically: future
 # formatter changes must not silently change which events enter the patch.
-DIALOGUE_FORMAT_BATCH2_EVENTS = (
-    "0107", "010A", "010E", "010F", "0116", "0117", "0118", "011D",
-    "012F", "0130", "0136", "0137", "0139", "013C", "013D", "0140",
-    "0141", "0142", "0144", "014B", "014C", "014D", "0150", "0152",
-    "0153", "0154", "0155",
-)
-DIALOGUE_FORMAT_BATCH2_EXTRA_PAGE_EVENTS = frozenset({"010A", "010F", "013C", "014B"})
 
 # These two stress-test sources were explicitly reviewed and have no confident
 # standalone Android-English equivalent. Automatic passes must never force them.
@@ -3820,22 +2273,6 @@ DIALOGUE_VALIDATED_ANDROID_OMISSIONS = {
 # Round 57 compares the reviewed Android omissions against the original
 # Japanese SNES ROM supplied by the user. This is provenance/serialization
 # evidence only; it never creates Android identity.
-DIALOGUE_ROUND57_SNES_JP_PROVENANCE = {
-    "C9:1057": "jp_snes_present_manual_supplement",
-    "C9:916F": "jp_snes_present_manual_supplement",
-    "C9:9193": "jp_snes_present_manual_supplement",
-    "C9:9F88": "jp_snes_present_manual_supplement",
-    "C9:A730": "jp_snes_present_resegmented_manual_supplement",
-    "C9:A74E": "jp_snes_present_resegmented_manual_supplement",
-    "C9:C56C": "jp_snes_present_manual_supplement",
-    "C9:CAA6": "jp_snes_present_manual_supplement",
-    "C9:CAC2": "jp_snes_present_manual_supplement",
-    "C9:CB0C": "jp_snes_present_manual_supplement",
-    "C9:30F5": "jp_snes_absent_distinct_line_user_suppressed",
-    "C9:CB28": "jp_snes_absent_user_suppressed",
-    "CA:6629": "jp_snes_absent_distinct_line_user_suppressed",
-    "C9:CE5A": "jp_snes_present_covered_dynamic_parameter",
-}
 
 
 # These semantic carriers are real stock prose fragments, but they are shared
@@ -4435,23 +2872,37 @@ def _parameterized_inn_prompt(english: dict[int, str], french: dict[int, str]) -
     android_id = 110
     en = english.get(android_id, "")
     fr = normalize_android_french(french.get(android_id, ""))
-    if en != "One night is 5 GP. Want to stay?":
-        raise ValueError("Parameterized inn template: Android EN 110 changed unexpectedly")
-    if not fr.startswith("5"):
-        raise ValueError("Parameterized inn template: Android FR 110 must start with the price 5")
-    suffix = fr[1:]
+    if not en.strip():
+        raise ValueError("Parameterized inn template: Android EN identity slot is empty")
+
+    # The stock event supplies the numeric price dynamically. Derive and remove
+    # the corresponding leading Android-FR number instead of hardcoding either
+    # the price or any localized prose.
+    price = re.match(r"^\d+", fr)
+    if price is None:
+        raise ValueError("Parameterized inn template: Android FR must start with a numeric price")
+    suffix = fr[price.end():]
     if not suffix.strip():
         raise ValueError("Parameterized inn template: empty French suffix")
-    # Keep the dynamic numeric carrier supplied by the stock caller, then render
-    # the Android-FR suffix.  One newline separates the sentence/prompt and the
-    # trailing newline keeps the choice row on the next physical line.
-    prompt_marker = "Voulez-vous rester dormir ?"
-    if prompt_marker not in suffix:
-        raise ValueError("Parameterized inn template: expected French prompt is absent")
-    first, second = suffix.split(prompt_marker, 1)
-    if second.strip():
-        raise ValueError("Parameterized inn template: unexpected text after the French prompt")
-    suffix = first.rstrip() + "\n" + prompt_marker + "\n"
+
+    # Keep the first complete Android-FR sentence on the price line and place
+    # the remaining prompt sentence on the next line. The trailing newline keeps
+    # the stock choice row on the following physical line. No localized wording
+    # is stored in this formatter.
+    boundaries = _sentence_break_positions(suffix)
+    if len(boundaries) != 1:
+        raise ValueError(
+            "Parameterized inn template: expected one sentence boundary before the prompt"
+        )
+    start, end = boundaries[0]
+    punctuation_end = end
+    while punctuation_end > start and suffix[punctuation_end - 1].isspace():
+        punctuation_end -= 1
+    first = suffix[:punctuation_end].rstrip()
+    second = suffix[end:].strip()
+    if not first or not second:
+        raise ValueError("Parameterized inn template: incomplete Android-FR sentence structure")
+    suffix = first + "\n" + second + "\n"
     return {
         "android_id": android_id,
         "android_english": en,
@@ -4463,6 +2914,7 @@ def _parameterized_inn_prompt(english: dict[int, str], french: dict[int, str]) -
     }
 
 
+@lru_cache(maxsize=None)
 def _auto_metrics(source: str, candidate: str) -> dict[str, float]:
     """Fast deterministic lexical metrics used only by the automatic aligner."""
     try:
@@ -4911,7 +3363,6 @@ DIALOGUE_REVIEW_ROUND85 = (
         "units": ((('C9:E5BF',), (1955,), "round85_android_fr_local_redistribution", "user_validated", "Android FR 1957 is the continuation of the previous NPC, so this large-family NPC must instead receive local Android FR 1955, which carries the official large-family/cooking line."),),
     },
 )
-
 
 
 def _auto_reviewed_records(source: dict[str, dict]) -> list[dict]:
@@ -6255,7 +4706,6 @@ def _auto_add_isolated_high_coverage_global(
     return additions
 
 
-
 def _auto_add_isolated_contained_extension(
     source_document: dict,
     records: list[dict],
@@ -6756,7 +5206,7 @@ def _auto_add_short_exact_punctuation_bracket(
     return additions
 
 
-
+@lru_cache(maxsize=None)
 def _auto_source_rom_position(snes_id: str) -> int | None:
     """Return a linear C9/CA ROM position for one canonical dialogue text ID."""
     match = re.fullmatch(r"([0-9A-F]{2}):([0-9A-F]{4})", snes_id)
@@ -8020,216 +6470,6 @@ def make_dialogue_auto_alignment(
     }
 
 
-
-def make_dialogue_format_selection(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-    base_rom: bytes,
-    selected_events: tuple[str, ...],
-    group: str,
-    status: str,
-    report_event_key: str,
-    extra_page_events: frozenset[str] = frozenset(),
-) -> tuple[dict, dict]:
-    """Format a conservative, explicit set of complete SNES dialogue events.
-
-    Alignment is regenerated from the original Android sources. Every semantic
-    text token in each selected event must be covered by an accepted mapping;
-    mappings that cross unsupported commands, exceed the validated line budget,
-    or cannot bind PLAYER_NAME exactly abort generation instead of producing a
-    partially localized scene.
-    """
-    validate_base_rom(base_rom)
-    alignment = make_dialogue_auto_alignment(
-        english,
-        french,
-        english_path=english_path,
-        french_path=french_path,
-    )
-    source_document = json.loads(DIALOGUE_SOURCE.read_text(encoding="utf-8"))
-    source_text_by_id = {
-        token["id"]: token.get("source", "")
-        for event in source_document["events"]
-        for token in event["tokens"]
-        if token.get("type") == "text"
-    }
-    advances = make_dialogue_advances(base_rom)
-
-    selected = [
-        mapping
-        for mapping in alignment["mappings"]
-        if mapping["event_id"] in selected_events
-    ]
-    if not selected:
-        raise ValueError("Dialogue format selection selected no accepted mappings")
-
-    by_event = {event["event_id"]: event for event in source_document["events"]}
-    mapped_ids_by_event: dict[str, set[str]] = {event_id: set() for event_id in selected_events}
-    for mapping in selected:
-        mapped_ids_by_event[mapping["event_id"]].update(mapping["snes_ids"])
-    for event_id in selected_events:
-        event = by_event.get(event_id)
-        if event is None:
-            raise ValueError(f"Unknown selected dialogue event ${event_id}")
-        semantic_ids = {
-            token["id"]
-            for token in event["tokens"]
-            if token.get("type") == "text" and _auto_semantic(token.get("source", ""))
-        }
-        missing = sorted(semantic_ids - mapped_ids_by_event[event_id])
-        if missing:
-            raise ValueError(
-                f"Selected event ${event_id} is not completely aligned; semantic IDs missing: {missing}"
-            )
-
-    translations: dict[str, str] = {}
-    formatted: list[dict] = []
-    for mapping in selected:
-        values, report = format_dialogue_mapping(
-            source_document,
-            mapping,
-            advances,
-            allow_one_extra_page=mapping["event_id"] in extra_page_events,
-        )
-        for text_id, text in values.items():
-            if text_id in translations:
-                raise ValueError(f"Dialogue formatter generated duplicate translation ID {text_id}")
-            translations[text_id] = text
-        formatted.append(report)
-
-    source_order = {
-        token["id"]: order
-        for order, token in enumerate(
-            token
-            for event in source_document["events"]
-            for token in event["tokens"]
-            if token.get("type") == "text"
-        )
-    }
-    ordered_entries = sorted(translations.items(), key=lambda item: source_order[item[0]])
-    translation_document = make_dialogue_translation_document(ordered_entries, group=group)
-    report_document = {
-        "format_version": 1,
-        "status": status,
-        "source_alignment": "mappings/android/dialogues_auto.json (regenerated from Android EN/FR)",
-        report_event_key: list(selected_events),
-        "policy": {
-            "alignment_must_already_be_accepted": True,
-            "existing_event_commands_only": not bool(extra_page_events),
-            "player_name_placeholders_must_match_exactly": True,
-            "android_presentation_wraps_are_discarded": True,
-            "snes_vwf_wrap_pixels": DIALOGUE_WRAP_PIXELS,
-            "snes_parser_max_decoded_characters": DIALOGUE_WRAP_CHARS,
-            "dynamic_player_name_width_assumption": "9 characters at worst-case validated glyph advance",
-            "dynamic_player_name_character_assumption": "9 visible characters plus 1 conservative parser-safety unit per PLAYER_NAME",
-            "source_explicit_visible_line_budget_is_not_exceeded": not bool(extra_page_events),
-            "extra_page_events": sorted(extra_page_events),
-            "generated_page_break_encoding": "WAIT $00 + TEXT_CLEAR",
-            "round48_android_only_vocative_policy": "exact reviewed allow-list only: when Android EN and the canonical SNES carrier contain no PLAYER_NAME but Android FR adds a pure addressee vocative, remove only that exact Android-FR-only placeholder phrase; identity and all SNES commands remain unchanged",
-            "round48_0127_pagination_policy": "exact source/token-gated event repair: two sentence-boundary WAIT $00 + TEXT_CLEAR page transitions plus one TEXT_CLEAR-only after the existing WAIT $08; no actor action, timed WAIT or PLAYER_NAME command moves",
-        },
-        "translation_entry_count": len(ordered_entries),
-        "formatted_mappings": formatted,
-    }
-    if status != "runtime_validated":
-        report_document["policy"]["selected_events_must_be_semantically_complete"] = True
-    return translation_document, report_document
-
-
-def make_dialogue_format_pilot(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-    base_rom: bytes,
-) -> tuple[dict, dict]:
-    """Regenerate the runtime-validated $0107 formatting checkpoint."""
-    return make_dialogue_format_selection(
-        english,
-        french,
-        english_path=english_path,
-        french_path=french_path,
-        base_rom=base_rom,
-        selected_events=DIALOGUE_FORMAT_PILOT_EVENTS,
-        group="dialogues.android_format_pilot.event_0107",
-        status="runtime_validated",
-        report_event_key="pilot_events",
-    )
-
-
-def make_dialogue_format_batch1(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-    base_rom: bytes,
-) -> tuple[dict, dict]:
-    """Generate the first complete-event expansion beyond the validated pilot."""
-    return make_dialogue_format_selection(
-        english,
-        french,
-        english_path=english_path,
-        french_path=french_path,
-        base_rom=base_rom,
-        selected_events=DIALOGUE_FORMAT_BATCH1_EVENTS,
-        group="dialogues.android_format_batch1",
-        status="runtime_validated",
-        report_event_key="batch_events",
-    )
-
-
-def make_dialogue_format_page_pilot(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-    base_rom: bytes,
-) -> tuple[dict, dict]:
-    """Reproduce the runtime-validated sentence-aware $010F page checkpoint."""
-    return make_dialogue_format_selection(
-        english,
-        french,
-        english_path=english_path,
-        french_path=french_path,
-        base_rom=base_rom,
-        selected_events=DIALOGUE_FORMAT_PAGE_PILOT_EVENTS,
-        group="dialogues.android_format_page_pilot",
-        status="runtime_validated",
-        report_event_key="page_pilot_events",
-        extra_page_events=DIALOGUE_FORMAT_EXTRA_PAGE_EVENTS,
-    )
-
-
-def make_dialogue_format_batch2(
-    english: dict[int, str],
-    french: dict[int, str],
-    *,
-    english_path: Path,
-    french_path: Path,
-    base_rom: bytes,
-) -> tuple[dict, dict]:
-    """Generate the first larger frozen event set using validated pagination."""
-    return make_dialogue_format_selection(
-        english,
-        french,
-        english_path=english_path,
-        french_path=french_path,
-        base_rom=base_rom,
-        selected_events=DIALOGUE_FORMAT_BATCH2_EVENTS,
-        group="dialogues.android_format_batch2",
-        status="runtime_candidate",
-        report_event_key="batch2_events",
-        extra_page_events=DIALOGUE_FORMAT_BATCH2_EXTRA_PAGE_EVENTS,
-    )
-
-
-
 # WAIT $00 rolling-window cleanup is presentation-sensitive.  Keep automatic
 # repairs restricted to the checkpoint that predates the round-8 partial-block
 # review; newly exposed overlaps must be reviewed explicitly before changing
@@ -8357,7 +6597,6 @@ def _wait00_repair_variants(event: dict, translations: dict[str, str]):
 
         if changed:
             yield candidate, description
-
 
 
 # Runtime-validated WAIT semantics: WAIT pauses without advancing the text
@@ -8746,7 +6985,6 @@ def _repair_live_line_scroll_risk_with_compact_wrap(
                     if token.get("type") == "text"
                 },
             )
-            _apply_wait_semantics_layout_compat(event["event_id"], candidate)
 
             try:
                 candidate_simulation = simulate_event(
@@ -9096,8 +7334,6 @@ def _repair_cross_mapping_sentence_overflow(
         clean_candidates, key=lambda item: item[0]
     )
     return candidate, candidate_reports, candidate_simulation, [repair]
-
-
 
 
 def _is_safe_text_free_returning_call(base_rom: bytes, token: dict) -> bool:
@@ -9873,7 +8109,6 @@ def _strip_trailing_player_context_owned_by_reviewed_hole(
     return result, repairs
 
 
-
 def _format_structurally_reviewed_choice_prompt(
     source_document: dict,
     mapping: dict,
@@ -10073,11 +8308,11 @@ def _format_structurally_reviewed_choice_destination_list(
     return values, report
 
 
-
 def _format_cannon_travel_piece(
     source_document: dict,
     mapping: dict,
     advances: dict[str, int],
+    french: dict[int, str],
     *,
     prefer_semantic_line_breaks: bool,
 ) -> tuple[dict[str, str], dict]:
@@ -10091,15 +8326,17 @@ def _format_cannon_travel_piece(
     relation = mapping.get("relation")
     if relation not in {"cannon_response_prefix", "cannon_common_boarding_suffix"}:
         raise ValueError("Not a Cannon Travel split relation")
-    english = re.sub(r"\s+", " ", mapping.get("android_english_display", "").replace("_", " ")).strip()
-    if "Just slide into the cannon!" not in english:
-        raise ValueError("Cannon Travel split requires the Android shared boarding sentence")
     french_full = normalize_android_french(mapping.get("french_display", "")).strip()
-    suffix_match = re.search(r"On saute dans le canon, et c'est parti\s*!\s*$", french_full)
-    if suffix_match is None:
-        raise ValueError("Cannon Travel split requires the proven common French boarding suffix")
-    prefix = french_full[:suffix_match.start()].rstrip(" _")
-    suffix = suffix_match.group(0).strip()
+    # Android ID 159 is the reviewed canonical Water Palace response containing
+    # the shared Cannon Travel boarding tail. Derive that tail from the current
+    # Android FR resource instead of embedding any localized sentence here.
+    common_source = french.get(159)
+    if common_source is None or "_" not in common_source:
+        raise ValueError("Cannon Travel canonical Android FR slot 159 lost its response/tail boundary")
+    suffix = normalize_android_french(common_source.split("_", 1)[1]).strip()
+    if not suffix or not french_full.endswith(suffix):
+        raise ValueError("Cannon Travel response no longer ends with the canonical Android FR shared tail")
+    prefix = french_full[:-len(suffix)].rstrip(" _")
     piece = prefix if relation == "cannon_response_prefix" else suffix
     if not piece:
         raise ValueError("Cannon Travel split produced an empty French piece")
@@ -10119,7 +8356,6 @@ def _format_cannon_travel_piece(
     report["android_merged_french"] = french_full
     report["distributed_french_piece"] = piece
     return values, report
-
 
 
 def _format_wait_player_resegmentation(
@@ -10757,7 +8993,6 @@ def _format_user_validated_stock_english_override(
     }
 
 
-
 def _format_called_prefix_android_merge_suffix(
     source_document: dict,
     mapping: dict,
@@ -10837,424 +9072,6 @@ def _format_called_prefix_android_merge_suffix(
     return values, report
 
 
-
-def _format_round62_user_reviewed_redistribution(
-    source_document: dict,
-    mapping: dict,
-) -> tuple[dict[str, str], dict]:
-    """Serialize the exact user-reviewed Round-62 dialogue redistributions.
-
-    These cases were previously kept PARTIEL solely because official Android FR
-    needs a different page/carrier distribution than the canonical USA stream.
-    The user supplied the exact target wording and page boundaries. No Android
-    identity changes and no stock commands are moved or removed; ``\f`` only
-    materializes WAIT $00 + TEXT_CLEAR at the three exact allow-listed carrier
-    boundaries accepted by ``shared.dialogue_codec``.
-    """
-    event_id = mapping.get("event_id")
-    snes_ids = tuple(mapping.get("snes_ids", []))
-    android_ids = tuple(mapping.get("android_ids", []))
-    key = (event_id, snes_ids, android_ids)
-    _, by_event = event_text_index(source_document)
-
-    if key == ("038D", ("C9:DAF5", "C9:DB09"), (1815, 1816)):
-        values = {
-            "C9:DAF5": "Scorpion : Quoi ! Encore vous ?\n",
-            "C9:DB09": "Et toi, imbécile, tu ne les as pas\nreconnus ?! Sbire : Désolé, chef...",
-        }
-        expected_fr = "Scorpion : Quoi ! Encore vous ? Et toi, imbécile, tu ne les as pas reconnus ?! Sbire : Désolé, chef..."
-        note = "User-reviewed speaker redistribution across the existing actor-action bridge; no new page is inserted."
-    elif key == ("03EA", ("C9:F04C", "C9:F07D"), (2354,)):
-        values = {
-            "C9:F04C": "♪ Mon cœur, mon amour (la la la),\fma gorge se noue quand je te vois\n(la la la),\f",
-            "C9:F07D": "et tout bouillonne dans ma tête... ♪",
-        }
-        expected_fr = '"♪ Mon cœur, mon amour (la la la), ma gorge se noue quand je te vois (la la la), et tout bouillonne dans ma tête... ♪ "'
-        note = "User-reviewed three-page song distribution; the two generated page boundaries are explicit WAIT $00 + TEXT_CLEAR and the stock OP_27 sound bridge stays in place."
-    elif key == ("04E2", ("CA:31EE", "CA:3218"), (1275, 1276)):
-        values = {
-            "CA:31EE": " : Papy !\f",
-            "CA:3218": "Cette voix... C'est toi, mon petit ?",
-        }
-        expected_fr = "%S(2,0) : Papy ! Cette voix... C'est toi, mon petit ?"
-        note = "Keep canonical PLAYER_NAME(2); add one explicit page boundary before Grandpa's reply while preserving the stock OP_32/COMPLETE_ACTIONS bridge."
-    elif key == ("04E3", ("CA:36C7",), (1384, 1385)):
-        # Android 1385 corresponds to the canonical PLAYER_NAME(0) + CA:36F6
-        # reaction, even though the punctuation-only USA carrier is not part of
-        # the semantic mapping's snes_ids list. Keep PLAYER_NAME(0) untouched.
-        tokens = by_event["04E3"]["tokens"]
-        if not (
-            len(tokens) > 9
-            and tokens[7].get("id") == "CA:36C7"
-            and tokens[8].get("type") == "command"
-            and tokens[8].get("name") == "PLAYER_NAME"
-            and tokens[8].get("args") == "00"
-            and tokens[9].get("id") == "CA:36F6"
-        ):
-            raise ValueError("Round-62 $04E3 Truffaut/PLAYER_NAME structure changed")
-        values = {
-            "CA:36C7": "Truffaut : Vous voilà enfin !\nLes héros de la légende !\fNous vous attendions !\f",
-            "CA:36F6": " : Pardon ?",
-        }
-        expected_fr = "Truffaut : Vous voilà enfin ! Les héros de la légende ! Nous vous attendions ! %S(0,0) : Pardon ?"
-        note = "User-reviewed three-page Truffaut/reaction distribution; PLAYER_NAME(0) stays canonical between the trailing page break and CA:36F6."
-    else:
-        raise ValueError("Round-62 redistribution outside exact allow-list")
-
-    actual_fr = normalize_android_french(mapping.get("french_display", "")).strip()
-    expected_normalized = normalize_android_french(expected_fr).strip()
-    if actual_fr != expected_normalized:
-        raise ValueError(
-            f"Round-62 reviewed Android FR changed for ${event_id}: {actual_fr!r} != {expected_normalized!r}"
-        )
-    return values, {
-        "event_id": event_id,
-        "snes_ids": list(snes_ids),
-        "android_ids": list(android_ids),
-        "confidence": mapping.get("confidence"),
-        "source_display": mapping.get("source_display", ""),
-        "android_english_display": mapping.get("android_english_display", ""),
-        "android_french_raw": mapping.get("french_display", ""),
-        "round62_user_reviewed_redistribution": True,
-        "round62_note": note,
-        "formatted_entries": [
-            {"id": text_id, "text": value} for text_id, value in values.items()
-        ],
-    }
-
-
-def _format_round43_reviewed_redistribution(
-    source_document: dict,
-    mapping: dict,
-) -> tuple[dict[str, str], dict]:
-    """Serialize the exact user-reviewed Round-43 cross-event redistributions.
-
-    These shapes cannot be represented by the generic per-event formatter
-    because part of the English sentence lives in a shared subevent or in an
-    unchanged dynamic PLAYER_NAME/call branch.  Every case is exact-allowlisted
-    by event, source IDs, Android anchor and relation; no generic matcher or
-    command rewrite is introduced here.
-    """
-    if mapping.get("confidence") != "very_high_structural_review":
-        raise ValueError("Round-43 redistribution requires structural-review confidence")
-    event_id = mapping.get("event_id")
-    snes_ids = tuple(mapping.get("snes_ids", []))
-    android_ids = tuple(mapping.get("android_ids", []))
-    relation = mapping.get("relation")
-    key = (event_id, snes_ids, android_ids, relation)
-
-    by_id, by_event = event_text_index(source_document)
-    for text_id in snes_ids:
-        meta = by_id.get(text_id)
-        if meta is None or meta.get("event_id") != event_id:
-            raise ValueError("Round-43 redistribution references a moved/unknown SNES carrier")
-
-    values: dict[str, str]
-    expected_fr: str
-    note: str
-
-    if key == (
-        "022F", ("C9:9B1B", "C9:9B2C"), (1005,),
-        "round43_player_name_resegmentation",
-    ):
-        tokens = by_event["022F"]["tokens"]
-        if not (
-            len(tokens) >= 3
-            and tokens[0].get("id") == "C9:9B1B"
-            and tokens[1].get("type") == "command"
-            and tokens[1].get("name") == "PLAYER_NAME"
-            and tokens[1].get("args") == "02"
-            and tokens[2].get("id") == "C9:9B2C"
-        ):
-            raise ValueError("Round-43 $022F PLAYER_NAME structure changed")
-        expected_fr = "On ne peut pas laisser %S(2,0) comme ça ! Il faut l'aider à retrouver la mémoire !"
-        values = {
-            "C9:9B1B": "On ne peut pas laisser\n",
-            "C9:9B2C": " comme ça !\fIl faut l'aider à retrouver\nla mémoire !",
-        }
-        note = "Keep PLAYER_NAME(2) in place; explicit page boundary prevents max-name overflow."
-    elif key == (
-        "02B9", ("C9:BAD6", "C9:BAE8"), (1618,),
-        "round43_shared_branch_prefix_redistribution",
-    ):
-        tokens = by_event["02B9"]["tokens"]
-        if not (
-            tokens[1].get("id") == "C9:BAD6"
-            and tokens[2].get("name") == "OP_42"
-            and tokens[3].get("name") == "OP_12"
-            and tokens[3].get("args") == "BD"
-            and tokens[4].get("id") == "C9:BAE8"
-        ):
-            raise ValueError("Round-43 $02B9 shared-prefix branch structure changed")
-        expected_fr = "Athanor a disparu ! Il jouait tout le temps avec moi, avant..."
-        values = {
-            "C9:BAD6": "",
-            "C9:BAE8": "Athanor a disparu !\nIl jouait tout le temps avec moi,\navant...",
-        }
-        note = "Remove only the shared pre-branch prefix; localize the fallthrough branch with Android 1618."
-    elif key == (
-        "0360", ("C9:D1C0", "C9:D1CB"), (2839,),
-        "round43_shared_magic_suffix_layout",
-    ):
-        tokens = by_event["0360"]["tokens"]
-        if not (
-            tokens[0].get("id") == "C9:D1C0"
-            and tokens[1].get("name") == "TEXT_X"
-            and tokens[1].get("args") == "07"
-            and tokens[2].get("id") == "C9:D1CB"
-        ):
-            raise ValueError("Round-43 $0360 shared magic suffix structure changed")
-        expected_fr = "Gnome fera réagir l'orbe !"
-        values = {"C9:D1C0": "\n", "C9:D1CB": ""}
-        note = "Full localized spirit sentence is carried by each prefix; preserve only reviewed layout here."
-    elif relation == "round43_weapon_orb_prefix":
-        expected = {
-            ("0500", "CA:58B9", 952): "Vous obtenez\nune sphère de Poing",
-            ("0501", "CA:58D5", 122): "Vous obtenez\nune sphère d'Épée",
-            ("0502", "CA:58F1", 1008): "Vous obtenez\nune sphère de Hache",
-            ("0503", "CA:590B", 631): "Vous obtenez\nune sphère de Lance",
-            ("0504", "CA:5927", 901): "Vous obtenez\nune sphère de Fouet",
-            ("0505", "CA:5942", 934): "Vous obtenez\nune sphère d'Arc",
-            ("0506", "CA:595C", 786): "Vous obtenez\nune sphère de Boomerang",
-            ("0507", "CA:597C", 1164): "Vous obtenez\nune sphère de Javelot",
-        }
-        if len(snes_ids) != 1 or len(android_ids) != 1:
-            raise ValueError("Round-43 weapon-orb prefix must be one carrier/anchor")
-        local_key = (event_id, snes_ids[0], android_ids[0])
-        if local_key not in expected:
-            raise ValueError("Round-43 weapon-orb prefix outside exact allow-list")
-        tokens = by_event[event_id]["tokens"]
-        carrier_index = next(i for i, token in enumerate(tokens) if token.get("id") == snes_ids[0])
-        if carrier_index + 1 >= len(tokens) or tokens[carrier_index + 1].get("name") != "OP_15" or tokens[carrier_index + 1].get("args") != "09":
-            raise ValueError("Round-43 weapon-orb prefix no longer jumps to $0509")
-        value = expected[local_key]
-        expected_fr = value.replace("\n", " ") + " !"
-        values = {snes_ids[0]: value}
-        note = "Serialize the official weapon-specific phrase without terminal punctuation; shared $0509 owns ' !'."
-    elif key == (
-        "0509", ("CA:598C",), (952,),
-        "round43_weapon_orb_suffix",
-    ):
-        if by_id["CA:598C"].get("source") != "'s Orb!":
-            raise ValueError("Round-43 $0509 shared weapon suffix changed")
-        expected_fr = "Vous obtenez une sphère de Poing !"
-        values = {"CA:598C": " !"}
-        note = "Shared weapon-orb subevent keeps only the common French terminal punctuation."
-    elif relation == "round43_gameover_plural_slot":
-        if (event_id, snes_ids, android_ids) not in {
-            ("07FA", ("CA:979D",), (6,)),
-            ("07FB", ("CA:97A8",), (6,)),
-        }:
-            raise ValueError("Round-43 game-over plural slot outside exact allow-list")
-        if by_id[snes_ids[0]].get("source") != "them":
-            raise ValueError("Round-43 game-over plural carrier changed")
-        expected_fr = "... Hélas, l'histoire de ces courageux jeunes gens devait s'achever là..."
-        values = {snes_ids[0]: "ces courageux\njeunes gens"}
-        note = "Use only Android FR 6's plural dynamic slot; fixed frame remains in $07FF."
-    elif key == (
-        "07FF", ("CA:98B2", "CA:98C8"), (7,),
-        "round43_gameover_dynamic_frame",
-    ):
-        tokens = by_event["07FF"]["tokens"]
-        first_index = next(i for i, token in enumerate(tokens) if token.get("id") == "CA:98B2")
-        if not (
-            tokens[first_index + 1].get("name") == "OP_27"
-            and tokens[first_index + 1].get("args") == "FB"
-            and tokens[first_index + 2].get("id") == "CA:98C8"
-        ):
-            raise ValueError("Round-43 $07FF dynamic game-over call frame changed")
-        expected_fr = "... Hélas, l'histoire de %S(0,0) devait s'achever là..."
-        values = {
-            "CA:98B2": "... Hélas,\fL'histoire de ",
-            "CA:98C8": "\ndevait s'achever là...",
-        }
-        note = "Serialize only Android FR 7's fixed frame; existing $07FB/$07FA/$07F3 call chain supplies plural text or PLAYER_NAME(0)."
-    else:
-        raise ValueError("Round-43 redistribution outside exact allow-list")
-
-    actual_fr = normalize_android_french(mapping.get("french_display", "")).strip()
-    if actual_fr != expected_fr:
-        raise ValueError(
-            f"Round-43 reviewed Android FR changed for ${event_id}: {actual_fr!r} != {expected_fr!r}"
-        )
-    return values, {
-        "event_id": event_id,
-        "snes_ids": list(snes_ids),
-        "android_ids": list(android_ids),
-        "confidence": mapping.get("confidence"),
-        "source_display": mapping.get("source_display", ""),
-        "android_english_display": mapping.get("android_english_display", ""),
-        "android_french_raw": mapping.get("french_display", ""),
-        "round43_reviewed_redistribution": True,
-        "round43_relation": relation,
-        "round43_note": note,
-        "formatted_entries": [
-            {"id": text_id, "text": values[text_id]} for text_id in snes_ids
-        ],
-    }
-
-
-def _format_round44_reviewed_redistribution(
-    source_document: dict,
-    mapping: dict,
-) -> tuple[dict[str, str], dict]:
-    """Serialize exact Round-44 identities whose SNES carrier owns only part/layout of Android prose."""
-    if mapping.get("confidence") != "very_high_structural_review":
-        raise ValueError("Round-44 redistribution requires structural-review confidence")
-    event_id = mapping.get("event_id")
-    snes_ids = tuple(mapping.get("snes_ids", []))
-    android_ids = tuple(mapping.get("android_ids", []))
-    relation = mapping.get("relation")
-    by_id, by_event = event_text_index(source_document)
-
-    if relation == "round44_jehk_out_with_return_layout":
-        if (event_id, snes_ids, android_ids) != ("001F", ("C9:0983",), (2451,)):
-            raise ValueError("Round-44 Jehk layout case outside exact allow-list")
-        if by_id["C9:0983"].get("source") != "JEHK:Go away!\n The Sage is out!\n":
-            raise ValueError("Round-44 $001F stock text changed")
-        actual_fr = normalize_android_french(mapping.get("french_display", "")).strip()
-        if actual_fr != "Le maître est absent.":
-            raise ValueError("Round-44 Android FR 2451 changed")
-        values = {"C9:0983": "Le maître est absent.\n"}
-        note = "Keep one terminal NEWLINE before returning to the caller reaction; Android drops the redundant older 'Go away!' clause."
-    elif relation == "round44_player_name_followup_layout":
-        if (event_id, snes_ids, android_ids) != ("0126", ("C9:3A39",), (3438,)):
-            raise ValueError("Round-44 PLAYER_NAME follow-up outside exact allow-list")
-        tokens = by_event["0126"]["tokens"]
-        carrier_index = next(i for i, token in enumerate(tokens) if token.get("id") == "C9:3A39")
-        if carrier_index == 0 or tokens[carrier_index - 1].get("name") != "PLAYER_NAME" or tokens[carrier_index - 1].get("args") != "00":
-            raise ValueError("Round-44 $0126 PLAYER_NAME(0) ownership changed")
-        actual_fr = normalize_android_french(mapping.get("french_display", "")).strip()
-        if actual_fr != "%S(0,0) : Avec cette épée, je vais pouvoir me frayer un chemin.":
-            raise ValueError("Round-44 Android FR 3438 changed")
-        values = {"C9:3A39": " :\nAvec cette épée, je vais pouvoir\nme frayer un chemin."}
-        note = "Keep stock PLAYER_NAME(0), then serialize the official spaced colon and an explicit NEWLINE so a maximum nine-character name remains wrap-free."
-    elif relation == "round44_parameterized_inn_price_identity":
-        expected = {
-            ("0320", "C9:CE3D", 110): ("5", "5 pièces d'or la nuit. Voulez-vous rester dormir ?"),
-            ("0321", "C9:CE46", 229): ("10", "10 pièces d'or la nuit. Voulez-vous rester dormir ?"),
-            ("0322", "C9:CE50", 502): ("15", "15 pièces d'or la nuit. Voulez-vous rester dormir ?"),
-            ("0324", "C9:CE64", 1365): ("50", "50 pièces d'or la nuit. Voulez-vous rester dormir ?"),
-            ("0325", "C9:CE6E", 1907): ("100", "100 pièces d'or la nuit. Voulez-vous rester dormir ?"),
-            ("0326", "C9:CE79", 1961): ("120", "120 pièces d'or la nuit. Voulez-vous rester dormir ?"),
-            ("0327", "C9:CE84", 2319): ("150", "150 pièces d'or la nuit. Voulez-vous rester dormir ?"),
-            ("0328", "C9:CE8F", 2498): ("200", "200 pièces d'or la nuit. Voulez-vous rester dormir ?"),
-        }
-        if len(snes_ids) != 1 or len(android_ids) != 1:
-            raise ValueError("Round-44 parameterized inn identity shape changed")
-        key = (event_id, snes_ids[0], android_ids[0])
-        if key not in expected:
-            raise ValueError("Round-44 parameterized inn identity outside exact allow-list")
-        price, expected_fr = expected[key]
-        if by_id[snes_ids[0]].get("source") != price:
-            raise ValueError(f"Round-44 ${event_id} numeric inn carrier changed")
-        commands = [(t.get("name"), t.get("args")) for t in by_event[event_id]["tokens"] if t.get("type") == "command"]
-        if commands != [("OP_30", f"F9 {int(event_id,16)-0x320:02X}"), ("OP_23", "30"), ("OP_13", "31"), ("END", None)]:
-            raise ValueError(f"Round-44 ${event_id} parameterized inn call chain changed")
-        actual_fr = normalize_android_french(mapping.get("french_display", "")).strip()
-        if actual_fr != expected_fr:
-            raise ValueError(f"Round-44 Android FR {android_ids[0]} changed")
-        values = {snes_ids[0]: price}
-        note = "Identity is the complete Android standard inn prompt; serialization keeps only the stock dynamic numeric parameter because shared $0330/$0331 already render the reviewed French template."
-    else:
-        raise ValueError("Round-44 redistribution outside exact allow-list")
-
-    return values, {
-        "event_id": event_id,
-        "snes_ids": list(snes_ids),
-        "android_ids": list(android_ids),
-        "confidence": mapping.get("confidence"),
-        "source_display": mapping.get("source_display", ""),
-        "android_english_display": mapping.get("android_english_display", ""),
-        "android_french_raw": mapping.get("french_display", ""),
-        "round44_reviewed_redistribution": True,
-        "round44_relation": relation,
-        "round44_note": note,
-        "formatted_entries": [{"id": text_id, "text": values[text_id]} for text_id in snes_ids],
-    }
-
-def _format_round45_reviewed_redistribution(
-    source_document: dict,
-    mapping: dict,
-) -> tuple[dict[str, str], dict]:
-    """Serialize exact Round-45 structural redistributions."""
-    if mapping.get("confidence") != "very_high_structural_review":
-        raise ValueError("Round-45 redistribution requires structural-review confidence")
-    event_id = mapping.get("event_id")
-    snes_ids = tuple(mapping.get("snes_ids", []))
-    android_ids = tuple(mapping.get("android_ids", []))
-    relation = mapping.get("relation")
-    by_id, by_event = event_text_index(source_document)
-
-    if (event_id, snes_ids, android_ids, relation) == (
-        "01B6", ("C9:6AD2", "C9:6B5A"), (584,), "round45_watts_shortcut_redistribution"
-    ):
-        if by_id["C9:6AD2"].get("source") != "\n And only I can do it!\n Now, let me show you a\n short cut.":
-            raise ValueError("Round-45 $01B6 first stock carrier changed")
-        if by_id["C9:6B5A"].get("source") != "WATTS:This will make it\n a lot easier for you!":
-            raise ValueError("Round-45 $01B6 second stock carrier changed")
-        tokens = by_event["01B6"]["tokens"]
-        first = next(i for i,t in enumerate(tokens) if t.get("id") == "C9:6AD2")
-        second = next(i for i,t in enumerate(tokens) if t.get("id") == "C9:6B5A")
-        bridge = [t for t in tokens[first+1:second] if t.get("type") == "command"]
-        if not any(t.get("name") == "TEXT_CLOSE" for t in bridge) or not any(t.get("name") == "TEXT_OPEN" for t in bridge):
-            raise ValueError("Round-45 $01B6 movement/text bridge changed")
-        actual_fr = normalize_android_french(mapping.get("french_display", "")).strip()
-        expected_fr = "Watts : Tu verras, c'est beaucoup plus rapide par ce chemin !"
-        if actual_fr != expected_fr:
-            raise ValueError("Round-45 Android FR 584/585 redistribution changed")
-        values = {
-            "C9:6AD2": "",
-            "C9:6B5A": "Watts : Tu verras, c'est beaucoup\nplus rapide par ce chemin !",
-        }
-        note = (
-            "Android FR moved the shortcut introduction into already-rendered slot 583; "
-            "leave the pre-movement carrier empty and serialize FR-only slot 585 after "
-            "the unchanged movement sequence."
-        )
-    elif (event_id, snes_ids, android_ids, relation) == (
-        "01DA", ("C9:7E64", "C9:7E72", "C9:7E81"), (676, 677), "round45_girl_name_resegmentation"
-    ):
-        tokens = by_event["01DA"]["tokens"]
-        indexes = {t.get("id"): i for i,t in enumerate(tokens) if t.get("type") == "text"}
-        if [tokens[indexes["C9:7E64"]-1].get("name"), tokens[indexes["C9:7E72"]-1].get("name"), tokens[indexes["C9:7E81"]-1].get("name")] != ["PLAYER_NAME", "PLAYER_NAME", "PLAYER_NAME"]:
-            raise ValueError("Round-45 $01DA PLAYER_NAME ownership changed")
-        if any(tokens[indexes[text_id]-1].get("args") != "00" for text_id in snes_ids):
-            raise ValueError("Round-45 $01DA PLAYER_NAME index changed")
-        if indexes["C9:7E81"] + 1 >= len(tokens) or tokens[indexes["C9:7E81"]+1].get("type") != "glyph" or tokens[indexes["C9:7E81"]+1].get("code") != "CE":
-            raise ValueError("Round-45 $01DA terminal naming glyph changed")
-        actual_fr = normalize_android_french(mapping.get("french_display", "")).strip()
-        expected_fr = "%S(0,0) : Je m'appelle %S(0,0). Hum... Drôle de nom. Moi, c'est..."
-        if normalize_alignment_text(actual_fr) != normalize_alignment_text(expected_fr):
-            raise ValueError("Round-45 Android FR 676+677 changed")
-        values = {
-            "C9:7E64": " : Je m'appelle ",
-            "C9:7E72": ".\nHum... Drôle de nom.\nMoi, c'est... ",
-            "C9:7E81": "",
-        }
-        note = (
-            "Keep the first two PLAYER_NAME(0) commands for Android FR 676, omit only the "
-            "third PLAYER_NAME immediately before the empty C9:7E81 carrier, and let the "
-            "existing terminal $CE naming glyph follow official FR 677."
-        )
-    else:
-        raise ValueError("Round-45 redistribution outside exact allow-list")
-
-    return values, {
-        "event_id": event_id,
-        "snes_ids": list(snes_ids),
-        "android_ids": list(android_ids),
-        "confidence": mapping.get("confidence"),
-        "source_display": mapping.get("source_display", ""),
-        "android_english_display": mapping.get("android_english_display", ""),
-        "android_french_raw": mapping.get("french_display", ""),
-        "round45_reviewed_redistribution": True,
-        "round45_relation": relation,
-        "round45_note": note,
-        "formatted_entries": [{"id": text_id, "text": values[text_id]} for text_id in snes_ids],
-    }
-
-
 def _format_round46_system_chest(
     source_document: dict,
     mapping: dict,
@@ -11262,56 +9079,51 @@ def _format_round46_system_chest(
     *,
     prefer_semantic_line_breaks: bool,
 ) -> tuple[dict[str, str], dict]:
-    """Serialize the exact reviewed Android ``systxt`` chest-message family."""
+    """Serialize reviewed chest messages directly from Android text resources."""
     if mapping.get("confidence") != "very_high_structural_review":
-        raise ValueError("Round-46 systxt chest mapping requires structural-review confidence")
+        raise ValueError("Round-46 chest mapping requires structural-review confidence")
     relation = mapping.get("relation")
     namespace = mapping.get("android_namespace", "scrtxt")
     if relation == "round46_systxt_chest_money" and namespace != "systxt":
-        raise ValueError("Round-46 money chest identity must remain in systxt")
+        raise ValueError("money chest identity must remain in systxt")
     if relation == "round46_systxt_chest_localization_override" and namespace != "scrtxt":
-        raise ValueError("Round-46 item chest identity must remain in scrtxt")
-    event_id = mapping.get("event_id")
+        raise ValueError("item chest identity must remain in scrtxt")
+    event_id = str(mapping.get("event_id"))
     snes_ids = tuple(mapping.get("snes_ids", []))
     android_ids = tuple(mapping.get("android_ids", []))
     if len(snes_ids) != 1 or len(android_ids) != 1:
-        raise ValueError("Round-46 systxt chest mapping requires one SNES carrier and one system anchor")
+        raise ValueError("reviewed chest mapping requires one SNES carrier and one Android anchor")
     text_id = snes_ids[0]
     by_id, by_event = event_text_index(source_document)
-    if text_id not in by_id or by_id[text_id].get("event_id") != event_id:
-        raise ValueError("Round-46 systxt chest mapping references an invalid SNES carrier")
+    if by_id.get(text_id, {}).get("event_id") != event_id:
+        raise ValueError("reviewed chest mapping references an invalid SNES carrier")
 
-    expected = {
-        ("067E", "CA:8E72", 101254): ("  Found 1000 GP!", "Vous trouvez $0d pièces d'or dans le coffre !", "1000"),
-        ("067F", "CA:8E8F", 101254): ("  Found 50 GP!", "Vous trouvez $0d pièces d'or dans le coffre !", "50"),
-        ("0687", "CA:8EEF", 469): ("Found the Magic Rope!", "Vous trouvez la Corde magique dans le coffre !", None),
-        ("0689", "CA:8F20", 769): ("Found the Whip!", "Vous trouvez le Fouet en cuir dans le coffre !", None),
+    # Only structural parameters are allow-listed here. Localized prose comes
+    # exclusively from the mapped Android slot at runtime.
+    reviewed = {
+        ("067E", "CA:8E72", 101254): ("OP_36", "E8 03", "1000"),
+        ("067F", "CA:8E8F", 101254): ("OP_36", "32 00", "50"),
+        ("0687", "CA:8EEF", 469): ("OP_1E", "46", None),
+        ("0689", "CA:8F20", 769): ("OP_1E", "A4", None),
     }
-    key = (event_id, text_id, android_ids[0])
-    if key not in expected:
-        raise ValueError("Round-46 systxt chest mapping is outside the exact allow-list")
-    expected_source, expected_fr, amount = expected[key]
-    if by_id[text_id].get("source") != expected_source:
-        raise ValueError(f"Round-46 ${event_id} stock chest text changed")
-    actual_fr = normalize_android_french(mapping.get("french_display", "")).strip()
-    if actual_fr != expected_fr:
-        raise ValueError(f"Round-46 systxt French {android_ids[0]} changed")
+    key = (event_id, text_id, int(android_ids[0]))
+    spec = reviewed.get(key)
+    if spec is None:
+        raise ValueError("reviewed chest mapping is outside the structural allow-list")
+    command_name, command_args, amount = spec
+    if not any(
+        token.get("type") == "command"
+        and token.get("name") == command_name
+        and token.get("args") == command_args
+        for token in by_event[event_id]["tokens"]
+    ):
+        raise ValueError(f"reviewed chest command changed for ${event_id}")
 
-    # Prove the stock event semantics that distinguish the chest records.
-    tokens = by_event[event_id]["tokens"]
-    if event_id in {"067E", "067F"}:
-        expected_money = "E8 03" if event_id == "067E" else "32 00"
-        if not any(t.get("name") == "OP_36" and t.get("args") == expected_money for t in tokens):
-            raise ValueError(f"Round-46 ${event_id} money-add command changed")
-        localized = actual_fr.replace("$0d", amount)
-    elif event_id == "0687":
-        if not any(t.get("name") == "OP_1E" and t.get("args") == "46" for t in tokens):
-            raise ValueError("Round-46 $0687 Magic Rope item grant changed")
-        localized = actual_fr
-    else:
-        if not any(t.get("name") == "OP_1E" and t.get("args") == "A4" for t in tokens):
-            raise ValueError("Round-46 $0689 Leather Whip grant changed")
-        localized = actual_fr
+    localized = normalize_android_french(mapping.get("french_display", "")).strip()
+    if amount is not None:
+        if localized.count("$0d") != 1:
+            raise ValueError(f"money chest Android template changed for ${event_id}")
+        localized = localized.replace("$0d", amount)
 
     local_mapping = dict(mapping)
     local_mapping["french_display"] = localized
@@ -11334,111 +9146,70 @@ def _format_round46_system_chest(
     return values, report
 
 
-
-# Round 48 exact formatter allow-list.  Android FR occasionally adds a dynamic
-# vocative that neither Android EN nor the canonical SNES carrier contains.
-# These are reviewed localization embellishments, not missing PLAYER_NAME
-# commands.  Keep the identity mapping unchanged and remove only the exact
-# vocative; never generalize this from punctuation or placeholder position.
-DIALOGUE_ROUND48_ANDROID_ONLY_VOCATIVES = {
-    ("0119", "C9:37AF", 109): {
-        "source": "Heading out? See you later!",
-        "android_en": "Heading out? See you later!",
-        "android_fr": "Oh, tu t'en vas, %S(0,0) ? À plus tard !",
-        "localized": "Oh, tu t'en vas ? À plus tard !",
-    },
-    ("0127", "C9:3AC3", 914): {
-        "source": "JEMA:Hey! How rude!",
-        "android_en": "Jema: Hey! How rude!_",
-        "android_fr": "Gemma : Voyons, %S(0,0) ! Un peu de respect !_",
-        "localized": "Gemma : Voyons ! Un peu de respect !_",
-    },
-    ("01B5", "C9:68BA", 574): {
-        "source": "WATTS:Well...I tried making\n an axe, but it's no good.\n Wonder why...",
-        "android_en": "Watts: Well... I tried making an axe, but it's no good. Wonder why...",
-        "android_fr": "%S_PLACEHOLDER%",
-        "localized": "Watts : J'ai essayé de fabriquer une hache, mais elle n'a rien de spécial. Je me demande pourquoi...",
-    },
-    ("0227", "C9:9827", 218): {
-        "source": "...\n I'm sure he's fine.",
-        "android_en": "I'm sure he's fine.",
-        "android_fr": "Non ! Je suis sûre qu'il va bien, %S(1,0).",
-        "localized": "Non ! Je suis sûre qu'il va bien.",
-    },
-    ("0295", "C9:AF50", 1518): {
-        "source": " Just like paradise in here, eh, buddy?",
-        "android_en": "Just like paradise in here, eh, buddy?",
-        "android_fr": "Hé, salut %S(0,0) ! J'suis au paradis, ici !",
-        "localized": "Hé, salut ! J'suis au paradis, ici !",
-    },
-    ("04E6", "CA:40AF", 87): {
-        "source": " I'm going to have to ask\n you to leave the village.",
-        "android_en": "I'm going to have to ask you to leave the village.",
-        "android_fr": "Je vais devoir te demander de quitter le village, %S(0,0).",
-        "localized": "Je vais devoir te demander de quitter le village.",
-    },
-    ("04E7", "CA:4126", 91): {
-        "source": " I know I've told you this\n before, but...",
-        "android_en": "I know I've told you this before, but...",
-        "android_fr": "%S(0,0), tu ne dois pas t'en souvenir, mais...",
-        "localized": "Tu ne dois pas t'en souvenir, mais...",
-    },
+# Exact Android-FR-only vocatives reviewed as localization embellishments.
+# The allow-list stores only structural identities and a removal policy; the
+# localized sentence itself is always derived from the current Android FR slot.
+DIALOGUE_ANDROID_ONLY_VOCATIVE_POLICIES = {
+    ("0119", "C9:37AF", 109): "comma_before",
+    ("0127", "C9:3AC3", 914): "comma_before",
+    ("01B5", "C9:68BA", 574): "placeholder_bang",
+    ("0227", "C9:9827", 218): "comma_before",
+    ("0295", "C9:AF50", 1518): "placeholder_before_bang",
+    ("04E6", "CA:40AF", 87): "comma_before",
+    ("04E7", "CA:4126", 91): "leading",
 }
 
-# Fill the one long literal separately to keep the source table readable while
-# still proving the exact Android-FR input byte-for-byte after normalization.
-DIALOGUE_ROUND48_ANDROID_ONLY_VOCATIVES[("01B5", "C9:68BA", 574)]["android_fr"] = (
-    "Watts : %S(0,0) ! J'ai essayé de fabriquer une hache, mais elle n'a rien de spécial. "
-    "Je me demande pourquoi..."
-)
+
+def _remove_android_only_vocative(text: str, policy: str) -> str:
+    if text.count("%S(") != 1:
+        raise ValueError("reviewed Android-only vocative no longer has exactly one placeholder")
+    if policy == "comma_before":
+        result, count = re.subn(r",\s*%S\(\d+,0\)", "", text, count=1)
+    elif policy == "placeholder_bang":
+        result, count = re.subn(r"\s*%S\(\d+,0\)\s*!\s*", " ", text, count=1)
+    elif policy == "placeholder_before_bang":
+        result, count = re.subn(r"\s*%S\(\d+,0\)\s*(?=!)", " ", text, count=1)
+    elif policy == "leading":
+        result, count = re.subn(r"^%S\(\d+,0\),\s*", "", text, count=1)
+        if count and result:
+            result = result[:1].upper() + result[1:]
+    else:
+        raise ValueError(f"unknown Android-only vocative policy {policy!r}")
+    if count != 1 or "%S(" in result:
+        raise ValueError("reviewed Android-only vocative removal no longer matches Android FR")
+    return result.strip()
 
 
 def _round48_without_android_only_vocative(source_document: dict, mapping: dict) -> tuple[dict, dict | None]:
-    """Return an exact reviewed mapping with only an Android-FR vocative removed."""
     snes_ids = tuple(mapping.get("snes_ids", []))
     android_ids = tuple(mapping.get("android_ids", []))
     if len(snes_ids) != 1 or len(android_ids) != 1:
         return mapping, None
     key = (mapping.get("event_id"), snes_ids[0], android_ids[0])
-    expected = DIALOGUE_ROUND48_ANDROID_ONLY_VOCATIVES.get(key)
-    if expected is None:
+    policy = DIALOGUE_ANDROID_ONLY_VOCATIVE_POLICIES.get(key)
+    if policy is None:
         return mapping, None
     if mapping.get("android_namespace", "scrtxt") != "scrtxt":
-        raise ValueError("Round-48 Android-only vocative review requires scrtxt identity")
-
+        raise ValueError("Android-only vocative review requires scrtxt identity")
     by_id, _ = event_text_index(source_document)
-    text_id = snes_ids[0]
-    if text_id not in by_id or by_id[text_id].get("event_id") != key[0]:
-        raise ValueError("Round-48 Android-only vocative review references an invalid SNES carrier")
-    if by_id[text_id].get("source") != expected["source"]:
-        raise ValueError(f"Round-48 ${key[0]} canonical SNES source changed")
-
+    if by_id.get(snes_ids[0], {}).get("event_id") != key[0]:
+        raise ValueError("Android-only vocative review references an invalid SNES carrier")
     actual_en = normalize_android_prose(mapping.get("android_english_display", "")).strip()
-    expected_en = normalize_android_prose(expected["android_en"]).strip()
-    if actual_en != expected_en or "%S(" in actual_en:
-        raise ValueError(f"Round-48 ${key[0]} Android-English identity context changed")
+    if "%S(" in actual_en:
+        raise ValueError(f"Android-only vocative ${key[0]} unexpectedly exists in Android EN")
     actual_fr = normalize_android_french(mapping.get("french_display", "")).strip()
-    expected_fr = normalize_android_french(expected["android_fr"]).strip()
-    if actual_fr != expected_fr:
-        raise ValueError(f"Round-48 ${key[0]} Android-French vocative source changed")
-    if "%S(" not in actual_fr or "%S(" in expected["localized"]:
-        raise ValueError(f"Round-48 ${key[0]} reviewed vocative shape changed")
-
+    localized = _remove_android_only_vocative(actual_fr, policy)
     reviewed = dict(mapping)
-    reviewed["french_display"] = expected["localized"]
-    reviewed["identity_french_display"] = expected["localized"]
+    reviewed["french_display"] = localized
+    reviewed["identity_french_display"] = localized
     repair = {
-        "event_id": key[0],
-        "snes_id": text_id,
-        "android_id": android_ids[0],
-        "strategy": "remove_exact_android_fr_only_vocative",
-        "android_identity_unchanged": True,
-        "snes_player_name_commands_unchanged": True,
-        "localized": expected["localized"],
+        "event_id": key[0], "snes_id": snes_ids[0], "android_id": android_ids[0],
+        "strategy": f"remove_android_fr_only_vocative:{policy}",
+        "android_identity_unchanged": True, "snes_player_name_commands_unchanged": True,
+        "localized": localized,
     }
     reviewed["round48_android_only_vocative_repair"] = repair
     return reviewed, repair
-
 
 
 # Round 49 exact formatter-only recoveries. These do not change Android-English
@@ -11446,645 +9217,64 @@ def _round48_without_android_only_vocative(source_document: dict, mapping: dict)
 # label can be removed where the SNES event has no PLAYER_NAME command at all,
 # and one three-part machine-noise line can be distributed across its exact
 # stock PLAY_SOUND/WAIT bridge without moving or inventing commands.
-DIALOGUE_ROUND49_ANDROID_ONLY_SPEAKER_LABELS = {
-    ("02CD", "C9:BE42", (1735, 1736)): {
-        "source": "The seed's on the stage!\nHold up the sword!",
-        "android_en": "The Seed's on the stage! Hold up the Sword!",
-        "android_fr": "Vous replacez la Graine sur son autel. %S(0,0) : Je dois aligner l'Épée sur la Graine !",
-        "localized": "Vous replacez la Graine sur son autel. Je dois aligner l'Épée sur la Graine !",
-    },
-}
-
-DIALOGUE_ROUND49_SOUND_SEQUENCE = {
-    "event_id": "03F0",
-    "snes_ids": ("C9:F29A", "C9:F2AC", "C9:F2BA"),
-    "android_ids": (2361,),
-    "sources": ("...Gzzzaza...", "zzzz...", " Beeeep!"),
-    "android_en": "...Gzzzaza... zzzz... Beeeep!",
-    "android_fr": "... Krrr... bzzz... biiip !",
-    "localized_parts": ("... Krrr...", "bzzz...", "biiip !"),
+DIALOGUE_ANDROID_ONLY_SPEAKER_LABEL_KEYS = {
+    ("02CD", "C9:BE42", (1735, 1736)),
 }
 
 
 def _round49_without_android_only_speaker_label(
     source_document: dict, mapping: dict
 ) -> tuple[dict, dict | None]:
-    """Remove one exact Android-FR-only speaker label absent from SNES/Android EN."""
     snes_ids = tuple(mapping.get("snes_ids", []))
     android_ids = tuple(mapping.get("android_ids", []))
     if len(snes_ids) != 1:
         return mapping, None
     key = (mapping.get("event_id"), snes_ids[0], android_ids)
-    expected = DIALOGUE_ROUND49_ANDROID_ONLY_SPEAKER_LABELS.get(key)
-    if expected is None:
+    if key not in DIALOGUE_ANDROID_ONLY_SPEAKER_LABEL_KEYS:
         return mapping, None
     if mapping.get("android_namespace", "scrtxt") != "scrtxt":
-        raise ValueError("Round-49 Android-only speaker-label review requires scrtxt identity")
-
+        raise ValueError("Android-only speaker-label review requires scrtxt identity")
     by_id, by_event = event_text_index(source_document)
-    text_id = snes_ids[0]
-    meta = by_id.get(text_id)
-    if meta is None or meta.get("event_id") != key[0] or meta.get("source") != expected["source"]:
-        raise ValueError("Round-49 Android-only speaker-label canonical carrier changed")
-    event = by_event[key[0]]
-    if any(
-        token.get("type") == "command" and token.get("name") == "PLAYER_NAME"
-        for token in event.get("tokens", [])
-    ):
-        raise ValueError("Round-49 $02CD unexpectedly gained a SNES PLAYER_NAME command")
-
+    if by_id.get(snes_ids[0], {}).get("event_id") != key[0]:
+        raise ValueError("Android-only speaker-label carrier moved")
+    if any(t.get("type") == "command" and t.get("name") == "PLAYER_NAME" for t in by_event[key[0]].get("tokens", [])):
+        raise ValueError("Android-only speaker-label event unexpectedly gained PLAYER_NAME")
     actual_en = normalize_android_prose(mapping.get("android_english_display", "")).strip()
-    expected_en = normalize_android_prose(expected["android_en"]).strip()
-    if actual_en != expected_en or "%S(" in actual_en:
-        raise ValueError("Round-49 $02CD Android-English identity context changed")
+    if "%S(" in actual_en:
+        raise ValueError("Android-only speaker label unexpectedly exists in Android EN")
     actual_fr = normalize_android_french(mapping.get("french_display", "")).strip()
-    expected_fr = normalize_android_french(expected["android_fr"]).strip()
-    localized = normalize_android_french(expected["localized"]).strip()
-    if actual_fr != expected_fr:
-        raise ValueError("Round-49 $02CD Android-French speaker-label source changed")
-    if actual_fr.count("%S(0,0)") != 1 or "%S(" in localized:
-        raise ValueError("Round-49 $02CD reviewed speaker-label shape changed")
-
+    # Remove the single Android-only dynamic label plus the surrounding French
+    # colon/spaces; capitalize only when the placeholder was sentence-initial.
+    localized, count = re.subn(r"\s*%S\(\d+,0\)\s*:\s*", " ", actual_fr, count=1)
+    if count != 1 or "%S(" in localized:
+        raise ValueError("Android-only speaker-label shape changed")
+    localized = re.sub(r"\s+", " ", localized).strip()
     reviewed = dict(mapping)
     reviewed["french_display"] = localized
     reviewed["identity_french_display"] = localized
     repair = {
-        "event_id": key[0],
-        "snes_id": text_id,
-        "android_ids": list(android_ids),
-        "strategy": "remove_exact_android_fr_only_speaker_label",
-        "android_identity_unchanged": True,
-        "snes_player_name_commands_unchanged": True,
+        "event_id": key[0], "snes_id": snes_ids[0], "android_ids": list(android_ids),
+        "strategy": "remove_android_fr_only_speaker_label",
+        "android_identity_unchanged": True, "snes_player_name_commands_unchanged": True,
         "localized": localized,
     }
     reviewed["round49_android_only_speaker_label_repair"] = repair
     return reviewed, repair
 
 
-def _format_round49_sound_sequence(
-    source_document: dict,
-    mapping: dict,
-    advances: dict[str, int],
-) -> tuple[dict[str, str], dict]:
-    """Distribute the exact $03F0 Android-FR machine noises across stock sound commands."""
-    expected = DIALOGUE_ROUND49_SOUND_SEQUENCE
-    if mapping.get("event_id") != expected["event_id"]:
-        raise ValueError("Round-49 sound sequence applies only to $03F0")
-    if tuple(mapping.get("snes_ids", [])) != expected["snes_ids"]:
-        raise ValueError("Round-49 $03F0 SNES carrier sequence changed")
-    if tuple(mapping.get("android_ids", [])) != expected["android_ids"]:
-        raise ValueError("Round-49 $03F0 Android identity changed")
-    if mapping.get("android_namespace", "scrtxt") != "scrtxt":
-        raise ValueError("Round-49 $03F0 requires scrtxt identity")
-    if normalize_android_prose(mapping.get("android_english_display", "")).strip() != normalize_android_prose(expected["android_en"]).strip():
-        raise ValueError("Round-49 $03F0 Android-English source changed")
-    if normalize_android_french(mapping.get("french_display", "")).strip() != normalize_android_french(expected["android_fr"]).strip():
-        raise ValueError("Round-49 $03F0 Android-French source changed")
-
-    by_id, by_event = event_text_index(source_document)
-    event = by_event.get("03F0")
-    if event is None:
-        raise ValueError("Round-49 $03F0 event missing")
-    for text_id, source in zip(expected["snes_ids"], expected["sources"], strict=True):
-        meta = by_id.get(text_id)
-        if meta is None or meta.get("event_id") != "03F0" or meta.get("source") != source:
-            raise ValueError(f"Round-49 $03F0 canonical source changed at {text_id}")
-
-    exact_tokens = {
-        0: ("command", "TEXT_OPEN", ""),
-        1: ("text", "C9:F294", "\n"),
-        2: ("command", "PLAY_SOUND", "02 D5 00 88"),
-        3: ("text", "C9:F29A", "...Gzzzaza..."),
-        4: ("command", "PLAY_SOUND", "02 B3 0F 88"),
-        5: ("text", "C9:F2AC", "zzzz..."),
-        6: ("command", "WAIT", "10"),
-        7: ("command", "PLAY_SOUND", "02 17 00 88"),
-        8: ("text", "C9:F2BA", " Beeeep!"),
-        9: ("command", "WAIT", "00"),
-        10: ("command", "RETURN", ""),
-        11: ("command", "END", ""),
-    }
-    tokens = event.get("tokens", [])
-    if len(tokens) != len(exact_tokens):
-        raise ValueError("Round-49 $03F0 canonical token count changed")
-    for index, (kind, identity, payload) in exact_tokens.items():
-        token = tokens[index]
-        if token.get("type") != kind:
-            raise ValueError(f"Round-49 $03F0 token {index} type changed")
-        if kind == "text":
-            if token.get("id") != identity or token.get("source") != payload:
-                raise ValueError(f"Round-49 $03F0 text token {index} changed")
-        elif token.get("name") != identity or token.get("args", "") != payload:
-            raise ValueError(f"Round-49 $03F0 command token {index} changed")
-
-    translations: dict[str, str] = {}
-    subreports: list[dict] = []
-    for text_id, piece in zip(expected["snes_ids"], expected["localized_parts"], strict=True):
-        local = dict(mapping)
-        local["snes_ids"] = [text_id]
-        local["source_display"] = by_id[text_id]["source"]
-        local["french_display"] = piece
-        values, report = format_dialogue_mapping(
-            source_document,
-            local,
-            advances,
-            allow_one_extra_page=False,
-            use_physical_page_capacity=True,
-            prefer_semantic_line_breaks=False,
-            allow_two_extra_pages=False,
-        )
-        value = values[text_id]
-        if any(marker in value for marker in ("\n", "\f", "\v")):
-            raise ValueError(f"Round-49 $03F0 localized part unexpectedly wrapped at {text_id}")
-        translations[text_id] = value
-        subreports.append(report)
-
-    # Preserve the localized spaces between the first two sound fragments, then
-    # materialize one layout-only NEWLINE before the existing timed WAIT $10.
-    # This prevents same-line continuation from becoming a simulator warning;
-    # WAIT itself remains byte-for-byte unchanged and still does not advance the cursor.
-    translations["C9:F2AC"] = " " + translations["C9:F2AC"] + "\n"
-
-    return translations, {
-        "event_id": "03F0",
-        "snes_ids": list(expected["snes_ids"]),
-        "android_ids": list(expected["android_ids"]),
-        "confidence": mapping.get("confidence"),
-        "source_display": mapping.get("source_display", ""),
-        "android_french_raw": mapping.get("french_display", ""),
-        "round49_exact_sound_sequence": True,
-        "android_identity_unchanged": True,
-        "stock_commands_unchanged": True,
-        "preserved_bridge": [
-            {"name": "PLAY_SOUND", "args": "02 D5 00 88"},
-            {"name": "PLAY_SOUND", "args": "02 B3 0F 88"},
-            {"name": "WAIT", "args": "10"},
-            {"name": "PLAY_SOUND", "args": "02 17 00 88"},
-        ],
-        "inserted_layout_newline_before_existing_wait10": True,
-        "distributed_french_parts": list(expected["localized_parts"]),
-        "subreports": subreports,
-        "formatted_entries": [
-            {"id": text_id, "text": translations[text_id]}
-            for text_id in expected["snes_ids"]
-        ],
-    }
-
-
-
-# Round 52 formatter-only structural distributions.  These mappings already
-# have Android-English identity; the allow-list only decides where the official
-# Android-French text can safely resume around commands that are already present
-# in the stock SNES event stream.  No generic action/WAIT rule is widened.
-DIALOGUE_ROUND52_STRUCTURAL_DISTRIBUTIONS = {
-    ("01B5", ("C9:6921", "C9:6954"), (577,)): {
-        "sources": (
-            "Wait! I know...!\n Try holding this axe!",
-            " That's it! Mana power in\n these weapons doesn't work\n until you hold them!",
-        ),
-        "android_en": "Wait! I know! Try holding this axe! That's it! Mana power in these weapons doesn't work until you hold them!",
-        "android_fr": "J'ai compris !\nTant que ces armes n'ont pas été en contact avec l'Épée sacrée, leur potentiel est scellé !",
-        "localized_parts": (
-            "J'ai compris !",
-            "Tant que ces armes n'ont pas été en contact avec l'Épée sacrée, leur potentiel est scellé !",
-        ),
-        "bridge": (
-            ("WAIT", "00"),
-            ("TEXT_CLOSE", ""),
-            ("OP_2D", "06 FF 43"),
-            ("WAIT", "08"),
-            ("OP_2D", "07"),
-            ("TEXT_OPEN", ""),
-        ),
-        "strategy": "round52_scene_bridge_sentence_distribution",
-        "note": (
-            "Android FR already moves the axe instruction into the preceding owned slot 575. "
-            "The remaining 577 payload therefore splits at the complete sentence 'J'ai compris !' "
-            "around the unchanged stock WAIT/TEXT_CLOSE/action/WAIT/TEXT_OPEN bridge."
-        ),
-    },
-    ("01B9", ("C9:6C0F", "C9:6C21"), (593,)): {
-        "sources": ("\nELDER:Hey!\n", " Sorry about that."),
-        "android_en": "Elder: Hey! Sorry about that.",
-        "android_fr": "Chef : Dis donc, toi ! Jeune ingrat !\nExcusez-le...",
-        "localized_parts": (
-            "Chef : Dis donc, toi ! Jeune ingrat !",
-            "Excusez-le...",
-        ),
-        "bridge": (
-            ("OP_32", "05 00"),
-            ("COMPLETE_ACTIONS", ""),
-            ("WAIT", "04"),
-        ),
-        "strategy": "round52_timed_wait_sentence_distribution",
-        "preserve_first_leading_newline": True,
-        "note": (
-            "The apology remains after the stock actor action + WAIT $04. The first French unit "
-            "contains only the elder's reprimand; 'Excusez-le...' resumes after the same pause."
-        ),
-    },
-    ("01B9", ("C9:6CDD", "C9:6D0D"), (596,)): {
-        "sources": (
-            "\nSPRITE:Come on old timer!\n Give me a break.\n",
-            " Take it easy!",
-        ),
-        "android_en": "Sprite: Come on, old timer! Give me a break. Take it easy!",
-        "android_fr": "Lutin : Bah, ma mémoire finira bien par revenir !\nFaut être positif dans la vie, hé hé hé !",
-        "localized_parts": (
-            "Lutin : Bah, ma mémoire finira bien par revenir !",
-            "Faut être positif dans la vie, hé hé hé !",
-        ),
-        "bridge": (("OP_34", "04 A5"),),
-        "strategy": "round52_action_sentence_distribution",
-        "note": (
-            "Both Android languages contain a complete thought boundary. The stock OP_34 remains "
-            "between the two French sentences; the formatter's leading page clear replaces only "
-            "the stock newline immediately after the already-existing WAIT $00."
-        ),
-    },
-    ("01B9", ("C9:6DC1", "C9:6DD9"), (599,)): {
-        "sources": ("SPRITE:What? Really?\n", " I'll go now, right now!!!"),
-        "android_en": "Sprite: What? Really? I'll go now, right now!!!",
-        "android_fr": "Lutin : Quoi ! Fallait le dire ! J'y vais tout de suite ! ",
-        "localized_parts": (
-            "Lutin : Quoi ! Fallait le dire !",
-            "J'y vais tout de suite !",
-        ),
-        "bridge": (("OP_34", "04 82"),),
-        "leading_layout_clear_id": "C9:6DBC",
-        "leading_layout_clear_source": "\n",
-        "leading_layout_prefix": (("WAIT", "00"),),
-        "leading_layout_suffix": (("OP_32", "04 40"), ("COMPLETE_ACTIONS", "")),
-        "strategy": "round52_action_reaction_page_distribution",
-        "note": (
-            "The stock newline-only C9:6DBC follows WAIT $00 and precedes the unchanged OP_32 + "
-            "COMPLETE_ACTIONS reaction. Replacing only that layout carrier with TEXT_CLEAR starts a "
-            "fresh page before the Sprite speaks; the unchanged OP_34 then remains between the two "
-            "complete French reaction sentences."
-        ),
-    },
-    ("04E6", ("CA:4074", "CA:4095"), (86,)): {
-        "sources": ("ELDER:I don't want to do\n this", ", but I have no choice."),
-        "android_en": "Elder: I don't want to do this, but I have no choice._",
-        "android_fr": "Chef : ...\nJe regrette, mais je n'ai pas le choix._",
-        "localized_parts": ("Chef : ...", "Je regrette, mais je n'ai pas le choix."),
-        "bridge": (("OP_32", "08 C0"),),
-        "strategy": "round52_action_hesitation_distribution",
-        "note": (
-            "Android FR turns the stock mid-sentence actor action into an explicit hesitation. "
-            "The unchanged OP_32 sits exactly between 'Chef : ...' and the following regret."
-        ),
-    },
-    ("04E7", ("CA:4211", "CA:4249"), (95,)): {
-        "sources": (
-            "\n I truly hope you can find\n your mother someday.\n ...",
-            "Good bye, ",
-        ),
-        "tail_id": "CA:4255",
-        "tail_source": ".",
-        "android_en": "I truly hope you can find your mother someday.\n...Good bye, %S(0,0).",
-        "android_fr": "Je prie pour qu'un jour tu retrouves ta mère.\nAdieu, %S(0,0), prends bien soin de toi.",
-        "localized_parts": (
-            "Je prie pour qu'un jour tu retrouves ta mère.",
-            "Adieu, %S(0,0), prends bien soin de toi.",
-        ),
-        "bridge": (("WAIT", "08"),),
-        "strategy": "round52_timed_wait_page_clear_distribution",
-        "note": (
-            "The two French sentences align exactly around the stock timed WAIT $08. The first "
-            "carrier keeps its stock leading newline. A single TEXT_CLEAR is materialized at the "
-            "start of the goodbye carrier after WAIT $08 so the longer French farewell cannot "
-            "continue on the live line; PLAYER_NAME(0) stays in its stock position."
-        ),
-    },
-}
-
-
-def _format_round52_structural_distribution(
-    source_document: dict,
-    mapping: dict,
-    advances: dict[str, int],
-) -> tuple[dict[str, str], dict]:
-    """Serialize one exact Round-52 WAIT/action bridge without widening generic rules."""
-    key = (
-        mapping.get("event_id"),
-        tuple(mapping.get("snes_ids", [])),
-        tuple(mapping.get("android_ids", [])),
-    )
-    expected = DIALOGUE_ROUND52_STRUCTURAL_DISTRIBUTIONS.get(key)
-    if expected is None:
-        raise ValueError("Round-52 structural distribution is not allow-listed")
-    if mapping.get("android_namespace", "scrtxt") != "scrtxt":
-        raise ValueError("Round-52 structural distribution requires scrtxt identity")
-
-    by_id, by_event = event_text_index(source_document)
-    event = by_event.get(key[0])
-    if event is None:
-        raise ValueError(f"Round-52 event ${key[0]} is missing")
-    snes_ids = key[1]
-    for text_id, source in zip(snes_ids, expected["sources"], strict=True):
-        meta = by_id.get(text_id)
-        if meta is None or meta.get("event_id") != key[0] or meta.get("source") != source:
-            raise ValueError(f"Round-52 canonical SNES source changed at {text_id}")
-
-    actual_en = normalize_android_prose(mapping.get("android_english_display", "")).strip()
-    expected_en = normalize_android_prose(expected["android_en"]).strip()
-    if actual_en != expected_en:
-        raise ValueError(f"Round-52 ${key[0]} Android-English identity context changed")
-    actual_fr = normalize_android_french(mapping.get("french_display", "")).strip()
-    expected_fr = normalize_android_french(expected["android_fr"]).strip()
-    if actual_fr != expected_fr:
-        raise ValueError(f"Round-52 ${key[0]} Android-French payload changed")
-
-    first_index = by_id[snes_ids[0]]["token_index"]
-    second_index = by_id[snes_ids[1]]["token_index"]
-    between = event["tokens"][first_index + 1:second_index]
-    actual_bridge = []
-    for token in between:
-        if token.get("type") != "command":
-            raise ValueError(f"Round-52 ${key[0]} bridge unexpectedly contains text")
-        actual_bridge.append((token.get("name"), token.get("args", "")))
-    if tuple(actual_bridge) != tuple(expected["bridge"]):
-        raise ValueError(f"Round-52 ${key[0]} canonical command bridge changed")
-
-    common = dict(
-        allow_one_extra_page=False,
-        use_physical_page_capacity=True,
-        prefer_semantic_line_breaks=True,
-        allow_two_extra_pages=False,
-    )
-    translations: dict[str, str] = {}
-    subreports: list[dict] = []
-
-    if key[0] != "04E7":
-        for text_id, french_piece in zip(snes_ids, expected["localized_parts"], strict=True):
-            local = dict(mapping)
-            local["snes_ids"] = [text_id]
-            local["source_display"] = by_id[text_id]["source"]
-            local["french_display"] = french_piece
-            values, report = format_dialogue_mapping(source_document, local, advances, **common)
-            translations.update(values)
-            subreports.append(report)
-        if expected.get("preserve_first_leading_newline"):
-            first_id = snes_ids[0]
-            value = translations[first_id]
-            if not value.startswith(TRANSLATION_CLEAR) or not by_id[first_id]["source"].startswith("\n"):
-                raise ValueError(f"Round-52 ${key[0]} expected formatter page clear shape changed")
-            translations[first_id] = "\n" + value[len(TRANSLATION_CLEAR):]
-        if expected.get("leading_layout_clear_id"):
-            layout_id = expected["leading_layout_clear_id"]
-            layout_meta = by_id.get(layout_id)
-            if (
-                layout_meta is None
-                or layout_meta.get("event_id") != key[0]
-                or layout_meta.get("source") != expected["leading_layout_clear_source"]
-            ):
-                raise ValueError(f"Round-52 ${key[0]} leading layout carrier changed")
-            layout_index = layout_meta["token_index"]
-            if layout_index >= first_index:
-                raise ValueError(f"Round-52 ${key[0]} leading layout carrier moved")
-            prefix_tokens = event["tokens"][layout_index - len(expected["leading_layout_prefix"]):layout_index]
-            suffix_tokens = event["tokens"][layout_index + 1:first_index]
-            def _command_pairs(tokens):
-                if any(token.get("type") != "command" for token in tokens):
-                    raise ValueError(f"Round-52 ${key[0]} leading layout context gained text")
-                return tuple((token.get("name"), token.get("args", "")) for token in tokens)
-            if _command_pairs(prefix_tokens) != tuple(expected["leading_layout_prefix"]):
-                raise ValueError(f"Round-52 ${key[0]} leading layout prefix changed")
-            if _command_pairs(suffix_tokens) != tuple(expected["leading_layout_suffix"]):
-                raise ValueError(f"Round-52 ${key[0]} leading layout suffix changed")
-            translations[layout_id] = TRANSLATION_CLEAR
-    else:
-        first_id, goodbye_id = snes_ids
-        first_local = dict(mapping)
-        first_local["snes_ids"] = [first_id]
-        first_local["source_display"] = by_id[first_id]["source"]
-        first_local["french_display"] = expected["localized_parts"][0]
-        first_values, first_report = format_dialogue_mapping(
-            source_document, first_local, advances, **common
-        )
-        first_value = first_values[first_id]
-        if not first_value.startswith(TRANSLATION_CLEAR) or not by_id[first_id]["source"].startswith("\n"):
-            raise ValueError("Round-52 $04E7 first-page formatter shape changed")
-        translations[first_id] = "\n" + first_value[len(TRANSLATION_CLEAR):]
-        subreports.append(first_report)
-
-        tail_id = expected["tail_id"]
-        tail_meta = by_id.get(tail_id)
-        if (
-            tail_meta is None
-            or tail_meta.get("event_id") != "04E7"
-            or tail_meta.get("source") != expected["tail_source"]
-            or tail_meta.get("token_index") != by_id[goodbye_id]["token_index"] + 2
-        ):
-            raise ValueError("Round-52 $04E7 punctuation tail changed")
-        player_token = event["tokens"][by_id[goodbye_id]["token_index"] + 1]
-        if player_token.get("type") != "command" or player_token.get("name") != "PLAYER_NAME" or player_token.get("args") != "00":
-            raise ValueError("Round-52 $04E7 PLAYER_NAME(0) position changed")
-
-        goodbye_local = dict(mapping)
-        goodbye_local["snes_ids"] = [goodbye_id, tail_id]
-        goodbye_local["source_display"] = "Good bye, %S(0,0)."
-        goodbye_local["french_display"] = expected["localized_parts"][1]
-        goodbye_values, goodbye_report = format_dialogue_mapping(
-            source_document, goodbye_local, advances, **common
-        )
-        if set(goodbye_values) != {goodbye_id, tail_id}:
-            raise ValueError("Round-52 $04E7 goodbye serialization shape changed")
-        goodbye_values[goodbye_id] = TRANSLATION_CLEAR + goodbye_values[goodbye_id]
-        translations.update(goodbye_values)
-        subreports.append(goodbye_report)
-
-    return translations, {
-        "event_id": key[0],
-        "snes_ids": list(snes_ids),
-        "android_ids": list(key[2]),
-        "confidence": mapping.get("confidence"),
-        "source_display": mapping.get("source_display", ""),
-        "android_french_raw": mapping.get("french_display", ""),
-        "round52_exact_structural_distribution": True,
-        "round52_strategy": expected["strategy"],
-        "android_identity_unchanged": True,
-        "stock_bridge_commands_unchanged": True,
-        "note": expected["note"],
-        "distributed_french_parts": list(expected["localized_parts"]),
-        "subreports": subreports,
-        "formatted_entries": [
-            {"id": text_id, "text": translations[text_id]}
-            for text_id in translations
-        ],
-    }
-
-
 # Round 54 exact recoveries from already-proven Android identities. These are
 # event-specific serialization rules only; no generic matcher/formatter is widened.
-DIALOGUE_ROUND54_STRUCTURAL_RECOVERIES = {
-    ("0040", ("C9:0F75",), (681,)): {
-        "android_en": "%S(1,0): Okay! You can call me %S(1,0)!",
-        "android_fr": "Moi, c'est %S(1,0) !",
-        "window": (
-            ("command", "PLAYER_NAME", "01"),
-            ("text", "C9:0F75", ":Okay!\n You can call me "),
-            ("command", "PLAYER_NAME", "01"),
-            ("text", "C9:0F8F", "!"),
-            ("command", "WAIT", "00"),
-        ),
-        "values": {"C9:0F75": " : Moi, c'est ", "C9:0F8F": " !"},
-        "strategy": "preserve_two_stock_player_name_commands",
-        "note": "Keep both stock PLAYER_NAME(1) commands; serialize only the official French literals around the second name.",
-    },
-    ("0041", ("C9:0FF1", "C9:1011"), (625,)): {
-        "android_en": "%S(2,0)?\nWhat kinda name is that? Like, ah,\nnice to meet ya!_",
-        "android_fr": "%S(2,0)... Bof, drôle de nom. Enfin, pourquoi pas,_",
-        "window": (
-            ("command", "PLAYER_NAME", "02"),
-            ("text", "C9:0FEE", ":"),
-            ("command", "PLAYER_NAME", "02"),
-            ("text", "C9:0FF1", "? What kinda\n name is that?\n"),
-            ("command", "OP_38", "01"),
-            ("command", "OP_10", "42"),
-            ("text", "C9:1011", " Like, ah, nice to meet ya!"),
-            ("command", "WAIT", "00"),
-        ),
-        "values": {"C9:0FF1": "...\nBof, drôle de nom.\n", "C9:1011": "Enfin, pourquoi pas,"},
-        "strategy": "split_fr_at_exact_stock_action_subevent_bridge",
-        "note": "Split at the complete French sentence boundary on the unchanged OP_38 01 + OP_10 42 bridge.",
-    },
-    ("013A", ("C9:4094", "C9:40D7"), (848,)): {
-        "android_en": "It will grow and regain its power just like your Mana Sword. There must be more weapons like this spear in the world. Find them!",
-        "android_fr": "Rusalka : Tout comme l\'Épée, elle gagnera en puissance à mesure que tu l\'utiliseras.",
-        "window": (
-            ("text", "C9:4094", " It will grow and regain\n it\'s power just like your\n Mana Sword."),
-            ("command", "WAIT", "00"),
-            ("command", "TEXT_CLEAR", ""),
-            ("text", "C9:40D7", " There must be more weapons\n like this spear in the\n world. Find them!"),
-            ("command", "WAIT", "00"),
-            ("command", "TEXT_CLEAR", ""),
-        ),
-        "values": {
-            "C9:4094": "Rusalka : Tout comme l\'Épée, elle\ngagnera en puissance à mesure que\ntu l\'utiliseras."
-        },
-        "strategy": "serialize_android_fr_first_sentence_only_keep_omitted_snes_sentence_stock",
-        "note": "Android 848 identifies both SNES sentences, but official FR translates only the first. Serialize the complete FR payload on the first stock carrier and leave C9:40D7 stock because Android FR omits that instruction.",
-    },
-    ("0592", ("CA:750D",), (1030,)): {
-        "android_en": "You've got to take me there!",
-        "android_fr": "Faut que tu me ramènes là-bas !",
-        "window": (
-            ("text", "CA:74E5", " We live in the Upper Land\n forest!"),
-            ("command", "WAIT", "18"),
-            ("command", "OP_32", "03 C0"),
-            ("text", "CA:750D", " You've got\n to take me there!"),
-            ("command", "WAIT", "00"),
-            ("command", "TEXT_CLEAR", ""),
-            ("text", "CA:752E", " I'll let you hang out with\n me until we arrive!\n"),
-        ),
-        "values": {"CA:750D": "\nFaut que tu me ramènes là-bas !"},
-        "strategy": "resume_fr_on_available_third_line_after_wait18",
-        "note": "Use the available third physical line after stock WAIT $18; keep the following stock WAIT $00 + TEXT_CLEAR. Android 1031 remains deferred.",
-    },
-}
 
 DIALOGUE_ROUND54_ANDROID_FR_OMISSION_PARTIALS = {
     "013A": ("C9:40D7",),
 }
-
-DIALOGUE_ROUND54_NONSEMANTIC_ANDROID_SUPPLEMENTS = {
-    "0559": {
-        "android_id": 2146,
-        "android_en": "%S(0,0): %S(1,0)...",
-        "android_fr": "%S(0,0) : %S(1,0)...",
-        "window": (
-            ("command", "TEXT_CLEAR", ""),
-            ("command", "PLAYER_NAME", "00"),
-            ("text", "CA:6741", ":"),
-            ("command", "PLAYER_NAME", "01"),
-            ("text", "CA:6744", "...\n"),
-            ("command", "PLAYER_NAME", "02"),
-            ("text", "CA:674A", ":...Let's go..."),
-        ),
-        "values": {"CA:6741": " : ", "CA:6744": "...\n"},
-        "note": "Android 2146 maps exactly onto stock PLAYER_NAME(0)/(1) plus punctuation-only carriers. Android 2147 remains deferred because FR introduces a second PLAYER_NAME(1) absent from the stock stream.",
-    },
-}
-
-def _round54_token_signature(token: dict) -> tuple[str, str, str]:
-    if token.get("type") == "text":
-        return ("text", token.get("id", ""), token.get("source", ""))
-    if token.get("type") == "command":
-        return ("command", token.get("name", ""), token.get("args", ""))
-    return (token.get("type", ""), token.get("code", ""), token.get("args", ""))
-
-def _round54_require_unique_window(event: dict, window: tuple, label: str) -> None:
-    tokens = event.get("tokens", [])
-    count = 0
-    for offset in range(len(tokens) - len(window) + 1):
-        if tuple(_round54_token_signature(t) for t in tokens[offset:offset + len(window)]) == window:
-            count += 1
-    if count != 1:
-        raise ValueError(f"Round-54 {label} canonical token window changed")
-
-def _format_round54_structural_recovery(source_document: dict, mapping: dict) -> tuple[dict[str, str], dict]:
-    key = (mapping.get("event_id"), tuple(mapping.get("snes_ids", [])), tuple(mapping.get("android_ids", [])))
-    expected = DIALOGUE_ROUND54_STRUCTURAL_RECOVERIES.get(key)
-    if expected is None:
-        raise ValueError("Round-54 structural recovery is not allow-listed")
-    if mapping.get("android_namespace", "scrtxt") != "scrtxt":
-        raise ValueError("Round-54 structural recovery requires scrtxt identity")
-    if normalize_android_prose(mapping.get("android_english_display", "")).strip() != normalize_android_prose(expected["android_en"]).strip():
-        raise ValueError(f"Round-54 ${key[0]} Android-English context changed")
-    if normalize_android_french(mapping.get("french_display", "")).strip() != normalize_android_french(expected["android_fr"]).strip():
-        raise ValueError(f"Round-54 ${key[0]} Android-French payload changed")
-    by_id, by_event = event_text_index(source_document)
-    event = by_event.get(key[0])
-    if event is None:
-        raise ValueError(f"Round-54 event ${key[0]} missing")
-    _round54_require_unique_window(event, tuple(expected["window"]), f"${key[0]}")
-    for text_id in expected["values"]:
-        if text_id not in by_id or by_id[text_id].get("event_id") != key[0]:
-            raise ValueError(f"Round-54 ${key[0]} output carrier {text_id} changed")
-    values = dict(expected["values"])
-    return values, {
-        "event_id": key[0], "snes_ids": list(key[1]), "android_ids": list(key[2]),
-        "confidence": mapping.get("confidence"), "source_display": mapping.get("source_display", ""),
-        "android_english_display": mapping.get("android_english_display", ""),
-        "android_french_raw": mapping.get("french_display", ""),
-        "round54_exact_structural_recovery": True, "round54_strategy": expected["strategy"],
-        "android_identity_unchanged": True, "stock_commands_unchanged": True,
-        "note": expected["note"],
-        "formatted_entries": [{"id": k, "text": v} for k, v in values.items()],
-    }
-
-def _apply_round54_nonsemantic_android_supplement(event: dict, translations: dict[str, str], *, english: dict[int, str], french: dict[int, str]) -> list[dict]:
-    expected = DIALOGUE_ROUND54_NONSEMANTIC_ANDROID_SUPPLEMENTS.get(event.get("event_id"))
-    if expected is None:
-        return []
-    android_id = expected["android_id"]
-    if normalize_android_prose(english[android_id]).strip() != normalize_android_prose(expected["android_en"]).strip():
-        raise ValueError(f"Round-54 ${event['event_id']} Android-English nonsemantic bridge changed")
-    if normalize_android_french(french[android_id]).strip() != normalize_android_french(expected["android_fr"]).strip():
-        raise ValueError(f"Round-54 ${event['event_id']} Android-French nonsemantic bridge changed")
-    _round54_require_unique_window(event, tuple(expected["window"]), f"${event['event_id']} Android {android_id}")
-    for text_id, value in expected["values"].items():
-        if text_id in translations:
-            raise ValueError(f"Round-54 ${event['event_id']} carrier {text_id} already translated")
-        translations[text_id] = value
-    return [{
-        "event_id": event["event_id"], "android_id": android_id,
-        "strategy": "exact_android_dynamic_name_bridge_on_nonsemantic_snes_carriers",
-        "semantic_alignment_count_changed": False, "stock_player_name_commands_unchanged": True,
-        "note": expected["note"],
-        "formatted_entries": [{"id": k, "text": v} for k, v in expected["values"].items()],
-    }]
-
-
 
 def _apply_round67_user_reviewed_scene_redistributions(
     event: dict,
     translations: dict[str, str],
     *,
     english: dict[int, str],
-    french: dict[int, str],
+    redistribution_values: dict[str, dict[str, str]],
     layout_deferred_ids: list[str],
     missing_ids: list[str],
 ) -> tuple[list[dict], set[str]]:
@@ -12102,18 +9292,6 @@ def _apply_round67_user_reviewed_scene_redistributions(
     resolved_missing: set[str] = set()
 
     if event_id == "04E1":
-        expected_fr = {
-            3252: "Mon corps actuel est sur le point de se corrompre. Il me faut un nouveau corps...",
-            3253: "Un être humain ordinaire est incapable de contenir longtemps mon énergie. Il me faut donc le corps d'un être d'exception.",
-            3254: "Or, une ou deux fois par siècle, un humain naît avec le Sang des ténèbres dans les veines.",
-            3255: "Lorsque je me transfère dans ce corps exceptionnel, mon pouvoir se trouve décuplé. \nUn corps... comme celui de Durac !",
-            3256: "Son pouvoir maléfique a dû être scellé quand il était jeune... Il n'en est devenu que plus droit et juste !",
-            3257: "Avec mon nouveau corps et la Forteresse de Mana, je forgerai un monde à mon image !",
-        }
-        # read_scrtxt preserves one source newline in 3255; compare normalized prose.
-        for android_id, expected in expected_fr.items():
-            if normalize_android_french(french.get(android_id, "")).strip() != normalize_android_french(expected).strip():
-                raise ValueError(f"Round-67 $04E1 Android FR {android_id} changed")
         expected_en_ids = {3252, 3253, 3254, 3255, 3256, 3257}
         if any(not english.get(i, "").strip() for i in expected_en_ids):
             raise ValueError("Round-67 $04E1 Android-English scene anchors changed")
@@ -12125,33 +9303,14 @@ def _apply_round67_user_reviewed_scene_redistributions(
         if translations.get("CA:2C84") != "":
             raise ValueError("Round-67 $04E1 requires the validated empty CA:2C84 suppression")
 
+        recipe_values = redistribution_values.get("04E1")
+        if recipe_values is None:
+            raise ValueError("Round-67 $04E1 Android-FR redistribution recipe missing")
+        if recipe_values.get("CA:2C84") != "":
+            raise ValueError("Round-67 $04E1 recipe must preserve the CA:2C84 suppression")
         values = {
-            "CA:2BED": (
-                "Mon corps actuel est sur le point de\n"
-                "se corrompre.\n"
-                "Il me faut un nouveau corps..."
-            ),
-            "CA:2C3A": (
-                "Un être humain ordinaire est incapable\n"
-                "de contenir longtemps mon énergie.\f"
-                "Il me faut donc le corps d'un être\n"
-                "d'exception.\f"
-                "Or, une ou deux fois par siècle, un\n"
-                "humain naît avec le Sang des ténèbres\n"
-                "dans les veines."
-            ),
-            "CA:2C93": (
-                "Lorsque je me transfère dans ce corps\n"
-                "exceptionnel, mon pouvoir se trouve\n"
-                "décuplé.\f"
-                "Un corps... comme celui de Durac !\f"
-                "Son pouvoir maléfique a dû être scellé\n"
-                "quand il était jeune... Il n'en est\n"
-                "devenu que plus droit et juste !\f"
-                "Avec mon nouveau corps et la\n"
-                "Forteresse de Mana, je forgerai un\n"
-                "monde à mon image !"
-            ),
+            text_id: recipe_values[text_id]
+            for text_id in ("CA:2BED", "CA:2C3A", "CA:2C93")
         }
         for text_id, value in values.items():
             if text_id in translations and translations[text_id] not in {"", value}:
@@ -12167,30 +9326,21 @@ def _apply_round67_user_reviewed_scene_redistributions(
             "semantic_alignment_count_changed": False,
             "stock_player_name_commands_unchanged": True,
             "round67_user_reviewed_scene_redistribution": True,
+            "source": "mappings/android/dialogues_redistribution_recipes.json + sources/android/scrtxt_fr.bin",
             "note": (
-                "Use the complete official Android-FR Thanatos monologue across newly paginated "
-                "surviving SNES carriers. CA:2C84 remains the separately validated suppressed page."
+                "Use the complete official Android-FR Thanatos monologue through token-index "
+                "redistribution recipes. CA:2C84 remains the separately validated suppressed page."
             ),
             "formatted_entries": [{"id": k, "text": v} for k, v in values.items()],
         })
 
     if event_id == "04E2":
-        if normalize_android_french(french.get(1280, "")).strip() != normalize_android_french(
-            "%S(1,0) : Quelle horreur ! C'est terrible !"
-        ).strip():
-            raise ValueError("Round-67 $04E2 Android FR 1280 changed")
-        if normalize_android_french(french.get(1281, "")).strip() != normalize_android_french(
-            "%S(2,0) : Non ! C'est pas possible ! Ils se sont sûrement échappés !"
-        ).strip():
-            raise ValueError("Round-67 $04E2 Android FR 1281 changed")
-        # Android 1281 is entirely PLAYER_NAME(2). Canonical SNES has
-        # PLAYER_NAME(1) before CA:32C5 and PLAYER_NAME(2) before CA:32D7; the
-        # translated-only structural command override rebinds the first to 2 and
-        # removes the redundant second speaker command. Keep the visible text
-        # split exactly as requested by the user.
+        recipe_values = redistribution_values.get("04E2")
+        if recipe_values is None:
+            raise ValueError("$04E2 Android-FR redistribution recipe missing")
         values = {
-            "CA:32C5": " : Non !\nC'est pas possible !\n",
-            "CA:32D7": "Ils se sont sûrement échappés !",
+            text_id: recipe_values[text_id]
+            for text_id in ("CA:32C5", "CA:32D7")
         }
         for text_id, value in values.items():
             translations[text_id] = value
@@ -12204,9 +9354,10 @@ def _apply_round67_user_reviewed_scene_redistributions(
             "translated_player_name_resegmentation": True,
             "android_fr_1280_intentionally_omitted": True,
             "round67_user_reviewed_scene_redistribution": True,
+            "source": "mappings/android/dialogues_redistribution_recipes.json + sources/android/scrtxt_fr.bin",
             "note": (
-                "User-directed Android-FR 1281 split: PLAYER_NAME(2) owns both carriers; "
-                "the first stock PLAYER_NAME is rebound 1→2 and the redundant second 2 is omitted."
+                "User-directed Android-FR 1281 split reproduced from the token-index recipe; "
+                "PLAYER_NAME(2) owns both carriers through translated-only command metadata."
             ),
             "formatted_entries": [{"id": k, "text": v} for k, v in values.items()],
         })
@@ -12227,39 +9378,16 @@ def _format_mass_mapping(
     structural fallback applies. Each fallback is independently narrow and
     raises ``ValueError`` when its proof requirements are not met.
     """
+    recipe_result = _render_mapping_layout_recipe(mapping, french)
+    if recipe_result is not None:
+        return recipe_result
+
     mapping, _round48_vocative_repair = _round48_without_android_only_vocative(
         source_document, mapping
     )
     mapping, _round49_speaker_label_repair = _round49_without_android_only_speaker_label(
         source_document, mapping
     )
-    if (
-        mapping.get("event_id") == DIALOGUE_ROUND49_SOUND_SEQUENCE["event_id"]
-        and tuple(mapping.get("snes_ids", [])) == DIALOGUE_ROUND49_SOUND_SEQUENCE["snes_ids"]
-        and tuple(mapping.get("android_ids", [])) == DIALOGUE_ROUND49_SOUND_SEQUENCE["android_ids"]
-    ):
-        return _format_round49_sound_sequence(source_document, mapping, advances)
-    round62_key = (
-        mapping.get("event_id"),
-        tuple(mapping.get("snes_ids", [])),
-        tuple(mapping.get("android_ids", [])),
-    )
-    if round62_key in {
-        ("038D", ("C9:DAF5", "C9:DB09"), (1815, 1816)),
-        ("03EA", ("C9:F04C", "C9:F07D"), (2354,)),
-        ("04E2", ("CA:31EE", "CA:3218"), (1275, 1276)),
-        ("04E3", ("CA:36C7",), (1384, 1385)),
-    }:
-        return _format_round62_user_reviewed_redistribution(source_document, mapping)
-    round52_key = (
-        mapping.get("event_id"),
-        tuple(mapping.get("snes_ids", [])),
-        tuple(mapping.get("android_ids", [])),
-    )
-    if round52_key in DIALOGUE_ROUND52_STRUCTURAL_DISTRIBUTIONS:
-        return _format_round52_structural_distribution(source_document, mapping, advances)
-    if round52_key in DIALOGUE_ROUND54_STRUCTURAL_RECOVERIES:
-        return _format_round54_structural_recovery(source_document, mapping)
     common = {
         "allow_one_extra_page": True,
         "use_physical_page_capacity": True,
@@ -12279,24 +9407,6 @@ def _format_mass_mapping(
             source_document, mapping, advances,
             prefer_semantic_line_breaks=prefer_semantic_line_breaks,
         )
-    if mapping.get("relation") in {"round45_watts_shortcut_redistribution", "round45_girl_name_resegmentation"}:
-        return _format_round45_reviewed_redistribution(source_document, mapping)
-    if mapping.get("relation") in {
-        "round44_jehk_out_with_return_layout",
-        "round44_player_name_followup_layout",
-        "round44_parameterized_inn_price_identity",
-    }:
-        return _format_round44_reviewed_redistribution(source_document, mapping)
-    if mapping.get("relation") in {
-        "round43_player_name_resegmentation",
-        "round43_shared_branch_prefix_redistribution",
-        "round43_shared_magic_suffix_layout",
-        "round43_weapon_orb_prefix",
-        "round43_weapon_orb_suffix",
-        "round43_gameover_plural_slot",
-        "round43_gameover_dynamic_frame",
-    }:
-        return _format_round43_reviewed_redistribution(source_document, mapping)
     if mapping.get("relation") == "wait_player_resegmentation":
         return _format_wait_player_resegmentation(
             source_document, mapping, advances, prefer_semantic_line_breaks=prefer_semantic_line_breaks
@@ -12311,7 +9421,7 @@ def _format_mass_mapping(
         )
     if mapping.get("relation") in {"cannon_response_prefix", "cannon_common_boarding_suffix"}:
         return _format_cannon_travel_piece(
-            source_document, mapping, advances, prefer_semantic_line_breaks=prefer_semantic_line_breaks
+            source_document, mapping, advances, french, prefer_semantic_line_breaks=prefer_semantic_line_breaks
         )
     if mapping.get("relation") == "choice_prompt_split":
         try:
@@ -12562,145 +9672,112 @@ def _repair_structural_reaction_page_boundary(
     return translations, reports, simulation, []
 
 
+def _sentence_break_positions(text: str) -> list[tuple[int, int]]:
+    """Return complete-sentence boundary spans followed by layout whitespace."""
+    out = []
+    for match in re.finditer(r"(?:\.{3}|[.!?…]+)(?:[”\"»')\]]*)[ \t\r\n]+", text):
+        out.append((match.start(), match.end()))
+    return out
+
+
+def _replace_boundary_whitespace_with_page_break(text: str, *, first: bool) -> str | None:
+    boundaries = _sentence_break_positions(text)
+    if not boundaries:
+        return None
+    start, end = boundaries[0] if first else boundaries[-1]
+    # Keep the sentence punctuation itself; replace only following whitespace.
+    punctuation_end = end
+    while punctuation_end > start and text[punctuation_end - 1].isspace():
+        punctuation_end -= 1
+    return text[:punctuation_end] + "\f" + text[end:]
+
 
 def _apply_round48_0127_pagination(event: dict, translations: dict[str, str]) -> list[dict]:
-    """Apply the exact reviewed multi-boundary pagination for event $0127.
+    """Apply the reviewed $0127 page boundaries from generated Android-FR text.
 
-    Android FR expands three consecutive conversation windows beyond the stock
-    rolling three-line box.  The repair keeps every stock actor action, timed
-    WAIT and PLAYER_NAME command in place:
-
-    * split the first player thought at an existing complete sentence;
-    * after the stock WAIT $08, clear the retained lines before Rusalka speaks
-      (``\v`` = TEXT_CLEAR only, so no second interactive WAIT is invented);
-    * split the final dynamic-player line after its complete ``Quoi ?!``
-      sentence, after the existing PLAYER_NAME has already rendered.
-
-    The exact source token indexes and exact formatted strings are gates.  Any
-    future wording/structure change disables the repair loudly rather than
-    moving a command implicitly.
+    The repair identifies sentence boundaries in the freshly formatted carriers;
+    it does not contain or compare localized prose.
     """
     if event.get("event_id") != "0127":
         return []
     tokens = event.get("tokens", [])
     expected_structure = {
-        18: ("command", "TEXT_OPEN", ""),
-        19: ("command", "PLAYER_NAME", "00"),
-        20: ("text", "C9:3A8C", None),
-        21: ("command", "OP_32", "00 D0"),
-        22: ("command", "OP_32", "05 80"),
-        23: ("text", "C9:3AA1", None),
-        24: ("command", "WAIT", "00"),
-        25: ("command", "TEXT_CLEAR", ""),
-        29: ("text", "C9:3AC3", None),
-        30: ("command", "WAIT", "08"),
-        31: ("text", "C9:3AD8", None),
-        32: ("command", "OP_32", "06 00"),
-        33: ("text", "C9:3ADC", None),
-        34: ("command", "WAIT", "00"),
-        35: ("text", "C9:3B01", None),
-        36: ("command", "OP_32", "05 44"),
-        37: ("text", "C9:3B05", None),
-        38: ("command", "OP_34", "00 A4"),
-        39: ("command", "PLAYER_NAME", "00"),
-        40: ("text", "C9:3B23", None),
+        18: ("command", "TEXT_OPEN", ""), 19: ("command", "PLAYER_NAME", "00"),
+        20: ("text", "C9:3A8C", None), 21: ("command", "OP_32", "00 D0"),
+        22: ("command", "OP_32", "05 80"), 23: ("text", "C9:3AA1", None),
+        24: ("command", "WAIT", "00"), 25: ("command", "TEXT_CLEAR", ""),
+        29: ("text", "C9:3AC3", None), 30: ("command", "WAIT", "08"),
+        31: ("text", "C9:3AD8", None), 32: ("command", "OP_32", "06 00"),
+        33: ("text", "C9:3ADC", None), 34: ("command", "WAIT", "00"),
+        35: ("text", "C9:3B01", None), 36: ("command", "OP_32", "05 44"),
+        37: ("text", "C9:3B05", None), 38: ("command", "OP_34", "00 A4"),
+        39: ("command", "PLAYER_NAME", "00"), 40: ("text", "C9:3B23", None),
     }
     if len(tokens) <= max(expected_structure):
-        raise ValueError("Round-48 $0127 canonical token structure shortened")
+        raise ValueError("$0127 canonical token structure shortened")
     for index, (kind, identity, args) in expected_structure.items():
         token = tokens[index]
         if token.get("type") != kind:
-            raise ValueError(f"Round-48 $0127 token {index} type changed")
+            raise ValueError(f"$0127 token {index} type changed")
         if kind == "text":
             if token.get("id") != identity:
-                raise ValueError(f"Round-48 $0127 token {index} text carrier changed")
-        else:
-            if token.get("name") != identity or token.get("args", "") != args:
-                raise ValueError(f"Round-48 $0127 token {index} command changed")
+                raise ValueError(f"$0127 token {index} text carrier changed")
+        elif token.get("name") != identity or token.get("args", "") != args:
+            raise ValueError(f"$0127 token {index} command changed")
 
-    expected = {
-        "C9:3A8C": " : Où est Rusalka ? Hum...\nbizarre, il n'y a aucune vieille dame\nici... Demandons à cette fille.\n",
-        "C9:3ADC": "Rusalka, je suis heureux de vous\nrevoir.",
-        "C9:3B23": " : Quoi ?!\nC'est elle, la prêtresse âgée de 200\nans ?!",
-    }
-    if not all(text_id in translations for text_id in expected):
+    required = ("C9:3A8C", "C9:3ADC", "C9:3B23")
+    if not all(text_id in translations for text_id in required):
         return []
-    # The 216px formatter may already have reflowed/paginated this scene.
-    # In that case do not force the historical 240px byte layout back onto it;
-    # the generic simulator gate below will validate the newly generated form.
-    if any(translations[text_id] != value for text_id, value in expected.items()):
+    if any("\f" in translations[text_id] for text_id in ("C9:3A8C", "C9:3B23")):
         return []
-
-    translations["C9:3A8C"] = expected["C9:3A8C"].replace(
-        "ici... Demandons à cette fille.\n",
-        "ici...\fDemandons à cette fille.\n",
-    )
-    translations["C9:3ADC"] = "\v" + expected["C9:3ADC"]
-    translations["C9:3B23"] = expected["C9:3B23"].replace(
-        " : Quoi ?!\n", " : Quoi ?!\f"
-    )
-    return [
-        {
-            "strategy": "round48_exact_multi_boundary_pagination",
-            "event_id": "0127",
-            "sentence_page_break_after": "ici...",
-            "clear_after_existing_wait08_before": "C9:3ADC",
-            "sentence_page_break_after_dynamic_player_line": "Quoi ?!",
-            "player_name_commands_unchanged": True,
-            "stock_wait08_unchanged": True,
-            "added_interactive_wait_count": 2,
-            "added_text_clear_only_count": 1,
-        }
-    ]
-
+    first = _replace_boundary_whitespace_with_page_break(translations["C9:3A8C"], first=False)
+    last = _replace_boundary_whitespace_with_page_break(translations["C9:3B23"], first=True)
+    if first is None or last is None:
+        return []
+    translations["C9:3A8C"] = first
+    if not translations["C9:3ADC"].startswith(TRANSLATION_CLEAR):
+        translations["C9:3ADC"] = TRANSLATION_CLEAR + translations["C9:3ADC"]
+    translations["C9:3B23"] = last
+    return [{
+        "strategy": "sentence_boundary_pagination_from_generated_android_fr",
+        "event_id": "0127",
+        "player_name_commands_unchanged": True,
+        "stock_wait08_unchanged": True,
+        "added_interactive_wait_count": 2,
+        "added_text_clear_only_count": 1,
+    }]
 
 
 def _apply_round49_04e9_wait00_clears(event: dict, translations: dict[str, str]) -> list[dict]:
-    """Clear two exact full-page Luka/Jema paragraphs after existing WAIT $00.
-
-    In $04E9, Android FR expands the consecutive Luka explanation paragraphs to
-    three physical lines each. The stock stream already pauses with WAIT $00
-    between them, but WAIT retains the live cursor. Add TEXT_CLEAR only after
-    those existing pauses so the next three-line paragraph starts on a fresh
-    page. No interactive wait is added and every stock command remains in place.
-    """
+    """Clear exact full-page carriers after existing WAIT $00 commands."""
     if event.get("event_id") != "04E9":
         return []
     tokens = event.get("tokens", [])
     expected_structure = {
-        6: ("text", "CA:46F5", None),
-        7: ("command", "WAIT", "00"),
-        8: ("text", "CA:4745", None),
-        9: ("command", "WAIT", "00"),
-        10: ("text", "CA:4797", None),
-        11: ("command", "WAIT", "00"),
+        6: ("text", "CA:46F5", None), 7: ("command", "WAIT", "00"),
+        8: ("text", "CA:4745", None), 9: ("command", "WAIT", "00"),
+        10: ("text", "CA:4797", None), 11: ("command", "WAIT", "00"),
         12: ("text", "CA:47E7", None),
     }
     if len(tokens) <= max(expected_structure):
-        raise ValueError("Round-49 $04E9 canonical token structure shortened")
+        raise ValueError("$04E9 canonical token structure shortened")
     for index, (kind, identity, args) in expected_structure.items():
         token = tokens[index]
         if token.get("type") != kind:
-            raise ValueError(f"Round-49 $04E9 token {index} type changed")
+            raise ValueError(f"$04E9 token {index} type changed")
         if kind == "text":
             if token.get("id") != identity:
-                raise ValueError(f"Round-49 $04E9 token {index} carrier changed")
+                raise ValueError(f"$04E9 token {index} carrier changed")
         elif token.get("name") != identity or token.get("args", "") != args:
-            raise ValueError(f"Round-49 $04E9 token {index} command changed")
-
-    expected = {
-        "CA:4745": "Le pouvoir de Mana s'affaiblit.\nC'est sans doute pour cela que ce\ngarçon a pu retirer l'Épée sacrée.",
-        "CA:4797": "L'équilibre de Mana s'en est trouvé\ntroublé, et les monstres ont commencé\nà s'agiter.",
-    }
-    if not all(text_id in translations for text_id in expected):
+            raise ValueError(f"$04E9 token {index} command changed")
+    target_ids = ("CA:4745", "CA:4797")
+    if not all(text_id in translations for text_id in target_ids):
         return []
-    for text_id, value in expected.items():
-        if translations[text_id] != value:
-            raise ValueError(f"Round-49 $04E9 formatted carrier {text_id} changed")
-
     repairs = []
-    for text_id in ("CA:4745", "CA:4797"):
-        translations[text_id] = "\v" + expected[text_id]
+    for text_id in target_ids:
+        if translations[text_id].startswith(TRANSLATION_CLEAR):
+            continue
+        translations[text_id] = TRANSLATION_CLEAR + translations[text_id]
         repairs.append({
             "text_id": text_id,
             "strategy": "clear_after_existing_wait00_before_full_page_paragraph",
@@ -12795,46 +9872,6 @@ def _apply_user_reviewed_fragment_spacing(event_id: str, translations: dict[str,
         translations[left_id] = left + " "
         repairs.append({"left_snes_id": left_id, "right_snes_id": right_id, "strategy": "insert_literal_inter_fragment_space"})
     return repairs
-
-
-
-# The corrected WAIT simulator changes candidate scoring in two unrelated
-# already-clean events. Keep their previously accepted official-French content
-# and page layout byte-for-byte; these are layout compatibility overrides, not
-# translation overrides.
-DIALOGUE_WAIT_SEMANTICS_LAYOUT_COMPAT = {
-    # Runtime review on $0101 exposed a four-line transient that the old
-    # simulator missed because WAIT arrived while line 4 was still live.
-    # Keep the stock three-line structure: Ouch/Phew share line 1, then the
-    # two following sentences each occupy one line.  The official Android FR
-    # wording is unchanged; only formatter-inserted line breaks are adjusted.
-    "0101": {
-        "C9:258F": " : Aïe... Pfiouh.\n",
-        "C9:25A1": "Pas moyen de remonter !\nComment je vais faire ?",
-    },
-    "0022": {
-        "C9:0A44": "Encore ?!\f ",
-    },
-    "02FD": {
-        "C9:CB57": "\nMajesté, je vous avais\nparlé de ces jeunes gens.\fIls ont déjoué un attentat !",
-    },
-}
-
-
-def _apply_wait_semantics_layout_compat(event_id: str, translations: dict[str, str]) -> list[dict]:
-    repairs: list[dict] = []
-    for text_id, value in DIALOGUE_WAIT_SEMANTICS_LAYOUT_COMPAT.get(event_id, {}).items():
-        if translations.get(text_id) == value:
-            continue
-        translations[text_id] = value
-        repairs.append({
-            "layout_text_id": text_id,
-            "strategy": "preserve_pre_wait_semantics_clean_layout",
-            "validation_status": "static_compatibility",
-            "reason": "corrected WAIT simulation must not regress a previously simulator-clean formatted event",
-        })
-    return repairs
-
 
 
 def _strip_canonical_choice_decoration(
@@ -12960,7 +9997,6 @@ def _choice_decoration_reports(
                 updated["preserved_choice_opening_suffix"] = None
         updated_reports.append(updated)
     return updated_reports
-
 
 
 def _apply_reviewed_choice_layout_recipe(
@@ -13554,7 +10590,6 @@ def _try_adaptive_choice_decoration_with_anchor_positions(
     )
 
 
-
 def _simulation_blocking_score(simulation) -> tuple[int, int, int]:
     blocking = [
         issue for issue in simulation.issues
@@ -13693,6 +10728,94 @@ def _automatic_layout_search_score(simulation) -> tuple[int, int, int, int]:
         if issue.code == "UNPAUSED_SCROLL":
             unpaused_scroll += 1
     return (len(blocking) + wraps, width_excess, unpaused_scroll, len(blocking))
+
+
+@lru_cache(maxsize=1)
+def _reviewed_layout_search_recipe_index() -> dict[str, list[dict]]:
+    document = json.loads(DIALOGUE_LAYOUT_SEARCH_RECIPES.read_text(encoding="utf-8"))
+    if document.get("format_version") != 1:
+        raise ValueError("Unsupported dialogue layout-search recipe format")
+    recipes = document.get("events", {})
+    if not isinstance(recipes, dict):
+        raise ValueError("Dialogue layout-search recipes must contain an events object")
+    return {str(event_id): list(steps) for event_id, steps in recipes.items()}
+
+
+def _apply_reviewed_layout_search_recipe(
+    *,
+    base_rom: bytes,
+    event: dict,
+    translations: dict[str, str],
+    font,
+    structural_command_overrides: dict[int, tuple[str, str] | None] | None = None,
+) -> tuple[dict[str, str], object | None, list[dict]]:
+    """Apply a reviewed layout-only operation plan, then independently simulate it.
+
+    Recipes contain no translated prose. If any carrier/offset shape has drifted
+    or the resulting event is not clean, return no repair so the historical
+    exhaustive solver can remain the conservative fallback.
+    """
+    from shared.dialogue_simulator import simulate_event
+
+    steps = _reviewed_layout_search_recipe_index().get(str(event.get("event_id")))
+    if not steps:
+        return translations, None, []
+    current = dict(translations)
+    applied: list[dict] = []
+    for expected_step, step in enumerate(steps, 1):
+        if int(step.get("step", expected_step)) != expected_step:
+            return translations, None, []
+        strategy = str(step.get("strategy", ""))
+        text_id = str(step.get("text_id", ""))
+        if text_id not in current:
+            return translations, None, []
+        value = current[text_id]
+        pos = int(step.get("source_offset", -1))
+
+        if strategy == "newline_carrier_boundary":
+            if value.startswith(("\n", "\v", "\f")):
+                return translations, None, []
+            current[text_id] = "\n" + value
+        elif strategy == "newline_before_carrier_via_previous":
+            boundary_before_id = step.get("boundary_before_id")
+            if not boundary_before_id or boundary_before_id not in current:
+                return translations, None, []
+            if value.endswith(("\n", "\v", "\f")):
+                return translations, None, []
+            current[text_id] = value + "\n"
+        elif strategy == "newline_word_boundary":
+            if pos < 0 or pos >= len(value) or value[pos] != " ":
+                return translations, None, []
+            current[text_id] = value[:pos] + "\n" + value[pos + 1:]
+        elif strategy in {"page_word_boundary", "unpaused_scroll_word_page_boundary"}:
+            if pos < 0 or pos >= len(value) or value[pos] != " ":
+                return translations, None, []
+            current[text_id] = value[:pos] + "\f" + value[pos + 1:]
+        elif strategy == "page_sentence_boundary":
+            if pos < 0 or pos >= len(value) or not value[pos].isspace():
+                return translations, None, []
+            end = pos
+            while end < len(value) and value[end].isspace() and value[end] not in "\v\f":
+                end += 1
+            current[text_id] = value[:pos] + "\f" + value[end:]
+        else:
+            return translations, None, []
+        applied.append(dict(step))
+
+    try:
+        simulation = simulate_event(
+            base_rom,
+            event,
+            current,
+            font=font,
+            player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+            structural_command_overrides=structural_command_overrides,
+        )
+    except ValueError:
+        return translations, None, []
+    if _simulation_blocking_score(simulation)[0] != 0:
+        return translations, None, []
+    return current, simulation, applied
 
 
 def _try_unpaused_scroll_page_repairs(
@@ -14141,7 +11264,6 @@ def _auto_reflow_fixed_translation_carriers(
     return out, reports
 
 
-
 def _try_live_player_prefix_reflow(
     *,
     base_rom: bytes,
@@ -14362,7 +11484,8 @@ def make_dialogue_format_mass(
     round69_events = {
         "0103", "010C", "015A", "01C5", "0204", "0205", "0227", "04E2", "04E5", "04E6", "04E9", "04FD", "0559", "0592", "05B4"
     }
-    if set(redistribution_values) != round68_events | round69_events:
+    round67_recipe_events = {"04E1"}
+    if set(redistribution_values) != round67_recipe_events | round68_events | round69_events:
         raise ValueError("Dialogue redistribution recipe event set changed")
     source_text_by_id = {
         token["id"]: token.get("source", "")
@@ -14393,7 +11516,6 @@ def make_dialogue_format_mass(
     round48_pagination_repairs_by_event: dict[str, list[dict]] = {}
     round49_04e9_wait00_clear_repairs_by_event: dict[str, list[dict]] = {}
     round50_01ce_choice_page_clear_repairs_by_event: dict[str, list[dict]] = {}
-    round54_nonsemantic_android_supplements_by_event: dict[str, list[dict]] = {}
     automatic_216px_reflows_by_event: dict[str, list[dict]] = {}
     carrier_boundary_newline_repairs_by_event: dict[str, list[dict]] = {}
     carrier_repack_repairs_by_event: dict[str, list[dict]] = {}
@@ -14494,6 +11616,16 @@ def make_dialogue_format_mass(
                     live_player_prefix_reflow_repairs_by_event[event_id] = prefix_repairs
                     blocking = [issue for issue in simulation.issues if issue.severity in {"error", "warning"}]
                     wraps = sum(line.implicit_wrap for box in simulation.boxes for page in box.pages for line in page.lines)
+            if blocking or wraps:
+                reviewed_values, reviewed_simulation, reviewed_repairs = _apply_reviewed_layout_search_recipe(
+                    base_rom=base_rom, event=event, translations=values, font=font
+                )
+                if reviewed_repairs:
+                    values = reviewed_values
+                    simulation = reviewed_simulation
+                    blocking = []
+                    wraps = 0
+                    source_derived_layout_search_repairs_by_event[event_id] = reviewed_repairs
             if blocking or wraps:
                 page_values, page_simulation, page_repairs = _try_unpaused_scroll_page_repairs(
                     base_rom=base_rom, event=event, translations=values, font=font
@@ -14612,6 +11744,17 @@ def make_dialogue_format_mass(
                         wraps = 0
                         carrier_repack_repairs_by_event[event_id] = repack_repairs
                         carrier_boundary_newline_repairs_by_event[event_id] = boundary_repairs
+            if blocking or wraps:
+                reviewed_values, reviewed_simulation, reviewed_repairs = _apply_reviewed_layout_search_recipe(
+                    base_rom=base_rom, event=event, translations=values, font=font,
+                    structural_command_overrides=structural_overrides,
+                )
+                if reviewed_repairs:
+                    values = reviewed_values
+                    simulation = reviewed_simulation
+                    blocking = []
+                    wraps = 0
+                    source_derived_layout_search_repairs_by_event[event_id] = reviewed_repairs
             if blocking or wraps:
                 searched_values, searched_simulation, search_repairs = _try_source_derived_layout_search(
                     base_rom=base_rom, event=event, translations=values, font=font,
@@ -14807,7 +11950,7 @@ def make_dialogue_format_mass(
 
         if event_id == "04E2":
             round67_reports, _ = _apply_round67_user_reviewed_scene_redistributions(
-                event, event_translations, english=english, french=french,
+                event, event_translations, english=english, redistribution_values=redistribution_values,
                 layout_deferred_ids=complete_layout_deferred_ids, missing_ids=[],
             )
             event_reports = [
@@ -14862,7 +12005,6 @@ def make_dialogue_format_mass(
         explicit_post_wait_newline_repairs_by_event[event_id] = _apply_explicit_post_wait_newlines(
             event_id, event_translations, source_text_by_id=source_text_by_id
         )
-        _apply_wait_semantics_layout_compat(event_id, event_translations)
         round48_pagination_repairs_by_event[event_id] = _apply_round48_0127_pagination(
             event, event_translations
         )
@@ -14871,9 +12013,6 @@ def make_dialogue_format_mass(
         )
         round50_01ce_choice_page_clear_repairs_by_event[event_id] = _apply_round50_01ce_choice_page_clear(
             event, event_translations
-        )
-        round54_nonsemantic_android_supplements_by_event[event_id] = _apply_round54_nonsemantic_android_supplement(
-            event, event_translations, english=english, french=french
         )
         # Final presentation-only pass: legacy/manual/redistributed inserts may
         # have bypassed the ordinary mapping wrapper. Reflow each existing
@@ -15204,7 +12343,6 @@ def make_dialogue_format_mass(
                 _apply_explicit_post_wait_newlines(
                     event_id, compact_translations, source_text_by_id=source_text_by_id
                 )
-                _apply_wait_semantics_layout_compat(event_id, compact_translations)
                 compact_translations, compact_simulation, compact_wait00_repairs = _repair_wait00_page_overlaps(
                     base_rom=base_rom,
                     event=event,
@@ -15439,6 +12577,24 @@ def make_dialogue_format_mass(
                 carrier_boundary_newline_repairs_by_event[event_id] = boundary_repairs
                 continue
 
+            reviewed_translations, reviewed_simulation, reviewed_repairs = _apply_reviewed_layout_search_recipe(
+                base_rom=base_rom,
+                event=event,
+                translations=event_translations,
+                font=font,
+                structural_command_overrides=structural_command_overrides_by_event.get(event_id),
+            )
+            if reviewed_repairs:
+                accepted_events.append(event_id)
+                translations_by_event[event_id] = reviewed_translations
+                reports_by_event[event_id] = event_reports
+                wait00_repairs_by_event[event_id] = wait00_repairs
+                unpaused_scroll_repairs_by_event[event_id] = []
+                cross_mapping_sentence_repairs_by_event[event_id] = []
+                structural_reaction_page_repairs_by_event[event_id] = []
+                source_derived_layout_search_repairs_by_event[event_id] = reviewed_repairs
+                continue
+
             searched_translations, searched_simulation, search_repairs = _try_source_derived_layout_search(
                 base_rom=base_rom,
                 event=event,
@@ -15561,7 +12717,6 @@ def make_dialogue_format_mass(
                 explicit_post_wait_newline_repairs_by_event[event_id] = _apply_explicit_post_wait_newlines(
                     event_id, partial_translations, source_text_by_id=source_text_by_id
                 )
-                _apply_wait_semantics_layout_compat(event_id, partial_translations)
                 if not partial_failed and partial_reports:
                     try:
                         partial_simulation = simulate_event(
@@ -16026,7 +13181,7 @@ def make_dialogue_format_mass(
 
         if event_id == "04E1":
             round67_reports, round67_resolved_missing_ids = _apply_round67_user_reviewed_scene_redistributions(
-                event, event_translations, english=english, french=french,
+                event, event_translations, english=english, redistribution_values=redistribution_values,
                 layout_deferred_ids=layout_deferred_ids, missing_ids=missing_ids,
             )
             event_reports = [
@@ -16123,7 +13278,6 @@ def make_dialogue_format_mass(
         explicit_post_wait_newline_repairs_by_event[event_id] = _apply_explicit_post_wait_newlines(
             event_id, event_translations, source_text_by_id=source_text_by_id
         )
-        _apply_wait_semantics_layout_compat(event_id, event_translations)
         # Alignment-incomplete/locked reviewed scenes use the same calibrated
         # presentation wrapper as complete events before their independent
         # mixed-event simulation. This changes layout only; unresolved carriers
@@ -16236,7 +13390,6 @@ def make_dialogue_format_mass(
                 _apply_explicit_post_wait_newlines(
                     event_id, compact_translations, source_text_by_id=source_text_by_id
                 )
-                _apply_wait_semantics_layout_compat(event_id, compact_translations)
                 try:
                     compact_simulation = simulate_event(
                         base_rom,
@@ -16912,8 +14065,6 @@ def make_dialogue_format_mass(
             "round49_04e9_wait00_clear_repair_count": sum(len(value) for value in round49_04e9_wait00_clear_repairs_by_event.values()),
             "round50_01ce_choice_page_clear_repaired_event_count": sum(bool(value) for value in round50_01ce_choice_page_clear_repairs_by_event.values()),
             "round50_01ce_choice_page_clear_repair_count": sum(len(value) for value in round50_01ce_choice_page_clear_repairs_by_event.values()),
-            "round54_nonsemantic_android_supplement_event_count": sum(bool(value) for value in round54_nonsemantic_android_supplements_by_event.values()),
-            "round54_nonsemantic_android_supplement_count": sum(len(value) for value in round54_nonsemantic_android_supplements_by_event.values()),
             "wait00_overlap_repaired_event_count": sum(bool(value) for value in wait00_repairs_by_event.values()),
             "wait00_overlap_repair_count": sum(len(value) for value in wait00_repairs_by_event.values()),
             "unpaused_scroll_repaired_event_count": sum(bool(value) for value in unpaused_scroll_repairs_by_event.values()),
@@ -17111,11 +14262,6 @@ def make_dialogue_format_mass(
             for event_id, repairs in source_derived_layout_search_repairs_by_event.items()
             if repairs
         ],
-        "round54_nonsemantic_android_supplements": [
-            repair
-            for event_id in accepted_events
-            for repair in round54_nonsemantic_android_supplements_by_event.get(event_id, [])
-        ],
         "unpaused_scroll_repairs": [
             {"event_id": event_id, **repair}
             for event_id in accepted_events
@@ -17290,50 +14436,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--only",
-        choices=(
-            "intro",
-            "dialogue-pilot",
-            "dialogue-review",
-            "dialogue-review-round3",
-            "dialogue-review-round4",
-            "dialogue-review-round5",
-            "dialogue-review-round6",
-            "dialogue-review-round7",
-            "dialogue-review-round8",
-            "dialogue-review-round11",
-            "dialogue-review-round18",
-            "dialogue-review-round20",
-            "dialogue-review-round21",
-            "dialogue-review-round22",
-            "dialogue-review-round25",
-            "dialogue-review-round31",
-            "dialogue-review-round33",
-            "dialogue-review-round34",
-            "dialogue-review-round39",
-            "dialogue-review-round40",
-            "dialogue-review-round41",
-            "dialogue-review-round42",
-            "dialogue-review-round43",
-            "dialogue-review-round44",
-            "dialogue-review-round45",
-            "dialogue-review-round46",
-            "dialogue-review-round47",
-            "dialogue-review-round48",
-            "dialogue-review-round49",
-            "dialogue-review-round50",
-            "dialogue-review-round51",
-            "dialogue-review-round52",
-            "dialogue-review-round53",
-            "dialogue-review-round54",
-            "dialogue-auto",
-            "dialogue-format-pilot",
-            "dialogue-format-batch1",
-            "dialogue-format-page-pilot",
-            "dialogue-format-batch2",
-            "dialogue-format-mass",
-        ),
+        choices=("intro", "dialogue-auto", "dialogue-format-mass"),
         default="intro",
-        help="generate the intro translation, dialogue alignment reports, or a gated SNES-formatting batch",
+        help=(
+            "generate the intro translation, the canonical dialogue alignment, "
+            "or the complete simulator-validated dialogue translation"
+        ),
     )
     parser.add_argument(
         "--scrtxt",
@@ -17345,7 +14453,7 @@ def main() -> None:
         "--scrtxt-en",
         type=Path,
         default=DEFAULT_SCRTXT_EN,
-        help="Android English scrtxt binary (required for dialogue alignment)",
+        help="Android English scrtxt binary (required for dialogue generation)",
     )
     parser.add_argument(
         "--output",
@@ -17360,12 +14468,17 @@ def main() -> None:
     parser.add_argument(
         "--rom",
         type=Path,
-        help="clean unheadered USA ROM; required for dialogue-format-* VWF metrics",
+        help="clean unheadered USA ROM; required for dialogue-format-mass VWF metrics",
     )
     parser.add_argument(
         "--format-report",
         type=Path,
-        help="dialogue-format report destination; default depends on the selected formatting mode",
+        help="dialogue-format-mass report destination",
+    )
+    parser.add_argument(
+        "--excluded-csv",
+        type=Path,
+        help="dialogue-format-mass exclusion CSV destination",
     )
     parser.add_argument(
         "--check",
@@ -17381,282 +14494,12 @@ def main() -> None:
             document = make_intro_translation(french)
             output = (args.output or DEFAULT_INTRO_OUTPUT).resolve()
             source_label = str(french_path)
+            format_report = None
         else:
             english_path = args.scrtxt_en.resolve()
             english = read_scrtxt(english_path)
-            if args.only == "dialogue-pilot":
-                document = make_dialogue_pilot_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_PILOT_OUTPUT).resolve()
-            elif args.only == "dialogue-review":
-                document = make_dialogue_review_round2_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round3":
-                document = make_dialogue_review_round3_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND3_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round4":
-                document = make_dialogue_review_round4_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND4_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round5":
-                document = make_dialogue_review_round5_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND5_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round6":
-                document = make_dialogue_review_round6_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND6_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round7":
-                document = make_dialogue_review_round7_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND7_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round8":
-                document = make_dialogue_review_round8_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND8_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round11":
-                document = make_dialogue_review_round11_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND11_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round18":
-                document = make_dialogue_review_round18_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND18_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round20":
-                document = make_dialogue_review_round20_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND20_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round21":
-                document = make_dialogue_review_round21_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND21_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round22":
-                document = make_dialogue_review_round22_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND22_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round25":
-                document = make_dialogue_review_round25_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND25_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round31":
-                document = make_dialogue_review_round31_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND31_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round33":
-                document = make_dialogue_review_round33_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND33_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round34":
-                document = make_dialogue_review_round34_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND34_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round39":
-                document = make_dialogue_review_round39_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND39_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round40":
-                document = make_dialogue_review_round40_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND40_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round41":
-                document = make_dialogue_review_round41_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND41_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round42":
-                document = make_dialogue_review_round42_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND42_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round43":
-                document = make_dialogue_review_round43_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND43_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round44":
-                document = make_dialogue_review_round44_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND44_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round45":
-                document = make_dialogue_review_round45_report(
-                    english,
-                    french,
-                    english_path=english_path,
-                    french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND45_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round46":
-                document = make_dialogue_review_round46_report()
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND46_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round47":
-                document = make_dialogue_review_round47_report()
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND47_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round48":
-                document = make_dialogue_review_round48_report()
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND48_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round49":
-                document = make_dialogue_review_round49_report()
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND49_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round50":
-                document = make_dialogue_review_round50_report(
-                    english, french,
-                    english_path=english_path, french_path=french_path,
-                )
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND50_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round51":
-                document = make_dialogue_review_round51_report()
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND51_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round52":
-                document = make_dialogue_review_round52_report()
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND52_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round53":
-                document = make_dialogue_review_round53_report()
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND53_OUTPUT).resolve()
-            elif args.only == "dialogue-review-round54":
-                document = make_dialogue_review_round54_report()
-                output = (args.output or DEFAULT_DIALOGUE_REVIEW_ROUND54_OUTPUT).resolve()
-            elif args.only in ("dialogue-format-pilot", "dialogue-format-batch1", "dialogue-format-page-pilot", "dialogue-format-batch2", "dialogue-format-mass"):
-                if args.rom is None:
-                    raise ValueError(f"--rom is required for {args.only}")
-                rom_path = args.rom.resolve()
-                base_rom = rom_path.read_bytes()
-                if args.only == "dialogue-format-pilot":
-                    document, format_report = make_dialogue_format_pilot(
-                        english,
-                        french,
-                        english_path=english_path,
-                        french_path=french_path,
-                        base_rom=base_rom,
-                    )
-                    output = (args.output or DEFAULT_DIALOGUE_FORMAT_PILOT_OUTPUT).resolve()
-                elif args.only == "dialogue-format-batch1":
-                    document, format_report = make_dialogue_format_batch1(
-                        english,
-                        french,
-                        english_path=english_path,
-                        french_path=french_path,
-                        base_rom=base_rom,
-                    )
-                    output = (args.output or DEFAULT_DIALOGUE_FORMAT_BATCH1_OUTPUT).resolve()
-                elif args.only == "dialogue-format-page-pilot":
-                    document, format_report = make_dialogue_format_page_pilot(
-                        english,
-                        french,
-                        english_path=english_path,
-                        french_path=french_path,
-                        base_rom=base_rom,
-                    )
-                    output = (args.output or DEFAULT_DIALOGUE_FORMAT_PAGE_PILOT_OUTPUT).resolve()
-                elif args.only == "dialogue-format-batch2":
-                    document, format_report = make_dialogue_format_batch2(
-                        english,
-                        french,
-                        english_path=english_path,
-                        french_path=french_path,
-                        base_rom=base_rom,
-                    )
-                    output = (args.output or DEFAULT_DIALOGUE_FORMAT_BATCH2_OUTPUT).resolve()
-                else:
-                    document, format_report = make_dialogue_format_mass(
-                        english,
-                        french,
-                        english_path=english_path,
-                        french_path=french_path,
-                        base_rom=base_rom,
-                    )
-                    output = (args.output or DEFAULT_DIALOGUE_FORMAT_MASS_OUTPUT).resolve()
-            else:
+            source_label = f"{english_path} + {french_path} + assets/dialogues.json"
+            if args.only == "dialogue-auto":
                 document = make_dialogue_auto_alignment(
                     english,
                     french,
@@ -17664,50 +14507,27 @@ def main() -> None:
                     french_path=french_path,
                 )
                 output = (args.output or DEFAULT_DIALOGUE_AUTO_OUTPUT).resolve()
-            source_label = f"{english_path} + {french_path} + assets/dialogues.json"
+                format_report = None
+            else:
+                if args.rom is None:
+                    raise ValueError("--rom is required for dialogue-format-mass")
+                base_rom = args.rom.resolve().read_bytes()
+                document, format_report = make_dialogue_format_mass(
+                    english,
+                    french,
+                    english_path=english_path,
+                    french_path=french_path,
+                    base_rom=base_rom,
+                )
+                output = (args.output or DEFAULT_DIALOGUE_FORMAT_MASS_OUTPUT).resolve()
     except (OSError, ValueError) as exc:
         raise SystemExit(str(exc)) from exc
 
     write_or_check(output, serialized(document), check=args.check, source_label=source_label)
-    if args.only in ("dialogue-format-pilot", "dialogue-format-batch1", "dialogue-format-page-pilot", "dialogue-format-batch2", "dialogue-format-mass"):
-        if args.only == "dialogue-format-pilot":
-            default_report = DEFAULT_DIALOGUE_FORMAT_PILOT_REPORT
-        elif args.only == "dialogue-format-batch1":
-            default_report = DEFAULT_DIALOGUE_FORMAT_BATCH1_REPORT
-        elif args.only == "dialogue-format-page-pilot":
-            default_report = DEFAULT_DIALOGUE_FORMAT_PAGE_PILOT_REPORT
-        elif args.only == "dialogue-format-batch2":
-            default_report = DEFAULT_DIALOGUE_FORMAT_BATCH2_REPORT
-        else:
-            default_report = DEFAULT_DIALOGUE_FORMAT_MASS_REPORT
-        report_output = (args.format_report or default_report).resolve()
-        write_or_check(
-            report_output,
-            serialized(format_report),
-            check=args.check,
-            source_label=source_label + " + clean USA ROM VWF metrics",
-        )
-    if args.only == "dialogue-format-mass":
-        excluded_csv_output = DEFAULT_DIALOGUE_FORMAT_MASS_EXCLUDED_CSV.resolve()
-        source_document = json.loads(DIALOGUE_SOURCE.read_text(encoding="utf-8"))
-        excluded_csv_bytes = ("\ufeff" + dialogue_format_mass_excluded_csv(format_report, source_document)).encode("utf-8")
-        if args.check:
-            try:
-                existing_csv = excluded_csv_output.read_bytes()
-            except OSError as exc:
-                raise SystemExit(f"Cannot read {excluded_csv_output}: {exc}") from exc
-            if existing_csv != excluded_csv_bytes:
-                raise SystemExit(f"{excluded_csv_output} is not up to date with mass dialogue formatting")
-            print(f"Dialogue mass exclusion CSV check OK: {excluded_csv_output}")
-        else:
-            excluded_csv_output.parent.mkdir(parents=True, exist_ok=True)
-            excluded_csv_output.write_bytes(excluded_csv_bytes)
-            print(f"Generated {excluded_csv_output} from mass dialogue formatting")
 
     if args.only == "dialogue-auto":
         csv_output = (args.unmapped_csv or DEFAULT_DIALOGUE_UNMAPPED_CSV).resolve()
-        csv_text = "\ufeff" + dialogue_unmapped_csv(document)
-        csv_bytes = csv_text.encode("utf-8")
+        csv_bytes = ("\ufeff" + dialogue_unmapped_csv(document)).encode("utf-8")
         if args.check:
             try:
                 existing_csv = csv_output.read_bytes()
@@ -17721,15 +14541,36 @@ def main() -> None:
             csv_output.write_bytes(csv_bytes)
             print(f"Generated {csv_output} from automatic dialogue alignment")
 
+    if args.only == "dialogue-format-mass":
+        assert format_report is not None
+        report_output = (args.format_report or DEFAULT_DIALOGUE_FORMAT_MASS_REPORT).resolve()
+        write_or_check(
+            report_output,
+            serialized(format_report),
+            check=args.check,
+            source_label=source_label + " + clean USA ROM VWF metrics",
+        )
+        excluded_csv_output = (args.excluded_csv or DEFAULT_DIALOGUE_FORMAT_MASS_EXCLUDED_CSV).resolve()
+        source_document = json.loads(DIALOGUE_SOURCE.read_text(encoding="utf-8"))
+        excluded_csv_bytes = (
+            "\ufeff" + dialogue_format_mass_excluded_csv(format_report, source_document)
+        ).encode("utf-8")
+        if args.check:
+            try:
+                existing_csv = excluded_csv_output.read_bytes()
+            except OSError as exc:
+                raise SystemExit(f"Cannot read {excluded_csv_output}: {exc}") from exc
+            if existing_csv != excluded_csv_bytes:
+                raise SystemExit(f"{excluded_csv_output} is not up to date with mass dialogue formatting")
+            print(f"Dialogue mass exclusion CSV check OK: {excluded_csv_output}")
+        else:
+            excluded_csv_output.parent.mkdir(parents=True, exist_ok=True)
+            excluded_csv_output.write_bytes(excluded_csv_bytes)
+            print(f"Generated {excluded_csv_output} from mass dialogue formatting")
+
     if not args.check:
         if args.only == "intro":
             print(f"Imported {len(INTRO_ANDROID_IDS)} validated intro entries")
-        elif args.only == "dialogue-pilot":
-            accepted = sum(len(scene["entries"]) for scene in document["scenes"])
-            print(
-                f"Dialogue pilot: {accepted} very-high-confidence mappings; "
-                f"{len(document['ambiguous'])} explicit manual-review cases; no translation JSON changed"
-            )
         elif args.only == "dialogue-auto":
             coverage = document["coverage"]
             print(
@@ -17738,39 +14579,15 @@ def main() -> None:
                 f"semantic source IDs mapped ({coverage['mapped_semantic_percent']}%); "
                 f"{coverage['unmapped_semantic_source_id_count']} unresolved; no translation JSON changed"
             )
-        elif args.only in ("dialogue-format-pilot", "dialogue-format-batch1", "dialogue-format-page-pilot", "dialogue-format-batch2", "dialogue-format-mass"):
-            if args.only == "dialogue-format-pilot":
-                event_key, label = "pilot_events", "pilot"
-            elif args.only == "dialogue-format-batch1":
-                event_key, label = "batch_events", "batch 1"
-            elif args.only == "dialogue-format-page-pilot":
-                event_key, label = "page_pilot_events", "extra-page pilot"
-            elif args.only == "dialogue-format-batch2":
-                event_key, label = "batch2_events", "batch 2"
-                print(
-                    f"Dialogue format {label}: "
-                    f"{format_report['translation_entry_count']} formatted source token(s) in event(s) "
-                    + ", ".join(format_report[event_key])
-                )
-            else:
-                coverage = format_report["coverage"]
-                print(
-                    "Dialogue format mass: "
-                    f"{coverage['accepted_event_count']} simulator-clean event(s), "
-                    f"{coverage['translation_entry_count']} translated source token(s); "
-                    f"{coverage['excluded_event_count']} event(s) excluded"
-                )
-                event_key = None
-            if args.only != "dialogue-format-mass" and args.only != "dialogue-format-batch2":
-                print(
-                    f"Dialogue format {label}: "
-                    f"{format_report['translation_entry_count']} formatted source token(s) in event(s) "
-                    + ", ".join(format_report[event_key])
-                )
         else:
-            units = sum(len(scene["units"]) for scene in document["scenes"])
-            state = "user-validated" if document["status"].endswith("user_validated") else "candidate review"
-            print(f"Dialogue {document['status'].split('_')[0]}: {units} {state} units; no translation JSON changed")
+            assert format_report is not None
+            coverage = format_report["coverage"]
+            print(
+                "Dialogue format mass: "
+                f"{coverage['accepted_event_count']} simulator-clean event(s), "
+                f"{coverage['translation_entry_count']} translated source token(s); "
+                f"{coverage['excluded_event_count']} event(s) excluded"
+            )
 
 
 if __name__ == "__main__":
