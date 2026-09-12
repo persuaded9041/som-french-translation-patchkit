@@ -34,3 +34,21 @@ credit text is UTF-8 JSON in `translations/opening_text_french.json`.
 
 This `$7A` reservation is local to the opening font and does not alter the
 shared French charset used by other components.
+
+## Arrangement storage and build performance
+
+The modified title arrangement is relocated to ROM `$EE:A000`. It remains in the
+stock Secret of Mana compression container and is still loaded through the stock
+`$C1:0014` resource decompressor into WRAM `$7E:5000`, but the payload is encoded
+with literal packets only.
+
+This is intentional. The arrangement is only about 7 KiB, expanded ROM space is
+available, and searching for an optimal LZ parse at every build added substantial
+host-side cost without providing a useful runtime benefit here. Literal-packet
+encoding is deterministic O(n), remains fully regenerable when the opening text
+changes, and preserves the game's normal resource-loading protocol.
+
+A direct raw-ROM-to-WRAM copy was tested and worked standalone, but conflicted at
+runtime when combined with `mana_tree_original`, which also hooks the stock
+resource-loading/decompression path. Keeping `$C1:0014` fixed that interaction;
+the combined build was runtime-validated.

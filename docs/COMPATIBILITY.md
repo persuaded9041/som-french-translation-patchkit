@@ -83,6 +83,8 @@ real fourth-row `ï` insertion path. The diagnostic is not part of canonical dat
 
 `french_opening` reserves tile `$7A` of its own title-screen font for the one-cell startup-credit `É`. This is local to the opening font, does not consume a shared French charset code, and introduces no new ROM/WRAM allocation or cross-component merge rule. The component builder rejects literal `Z` text because that opening-font slot is no longer available as `Z`.
 
+The relocated opening arrangement lives entirely in bank `$EE` and keeps the stock `$C1:0014` resource-loader/decompressor path. This is deliberate compatibility with `mana_tree_original`, whose runtime resource hook owns extended-bank `$EF` resources. The combined architecture was runtime-validated.
+
 ## Allocations
 
 The principal ROM/WRAM allocations are documented in `docs/MEMORY_MAP.md` and

@@ -1,4 +1,4 @@
-# Maintenance target — Round 85.10 optimized serial dialogue pipeline
+# Maintenance target — Round 85.13 validated opening literal-stream architecture
 
 `docs/HANDOFF.md` is the authoritative operational state.
 
@@ -67,6 +67,10 @@ No simulator state or acceptance rule was changed. An incremental simulator-metr
 
 Measured mass `--check` runs in the checkpoint environment: **5.72 / 5.78 / 5.86 / 5.77 / 5.84 s**, median **5.78 s**. A strict run with `translations/dialogues_french.json` physically absent rebuilt the exact 264,463-byte file in **5.64 s**. All five dialogue outputs and all component IPS files remain byte-identical to Round 85.9.
 
+## French opening follow-up
+
+The title arrangement no longer uses optimal LZ compression. It is emitted as a literal-only stock-format stream at `$EE:A000` and still loaded through `$C1:0014`. This architecture is runtime-validated standalone, with `mana_tree_original`, and in the complete combined build. Do not reintroduce the raw `MVN` loader or allocate opening data in `$EF`; the failed raw-copy experiment demonstrated a runtime interaction with the Mana Tree resource-loader hook.
+
 ## Next step
 
-Treat Round 85.10 as the serial performance reference. Further optimization should require a new concrete hotspot or a material slowdown; do not pursue simulator incremental-state changes or multiprocessing merely for benchmark aesthetics.
+Treat Round 85.10 as the serial dialogue-performance reference and Round 85.13 as the validated opening-storage reference. Further optimization should require a concrete hotspot or functional need.

@@ -15,8 +15,9 @@ for the owning component even when the current generated payload is shorter.
 | GAME FILE | `0x074D40-0x074DBE` | `$C7:4D40-$4DBE` | relocated save/load-menu resource for expanded `Fichier` label |
 | GAME SELECT | `0x2D8000-0x2D83FF` | `$ED:8000-$83FF` | relocated GAME SELECT welcome/help text |
 | GAME FILE | `0x2D8400-0x2DFFFF` | `$ED:8400-$FFFF` | relocated GAME FILE save-help text / reserved component text space |
-| French opening | `0x2E8000-0x2E8FFF` | `$EE:8000-$8FFF` | reserved relocated title-arrangement region |
-| French opening | `0x2E9000-0x2EFFFF` | `$EE:9000-$FFFF` | reserved opening-helper region |
+| French opening helper | `0x2E9000-0x2E9FFF` | `$EE:9000-$9FFF` | opening renderer helper |
+| French opening arrangement | `0x2EA000-0x2EBFFF` | `$EE:A000-$BFFF` | literal-only stock-format stream, loaded through `$C1:0014` |
+| French opening | `0x2F8000-0x2F9C55` | `$EF:8000-$9C55` | raw relocated title arrangement (current 7,254-byte build; reserve through `$EF:BFFF`) |
 | Mana Tree | `0x2FC000-0x2FF5FF` | `$EF:C000-$F5FF` | Japanese Mana Tree resource |
 | Mana Tree | `0x2FF800-0x2FF89F` | `$EF:F800-$F89F` | 160-byte resource-loader helper |
 | intro VWF | `0x074285-0x07437C` | `$C7:4285-$437C` | intro VWF renderer using the runtime-validated shared compositor |

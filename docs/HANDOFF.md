@@ -1,4 +1,4 @@
-# Development handoff — Round 85.10 dialogue pipeline optimization
+# Development handoff — Round 85.13 validated opening literal-stream architecture
 
 Operational handoff. The accompanying archive is authoritative over GitHub.
 
@@ -93,10 +93,17 @@ Do not reopen dialogue wording/identity without a concrete regression. Do not st
 
 Round 85.10 is the optimized serial reference path. Do not add multiprocessing merely because the target PC has many threads: the remaining measured work is dominated by real alignment/scoring and independent simulation rather than obvious repeated-work hotspots, and the serial mass run is already around six seconds. Re-profile only after a functional pipeline change or if generation becomes materially slower. Any future `--jobs N` experiment must remain optional, deterministic and byte-identical to this serial reference.
 
-## French opening builder performance
+## French opening storage/build architecture
 
-`components/french_opening/build_patch.py` now keeps the same exact optimal
-compression/tie-breaking while avoiding redundant Python-level match scans.
-Standalone `french-opening` rebuild time dropped from ~14.7 s to ~3.3 s in the
-maintenance benchmark; the generated IPS is byte-identical. See
-`docs/OPTIMIZATION_FRENCH_OPENING.md`.
+`french_opening` now stores the relocated title arrangement at `$EE:A000` in the
+stock compression container using **literal packets only**. The game still loads
+it through the stock `$C1:0014` decompressor into `$7E:5000`; only the expensive
+host-side optimal-LZ search for this ~7 KiB arrangement was removed. The opening
+text remains fully regenerated from `translations/opening_text_french.json`.
+
+A raw-copy (`MVN`) experiment worked standalone but produced a black screen when
+combined with `mana_tree_original`. The literal-stream architecture restores the
+stock loader protocol and was runtime-validated both with Mana Tree and in the
+full combined build. `$EF` is no longer used by `french_opening`. Standalone build
+time is about 1.5-1.6 s in the maintenance environment. See
+`docs/OPTIMIZATION_FRENCH_OPENING.md` and `docs/OPENING_LITERAL_STREAM_ROUND85_13.md`.

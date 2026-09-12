@@ -29,3 +29,10 @@ and tie-breaking remain unchanged. The rebuilt `french_opening.ips` is
 byte-identical to the pre-optimization patch.
 
 Measured standalone build time fell from ~14.7 s to ~3.3 s in this environment.
+
+## Superseded arrangement path (Round 85.13)
+
+The optimal-compressor improvements above remain active for the title-code and
+font blocks. The arrangement itself no longer uses optimal LZ compression as of
+Round 85.13: it is emitted as a literal-only stock-format stream at `$EE:A000`
+and still loaded by `$C1:0014`. See `OPENING_LITERAL_STREAM_ROUND85_13.md`.

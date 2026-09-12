@@ -12,7 +12,7 @@ Main changes:
 - literal three-period sequence for "Masamune...";
 - French startup credits sourced from root translation JSON, including a dedicated one-cell É at $7A;
 - original copyright-year tile workaround;
-- title arrangement relocated to ROM 0x2E8000 / CPU $EE:8000;
+- title arrangement stored as a fast literal-only stock-format stream in expanded ROM;
 - 3 MiB ROM expansion.
 
 Base ROM:
@@ -38,7 +38,7 @@ TITLE_FONT_ROM = 0x07C1C0
 
 CUSTOM_CODE_ROM = 0x2E9000
 
-RELOCATED_ARR_ROM = 0x2E8000
+RELOCATED_ARR_ROM = 0x2EA000
 
 ACUTE_TILE_CODE = 0x7D
 GRAVE_TILE_CODE = 0x7E
@@ -66,10 +66,6 @@ ARR_LOADER_OFFSET = 0x2D8D
 ARR_LOADER_ORIGINAL = bytes.fromhex(
     "a9 7e 00 a0 00 50 eb 09 c7 00 a2 80 b4 22 14 00 c1"
 )
-ARR_LOADER_RELOCATED = bytes.fromhex(
-    "a9 7e 00 a0 00 50 eb 09 ee 00 a2 00 80 22 14 00 c1"
-)
-
 US_YEAR = bytes.fromhex("7d 7e 7f")
 FR_STYLE_1993 = bytes.fromhex("5b 5c 5d")
 
@@ -211,6 +207,20 @@ def compress_block(data, key):
         key.to_bytes(2, "little")
         + bytes([len(data) >> 8, len(data) & 0xFF])
         + payload
+    )
+
+
+def compress_block_literals(data, key):
+    """Encode using only literal packets; deterministic O(n) fallback-friendly stream."""
+    payload = bytearray()
+    for start in range(0, len(data), 0x80):
+        chunk = data[start:start + 0x80]
+        payload.append(len(chunk) - 1)
+        payload.extend(chunk)
+    return (
+        key.to_bytes(2, "little")
+        + bytes([len(data) >> 8, len(data) & 0xFF])
+        + bytes(payload)
     )
 
 
@@ -607,38 +617,23 @@ def build_renderer_helper():
     return bytes(code)
 
 
-def build_title_code(code):
-    if (
-        code[RENDERER_HOOK_OFFSET:
-             RENDERER_HOOK_OFFSET+len(RENDERER_ORIGINAL)]
-        != RENDERER_ORIGINAL
-    ):
+def patch_title_code_for_relocated_arrangement(code):
+    """Relocate the arrangement source to $EE:A000 while keeping the stock loader."""
+    if code[RENDERER_HOOK_OFFSET:RENDERER_HOOK_OFFSET+len(RENDERER_ORIGINAL)] != RENDERER_ORIGINAL:
         raise ValueError("Unexpected title renderer signature")
-
     if code[0x0843:0x0845] != bytes.fromhex("f0 0f"):
         raise ValueError("Unexpected renderer terminator branch")
-
-    if (
-        code[ARR_LOADER_OFFSET:
-             ARR_LOADER_OFFSET+len(ARR_LOADER_ORIGINAL)]
-        != ARR_LOADER_ORIGINAL
-    ):
+    if code[ARR_LOADER_OFFSET:ARR_LOADER_OFFSET+len(ARR_LOADER_ORIGINAL)] != ARR_LOADER_ORIGINAL:
         raise ValueError("Unexpected title-arrangement loader signature")
-
     out = bytearray(code)
-
-    out[
-        RENDERER_HOOK_OFFSET:
-        RENDERER_HOOK_OFFSET+len(RENDERER_HOOK)
-    ] = RENDERER_HOOK
-
-    out[
-        ARR_LOADER_OFFSET:
-        ARR_LOADER_OFFSET+len(ARR_LOADER_RELOCATED)
-    ] = ARR_LOADER_RELOCATED
-
+    out[RENDERER_HOOK_OFFSET:RENDERER_HOOK_OFFSET+len(RENDERER_HOOK)] = RENDERER_HOOK
+    # Original sequence forms A=$7EC7, X=$B480, Y=$5000, then JSL $C10014.
+    # Use A=$7EEE and X=$A000 while preserving the stock decompressor call.
+    relocated = bytes.fromhex("a9 7e 00 a0 00 50 eb 09 ee 00 a2 00 a0 22 14 00 c1")
+    if len(relocated) != len(ARR_LOADER_ORIGINAL):
+        raise AssertionError("Relocated arrangement loader changed instruction footprint")
+    out[ARR_LOADER_OFFSET:ARR_LOADER_OFFSET+len(relocated)] = relocated
     return bytes(out)
-
 
 def main():
     root = ROOT
@@ -681,9 +676,7 @@ def main():
         original, TITLE_FONT_ROM
     )
 
-    helper = build_renderer_helper()
-
-    new_code = build_title_code(code)
+    renderer_helper = build_renderer_helper()
 
     new_arr, layout, prologue_start, prologue_end, technical_blank_end = (
         build_prologue(arr, lines)
@@ -700,7 +693,10 @@ def main():
     new_arr, credit_relative_x, credit_blob = append_startup_credit_list(
         new_arr, credits
     )
+
+    new_code = patch_title_code_for_relocated_arrangement(code)
     new_code = patch_startup_credit_sequence(new_code, credit_relative_x)
+    helper = renderer_helper
 
     new_font = load_font_png(font_path, font)
     if new_font[26*32:27*32] == font[26*32:27*32]:
@@ -709,13 +705,12 @@ def main():
         )
 
     code_cmp = compress_block(new_code, code_key)
-    arr_cmp = compress_block(new_arr, arr_key)
+    arr_cmp = compress_block_literals(new_arr, arr_key)
     font_cmp = compress_block(new_font, font_key)
 
-    # Keep the relocated arrangement and compact-marker helper disjoint.
-    if RELOCATED_ARR_ROM + len(arr_cmp) > CUSTOM_CODE_ROM:
-        raise ValueError("Relocated arrangement overlaps the opening helper at $EE:9000")
-    if CUSTOM_CODE_ROM + len(helper) > 0x2F0000:
+    if RELOCATED_ARR_ROM + len(arr_cmp) > 0x2EC000:
+        raise ValueError("Literal-only opening arrangement exceeds the reserved $EE:A000-$BFFF region")
+    if CUSTOM_CODE_ROM + len(helper) > RELOCATED_ARR_ROM:
         raise ValueError("Opening helper exceeds its reserved $EE:9000 allocation")
 
     if len(code_cmp) > code_capacity:
@@ -744,11 +739,11 @@ def main():
         TITLE_FONT_ROM:TITLE_FONT_ROM+font_capacity
     ] = font_cmp + b"\xFF" * (font_capacity - len(font_cmp))
 
-    # Keep the original arrangement block untouched. The modified full
-    # arrangement lives only in expanded space.
-    rom[
-        RELOCATED_ARR_ROM:RELOCATED_ARR_ROM+len(arr_cmp)
-    ] = arr_cmp
+    # Keep the original arrangement block untouched. Store a literal-only
+    # stream in the stock compression container at $EE:A000. The normal
+    # decompressor/loader path remains intact, which keeps this component
+    # compatible with mana_tree_original and other resource-loader hooks.
+    rom[RELOCATED_ARR_ROM:RELOCATED_ARR_ROM+len(arr_cmp)] = arr_cmp
 
     rom[
         CUSTOM_CODE_ROM:CUSTOM_CODE_ROM+len(helper)
@@ -764,7 +759,7 @@ def main():
         raise AssertionError("Opening-font round trip failed")
 
     if decompress_block(rom, RELOCATED_ARR_ROM)[0] != new_arr:
-        raise AssertionError("Relocated-arrangement round trip failed")
+        raise AssertionError("Relocated arrangement round trip failed")
 
     rendered_arr = decompress_block(rom, RELOCATED_ARR_ROM)[0]
     appended_start = TEXT_TABLE_BASE_OFFSET + credit_relative_x
@@ -817,7 +812,7 @@ def main():
                 )
 
     print("IPS:", output_path)
-    print("Arrangement:", len(arr_cmp), "bytes compressed")
+    print("Arrangement:", len(new_arr), "bytes via literal-only stream at $EE:A000")
     print("Title code:", len(code_cmp), "/", code_capacity)
     print("Opening font:", len(font_cmp), "/", font_capacity)
     print("Checksum:", f"{checksum:04X}")
