@@ -199,7 +199,7 @@ python3 tools/import_android_text.py --only dialogue-auto --check
 ```
 
 `--only dialogue-review-round6` regenerates the current structural-review evidence in
-`mappings/android/dialogues_review_round6.json` without changing translation output.
+the legacy generated Round-6 review report (no longer versioned) without changing translation output.
 
 Round 58 manual-supplement schema uses `original_jp`, `original_en`, `original_fr` and
 `translation_fr`. `translation_fr` is proposed in this order: SNES-JP meaning, event context,

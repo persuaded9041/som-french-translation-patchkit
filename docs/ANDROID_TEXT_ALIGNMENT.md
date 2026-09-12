@@ -197,7 +197,7 @@ provenance even when it does not change the recovered translation prose.
 
 ## 9. Round-2 validation
 
-`mappings/android/dialogues_review_round2.json` contains 23 alignment units from
+the legacy generated Round-2 review report (no longer versioned) contains 23 alignment units from
 three scenes. The complete batch was visually validated by the user.
 
 It established several representations beyond simple 1:1 pairs:
@@ -230,7 +230,7 @@ SNES-specific wrapping/reflow remains a later, separate deterministic step.
 
 ## 10. Round-3 validation
 
-`mappings/android/dialogues_review_round3.json` extends the same method to 33
+the legacy generated Round-3 review report (no longer versioned) extends the same method to 33
 units across three additional scenes. The complete batch was visually validated
 by the user:
 
@@ -257,7 +257,7 @@ USA script condensed.
 
 ## 11. Round-4 diversity batch
 
-`mappings/android/dialogues_review_round4.json` contains 37 additional units
+the legacy generated Round-4 review report (no longer versioned) contains 37 additional units
 chosen for structural diversity rather than raw coverage:
 
 - event `$022E`: Gnome joins after Tropicallo, Android `1034-1046`;
@@ -325,7 +325,7 @@ existing build outputs remain unchanged.
 
 ## 13. Round-5 stress test: auditing non-monotonic events
 
-`mappings/android/dialogues_review_round5.json` contains 55 review units across
+the legacy generated Round-5 review report (no longer versioned) contains 55 review units across
 five SNES events selected specifically because a strong-anchor scan did **not**
 produce one globally increasing Android-ID sequence for the whole event. Two
 additional SNES source strings are recorded explicitly as unmatched rather than
@@ -480,7 +480,7 @@ A sixth structural-review round records **30 correspondence units**. One source 
 already mapped by the previous pass, so it recovers **29 additional semantic source IDs**
 that the lexical matcher correctly left unresolved. These are not weaker fuzzy matches: identity is established
 from ordered Android-English scene structure plus already accepted neighboring anchors.
-The evidence is reproducible as `mappings/android/dialogues_review_round6.json`;
+The evidence is reproducible as the legacy generated Round-6 review report (no longer versioned);
 identity remains encoded explicitly in `tools/import_android_text.py`. Two main families are kept separate:
 
 - **speaker/staging redistribution**: the SNES Joch running gag stores reactions such as
@@ -1083,7 +1083,7 @@ This supersedes the Round-39 `$0689` stock-English exception without weakening t
 
 Round 47 changes no semantic identity and no translation. It formalizes negative evidence for 14 still-unresolved carriers using the event-call graph plus the canonical ROM map-trigger (`$084000`) and map-object-pointer (`$087000`) tables. Six carriers are `validated_no_equivalent` (`$00EE`, `$00F1`, `$00F3`, `$0269`, `$02DE`, `$0603`); eight are `validated_android_omission` (`$0042`, `$0207`, `$0208`, `$024F`, and four `$02FC` diary carriers).
 
-These statuses must never be promoted to Android IDs merely to increase coverage. `validated_no_equivalent` means the reviewed routing/provenance does not yield a unique Android-English counterpart; `validated_android_omission` means the SNES branch/scene is proved but the corresponding Android scene omits that carrier. The reproducible audit is `mappings/android/dialogues_review_round47.json`. Alignment therefore remains **1798/1838 (97.8%)** with **40 unresolved**.
+These statuses must never be promoted to Android IDs merely to increase coverage. `validated_no_equivalent` means the reviewed routing/provenance does not yield a unique Android-English counterpart; `validated_android_omission` means the SNES branch/scene is proved but the corresponding Android scene omits that carrier. The reproducible audit is the reproducible Round-47 classification encoded by the importer (legacy JSON no longer versioned). Alignment therefore remains **1798/1838 (97.8%)** with **40 unresolved**.
 
 
 ## Round 48 exact formatter recovery + Tasnica omission audit
@@ -1101,12 +1101,12 @@ Alignment therefore remains **1798 / 1838 (97.8%)**, with **40 unresolved**. The
 
 Round 49 adds **no Android identity**, no automatic matcher and no namespace change. Semantic alignment therefore stays **1798 / 1838 (97.8%)**, with **40 unresolved**. The pass operates only on already-accepted mappings: `$02CD` removes one exact Android-FR-only `%S(0,0) :` label absent from both Android EN and the entire SNES event command stream; `$03F0` distributes Android 2361 across the exact three stock sound carriers; and `$04E9` gains seven French carriers after two exact clear-only resets following existing `WAIT $00` pauses. `$04E9/CA:48DC+CA:4925 -> Android 895` remains deliberately layout-deferred because Android FR condenses the two SNES statements into one unsplittable sentence. `$0205` is likewise left formatter-rejected rather than forcing a clause split across `PLAYER_NAME(0) + WAIT $00 + TEXT_CLEAR`.
 
-Compared with Round 48, **1697/1697 previous translation entries remain byte-for-byte unchanged**, **11 entries are added**, and none are removed or modified. The simulator-filtered corpus becomes **683 events = 659 complete + 24 PARTIEL**, with **1624 visible semantic IDs / 1708 JSON entries** and exclusions **15 alignment-incomplete + 2 formatter-rejected + 4 simulator-rejected**. Static simulation remains **0 errors / 0 warnings / 0 implicit wraps**. Exact evidence is recorded in `mappings/android/dialogues_review_round49.json`.
+Compared with Round 48, **1697/1697 previous translation entries remain byte-for-byte unchanged**, **11 entries are added**, and none are removed or modified. The simulator-filtered corpus becomes **683 events = 659 complete + 24 PARTIEL**, with **1624 visible semantic IDs / 1708 JSON entries** and exclusions **15 alignment-incomplete + 2 formatter-rejected + 4 simulator-rejected**. Static simulation remains **0 errors / 0 warnings / 0 implicit wraps**. Exact evidence is recorded in the legacy generated Round-49 review report (no longer versioned).
 
 
 ## Round 50 exact segmentation without new identity
 
-Round 50 adds **no Android ID** and no automatic identity rule. Alignment remains **1798 / 1838 (97.8%)**, with **40 unresolved**. The only mapping change is a segmentation refinement inside the already-proven `$01CE` unit: Android EN 536 is the donation prompt, 537 is the affirmative choice, and already-accepted 538 is the negative choice. The stock `CHOICE_BEGIN` / `CHOICE_OPTION` boundaries therefore split the previous 536+537 many-to-many ownership into `C9:7827 -> 536` and `C9:7856 -> 537`. `mappings/android/dialogues_review_round50.json` records this as **user-validated** structural evidence; it does not create new identity coverage.
+Round 50 adds **no Android ID** and no automatic identity rule. Alignment remains **1798 / 1838 (97.8%)**, with **40 unresolved**. The only mapping change is a segmentation refinement inside the already-proven `$01CE` unit: Android EN 536 is the donation prompt, 537 is the affirmative choice, and already-accepted 538 is the negative choice. The stock `CHOICE_BEGIN` / `CHOICE_OPTION` boundaries therefore split the previous 536+537 many-to-many ownership into `C9:7827 -> 536` and `C9:7856 -> 537`. the importer's Round-50 reviewed structural evidence (legacy JSON no longer versioned) records this as **user-validated** structural evidence; it does not create new identity coverage.
 
 The other Round-50 gains are simulator/formatting admission only. `$0040` becomes PARTIEL through the proven forward/equal `TEXT_X` decoded-index model while its dynamic-name-mismatched `C9:0F75` remains stock. `$04FD` becomes PARTIEL only because all 19 special `ending_text` blocks remain byte-identical to the clean USA event. `$01CE` receives one exact layout-only `TEXT_CLEAR` at newline-only `C9:7824` after its existing `WAIT $00`. `$0429` remains excluded rather than accepting a multi-part layout workaround around unresolved Android-FR `PLAYER_NAME` redistribution.
 
@@ -1123,7 +1123,7 @@ The two remaining carriers are not omissions but shared contextual templates. `$
 
 After this audit, the 40 unresolved IDs contain no free lexical candidate pool under the current policy: **14** are `validated_android_omission`, **8** are `validated_no_equivalent`, **2** are `validated_contextual_template`, **7** belong to user-validated visually complete Android adaptations/status overrides (`$0103`, `$017F`, `$01DC`, `$0602`), and the remaining **9** are explicit handoff locks (`$001E`, `$015A`, `$01C5`, `$035F`, two `$04E1` carriers, three `$05F8` carriers). Any future increase above 1798/1838 therefore requires genuinely new provenance or an explicit decision to reopen one of those locks; a new generic lexical matcher is not justified by the residual set.
 
-Reproducible evidence is stored in `mappings/android/dialogues_review_round51.json`.
+Reproducible evidence is stored in the importer's Round-51 reproducible evidence (legacy JSON no longer versioned).
 
 
 ## Round 52 exact structural formatter recovery
@@ -1146,7 +1146,7 @@ Round 53 changes **no Android identity, no French translation payload, no format
 
 The complete `scrtxt` namespace contains **62 IDs where Android EN is empty and Android FR is non-empty**. Of these, **58 are already owned** by accepted mappings because Android FR redistributes an already-proven English identity across adjacent IDs. Only **4 are unowned**: 1688 (`Ça fait rêver !`) is an Android-only Kakkara embellishment with no residual SNES carrier; 2155 (`%S(0,0) : Allons-y !`) is an Android-only Dyluck-scene interjection with no residual SNES carrier; 3260 and 3261 are FR-only Thanatos transition/body-collapse prose inside the explicitly locked `$04E1` redistribution and have no Android-English identity. None may safely create a new SNES mapping.
 
-Combined with the Round-51 English audit, this closes Android `scrtxt` discovery under the current identity policy. Alignment therefore remains **1798 / 1838 (97.8%)**, **40 unresolved**. `mappings/android/dialogues_review_round53.json` deterministically records the FR-only audit and final categories; `mappings/android/dialogues_review_round53_context.html` exposes every residual carrier in a filterable manual-review sheet. The final residual split is **14 validated Android omissions + 8 validated no-unique-equivalent cases + 2 contextual templates + 7 runtime-validated visual Android adaptations + 9 explicit handoff locks**. No new generic matcher is justified.
+Combined with the Round-51 English audit, this closes Android `scrtxt` discovery under the current identity policy. Alignment therefore remains **1798 / 1838 (97.8%)**, **40 unresolved**. the importer's Round-53 deterministic residual classification (legacy JSON no longer versioned) deterministically records the FR-only audit and final categories; the legacy Round-53 context HTML (no longer versioned) exposes every residual carrier in a filterable manual-review sheet. The final residual split is **14 validated Android omissions + 8 validated no-unique-equivalent cases + 2 contextual templates + 7 runtime-validated visual Android adaptations + 9 explicit handoff locks**. No new generic matcher is justified.
 
 
 ## Round 54 exact payload completion after Android exhaustion
@@ -1155,14 +1155,14 @@ Round 53 establishes that the Android source search is exhausted under the curre
 
 Five exact units qualify: `$0040 -> 681`, `$0041 -> 625`, `$013A -> 848`, `$0559 -> 2146`, and `$0592 -> 1030`. `$0040` and `$0041` become complete. `$013A` remains PARTIEL because Android FR omits the second SNES sentence `C9:40D7`; that omission is now explicit rather than hiding the event as complete. `$0559` and `$0592` remain PARTIEL with their structurally incompatible follow-up Android units deferred. Android IDs 1031 and 2147, plus the previously documented `$04E3`, `$04FD`, `$0227` cases, are retained as found-but-unsafely-serializable evidence rather than forced.
 
-No prior translation entry changes: **1745/1745** Round-52 entries are unchanged and **8** new entries are added. The resulting corpus is **686 simulator-clean events = 665 complete + 21 PARTIEL**, **1663 visible semantic IDs / 1753 JSON entries**, with **0 errors / 0 warnings / 0 implicit wraps**. The searchable `mappings/android/dialogues_android_exhaustion_status.html` was the Round-54 cross-index at this historical checkpoint: Round-54 recoveries, then-current PARTIEL carriers whose Android identity was already known, and the 40 Android-not-found/negative-evidence carriers were deliberately shown as separate states. For the current checkpoint, use `docs/HANDOFF.md` and the Round-67 review files.
+No prior translation entry changes: **1745/1745** Round-52 entries are unchanged and **8** new entries are added. The resulting corpus is **686 simulator-clean events = 665 complete + 21 PARTIEL**, **1663 visible semantic IDs / 1753 JSON entries**, with **0 errors / 0 warnings / 0 implicit wraps**. The searchable the legacy Round-54 exhaustion cross-index (no longer versioned) was the Round-54 cross-index at this historical checkpoint: Round-54 recoveries, then-current PARTIEL carriers whose Android identity was already known, and the 40 Android-not-found/negative-evidence carriers were deliberately shown as separate states. For the current checkpoint, use `docs/HANDOFF.md` and the Round-67 review files.
 
 
 ## Round 55 review-queue cleanup (zero ROM diff)
 
 Round 55 changes no semantic identity, translation payload, formatter/simulator behavior, IPS or ROM byte. It records the user's final review-priority decisions after Android-source exhaustion. Eight residual bookkeeping items are explicitly **no action required**: `$001E` is a covered shared Joch/Jach fragment; `$0323/$0330/$0331` are the already-covered parameterized inn price/template path; `$0269`, `$02DE` and `$0603/CA:85FC` are unreferenced/orphan stock content in the canonical routing audit; `$035F` already has the validated manual payload `Dryade fera réagir l'orbe !`. **Historical note:** Round 59 supersedes the expanded `$035F` approval after exact JP transcription showed that the carrier itself contains only `ドリアード`; Round 60 validates only the minimal manual payload `Dryade`. The Round-55 classification file is retained as historical evidence.
 
-The strict semantic alignment remains **1798/1838** because these classifications do not invent Android identities. `mappings/android/dialogues_review_worklist.html` is the user-facing queue: it defaults to **34 events / 89 carriers requiring action**, with the eight no-action events retained under an informational filter. Exact classifications are stored in `mappings/android/dialogues_review_round55.json` and checked by `tools/check_dialogue_review_worklist.py --check`.
+The strict semantic alignment remains **1798/1838** because these classifications do not invent Android identities. the legacy generated Round-55 worklist (no longer versioned) is the user-facing queue: it defaults to **34 events / 89 carriers requiring action**, with the eight no-action events retained under an informational filter. Exact classifications are stored in the importer's Round-55 classifications (legacy JSON no longer versioned).
 
 ## Round 69 — targeted scene completion and playable-dialogue closure
 

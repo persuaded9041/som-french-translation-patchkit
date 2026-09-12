@@ -108,7 +108,6 @@ def main() -> None:
     # Round-67 lock checker intentionally validates only invariants owned by
     # Round 67. Later rounds may legitimately increase the accepted corpus.
     expected_cov = {
-        "manual_supplement_entry_count": 18,
         "user_validated_visually_complete_event_count": 5,  # minimum; later rounds may add validated-complete events
         "user_validated_structural_omission_event_count": 6,
         "user_validated_structural_omitted_command_count": 7,

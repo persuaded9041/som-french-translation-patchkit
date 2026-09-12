@@ -6,3 +6,11 @@ __pycache__/
 .venv/
 dialogue_preview*.html
 dialogue_preview*_issues.csv
+# Legacy/generated dialogue review artifacts (regenerable, not canonical inputs)
+mappings/android/dialogues_review_round*.json
+mappings/android/dialogues_review_round*_context.html
+mappings/android/dialogues_review_worklist*.html
+mappings/android/dialogues_omission_review_round*.*
+mappings/android/dialogues_android_exhaustion_status.html
+mappings/android/dialogues_coverage_repair_lot*.html
+mappings/android/dialogues_coverage_repair_lot*_issues.csv

@@ -763,7 +763,7 @@ Round 45 adds two exact serializer paths and no generic formatting behavior. `$0
 
 ## Round 48 exact Android-FR-only vocative repairs
 
-Some official Android-FR strings introduce `%S(n,0)` as a conversational vocative even though the corresponding Android-English identity and the SNES carrier contain no dynamic addressee. Round 48 permits removal only for seven reviewed carrier/Android-ID pairs recorded in `mappings/android/dialogues_review_round48.json`. This is an exact allow-list: it must not become a generic `%S` deletion rule, and it never creates, moves or removes a SNES `PLAYER_NAME` command.
+Some official Android-FR strings introduce `%S(n,0)` as a conversational vocative even though the corresponding Android-English identity and the SNES carrier contain no dynamic addressee. Round 48 permits removal only for seven reviewed carrier/Android-ID pairs recorded in the Round-48 exact allow-list encoded in `tools/import_android_text.py`. This is an exact allow-list: it must not become a generic `%S` deletion rule, and it never creates, moves or removes a SNES `PLAYER_NAME` command.
 
 `$0127` is separately allow-listed for exact pagination because its already-proven French scene otherwise exceeds the dialogue page geometry. Two `WAIT $00 + TEXT_CLEAR` transitions are placed only at reviewed sentence boundaries, and one `TEXT_CLEAR` follows the existing stock `WAIT $08`. Actor actions, both stock `PLAYER_NAME(0)` commands and the timed wait remain in source order. The resulting Round-48 corpus is **680 simulator-clean events**, with **0 errors, 0 warnings and 0 implicit wraps**.
 
