@@ -193,21 +193,24 @@ python3 tools/dialogue/import_android.py --only dialogue-auto \
 
 The alignment is normally regenerated in memory by regression/audit tools; this command is only needed to materialize a review snapshot.
 
-Round 58 manual-supplement schema uses `original_jp`, `original_en`, `original_fr` and
-`translation_fr`. `translation_fr` is proposed in this order: SNES-JP meaning, event context,
-official SNES-FR terminology/tone, then VWF-friendly French. It remains non-active while
-`status=needs_manual_translation`; the build continues to emit canonical `original_en` until
-the user explicitly approves the proposal. A missing exact Japanese transcription is represented
-as `original_jp: null`, never by Android-JP text. The deterministic human review sheet is
-`reports/android/dialogues_manual_supplements.html` is a generated review sheet and is intentionally ignored by Git. Regenerate it on demand with
-`tools/dialogue/generate_manual_supplements_html.py`; `--check` only verifies a locally materialized copy. `tools/dialogue/check_manual_supplements.py`
-verifies provenance, canonical English binding, status values and codec-encodability of every
-proposed French string. Round 59 records the user's explicit approval of ten proposals and the reopening
-of `$035F/C9:D1B8` after exact JP transcription. Round 60 records the user's explicit approval of the
-minimal `$035F` payload `Dryade`; Round 63 records the `$04E1/CA:2C84` suppression. Round 64 added
-five no-equivalent manual-review records. Round 65 validates `$00EE`, `$00F1`, `$00F3` and `$04E8`; Round 66 validates `$0204/C9:902F`;
-Round 67 validates the `$013A/C9:40D7` suppression. There are now **0 pending manual records**. The older
-expanded payload `Dryade fera réagir l'orbe !` remains withdrawn. The current Round-69 mass pass is **701 events with 0 errors, 0 warnings and 0 implicit wraps**.
+The manual supplement manifest is now deliberately minimal (`format_version: 3`).
+Each approved translation stores only `id` + `text`; each validated deletion stores
+only `id` + `suppress: true`. Event ownership, canonical USA source text, policy
+reason and active status are derived from `assets/dialogues.json` and the exact
+manual allow-lists at load time, so redundant provenance cannot drift. There are
+currently **15 translated carriers + 2 validated suppressions** and no pending
+manual proposals. Historical JP/FR comparison evidence belongs in the project
+history/documentation rather than in the active build manifest.
+
+`reports/android/dialogues_manual_supplements.html` is an optional generated review
+sheet and is intentionally ignored by Git. It reconstructs the event and canonical
+USA text from `assets/dialogues.json` and shows only the final manual decision.
+Generate it on demand with `tools/dialogue/generate_manual_supplements_html.py`;
+`--check` only verifies a locally materialized copy.
+`tools/dialogue/check_manual_supplements.py` validates the exact carrier set, the
+minimal schema, codec encodability and the two allow-listed suppressions. The older
+expanded `$035F` payload `Dryade fera réagir l'orbe !` remains withdrawn; the active
+manual payload is exactly `Dryade`.
 
 On request it can materialize `reports/android/dialogues_auto.json` plus
 `reports/android/dialogues_unmapped.csv`; normal checks regenerate the same alignment in memory. After the reviewed rounds, semantic Android

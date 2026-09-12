@@ -40,16 +40,8 @@ def semantic_layout_normalized(text: str) -> str:
 def check_targeted_reviews(manual: dict, french: dict, mass: dict) -> None:
     entries = {e["id"]: e for e in manual["entries"]}
     c40d7 = entries.get("C9:40D7")
-    if not c40d7 or c40d7.get("event_id") != "013A":
-        die("$013A/C9:40D7 manual review missing/moved")
-    if c40d7.get("status") != "suppressed" or c40d7.get("reason") != "user_validated_snes_jp_absent_suppression":
-        die("$013A/C9:40D7 suppression provenance drifted")
-    if c40d7.get("original_jp") is not None or c40d7.get("original_jp_status") != "no_distinct_snes_jp_counterpart_confirmed":
-        die("$013A/C9:40D7 JP-absence provenance drifted")
-    if c40d7.get("original_jp_context_event_id") != "013A" or c40d7.get("original_jp_context_carrier_id") != "C9:4F39":
-        die("$013A/C9:40D7 JP context binding drifted")
-    if c40d7.get("translation_fr") != "":
-        die("$013A/C9:40D7 suppression must not invent French prose")
+    if c40d7 != {"id": "C9:40D7", "suppress": True}:
+        die("$013A/C9:40D7 validated suppression drifted")
 
     active = active_entries(french)
     if active.get("C9:40D7") != "":

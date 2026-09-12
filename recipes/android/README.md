@@ -46,9 +46,10 @@ the same rule: deterministic review outputs, never build sources.
 
 ## Manual supplement review sheet
 
-`reports/android/dialogues_manual_supplements.html` is a deterministic on-demand review rendering of
-`translations/dialogues_manual_supplements.json`. It is ignored by Git and is not read by
-any build or regression check. Generate it only when a human review sheet is useful.
+`reports/android/dialogues_manual_supplements.html` is a deterministic on-demand
+review rendering of the minimal manual manifest plus canonical USA source text from
+`assets/dialogues.json`. It is ignored by Git and is not read by any build or
+regression check. Generate it only when a human review sheet is useful.
 
 ## Generated on demand, not versioned
 

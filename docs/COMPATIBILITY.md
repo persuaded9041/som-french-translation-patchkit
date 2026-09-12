@@ -203,7 +203,7 @@ PARTIEL events preserve deferred mapped carriers byte-for-byte in stock English 
 direct-simulation gates; neither fallback changes identity or stock commands. Accepted mappings may render in French while unresolved reviewed holes remain stock
 English in PARTIEL events; `$0278` additionally remains PARTIEL because its two SNES-only
 controller carriers are user-validated absent from Android and are staged in
-`translations/dialogues_manual_supplements.json` pending manual French translation. `$00DF` is complete through the runtime-validated minimal
+`translations/dialogues_manual_supplements.json`; its current carriers are all resolved (15 translations + 2 validated suppressions). `$00DF` is complete through the runtime-validated minimal
 later-choice anchor shift. `$0103`, `$017F` and `$01DC` are separately user-validated as
 visually complete Android adaptations and no longer carry a PARTIEL badge. `$0602` is also
 badge-free after runtime review found no visible missing/English content; unresolved `CA:85DD`

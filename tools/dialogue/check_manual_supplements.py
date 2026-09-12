@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the current manual-dialogue supplement review schema."""
+"""Validate the minimal manual-dialogue supplement manifest."""
 from __future__ import annotations
 import json
 from pathlib import Path
@@ -9,6 +9,12 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from shared.dialogue.codec import encode_translated_dialogue_text  # noqa: E402
+from shared.dialogue.pipeline.policies import (  # noqa: E402
+    DIALOGUE_USER_REQUESTED_MAPPED_MANUAL_REVIEW_IDS,
+    DIALOGUE_USER_REQUESTED_UNMAPPED_MANUAL_REVIEW_IDS,
+    DIALOGUE_USER_VALIDATED_ANDROID_ABSENT_MANUAL_IDS,
+)
+
 MANUAL = ROOT / "translations" / "dialogues_manual_supplements.json"
 SOURCE = ROOT / "assets" / "dialogues.json"
 EXPECTED_IDS = {
@@ -17,100 +23,72 @@ EXPECTED_IDS = {
     "C9:C56C", "C9:CAA6", "C9:CAC2", "C9:CB0C", "C9:D1B8",
     "CA:2C84", "CA:437D",
 }
-PENDING_IDS = set()
+SUPPRESSED_IDS = {"C9:40D7", "CA:2C84"}
 
 
 def main() -> None:
     doc = json.loads(MANUAL.read_text(encoding="utf-8"))
-    if doc.get("format_version") != 2 or doc.get("language") != "fr":
-        raise SystemExit("manual supplements must be Round-58 format v2 / fr")
-    refs = doc.get("reference_roms", {})
-    if refs.get("snes_jp", {}).get("sha256") != "7fd1747eb4333f502d5fe6df7267342e4b4a399ab65b57f0a139e5f9fc02ab9d":
-        raise SystemExit("SNES-JP provenance hash changed")
-    if refs.get("snes_fr_rev1", {}).get("sha256") != "b730adcbb34a19f8fd1c2abe27455cc3256329a9b8a021291e3009ea33004127":
-        raise SystemExit("SNES-FR Rev1 provenance hash changed")
+    if set(doc) != {"format_version", "entries"} or doc.get("format_version") != 3:
+        raise SystemExit("manual supplements must use minimal format v3")
 
     source = json.loads(SOURCE.read_text(encoding="utf-8"))
     by_id = {
-        tok["id"]: tok.get("source", "")
+        tok["id"]: {"event_id": ev["event_id"], "source": tok.get("source", "")}
         for ev in source["events"]
         for tok in ev.get("tokens", [])
         if tok.get("type") == "text" and tok.get("id")
     }
     entries = doc.get("entries", [])
-    ids = {e.get("id") for e in entries}
-    if ids != EXPECTED_IDS or len(entries) != len(EXPECTED_IDS):
-        raise SystemExit(f"manual supplement set changed: {sorted(ids)}")
+    ids = [e.get("id") for e in entries if isinstance(e, dict)]
+    if set(ids) != EXPECTED_IDS or len(ids) != len(EXPECTED_IDS):
+        raise SystemExit(f"manual supplement set changed: {sorted(set(ids))}")
+    if len(ids) != len(set(ids)):
+        raise SystemExit("manual supplement IDs must be unique")
+
+    allowed_by_event: dict[str, set[str]] = {}
+    for allow_map in (
+        DIALOGUE_USER_VALIDATED_ANDROID_ABSENT_MANUAL_IDS,
+        DIALOGUE_USER_REQUESTED_UNMAPPED_MANUAL_REVIEW_IDS,
+        DIALOGUE_USER_REQUESTED_MAPPED_MANUAL_REVIEW_IDS,
+    ):
+        for event_id, allowed in allow_map.items():
+            allowed_by_event.setdefault(event_id, set()).update(allowed)
+
     for e in entries:
-        text_id = e["id"]
-        for key in ("original_jp", "original_en", "original_fr", "translation_fr"):
-            if key not in e:
-                raise SystemExit(f"{text_id}: missing {key}")
-        if e["original_en"] != by_id.get(text_id):
-            raise SystemExit(f"{text_id}: original_en drifted from canonical source")
-        if e["original_jp"] is not None and not isinstance(e["original_jp"], str):
-            raise SystemExit(f"{text_id}: original_jp must be string/null")
-        if not isinstance(e["original_fr"], str) or not e["original_fr"]:
-            raise SystemExit(f"{text_id}: original_fr missing")
-        if not isinstance(e["translation_fr"], str):
-            raise SystemExit(f"{text_id}: translation_fr must be a string")
-        is_empty_validated_suppression = (
-            e.get("status") == "suppressed" and e["translation_fr"] == ""
-        )
-        if not e["translation_fr"] and not is_empty_validated_suppression:
-            raise SystemExit(f"{text_id}: translation_fr proposal/reference missing")
-        if e["translation_fr"]:
+        if not isinstance(e, dict):
+            raise SystemExit("manual supplement entries must be objects")
+        if set(e) - {"id", "text", "suppress"}:
+            raise SystemExit(f"{e.get('id')}: unexpected field(s) {sorted(set(e) - {'id', 'text', 'suppress'})}")
+        text_id = e.get("id")
+        meta = by_id.get(text_id)
+        if meta is None:
+            raise SystemExit(f"{text_id}: unknown source carrier")
+        event_id = meta["event_id"]
+        if text_id not in allowed_by_event.get(event_id, set()):
+            raise SystemExit(f"${event_id}/{text_id}: carrier left the exact manual allow-list")
+        suppress = e.get("suppress", False)
+        if not isinstance(suppress, bool):
+            raise SystemExit(f"{text_id}: suppress must be boolean")
+        if suppress:
+            if text_id not in SUPPRESSED_IDS or set(e) != {"id", "suppress"}:
+                raise SystemExit(f"{text_id}: invalid validated suppression record")
+        else:
+            if set(e) != {"id", "text"} or not isinstance(e.get("text"), str) or not e["text"]:
+                raise SystemExit(f"{text_id}: translated records must contain only id + non-empty text")
             try:
-                encode_translated_dialogue_text(e["translation_fr"])
+                encode_translated_dialogue_text(e["text"])
             except ValueError as exc:
-                raise SystemExit(f"{text_id}: translation_fr is not dialogue-codec encodable: {exc}") from exc
-        if e["status"] == "needs_manual_translation" and e["translation_fr"] == e["original_en"]:
-            raise SystemExit(f"{text_id}: pending entry has no distinct French proposal")
-        if e["status"] not in {"needs_manual_translation", "translated", "suppressed"}:
-            raise SystemExit(f"{text_id}: invalid status")
-    pending = [e for e in entries if e["status"] == "needs_manual_translation"]
-    translated = [e for e in entries if e["status"] == "translated"]
-    suppressed = [e for e in entries if e["status"] == "suppressed"]
-    if (
-        {e["id"] for e in pending} != PENDING_IDS
-        or len(translated) != 15
-        or {e["id"] for e in suppressed} != {"CA:2C84", "C9:40D7"}
-    ):
-        raise SystemExit("current manual supplement approval/suppression state changed")
-    mapped_review = next(e for e in suppressed if e["id"] == "CA:2C84")
-    if (
-        mapped_review["event_id"] != "04E1"
-        or mapped_review["reason"] != "user_validated_resegmented_snes_jp_suppression"
-        or mapped_review["original_en"] != " It is time!"
-        or mapped_review["original_fr"] != "Le moment est venu !"
-        or mapped_review["translation_fr"] != "Le moment est venu !"
-        or mapped_review["original_jp_event_id"] != "0070"
-        or mapped_review["original_jp_carrier_id"] != "C9:1539"
-        or "あたらしく生まれ変わった体" not in mapped_review["original_jp"]
-    ):
-        raise SystemExit("$04E1/CA:2C84 resegmented-page suppression changed")
-    dryad = next(e for e in entries if e["id"] == "C9:D1B8")
-    if (
-        dryad["translation_fr"] != "Dryade"
-        or dryad["original_jp"] != "ドリアード"
-        or dryad["original_en"] != "Dryad"
-        or dryad["status"] != "translated"
-    ):
+                raise SystemExit(f"{text_id}: text is not dialogue-codec encodable: {exc}") from exc
+
+    by_manual_id = {e["id"]: e for e in entries}
+    if by_manual_id["C9:D1B8"] != {"id": "C9:D1B8", "text": "Dryade"}:
         raise SystemExit("$035F must remain the validated minimal Dryade surcharge")
-    western = next(e for e in entries if e["id"] == "C9:40D7")
-    if (
-        western["event_id"] != "013A"
-        or western["status"] != "suppressed"
-        or western.get("reason") != "user_validated_snes_jp_absent_suppression"
-        or western["translation_fr"] != ""
-        or western["original_jp"] is not None
-        or western.get("original_jp_status") != "no_distinct_snes_jp_counterpart_confirmed"
-        or western.get("original_jp_context_carrier_id") != "C9:4F39"
-        or "聖剣とともに使えば" not in western.get("original_jp_context", "")
-        or "D'autres armes sont" not in western["original_fr"]
-    ):
-        raise SystemExit("$013A/C9:40D7 validated JP-absent suppression changed")
-    print("Manual supplement schema verified: 17 carriers; 15 translated + 0 pending + 2 validated suppressions")
+    if by_manual_id["C9:40D7"] != {"id": "C9:40D7", "suppress": True}:
+        raise SystemExit("$013A/C9:40D7 validated suppression changed")
+    if by_manual_id["CA:2C84"] != {"id": "CA:2C84", "suppress": True}:
+        raise SystemExit("$04E1/CA:2C84 validated suppression changed")
+    print("Manual supplement schema verified: v3 minimal; 17 carriers; 15 translations + 2 suppressions")
+
 
 if __name__ == "__main__":
     main()

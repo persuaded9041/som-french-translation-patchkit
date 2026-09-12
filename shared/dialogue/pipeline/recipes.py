@@ -344,61 +344,54 @@ def _load_reviewed_choice_layout_recipes(source_document: dict) -> dict[str, dic
 
 
 def _load_manual_dialogue_supplements(source_document: dict) -> dict[str, dict[str, dict]]:
+    """Load the minimal manual-supplement manifest and derive all source metadata.
+
+    Version 3 intentionally stores only the carrier ID plus either its approved
+    French text or ``suppress: true``. Event ownership, canonical USA text,
+    status and policy reason are derived from the canonical source asset and the
+    exact allow-lists below so generated/redundant provenance cannot drift.
+    """
     document = json.loads(DIALOGUE_MANUAL_SUPPLEMENTS.read_text(encoding="utf-8"))
-    format_version = document.get("format_version")
-    if format_version not in {1, 2} or document.get("language") != "fr":
-        raise ValueError("dialogues_manual_supplements.json: unsupported format/language")
-    if document.get("source_asset") != "assets/dialogues.json":
-        raise ValueError("dialogues_manual_supplements.json: invalid source_asset")
+    if document.get("format_version") != 3:
+        raise ValueError("dialogues_manual_supplements.json: unsupported format (expected v3)")
     by_id, _ = event_text_index(source_document)
     result: dict[str, dict[str, dict]] = {}
-    for source_entry in document.get("entries", []):
-        if not isinstance(source_entry, dict):
+    for raw_entry in document.get("entries", []):
+        if not isinstance(raw_entry, dict):
             raise ValueError("dialogues_manual_supplements.json: entries must be objects")
-        entry = dict(source_entry)
-        event_id = entry.get("event_id")
-        text_id = entry.get("id")
-        status = entry.get("status")
-        reason = entry.get("reason")
-        if format_version == 1:
-            original_en = entry.get("source_en")
-            translation_fr = entry.get("text")
-            if status == "needs_manual_translation" and translation_fr != original_en:
+        unexpected = set(raw_entry) - {"id", "text", "suppress"}
+        if unexpected:
+            raise ValueError(
+                f"dialogues_manual_supplements.json: unsupported field(s) {sorted(unexpected)}"
+            )
+        text_id = raw_entry.get("id")
+        if not isinstance(text_id, str) or not text_id:
+            raise ValueError("dialogues_manual_supplements.json: each entry needs a non-empty id")
+        meta = by_id.get(text_id)
+        if meta is None:
+            raise ValueError(f"Manual supplement {text_id}: unknown source carrier")
+        event_id = meta.get("event_id")
+        original_en = meta.get("source", "")
+        suppress = raw_entry.get("suppress", False)
+        if not isinstance(suppress, bool):
+            raise ValueError(f"Manual supplement ${event_id}/{text_id}: suppress must be boolean")
+        has_text = "text" in raw_entry
+        text = raw_entry.get("text")
+        if suppress:
+            if has_text:
                 raise ValueError(
-                    f"Manual supplement ${event_id}/{text_id}: legacy pending entries must retain stock USA text"
+                    f"Manual supplement ${event_id}/{text_id}: suppressed entries must omit text"
                 )
-            entry.setdefault("original_jp", None)
-            entry.setdefault("original_fr", None)
-            entry["original_en"] = original_en
-            entry["translation_fr"] = translation_fr
+            status = "suppressed"
+            translation_fr = ""
         else:
-            missing_fields = [
-                key for key in ("original_jp", "original_en", "original_fr", "translation_fr")
-                if key not in entry
-            ]
-            if missing_fields:
+            if not isinstance(text, str) or not text:
                 raise ValueError(
-                    f"Manual supplement ${event_id}/{text_id}: missing v2 fields {missing_fields}"
+                    f"Manual supplement ${event_id}/{text_id}: translated entries need non-empty text"
                 )
-            original_en = entry.get("original_en")
-            translation_fr = entry.get("translation_fr")
-            original_jp = entry.get("original_jp")
-            original_fr = entry.get("original_fr")
-            if original_jp is not None and not isinstance(original_jp, str):
-                raise ValueError(f"Manual supplement ${event_id}/{text_id}: original_jp must be string or null")
-            if original_fr is not None and not isinstance(original_fr, str):
-                raise ValueError(f"Manual supplement ${event_id}/{text_id}: original_fr must be string or null")
-            proposal_action = entry.get("proposal_action")
-            if not isinstance(translation_fr, str):
-                raise ValueError(f"Manual supplement ${event_id}/{text_id}: translation_fr must be a string")
-            if not translation_fr and not (
-                (status == "needs_manual_translation" and proposal_action == "suppress")
-                or status == "suppressed"
-            ):
-                raise ValueError(
-                    f"Manual supplement ${event_id}/{text_id}: empty translation_fr is allowed only "
-                    "for a pending explicit suppression proposal or a validated suppression"
-                )
+            status = "translated"
+            translation_fr = text
+
         absent_allowed = DIALOGUE_USER_VALIDATED_ANDROID_ABSENT_MANUAL_IDS.get(event_id, frozenset())
         unmapped_review_allowed = DIALOGUE_USER_REQUESTED_UNMAPPED_MANUAL_REVIEW_IDS.get(event_id, frozenset())
         mapped_review_allowed = DIALOGUE_USER_REQUESTED_MAPPED_MANUAL_REVIEW_IDS.get(event_id, frozenset())
@@ -410,25 +403,16 @@ def _load_manual_dialogue_supplements(source_document: dict) -> dict[str, dict[s
             raise ValueError(
                 f"Manual supplement ${event_id}/{text_id}: carrier is outside the exact manual-review allow-lists"
             )
-        meta = by_id.get(text_id)
-        if meta is None or meta.get("event_id") != event_id:
-            raise ValueError(f"Manual supplement ${event_id}/{text_id}: unknown/mismatched source carrier")
-        if original_en != meta.get("source"):
-            raise ValueError(
-                f"Manual supplement ${event_id}/{text_id}: original_en is not byte-faithful to assets/dialogues.json"
-            )
-        if status not in {"needs_manual_translation", "translated", "suppressed"}:
-            raise ValueError(f"Manual supplement ${event_id}/{text_id}: invalid status")
         if status == "suppressed":
             allowed_suppressions = {
                 ("04E1", "CA:2C84"): "user_validated_resegmented_snes_jp_suppression",
                 ("013A", "C9:40D7"): "user_validated_snes_jp_absent_suppression",
             }
-            expected_reason = allowed_suppressions.get((event_id, text_id))
-            if expected_reason is None:
+            reason = allowed_suppressions.get((event_id, text_id))
+            if reason is None:
                 raise ValueError(f"Manual supplement ${event_id}/{text_id}: suppression is not allow-listed")
         else:
-            expected_reason = (
+            reason = (
                 "user_validated_absent_from_android"
                 if text_id in absent_allowed
                 else (
@@ -437,21 +421,19 @@ def _load_manual_dialogue_supplements(source_document: dict) -> dict[str, dict[s
                     else "user_requested_mapped_carrier_review"
                 )
             )
-        if reason != expected_reason:
-            raise ValueError(
-                f"Manual supplement ${event_id}/{text_id}: invalid reason {reason!r}; expected {expected_reason!r}"
-            )
-        # Round 58: proposals are review-only until explicit user approval.  A
-        # pending entry therefore serializes the canonical USA carrier even when
-        # translation_fr contains a proposed JP-led French wording.
-        entry["_active_text"] = (
-            original_en if status == "needs_manual_translation"
-            else "" if status == "suppressed"
-            else translation_fr
-        )
+        entry = {
+            "event_id": event_id,
+            "id": text_id,
+            "original_en": original_en,
+            "translation_fr": translation_fr,
+            "status": status,
+            "reason": reason,
+            "_active_text": translation_fr,
+        }
         if text_id in result.setdefault(event_id, {}):
             raise ValueError(f"Manual supplement ${event_id}/{text_id}: duplicate entry")
         result[event_id][text_id] = entry
+
     expected_by_event: dict[str, set[str]] = {}
     for allow_map in (
         DIALOGUE_USER_VALIDATED_ANDROID_ABSENT_MANUAL_IDS,

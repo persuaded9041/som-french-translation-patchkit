@@ -1,7 +1,16 @@
-# Development handoff — Round 85.34 tools/library-boundary audit
+# Development handoff — Round 85.35 minimal manual-supplement schema
 
 Operational handoff. The accompanying archive is authoritative over GitHub.
 
+
+
+## Round 85.35 — minimal manual dialogue supplements
+
+`translations/dialogues_manual_supplements.json` is reduced from the old provenance-heavy v2 review schema to a minimal v3 build manifest. Each translated carrier now stores only `id` + `text`; each validated structural deletion stores only `id` + `suppress: true`. Event ownership, canonical USA source text, active status and policy reason are derived at load time from `assets/dialogues.json` and the exact manual allow-lists. The manifest shrinks from ~20 KB to ~1.6 KB while preserving the same 17 decisions (15 translations + 2 suppressions).
+
+Detailed JP/FR comparison notes, ROM hashes and raw evidence are no longer duplicated in the active build input. The optional manual-supplement HTML reconstructs event IDs and canonical USA text from the source asset and displays the final manual decision only. `tools/dialogue/check_manual_supplements.py` validates the minimal schema, exact carrier set, codec encodability and the two allow-listed suppressions.
+
+This is source/maintenance-only: `french_dialogues.ips` and `patches/all.ips` remain byte-for-byte identical to Round 85.34.
 
 ## Round 85.34 — tools/library boundary and layout
 

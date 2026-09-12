@@ -90,10 +90,12 @@ Reviewed scene redistributions and layout decisions live in prose-free recipe
 files under `recipes/android/`. They store identities, Android token references,
 SNES carriers and structural/layout operations, never copied French prose.
 
-`translations/dialogues_manual_supplements.json` is the only manual staging
-file for genuine non-Android material or reviewed suppressions. Manual
-supplements never create Android identity. `$035F/C9:D1B8` remains exactly
-`Dryade`.
+`translations/dialogues_manual_supplements.json` is the only manual input for
+genuine non-Android material or reviewed suppressions. Its v3 schema is intentionally
+minimal: translated entries contain only `id` + `text`, while validated deletions
+contain only `id` + `suppress: true`. Event/source metadata and policy reasons are
+derived from canonical assets and exact allow-lists. Manual supplements never create
+Android identity. `$035F/C9:D1B8` remains exactly `Dryade`.
 
 Detailed formatter policy and validation history belong in:
 

@@ -74,10 +74,12 @@ pointer.
 ## Limits
 
 - This is a source-recovery aid, **not** a translator and not an Android matcher.
-- A Japanese string must not be put in `original_jp` merely because it looks
+- Japanese evidence must not be treated as exact merely because a string looks
   plausible; use the structural evidence reported by this tool and retain human
-  review for ambiguous/resegmented cases.
-- Android JP is never consulted or substituted for SNES-JP text.
+  review for ambiguous/resegmented cases. The active manual-supplement manifest no
+  longer stores duplicated JP provenance; only the final reviewed patch decision is
+  versioned there.
+- Android JP is never consulted or substituted for SNES-JP evidence.
 - Japanese event `$03FF` is intentionally rejected: the C9 pointer table has no
   following sentinel establishing its physical end in the JP ROM. The helper
   fails instead of guessing that boundary.
