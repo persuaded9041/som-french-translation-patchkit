@@ -52,12 +52,12 @@ from shared.dialogue.structure import (  # noqa: E402
     resolve_structural_omission_token_indexes,
 )
 from shared.text.translation_json import load_translation, resolve_translation  # noqa: E402
-from tools.dialogue_pipeline.common import (  # noqa: E402
+from shared.dialogue.pipeline.common import (  # noqa: E402
     DEFAULT_SCRTXT_EN,
     DEFAULT_SCRTXT_FR,
     read_scrtxt,
 )
-from tools.dialogue_pipeline.formatter import make_dialogue_format_mass  # noqa: E402
+from shared.dialogue.pipeline.formatter import make_dialogue_format_mass  # noqa: E402
 
 DIALOGUE_FILE = PROJECT_ROOT / "assets" / "dialogues.json"
 FONT_BASE = 0x12DC00

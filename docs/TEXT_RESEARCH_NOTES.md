@@ -159,7 +159,7 @@ translator-assigned row number:
 - compressed opening strings: compressed container address plus deterministic
   decompressed offset, e.g. `C7:B480+09F9`.
 
-`tools/check_text_roundtrip.py` checks global ID uniqueness. Translation files do
+`tools/text/check_roundtrip.py` checks global ID uniqueness. Translation files do
 not participate in source discovery and live separately under `translations/`.
 
 If the inventory search is resumed, start with the existing deep-audit result
@@ -184,7 +184,7 @@ by the game's dense DTE encoding.
 
 Round 61 turns the Japanese dialogue decoding work used during omission review
 into a reusable analysis tool. Given a canonical USA carrier from
-`assets/dialogues.json`, `tools/extract_japanese_dialogue.py` resolves the owning
+`assets/dialogues.json`, `tools/dialogue/extract_japanese.py` resolves the owning
 event and decodes that event from a clean user-supplied Japanese SFC ROM. It uses
 the original Japanese direct/S1/S2/S3 character pages in
 `shared/dialogue/japanese.py` and deliberately returns event context rather than

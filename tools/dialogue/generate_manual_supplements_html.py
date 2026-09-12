@@ -7,7 +7,7 @@ import html
 import json
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "translations" / "dialogues_manual_supplements.json"
 OUTPUT = ROOT / "reports" / "android" / "dialogues_manual_supplements.html"
 

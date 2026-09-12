@@ -55,7 +55,7 @@ def _auto_metrics(source: str, candidate: str) -> dict[str, float]:
     )
 
 
-def _auto_semantic(text: str) -> bool:
+def is_semantic_text(text: str) -> bool:
     return bool(normalize_alignment_text(text))
 
 
@@ -64,7 +64,7 @@ def _auto_make_session(event: dict, session_id: int, start: int, end: int) -> di
     elements = []
     for token_index in range(start, end + 1):
         token = tokens[token_index]
-        if token.get("type") == "text" and _auto_semantic(token.get("source", "")):
+        if token.get("type") == "text" and is_semantic_text(token.get("source", "")):
             elements.append(
                 {
                     "token_index": token_index,
@@ -100,7 +100,7 @@ def _auto_sessions(document: dict) -> list[dict]:
             if end < start:
                 return
             if any(
-                token.get("type") == "text" and _auto_semantic(token.get("source", ""))
+                token.get("type") == "text" and is_semantic_text(token.get("source", ""))
                 for token in tokens[start : end + 1]
             ):
                 sessions.append(_auto_make_session(event, session_id, start, end))
@@ -153,7 +153,7 @@ def _auto_render_span(session: dict, first: int, last: int) -> str:
         if token.get("type") == "text":
             if token_index in selected or (
                 first_token <= token_index <= last_token
-                and not _auto_semantic(token.get("source", ""))
+                and not is_semantic_text(token.get("source", ""))
             ):
                 chunks.append(token.get("source", ""))
         elif token.get("type") == "command" and token.get("name") == "PLAYER_NAME":
@@ -1515,7 +1515,7 @@ def _auto_add_contextual_exact_duplicates(
         semantic_tokens = [
             token
             for token in event.get("tokens", [])
-            if token.get("type") == "text" and _auto_semantic(token.get("source", ""))
+            if token.get("type") == "text" and is_semantic_text(token.get("source", ""))
         ]
         semantic_ids = [token["id"] for token in semantic_tokens]
         for token_index, token in enumerate(semantic_tokens):
@@ -1654,7 +1654,7 @@ def _auto_add_tight_single_gap_context(
         semantic_tokens = [
             token
             for token in event.get("tokens", [])
-            if token.get("type") == "text" and _auto_semantic(token.get("source", ""))
+            if token.get("type") == "text" and is_semantic_text(token.get("source", ""))
         ]
         semantic_ids = [token["id"] for token in semantic_tokens]
         for token_index, token in enumerate(semantic_tokens):
@@ -1754,7 +1754,7 @@ def _auto_add_isolated_high_coverage_global(
     proposals: list[dict] = []
     for event in source_document.get("events", []):
         for token in event.get("tokens", []):
-            if token.get("type") != "text" or not _auto_semantic(token.get("source", "")):
+            if token.get("type") != "text" or not is_semantic_text(token.get("source", "")):
                 continue
             snes_id = token["id"]
             if snes_id in owner or snes_id in DIALOGUE_FORCED_UNMAPPED:
@@ -1858,7 +1858,7 @@ def _auto_add_isolated_contained_extension(
     calibration_conflicts: list[tuple[str, int, list[int]]] = []
     for event in source_document.get("events", []):
         for token in event.get("tokens", []):
-            if token.get("type") != "text" or not _auto_semantic(token.get("source", "")):
+            if token.get("type") != "text" or not is_semantic_text(token.get("source", "")):
                 continue
             snes_id = token["id"]
             accepted = owner.get(snes_id)
@@ -1897,7 +1897,7 @@ def _auto_add_isolated_contained_extension(
     proposals: list[dict] = []
     for event in source_document.get("events", []):
         for token in event.get("tokens", []):
-            if token.get("type") != "text" or not _auto_semantic(token.get("source", "")):
+            if token.get("type") != "text" or not is_semantic_text(token.get("source", "")):
                 continue
             snes_id = token["id"]
             if snes_id in owner or snes_id in DIALOGUE_FORCED_UNMAPPED:
@@ -1985,7 +1985,7 @@ def _auto_add_raw_contextual_exact_duplicates(
         semantic_tokens = [
             token
             for token in event.get("tokens", [])
-            if token.get("type") == "text" and _auto_semantic(token.get("source", ""))
+            if token.get("type") == "text" and is_semantic_text(token.get("source", ""))
         ]
         semantic_ids = [token["id"] for token in semantic_tokens]
         for token_index, token in enumerate(semantic_tokens):
@@ -2228,7 +2228,7 @@ def _auto_add_short_exact_punctuation_bracket(
         semantic_tokens = [
             token
             for token in event.get("tokens", [])
-            if token.get("type") == "text" and _auto_semantic(token.get("source", ""))
+            if token.get("type") == "text" and is_semantic_text(token.get("source", ""))
         ]
         semantic_ids = [token["id"] for token in semantic_tokens]
         for token_index, token in enumerate(semantic_tokens):
@@ -2805,7 +2805,7 @@ def _auto_add_equivalent_duplicate_positional_tiebreak(
     for snes_id, entry in source.items():
         if snes_id in owner or snes_id in DIALOGUE_FORCED_UNMAPPED:
             continue
-        if not _auto_semantic(entry["source"]):
+        if not is_semantic_text(entry["source"]):
             continue
         qualified = qualified_payload(entry["source"])
         if qualified is None:
@@ -2911,7 +2911,7 @@ def _auto_add_isolated_event_rom_neighborhood_fuzzy(
         semantic_by_event[event["event_id"]] = [
             token["id"]
             for token in event.get("tokens", [])
-            if token.get("type") == "text" and _auto_semantic(token.get("source", ""))
+            if token.get("type") == "text" and is_semantic_text(token.get("source", ""))
         ]
 
     def ranked_distinct(source_display: str) -> list[dict]:
@@ -3101,7 +3101,7 @@ def _auto_add_isolated_event_local_extension(
         semantic_by_event[event["event_id"]] = [
             token["id"]
             for token in event.get("tokens", [])
-            if token.get("type") == "text" and _auto_semantic(token.get("source", ""))
+            if token.get("type") == "text" and is_semantic_text(token.get("source", ""))
         ]
 
     def ranked_distinct(source_display: str) -> list[dict]:
@@ -3507,7 +3507,7 @@ def make_dialogue_auto_alignment(
         enriched_records, english, french
     )
 
-    semantic_ids = [text_id for text_id, entry in source.items() if _auto_semantic(entry["source"])]
+    semantic_ids = [text_id for text_id, entry in source.items() if is_semantic_text(entry["source"])]
     mapped_ids = {snes_id for record in enriched_records for snes_id in record["snes_ids"]}
     unmapped: list[dict] = []
     for snes_id in semantic_ids:

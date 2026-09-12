@@ -6,7 +6,7 @@ import re
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 RECIPES = ROOT / "recipes/android/dialogues_redistribution.json"
 COVERAGE = ROOT / "recipes/android/dialogues_coverage_repair.json"
@@ -59,11 +59,11 @@ def main() -> None:
                 if part[0] not in {"a", "p", "x"}:
                     die(f"{ev}/{sid}: unknown part kind {part!r}")
 
-    from dialogue_pipeline.common import read_scrtxt
-    from dialogue_pipeline.recipes import _load_dialogue_redistribution_recipes
+    from shared.dialogue.pipeline.common import read_scrtxt
+    from shared.dialogue.pipeline.recipes import load_dialogue_redistribution_recipes
 
     fr = read_scrtxt(SCRTXT_FR)
-    rendered, _ = _load_dialogue_redistribution_recipes(fr)
+    rendered, _ = load_dialogue_redistribution_recipes(fr)
     coverage = json.loads(COVERAGE.read_text(encoding="utf-8")) if COVERAGE.exists() else {"repairs": []}
     coverage_append = {(r.get("event_id"), r.get("carrier_id")) for r in coverage.get("repairs", []) if r.get("mode") == "append"}
     active = (

@@ -31,7 +31,7 @@ Before further performance work, reviewed alignment history was moved out of exe
 
 ## Round 85.8 modular split
 
-The historical `tools/import_android_text.py` monolith is now a thin compatibility CLI facade (~500 lines). Dialogue internals live under `tools/dialogue_pipeline/`: `common.py`, `policies.py`, `alignment.py`, `recipes.py`, and `formatter.py`. The split is mechanical: algorithms and serialized outputs are unchanged. Existing user commands remain valid. Checkers now target the owning modules instead of importing private helpers from the CLI facade, and text-source hygiene scans the whole pipeline package.
+The historical `tools/dialogue/import_android.py` monolith is now a thin compatibility CLI facade (~500 lines). Dialogue internals live under `shared/dialogue/pipeline/`: `common.py`, `policies.py`, `alignment.py`, `recipes.py`, and `formatter.py`. The split is mechanical: algorithms and serialized outputs are unchanged. Existing user commands remain valid. Checkers now target the owning modules instead of importing private helpers from the CLI facade, and text-source hygiene scans the whole pipeline package.
 
 This is the final planned maintainability refactor before performance work. Do not fragment `formatter.py` further unless profiling or a concrete maintenance problem gives a clear module boundary; avoid decomposition for line-count aesthetics alone.
 

@@ -23,7 +23,7 @@ Canonical inputs are:
 The canonical command
 
 ```bash
-python3 tools/import_android_text.py --only dialogue-format-mass \
+python3 tools/dialogue/import_android.py --only dialogue-format-mass \
   --rom "Secret of Mana (USA).sfc"
 ```
 
@@ -119,11 +119,11 @@ python3 components/french_dialogues/build_patch.py \
 Useful checks after dialogue-pipeline changes:
 
 ```bash
-python3 tools/check_dialogue_regressions.py --rom "Secret of Mana (USA).sfc"
-python3 tools/check_dialogue_redistribution_recipes.py
-python3 tools/check_manual_dialogue_supplements.py
-python3 tools/check_text_source_hygiene.py
-python3 tools/check_text_roundtrip.py "Secret of Mana (USA).sfc" --scan-all-events
+python3 tools/dialogue/check_regressions.py --rom "Secret of Mana (USA).sfc"
+python3 tools/dialogue/check_redistribution_recipes.py
+python3 tools/dialogue/check_manual_supplements.py
+python3 tools/text/check_source_hygiene.py
+python3 tools/text/check_roundtrip.py "Secret of Mana (USA).sfc" --scan-all-events
 ```
 
 Generated dialogue/alignment/report artifacts are absent from a clean checkout by design.

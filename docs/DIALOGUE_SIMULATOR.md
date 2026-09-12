@@ -1,6 +1,6 @@
 # Dialogue-box simulator
 
-`tools/simulate_dialogues.py` is the user-validated downstream static guardrail
+`tools/dialogue/simulate.py` is the user-validated downstream static guardrail
 for `vwf_dialogues` and `french_dialogues`. It exists specifically so formatter bugs are not hidden by reusing the same
 high-level line calculations that produced `translations/dialogues_french.json`.
 
@@ -8,7 +8,7 @@ The tool requires the clean unheadered USA ROM locally. It never embeds or write
 ROM bytes into the HTML output.
 
 ```bash
-python3 tools/simulate_dialogues.py "Secret of Mana (USA).sfc" \
+python3 tools/dialogue/simulate.py "Secret of Mana (USA).sfc" \
   -o dialogue_preview.html \
   --issues-csv dialogue_preview_issues.csv
 ```

@@ -33,8 +33,8 @@ by game data and are not translation entries owned by this component.
 The root extractor regenerates the source JSONs from a clean USA ROM:
 
 ```bash
-python3 tools/extract_text.py "Secret of Mana (USA).sfc" --only menu
-python3 tools/extract_text.py "Secret of Mana (USA).sfc" --only interface
+python3 tools/text/extract.py "Secret of Mana (USA).sfc" --only menu
+python3 tools/text/extract.py "Secret of Mana (USA).sfc" --only interface
 ```
 
 `build_patch.py` verifies both source assets against the ROM and binds every

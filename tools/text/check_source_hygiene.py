@@ -7,7 +7,7 @@ import json
 import re
 import sys
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 COMPONENTS = ROOT / "components"
 
 # Binary/metadata assets that are intentionally not prose translation sources.
@@ -54,7 +54,7 @@ def rel(path: Path) -> str:
 
 def check_dialogue_pipeline(problems: list[str]) -> None:
     """Guard the Android-derived dialogue provenance architecture."""
-    generator_files = [ROOT / "tools" / "import_android_text.py"] + sorted((ROOT / "tools" / "dialogue_pipeline").glob("*.py"))
+    generator_files = [ROOT / "tools" / "dialogue" / "import_android.py"] + sorted((ROOT / "shared" / "dialogue" / "pipeline").glob("*.py"))
     forbidden_reads = (
         "DEFAULT_DIALOGUE_FORMAT_MASS_OUTPUT.read",
         "dialogues_french.json\").read",
@@ -191,11 +191,11 @@ def main() -> None:
     # Regression/audit consumers must regenerate dialogue alignment/format data
     # from canonical inputs rather than read ignored generated snapshots.
     generated_dialogue_consumers = {
-        ROOT / "tools" / "check_dialogue_regressions.py": (
+        ROOT / "tools" / "dialogue" / "check_regressions.py": (
             "dialogues_french.json", "dialogues_auto.json", "dialogues_format_mass.json",
             "dialogues_format_mass_excluded.csv", "dialogues_unmapped.csv",
         ),
-        ROOT / "tools" / "audit_android_dialogue_charset.py": ("DEFAULT_MAPPING",),
+        ROOT / "tools" / "dialogue" / "audit_charset.py": ("DEFAULT_MAPPING",),
     }
     for consumer, needles in generated_dialogue_consumers.items():
         text = consumer.read_text(encoding="utf-8")

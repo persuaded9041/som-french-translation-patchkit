@@ -9,7 +9,7 @@ The canonical source extraction is `assets/text_resources.json` and is
 generated together with the dialogue asset by:
 
 ```bash
-python3 tools/extract_text.py "Secret of Mana (USA).sfc"
+python3 tools/text/extract.py "Secret of Mana (USA).sfc"
 ```
 
 ## Physical layout
@@ -68,7 +68,7 @@ resource index used by the game:
 extraction. Pointers and raw source bytes are deliberately omitted.
 
 French localization is generated from the reviewed Android identity recipe rather than
-maintained as independent hand-authored prose. `tools/import_android_resources.py`
+maintained as independent hand-authored prose. `tools/text/import_android_resources.py`
 rebuilds both `reports/android/text_resources_android.json` and
 `translations/text_resources_french.json` for review. Those two files are generated
 outputs: the production `french_resources` component reconstructs the same mapping and
@@ -104,7 +104,7 @@ wording changes first require the normal identity/provenance and display-geometr
 Run the clean-source round-trip check:
 
 ```bash
-python3 tools/check_text_roundtrip.py \
+python3 tools/text/check_roundtrip.py \
   "Secret of Mana (USA).sfc" --scan-all-events
 ```
 
@@ -119,7 +119,7 @@ Current clean-USA guarantees:
 Verify the generated Android mapping/review payload with:
 
 ```bash
-python3 tools/import_android_resources.py --check
+python3 tools/text/import_android_resources.py --check
 ```
 
 The current mapping contains 475 mapped resources, 34 deliberately excluded resources
@@ -128,11 +128,11 @@ families and applies the current encoding profile.
 
 ## Layout/encoding review tool
 
-`tools/audit_text_resource_layout.py` remains a review tool for mapped resources:
+`tools/text/audit_resource_layout.py` remains a review tool for mapped resources:
 
 ```bash
-python3 tools/audit_text_resource_layout.py "Secret of Mana (USA).sfc"
-python3 tools/audit_text_resource_layout.py "Secret of Mana (USA).sfc" --check
+python3 tools/text/audit_resource_layout.py "Secret of Mana (USA).sfc"
+python3 tools/text/audit_resource_layout.py "Secret of Mana (USA).sfc" --check
 ```
 
 Its stock-derived line/line-count envelope is conservative review evidence, not a

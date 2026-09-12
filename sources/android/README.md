@@ -59,29 +59,19 @@ The validated intro mapping remains Android IDs `3445-3452` -> the eight
 position-derived IDs in `assets/intro_event.json`:
 
 ```bash
-python3 tools/import_android_text.py --only intro
-python3 tools/import_android_text.py --only intro --check
+python3 tools/dialogue/import_android.py --only intro
+python3 tools/dialogue/import_android.py --only intro --check
 ```
 
 The reviewed dialogue checkpoints and whole-game conservative alignment are also
 reproducible:
 
 ```bash
-python3 tools/import_android_text.py --only dialogue-auto
-python3 tools/import_android_text.py --only dialogue-auto --check
+python3 tools/dialogue/import_android.py --only dialogue-auto
+python3 tools/dialogue/import_android.py --only dialogue-auto --check
 ```
 
-The whole-game correspondence pass can materialize review outputs under `reports/android/`; canonical reviewed decisions live under `recipes/android/`. The first
-SNES-layout checkpoint is a separate, deliberately narrow operation:
-
-```bash
-python3 tools/import_android_text.py --only dialogue-format-pilot \
-  --rom "Secret of Mana (USA).sfc"
-```
-
-It currently generates only the three translated text tokens of event `$0107`
-plus a formatting trace report. That pilot is runtime-validated; broader
-generation remains intentionally staged and conservative.
+The whole-game correspondence pass can materialize review outputs under `reports/android/`; canonical reviewed decisions live under `recipes/android/`. The historical pilot/batch formatter modes are retired; use `dialogue-format-mass` for the deterministic playable corpus.
 
 Do not edit the Android binaries as part of SNES translation work. Treat them as
 upstream source artifacts. Layout/reflow and reviewed cross-version mapping

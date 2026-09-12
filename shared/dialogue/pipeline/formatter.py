@@ -20,9 +20,9 @@ from shared.dialogue.structure import resolve_structural_omission_token_indexes,
 from shared.core.rom import validate_base_rom
 from .common import ROOT, DIALOGUE_SOURCE, _load_recipe_document, normalize_android_prose, normalize_alignment_text, sentence_break_positions
 from .policies import *
-from .alignment import make_dialogue_auto_alignment, _auto_semantic
+from .alignment import make_dialogue_auto_alignment, is_semantic_text
 from .recipes import (
-    _load_dialogue_redistribution_recipes, _render_mapping_layout_recipe,
+    load_dialogue_redistribution_recipes, _render_mapping_layout_recipe,
     _load_dialogue_coverage_repair_recipes, _apply_dialogue_coverage_repairs,
     _load_reviewed_choice_layout_recipes, _load_manual_dialogue_supplements,
     _format_manual_supplement, _format_android_extra_page, _parameterized_inn_prompt,
@@ -107,7 +107,7 @@ def _wait00_repair_variants(event: dict, translations: dict[str, str]):
                 break
             # A semantic source token with no local translated bytes means the
             # binding is not simple enough for this layout-only cleanup.
-            if _auto_semantic(source):
+            if is_semantic_text(source):
                 blocked = True
                 break
 
@@ -4987,7 +4987,7 @@ def make_dialogue_format_mass(
         {"user_validated_structural_command_overrides": list(DIALOGUE_USER_VALIDATED_STRUCTURAL_COMMAND_OVERRIDES)},
         source_document,
     )
-    redistribution_values, redistribution_meta = _load_dialogue_redistribution_recipes(french)
+    redistribution_values, redistribution_meta = load_dialogue_redistribution_recipes(french)
     coverage_repair_recipes = _load_dialogue_coverage_repair_recipes(french, source_document)
 
     # Round 85 reproducibility guardrails. These two changes must survive a
@@ -5077,7 +5077,7 @@ def make_dialogue_format_mass(
         semantic_ids = [
             token["id"]
             for token in event["tokens"]
-            if token.get("type") == "text" and _auto_semantic(token.get("source", ""))
+            if token.get("type") == "text" and is_semantic_text(token.get("source", ""))
         ]
         if not semantic_ids:
             continue
@@ -7496,7 +7496,7 @@ def make_dialogue_format_mass(
         )["tokens"]
         if (
             token.get("type") == "text"
-            and _auto_semantic(token.get("source", ""))
+            and is_semantic_text(token.get("source", ""))
             and token.get("id") in translations_by_event[event_id]
             and translations_by_event[event_id][token.get("id")] != ""
             and not any(
@@ -7574,7 +7574,7 @@ def make_dialogue_format_mass(
                 1
                 for event in source_document["events"]
                 if any(
-                    token.get("type") == "text" and _auto_semantic(token.get("source", ""))
+                    token.get("type") == "text" and is_semantic_text(token.get("source", ""))
                     for token in event["tokens"]
                 )
             ),

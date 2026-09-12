@@ -119,7 +119,7 @@ was translated as part of the extraction/migration work.
 
 ## Validation
 
-`tools/check_text_roundtrip.py` verifies both the clean-ROM extraction and the
+`tools/text/check_roundtrip.py` verifies both the clean-ROM extraction and the
 translation bindings. It also checks that source IDs are globally unique across
 all canonical assets.
 
@@ -131,7 +131,7 @@ BIN input. Original upstream translation resources may live under
 `sources/<platform>/` (currently `sources/android/scrtxt_fr.bin`). The remaining
 component-local `.bin`/`.txt` files are non-prose resources (Mana Tree graphics
 and the naming-screen character repertoire). Run
-`python3 tools/check_text_source_hygiene.py` to enforce this separation.
+`python3 tools/text/check_source_hygiene.py` to enforce this separation.
 
 ## Android upstream sources
 
@@ -143,7 +143,7 @@ The intended flow is:
 
 ```text
 sources/android/*
-        ↓  tools/import_android_text.py
+        ↓  tools/dialogue/import_android.py
 translations/*_french.json
         ↓  component builders
 SNES IPS patches
@@ -159,13 +159,13 @@ layout is owned separately by
 Regenerate it with:
 
 ```bash
-python3 tools/import_android_text.py --only intro
+python3 tools/dialogue/import_android.py --only intro
 ```
 
 or verify synchronization with:
 
 ```bash
-python3 tools/import_android_text.py --only intro --check
+python3 tools/dialogue/import_android.py --only intro --check
 ```
 
 Dialogue work adds `sources/android/scrtxt_en.bin` as the matching bridge.
@@ -186,7 +186,7 @@ are part of the current structural alignment data; only the canonical whole-dial
 aligner remains exposed:
 
 ```bash
-python3 tools/import_android_text.py --only dialogue-auto \
+python3 tools/dialogue/import_android.py --only dialogue-auto \
   --output /tmp/dialogues_auto.json \
   --unmapped-csv /tmp/dialogues_unmapped.csv
 ```
@@ -200,7 +200,7 @@ official SNES-FR terminology/tone, then VWF-friendly French. It remains non-acti
 the user explicitly approves the proposal. A missing exact Japanese transcription is represented
 as `original_jp: null`, never by Android-JP text. The deterministic human review sheet is
 `reports/android/dialogues_manual_supplements.html` is a generated review sheet and is intentionally ignored by Git. Regenerate it on demand with
-`tools/generate_manual_dialogue_supplements_html.py`; `--check` only verifies a locally materialized copy. `tools/check_manual_dialogue_supplements.py`
+`tools/dialogue/generate_manual_supplements_html.py`; `--check` only verifies a locally materialized copy. `tools/dialogue/check_manual_supplements.py`
 verifies provenance, canonical English binding, status values and codec-encodability of every
 proposed French string. Round 59 records the user's explicit approval of ten proposals and the reopening
 of `$035F/C9:D1B8` after exact JP transcription. Round 60 records the user's explicit approval of the

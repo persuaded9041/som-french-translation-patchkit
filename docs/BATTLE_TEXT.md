@@ -23,5 +23,5 @@ bytes; the JSON preserves those bytes as explicit hexadecimal placeholders:
 This keeps the source representation readable without pretending that the
 control bytes are printable glyphs.
 
-`tools/check_text_roundtrip.py` validates both the 176-byte pointer table and
+`tools/text/check_roundtrip.py` validates both the 176-byte pointer table and
 the complete 1302-byte physical pool against the clean USA ROM.

@@ -70,20 +70,20 @@ from being accidentally recommitted.
 ## Current regeneration / checks
 
 ```bash
-python3 tools/check_dialogue_redistribution_recipes.py
-python3 tools/check_manual_dialogue_supplements.py
-python3 tools/generate_manual_dialogue_supplements_html.py
-python3 tools/check_dialogue_regressions.py --rom <clean-USA-ROM>
-python3 tools/check_text_source_hygiene.py
-python3 tools/check_text_roundtrip.py <clean-USA-ROM> --scan-all-events
+python3 tools/dialogue/check_redistribution_recipes.py
+python3 tools/dialogue/check_manual_supplements.py
+python3 tools/dialogue/generate_manual_supplements_html.py
+python3 tools/dialogue/check_regressions.py --rom <clean-USA-ROM>
+python3 tools/text/check_source_hygiene.py
+python3 tools/text/check_roundtrip.py <clean-USA-ROM> --scan-all-events
 ```
 
 Materialize dialogue alignment/format reports only when needed, preferably outside the repository:
 
 ```bash
-python3 tools/import_android_text.py --only dialogue-auto \
+python3 tools/dialogue/import_android.py --only dialogue-auto \
   --output /tmp/dialogues_auto.json --unmapped-csv /tmp/dialogues_unmapped.csv
-python3 tools/import_android_text.py --only dialogue-format-mass --rom <clean-USA-ROM> \
+python3 tools/dialogue/import_android.py --only dialogue-format-mass --rom <clean-USA-ROM> \
   --output /tmp/dialogues_french.json \
   --format-report /tmp/dialogues_format_mass.json \
   --excluded-csv /tmp/dialogues_format_mass_excluded.csv
@@ -92,15 +92,15 @@ python3 tools/import_android_text.py --only dialogue-format-mass --rom <clean-US
 Optional reports should likewise be written only when needed, for example:
 
 ```bash
-python3 tools/audit_android_dialogue_charset.py --output /tmp/dialogue_charset_audit.csv
-python3 tools/import_android_resources.py --html /tmp/text_resources_android_review.html
-python3 tools/audit_text_resource_layout.py <clean-USA-ROM> \
+python3 tools/dialogue/audit_charset.py --output /tmp/dialogue_charset_audit.csv
+python3 tools/text/import_android_resources.py --html /tmp/text_resources_android_review.html
+python3 tools/text/audit_resource_layout.py <clean-USA-ROM> \
   --json /tmp/text_resources_layout_audit.json \
   --html /tmp/text_resources_layout_audit.html
 ```
 
 ## Non-event `$CA` system resources
 
-`tools/import_android_resources.py` remains the deterministic Android `systxt` bridge for
+`tools/text/import_android_resources.py` remains the deterministic Android `systxt` bridge for
 `assets/text_resources.json`. It can emit `reports/android/text_resources_android.json` plus
 `translations/text_resources_french.json`; optional HTML review output is ephemeral.

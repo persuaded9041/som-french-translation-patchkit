@@ -1,7 +1,7 @@
 # Android dialogue charset audit
 
 This audit covers French prose reachable through the conservative Android
-alignment. `tools/audit_android_dialogue_charset.py` regenerates that alignment in
+alignment. `tools/dialogue/audit_charset.py` regenerates that alignment in
 memory from canonical Android EN/FR inputs by default; `--mapping` is only an explicit
 diagnostic override. The structural decisions were reviewed before whole-game formatting.
 

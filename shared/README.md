@@ -7,8 +7,8 @@
 - `core/` — low-level ROM/IPS and 65C816-emission primitives. This layer must stay independent of higher-level project domains.
 - `build/` — component discovery, manifest validation and aggregate compatibility/merge rules.
 - `charset/` — canonical French direct-glyph definition and artwork, with import-time schema/profile validation.
-- `text/` — generic stock-text encoding, extracted text-resource formats and sparse translation-document binding.
-- `dialogue/` — event/dialogue codec, structural translated-event rules, Android-FR formatting helpers, simulator, relocation, Japanese extraction and dialogue DTE routing.
+- `text/` — generic stock-text encoding, Android string-table/resource mapping, extracted text-resource formats and sparse translation-document binding.
+- `dialogue/` — event/dialogue codec, structural translated-event rules, deterministic Android-FR generation pipeline, simulator, relocation, Japanese extraction and dialogue DTE routing.
 - `vwf/` — shared VWF geometry, metrics and runtime helpers. Readable ASM mirrors live beside the Python modules they document.
 - `name_entry/` — Name Entry-specific shared runtime helpers.
 

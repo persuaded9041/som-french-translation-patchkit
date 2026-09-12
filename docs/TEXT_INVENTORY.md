@@ -40,7 +40,7 @@ Compressed opening strings use the source block plus decompressed offset, such a
 Regenerate all source assets with:
 
 ```bash
-python3 tools/extract_text.py "Secret of Mana (USA).sfc"
+python3 tools/text/extract.py "Secret of Mana (USA).sfc"
 ```
 
 Or use `--only dialogues|resources|interface|menu|battle|shop|opening|intro`.
@@ -49,7 +49,7 @@ Validate all families, the event parser, source round-trips, global IDs and the
 currently committed French translation bindings with:
 
 ```bash
-python3 tools/check_text_roundtrip.py \
+python3 tools/text/check_roundtrip.py \
   "Secret of Mana (USA).sfc" --scan-all-events
 ```
 

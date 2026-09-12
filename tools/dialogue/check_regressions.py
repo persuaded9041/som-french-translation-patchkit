@@ -7,12 +7,12 @@ import json
 from pathlib import Path
 import sys
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from tools.dialogue_pipeline.alignment import make_dialogue_auto_alignment  # noqa: E402
-from tools.dialogue_pipeline.common import DEFAULT_SCRTXT_EN, DEFAULT_SCRTXT_FR, read_scrtxt  # noqa: E402
-from tools.dialogue_pipeline.formatter import make_dialogue_format_mass  # noqa: E402
+from shared.dialogue.pipeline.alignment import make_dialogue_auto_alignment  # noqa: E402
+from shared.dialogue.pipeline.common import DEFAULT_SCRTXT_EN, DEFAULT_SCRTXT_FR, read_scrtxt  # noqa: E402
+from shared.dialogue.pipeline.formatter import make_dialogue_format_mass  # noqa: E402
 
 MANUAL = ROOT / "translations/dialogues_manual_supplements.json"
 RECIPES = ROOT / "recipes/android/dialogues_redistribution.json"

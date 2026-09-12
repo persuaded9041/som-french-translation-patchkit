@@ -11,7 +11,7 @@ from io import BytesIO
 from pathlib import Path
 import sys
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 PROJECT_ROOT = ROOT.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 

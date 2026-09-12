@@ -11,15 +11,15 @@ from pathlib import Path
 import sys
 import unicodedata
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from shared.dialogue.codec import parse_event  # noqa: E402
 from shared.dialogue.translation import PLAYER_PLACEHOLDER_RE, normalize_android_french  # noqa: E402
 from shared.core.rom import validate_base_rom  # noqa: E402
 from shared.text.stock import TEXT_TO_CODE  # noqa: E402
-from tools.dialogue_pipeline.alignment import make_dialogue_auto_alignment  # noqa: E402
-from tools.dialogue_pipeline.common import DEFAULT_SCRTXT_EN, DEFAULT_SCRTXT_FR, read_scrtxt  # noqa: E402
+from shared.dialogue.pipeline.alignment import make_dialogue_auto_alignment  # noqa: E402
+from shared.dialogue.pipeline.common import DEFAULT_SCRTXT_EN, DEFAULT_SCRTXT_FR, read_scrtxt  # noqa: E402
 
 DEFAULT_OUTPUT = ROOT / "reports" / "android" / "dialogue_charset_audit.csv"
 

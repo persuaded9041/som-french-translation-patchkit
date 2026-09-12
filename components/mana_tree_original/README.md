@@ -12,7 +12,6 @@ For `$D2A9`, the helper points the stock `$C1:0014` loader/decompressor at the r
 
 - `assets/mana_tree_jp.bin` — canonical 0x3600-byte Japanese Mana Tree resource. The builder validates its SHA-256.
 - `src/tree_restoration.asm` — readable source-map representation of the hook, resource placement and exact helper bytes. `build_patch.py` remains the executable builder.
-- `tools/extract_mana_tree.py` — reproducibly extracts `mana_tree_jp.bin` from the validated clean Japanese ROM; the Japanese ROM itself is not distributed.
 
 The component does not consume generated project outputs.
 

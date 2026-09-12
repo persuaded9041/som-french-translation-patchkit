@@ -296,10 +296,10 @@ encoded as structural correspondence data used by the canonical aligner. The act
 commands are:
 
 ```bash
-python3 tools/import_android_text.py --only intro
-python3 tools/import_android_text.py --only dialogue-auto \
+python3 tools/dialogue/import_android.py --only intro
+python3 tools/dialogue/import_android.py --only dialogue-auto \
   --output /tmp/dialogues_auto.json --unmapped-csv /tmp/dialogues_unmapped.csv
-python3 tools/import_android_text.py --only dialogue-format-mass --rom <clean-USA-ROM> \
+python3 tools/dialogue/import_android.py --only dialogue-format-mass --rom <clean-USA-ROM> \
   --output /tmp/dialogues_french.json \
   --format-report /tmp/dialogues_format_mass.json \
   --excluded-csv /tmp/dialogues_format_mass_excluded.csv
@@ -388,7 +388,7 @@ source IDs when the three pilot duplicate/alternative cases are included. The
 first whole-dialogue automatic pass is implemented as:
 
 ```bash
-python3 tools/import_android_text.py --only dialogue-auto \
+python3 tools/dialogue/import_android.py --only dialogue-auto \
   --output /tmp/dialogues_auto.json \
   --unmapped-csv /tmp/dialogues_unmapped.csv
 ```
@@ -470,7 +470,7 @@ already mapped by the previous pass, so it recovers **29 additional semantic sou
 that the lexical matcher correctly left unresolved. These are not weaker fuzzy matches: identity is established
 from ordered Android-English scene structure plus already accepted neighboring anchors.
 The evidence is reproducible as the legacy generated Round-6 review report (no longer versioned);
-identity remains encoded explicitly in `tools/import_android_text.py`. Two main families are kept separate:
+identity remains encoded explicitly in `tools/dialogue/import_android.py`. Two main families are kept separate:
 
 - **speaker/staging redistribution**: the SNES Joch running gag stores reactions such as
   `All:WHAT!?`, while Android English keeps the reaction text (`WHAT!?`) and Android
@@ -1142,7 +1142,7 @@ The strict semantic alignment remains **1798/1838** because these classification
 
 ## Round 69 — targeted scene completion and playable-dialogue closure
 
-Round 69 adds **no new Android semantic identities**: alignment remains **1798/1838**. Instead it applies user-reviewed, deterministic regional resegmentations for `$010C`, `$015A`, `$01C5`, `$0204/$0205`, `$0227`, `$04E2`, `$04E5`, `$04E6`, `$04E9`, `$04FD`, `$0559`, `$0592`, plus the unchanged numeric `$05B4` carrier. The layouts are stored in `recipes/android/dialogues_redistribution.json` and are guarded by `tools/check_dialogue_regressions.py`.
+Round 69 adds **no new Android semantic identities**: alignment remains **1798/1838**. Instead it applies user-reviewed, deterministic regional resegmentations for `$010C`, `$015A`, `$01C5`, `$0204/$0205`, `$0227`, `$04E2`, `$04E5`, `$04E6`, `$04E9`, `$04FD`, `$0559`, `$0592`, plus the unchanged numeric `$05B4` carrier. The layouts are stored in `recipes/android/dialogues_redistribution.json` and are guarded by `tools/dialogue/check_regressions.py`.
 
 The formatter now admits **701 simulator-clean events = 701 complete + 0 PARTIEL**, **1810 accepted semantic source IDs / 1946 JSON entries**, with **3 exclusions**, all `alignment_incomplete` because they are routing-audited unused/orphan stock content: `$0269/C9:A49C`, `$02DE/C9:C4FB`, `$0603/CA:85FC`. After scene-level semantic review, the former 15 provenance-only PARTIEL events were promoted to complete. Their manual-JP, validated-suppression, and shared-prefix provenance remains preserved in `user_validated_visually_complete_events` rather than in `partial_events`.
 
@@ -1151,4 +1151,4 @@ Accordingly, Round 69 is the first checkpoint that can claim **100% French cover
 
 ### Resegmentation provenance
 
-Whole-scene and targeted resegmentations store **no translated prose**. `recipes/android/dialogues_redistribution.json` contains only Android FR IDs, token indexes, `PLAYER_NAME` placeholders, punctuation, and layout separators. The final carrier text is reconstructed from `sources/android/scrtxt_fr.bin` on every deterministic import. Non-Android French remains exclusively in `translations/dialogues_manual_supplements.json`. `tools/check_dialogue_redistribution_recipes.py` rejects alphabetic literals in the recipe manifest and verifies the regenerated payload.
+Whole-scene and targeted resegmentations store **no translated prose**. `recipes/android/dialogues_redistribution.json` contains only Android FR IDs, token indexes, `PLAYER_NAME` placeholders, punctuation, and layout separators. The final carrier text is reconstructed from `sources/android/scrtxt_fr.bin` on every deterministic import. Non-Android French remains exclusively in `translations/dialogues_manual_supplements.json`. `tools/dialogue/check_redistribution_recipes.py` rejects alphabetic literals in the recipe manifest and verifies the regenerated payload.

@@ -31,5 +31,5 @@ Every visible row has a globally unique ROM-position `id`. No redundant semantic
 Regenerate only this family with:
 
 ```bash
-python3 tools/extract_text.py "Secret of Mana (USA).sfc" --only interface
+python3 tools/text/extract.py "Secret of Mana (USA).sfc" --only interface
 ```

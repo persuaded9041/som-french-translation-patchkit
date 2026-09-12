@@ -39,7 +39,7 @@ This family is source-only for now. Each source string ID is the address of its 
 
 ## Validation
 
-`tools/check_text_roundtrip.py` verifies:
+`tools/text/check_roundtrip.py` verifies:
 
 - all nine code references;
 - both D9 event-dispatch paths;

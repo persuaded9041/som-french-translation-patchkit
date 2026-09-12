@@ -12,7 +12,7 @@ This checkpoint freezes the cleaned dialogue-generation architecture before dedi
 ## Cleanup
 
 - historical dialogue pilot/review/batch CLI modes removed;
-- obsolete top-level helpers removed from `tools/import_android_text.py`;
+- obsolete top-level helpers removed from `tools/dialogue/import_android.py`;
 - active CLI reduced to `intro`, `dialogue-auto`, and `dialogue-format-mass`;
 - legacy round-specific French payloads migrated to structural Android-token recipes;
 - orphan `dialogue_preview_state.json` removed;

@@ -27,7 +27,7 @@ from shared.dialogue.dte import (
     install as install_dialogue_dte_router,
     enable_extended_dialogue as enable_extended_dialogue_dte,
 )
-from tools.import_android_resources import build_mapping, build_translation, load_inputs as load_android_inputs
+from shared.text.android_resources import build_mapping, build_translation, load_inputs as load_android_inputs
 from shared.charset import (
     CHAR_TO_CODE,
     DIALOGUE_FRENCH_CHARS,
@@ -55,7 +55,7 @@ def load_translation_entries() -> dict[str, tuple[str, str]]:
     """Regenerate the reviewed Android-FR resource payload in memory.
 
     ``translations/text_resources_french.json`` and the Android mapping JSON are
-    review artifacts emitted by ``tools/import_android_resources.py``.  The
+    review artifacts emitted by ``tools/text/import_android_resources.py``.  The
     component deliberately does not consume either generated file as a build
     source.
     """

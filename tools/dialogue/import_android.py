@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """CLI facade for Android-derived Secret of Mana text generation.
 
-Dialogue internals live in ``tools/dialogue_pipeline``.  This module intentionally
+Dialogue generation internals live in ``shared.dialogue.pipeline``.  This module intentionally
 keeps the historical command line entry point stable while exposing only the active
 intro/alignment/mass-generation workflows.
 """
@@ -13,16 +13,16 @@ import json
 from pathlib import Path
 import sys
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from shared.text.intro_event import load_document as load_intro_source  # noqa: E402
-from dialogue_pipeline.common import (  # noqa: E402
+from shared.dialogue.pipeline.common import (  # noqa: E402
     DEFAULT_SCRTXT_EN, DEFAULT_SCRTXT_FR, DIALOGUE_SOURCE,
     read_scrtxt, normalize_android_prose,
 )
-from dialogue_pipeline.alignment import make_dialogue_auto_alignment, _auto_semantic  # noqa: E402
-from dialogue_pipeline.formatter import make_dialogue_format_mass  # noqa: E402
+from shared.dialogue.pipeline.alignment import make_dialogue_auto_alignment, is_semantic_text  # noqa: E402
+from shared.dialogue.pipeline.formatter import make_dialogue_format_mass  # noqa: E402
 
 DEFAULT_INTRO_OUTPUT = ROOT / "translations" / "intro_event_french.json"
 
@@ -289,7 +289,7 @@ def dialogue_format_mass_excluded_csv(report: dict, source_document: dict) -> st
         semantic = [
             token
             for token in event["tokens"]
-            if token.get("type") == "text" and _auto_semantic(token.get("source", ""))
+            if token.get("type") == "text" and is_semantic_text(token.get("source", ""))
         ]
         for token in semantic:
             writer.writerow(

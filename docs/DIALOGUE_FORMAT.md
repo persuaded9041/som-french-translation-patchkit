@@ -333,7 +333,7 @@ generators:
 The current and only dialogue-output command is:
 
 ```bash
-python3 tools/import_android_text.py --only dialogue-format-mass --rom <clean-USA-ROM>
+python3 tools/dialogue/import_android.py --only dialogue-format-mass --rom <clean-USA-ROM>
 ```
 
 Historical runtime evidence remains documented below where it explains a current
@@ -400,11 +400,11 @@ The 560-event corpus as a whole still requires full-game playthrough validation.
 
 ## 8.5 Independent HTML simulation
 
-`tools/simulate_dialogues.py` provides a downstream audit of the final serialized event bytes. It independently reapplies the dialogue `$E8` decoder, PLAYER_NAME expansion, validated VWF metrics, 38-glyph capacity, 256-pixel visible-ink preflight, explicit page controls and the three-line page limit. The standalone HTML renders the actual 8x12 glyph bitmaps and flags implicit runtime wraps or unsupported layout commands. See `docs/DIALOGUE_SIMULATOR.md`.
+`tools/dialogue/simulate.py` provides a downstream audit of the final serialized event bytes. It independently reapplies the dialogue `$E8` decoder, PLAYER_NAME expansion, validated VWF metrics, 38-glyph capacity, 256-pixel visible-ink preflight, explicit page controls and the three-line page limit. The standalone HTML renders the actual 8x12 glyph bitmaps and flags implicit runtime wraps or unsupported layout commands. See `docs/DIALOGUE_SIMULATOR.md`.
 
 ## 8.6 Simulator-filtered mass generation
 
-`tools/import_android_text.py --only dialogue-format-mass --rom <clean-USA-ROM>`
+`tools/dialogue/import_android.py --only dialogue-format-mass --rom <clean-USA-ROM>`
 is the current large-corpus generator. It does not use the number of explicit
 English source lines as a hard layout budget: ordinary prose may use the full
 validated three-line physical dialogue page. Mappings that need four to six safe lines may insert one already-validated
@@ -717,7 +717,7 @@ Round 45 adds two exact serializer paths and no generic formatting behavior. `$0
 
 ## Round 48 exact Android-FR-only vocative repairs
 
-Some official Android-FR strings introduce `%S(n,0)` as a conversational vocative even though the corresponding Android-English identity and the SNES carrier contain no dynamic addressee. Round 48 permits removal only for seven reviewed carrier/Android-ID pairs recorded in the Round-48 exact allow-list encoded in `tools/import_android_text.py`. This is an exact allow-list: it must not become a generic `%S` deletion rule, and it never creates, moves or removes a SNES `PLAYER_NAME` command.
+Some official Android-FR strings introduce `%S(n,0)` as a conversational vocative even though the corresponding Android-English identity and the SNES carrier contain no dynamic addressee. Round 48 permits removal only for seven reviewed carrier/Android-ID pairs recorded in the Round-48 exact allow-list encoded in `tools/dialogue/import_android.py`. This is an exact allow-list: it must not become a generic `%S` deletion rule, and it never creates, moves or removes a SNES `PLAYER_NAME` command.
 
 `$0127` is separately allow-listed for exact pagination because its already-proven French scene otherwise exceeds the dialogue page geometry. Two `WAIT $00 + TEXT_CLEAR` transitions are placed only at reviewed sentence boundaries, and one `TEXT_CLEAR` follows the existing stock `WAIT $08`. Actor actions, both stock `PLAYER_NAME(0)` commands and the timed wait remain in source order. The resulting Round-48 corpus is **680 simulator-clean events**, with **0 errors, 0 warnings and 0 implicit wraps**.
 

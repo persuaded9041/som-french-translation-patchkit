@@ -5,10 +5,9 @@ import json
 from functools import lru_cache
 from pathlib import Path
 import re
-import struct
 import unicodedata
 
-ROOT = Path(__file__).resolve().parent.parent.parent
+ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_SCRTXT_EN = ROOT / "sources" / "android" / "scrtxt_en.bin"
 DEFAULT_SCRTXT_FR = ROOT / "sources" / "android" / "scrtxt_fr.bin"
 DEFAULT_SYSTXT_EN = ROOT / "sources" / "android" / "systxt_en.bin"
@@ -17,6 +16,7 @@ DIALOGUE_REVIEWED_ALIGNMENT_RECIPES = ROOT / "recipes" / "android" / "dialogues_
 DIALOGUE_SOURCE = ROOT / "assets" / "dialogues.json"
 
 from shared.dialogue.translation import normalize_android_french
+from shared.text.android_strings import read_string_table
 
 def _load_recipe_document(path: Path, *, label: str, expected: dict) -> dict:
     """Load a structural recipe document and validate its schema markers."""
@@ -30,38 +30,8 @@ def _load_recipe_document(path: Path, *, label: str, expected: dict) -> dict:
 
 
 def read_scrtxt(path: Path) -> dict[int, str]:
-    """Read an Android scrtxt binary into ``android_id -> UTF-8 text``."""
-    data = path.read_bytes()
-    if len(data) < 8:
-        raise ValueError(f"{path}: file is too small to be a scrtxt binary")
-
-    entry_count, pool_size = struct.unpack_from("<II", data, 0)
-    table_end = 8 + entry_count * 8
-    if table_end > len(data):
-        raise ValueError(f"{path}: entry table extends beyond end of file")
-    if table_end + pool_size != len(data):
-        raise ValueError(
-            f"{path}: declared pool size does not match file size "
-            f"({pool_size} bytes declared, {len(data) - table_end} available)"
-        )
-
-    pool = data[table_end:]
-    result: dict[int, str] = {}
-    for index in range(entry_count):
-        text_id, offset = struct.unpack_from("<II", data, 8 + index * 8)
-        if text_id in result:
-            raise ValueError(f"{path}: duplicate Android text ID {text_id}")
-        if offset >= len(pool):
-            raise ValueError(f"{path}: text ID {text_id} has invalid offset {offset:#x}")
-        end = pool.find(b"\x00", offset)
-        if end < 0:
-            raise ValueError(f"{path}: text ID {text_id} is not NUL-terminated")
-        try:
-            result[text_id] = pool[offset:end].decode("utf-8")
-        except UnicodeDecodeError as exc:
-            raise ValueError(f"{path}: text ID {text_id} is not valid UTF-8") from exc
-    return result
-
+    """Read an Android scrtxt/systxt table."""
+    return read_string_table(path)
 
 def require_parallel_scrtxt(english: dict[int, str], french: dict[int, str]) -> None:
     """Require English/French containers to expose the same Android ID namespace."""

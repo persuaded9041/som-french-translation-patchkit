@@ -51,13 +51,13 @@ Neither component consults Android or the root prose-translation pipeline.
 
 ## Legacy-format check
 
-`tools/check_text_source_hygiene.py` rejects component CSV files, retired prose
+`tools/text/check_source_hygiene.py` rejects component CSV files, retired prose
 BIN/CSV paths and translation dependencies in components declared to own no
 translation. Run it with:
 
 ```bash
-python3 tools/check_text_source_hygiene.py
+python3 tools/text/check_source_hygiene.py
 ```
 
-This complements `tools/check_text_roundtrip.py`, which validates ROM extraction,
+This complements `tools/text/check_roundtrip.py`, which validates ROM extraction,
 IDs and translation bindings.

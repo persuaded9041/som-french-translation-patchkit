@@ -16,17 +16,16 @@ missing entries remain unresolved rather than being guessed.
 """
 from __future__ import annotations
 
-import argparse
 from collections import defaultdict
 import hashlib
-import html
 import json
 from pathlib import Path
 import re
-import struct
 import unicodedata
 
-ROOT = Path(__file__).resolve().parent.parent
+from shared.text.android_strings import read_string_table
+
+ROOT = Path(__file__).resolve().parents[2]
 SOURCE_ASSET = ROOT / "assets" / "text_resources.json"
 LAYOUT = ROOT / "recipes" / "android" / "text_resources_layout.json"
 SYSTXT_EN = ROOT / "sources" / "android" / "systxt_en.bin"
@@ -37,27 +36,6 @@ DEFAULT_TRANSLATION = ROOT / "translations" / "text_resources_french.json"
 
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
-def read_scrtxt(path: Path) -> dict[int, str]:
-    data = path.read_bytes()
-    if len(data) < 8:
-        raise ValueError(f"{path}: file too small")
-    count, pool_size = struct.unpack_from("<II", data, 0)
-    table_end = 8 + count * 8
-    if table_end + pool_size != len(data):
-        raise ValueError(f"{path}: inconsistent scrtxt size")
-    pool = data[table_end:]
-    out: dict[int, str] = {}
-    for index in range(count):
-        text_id, offset = struct.unpack_from("<II", data, 8 + index * 8)
-        if text_id in out or offset >= len(pool):
-            raise ValueError(f"{path}: invalid table record {index}")
-        end = pool.find(b"\0", offset)
-        if end < 0:
-            raise ValueError(f"{path}: unterminated text {text_id}")
-        out[text_id] = pool[offset:end].decode("utf-8")
-    return out
 
 
 def norm(text: str) -> str:
@@ -82,8 +60,8 @@ def load_inputs():
     layout = json.loads(LAYOUT.read_text(encoding="utf-8"))
     if layout.get("format_version") != 1:
         raise ValueError("Unsupported text-resource Android layout format")
-    en = read_scrtxt(SYSTXT_EN)
-    fr = read_scrtxt(SYSTXT_FR)
+    en = read_string_table(SYSTXT_EN)
+    fr = read_string_table(SYSTXT_FR)
     if set(en) != set(fr):
         raise ValueError("Android systxt EN/FR ID sets differ")
     return source, layout, en, fr
@@ -215,70 +193,3 @@ def build_translation(mapping: dict) -> dict:
         "mapping": "reports/android/text_resources_android.json",
         "groups": [{"group": f"resources.{cat}", "entries": entries} for cat, entries in groups.items()],
     }
-
-
-def render_html(mapping: dict) -> str:
-    counts = defaultdict(int)
-    for r in mapping["records"]:
-        counts[r["status"]] += 1
-    rows = []
-    for r in mapping["records"]:
-        if r["status"] == "excluded" and r["category"] == "unused":
-            continue
-        aid = r.get("android_id", "")
-        note = r.get("evidence") or r.get("reason", "")
-        rows.append("<tr>" + "".join([
-            f"<td>{html.escape(r['resource_id'])}<br><small>{html.escape(r['snes_id'])}</small></td>",
-            f"<td>{html.escape(r['category'])}</td>",
-            f"<td>{html.escape(r['snes_en']).replace(chr(10), '<br>')}</td>",
-            f"<td>{html.escape(str(aid))}</td>",
-            f"<td>{html.escape(r.get('android_en','')).replace(chr(10), '<br>')}</td>",
-            f"<td>{html.escape(r.get('android_fr','')).replace(chr(10), '<br>')}</td>",
-            f"<td><b>{html.escape(r['status'])}</b><br><small>{html.escape(note)}</small></td>",
-        ]) + "</tr>")
-    return f"""<!doctype html><html lang=fr><meta charset=utf-8><title>Android FR → ressources SNES CA</title>
-<style>body{{font:14px system-ui;margin:24px;background:#f6f5f2;color:#222}}table{{border-collapse:collapse;width:100%;background:white}}th,td{{border:1px solid #ddd;padding:7px;vertical-align:top}}th{{position:sticky;top:0;background:#eee}}small{{color:#666}}.stats{{display:flex;gap:12px;margin:12px 0 20px}}.stats span{{background:white;border:1px solid #ddd;border-radius:8px;padding:8px 12px}}</style>
-<h1>Android FR → ressources texte SNES $CA</h1><p>Review générée sans modifier la ROM. Les destinations SNES sont les IDs/adresses canoniques de <code>assets/text_resources.json</code>.</p>
-<div class=stats><span><b>{counts['mapped']}</b> mappées</span><span><b>{counts['unresolved']}</b> non résolues</span><span><b>{counts['excluded']}</b> exclues</span></div>
-<table><thead><tr><th>Ressource SNES</th><th>Catégorie</th><th>SNES USA</th><th>ID Android</th><th>Android EN</th><th>Android FR</th><th>État / preuve</th></tr></thead><tbody>{''.join(rows)}</tbody></table></html>"""
-
-
-def write_or_check(path: Path, content: str, check: bool) -> None:
-    if check:
-        if not path.exists() or path.read_text(encoding="utf-8") != content:
-            raise SystemExit(f"OUT OF DATE: {path.relative_to(ROOT)}")
-        print(f"OK: {path.relative_to(ROOT)}")
-    else:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(content, encoding="utf-8")
-        print(f"Wrote {path.relative_to(ROOT)}")
-
-
-def main() -> None:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--check", action="store_true", help="verify materialized generated JSON files")
-    ap.add_argument("--html", type=Path, help="write a human-readable mapping review")
-    args = ap.parse_args()
-    source, layout, en, fr = load_inputs()
-    mapping = build_mapping(source, layout, en, fr)
-    translation = build_translation(mapping)
-    mapping_text = json.dumps(mapping, ensure_ascii=False, indent=2) + "\n"
-    translation_text = json.dumps(translation, ensure_ascii=False, indent=2) + "\n"
-    write_or_check(DEFAULT_MAPPING, mapping_text, args.check)
-    write_or_check(DEFAULT_TRANSLATION, translation_text, args.check)
-    if args.html:
-        args.html.parent.mkdir(parents=True, exist_ok=True)
-        args.html.write_text(render_html(mapping), encoding="utf-8")
-        print(f"Wrote {args.html}")
-    status = defaultdict(int)
-    cats = defaultdict(lambda: defaultdict(int))
-    for r in mapping["records"]:
-        status[r["status"]] += 1
-        cats[r["category"]][r["status"]] += 1
-    print("Summary:", dict(status))
-    for cat in sorted(cats):
-        print(f"  {cat}: {dict(cats[cat])}")
-
-
-if __name__ == "__main__":
-    main()

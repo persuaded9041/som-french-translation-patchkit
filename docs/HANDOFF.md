@@ -1,6 +1,18 @@
-# Development handoff — Round 85.33 shared folder audit
+# Development handoff — Round 85.34 tools/library-boundary audit
 
 Operational handoff. The accompanying archive is authoritative over GitHub.
+
+
+## Round 85.34 — tools/library boundary and layout
+
+`tools/` is now a CLI-only surface organized by domain:
+
+- `tools/dialogue/` — dialogue generation/report materialization, simulation, JP extraction and dialogue-specific checks/audits;
+- `tools/text/` — clean-ROM text extraction/round-trip checks, Android `$CA` resource report materialization and text-source/layout audits.
+
+Reusable generation code required by component builders no longer lives under `tools/`. The deterministic dialogue engine moved to `shared/dialogue/pipeline/`, and Android resource mapping/translation generation moved to `shared/text/android_resources.py`. Component builders import only `shared.*`; no component or shared module imports `tools.*`. Android scrtxt/systxt decoding is centralized in `shared/text/android_strings.py`. Old flat `tools/*.py` compatibility wrappers are intentionally not retained.
+
+The migration is organization-only: all 14 standalone component IPS files and `patches/all.ips` remain byte-for-byte identical to Round 85.33.
 
 ## Current state
 
@@ -35,7 +47,7 @@ Active structural recipe files:
 - `dialogues_coverage_repair.json`;
 - `dialogues_choice_layout.json`.
 
-Recipes may store identities, Android token references, SNES carriers, punctuation, case transforms, offsets and layout/control operations. They must **not** store translated prose. `tools/check_text_source_hygiene.py` enforces the key provenance constraints.
+Recipes may store identities, Android token references, SNES carriers, punctuation, case transforms, offsets and layout/control operations. They must **not** store translated prose. `tools/text/check_source_hygiene.py` enforces the key provenance constraints.
 
 Generated outputs/reports include `translations/dialogues_french.json`, `reports/android/dialogues_auto.json`, `reports/android/dialogues_unmapped.csv`, `reports/android/dialogues_format_mass.json` and `reports/android/dialogues_format_mass_excluded.csv`. They are not source dependencies.
 
@@ -43,15 +55,15 @@ Round 85.28 removed the generated dialogue/resource translation JSONs from the t
 
 ## Active tool surface
 
-`tools/import_android_text.py` now exposes only:
+`tools/dialogue/import_android.py` now exposes only:
 
 ```bash
-python3 tools/import_android_text.py --only intro
-python3 tools/import_android_text.py --only dialogue-auto
-python3 tools/import_android_text.py --only dialogue-format-mass --rom "Secret of Mana (USA).sfc"
+python3 tools/dialogue/import_android.py --only intro
+python3 tools/dialogue/import_android.py --only dialogue-auto
+python3 tools/dialogue/import_android.py --only dialogue-format-mass --rom "Secret of Mana (USA).sfc"
 ```
 
-Historical pilot/review/batch modes were removed. Their useful runtime/identity decisions were consolidated into the canonical alignment and structural recipe layers. Round 85.7 moved reviewed identity tables out of executable Python. Round 85.8 then split the former monolithic importer into `tools/dialogue_pipeline/` modules while keeping `tools/import_android_text.py` as the stable CLI facade. Round 85.9 established the first optimized serial path. Round 85.10 keeps the same architecture and removes a second set of small, measurable sources of repeated work without changing serialized outputs.
+Historical pilot/review/batch modes were removed. Their useful runtime/identity decisions were consolidated into the canonical alignment and structural recipe layers. Round 85.7 moved reviewed identity tables out of executable Python. Round 85.8 then split the former monolithic importer into `shared/dialogue/pipeline/` modules while keeping `tools/dialogue/import_android.py` as the stable CLI facade. Round 85.9 established the first optimized serial path. Round 85.10 keeps the same architecture and removes a second set of small, measurable sources of repeated work without changing serialized outputs.
 
 Current module boundaries:
 
@@ -70,7 +82,7 @@ Round 85.9 prepares the canonical `assets/dialogues.json` text/event index once 
 For clean temporary verification, all outputs can be redirected:
 
 ```bash
-python3 tools/import_android_text.py --only dialogue-format-mass \
+python3 tools/dialogue/import_android.py --only dialogue-format-mass \
   --rom "Secret of Mana (USA).sfc" \
   --output /tmp/dialogues_french.json \
   --format-report /tmp/dialogues_format_mass.json \
@@ -80,11 +92,11 @@ python3 tools/import_android_text.py --only dialogue-format-mass \
 ## Checks after dialogue pipeline changes
 
 ```bash
-python3 tools/check_dialogue_regressions.py --rom "Secret of Mana (USA).sfc"
-python3 tools/check_dialogue_redistribution_recipes.py
-python3 tools/check_manual_dialogue_supplements.py
-python3 tools/check_text_source_hygiene.py
-python3 tools/check_text_roundtrip.py "Secret of Mana (USA).sfc" --scan-all-events
+python3 tools/dialogue/check_regressions.py --rom "Secret of Mana (USA).sfc"
+python3 tools/dialogue/check_redistribution_recipes.py
+python3 tools/dialogue/check_manual_supplements.py
+python3 tools/text/check_source_hygiene.py
+python3 tools/text/check_roundtrip.py "Secret of Mana (USA).sfc" --scan-all-events
 ```
 
 Do not reopen dialogue wording/identity without a concrete regression. Do not start object/item translation during maintenance work.

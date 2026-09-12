@@ -31,13 +31,13 @@ The normal standalone build regenerates the Android mapping and French payload
 
 `reports/android/text_resources_android.json` and
 `translations/text_resources_french.json` are deterministic **generated review
-artifacts** produced by `tools/import_android_resources.py`; neither is required
+artifacts** produced by `tools/text/import_android_resources.py`; neither is required
 by the component builder.
 
 Verify/regenerate them with:
 
 ```bash
-python3 tools/import_android_resources.py --check
+python3 tools/text/import_android_resources.py --check
 ```
 
 ## Storage/runtime architecture

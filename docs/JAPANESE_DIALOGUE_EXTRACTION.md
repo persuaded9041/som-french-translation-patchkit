@@ -1,6 +1,6 @@
 # Japanese SNES dialogue extraction
 
-`tools/extract_japanese_dialogue.py` is an **analysis-only** helper for recovering
+`tools/dialogue/extract_japanese.py` is an **analysis-only** helper for recovering
 original dialogue text from a clean unheadered **Seiken Densetsu 2 (Japan)** ROM.
 It never participates in the build and must never be used as Android identity
 evidence.
@@ -14,25 +14,25 @@ It does **not** assume that USA and Japanese physical offsets are equal.
 ## Usage
 
 ```bash
-python3 tools/extract_japanese_dialogue.py "Seiken Densetsu 2 (Japan).sfc" C9:916F
+python3 tools/dialogue/extract_japanese.py "Seiken Densetsu 2 (Japan).sfc" C9:916F
 ```
 
 Machine-readable output:
 
 ```bash
-python3 tools/extract_japanese_dialogue.py "Seiken Densetsu 2 (Japan).sfc" C9:916F --json
+python3 tools/dialogue/extract_japanese.py "Seiken Densetsu 2 (Japan).sfc" C9:916F --json
 ```
 
 Inspect every Japanese text block in a known event directly:
 
 ```bash
-python3 tools/extract_japanese_dialogue.py "Seiken Densetsu 2 (Japan).sfc" --event 0278
+python3 tools/dialogue/extract_japanese.py "Seiken Densetsu 2 (Japan).sfc" --event 0278
 ```
 
 Regression check:
 
 ```bash
-python3 tools/check_japanese_dialogue_extractor.py "Seiken Densetsu 2 (Japan).sfc"
+python3 tools/dialogue/check_japanese_extractor.py "Seiken Densetsu 2 (Japan).sfc"
 ```
 
 The ROM is accepted only when it is exactly the documented clean, unheadered JP

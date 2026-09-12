@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 import sys
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from shared.dialogue.codec import EVENT_COUNT, extract_default_document, extract_document, parse_event  # noqa: E402

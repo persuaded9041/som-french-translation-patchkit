@@ -63,20 +63,20 @@ by stock storage/rendering mechanism:
 Regenerate the complete inventory deterministically from the clean USA ROM with:
 
 ```bash
-python3 tools/extract_text.py "Secret of Mana (USA).sfc"
+python3 tools/text/extract.py "Secret of Mana (USA).sfc"
 ```
 
 Or regenerate one family with `--only dialogues|resources|interface|menu|battle|shop|opening|intro`.
 Verify all source/no-op round-trips and parse every event script with:
 
 ```bash
-python3 tools/check_text_roundtrip.py "Secret of Mana (USA).sfc" --scan-all-events
+python3 tools/text/check_roundtrip.py "Secret of Mana (USA).sfc" --scan-all-events
 ```
 
 Audit that components have not reintroduced CSV/BIN prose sources or parallel translation paths:
 
 ```bash
-python3 tools/check_text_source_hygiene.py
+python3 tools/text/check_source_hygiene.py
 ```
 
 All files under `assets/` are now **clean-ROM source only**. Every translatable
@@ -158,18 +158,18 @@ and `french_dialogues` may minimally move only a later option anchor when decode
 otherwise be overwritten. The 701-event corpus as a whole still requires the planned
 full-game playthrough; the Round-52 structural changes are runtime-validated; the Round-54 exact recoveries and the Round-57 omission/suppression changes are pending runtime validation.
 
-`tools/simulate_dialogues.py` is the user-validated static guardrail: it
+`tools/dialogue/simulate.py` is the user-validated static guardrail: it
 re-decodes the final serialized event bytes and independently checks DTE,
 `PLAYER_NAME`, VWF geometry, parser capacity, wraps, page controls and the rolling
 window. Detailed rules and the conservative structural fallbacks are documented in
 `docs/DIALOGUE_FORMAT.md` and `docs/DIALOGUE_SIMULATOR.md`.
 
-`tools/extract_japanese_dialogue.py` is the analysis-only bridge from a canonical
+`tools/dialogue/extract_japanese.py` is the analysis-only bridge from a canonical
 USA dialogue carrier ID (for example `C9:916F`) to original **SNES-JP** evidence.
 It identifies the owning USA event, reads the same event ID from a user-supplied
 clean Japanese ROM, decodes the original SFC Japanese text codec, and refuses to
 invent a one-to-one carrier when regional scripts are resegmented. Its regression
-checker is `tools/check_japanese_dialogue_extractor.py`; usage and confidence
+checker is `tools/dialogue/check_japanese_extractor.py`; usage and confidence
 levels are documented in `docs/JAPANESE_DIALOGUE_EXTRACTION.md`. It is not part of
 the build and never creates Android identity.
 

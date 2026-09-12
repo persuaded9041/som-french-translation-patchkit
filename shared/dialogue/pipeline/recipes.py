@@ -89,7 +89,7 @@ def _render_android_token_recipe(
     return "".join(chunks)
 
 
-def _load_dialogue_redistribution_recipes(french: dict[int, str]) -> tuple[dict[str, dict[str, str]], dict[str, dict]]:
+def load_dialogue_redistribution_recipes(french: dict[int, str]) -> tuple[dict[str, dict[str, str]], dict[str, dict]]:
     document = _load_recipe_document(
         DIALOGUE_REDISTRIBUTION_RECIPES,
         label="Dialogue redistribution recipes",
