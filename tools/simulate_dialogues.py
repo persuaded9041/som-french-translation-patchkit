@@ -27,12 +27,12 @@ from shared.dialogue.simulator import (  # noqa: E402
     simulate_event,
 )
 from shared.core.rom import validate_base_rom  # noqa: E402
-from shared.text.translation_json import (  # noqa: E402
+from shared.dialogue.structure import (  # noqa: E402
     load_structural_omission_token_indexes,
     load_structural_command_overrides,
     load_choice_option_position_overrides,
-    load_translation,
 )
+from shared.text.translation_json import load_translation  # noqa: E402
 
 DIALOGUES = PROJECT_ROOT / "assets" / "dialogues.json"
 TRANSLATIONS = PROJECT_ROOT / "translations" / "dialogues_french.json"

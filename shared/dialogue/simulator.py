@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable
 
-from shared.dialogue.codec import COMMAND_LENGTHS, COMMAND_NAMES, parse_event, serialize_event
+from shared.dialogue.codec import COMMAND_NAMES, command_length, parse_event, serialize_event
 from shared.charset import DIALOGUE_FRENCH_CHARS, glyph_bytes
 from shared.text.stock import CODE_TO_TEXT, DTE_TABLE_FILE, TEXT_TO_CODE
 from shared.vwf.geometry import ink_bounds
@@ -154,16 +154,6 @@ def _dte_pair(base_rom: bytes, code: int) -> tuple[int, int]:
     return pair[0], pair[1]
 
 
-def _command_length(data: bytes, pos: int) -> int:
-    opcode = data[pos]
-    if opcode == 0x2D:
-        if pos + 1 >= len(data):
-            raise ValueError("truncated $2D command")
-        return 4 if data[pos + 1] in (0x05, 0x06) else 2
-    try:
-        return COMMAND_LENGTHS[opcode]
-    except KeyError as exc:
-        raise ValueError(f"unsupported event opcode ${opcode:02X}") from exc
 
 
 def _glyph_char(code: int) -> str:
@@ -815,7 +805,7 @@ class _Simulator:
                 continue
 
             try:
-                length = _command_length(data, pos)
+                length = command_length(data, pos)
             except ValueError as exc:
                 self.issue("error", "UNKNOWN_COMMAND", str(exc))
                 break

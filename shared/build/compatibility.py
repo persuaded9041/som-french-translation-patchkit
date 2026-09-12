@@ -27,7 +27,6 @@ def _threshold(component) -> int | None:
 
 
 
-
 def _declared_override(left, right, offset: int) -> bool:
     """Return True for an explicitly declared dependency overlay byte."""
     for owner, other in ((left, right), (right, left)):
@@ -46,6 +45,7 @@ def _declared_override(left, right, offset: int) -> bool:
                     )
                 return True
     return False
+
 
 def audit_overlaps(components, patch_data: dict[str, bytes]) -> tuple[int, int]:
     """Reject differing writes unless metadata declares a mergeable DTE threshold."""
@@ -108,7 +108,7 @@ def apply_merge_rules(rom: bytearray, components) -> None:
     thresholds = [value for component in components if (value := _threshold(component)) is not None]
 
     # `french_name_entry_extended` installs a smaller Name Entry / PLAYER_NAME router. A later legacy
-    # component (notably 05) still writes its immediate threshold byte while
+    # component (notably `french_intro`) still writes its immediate threshold byte while
     # its dependency overlay IPS is being applied, so restore the name router's four-byte JML here
     # and move the historical max-threshold merge into the router config byte.
     if any(_uses_name_dte_router(component) for component in components):

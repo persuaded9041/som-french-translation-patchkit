@@ -176,7 +176,7 @@ def _wrap_atoms(text: str) -> list[str]:
     return atoms
 
 
-def _markup_width(text: str, advances: dict[str, int], placeholder_width: int) -> int:
+def markup_width(text: str, advances: dict[str, int], placeholder_width: int) -> int:
     width = 0
     cursor = 0
     for match in PLAYER_PLACEHOLDER_RE.finditer(text):
@@ -266,7 +266,7 @@ def wrap_markup(
             first_output_line = False
 
         for atom in atoms:
-            atom_width = _markup_width(atom, advances, placeholder_width)
+            atom_width = markup_width(atom, advances, placeholder_width)
             atom_chars = _markup_chars(atom, placeholder_chars)
             placeholder_count = len(PLAYER_PLACEHOLDER_RE.findall(atom))
             atom_parser_units = atom_chars + placeholder_count * placeholder_parser_safety_units
@@ -390,7 +390,7 @@ def _balanced_wrap_markup(
     def ends_sentence(atom: str) -> bool:
         return bool(re.search(r"(?:\.{3}|[.!?…])[”\"»')\]]*$", atom))
 
-    total_width = _markup_width(text, advances, placeholder_width)
+    total_width = markup_width(text, advances, placeholder_width)
     target_width = min(max_pixels, total_width / line_count)
 
     metrics_cache: dict[tuple[int, int], tuple[str, int, int, int]] = {}
@@ -401,7 +401,7 @@ def _balanced_wrap_markup(
         if cached is not None:
             return cached
         value = " ".join(atoms[start:end])
-        width = _markup_width(value, advances, placeholder_width)
+        width = markup_width(value, advances, placeholder_width)
         chars = _markup_chars(value, placeholder_chars)
         placeholders = len(PLAYER_PLACEHOLDER_RE.findall(value))
         parser_units = chars + placeholders * placeholder_parser_safety_units
@@ -476,7 +476,7 @@ def _balanced_wrap_markup(
 
 
 
-def _sentence_boundary_positions(text: str) -> tuple[int, ...]:
+def sentence_boundary_positions(text: str) -> tuple[int, ...]:
     """Return conservative page-break positions after complete sentences.
 
     Android prose is already normalized to single spaces before this helper is
@@ -621,7 +621,7 @@ def _semantic_wrap_plain_segment(
                 best = (balance, candidate)
         return best[1] if best is not None else result
 
-    boundaries = _sentence_boundary_positions(text)
+    boundaries = sentence_boundary_positions(text)
     if boundaries:
         starts = (0,) + boundaries
         ends = boundaries + (len(text),)
@@ -768,7 +768,7 @@ def _sentence_aware_extra_page_wrap(
         )
 
     candidates: list[tuple[int, str, str, tuple, tuple]] = []
-    for boundary in _sentence_boundary_positions(text):
+    for boundary in sentence_boundary_positions(text):
         first = text[:boundary].strip()
         second = text[boundary:].strip()
         if not first or not second:
@@ -877,7 +877,7 @@ def _sentence_aware_three_page_wrap(
     """
     wrapper = semantic_wrap_markup if prefer_semantic_line_breaks else wrap_markup
     candidates = []
-    boundaries = _sentence_boundary_positions(text)
+    boundaries = sentence_boundary_positions(text)
     for first_boundary_index, first_boundary in enumerate(boundaries):
         for second_boundary in boundaries[first_boundary_index + 1:]:
             pieces = (
@@ -1025,7 +1025,7 @@ _FORMAT_INDEX_DOCUMENT: dict | None = None
 _FORMAT_INDEX_VALUE: tuple[dict[str, dict], dict[str, dict]] | None = None
 
 
-def _format_event_text_index(document: dict) -> tuple[dict[str, dict], dict[str, dict]]:
+def format_event_text_index(document: dict) -> tuple[dict[str, dict], dict[str, dict]]:
     """Reuse the canonical source index during one formatting process.
 
     Dialogue formatting treats its parsed source document as immutable.  Keep a
@@ -1053,7 +1053,7 @@ def mapping_leading_text_x_position(document: dict, mapping: dict) -> int:
     Other placements remain unmodeled here and are left to the simulator's
     unsupported-structure gate rather than inferred.
     """
-    by_id, by_event = _format_event_text_index(document)
+    by_id, by_event = format_event_text_index(document)
     source_ids = mapping.get("snes_ids", [])
     if not source_ids:
         return 0
@@ -1113,7 +1113,7 @@ def strip_proven_structural_android_markers(
     event_id = mapping.get("event_id")
     if not event_id:
         return text, []
-    _, by_event = _format_event_text_index(document)
+    _, by_event = format_event_text_index(document)
     event = by_event.get(event_id)
     if event is None:
         return text, []
@@ -1169,7 +1169,7 @@ def binding_slots(document: dict, mapping: dict) -> list[BindingSlot]:
     Any other command, glyph, or unmapped text crossed by a mapping is still
     rejected. This preserves the conservative structural contract.
     """
-    by_id, by_event = _format_event_text_index(document)
+    by_id, by_event = format_event_text_index(document)
     snes_ids = mapping.get("snes_ids", [])
     if not snes_ids:
         raise ValueError("Dialogue mapping has no SNES text IDs")
@@ -1366,7 +1366,7 @@ def _leading_newline_follows_wait(document: dict, text_id: str) -> bool:
     chunks we can keep the existing WAIT, emit one TEXT_CLEAR, and drop that
     synthetic blank line instead.
     """
-    by_id, by_event = _format_event_text_index(document)
+    by_id, by_event = format_event_text_index(document)
     meta = by_id[text_id]
     tokens = by_event[meta["event_id"]]["tokens"]
     index = meta["token_index"]
@@ -1466,7 +1466,7 @@ def _extend_slots_through_adjacent_nonsemantic_player_carrier(
     if re.search(r"[A-Za-z0-9À-ÖØ-öø-ÿŒœ]", carrier.source):
         return slots, []
 
-    by_id, by_event = _format_event_text_index(document)
+    by_id, by_event = format_event_text_index(document)
     meta = by_id.get(carrier.text_id)
     if meta is None:
         return slots, []
@@ -1720,7 +1720,7 @@ def format_mapping(
     # CHOICE_END terminal-boundary semantics without translating or inventing
     # prose.
     preserved_choice_terminal_suffix_ids: list[str] = []
-    _, by_event = _format_event_text_index(document)
+    _, by_event = format_event_text_index(document)
     event = by_event.get(mapping.get("event_id", ""))
     if event is not None:
         token_index_by_id = {
@@ -1861,7 +1861,7 @@ def format_mapping_across_existing_wait_boundaries(
             )
         leading_player_index = source_players[0]
 
-    by_id, by_event = _format_event_text_index(document)
+    by_id, by_event = format_event_text_index(document)
     metas = []
     for text_id in snes_ids:
         meta = by_id.get(text_id)
@@ -1932,7 +1932,7 @@ def format_mapping_across_existing_wait_boundaries(
     french_normalized = normalize_android_french(french_without_structural_markers)
     if not french_normalized:
         raise ValueError("Existing-WAIT distribution has no French prose")
-    boundaries = _sentence_boundary_positions(french_normalized)
+    boundaries = sentence_boundary_positions(french_normalized)
     split_count = len(snes_ids) - 1
     weak_clause_boundary = False
     if len(boundaries) < split_count:
@@ -1964,7 +1964,7 @@ def format_mapping_across_existing_wait_boundaries(
         compact = re.sub(r"\\s+", " ", text.strip())
         if not compact:
             return 0
-        return len(_sentence_boundary_positions(compact)) + 1
+        return len(sentence_boundary_positions(compact)) + 1
 
     source_sentence_counts = [sentence_count(by_id[text_id]["source"]) for text_id in snes_ids]
     candidates = []
@@ -2091,7 +2091,7 @@ def format_mapping_across_existing_timed_wait_boundary(
     if PLAYER_PLACEHOLDER_RE.search(mapping.get("french_display", "")):
         raise ValueError("Existing timed-WAIT distribution does not handle French PLAYER_NAME")
 
-    by_id, by_event = _format_event_text_index(document)
+    by_id, by_event = format_event_text_index(document)
     first_meta = by_id.get(snes_ids[0])
     second_meta = by_id.get(snes_ids[1])
     if first_meta is None or second_meta is None:
@@ -2125,7 +2125,7 @@ def format_mapping_across_existing_timed_wait_boundary(
         strip_proven_structural_android_markers(document, mapping, mapping.get("french_display", ""))
     )
     french_normalized = normalize_android_french(french_without_structural_markers)
-    boundaries = _sentence_boundary_positions(french_normalized)
+    boundaries = sentence_boundary_positions(french_normalized)
     if not boundaries:
         raise ValueError("Existing timed-WAIT distribution requires a complete French sentence boundary")
 
@@ -2230,7 +2230,7 @@ def format_mapping_across_existing_action_boundary(
     if source_player_indexes != french_player_indexes or len(source_player_indexes) > 1:
         raise ValueError("Existing-action split requires at most one unchanged PLAYER_NAME")
 
-    by_id, by_event = _format_event_text_index(document)
+    by_id, by_event = format_event_text_index(document)
     first_meta = by_id.get(snes_ids[0])
     second_meta = by_id.get(snes_ids[1])
     if first_meta is None or second_meta is None:
@@ -2288,7 +2288,7 @@ def format_mapping_across_existing_action_boundary(
         strip_proven_structural_android_markers(document, mapping, mapping.get("french_display", ""))
     )
     french_normalized = normalize_android_french(french_without_structural_markers)
-    boundaries = _sentence_boundary_positions(french_normalized)
+    boundaries = sentence_boundary_positions(french_normalized)
     if not boundaries:
         raise ValueError("Existing-action split requires a complete French sentence boundary")
 

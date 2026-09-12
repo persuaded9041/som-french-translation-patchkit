@@ -20,7 +20,7 @@ from pathlib import Path
 import struct
 from typing import Any, Iterable
 
-from shared.dialogue.codec import COMMAND_LENGTHS, COMMAND_NAMES
+from shared.dialogue.codec import COMMAND_NAMES, command_length
 from shared.text.ids import rom_text_id
 
 JP_ROM_SIZE = 0x200000
@@ -181,16 +181,6 @@ def _decode_text_unit(data: bytes, pos: int) -> tuple[str, int] | None:
     return "".join(_shift_lookup(shift, item) for item in data[pos + 1 : end]), 1 + count
 
 
-def _command_length(data: bytes, pos: int) -> int:
-    opcode = data[pos]
-    if opcode == 0x2D:
-        if pos + 1 >= len(data):
-            raise ValueError("truncated $2D effect command")
-        return 4 if data[pos + 1] in (0x05, 0x06) else 2
-    try:
-        return COMMAND_LENGTHS[opcode]
-    except KeyError as exc:
-        raise ValueError(f"unsupported Japanese event opcode ${opcode:02X}") from exc
 
 
 def parse_japanese_event(rom: bytes, event_id: int) -> dict[str, Any]:
@@ -244,7 +234,7 @@ def parse_japanese_event(rom: bytes, event_id: int) -> dict[str, Any]:
             pos = end + 1
             continue
 
-        length = _command_length(data, pos)
+        length = command_length(data, pos)
         if pos + length > len(data):
             raise ValueError(f"Japanese event ${event_id:04X}: truncated command at +${pos:04X}")
         raw = bytes(data[pos : pos + length])

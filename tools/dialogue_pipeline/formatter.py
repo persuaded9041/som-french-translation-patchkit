@@ -11,12 +11,12 @@ from shared.dialogue.translation import (
     DIALOGUE_PAGE_LINES, DIALOGUE_WRAP_CHARS, DIALOGUE_WRAP_PIXELS,
     format_mapping as format_dialogue_mapping,
     format_mapping_across_existing_wait_boundaries, format_mapping_across_existing_timed_wait_boundary,
-    format_mapping_across_existing_action_boundary, event_text_index, _format_event_text_index, normalize_android_french,
-    _sentence_boundary_positions, _markup_width, semantic_wrap_markup, make_dialogue_advances,
+    format_mapping_across_existing_action_boundary, event_text_index, format_event_text_index, normalize_android_french,
+    sentence_boundary_positions, markup_width, semantic_wrap_markup, make_dialogue_advances,
     player_placeholder_width, MAX_PLAYER_NAME_CHARS, make_translation_document as make_dialogue_translation_document,
 )
 from shared.dialogue.codec import TRANSLATION_CLEAR, TRANSLATION_TRAILING_PAGE_BREAK_ALLOWLIST, parse_event
-from shared.text.translation_json import resolve_structural_omission_token_indexes, resolve_structural_command_overrides
+from shared.dialogue.structure import resolve_structural_omission_token_indexes, resolve_structural_command_overrides
 from shared.core.rom import validate_base_rom
 from .common import ROOT, DIALOGUE_SOURCE, _load_recipe_document, normalize_android_prose, normalize_alignment_text, sentence_break_positions
 from .policies import *
@@ -752,7 +752,7 @@ def _repair_cross_mapping_sentence_overflow(
         # event-interruption family already proven for `vwf_dialogues`: actor
         # actions followed by COMPLETE_ACTIONS. Do not bridge arbitrary event
         # commands merely because a candidate happens to resimulate.
-        by_id, by_event = _format_event_text_index(source_document)
+        by_id, by_event = format_event_text_index(source_document)
         previous_indexes = [by_id[text_id]["token_index"] for text_id in previous.get("snes_ids", [])]
         mapping_indexes = [by_id[text_id]["token_index"] for text_id in mapping.get("snes_ids", [])]
         if not previous_indexes or not mapping_indexes:
@@ -957,7 +957,7 @@ def _format_mapping_across_sound_effect_action_boundary(
     if "%S(" in mapping.get("source_display", "") or "%S(" in mapping.get("android_english_display", ""):
         raise ValueError("Sound/effect action boundary requires no SNES/Android-EN PLAYER_NAME")
 
-    by_id, by_event = _format_event_text_index(source_document)
+    by_id, by_event = format_event_text_index(source_document)
     first = by_id.get(snes_ids[0])
     second = by_id.get(snes_ids[1])
     if first is None or second is None or first["event_id"] != second["event_id"]:
@@ -1002,7 +1002,7 @@ def _format_mapping_across_sound_effect_action_boundary(
     if "%S(" in french_without_vocative:
         raise ValueError("Sound/effect action boundary leaves an unsupported PLAYER_NAME")
 
-    boundaries = _sentence_boundary_positions(french_without_vocative)
+    boundaries = sentence_boundary_positions(french_without_vocative)
     candidates = []
     for boundary in boundaries:
         pieces = [
@@ -1056,7 +1056,7 @@ def _format_mapping_across_sound_effect_action_boundary(
     combined = pieces[0] + pieces[1]
     if (
         len(combined) > DIALOGUE_WRAP_CHARS
-        or _markup_width(combined, advances) > DIALOGUE_WRAP_PIXELS
+        or markup_width(combined, advances) > DIALOGUE_WRAP_PIXELS
     ):
         second_id = snes_ids[1]
         if translations[second_id].startswith(("\n", "\f", "\v")):
@@ -1120,7 +1120,7 @@ def _format_mapping_across_shake_effect_boundary(
     if "%S(" in mapping.get("source_display", "") or "%S(" in mapping.get("french_display", ""):
         raise ValueError("Shake-effect boundary does not handle PLAYER_NAME")
 
-    by_id, by_event = _format_event_text_index(source_document)
+    by_id, by_event = format_event_text_index(source_document)
     metas = [by_id.get(text_id) for text_id in snes_ids]
     if any(meta is None for meta in metas):
         raise ValueError("Shake-effect boundary references an unknown SNES text ID")
@@ -1162,7 +1162,7 @@ def _format_mapping_across_shake_effect_boundary(
         raise ValueError("Shake-effect boundary requires a complete source sentence before the effect")
 
     french = normalize_android_french(mapping.get("french_display", ""))
-    boundaries = _sentence_boundary_positions(french)
+    boundaries = sentence_boundary_positions(french)
     if not boundaries:
         raise ValueError("Shake-effect boundary requires a complete French sentence boundary")
 
@@ -1256,7 +1256,7 @@ def _format_reviewed_sequence_block_with_android_extra(
     if "%S(" in mapping.get("source_display", "") or "%S(" in mapping.get("french_display", ""):
         raise ValueError("Reviewed sequence-block fallback does not handle PLAYER_NAME")
 
-    by_id, by_event = _format_event_text_index(source_document)
+    by_id, by_event = format_event_text_index(source_document)
     metas = [by_id.get(text_id) for text_id in snes_ids]
     if any(meta is None for meta in metas):
         raise ValueError("Reviewed sequence-block fallback references an unknown SNES text ID")
@@ -1369,7 +1369,7 @@ def _format_mapping_across_nonsemantic_action_carrier(
     if "%S(" in mapping.get("source_display", "") or "%S(" in mapping.get("french_display", ""):
         raise ValueError("Nonsemantic-action carrier does not handle PLAYER_NAME")
 
-    by_id, by_event = _format_event_text_index(source_document)
+    by_id, by_event = format_event_text_index(source_document)
     metas = [by_id.get(text_id) for text_id in snes_ids]
     if any(meta is None for meta in metas):
         raise ValueError("Nonsemantic-action carrier references an unknown SNES text ID")
@@ -1422,7 +1422,7 @@ def _format_mapping_across_nonsemantic_action_carrier(
         raise ValueError("Nonsemantic-action carrier requires complete source sentences on both semantic slots")
 
     french = normalize_android_french(mapping.get("french_display", ""))
-    boundaries = _sentence_boundary_positions(french)
+    boundaries = sentence_boundary_positions(french)
     if not boundaries:
         raise ValueError("Nonsemantic-action carrier requires a complete French sentence boundary")
 
@@ -1678,7 +1678,7 @@ def _format_structurally_reviewed_choice_prompt(
     if len(snes_ids) != 1:
         raise ValueError("Choice-prompt split requires exactly one SNES text ID")
 
-    by_id, by_event = _format_event_text_index(source_document)
+    by_id, by_event = format_event_text_index(source_document)
     meta = by_id.get(snes_ids[0])
     if meta is None:
         raise ValueError("Choice-prompt split references an unknown SNES text ID")
@@ -1793,7 +1793,7 @@ def _format_structurally_reviewed_choice_destination_list(
     if len(snes_ids) != 1 or len(android_ids) != 3:
         raise ValueError("Choice destination list requires one SNES ID and three Android IDs")
 
-    by_id, _ = _format_event_text_index(source_document)
+    by_id, _ = format_event_text_index(source_document)
     meta = by_id.get(snes_ids[0])
     if meta is None:
         raise ValueError("Choice destination list references an unknown SNES text ID")
@@ -1925,7 +1925,7 @@ def _format_wait_player_resegmentation(
     if len(snes_ids) != 2 or len(android_ids) != 2:
         raise ValueError("WAIT/PLAYER_NAME resegmentation requires two SNES and two Android IDs")
 
-    by_id, by_event = _format_event_text_index(source_document)
+    by_id, by_event = format_event_text_index(source_document)
     first = by_id.get(snes_ids[0])
     second = by_id.get(snes_ids[1])
     if first is None or second is None or first["event_id"] != second["event_id"]:
@@ -2023,7 +2023,7 @@ def _format_timed_wait10_resegmentation(
     if len(snes_ids) != 2 or len(android_ids) != 1:
         raise ValueError("WAIT $10 resegmentation requires exactly two SNES carriers and one Android anchor")
 
-    by_id, by_event = _format_event_text_index(source_document)
+    by_id, by_event = format_event_text_index(source_document)
     first = by_id.get(snes_ids[0])
     second = by_id.get(snes_ids[1])
     if first is None or second is None or first["event_id"] != second["event_id"]:
@@ -2061,7 +2061,7 @@ def _format_timed_wait10_resegmentation(
     elif "%S(" in french_full:
         raise ValueError("WAIT $10 resegmentation supports only one proven leading PLAYER_NAME")
 
-    boundaries = _sentence_boundary_positions(french_full)
+    boundaries = sentence_boundary_positions(french_full)
     if not boundaries:
         raise ValueError("WAIT $10 resegmentation requires a complete-sentence split")
 
@@ -2069,7 +2069,7 @@ def _format_timed_wait10_resegmentation(
 
     def sentence_count(text: str) -> int:
         compact = re.sub(r"\s+", " ", text.strip())
-        return 0 if not compact else len(_sentence_boundary_positions(compact)) + 1
+        return 0 if not compact else len(sentence_boundary_positions(compact)) + 1
 
     source_counts = [sentence_count(by_id[text_id]["source"]) for text_id in snes_ids]
     candidates = []
@@ -2183,7 +2183,7 @@ def _format_paired_direction_labels(
     if len(snes_ids) != 2 or len(android_ids) != 1:
         raise ValueError("Paired direction labels require two SNES IDs and one Android anchor")
 
-    by_id, by_event = _format_event_text_index(source_document)
+    by_id, by_event = format_event_text_index(source_document)
     first = by_id.get(snes_ids[0])
     second = by_id.get(snes_ids[1])
     if first is None or second is None or first["event_id"] != second["event_id"]:
@@ -2282,7 +2282,7 @@ def _format_mapping_across_single_text_x(
     if len(snes_ids) != 2 or len(android_ids) != 1:
         raise ValueError("single TEXT_X distribution requires two SNES carriers and one Android anchor")
 
-    by_id, by_event = _format_event_text_index(source_document)
+    by_id, by_event = format_event_text_index(source_document)
     first = by_id.get(snes_ids[0])
     second = by_id.get(snes_ids[1])
     if first is None or second is None or first["event_id"] != second["event_id"]:
@@ -2514,7 +2514,7 @@ def _format_user_validated_stock_english_override(
         raise ValueError(
             "stock-English localization override is not in the exact user-validated allow-list"
         )
-    by_id, _ = _format_event_text_index(source_document)
+    by_id, _ = format_event_text_index(source_document)
     meta = by_id.get(text_id)
     if meta is None or meta.get("event_id") != mapping.get("event_id"):
         raise ValueError("stock-English localization override references an invalid SNES carrier")
@@ -2562,7 +2562,7 @@ def _format_called_prefix_android_merge_suffix(
     ):
         raise ValueError("called-prefix Android merge is outside the exact Round-42 allow-list")
 
-    by_id, by_event = _format_event_text_index(source_document)
+    by_id, by_event = format_event_text_index(source_document)
     meta = by_id.get("CA:5CE6")
     if meta is None or meta.get("event_id") != "0521":
         raise ValueError("Round-42 $0521 carrier changed")
@@ -2639,7 +2639,7 @@ def _format_android_system_chest(
     if len(snes_ids) != 1 or len(android_ids) != 1:
         raise ValueError("reviewed chest mapping requires one SNES carrier and one Android anchor")
     text_id = snes_ids[0]
-    by_id, by_event = _format_event_text_index(source_document)
+    by_id, by_event = format_event_text_index(source_document)
     if by_id.get(text_id, {}).get("event_id") != event_id:
         raise ValueError("reviewed chest mapping references an invalid SNES carrier")
 
@@ -2733,7 +2733,7 @@ def _format_without_android_only_vocative(source_document: dict, mapping: dict) 
         return mapping, None
     if mapping.get("android_namespace", "scrtxt") != "scrtxt":
         raise ValueError("Android-only vocative review requires scrtxt identity")
-    by_id, _ = _format_event_text_index(source_document)
+    by_id, _ = format_event_text_index(source_document)
     if by_id.get(snes_ids[0], {}).get("event_id") != key[0]:
         raise ValueError("Android-only vocative review references an invalid SNES carrier")
     actual_en = normalize_android_prose(mapping.get("android_english_display", "")).strip()
@@ -2771,7 +2771,7 @@ def _format_without_android_only_speaker_label(
         return mapping, None
     if mapping.get("android_namespace", "scrtxt") != "scrtxt":
         raise ValueError("Android-only speaker-label review requires scrtxt identity")
-    by_id, by_event = _format_event_text_index(source_document)
+    by_id, by_event = format_event_text_index(source_document)
     if by_id.get(snes_ids[0], {}).get("event_id") != key[0]:
         raise ValueError("Android-only speaker-label carrier moved")
     if any(t.get("type") == "command" and t.get("name") == "PLAYER_NAME" for t in by_event[key[0]].get("tokens", [])):
@@ -3059,7 +3059,7 @@ def _repair_structural_reaction_page_boundary(
     blocking = [i for i in simulation.issues if i.severity in {"error", "warning"}]
     codes = {i.code for i in blocking}
 
-    by_id, _ = _format_event_text_index(source_document)
+    by_id, _ = format_event_text_index(source_document)
     for index in range(len(event_mappings) - 1):
         reaction = event_mappings[index]
         answer = event_mappings[index + 1]
@@ -3090,7 +3090,7 @@ def _repair_structural_reaction_page_boundary(
             wrapped, _widths, _chars, _units = semantic_wrap_markup(
                 answer_flat,
                 advances,
-                first_line_prefix_pixels=_markup_width(reaction_text, advances, 0),
+                first_line_prefix_pixels=markup_width(reaction_text, advances, 0),
                 first_line_prefix_units=len(reaction_text),
             )
         except ValueError:
@@ -3936,7 +3936,7 @@ def _try_adaptive_choice_anchor_positions(
         if required >= 32:
             return simulation, {}, []
         span_pixels = (required - positions[option_index - 1]) * 8
-        if _markup_width(previous_text, advances, 0) > span_pixels:
+        if markup_width(previous_text, advances, 0) > span_pixels:
             return simulation, {}, []
         token_index = options[option_index][0]
         overrides[token_index] = required
@@ -4756,7 +4756,7 @@ def _auto_reflow_fixed_translation_carriers(
                 if not line.strip():
                     rebuilt_lines.append(line)
                     continue
-                width = _markup_width(line, advances, 0)
+                width = markup_width(line, advances, 0)
                 # PLAYER_NAME markup, when present, must use the conservative
                 # dynamic-name wrapper rather than raw-width measurement.
                 needs_wrap = width > DIALOGUE_WRAP_PIXELS or len(line) > DIALOGUE_WRAP_CHARS

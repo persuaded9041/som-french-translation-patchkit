@@ -1,4 +1,4 @@
-# Development handoff — Round 85.32 shared-library refactor
+# Development handoff — Round 85.33 shared folder audit
 
 Operational handoff. The accompanying archive is authoritative over GitHub.
 
@@ -91,7 +91,7 @@ Do not reopen dialogue wording/identity without a concrete regression. Do not st
 
 ## Next work
 
-The component-by-component audit is complete. Continue with repository-wide consolidation only: root documentation/manifests, shared helpers, generated-output policy and dead historical references. Do not reopen runtime-validated functionality without a concrete regression, and do not begin the next translation feature phase during this maintenance pass.
+The component-by-component audit and the folder-by-folder `shared/` audit are complete. Continue repository-wide consolidation only: root documentation/manifests, tools organization, generated-output policy and dead historical references. Do not reopen runtime-validated functionality without a concrete regression, and do not begin the next translation feature phase during this maintenance pass.
 
 ## Round 85.31 — recipes/reports layout cleanup
 
@@ -108,3 +108,16 @@ The component-by-component audit is complete. Continue with repository-wide cons
 - Kept aggregate compatibility rules outside `core/` because they intentionally depend on domain-specific charset/Name Entry knowledge.
 - Removed two unreferenced public helper functions (`decode_japanese_text` and `decode_text_bytes_with_dte_threshold`) after repository-wide reference checks.
 - Added `shared/README.md` documenting ownership and dependency direction. No compatibility aliases for the former flat import paths are retained; all repository consumers use the new package paths directly.
+
+
+## Round 85.33 — shared folder-by-folder audit
+
+- Audited `core/`, `build/`, `charset/`, `text/`, `dialogue/`, `name_entry/` and `vwf/` individually after the Round-85.32 package split.
+- `core/` required no structural refactor and remains dependency-clean.
+- `build/components.py` now validates manifest field types, duplicate dependencies, override ranges/reasons and override dependency ownership during discovery.
+- `charset/charset.py` now validates canonical glyph/code/profile invariants at import time and uses a precomputed atlas index.
+- Dialogue-only structural translation metadata moved from `text/translation_json.py` to `dialogue/structure.py`; the generic text binder is generic again.
+- Event command-length decoding is centralized in `dialogue/codec.py` and reused by the Japanese extractor and simulator.
+- Formatter-facing helpers in `dialogue/translation.py` that are intentionally consumed outside the module now have public names instead of underscore-prefixed imports.
+- `vwf/framing.py` now uses `shared.core.asm.MiniAssembler`; the emitted framing bundle remains byte-identical. `vwf/renderer_runtime.py` is now the executable source of the helpers shared by `vwf_dialogues` and `vwf_ui`, replacing the former generated-code + frozen-hex duplication, and checks every shared ED-bank helper against the next reserved allocation.
+- No runtime behavior or patch payload was intentionally changed; all patches must remain byte-for-byte identical to Round 85.32.

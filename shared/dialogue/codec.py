@@ -202,7 +202,7 @@ def read_event(rom: bytes, event_id: int) -> tuple[bytes, int, int]:
     return bytes(rom[start:start + size]), start, pointer
 
 
-def _command_length(data: bytes, pos: int) -> int:
+def command_length(data: bytes, pos: int) -> int:
     opcode = data[pos]
     if opcode == 0x2D:
         if pos + 1 >= len(data):
@@ -257,7 +257,7 @@ def _command_bytes(token: dict) -> bytes:
     opcode = _command_opcode(token["name"])
     args = bytes.fromhex(token.get("args", ""))
     raw = bytes([opcode]) + args
-    expected = _command_length(raw, 0)
+    expected = command_length(raw, 0)
     if len(raw) != expected:
         raise ValueError(
             f"Command {token['name']} has {len(args)} argument byte(s); "
@@ -404,7 +404,7 @@ def parse_event(rom: bytes, event_id: int, *, include_source_bytes: bool = False
             continue
 
         try:
-            length = _command_length(data, pos)
+            length = command_length(data, pos)
         except ValueError as exc:
             raise ValueError(
                 f"Event ${event_id:04X} at +${pos:04X} (file ${file_start + pos:06X}): {exc}"

@@ -18,7 +18,7 @@ Profiles:
 The dialogue profile does **not** move the translated intro's DTE boundary.
 `vwf_dialogues` / `french_dialogues` install `shared/dialogue/dte.py`, which selects `$E8` only for
 real event-engine dialogue while the intro and non-dialogue parser callers retain
-`$E6`. In combined 06 builds it reuses the shared parser mode already selected
+`$E6`. In combined `vwf_dialogues` builds it reuses the shared parser mode already selected
 by the VWF buffer initializer, avoiding a second fragile context inference in the
 middle of decoding. `french_intro` therefore keeps all 25 of its private
 `$E6-$FF` DTE pairs.

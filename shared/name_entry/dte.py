@@ -9,7 +9,7 @@ The extended Name Entry row can therefore use $D3=♪, $E6=° and $E7=; without
 changing ordinary event decoding: only bytes read from the temporary player-
 name source use the dialogue-style $E8 direct/DTE boundary. All other parser
 sources use a configurable legacy boundary ($E1 standalone, raised by the root
-combiner when another legacy charset component such as 05 requires it).
+combiner when another legacy charset component such as `french_intro` requires it).
 """
 from __future__ import annotations
 

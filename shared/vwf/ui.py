@@ -1,7 +1,7 @@
 """Shared dispatch state for non-dialogue UI VWF components.
 
 The stock renderer entry at $C0:167D is shared by ordinary event text and several
-menu/UI callers.  `vwf_dialogues` (dialogue VWF) and 09 (UI VWF) both install the
+menu/UI callers.  `vwf_dialogues` and `vwf_ui` both install the
 same tiny dispatcher so their standalone patches remain self-contained and their
 aggregate overlap is byte-identical.
 

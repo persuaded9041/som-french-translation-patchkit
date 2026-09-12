@@ -43,16 +43,15 @@ from shared.dialogue.dte import (  # noqa: E402
 )
 from shared.core.ips import make_ips  # noqa: E402
 from shared.core.rom import ROM_SIZE_OFFSET, expand_rom, update_checksum, validate_base_rom  # noqa: E402
-from shared.text.translation_json import (  # noqa: E402
+from shared.dialogue.structure import (  # noqa: E402
     load_structural_omission_token_indexes,
     load_structural_command_overrides,
     load_choice_option_position_overrides,
-    load_translation,
     resolve_choice_option_position_overrides,
     resolve_structural_command_overrides,
     resolve_structural_omission_token_indexes,
-    resolve_translation,
 )
+from shared.text.translation_json import load_translation, resolve_translation  # noqa: E402
 from tools.dialogue_pipeline.common import (  # noqa: E402
     DEFAULT_SCRTXT_EN,
     DEFAULT_SCRTXT_FR,
