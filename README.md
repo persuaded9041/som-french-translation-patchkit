@@ -140,9 +140,7 @@ Operational material:
 - `mappings/android/dialogues_redistribution_recipes.json` — source-derived scene recipes.
 - `mappings/android/dialogues_choice_layout_recipes.json` — structural-only reviewed choice-layout recipes; no localized prose.
 
-Historical Round 69/70/71 investigation remains documented in the specialist docs and
-`docs/ROUND71_216PX_AUTOMATION_AUDIT.md`; those historical counters are not the current
-checkpoint.
+Historical investigation is retained only where it still documents active runtime invariants or rejected paths worth preserving; obsolete round-specific audit snapshots have been removed.
 
 Dialogue formatting follows the runtime-validated 216-pixel safe-width / 38-parser-unit /
 3-line limits. Extra pages use the validated `WAIT $00` + `TEXT_CLEAR` transition,

@@ -106,9 +106,7 @@ After dialogue-related changes, preserve the usual checks:
 ```bash
 python3 tools/import_android_text.py --only dialogue-format-mass \
   --rom "Secret of Mana (USA).sfc" --check
-python3 tools/check_round67_targeted_dialogues.py
-python3 tools/check_round68_scene_redistributions.py
-python3 tools/check_round69_dialogue_completion.py
+python3 tools/check_dialogue_regressions.py
 python3 tools/check_dialogue_redistribution_recipes.py
 python3 tools/check_manual_dialogue_supplements.py
 python3 tools/check_text_source_hygiene.py
@@ -118,12 +116,11 @@ python3 tools/check_text_roundtrip.py "Secret of Mana (USA).sfc" --scan-all-even
 The Round-85 recipe checker baseline includes **18 redistribution events**. Manual supplements are
 **17 = 15 translated + 2 suppressed**.
 
-Final cleanup rebuild proof: aggregate `patches/all.ips` builds from the 14 stored components to a 3 MiB ROM with SNES checksum **`$8E10`**. `patches/all.ips` SHA-256: `f4f8e8450882f8520b618814e53c043cf935462b6d29dbd31ed697fa48ed9ec0`.
+Stored patch baseline: `patches/all.ips` remains SHA-256 `f4f8e8450882f8520b618814e53c043cf935462b6d29dbd31ed697fa48ed9ec0` and yields the accepted `$8E10` aggregate ROM. A fresh full rebuild currently changes only `french_dialogues.ips` (`7d45be25…` stored -> `9066ac6d…` rebuilt), which changes the aggregate checksum to `$84C5`. This is a pre-existing source/output reproducibility mismatch exposed during maintenance; do not overwrite the stored baseline until the dialogue-generation/build path is reconciled.
 
 ## NEXT WORK — simplify dialogue generation, then optimize
 
-Do **not** start object/item translation yet. Repository cleanup is now checkpointed; see
-`docs/CLEANUP_ROUND85_3.md`.
+Do **not** start object/item translation yet. Repository cleanup is complete enough to simplify the active dialogue-generation path next.
 
 Priority order:
 

@@ -46,6 +46,5 @@ Detailed implementation notes intentionally live outside this README:
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): renderer design, scope and invariants.
 - [`docs/MEMORY_MAP.md`](docs/MEMORY_MAP.md): ROM/WRAM hooks and scratch allocations.
 - [`docs/EVENT_INTERRUPTION_NOTES.md`](docs/EVENT_INTERRUPTION_NOTES.md): interrupted-chunk/event hand-off behavior.
-- [`docs/NEXT_STEPS.md`](docs/NEXT_STEPS.md): current handoff and remaining work.
 
 `build_patch.py` is the executable source of truth; ASM files are readable references for generated code.

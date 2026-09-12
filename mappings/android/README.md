@@ -74,9 +74,7 @@ python3 tools/check_dialogue_redistribution_recipes.py
 python3 tools/check_manual_dialogue_supplements.py
 python3 tools/generate_manual_dialogue_supplements_html.py --check
 python3 tools/import_android_text.py --only dialogue-format-mass --rom <clean-USA-ROM> --check
-python3 tools/check_round67_targeted_dialogues.py
-python3 tools/check_round68_scene_redistributions.py
-python3 tools/check_round69_dialogue_completion.py
+python3 tools/check_dialogue_regressions.py
 python3 tools/check_text_source_hygiene.py
 python3 tools/check_text_roundtrip.py <clean-USA-ROM> --scan-all-events
 ```

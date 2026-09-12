@@ -1,7 +1,6 @@
-# Round 85.3 maintenance target — simplify before optimizing
+# Maintenance target — simplify before optimizing
 
-`docs/HANDOFF.md` is the authoritative operational state. Repository cleanup is checkpointed in
-`docs/CLEANUP_ROUND85_3.md`.
+`docs/HANDOFF.md` is the authoritative operational state. Obsolete round-specific cleanup/audit notes are intentionally not retained.
 
 ## Current repository policy
 
@@ -12,6 +11,13 @@
 - `translations/dialogues_french.json` is a generated output, never a source/cache dependency.
 - `patches/` remains versioned for now because stored component IPS files are still an intentional
   `build.py --combine` workflow.
+
+
+## Reproducibility issue exposed by cleanup
+
+A clean rebuild of all 14 components from the current sources changes only `french_dialogues.ips`.
+The stored accepted patch is SHA-256 `7d45be250c6f496570eec74c71e65e5155f72fbd87bbc61de66f98c6cba04958`; a fresh rebuild produces `9066ac6d83d3dfc544280e77e5da57eb7b36d312d0444b34fe27606c029ee98b`.
+Consequently the aggregate changes from the accepted `$8E10` baseline to `$84C5`. Treat this as a concrete pipeline reproducibility regression to resolve before performance optimization. The stored patches remain untouched in the checkpoint.
 
 ## Next step: simplify dialogue import/generation
 

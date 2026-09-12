@@ -1168,7 +1168,7 @@ The strict semantic alignment remains **1798/1838** because these classification
 
 ## Round 69 — targeted scene completion and playable-dialogue closure
 
-Round 69 adds **no new Android semantic identities**: alignment remains **1798/1838**. Instead it applies user-reviewed, deterministic regional resegmentations for `$010C`, `$015A`, `$01C5`, `$0204/$0205`, `$0227`, `$04E2`, `$04E5`, `$04E6`, `$04E9`, `$04FD`, `$0559`, `$0592`, plus the unchanged numeric `$05B4` carrier. The layouts are stored in `mappings/android/dialogues_redistribution_recipes.json` and are guarded by `tools/check_round69_dialogue_completion.py`.
+Round 69 adds **no new Android semantic identities**: alignment remains **1798/1838**. Instead it applies user-reviewed, deterministic regional resegmentations for `$010C`, `$015A`, `$01C5`, `$0204/$0205`, `$0227`, `$04E2`, `$04E5`, `$04E6`, `$04E9`, `$04FD`, `$0559`, `$0592`, plus the unchanged numeric `$05B4` carrier. The layouts are stored in `mappings/android/dialogues_redistribution_recipes.json` and are guarded by `tools/check_dialogue_regressions.py`.
 
 The formatter now admits **701 simulator-clean events = 701 complete + 0 PARTIEL**, **1810 accepted semantic source IDs / 1946 JSON entries**, with **3 exclusions**, all `alignment_incomplete` because they are routing-audited unused/orphan stock content: `$0269/C9:A49C`, `$02DE/C9:C4FB`, `$0603/CA:85FC`. After scene-level semantic review, the former 15 provenance-only PARTIEL events were promoted to complete. Their manual-JP, validated-suppression, and shared-prefix provenance remains preserved in `user_validated_visually_complete_events` rather than in `partial_events`.
 
