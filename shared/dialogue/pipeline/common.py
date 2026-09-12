@@ -13,7 +13,6 @@ DEFAULT_SCRTXT_FR = ROOT / "sources" / "android" / "scrtxt_fr.bin"
 DEFAULT_SYSTXT_EN = ROOT / "sources" / "android" / "systxt_en.bin"
 DEFAULT_SYSTXT_FR = ROOT / "sources" / "android" / "systxt_fr.bin"
 DIALOGUE_REVIEWED_ALIGNMENT_RECIPES = ROOT / "recipes" / "android" / "dialogues_reviewed_alignment.json"
-DIALOGUE_SOURCE = ROOT / "assets" / "dialogues.json"
 
 from shared.dialogue.translation import normalize_android_french
 from shared.text.android_strings import read_string_table
@@ -61,8 +60,7 @@ def normalize_alignment_text(text: str) -> str:
     return " ".join(re.sub(r"[^a-z0-9]+", " ", text).split())
 
 
-def load_dialogue_text_entries(path: Path = DIALOGUE_SOURCE) -> dict[str, dict]:
-    document = json.loads(path.read_text(encoding="utf-8"))
+def dialogue_text_entries(document: dict) -> dict[str, dict]:
     result: dict[str, dict] = {}
     for event in document.get("events", []):
         event_id = event.get("event_id")
@@ -72,9 +70,9 @@ def load_dialogue_text_entries(path: Path = DIALOGUE_SOURCE) -> dict[str, dict]:
             text_id = token.get("id")
             source = token.get("source")
             if not isinstance(text_id, str) or not isinstance(source, str):
-                raise ValueError(f"{path}: malformed dialogue text token in event {event_id}")
+                raise ValueError(f"Malformed dialogue text token in event {event_id}")
             if text_id in result:
-                raise ValueError(f"{path}: duplicate dialogue text ID {text_id}")
+                raise ValueError(f"Duplicate dialogue text ID {text_id}")
             result[text_id] = {
                 "event_id": event_id,
                 "token_index": token_index,

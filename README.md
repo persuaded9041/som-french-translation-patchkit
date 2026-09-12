@@ -43,22 +43,16 @@ the repository's canonical root text/translation assets and any component-local
 non-text assets it owns. The aggregate builder
 never needs to rebuild an unchanged component when its stored IPS is available.
 
-## Canonical text assets
+## Clean-ROM extraction cache
 
-ROM-derived text sources live at the repository root instead of being
-re-discovered independently by each component. The clean-USA inventory is split
-by stock storage/rendering mechanism:
+ROM-derived text documents are cached locally under the ignored root `assets/`
+directory. They are never canonical project inputs:
 
-- `assets/dialogues.json` - the 713 text-bearing event scripts owned by `french_dialogues`;
-- `assets/intro_event.json` - the eight stock text parts from event `$0400`, kept
-  separate because `french_intro` owns that translated payload;
-- `assets/text_resources.json` - all 513 non-event `$CA` text resources;
-- `assets/interface_text.json` - 27 help/status rows from the nine-entry
-  `$C0:33B5` 24-bit interface pointer-table family;
-- `assets/menu_text.json` - 66 logical native `$C7` menu/status source elements;
-- `assets/battle_text.json` - the complete 109-record `$C0` battle-message pool;
-- `assets/shop_text.json` - nine `$D9` shop/forge response mini-event strings;
-- `assets/opening_text.json` - user-visible strings from the compressed startup/title arrangement.
+- when an `assets/*.json` cache exists, builders/checks validate and reuse it;
+- when it is missing, the document is extracted deterministically from the clean USA ROM and written to `assets/`;
+- a full rebuild warms all eight root caches once, while a targeted component build creates only what it needs.
+
+`python3 tools/text/extract.py <ROM>` remains available to explicitly refresh or inspect the complete cache.
 
 Regenerate the complete inventory deterministically from the clean USA ROM with:
 
@@ -90,7 +84,7 @@ files. The validated translations formerly stored in component CSV/BIN inputs fo
 
 `french_dialogues` uses the **simulator-filtered Android-FR mass pass** directly during a normal standalone build. `translations/dialogues_french.json` is a generated review artifact, not a required source or build input; the same pipeline can regenerate it from canonical Android/source inputs. The current corpus contains **701 simulator-clean playable events / 1815 accepted semantic source IDs / 1947 active sparse translation entries**: **701 complete + 0 PARTIEL**. Semantic Android alignment remains **1798 / 1838 (97.8%)**, with **40 unresolved semantic IDs**; the only exclusions are the three routing-audited unused/orphan events `$0269`, `$02DE`, `$0603`. Independent simulation reports **0 errors / 0 warnings / 0 implicit runtime wraps**. Manual-JP, validated-suppression and shared-prefix provenance remains explicit in the canonical metadata. `$035F/C9:D1B8` remains strictly `Dryade`; never restore `Dryade fera réagir l'orbe !`.
 
-`french_resources` follows the same provenance rule: `reports/android/text_resources_android.json` and `translations/text_resources_french.json` are deterministic review outputs, not normal build inputs. The component rebuilds the mapping/French payload in memory from `assets/text_resources.json`, `recipes/android/text_resources_layout.json`, and Android `systxt_en/fr.bin`.
+`french_resources` follows the same provenance rule: `reports/android/text_resources_android.json` and `translations/text_resources_french.json` are deterministic review outputs, not normal build inputs. The component rebuilds the mapping/French payload in memory from the clean-USA text-resource extraction, `recipes/android/text_resources_layout.json`, and Android `systxt_en/fr.bin`.
 
 ## Dialogue checkpoint
 

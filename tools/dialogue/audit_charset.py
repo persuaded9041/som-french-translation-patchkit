@@ -20,6 +20,7 @@ from shared.core.rom import validate_base_rom  # noqa: E402
 from shared.text.stock import TEXT_TO_CODE  # noqa: E402
 from shared.dialogue.pipeline.alignment import make_dialogue_auto_alignment  # noqa: E402
 from shared.dialogue.pipeline.common import DEFAULT_SCRTXT_EN, DEFAULT_SCRTXT_FR, read_scrtxt  # noqa: E402
+from shared.extracted.assets import load_or_extract_dialogues
 
 DEFAULT_OUTPUT = ROOT / "reports" / "android" / "dialogue_charset_audit.csv"
 
@@ -133,7 +134,7 @@ def main() -> None:
         help="optional pre-generated alignment JSON; default regenerates alignment from canonical Android EN/FR inputs",
     )
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
-    parser.add_argument("--rom", type=Path, help="optional clean unheadered USA ROM for stock $D3-$FF event-text scan")
+    parser.add_argument("--rom", type=Path, help="clean unheadered USA ROM; required to regenerate alignment when the optional dialogue cache is absent")
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
 
@@ -143,11 +144,16 @@ def main() -> None:
     else:
         english = read_scrtxt(DEFAULT_SCRTXT_EN)
         french = read_scrtxt(DEFAULT_SCRTXT_FR)
+        if args.rom is None and not (ROOT / "assets" / "dialogues.json").exists():
+            raise SystemExit("--rom is required when assets/dialogues.json is absent")
+        base_rom = args.rom.resolve().read_bytes() if args.rom is not None else b""
+        source_document = load_or_extract_dialogues(base_rom)
         mapping = make_dialogue_auto_alignment(
             english,
             french,
             english_path=DEFAULT_SCRTXT_EN,
             french_path=DEFAULT_SCRTXT_FR,
+            source_document=source_document,
         )
         mapping_source = "canonical Android EN/FR + reviewed alignment recipes"
     csv_bytes, unique_count, occurrence_count = make_csv(mapping)

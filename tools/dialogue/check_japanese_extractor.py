@@ -9,6 +9,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
+from shared.extracted.assets import load_or_extract_dialogues  # noqa: E402
 from shared.dialogue.japanese import (  # noqa: E402
     extract_for_us_carrier,
     parse_japanese_event,
@@ -28,12 +29,17 @@ EXPECTED = {
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("rom", type=Path, help="clean unheadered Seiken Densetsu 2 (Japan) ROM")
+    ap.add_argument("--usa-rom", type=Path, help="clean unheadered Secret of Mana (USA) ROM; required if the optional dialogue cache is absent")
     args = ap.parse_args()
     rom = args.rom.read_bytes()
+    if not SOURCE.exists() and args.usa_rom is None:
+        raise SystemExit("--usa-rom is required when assets/dialogues.json is absent")
+    usa = args.usa_rom.resolve().read_bytes() if args.usa_rom is not None else b""
+    source_document = load_or_extract_dialogues(usa, SOURCE)
     validate_japanese_rom(rom)
 
     for carrier, expected in EXPECTED.items():
-        result = extract_for_us_carrier(rom, carrier, source_path=SOURCE)
+        result = extract_for_us_carrier(rom, carrier, source_document=source_document)
         if len(result.japanese_matches) != 1:
             raise SystemExit(f"{carrier}: expected one structural Japanese match, got {result.match_kind}")
         actual = result.japanese_matches[0].text
@@ -44,7 +50,7 @@ def main() -> None:
     # carriers live together inside one Japanese text block.  The extractor must
     # expose the block as context and must not fabricate a one-to-one carrier.
     for carrier in ("C9:A730", "C9:A74E"):
-        result = extract_for_us_carrier(rom, carrier, source_path=SOURCE)
+        result = extract_for_us_carrier(rom, carrier, source_document=source_document)
         if result.match_kind != "resegmented_or_ambiguous" or result.japanese_matches:
             raise SystemExit(f"{carrier}: resegmentation must remain non-one-to-one")
         combined = "\n".join(token.text for token in result.japanese_text_tokens)

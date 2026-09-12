@@ -18,7 +18,7 @@ from shared.dialogue.translation import (
 from shared.dialogue.codec import TRANSLATION_CLEAR, TRANSLATION_TRAILING_PAGE_BREAK_ALLOWLIST, parse_event
 from shared.dialogue.structure import resolve_structural_omission_token_indexes, resolve_structural_command_overrides
 from shared.core.rom import validate_base_rom
-from .common import ROOT, DIALOGUE_SOURCE, _load_recipe_document, normalize_android_prose, normalize_alignment_text, sentence_break_positions
+from .common import ROOT, _load_recipe_document, normalize_android_prose, normalize_alignment_text, sentence_break_positions
 from .policies import *
 from .alignment import make_dialogue_auto_alignment, is_semantic_text
 from .recipes import (
@@ -4949,6 +4949,7 @@ def make_dialogue_format_mass(
     french_path: Path,
     base_rom: bytes,
     alignment: dict | None = None,
+    source_document: dict,
 ) -> tuple[dict, dict]:
     """Generate the largest conservative complete-event set accepted by the simulator.
 
@@ -4975,8 +4976,8 @@ def make_dialogue_format_mass(
             french,
             english_path=english_path,
             french_path=french_path,
+            source_document=source_document,
         )
-    source_document = json.loads(DIALOGUE_SOURCE.read_text(encoding="utf-8"))
     manual_supplements_by_event = _load_manual_dialogue_supplements(source_document)
     inn_template = _parameterized_inn_prompt(english, french)
     structural_omission_indexes_by_event = resolve_structural_omission_token_indexes(

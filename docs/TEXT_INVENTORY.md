@@ -4,6 +4,9 @@ This document summarizes the canonical clean-USA text sources extracted at the
 repository root. Detailed reverse-engineering notes are preserved in
 `TEXT_RESEARCH_NOTES.md`; translation-file conventions are in `TRANSLATIONS.md`.
 
+Root `assets/*.json` names below are optional extraction-cache filenames, not versioned build inputs.
+A clean USA ROM is sufficient to reconstruct every document in memory.
+
 ## Canonical root assets
 
 | Asset | Stock family | Extracted units |

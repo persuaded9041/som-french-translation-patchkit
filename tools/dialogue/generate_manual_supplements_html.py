@@ -6,8 +6,12 @@ import argparse
 import html
 import json
 from pathlib import Path
+import sys
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+
+from shared.extracted.assets import load_or_extract_dialogues  # noqa: E402
 SOURCE = ROOT / "translations" / "dialogues_manual_supplements.json"
 DIALOGUES = ROOT / "assets" / "dialogues.json"
 OUTPUT = ROOT / "reports" / "android" / "dialogues_manual_supplements.html"
@@ -17,9 +21,8 @@ def esc(value: object) -> str:
     return html.escape(str(value)).replace("\n", "<br>")
 
 
-def render() -> str:
+def render(source: dict) -> str:
     doc = json.loads(SOURCE.read_text(encoding="utf-8"))
-    source = json.loads(DIALOGUES.read_text(encoding="utf-8"))
     by_id = {
         token["id"]: (event["event_id"], token.get("source", ""))
         for event in source["events"]
@@ -69,8 +72,12 @@ body{{max-width:1100px;margin:0 auto;padding:28px 18px 60px}}h1{{margin-bottom:6
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--rom", type=Path, help="clean unheadered USA ROM; required if the optional dialogue cache is absent")
     args = ap.parse_args()
-    text = render()
+    if args.rom is None and not DIALOGUES.exists():
+        raise SystemExit("--rom is required when assets/dialogues.json is absent")
+    rom = args.rom.resolve().read_bytes() if args.rom is not None else b""
+    text = render(load_or_extract_dialogues(rom, DIALOGUES))
     if args.check:
         if not OUTPUT.exists() or OUTPUT.read_text(encoding="utf-8") != text:
             raise SystemExit(f"stale generated file: {OUTPUT.relative_to(ROOT)}")

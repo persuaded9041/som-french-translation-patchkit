@@ -24,6 +24,7 @@ import re
 import unicodedata
 
 from shared.text.android_strings import read_string_table
+from shared.extracted.assets import load_or_extract_resources
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE_ASSET = ROOT / "assets" / "text_resources.json"
@@ -53,8 +54,8 @@ def in_range(resource: dict, start: str, end: str) -> bool:
     return parse_hex(start) <= rid <= parse_hex(end)
 
 
-def load_inputs():
-    source = json.loads(SOURCE_ASSET.read_text(encoding="utf-8"))
+def load_inputs(rom: bytes):
+    source = load_or_extract_resources(rom, SOURCE_ASSET)
     if source.get("format_version") != 2 or len(source.get("resources", [])) != 0x201:
         raise ValueError("assets/text_resources.json is not the canonical v2 513-resource asset")
     layout = json.loads(LAYOUT.read_text(encoding="utf-8"))

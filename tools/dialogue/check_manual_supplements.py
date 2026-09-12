@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Validate the minimal manual-dialogue supplement manifest."""
 from __future__ import annotations
+import argparse
 import json
 from pathlib import Path
 import sys
@@ -9,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from shared.dialogue.codec import encode_translated_dialogue_text  # noqa: E402
+from shared.extracted.assets import load_or_extract_dialogues  # noqa: E402
 from shared.dialogue.pipeline.policies import (  # noqa: E402
     DIALOGUE_USER_REQUESTED_MAPPED_MANUAL_REVIEW_IDS,
     DIALOGUE_USER_REQUESTED_UNMAPPED_MANUAL_REVIEW_IDS,
@@ -27,11 +29,17 @@ SUPPRESSED_IDS = {"C9:40D7", "CA:2C84"}
 
 
 def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--rom", type=Path, help="clean unheadered USA ROM; required if the optional dialogue cache is absent")
+    args = ap.parse_args()
     doc = json.loads(MANUAL.read_text(encoding="utf-8"))
     if set(doc) != {"format_version", "entries"} or doc.get("format_version") != 3:
         raise SystemExit("manual supplements must use minimal format v3")
 
-    source = json.loads(SOURCE.read_text(encoding="utf-8"))
+    if args.rom is None and not SOURCE.exists():
+        raise SystemExit("--rom is required when assets/dialogues.json is absent")
+    rom = args.rom.resolve().read_bytes() if args.rom is not None else b""
+    source = load_or_extract_dialogues(rom, SOURCE)
     by_id = {
         tok["id"]: {"event_id": ev["event_id"], "source": tok.get("source", "")}
         for ev in source["events"]

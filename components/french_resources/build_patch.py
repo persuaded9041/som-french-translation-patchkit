@@ -34,6 +34,7 @@ from shared.charset import (
     glyph_bytes,
 )
 
+from shared.extracted.assets import load_or_extract_resources  # noqa: E402
 ASSET = PROJECT_ROOT / "assets" / "text_resources.json"
 STOCK_BLOB_BYTES = 7315
 FONT_BASE = 0x12DC00
@@ -51,7 +52,7 @@ DEFAULT_CATEGORIES = (
 )
 
 
-def load_translation_entries() -> dict[str, tuple[str, str]]:
+def load_translation_entries(base: bytes) -> dict[str, tuple[str, str]]:
     """Regenerate the reviewed Android-FR resource payload in memory.
 
     ``translations/text_resources_french.json`` and the Android mapping JSON are
@@ -59,7 +60,7 @@ def load_translation_entries() -> dict[str, tuple[str, str]]:
     component deliberately does not consume either generated file as a build
     source.
     """
-    source, layout, android_en, android_fr = load_android_inputs()
+    source, layout, android_en, android_fr = load_android_inputs(base)
     doc = build_translation(build_mapping(source, layout, android_en, android_fr))
     result: dict[str, tuple[str, str]] = {}
     for group in doc["groups"]:
@@ -77,8 +78,8 @@ def main() -> None:
 
     base = args.rom.read_bytes()
     validate_base_rom(base)
-    document = load_document(ASSET)
-    entries = load_translation_entries()
+    document = load_or_extract_resources(base, ASSET)
+    entries = load_translation_entries(base)
 
     translations: dict[str, str] = {}
     skipped: list[tuple[str, str]] = []

@@ -105,6 +105,7 @@ from shared.text.menu import (
     verify_against_rom as verify_menu_text,
 )
 from shared.text.translation_json import load_translation, require
+from shared.extracted.assets import load_or_extract_interface, load_or_extract_menu  # noqa: E402
 
 ACCENT_TO_SOM = profile_mapping("basic_french")
 ASCII_TO_SOM.update(ACCENT_TO_SOM)
@@ -195,8 +196,8 @@ SAVE_HELP_IDS = {
 
 
 def load_french_rows(base: bytes) -> tuple[dict[str, str], dict[str, str]]:
-    interface = load_interface_text(PROJECT_ROOT / "assets" / "interface_text.json")
-    menu = load_menu_text(PROJECT_ROOT / "assets" / "menu_text.json")
+    interface = load_or_extract_interface(base, PROJECT_ROOT / "assets" / "interface_text.json")
+    menu = load_or_extract_menu(base, PROJECT_ROOT / "assets" / "menu_text.json")
     try:
         verify_interface_text(base, interface)
         verify_menu_text(base, menu)

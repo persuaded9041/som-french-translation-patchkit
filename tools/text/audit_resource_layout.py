@@ -31,6 +31,7 @@ from shared.text.resources import (  # noqa: E402
 )
 from shared.core.rom import validate_base_rom  # noqa: E402
 from shared.text.resource_translation import normalize_for_snes  # noqa: E402
+from shared.extracted.assets import load_or_extract_resources
 
 ASSET = ROOT / "assets" / "text_resources.json"
 TRANSLATION = ROOT / "translations" / "text_resources_french.json"
@@ -66,7 +67,7 @@ def main() -> None:
 
     rom = args.rom.read_bytes()
     validate_base_rom(rom)
-    source_doc = load_document(ASSET)
+    source_doc = load_or_extract_resources(rom, ASSET)
     translations = load_translations(TRANSLATION)
 
     stock_by_category: dict[str, list[dict]] = defaultdict(list)

@@ -31,6 +31,7 @@ from shared.core.rom import validate_base_rom, update_checksum, expand_rom, EXPA
 from shared.core.ips import apply_ips, make_ips  # noqa: E402
 from shared.text.opening import load_document as load_opening_source, verify_against_rom as verify_opening_source  # noqa: E402
 from shared.text.translation_json import load_translation, require  # noqa: E402
+from shared.extracted.assets import load_or_extract_opening  # noqa: E402
 
 TITLE_CODE_ROM = 0x077C00
 TITLE_ARR_ROM = 0x07B480
@@ -655,7 +656,7 @@ def main():
 
     validate_base_rom(original)
 
-    source_document = load_opening_source(PROJECT_ROOT / "assets" / "opening_text.json")
+    source_document = load_or_extract_opening(bytes(original), PROJECT_ROOT / "assets" / "opening_text.json")
     try:
         verify_opening_source(original, source_document)
         translations = load_translation(

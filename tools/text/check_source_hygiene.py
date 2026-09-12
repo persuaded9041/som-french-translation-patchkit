@@ -212,6 +212,7 @@ def main() -> None:
         return 1
 
     print("Text-source hygiene OK")
+    print("  - root assets/*.json are optional ignored ROM-extraction caches, never required build inputs")
     print("  - no component CSV translation sources")
     print("  - no retired component-local prose BIN/CSV paths")
     print("  - upstream Android prose is isolated under sources/android/")

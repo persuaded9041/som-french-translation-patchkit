@@ -1,7 +1,23 @@
-# Development handoff — Round 85.35 minimal manual-supplement schema
+# HANDOFF — Round 85.37 (automatic root extraction cache)
+
+## Round 85.37 — automatic ignored `assets/` cache
+
+The root `assets/` directory remains entirely unversioned, but missing deterministic clean-USA extraction
+documents are now persisted automatically instead of existing only in memory. Each `load_or_extract_*()`
+helper validates/reuses its JSON cache when present; otherwise it extracts from the supplied clean USA ROM,
+writes the JSON atomically, and returns it. A full rebuild warms all eight root caches once; targeted builds
+remain lazy and create only the files they consume. `.gitignore` uses `/assets/**` so component-local
+`components/*/assets/` sources remain versioned. `tools/text/extract.py` remains the explicit refresh/research CLI.
+
+This is cache/maintenance-only: all component IPS and `all.ips` remain byte-for-byte identical.
 
 Operational handoff. The accompanying archive is authoritative over GitHub.
 
+
+## Round 85.36 — root `assets/*.json` removed from version control
+
+The eight root JSON assets are deterministic clean-USA ROM extractions and are ignored caches rather than
+canonical inputs. Round 85.37 supersedes the original memory-only fallback by persisting missing caches.
 
 
 ## Round 85.35 — minimal manual dialogue supplements

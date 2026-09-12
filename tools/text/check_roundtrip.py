@@ -24,6 +24,11 @@ from shared.text.menu import load_document as load_menu, verify_against_rom as v
 from shared.text.opening import load_document as load_opening, verify_against_rom as verify_opening  # noqa: E402
 from shared.text.shop import load_document as load_shop, verify_against_rom as verify_shop  # noqa: E402
 from shared.text.translation_json import load_translation, source_entries  # noqa: E402
+from shared.extracted.assets import (
+    load_or_extract_battle, load_or_extract_dialogues, load_or_extract_interface,
+    load_or_extract_intro_event, load_or_extract_menu, load_or_extract_opening,
+    load_or_extract_resources, load_or_extract_shop,
+)  # noqa: E402
 from shared.text.resources import (  # noqa: E402
     load_document as load_resources,
     verify_pointer_table_and_blob,
@@ -52,7 +57,7 @@ def main() -> None:
 
     rom = args.rom.resolve().read_bytes()
 
-    dialogues = load_dialogues(args.dialogues.resolve())
+    dialogues = load_or_extract_dialogues(rom, args.dialogues.resolve())
     if args.scan_all_events:
         for event_id in range(EVENT_COUNT):
             parse_event(rom, event_id)
@@ -62,7 +67,7 @@ def main() -> None:
     count, size = verify_dialogue_noop(rom, dialogues)
     print(f"Dialogue translation-free no-op OK: {count} event(s), {size} bytes")
 
-    resources = load_resources(args.resources.resolve())
+    resources = load_or_extract_resources(rom, args.resources.resolve())
     count, size = verify_resource_source(rom, resources)
     print(f"Text-resource source round-trip OK: {count} resource(s), {size} bytes")
     count, size = verify_resource_noop(rom, resources)
@@ -73,33 +78,33 @@ def main() -> None:
         f"{blob_size} string bytes"
     )
 
-    interface = load_interface(args.interface.resolve())
+    interface = load_or_extract_interface(rom, args.interface.resolve())
     group_count, entry_count = verify_interface(rom, interface)
     print(f"Interface-text extraction OK: {group_count} block(s), {entry_count} source line(s)")
 
-    menu = load_menu(args.menu.resolve())
+    menu = load_or_extract_menu(rom, args.menu.resolve())
     group_count, entry_count = verify_menu(rom, menu)
     print(f"Menu/status extraction OK: {group_count} group(s), {entry_count} source record(s)")
 
-    battle = load_battle(args.battle.resolve())
+    battle = load_or_extract_battle(rom, args.battle.resolve())
     record_count, table_bytes, blob_bytes = verify_battle(rom, battle)
     print(
         f"Battle-text extraction OK: {record_count} record(s), "
         f"{table_bytes} pointer-table bytes, {blob_bytes} string-pool bytes"
     )
 
-    shop = load_shop(args.shop.resolve())
+    shop = load_or_extract_shop(rom, args.shop.resolve())
     record_count, reference_count, blob_bytes = verify_shop(rom, shop)
     print(
         f"Shop/forge extraction OK: {record_count} record(s), "
         f"{reference_count} code reference(s), {blob_bytes} mini-script bytes"
     )
 
-    opening = load_opening(args.opening.resolve())
+    opening = load_or_extract_opening(rom, args.opening.resolve())
     group_count, entry_count = verify_opening(rom, opening)
     print(f"Opening-text extraction OK: {group_count} group(s), {entry_count} source record(s)")
 
-    intro = load_intro(args.intro.resolve())
+    intro = load_or_extract_intro_event(rom, args.intro.resolve())
     canonical_intro = extract_intro(parse_event(rom, 0x0400))
     if intro != canonical_intro:
         raise ValueError("intro_event.json differs from a fresh event-$0400 extraction")

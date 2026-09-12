@@ -59,10 +59,11 @@ def write_or_check(path: Path, content: str, check: bool) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
+    ap.add_argument("rom", type=Path, help="clean unheadered Secret of Mana (USA) ROM; optional asset cache is reused when present")
     ap.add_argument("--check", action="store_true", help="verify materialized generated JSON files")
     ap.add_argument("--html", type=Path, help="write a human-readable mapping review")
     args = ap.parse_args()
-    source, layout, en, fr = load_inputs()
+    source, layout, en, fr = load_inputs(args.rom.resolve().read_bytes())
     mapping = build_mapping(source, layout, en, fr)
     translation = build_translation(mapping)
     mapping_text = json.dumps(mapping, ensure_ascii=False, indent=2) + "\n"

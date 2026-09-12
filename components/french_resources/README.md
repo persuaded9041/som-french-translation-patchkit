@@ -24,7 +24,7 @@ maintenance audits.
 The normal standalone build regenerates the Android mapping and French payload
 **in memory** from:
 
-- `assets/text_resources.json` — clean-USA 513-resource source inventory;
+- `assets/text_resources.json` — optional materialized cache of the clean-USA 513-resource inventory;
 - `recipes/android/text_resources_layout.json` — reviewed identity/layout recipe;
 - `sources/android/systxt_en.bin` — Android identity layer;
 - `sources/android/systxt_fr.bin` — Android French prose.

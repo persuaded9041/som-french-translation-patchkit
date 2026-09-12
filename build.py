@@ -12,6 +12,7 @@ from shared.build.compatibility import apply_merge_rules, audit_overlaps
 from shared.build.components import discover_components
 from shared.core.ips import apply_ips, make_ips
 from shared.core.rom import update_checksum, validate_base_rom
+from shared.extracted import materialize_all_assets
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_PATCH_DIR = ROOT / "patches"
@@ -141,6 +142,11 @@ def main() -> None:
     selected = [] if args.combine and not args.components else resolve_selection(args.components, components)
 
     if selected:
+        # A full rebuild warms the complete deterministic root extraction cache
+        # once. Targeted builds stay lazy and only create assets they consume.
+        if len(selected) == len(components):
+            materialize_all_assets(base)
+
         patch_dir.mkdir(parents=True, exist_ok=True)
         built_data: dict[str, bytes] = {}
         for component in selected:

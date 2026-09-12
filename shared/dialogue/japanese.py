@@ -297,11 +297,17 @@ def extract_for_us_carrier(
     rom: bytes,
     carrier_id: str,
     *,
-    source_path: Path,
+    source_path: Path | None = None,
+    source_document: dict[str, Any] | None = None,
 ) -> CarrierExtraction:
     """Resolve a USA dialogue carrier to conservative Japanese event evidence."""
     carrier_id = normalize_carrier_id(carrier_id)
-    source = _load_source(source_path)
+    if source_document is None:
+        if source_path is None:
+            raise ValueError("USA dialogue source document or path is required")
+        source = _load_source(source_path)
+    else:
+        source = source_document
     us_event, us_index, us_token = _find_us_carrier(source, carrier_id)
     event_id = int(us_event["event_id"], 16)
     jp_event = parse_japanese_event(rom, event_id)

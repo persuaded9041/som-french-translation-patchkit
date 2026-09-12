@@ -192,7 +192,7 @@ cross-component compatibility document.
 `french_dialogues` remains the owner of event-script source/reinsertion data, not of the
 VWF renderer itself. The first edited-event checkpoint (`$0107`) was
 runtime-validated with the existing dialogue VWF, including dynamic player-name
-insertion, line breaks and WAIT sequencing. The canonical `assets/dialogues.json` contains clean-USA source only.
+insertion, line breaks and WAIT sequencing. The canonical clean-USA dialogue extraction (`assets/dialogues.json` when materialized) contains clean-USA source only.
 The runtime-validated pagination baseline includes `$010F`: dynamic-name lines
 reserve one parser safety unit, and its four safe lines use a sentence-aware
 3+1 split with generated `WAIT $00` + `TEXT_CLEAR`. The current simulator-filtered

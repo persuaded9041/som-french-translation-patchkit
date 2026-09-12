@@ -31,6 +31,7 @@ from shared.text.intro_event import load_document as load_intro_source, make_doc
 from shared.core.ips import make_ips  # noqa: E402
 from shared.core.rom import update_checksum, validate_base_rom  # noqa: E402
 from shared.text.translation_json import load_translation, require  # noqa: E402
+from shared.extracted.assets import load_or_extract_intro_event  # noqa: E402
 
 DTE_COMPARE_IMMEDIATE_OFFSET = 0x0016F6
 DTE_STOCK_THRESHOLD = 0xD3
@@ -88,7 +89,7 @@ INTRO_TEXT_RUNS = (
 
 
 def load_french_intro_texts(base: bytes) -> tuple[list[str], list[str]]:
-    source_document = load_intro_source(PROJECT_ROOT / "assets" / "intro_event.json")
+    source_document = load_or_extract_intro_event(base, PROJECT_ROOT / "assets" / "intro_event.json")
     canonical = make_intro_source(parse_event(base, 0x0400))
     if source_document != canonical:
         raise SystemExit("intro_event.json differs from a fresh clean-ROM extraction")

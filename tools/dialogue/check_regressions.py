@@ -13,6 +13,7 @@ sys.path.insert(0, str(ROOT))
 from shared.dialogue.pipeline.alignment import make_dialogue_auto_alignment  # noqa: E402
 from shared.dialogue.pipeline.common import DEFAULT_SCRTXT_EN, DEFAULT_SCRTXT_FR, read_scrtxt  # noqa: E402
 from shared.dialogue.pipeline.formatter import make_dialogue_format_mass  # noqa: E402
+from shared.extracted.assets import load_or_extract_dialogues
 
 MANUAL = ROOT / "translations/dialogues_manual_supplements.json"
 RECIPES = ROOT / "recipes/android/dialogues_redistribution.json"
@@ -210,12 +211,14 @@ def main() -> None:
     english = read_scrtxt(DEFAULT_SCRTXT_EN)
     french_android = read_scrtxt(DEFAULT_SCRTXT_FR)
     base_rom = args.rom.resolve().read_bytes()
+    source_document = load_or_extract_dialogues(base_rom)
 
     auto = make_dialogue_auto_alignment(
         english,
         french_android,
         english_path=DEFAULT_SCRTXT_EN,
         french_path=DEFAULT_SCRTXT_FR,
+        source_document=source_document,
     )
     french, mass = make_dialogue_format_mass(
         english,
@@ -224,6 +227,7 @@ def main() -> None:
         french_path=DEFAULT_SCRTXT_FR,
         base_rom=base_rom,
         alignment=auto,
+        source_document=source_document,
     )
 
     check_targeted_reviews(manual, french, mass)

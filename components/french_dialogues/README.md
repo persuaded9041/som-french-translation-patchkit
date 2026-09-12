@@ -11,7 +11,7 @@ The normal standalone build regenerates the French dialogue translation **in
 memory**. It does not require `translations/dialogues_french.json` to exist.
 Canonical inputs are:
 
-- `assets/dialogues.json` — clean-USA source events;
+- `assets/dialogues.json` — optional materialized cache of clean-USA source events;
 - `sources/android/scrtxt_en.bin` — Android-English identity layer;
 - `sources/android/scrtxt_fr.bin` — Android-French localized prose;
 - reviewed structural recipe files under `recipes/android/`;

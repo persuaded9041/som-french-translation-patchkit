@@ -58,6 +58,7 @@ from shared.dialogue.pipeline.common import (  # noqa: E402
     read_scrtxt,
 )
 from shared.dialogue.pipeline.formatter import make_dialogue_format_mass  # noqa: E402
+from shared.extracted.assets import load_or_extract_dialogues  # noqa: E402
 
 DIALOGUE_FILE = PROJECT_ROOT / "assets" / "dialogues.json"
 FONT_BASE = 0x12DC00
@@ -65,7 +66,7 @@ DIALOGUE_CHARS = DIALOGUE_FRENCH_CHARS
 GLYPH_FIRST = min(CHAR_TO_CODE[ch] for ch in DIALOGUE_CHARS)
 INTRO_EVENT_ID = 0x0400
 
-def _generate_translation_document(base: bytes) -> tuple[dict, dict]:
+def _generate_translation_document(base: bytes, source_document: dict) -> tuple[dict, dict]:
     """Regenerate the dialogue translation from canonical Android/source inputs."""
     english = read_scrtxt(DEFAULT_SCRTXT_EN)
     french = read_scrtxt(DEFAULT_SCRTXT_FR)
@@ -75,6 +76,7 @@ def _generate_translation_document(base: bytes) -> tuple[dict, dict]:
         english_path=DEFAULT_SCRTXT_EN,
         french_path=DEFAULT_SCRTXT_FR,
         base_rom=base,
+        source_document=source_document,
     )
 
 
@@ -84,10 +86,10 @@ def build(
     translation_file: Path | None = None,
 ) -> tuple[bytes, bytearray, list[str]]:
     validate_base_rom(base)
-    document = load_document(dialogue_file)
+    document = load_or_extract_dialogues(base, dialogue_file)
     try:
         if translation_file is None:
-            translation_document, format_report = _generate_translation_document(base)
+            translation_document, format_report = _generate_translation_document(base, document)
             translations = resolve_translation(
                 translation_document, document, source_asset="dialogues.json", label="generated dialogue translation"
             )

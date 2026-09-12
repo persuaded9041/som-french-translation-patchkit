@@ -10,6 +10,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
+from shared.extracted.assets import load_or_extract_dialogues  # noqa: E402
 from shared.dialogue.japanese import (  # noqa: E402
     extraction_to_json,
     extract_for_us_carrier,
@@ -41,6 +42,7 @@ def main() -> None:
         default=ROOT / "assets" / "dialogues.json",
         help="canonical USA dialogue asset (default: assets/dialogues.json)",
     )
+    ap.add_argument("--usa-rom", type=Path, help="clean unheadered Secret of Mana (USA) ROM; required if the optional dialogue cache is absent")
     args = ap.parse_args()
 
     if bool(args.carrier) == bool(args.event):
@@ -81,8 +83,12 @@ def main() -> None:
             _print_text_block(f"JP text {index}", token)
         return
 
+    if not args.source.exists() and args.usa_rom is None:
+        raise SystemExit("--usa-rom is required when assets/dialogues.json is absent")
+    usa = args.usa_rom.resolve().read_bytes() if args.usa_rom is not None else b""
+    source_document = load_or_extract_dialogues(usa, args.source)
     try:
-        result = extract_for_us_carrier(rom, args.carrier, source_path=args.source)
+        result = extract_for_us_carrier(rom, args.carrier, source_document=source_document)
     except ValueError as exc:
         raise SystemExit(str(exc)) from exc
     payload = extraction_to_json(result)

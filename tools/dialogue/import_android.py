@@ -18,11 +18,12 @@ sys.path.insert(0, str(ROOT))
 
 from shared.text.intro_event import load_document as load_intro_source  # noqa: E402
 from shared.dialogue.pipeline.common import (  # noqa: E402
-    DEFAULT_SCRTXT_EN, DEFAULT_SCRTXT_FR, DIALOGUE_SOURCE,
+    DEFAULT_SCRTXT_EN, DEFAULT_SCRTXT_FR,
     read_scrtxt, normalize_android_prose,
 )
 from shared.dialogue.pipeline.alignment import make_dialogue_auto_alignment, is_semantic_text  # noqa: E402
 from shared.dialogue.pipeline.formatter import make_dialogue_format_mass  # noqa: E402
+from shared.extracted.assets import load_or_extract_dialogues, load_or_extract_intro_event  # noqa: E402
 
 DEFAULT_INTRO_OUTPUT = ROOT / "translations" / "intro_event_french.json"
 
@@ -43,8 +44,7 @@ INTRO_TARGET_IDS = (
 # ---- Android text decoding and structural recipe rendering -----------------
 
 
-def make_intro_translation(scrtxt: dict[int, str]) -> dict:
-    source = load_intro_source(ROOT / "assets" / "intro_event.json")
+def make_intro_translation(scrtxt: dict[int, str], source: dict) -> dict:
     source_ids = tuple(entry["id"] for entry in source["entries"])
     if source_ids != INTRO_TARGET_IDS:
         raise ValueError(
@@ -416,7 +416,7 @@ def main() -> None:
     parser.add_argument(
         "--rom",
         type=Path,
-        help="clean unheadered USA ROM; required for dialogue-format-mass VWF metrics",
+        help="clean unheadered USA ROM; required for dialogue generation when the optional assets/dialogues.json cache is absent",
     )
     parser.add_argument(
         "--format-report",
@@ -439,20 +439,29 @@ def main() -> None:
     try:
         french = read_scrtxt(french_path)
         if args.only == "intro":
-            document = make_intro_translation(french)
+            if args.rom is None and not (ROOT / "assets" / "intro_event.json").exists():
+                raise ValueError("--rom is required for intro generation when assets/intro_event.json is absent")
+            base_rom = args.rom.resolve().read_bytes() if args.rom is not None else b""
+            intro_source = load_or_extract_intro_event(base_rom)
+            document = make_intro_translation(french, intro_source)
             output = (args.output or DEFAULT_INTRO_OUTPUT).resolve()
             source_label = str(french_path)
             format_report = None
         else:
             english_path = args.scrtxt_en.resolve()
             english = read_scrtxt(english_path)
-            source_label = f"{english_path} + {french_path} + assets/dialogues.json"
+            if args.rom is None and not (ROOT / "assets" / "dialogues.json").exists():
+                raise ValueError("--rom is required for dialogue generation when assets/dialogues.json is absent")
+            base_rom = args.rom.resolve().read_bytes() if args.rom is not None else b""
+            source_document = load_or_extract_dialogues(base_rom)
+            source_label = f"{english_path} + {french_path} + clean-USA dialogue extraction"
             if args.only == "dialogue-auto":
                 document = make_dialogue_auto_alignment(
                     english,
                     french,
                     english_path=english_path,
                     french_path=french_path,
+                    source_document=source_document,
                 )
                 output = (args.output or DEFAULT_DIALOGUE_AUTO_OUTPUT).resolve()
                 format_report = None
@@ -460,12 +469,14 @@ def main() -> None:
                 if args.rom is None:
                     raise ValueError("--rom is required for dialogue-format-mass")
                 base_rom = args.rom.resolve().read_bytes()
+                source_document = load_or_extract_dialogues(base_rom)
                 document, format_report = make_dialogue_format_mass(
                     english,
                     french,
                     english_path=english_path,
                     french_path=french_path,
                     base_rom=base_rom,
+                    source_document=source_document,
                 )
                 output = (args.output or DEFAULT_DIALOGUE_FORMAT_MASS_OUTPUT).resolve()
     except (OSError, ValueError) as exc:
@@ -499,7 +510,6 @@ def main() -> None:
             source_label=source_label + " + clean USA ROM VWF metrics",
         )
         excluded_csv_output = (args.excluded_csv or DEFAULT_DIALOGUE_FORMAT_MASS_EXCLUDED_CSV).resolve()
-        source_document = json.loads(DIALOGUE_SOURCE.read_text(encoding="utf-8"))
         excluded_csv_bytes = (
             "\ufeff" + dialogue_format_mass_excluded_csv(format_report, source_document)
         ).encode("utf-8")

@@ -8,7 +8,7 @@ import math
 import re
 
 from shared.dialogue.translation import normalize_android_french
-from .common import (DEFAULT_SYSTXT_EN, DEFAULT_SYSTXT_FR, DIALOGUE_REVIEWED_ALIGNMENT_RECIPES, DIALOGUE_SOURCE, _load_recipe_document, read_scrtxt, require_parallel_scrtxt, normalize_alignment_text, load_dialogue_text_entries, english_anchor_interval, sha256, render_snes_review_parts, android_anchor_units)
+from .common import (DEFAULT_SYSTXT_EN, DEFAULT_SYSTXT_FR, DIALOGUE_REVIEWED_ALIGNMENT_RECIPES, _load_recipe_document, read_scrtxt, require_parallel_scrtxt, normalize_alignment_text, dialogue_text_entries, english_anchor_interval, sha256, render_snes_review_parts, android_anchor_units)
 from .policies import DIALOGUE_FORCED_UNMAPPED, DIALOGUE_VALIDATED_ANDROID_OMISSIONS, DIALOGUE_VALIDATED_CONTEXTUAL_TEMPLATES, DIALOGUE_REVIEWED_AUTO_OVERRIDES, DIALOGUE_VALIDATED_ALTERNATIVE_GROUPS
 
 @lru_cache(maxsize=None)
@@ -3332,6 +3332,7 @@ def make_dialogue_auto_alignment(
     *,
     english_path: Path,
     french_path: Path,
+    source_document: dict,
 ) -> dict:
     """Align the complete canonical SNES dialogue inventory conservatively.
 
@@ -3342,8 +3343,8 @@ def make_dialogue_auto_alignment(
     system_english = read_scrtxt(DEFAULT_SYSTXT_EN)
     system_french = read_scrtxt(DEFAULT_SYSTXT_FR)
     require_parallel_scrtxt(system_english, system_french)
-    document = json.loads(DIALOGUE_SOURCE.read_text(encoding="utf-8"))
-    source = load_dialogue_text_entries()
+    document = source_document
+    source = dialogue_text_entries(document)
     sessions = _auto_sessions(document)
     index = _AutoCandidateIndex(english)
 

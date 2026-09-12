@@ -42,6 +42,7 @@ from shared.name_entry.dte import (  # noqa: E402
 )
 from shared.core.rom import expand_rom, update_checksum, validate_base_rom  # noqa: E402
 from shared.text.translation_json import load_translation, require  # noqa: E402
+from shared.extracted.assets import load_or_extract_interface  # noqa: E402
 
 FONT_BASE = 0x12DC00
 GLYPH_HEIGHT = 12
@@ -126,7 +127,7 @@ def encode_help_text(interface_text: dict, translations: dict[str, str]) -> byte
 
 
 def build_overlay(base: bytes) -> bytes:
-    interface_text = load_interface_text(PROJECT_ROOT / "assets" / "interface_text.json")
+    interface_text = load_or_extract_interface(base, PROJECT_ROOT / "assets" / "interface_text.json")
     try:
         verify_interface_text(base, interface_text)
     except ValueError as exc:

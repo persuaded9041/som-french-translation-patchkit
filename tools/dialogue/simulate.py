@@ -33,6 +33,7 @@ from shared.dialogue.structure import (  # noqa: E402
     load_choice_option_position_overrides,
 )
 from shared.text.translation_json import load_translation  # noqa: E402
+from shared.extracted.assets import load_or_extract_dialogues
 
 DIALOGUES = PROJECT_ROOT / "assets" / "dialogues.json"
 TRANSLATIONS = PROJECT_ROOT / "translations" / "dialogues_french.json"
@@ -314,7 +315,7 @@ def main() -> None:
 
     base = args.rom.resolve().read_bytes()
     validate_base_rom(base)
-    document = load_document(args.dialogues.resolve())
+    document = load_or_extract_dialogues(base, args.dialogues.resolve())
     translations = load_translation(args.translation.resolve(), document, source_asset="dialogues.json")
     structural_omissions = load_structural_omission_token_indexes(
         args.translation.resolve(), document, translations=translations
