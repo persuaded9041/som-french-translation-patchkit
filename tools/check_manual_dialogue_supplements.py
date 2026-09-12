@@ -12,9 +12,10 @@ from shared.dialogue_codec import encode_translated_dialogue_text  # noqa: E402
 MANUAL = ROOT / "translations" / "dialogues_manual_supplements.json"
 SOURCE = ROOT / "assets" / "dialogues.json"
 EXPECTED_IDS = {
-    "C9:1057", "C9:2179", "C9:2208", "C9:2268", "C9:902F", "C9:916F",
-    "C9:9193", "C9:9F88", "C9:A730", "C9:A74E", "C9:C56C", "C9:CAA6",
-    "C9:CAC2", "C9:CB0C", "C9:D1B8", "CA:2C84", "CA:437D", "C9:40D7",
+    "C9:1057", "C9:2179", "C9:2208", "C9:2268", "C9:40D7",
+    "C9:916F", "C9:9193", "C9:9F88", "C9:A730", "C9:A74E",
+    "C9:C56C", "C9:CAA6", "C9:CAC2", "C9:CB0C", "C9:D1B8",
+    "CA:2C84", "CA:437D",
 }
 PENDING_IDS = set()
 
@@ -72,7 +73,7 @@ def main() -> None:
     suppressed = [e for e in entries if e["status"] == "suppressed"]
     if (
         {e["id"] for e in pending} != PENDING_IDS
-        or len(translated) != 16
+        or len(translated) != 15
         or {e["id"] for e in suppressed} != {"CA:2C84", "C9:40D7"}
     ):
         raise SystemExit("current manual supplement approval/suppression state changed")
@@ -109,7 +110,7 @@ def main() -> None:
         or "D'autres armes sont" not in western["original_fr"]
     ):
         raise SystemExit("$013A/C9:40D7 validated JP-absent suppression changed")
-    print("Manual supplement schema verified: 18 carriers; 16 translated + 0 pending + 2 validated suppressions")
+    print("Manual supplement schema verified: 17 carriers; 15 translated + 0 pending + 2 validated suppressions")
 
 if __name__ == "__main__":
     main()

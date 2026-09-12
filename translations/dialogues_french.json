@@ -16,7 +16,7 @@
         },
         {
           "id": "C9:08F0",
-          "text": "Pendant ce temps, toi, file au Nombril\nde Gaïa !\n"
+          "text": "Pendant ce temps, toi, file au Nombril\nde Gaïa !\fLa grotte est très dangereuse.\nSois prudent !"
         },
         {
           "id": "C9:090A",
@@ -156,7 +156,7 @@
         },
         {
           "id": "C9:0F75",
-          "text": "\n : Moi, c'est "
+          "text": " : Moi, c'est \n"
         },
         {
           "id": "C9:0F8F",
@@ -711,16 +711,24 @@
           "text": "Pas moyen de remonter !\nComment je vais faire ?"
         },
         {
-          "id": "C9:2627",
+          "id": "C9:261A",
           "text": ""
         },
         {
+          "id": "C9:2620",
+          "text": "...\n"
+        },
+        {
+          "id": "C9:2627",
+          "text": "Vas-y... Prends l'épée..."
+        },
+        {
           "id": "C9:2649",
-          "text": " : Qui est là ?"
+          "text": " : Qui est là ?\n"
         },
         {
           "id": "C9:265A",
-          "text": "\nEt que fait cette épée là ?"
+          "text": "Et que fait cette épée là ?"
         },
         {
           "id": "C9:2691",
@@ -728,7 +736,7 @@
         },
         {
           "id": "C9:26A8",
-          "text": ""
+          "text": " hisse !"
         },
         {
           "id": "C9:26BC",
@@ -739,8 +747,12 @@
           "text": "\u000bAaah !\nUn fantôme !!"
         },
         {
+          "id": "C9:270E",
+          "text": "..."
+        },
+        {
           "id": "C9:2715",
-          "text": "\n...\n"
+          "text": "..."
         },
         {
           "id": "C9:271E",
@@ -748,27 +760,31 @@
         },
         {
           "id": "C9:2723",
-          "text": "\n..."
+          "text": "..."
         },
         {
           "id": "C9:2728",
-          "text": ""
+          "text": "..."
         },
         {
           "id": "C9:2735",
-          "text": ""
+          "text": "Je te confie"
         },
         {
           "id": "C9:2740",
-          "text": "\n..."
+          "text": "..."
         },
         {
           "id": "C9:2745",
-          "text": ""
+          "text": "l'Épée"
         },
         {
           "id": "C9:2753",
-          "text": "\n..."
+          "text": "... ..."
+        },
+        {
+          "id": "C9:275F",
+          "text": " : ?!"
         },
         {
           "id": "C9:276B",
@@ -784,7 +800,7 @@
         },
         {
           "id": "C9:27E4",
-          "text": " : Bon, il faut que je\nrentre au village !\n"
+          "text": ": Bon, il faut que je\nrentre au\nvillage !\n"
         },
         {
           "id": "C9:2811",
@@ -1484,7 +1500,7 @@
         },
         {
           "id": "C9:4B7E",
-          "text": "Oh, Mademoiselle, depuis que vous\nêtes partie, Monsieur broie du noir\ntoute la journée..."
+          "text": "Oh, Mademoiselle, depuis que vous\nêtes partie, Monsieur broie du noir\ntoute la journée...\fRevenez, je vous en prie !"
         },
         {
           "id": "C9:4BC1",
@@ -1572,7 +1588,7 @@
         },
         {
           "id": "C9:4F2F",
-          "text": "Thanatos : Je regrette, mais j'ai\ndéjà drainé toute sa volonté.\nElle est à mes ordres, maintenant."
+          "text": "Thanatos : Je regrette, mais j'ai\ndéjà drainé toute sa volonté.\nElle est à mes ordres, maintenant.\f%S(1,0) : Non !"
         },
         {
           "id": "C9:4F84",
@@ -1608,7 +1624,7 @@
         },
         {
           "id": "C9:51AD",
-          "text": "Thanatos : Je comprends mieux,\nc'est donc toi, le héros à l'Épée\nsacrée. Intéressant..."
+          "text": "Thanatos : Je comprends mieux,\nc'est donc toi, le héros à l'Épée\nsacrée. Intéressant...\fTu restes un simple gamin ! Les\nlégendes ont tendance à tout\nexagérer... Ha ha ha."
         },
         {
           "id": "C9:51E9",
@@ -1696,7 +1712,7 @@
         },
         {
           "id": "C9:55C8",
-          "text": "\u000bAutrement dit,\nil a voulu l'éloigner de moi !\nJe ne lui pardonnerai jamais !"
+          "text": "\u000bAutrement dit,\nil a voulu l'éloigner de moi !\nJe ne lui pardonnerai jamais !\fSoldat : Surveillez votre langage en\nprésence du roi !"
         },
         {
           "id": "C9:55FC",
@@ -2452,7 +2468,7 @@
         },
         {
           "id": "C9:7D47",
-          "text": " : Ah bon ?!\nComment ça ?"
+          "text": ":\nHein ? Où ça ?"
         },
         {
           "id": "C9:7D55",
@@ -2476,15 +2492,15 @@
         },
         {
           "id": "C9:7E12",
-          "text": "Bon, alors c'est décidé, non ?\nAllez, on ne traîne pas, en route !\nEuh..."
+          "text": "Bon, alors c'est décidé, non ?\nAllez, on ne traîne pas, en route !\nEuh...\n"
         },
         {
           "id": "C9:7E64",
-          "text": " : Je\nm'appelle "
+          "text": " : Je m'appelle \n"
         },
         {
           "id": "C9:7E72",
-          "text": ".\nHum... Drôle de nom.\fMoi, c'est... "
+          "text": ".\nHum... Drôle de nom.\nMoi, c'est... "
         },
         {
           "id": "C9:7E81",
@@ -2740,7 +2756,7 @@
         },
         {
           "id": "C9:8AE8",
-          "text": "Je viens avec vous, mais\naprès,\nvous m'aiderez à sauver Durac,\nd'accord ?"
+          "text": "\nJe viens avec vous, mais après,\nvous m'aiderez à sauver Durac,\nd'accord ?"
         },
         {
           "id": "C9:8B25",
@@ -4464,7 +4480,7 @@
         },
         {
           "id": "C9:D43A",
-          "text": "Scorpion : Ohohohohoho !\nAdieu, vilains morveux !"
+          "text": "Scorpion : Ohohohohoho !\nAdieu, vilains morveux !\fRobot : Krouik !"
         },
         {
           "id": "C9:D482",
@@ -4684,7 +4700,7 @@
         },
         {
           "id": "C9:DE22",
-          "text": "Hi hi hi...\nJe sais qui vous êtes...\n"
+          "text": "Hi hi hi... Je sais qui vous êtes...\n"
         },
         {
           "id": "C9:DE42",
@@ -4692,7 +4708,7 @@
         },
         {
           "id": "C9:DE49",
-          "text": "\u000bDes amis de Gemma, pas vrai ?\nMoi, j'suis une espionne pour le\ncompte de Tasmanica, hi hi hi."
+          "text": "\u000bDes amis de Gemma, pas vrai ? Moi,\nj'suis une espionne pour le compte\nde Tasmanica, hi hi hi."
         },
         {
           "id": "C9:DE89",
@@ -4856,11 +4872,11 @@
         },
         {
           "id": "C9:E57D",
-          "text": "L'Empereur semble prêt à déclencher\nune guerre mondiale."
+          "text": "L'Empereur semble prêt\nà déclencher une guerre mondiale.\fMême si notre armée est forte,\nje crains pour les miens."
         },
         {
           "id": "C9:E5BF",
-          "text": "Même si notre armée est forte,\nje crains pour les miens."
+          "text": "C'est une sacrée besogne de\ncuisiner pour une grande famille\ncomme la nôtre !"
         },
         {
           "id": "C9:E5DD",
@@ -5188,7 +5204,7 @@
         },
         {
           "id": "CA:0FE3",
-          "text": ": Regardez ! C'est...\nle Bénévodon !\n"
+          "text": ": Regardez !\nC'est...\nle Bénévodon !\n"
         },
         {
           "id": "CA:0FF9",
@@ -5196,11 +5212,11 @@
         },
         {
           "id": "CA:1012",
-          "text": ": Les dragons comme\nFlammie devaient être des\nbénévodons,\nà l'origine..."
+          "text": ": Les dragons comme\nFlammie devaient être des\nbénévodons, à l'origine..."
         },
         {
           "id": "CA:1042",
-          "text": "\n: Dépêchons-nous, ou il va\ns'en prendre à notre monde !"
+          "text": ": Dépêchons-nous, ou il\nva s'en prendre à notre monde !"
         },
         {
           "id": "CA:1082",
@@ -5208,7 +5224,7 @@
         },
         {
           "id": "CA:109B",
-          "text": ": ...\fJe ne peux pas..."
+          "text": ": ...\nJe ne peux pas..."
         },
         {
           "id": "CA:10D2",
@@ -5224,7 +5240,7 @@
         },
         {
           "id": "CA:110A",
-          "text": "!\fTu disparaîtras, toi aussi, non ?"
+          "text": "!\nTu disparaîtras, toi aussi, non ?"
         },
         {
           "id": "CA:1143",
@@ -5540,7 +5556,7 @@
         },
         {
           "id": "CA:208F",
-          "text": "Sheek : Mouahaha !\fDes gamins comme vous\nne pourront jamais battre\nla puissance des forces du mal !"
+          "text": "Sheek : Mouahaha !\fDes gamins comme vous\nne pourront jamais battre\nla puissance des forces du mal !\f%S(0,0) : Quoi ? Mais alors...\nvos pouvoirs... L'Empereur a\nréellement... ?!"
         },
         {
           "id": "CA:20D3",
@@ -6152,7 +6168,7 @@
         },
         {
           "id": "CA:3ED6",
-          "text": "Chef : ...\fAh, te voilà, "
+          "text": "Chef : ...\nAh, te voilà, "
         },
         {
           "id": "CA:3EE7",
@@ -6160,11 +6176,11 @@
         },
         {
           "id": "CA:3F11",
-          "text": "Ce que tu as fait est grave.\nCette épée protégeait notre\nvillage..."
+          "text": "Ce que tu as fait est grave.\nCette épée protégeait notre\nvillage...\n"
         },
         {
           "id": "CA:3F48",
-          "text": "Et c'est probablement parce que tu\nl'as retirée que des monstres\font\nfait\nleur apparition."
+          "text": "Et c'est probablement parce que tu\nl'as retirée que des monstres ont\nfait\nleur apparition."
         },
         {
           "id": "CA:3F97",
@@ -6512,7 +6528,7 @@
         },
         {
           "id": "CA:59F8",
-          "text": "\u000bJe vois...\nAlors, Durac est...\n"
+          "text": "\u000bJe vois... Alors, Durac est...\n"
         },
         {
           "id": "CA:5A14",
@@ -6536,11 +6552,11 @@
         },
         {
           "id": "CA:5B11",
-          "text": "Homme : La paix, c'est tout ce que\nnous voulons, après tout...\non peut essayer."
+          "text": "Homme : La paix, c'est tout ce que\nnous voulons, après tout... on peut\nessayer."
         },
         {
           "id": "CA:5B41",
-          "text": "Chris : ...\nD'accord.\nAllons-y."
+          "text": "Chris : ... D'accord. Allons-y."
         },
         {
           "id": "CA:5B5F",
@@ -6608,7 +6624,7 @@
         },
         {
           "id": "CA:5EA7",
-          "text": "Empereur : Hah, je vois que j'avais\nsous-estimé le héros à l'Épée\nsacrée..."
+          "text": "Empereur : Hah, je vois que j'avais\nsous-estimé le héros à l'Épée\nsacrée...\fPas étonnant que vous ayez donné\ndu fil à retordre à Gestahl et\nThanatos."
         },
         {
           "id": "CA:5ED2",
@@ -6836,7 +6852,7 @@
         },
         {
           "id": "CA:6787",
-          "text": "Je dois y croire !"
+          "text": "Je dois y croire !\f...\f...\f...\fDurac : La salle derrière cet autel !\nVite !\f%S(0,0) : Allons-y !"
         },
         {
           "id": "CA:67BF",
@@ -6856,7 +6872,7 @@
         },
         {
           "id": "CA:6835",
-          "text": "\u000bJe ne rentrerai pas !\nJ'ai décidé de vivre ici...\navec Durac !"
+          "text": "\u000bJe ne rentrerai pas !\nJ'ai décidé de vivre ici...\navec Durac !\fTu n'avais qu'à pas parler tout le\ntemps de lui devant moi...\nC'est de ta faute, tout ça !"
         },
         {
           "id": "CA:687A",
@@ -7044,7 +7060,7 @@
         },
         {
           "id": "CA:7093",
-          "text": "Je me nomme Ombre, esprit des\nténèbres. Je régnais autrefois sur\nle royaume des forces du mal."
+          "text": "Je me nomme Ombre, esprit des\nténèbres. Je régnais autrefois sur\nle royaume des forces du mal.\fJ'étais craint et haï.\nMais mon pouvoir fut jadis scellé par\nun héros."
         },
         {
           "id": "CA:70D7",
@@ -7060,7 +7076,7 @@
         },
         {
           "id": "CA:718F",
-          "text": "\u000bMais tout cela est fini, maintenant.\nEt un jour, cette île redeviendra\npierre."
+          "text": "\u000bMais tout cela est fini, maintenant.\nEt un jour, cette île redeviendra\npierre.\fJ'espère que l'âme de ses habitants\nredeviendra comme avant, elle aussi."
         },
         {
           "id": "CA:71E3",
@@ -7128,11 +7144,11 @@
         },
         {
           "id": "CA:752E",
-          "text": "J'accepte de te tenir compagnie\njusque-là...\falors sois reconnaissant,\nhein ?"
+          "text": "J'accepte de te tenir compagnie\njusque-là...\falors sois reconnaissant,\nhein ?\n"
         },
         {
           "id": "CA:7565",
-          "text": " : (soupir) Comme\ntu\nvoudras..."
+          "text": " : (soupir) Comme tu\nvoudras..."
         },
         {
           "id": "CA:757E",
@@ -7160,11 +7176,11 @@
         },
         {
           "id": "CA:76B2",
-          "text": "\nComme vous voudrez,\nVotre\fMajesté..."
+          "text": "\nComme vous voudrez,\nVotre\fMajesté...\n"
         },
         {
           "id": "CA:76C2",
-          "text": "Ne croyez pas vous\nen tirer à si bon\ncompte, vous trois.\fJe vous briserai\nde mes propres mains !"
+          "text": "Ne croyez pas vous en tirer à si bon\ncompte, vous trois.\fJe vous briserai\nde mes propres mains !"
         },
         {
           "id": "CA:76FC",
@@ -7536,7 +7552,7 @@
         },
         {
           "id": "CA:83F0",
-          "text": "non plus n'a pas connu\nsa\nmère !"
+          "text": "non plus n'a pas connu\nsa mère !"
         },
         {
           "id": "CA:8414",
@@ -7556,7 +7572,7 @@
         },
         {
           "id": "CA:8471",
-          "text": ": Je suis de la tribu de\nMana... Je vais accomplir le destin de\nmes parents et protéger ce monde si\fmerveilleux !"
+          "text": ": Je suis de la tribu de\nMana... Je vais accomplir le destin de\nmes parents et protéger ce monde si\nmerveilleux !"
         },
         {
           "id": "CA:84B2",
@@ -7817,24 +7833,6 @@
         "C9:2268"
       ],
       "reason": "user_validated_complete_with_manual_jp_supplement"
-    },
-    {
-      "event_id": "0103",
-      "suppressed_semantic_ids": [
-        "C9:2627",
-        "C9:26A8",
-        "C9:2728",
-        "C9:2735",
-        "C9:2745"
-      ],
-      "reason": "user_validated_android_adaptation_complete"
-    },
-    {
-      "event_id": "017F",
-      "suppressed_semantic_ids": [
-        "C9:55FC"
-      ],
-      "reason": "user_validated_android_adaptation_complete"
     },
     {
       "event_id": "01DC",

@@ -295,23 +295,27 @@ def encode_translated_dialogue_text(text: str, *, allow_trailing_page_break: boo
         out += encode_translated_dialogue_text(body)
         out += TRANSLATION_PAGE_BREAK_BYTES
         return bytes(out)
-    if TRANSLATION_PAGE_BREAK not in text:
-        # User-reviewed Android-FR scene redistributions may need to move a
-        # dynamic player name inside a translated carrier.  Keep the canonical
+    def encode_page(page: str) -> bytes:
+        # User-reviewed Android-FR scene redistributions may need to move or add
+        # a dynamic player name inside a translated carrier. Keep the canonical
         # source token stream immutable, but allow the translation payload to
-        # spell the already-established Android placeholder directly.  It
-        # compiles to the same stock PLAYER_NAME opcode used by event scripts.
-        # Only the three real party slots and the canonical %S(n,0) spelling
-        # are recognized; ordinary percent text remains ordinary text.
-        parts = re.split(r"(%S\([0-2],0\))", text)
+        # spell the Android placeholder directly. This helper is used both for
+        # ordinary chunks and for each generated page so %S(n,0) remains valid
+        # after a generated WAIT $00 + TEXT_CLEAR boundary.
+        page_out = bytearray()
+        parts = re.split(r"(%S\([0-2],0\))", page)
         for part in parts:
             if not part:
                 continue
             match = re.fullmatch(r"%S\(([0-2]),0\)", part)
             if match:
-                out += bytes((0x57, int(match.group(1))))
+                page_out += bytes((0x57, int(match.group(1))))
             else:
-                out += encode_text(part)
+                page_out += encode_text(part)
+        return bytes(page_out)
+
+    if TRANSLATION_PAGE_BREAK not in text:
+        out += encode_page(text)
         return bytes(out)
 
     pages = text.split(TRANSLATION_PAGE_BREAK)
@@ -319,7 +323,7 @@ def encode_translated_dialogue_text(text: str, *, allow_trailing_page_break: boo
         raise ValueError("Translated dialogue page break cannot be leading or repeated")
 
     for index, page in enumerate(pages):
-        out += encode_text(page)
+        out += encode_page(page)
         if index + 1 < len(pages):
             out += TRANSLATION_PAGE_BREAK_BYTES
     return bytes(out)

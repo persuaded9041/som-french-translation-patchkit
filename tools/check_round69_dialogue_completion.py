@@ -44,8 +44,8 @@ def main() -> None:
         "accepted_event_count": 701,
         "complete_accepted_event_count": 701,
         "partial_accepted_event_count": 0,
-        "accepted_semantic_source_id_count": 1810,
-        "translation_entry_count": 1943,
+        "accepted_semantic_source_id_count": 1815,
+        "translation_entry_count": 1947,
         "excluded_event_count": 3,
     }
     for key, value in expected_cov.items():
@@ -85,7 +85,7 @@ def main() -> None:
     if not expected_promoted.issubset(complete_meta):
         die(f"promoted completion provenance missing: {sorted(expected_promoted - set(complete_meta))}")
 
-    print("Round-69 semantic completion preserved under Round-72 auto-layout: 701 clean events, 0 PARTIEL, 15 promoted completion-provenance events, 3 unreachable/orphan exclusions; Android identity 1798/1838")
+    print("Round-69 semantic completion invariants preserved under Round-85 post-audit layout: 701 clean events, 0 PARTIEL, 3 unreachable/orphan exclusions; Android identity 1798/1838; current generated coverage 1815 IDs / 1947 entries")
 
 
 if __name__ == "__main__":

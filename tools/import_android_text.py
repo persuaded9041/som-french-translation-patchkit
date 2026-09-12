@@ -68,6 +68,7 @@ DEFAULT_DIALOGUE_REVIEW_ROUND7_OUTPUT = ROOT / "mappings" / "android" / "dialogu
 DEFAULT_DIALOGUE_REVIEW_ROUND8_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round8.json"
 DIALOGUE_REDISTRIBUTION_RECIPES = ROOT / "mappings" / "android" / "dialogues_redistribution_recipes.json"
 DIALOGUE_CHOICE_LAYOUT_RECIPES = ROOT / "mappings" / "android" / "dialogues_choice_layout_recipes.json"
+DIALOGUE_COVERAGE_REPAIR_RECIPES = ROOT / "mappings" / "android" / "dialogues_coverage_repair_recipes.json"
 DEFAULT_DIALOGUE_REVIEW_ROUND11_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round11.json"
 DEFAULT_DIALOGUE_REVIEW_ROUND18_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round18.json"
 DEFAULT_DIALOGUE_REVIEW_ROUND20_OUTPUT = ROOT / "mappings" / "android" / "dialogues_review_round20.json"
@@ -1611,6 +1612,117 @@ def _load_dialogue_redistribution_recipes(french: dict[int, str]) -> tuple[dict[
         event_meta[event_id] = {"android_ids": android_ids, "round": int(event_recipe.get("round", 0) or 0)}
     return rendered, event_meta
 
+
+
+
+def _load_dialogue_coverage_repair_recipes(
+    french: dict[int, str], source_document: dict
+) -> dict[str, list[dict]]:
+    """Load source-derived Android-FR coverage repairs.
+
+    These recipes may only splice complete Android-FR units into canonical SNES
+    text carriers. They contain no translated prose: only event/carrier IDs,
+    Android IDs, structural separators, and append/replace mode.
+    """
+    document = json.loads(DIALOGUE_COVERAGE_REPAIR_RECIPES.read_text(encoding="utf-8"))
+    if document.get("format_version") != 1:
+        raise ValueError("Unsupported dialogue coverage-repair recipe format")
+    if document.get("source") != "sources/android/scrtxt_fr.bin":
+        raise ValueError("Dialogue coverage repairs must source Android FR directly")
+    by_event = {event["event_id"]: event for event in source_document.get("events", [])}
+    result: dict[str, list[dict]] = {}
+    seen: set[tuple[str, str]] = set()
+    for recipe in document.get("repairs", []):
+        event_id = str(recipe.get("event_id", "")).upper()
+        carrier_id = str(recipe.get("carrier_id", "")).upper()
+        mode = recipe.get("mode")
+        android_ids = [int(x) for x in recipe.get("android_ids", [])]
+        clear_carrier_ids = [str(x).upper() for x in recipe.get("clear_carrier_ids", [])]
+        separator = str(recipe.get("separator", ""))
+        android_separator = str(recipe.get("android_separator", " "))
+        if mode not in {"append", "replace"}:
+            raise ValueError(f"Coverage repair ${event_id}/{carrier_id}: unsupported mode {mode!r}")
+        if not event_id or not carrier_id or not android_ids:
+            raise ValueError(f"Coverage repair has incomplete identity: {recipe!r}")
+        if (event_id, carrier_id) in seen:
+            raise ValueError(f"Duplicate coverage repair ${event_id}/{carrier_id}")
+        seen.add((event_id, carrier_id))
+        if any(ch not in " \n\f\v\t" for ch in separator):
+            raise ValueError(f"Coverage repair ${event_id}/{carrier_id}: separator may contain layout whitespace only")
+        if any(ch not in " \n\f\v\t" for ch in android_separator):
+            raise ValueError(f"Coverage repair ${event_id}/{carrier_id}: android_separator may contain layout whitespace only")
+        event = by_event.get(event_id)
+        if event is None:
+            raise ValueError(f"Coverage repair references unknown event ${event_id}")
+        carriers = {
+            token.get("id") for token in event.get("tokens", [])
+            if token.get("type") in {"text", "ending_text"}
+        }
+        if carrier_id not in carriers:
+            raise ValueError(f"Coverage repair ${event_id}: unknown carrier {carrier_id}")
+        unknown_clear = sorted(set(clear_carrier_ids) - carriers)
+        if unknown_clear:
+            raise ValueError(f"Coverage repair ${event_id}: unknown clear carrier(s) {unknown_clear}")
+        missing_android = [android_id for android_id in android_ids if android_id not in french]
+        if missing_android:
+            raise ValueError(f"Coverage repair ${event_id}/{carrier_id}: missing Android FR IDs {missing_android}")
+        result.setdefault(event_id, []).append({
+            "event_id": event_id,
+            "carrier_id": carrier_id,
+            "mode": mode,
+            "android_ids": android_ids,
+            "clear_carrier_ids": clear_carrier_ids,
+            "separator": separator,
+            "android_separator": android_separator,
+            "strip_player_name": bool(recipe.get("strip_player_name", False)),
+            "newline_after_colon": bool(recipe.get("newline_after_colon", False)),
+            "wrap_android_units": bool(recipe.get("wrap_android_units", False)),
+        })
+    return result
+
+
+def _apply_dialogue_coverage_repairs(
+    event_id: str, translations: dict[str, str], repairs_by_event: dict[str, list[dict]],
+    french: dict[int, str], advances: dict[str, int],
+) -> list[dict]:
+    reports: list[dict] = []
+    for recipe in repairs_by_event.get(event_id, []):
+        carrier_id = recipe["carrier_id"]
+        payload_units: list[str] = []
+        for android_id in recipe["android_ids"]:
+            unit = normalize_android_prose(french[android_id]).replace("_", "").strip()
+            if not unit:
+                continue
+            if recipe.get("wrap_android_units"):
+                unit, _widths, _chars, _units = semantic_wrap_markup(unit, advances)
+            payload_units.append(unit)
+        payload = recipe.get("android_separator", " ").join(payload_units)
+        if recipe.get("strip_player_name"):
+            payload = re.sub(r"^%S\(\d+,0\)\s*", "", payload).lstrip()
+        if recipe.get("newline_after_colon") and ": " in payload:
+            payload = payload.replace(": ", ":\n", 1)
+        if not payload:
+            raise ValueError(f"Coverage repair ${event_id}/{carrier_id}: empty Android FR payload")
+        if recipe["mode"] == "append":
+            if carrier_id not in translations:
+                raise ValueError(f"Coverage repair ${event_id}/{carrier_id}: append carrier is not translated")
+            translations[carrier_id] = translations[carrier_id].rstrip() + recipe["separator"] + payload
+        else:
+            translations[carrier_id] = payload
+        for clear_id in recipe.get("clear_carrier_ids", []):
+            translations[clear_id] = ""
+        reports.append({
+            "event_id": event_id,
+            "snes_ids": [carrier_id],
+            "android_ids": recipe["android_ids"],
+            "confidence": "coverage_audit_confirmed_android_fr_repair",
+            "coverage_repair": True,
+            "coverage_repair_mode": recipe["mode"],
+            "formatted_entries": ([{"id": carrier_id, "text": translations[carrier_id]}] + [
+                {"id": clear_id, "text": ""} for clear_id in recipe.get("clear_carrier_ids", [])
+            ]),
+        })
+    return reports
 
 def _load_reviewed_choice_layout_recipes(source_document: dict) -> dict[str, dict]:
     """Load structural-only reviewed choice presentation decisions.
@@ -3751,7 +3863,7 @@ DIALOGUE_VALIDATED_CONTEXTUAL_TEMPLATES = {
 # Reviewed structural corrections that intentionally replace an automatic
 # lexical choice. The generic calibration guard remains active for every other
 # reviewed source ID.
-DIALOGUE_REVIEWED_AUTO_OVERRIDES = frozenset({"CA:696C"})
+DIALOGUE_REVIEWED_AUTO_OVERRIDES = frozenset({"CA:696C", "C9:E5BF"})
 
 # The pilot proved that these duplicated Android locations carry equivalent
 # English/French content even though provenance cannot select one copy. Keep the
@@ -4057,7 +4169,6 @@ DIALOGUE_USER_REQUESTED_UNMAPPED_MANUAL_REVIEW_IDS = {
     "013A": frozenset({"C9:40D7"}),
     "00F1": frozenset({"C9:2208"}),
     "00F3": frozenset({"C9:2268"}),
-    "0204": frozenset({"C9:902F"}),
     "04E8": frozenset({"CA:437D"}),
 }
 
@@ -4078,7 +4189,6 @@ DIALOGUE_PARTIAL_MANUAL_POST_REPAIR_IDS = {
 # whole-event simulation. Do not use this as permission to release any of the
 # other $0204 Android mappings.
 DIALOGUE_MANUAL_ONLY_RESEGMENTED_PARTIAL_IDS = {
-    "0204": frozenset({"C9:902F"}),
 }
 
 # Round 62 also uses the same provenance-rich review schema for one already
@@ -4784,6 +4894,25 @@ def _auto_accept_session_blocks(
             accepted.append({**operation, "confidence": confidence})
     return accepted
 
+# Round 85 repairs dialogue identities exposed by the exhaustive Android-FR
+# coverage audit. These are determinate local-sequence corrections, not a new
+# generic matcher. They supersede older lexical choices where Android FR
+# redistributed content differently from Android EN or where a global duplicate
+# won over the scene-local identity.
+DIALOGUE_REVIEW_ROUND85 = (
+    {
+        "event_id": "03BA",
+        "label": "Northtown family NPC - Android FR continuation redistribution",
+        "units": ((('C9:E57D',), (1956, 1957), "round85_android_fr_continuation_redistribution", "user_validated", "Android EN 1956 owns the full SNES thought, while Android FR splits it across 1956 (world war) and 1957 (fear for family). Keep both FR units on this NPC."),),
+    },
+    {
+        "event_id": "03BB",
+        "label": "Northtown large-family NPC - recover displaced Android FR line",
+        "units": ((('C9:E5BF',), (1955,), "round85_android_fr_local_redistribution", "user_validated", "Android FR 1957 is the continuation of the previous NPC, so this large-family NPC must instead receive local Android FR 1955, which carries the official large-family/cooking line."),),
+    },
+)
+
+
 
 def _auto_reviewed_records(source: dict[str, dict]) -> list[dict]:
     """Flatten all user-validated rounds into authoritative mapping blocks."""
@@ -4825,6 +4954,7 @@ def _auto_reviewed_records(source: dict[str, dict]) -> list[dict]:
         ("round44", DIALOGUE_REVIEW_ROUND44),
         ("round45", DIALOGUE_REVIEW_ROUND45),
         ("round50", DIALOGUE_REVIEW_ROUND50),
+        ("round85", DIALOGUE_REVIEW_ROUND85),
     ):
         for scene in batch:
             for parts, android_ids, relation, _candidate_confidence, note in scene["units"]:
@@ -4834,7 +4964,7 @@ def _auto_reviewed_records(source: dict[str, dict]) -> list[dict]:
                         "event_id": scene["event_id"],
                         "snes_ids": snes_ids,
                         "android_ids": list(android_ids),
-                        "confidence": "very_high_structural_review" if round_name in {"round6", "round7", "round8", "round11", "round18", "round20", "round21", "round22", "round25", "round31", "round33", "round34", "round39", "round40", "round41", "round42", "round43", "round44", "round45", "round50"} else "user_validated",
+                        "confidence": "very_high_structural_review" if round_name in {"round6", "round7", "round8", "round11", "round18", "round20", "round21", "round22", "round25", "round31", "round33", "round34", "round39", "round40", "round41", "round42", "round43", "round44", "round45", "round50", "round85"} else "user_validated",
                         "provenance": round_name,
                         "relation": relation,
                         "note": note,
@@ -7269,6 +7399,11 @@ def _auto_add_isolated_event_rom_neighborhood_fuzzy(
         event_id = source[snes_id]["event_id"]
         if len(semantic_by_event.get(event_id, [])) != 1:
             continue
+        # Explicit structural overrides are deliberately outside the generic
+        # fuzzy calibration domain: Round 85 corrects C9:E5BF because Android
+        # FR redistributed the local NPC lines differently from Android EN.
+        if snes_id in DIALOGUE_REVIEWED_AUTO_OVERRIDES:
+            continue
         candidate = evaluate(snes_id)
         if candidate is None:
             continue
@@ -7288,10 +7423,10 @@ def _auto_add_isolated_event_rom_neighborhood_fuzzy(
             "Isolated-event ROM-neighborhood fuzzy alignment contradicts accepted mappings: "
             + ", ".join(calibration_conflicts[:10])
         )
-    if calibration_attempts != 188 or calibration_matches != 188:
+    if calibration_attempts != 187 or calibration_matches != 187:
         raise ValueError(
             "Isolated-event ROM-neighborhood fuzzy calibration corpus changed unexpectedly: "
-            f"expected 188/188, found {calibration_matches}/{calibration_attempts}"
+            f"expected 187/187, found {calibration_matches}/{calibration_attempts}"
         )
 
     additions: list[dict] = []
@@ -13434,6 +13569,24 @@ def _simulation_blocking_score(simulation) -> tuple[int, int, int]:
     return (len(blocking) + wraps, len(blocking), wraps)
 
 
+def _carrier_boundary_can_start_new_line(value: str) -> bool:
+    """Return whether a translated carrier may safely start a physical line.
+
+    A carrier beginning with binding punctuation (for example ``:`` or ``!``)
+    is semantically attached to the preceding carrier, very often a dynamic
+    PLAYER_NAME.  Starting it on a fresh line produces layouts such as
+    ``000000000\n: ...`` even though the simulator considers them valid.
+    Presentation-only ellipsis carriers remain eligible because they are
+    commonly intentional pause beats in the stock event stream.
+    """
+    stripped = value.lstrip(" ")
+    if not stripped:
+        return False
+    if re.fullmatch(r"[.……]+", stripped.strip()):
+        return True
+    return stripped[0] not in ":;!?.,’'\")]}%»"
+
+
 def _try_single_carrier_boundary_newline(
     *,
     base_rom: bytes,
@@ -13474,9 +13627,20 @@ def _try_single_carrier_boundary_newline(
         previous = translations[previous_id]
         following = translations[next_id]
         candidates = []
+        # Appending the newline to the preceding translated carrier places the
+        # physical break *before* any intervening stock commands (notably
+        # PLAYER_NAME).  This is safe even when the following carrier begins
+        # with binding punctuation: the dynamic name and its ``:``/``!`` stay
+        # together on the fresh line.
         if previous and not previous.endswith(("\n", "\v", "\f")):
             candidates.append(("append", previous_id, previous + "\n"))
-        if following and not following.startswith(("\n", "\v", "\f")):
+        # Prepending directly to the following carrier is only valid when that
+        # carrier can semantically start a line by itself.
+        if (
+            _carrier_boundary_can_start_new_line(following)
+            and following
+            and not following.startswith(("\n", "\v", "\f"))
+        ):
             candidates.append(("prepend", next_id, "\n" + following))
         for mode, text_id, replacement in candidates:
             candidate = dict(translations)
@@ -13696,18 +13860,42 @@ def _try_source_derived_layout_search(
         best = None
         for carrier_order, text_id in enumerate(canonical_ids):
             value = current[text_id]
-            operations: list[tuple[str, int, int, str]] = []
+            # operation = (strategy, rank, source_offset, target_id, replacement)
+            operations: list[tuple[str, int, int, str, str]] = []
 
-            # Ordinary word-boundary line break. Never strand punctuation such
-            # as a speaker colon at the beginning of the next line.
-            for match in reversed(list(re.finditer(r"(?<=\S) (?=[^\s:;!?])", value))):
-                pos = match.start()
-                operations.append(("newline_word_boundary", 1, pos, value[:pos] + "\n" + value[pos + 1:]))
+            # Prefer preserving a carrier's prose intact.  A boundary break is
+            # first expressed by appending NEWLINE to the preceding translated
+            # carrier.  Any intervening stock PLAYER_NAME therefore moves with
+            # the following punctuation/prose onto the fresh line.  Only when
+            # the current carrier can stand alone may the newline be prepended
+            # directly to it.
+            if carrier_order > 0 and value and not value.startswith(("\n", "\v", "\f")):
+                previous_id = canonical_ids[carrier_order - 1]
+                previous_value = current[previous_id]
+                if previous_value and not previous_value.endswith(("\n", "\v", "\f")):
+                    operations.append((
+                        "newline_before_carrier_via_previous", 0, -1,
+                        previous_id, previous_value + "\n",
+                    ))
+                if _carrier_boundary_can_start_new_line(value):
+                    operations.append((
+                        "newline_carrier_boundary", 0, -1,
+                        text_id, "\n" + value,
+                    ))
 
             # Prefer a generated page transition after complete sentences.
             for match in reversed(list(re.finditer(r"(?<=[.!?…])(?: +|\n)(?=\S)", value))):
                 pos, end = match.start(), match.end()
-                operations.append(("page_sentence_boundary", 0, pos, value[:pos] + "\f" + value[end:]))
+                operations.append(("page_sentence_boundary", 1, pos, text_id, value[:pos] + "\f" + value[end:]))
+
+            # Internal word-boundary line breaks are a last-resort line-layout
+            # operation.  They remain available when width/capacity genuinely
+            # requires them, but rank after a carrier boundary and a semantic
+            # sentence/page boundary so short phrases are not fragmented merely
+            # to repair cursor state inherited from an earlier carrier.
+            for match in reversed(list(re.finditer(r"(?<=\S) (?=[^\s:;!?])", value))):
+                pos = match.start()
+                operations.append(("newline_word_boundary", 2, pos, text_id, value[:pos] + "\n" + value[pos + 1:]))
 
             # If two earlier layout operations still cannot serialize the event,
             # permit the already-proven word-boundary page fallback used by the
@@ -13715,11 +13903,11 @@ def _try_source_derived_layout_search(
             if allow_word_page:
                 for match in reversed(list(re.finditer(r"(?<=\S) (?=[^\s:;!?])", value))):
                     pos = match.start()
-                    operations.append(("page_word_boundary", 2, pos, value[:pos] + "\f" + value[pos + 1:]))
+                    operations.append(("page_word_boundary", 3, pos, text_id, value[:pos] + "\f" + value[pos + 1:]))
 
-            for strategy, strategy_rank, pos, replacement in operations:
+            for strategy, strategy_rank, pos, target_id, replacement in operations:
                 candidate = dict(current)
-                candidate[text_id] = replacement
+                candidate[target_id] = replacement
                 try:
                     candidate_simulation = simulate_event(
                         base_rom, event, candidate, font=font, player_names=player_names,
@@ -13736,7 +13924,8 @@ def _try_source_derived_layout_search(
                         key, candidate, candidate_simulation,
                         {
                             "strategy": strategy,
-                            "text_id": text_id,
+                            "text_id": target_id,
+                            "boundary_before_id": text_id if strategy == "newline_before_carrier_via_previous" else None,
                             "source_offset": pos,
                             "step": step,
                             "semantic_payload_changed": False,
@@ -13994,18 +14183,38 @@ def _try_live_player_prefix_reflow(
         first = parts[0]
         if not first.strip():
             continue
+
+        # Earlier formatting may already have inserted a soft wrap inside the
+        # same sentence.  Reflowing only ``parts[0]`` can then create an
+        # orphan word before the preserved next line (for example
+        # ``... ou il`` / ``va`` / ``s'en prendre ...``).  Extend the live
+        # prefix reflow through consecutive soft lines until a genuine
+        # sentence boundary.  This lets words move across obsolete soft wraps
+        # while preserving explicit sentence-level layout.
+        logical_first = first
+        consumed_parts = 1
+        sentence_end_re = re.compile(r"(?:\.{3}|[.!?…])[”\"»')\]]*\s*$")
+        while consumed_parts < len(parts):
+            if sentence_end_re.search(logical_first.rstrip()):
+                break
+            next_part = parts[consumed_parts]
+            if not next_part.strip():
+                break
+            logical_first = logical_first.rstrip() + " " + next_part.lstrip()
+            consumed_parts += 1
+
         try:
             wrapped, widths, chars, units = semantic_wrap_markup(
-                first,
+                logical_first,
                 advances,
                 first_line_prefix_pixels=prefix_pixels,
                 first_line_prefix_units=MAX_PLAYER_NAME_CHARS,
             )
         except ValueError:
             continue
-        if wrapped == first:
+        if wrapped == logical_first and consumed_parts == 1:
             continue
-        replacement = "\n".join([wrapped, *parts[1:]])
+        replacement = "\n".join([wrapped, *parts[consumed_parts:]])
         candidate[text_id] = replacement
         repairs.append({
             "strategy": "live_player_name_prefix_reflow",
@@ -14124,10 +14333,11 @@ def make_dialogue_format_mass(
         source_document,
     )
     redistribution_values, redistribution_meta = _load_dialogue_redistribution_recipes(french)
+    coverage_repair_recipes = _load_dialogue_coverage_repair_recipes(french, source_document)
     reviewed_choice_layout_recipes = _load_reviewed_choice_layout_recipes(source_document)
     round68_events = {"0555", "0429", "05F8"}
     round69_events = {
-        "010C", "015A", "01C5", "0204", "0205", "0227", "04E2", "04E5", "04E6", "04E9", "04FD", "0559", "0592", "05B4"
+        "0103", "010C", "015A", "01C5", "0204", "0205", "0227", "04E2", "04E5", "04E6", "04E9", "04FD", "0559", "0592", "05B4"
     }
     if set(redistribution_values) != round68_events | round69_events:
         raise ValueError("Dialogue redistribution recipe event set changed")
@@ -14424,6 +14634,15 @@ def make_dialogue_format_mass(
         mapped_ids: set[str] = set()
         for mapping in event_mappings:
             mapped_ids.update(mapping["snes_ids"])
+        mapped_ids.update(
+            recipe["carrier_id"] for recipe in coverage_repair_recipes.get(event_id, [])
+            if recipe["mode"] == "replace"
+        )
+        mapped_ids.update(
+            clear_id
+            for recipe in coverage_repair_recipes.get(event_id, [])
+            for clear_id in recipe.get("clear_carrier_ids", [])
+        )
         missing_ids = [text_id for text_id in semantic_ids if text_id not in mapped_ids]
         if missing_ids:
             excluded_events.append(
@@ -14541,6 +14760,12 @@ def make_dialogue_format_mass(
                 continue
             event_translations.update(values)
             event_reports.append(mapping_report)
+
+        coverage_reports = _apply_dialogue_coverage_repairs(
+            event_id, event_translations, coverage_repair_recipes, french, advances
+        )
+        if coverage_reports:
+            event_reports.extend(coverage_reports)
 
         if event_id == "04E2":
             round67_reports, _ = _apply_round67_user_reviewed_scene_redistributions(

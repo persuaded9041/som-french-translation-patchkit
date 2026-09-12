@@ -9,11 +9,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 RECIPES = ROOT / "mappings/android/dialogues_redistribution_recipes.json"
+COVERAGE = ROOT / "mappings/android/dialogues_coverage_repair_recipes.json"
 FRENCH = ROOT / "translations/dialogues_french.json"
 SCRTXT_FR = ROOT / "sources/android/scrtxt_fr.bin"
 
 EXPECTED_ROUND68 = {"0555", "0429", "05F8"}
 EXPECTED_ROUND69 = {"010C", "015A", "01C5", "0204", "0205", "0227", "04E2", "04E5", "04E6", "04E9", "04FD", "0559", "0592", "05B4"}
+EXPECTED_ROUND85 = {"0103"}
 
 
 def die(msg: str) -> None:
@@ -30,12 +32,14 @@ def main() -> None:
     if doc.get("format_version") != 1 or doc.get("source") != "sources/android/scrtxt_fr.bin":
         die("recipe header/source drifted")
     events = doc.get("events", {})
-    if set(events) != EXPECTED_ROUND68 | EXPECTED_ROUND69:
+    if set(events) != EXPECTED_ROUND68 | EXPECTED_ROUND69 | EXPECTED_ROUND85:
         die(f"event set drifted: {sorted(events)}")
     if {ev for ev, x in events.items() if x.get("round") == 68} != EXPECTED_ROUND68:
         die("Round-68 event tags drifted")
     if {ev for ev, x in events.items() if x.get("round") == 69} != EXPECTED_ROUND69:
         die("Round-69 event tags drifted")
+    if {ev for ev, x in events.items() if x.get("round") == 85} != EXPECTED_ROUND85:
+        die("Round-85 event tags drifted")
 
     for ev, recipe in events.items():
         for sid, carrier in recipe.get("carriers", {}).items():
@@ -59,6 +63,8 @@ def main() -> None:
     spec.loader.exec_module(module)
     fr = module.read_scrtxt(SCRTXT_FR)
     rendered, _ = module._load_dialogue_redistribution_recipes(fr)
+    coverage = json.loads(COVERAGE.read_text(encoding="utf-8")) if COVERAGE.exists() else {"repairs": []}
+    coverage_append = {(r.get("event_id"), r.get("carrier_id")) for r in coverage.get("repairs", []) if r.get("mode") == "append"}
     active = active_entries(json.loads(FRENCH.read_text(encoding="utf-8")))
     def semantic_payload(text: str) -> str:
         # Formatter-owned layout may legitimately change when the calibrated
@@ -78,7 +84,12 @@ def main() -> None:
                 # contract. The recipe remains the canonical provenance source.
                 filtered += 1
                 continue
-            if semantic_payload(actual) != semantic_payload(expected):
+            actual_sem = semantic_payload(actual)
+            expected_sem = semantic_payload(expected)
+            if (ev, sid) in coverage_append:
+                if not actual_sem.startswith(expected_sem):
+                    die(f"{ev}/{sid}: generated semantic payload prefix drifted before coverage append")
+            elif actual_sem != expected_sem:
                 die(f"{ev}/{sid}: generated semantic payload drifted")
             checked += 1
 

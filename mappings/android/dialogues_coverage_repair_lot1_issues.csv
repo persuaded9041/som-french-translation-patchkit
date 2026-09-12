@@ -1,0 +1,9 @@
+﻿event_id;severity;code;box;page;line;message
+016D;info;IMPLICIT_TEXT_BOX;2;1;;"Text begins without TEXT_OPEN; preview assumes the box is already open."
+016D;info;IMPLICIT_TEXT_BOX;4;1;;"Text begins without TEXT_OPEN; preview assumes the box is already open."
+016D;info;IMPLICIT_TEXT_BOX;6;1;;"Text begins without TEXT_OPEN; preview assumes the box is already open."
+016E;info;IMPLICIT_TEXT_BOX;2;1;;"Text begins without TEXT_OPEN; preview assumes the box is already open."
+017F;info;IMPLICIT_TEXT_BOX;1;1;;"Text begins without TEXT_OPEN; preview assumes the box is already open."
+036D;info;IMPLICIT_TEXT_BOX;2;1;;"Text begins without TEXT_OPEN; preview assumes the box is already open."
+04E4;info;IMPLICIT_TEXT_BOX;2;1;;"Text begins without TEXT_OPEN; preview assumes the box is already open."
+04E4;info;IMPLICIT_TEXT_BOX;4;1;;"Text begins without TEXT_OPEN; preview assumes the box is already open."

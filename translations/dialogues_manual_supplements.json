@@ -105,23 +105,6 @@
       "review_note": "Validation Round 67 : le SNES-JP termine la séquence après l'explication que la Lance évoluera comme l'Épée sacrée. Il n'existe aucun bloc japonais distinct correspondant à l'instruction US « There must be more weapons... Find them! ». L'utilisateur valide donc la suppression de ce carrier pour se rapprocher de l'adaptation Android FR, qui omet elle aussi cette instruction. Le patch supprime le carrier et uniquement son WAIT $00 immédiatement suivant afin d'éviter une page vide ; le TEXT_CLEAR/RETURN stock reste en place. La ROM FR Rev1 conserve l'ajout occidental et reste enregistrée comme provenance."
     },
     {
-      "event_id": "0204",
-      "id": "C9:902F",
-      "original_jp": "「これで世界のどこにおっても、\n　その聖剣には種子からのパワーが　とどくはずじゃ。",
-      "original_en": " You'll be able to gain\n power from the Mana seed\n wherever you are!",
-      "original_fr": "Où que tu sois, tu pourras\nrecevoir le pouvoir de la\ngraine Mana.",
-      "translation_fr": "Où que tu sois, le pouvoir de la Graine atteindra ton Épée.",
-      "status": "translated",
-      "reason": "user_requested_unmapped_carrier_review",
-      "original_jp_status": "exact_snes_jp_transcription_resegmented_block_confirmed",
-      "original_jp_event_id": "0204",
-      "original_jp_carrier_id": "C9:87E4",
-      "original_jp_raw_hex": "86 93 B3 CE 6C BA 68 D9 A2 CF 93 9F 8E B8 9C AC 80 7F FF 98 A2 FB FC 9F A3 6D EE E4 8F B0 A2 61 D5 B5 84 C1 FF 9D CF 91 A3 C8 C7 B9 81",
-      "original_fr_status": "extracted_from_user_supplied_snes_fr_rev1_corresponding_segment",
-      "proposal_basis": "snes_jp_primary_resegmented; corresponding_snes_fr_segment_secondary; event_context",
-      "review_note": "Le SNES-JP fusionne ici le sens de plusieurs carriers occidentaux : « où que tu sois dans le monde, le pouvoir de la Graine atteindra cette Épée ». Le bloc JP exact est conservé comme preuve resegmentée et n’est pas présenté comme une correspondance 1:1 avec le seul carrier USA C9:902F. Proposition validée par l’utilisateur au Round 66."
-    },
-    {
       "event_id": "0207",
       "id": "C9:916F",
       "original_jp": "「世界から　マナが失われようと\n　している　しょうこじゃ！",

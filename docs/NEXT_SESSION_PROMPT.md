@@ -1,11 +1,13 @@
-Je poursuis le projet Secret of Mana FR à partir du **Round 84 — Name Entry prefill cleanup / fully runtime-validated checkpoint**.
+Je poursuis le projet Secret of Mana FR à partir du **Round 85 — post-audit dialogue coverage/layout cleanup**.
 
-Commence par lire `README.md`, puis `docs/HANDOFF.md`, puis `docs/UI_VWF.md`. Consulte `docs/FORGE_VWF_RESEARCH.md` uniquement pour l’historique Forge et les mauvaises pistes déjà rejetées. L’archive fournie est prioritaire sur GitHub.
+Commence par lire `README.md`, puis `docs/HANDOFF.md`. L’archive fournie est prioritaire sur GitHub. Ne redistribue jamais les ROMs de référence.
 
-Les dialogues restent verrouillés au Round 72 : **701/701 événements complets, 0 PARTIEL, 0 erreur, 0 warning, 0 wrap implicite**. Ne les modifie pas.
+État dialogues : **701/701 complets, 0 PARTIEL, 0 erreur, 0 warning, 0 wrap implicite** au simulateur ; **1815 IDs sémantiques acceptés / 1947 entrées JSON** ; **17 surcharges manuelles = 15 traduites + 2 suppressions**. Le nouvel audit de couverture/layout est accepté pour poursuivre le développement, mais sa validation runtime détaillée est volontairement différée au prochain playthrough complet. Ne rouvre pas les textes sans régression concrète.
 
-Le chantier Name Entry est terminé et runtime-validé : `name_entry_extended` = 3 rangées génériques ; `french_name_entry_extended` ajoute la 4e rangée FR ; `name_entry_prefill` propose les noms US éditables ; `french_name_entry_prefill` propose **Randy / Prim / Popoï**. Le `ï` réel de `Popoï` a aussi été validé dès le premier écran via un diagnostic temporaire. Ne rouvre pas ce chantier sans régression démontrée.
+Priorité de cette session : **maintenance du pipeline**, pas nouvelle traduction.
 
-`vwf_ui` est autonome et son backend Forge est verrouillé. La VWF est déjà visible dans les Ring Menus, vraisemblablement par effet du chemin UI existant : **ne cherche pas à l’activer de nouveau**. Reprends l’étude UI VWF en caractérisant d’abord précisément pourquoi/par quel builder-submit le Ring Menu passe déjà en VWF, avec une sonde locale inoffensive si nécessaire. Ensuite, poursuis vers les **messages/menus de ramassage d’objets**. Pour chaque nouvelle famille, prouve le builder/submit exact puis ajoute seulement un gate one-shot étroit ; aucun gate VWF global.
+1. Profiler `python3 tools/import_android_text.py --only dialogue-format-mass --rom "Secret of Mana (USA).sfc"` et identifier les vrais hotspots. Le PC cible est un **i5-10600K, 6 cœurs / 12 threads**. Chercher d’abord cache/mémoïsation, puis parallélisation event-local via multiprocessing si sûre. Prévoir un `--jobs N` déterministe (commencer par 4–6 workers) et prouver que `--jobs 1` et `--jobs N` génèrent des fichiers byte-identical / mêmes compteurs.
+2. Réduire le bruit historique du dépôt. Faire d’abord un audit de dépendances puis nettoyer par petits lots : vieux `dialogues_review_round*`, worklists/reports HTML/CSV, anciens omission reviews, et checkers round-specific potentiellement consolidables. Mesurer le nombre de fichiers avant/après et ne supprimer aucun fichier encore consommé par build/check/génération.
+3. Mettre README/HANDOFF au propre pour que l’état courant soit compréhensible sans connaître tous les anciens rounds.
 
-Teste toujours `vwf_ui` seul sur ROM USA propre puis `all.ips`, avec régressions GAME SELECT, Forge, dialogue Watts et dialogues ordinaires.
+Ne commence pas encore la traduction des objets/items. Préserver toutes les décisions fonctionnelles/runtime validées et le caractère reproductible depuis Android FR.

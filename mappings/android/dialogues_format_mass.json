@@ -12,7 +12,7 @@
     "user_validated_visual_complete_policy": "events explicitly validated by the user as complete Android adaptations keep their simulator-clean French-only bytes and are removed from the PARTIEL badge without inventing mappings for omitted SNES-only fragments",
     "user_validated_structural_omission_policy": "a stock command may be omitted only when the user explicitly validates the omission and the command is proven by exact adjacency to an explicitly suppressed semantic ID; Round 63 additionally suppresses the standalone $04E1/CA:2C84 page and its immediately following WAIT $00 because SNES-JP resegments that meaning into the following unit; Round 67 suppresses the Western-only $013A/C9:40D7 instruction and its immediately following WAIT $00 because no distinct SNES-JP line exists and Android FR omits it; Round 57 removes PLAYER_NAME(0)+post-line WAIT with $02FC/C9:CB28 and PLAYER_NAME(2) with $0558/CA:6629, while $010C/C9:30F5 remains text-only",
     "manual_supplement_policy": "only exact allow-listed carriers may appear in translations/dialogues_manual_supplements.json: reviewed Android omissions, user-requested no-unique-equivalent carriers, plus the exact Round-62/63 mapped suppression carrier; pending entries may carry a review-only translation_fr proposal but never alter the visible payload until explicitly approved; manual entries never create Android identity",
-    "user_validated_stock_english_override_policy": "when Android English identity is proven but the corresponding Android French is user-validated as a localization error, keep the semantic mapping accepted but serialize the exact canonical USA source text through the ordinary component-08 pipeline; this is non-cascading evidence and does not count as an unresolved/manual translation",
+    "user_validated_stock_english_override_policy": "when Android English identity is proven but the corresponding Android French is user-validated as a localization error, keep the semantic mapping accepted but serialize the exact canonical USA source text through the ordinary `french_dialogues` pipeline; this is non-cascading evidence and does not count as an unresolved/manual translation",
     "parameterized_inn_policy": "Android EN/FR 110 is the reviewed template for the common inn prompt: keep each stock numeric caller as the dynamic price, suppress stock C9:CEA3 before it, and render the normalized Android-FR suffix through C9:CEB3; this resolves all shared inn price variants without per-price manual translation",
     "event_0278_android_extra_policy": "after Android 1347/1348 and the two user-validated SNES-only manual controller supplements, insert Android FR 1349 as an extra page before already aligned 1350, then continue with 1351; an explicit newline before C9:A74E materializes the real WAIT!=NEWLINE cursor behavior and avoids an implicit wrap",
     "reviewed_fragment_spacing_policy": "event $0106 may insert only the two user-reported literal spaces between proven adjacent text fragments; no command or layout boundary changes",
@@ -63,15 +63,15 @@
   },
   "coverage": {
     "semantic_source_event_count": 704,
-    "complete_aligned_event_count": 678,
-    "formatter_candidate_event_count": 679,
+    "complete_aligned_event_count": 680,
+    "formatter_candidate_event_count": 681,
     "accepted_event_count": 701,
     "complete_accepted_event_count": 701,
     "partial_accepted_event_count": 0,
-    "user_validated_visually_complete_event_count": 20,
+    "user_validated_visually_complete_event_count": 18,
     "user_validated_structural_omission_event_count": 6,
     "user_validated_structural_omitted_command_count": 7,
-    "manual_supplement_entry_count": 18,
+    "manual_supplement_entry_count": 17,
     "parameterized_inn_event_count": 11,
     "partial_unresolved_or_manual_id_count": 0,
     "partial_layout_deferred_id_count": 0,
@@ -79,12 +79,12 @@
     "generic_structural_safe_subset_deferred_id_count": 0,
     "direct_simulator_safe_subset_event_count": 0,
     "direct_simulator_safe_subset_deferred_id_count": 0,
-    "accepted_semantic_source_id_count": 1810,
-    "translation_entry_count": 1943,
+    "accepted_semantic_source_id_count": 1815,
+    "translation_entry_count": 1947,
     "fragment_spacing_repaired_event_count": 1,
     "fragment_spacing_repair_count": 2,
-    "explicit_post_wait_newline_repaired_event_count": 12,
-    "explicit_post_wait_newline_repair_count": 22,
+    "explicit_post_wait_newline_repaired_event_count": 11,
+    "explicit_post_wait_newline_repair_count": 15,
     "round48_pagination_repaired_event_count": 0,
     "round48_pagination_repair_count": 0,
     "round49_04e9_wait00_clear_repaired_event_count": 0,
@@ -103,7 +103,7 @@
     "cross_mapping_sentence_repair_count": 0,
     "structural_reaction_page_repaired_event_count": 0,
     "structural_reaction_page_repair_count": 0,
-    "android_leading_player_label_removed_mapping_count": 44,
+    "android_leading_player_label_removed_mapping_count": 43,
     "adjacent_nonsemantic_player_carrier_mapping_count": 30,
     "adjacent_nonsemantic_player_carrier_entry_count": 30,
     "adjacent_player_through_carrier_mapping_count": 1,
@@ -878,24 +878,6 @@
       "reason": "user_validated_complete_with_manual_jp_supplement"
     },
     {
-      "event_id": "0103",
-      "suppressed_semantic_ids": [
-        "C9:2627",
-        "C9:26A8",
-        "C9:2728",
-        "C9:2735",
-        "C9:2745"
-      ],
-      "reason": "user_validated_android_adaptation_complete"
-    },
-    {
-      "event_id": "017F",
-      "suppressed_semantic_ids": [
-        "C9:55FC"
-      ],
-      "reason": "user_validated_android_adaptation_complete"
-    },
-    {
       "event_id": "01DC",
       "suppressed_semantic_ids": [
         "C9:804A"
@@ -1488,6 +1470,24 @@
         {
           "id": "C9:08F0",
           "text": "Pendant ce temps, toi, file au Nombril\nde Gaïa !\n"
+        }
+      ]
+    },
+    {
+      "event_id": "0011",
+      "snes_ids": [
+        "C9:08F0"
+      ],
+      "android_ids": [
+        377
+      ],
+      "confidence": "coverage_audit_confirmed_android_fr_repair",
+      "coverage_repair": true,
+      "coverage_repair_mode": "append",
+      "formatted_entries": [
+        {
+          "id": "C9:08F0",
+          "text": "Pendant ce temps, toi, file au Nombril\nde Gaïa !\fLa grotte est très dangereuse. Sois prudent !"
         }
       ]
     },
@@ -11066,511 +11066,175 @@
     {
       "event_id": "0103",
       "snes_ids": [
-        "C9:2649"
-      ],
-      "android_ids": [
-        3414
-      ],
-      "confidence": "very_high_seeded",
-      "source_display": "%S(0,0):Who are you",
-      "android_french_raw": "%S(0,0) : Qui est là ? \n",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "%S(0,0) : Qui est là ?",
-      "layout_markup_before_wrap": "%S(0,0) : Qui est là ?",
-      "layout_hints": [],
-      "formatted_markup": "%S(0,0) : Qui est là ?",
-      "line_widths_pixels": [
-        153
-      ],
-      "line_decoded_character_counts": [
-        24
-      ],
-      "line_parser_unit_counts": [
-        25
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:2649",
-          "text": " : Qui est là ?"
-        }
-      ],
-      "partial_event": true
-    },
-    {
-      "event_id": "0103",
-      "snes_ids": [
-        "C9:265A"
-      ],
-      "android_ids": [
-        3415
-      ],
-      "confidence": "very_high_seeded",
-      "source_display": "...and\n what's this sword doing\n here?",
-      "android_french_raw": "Et que fait cette épée là ?",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Et que fait cette épée là ?",
-      "layout_markup_before_wrap": "Et que fait cette épée là ?",
-      "layout_hints": [],
-      "formatted_markup": "Et que fait cette épée là ?",
-      "line_widths_pixels": [
-        156
-      ],
-      "line_decoded_character_counts": [
-        27
-      ],
-      "line_parser_unit_counts": [
-        27
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 3,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:265A",
-          "text": "Et que fait cette épée là ?"
-        }
-      ],
-      "partial_event": true
-    },
-    {
-      "event_id": "0103",
-      "snes_ids": [
-        "C9:2691"
-      ],
-      "android_ids": [
-        3416
-      ],
-      "confidence": "very_high_seeded",
-      "source_display": "%S(0,0):Urrrrrrrgh!",
-      "android_french_raw": "%S(0,0) : Ho..._",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "%S(0,0) : Ho...",
-      "layout_markup_before_wrap": "%S(0,0) : Ho...",
-      "layout_hints": [],
-      "formatted_markup": "%S(0,0) : Ho...",
-      "line_widths_pixels": [
-        113
-      ],
-      "line_decoded_character_counts": [
-        17
-      ],
-      "line_parser_unit_counts": [
-        18
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:2691",
-          "text": " : Ho..."
-        }
-      ],
-      "partial_event": true
-    },
-    {
-      "event_id": "0103",
-      "snes_ids": [
-        "C9:26BC"
-      ],
-      "android_ids": [
-        3418
-      ],
-      "confidence": "very_high_seeded",
-      "source_display": "%S(0,0):Ow! That light...\n so bright I can't see...",
-      "android_french_raw": "%S(0,0) : Cette lumière... je n'y vois plus rien ! \n",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "%S(0,0) : Cette lumière... je n'y vois plus rien !",
-      "layout_markup_before_wrap": "%S(0,0) : Cette lumière... je n'y vois plus rien !",
-      "layout_hints": [],
-      "formatted_markup": "%S(0,0) : Cette lumière...\nje n'y vois plus rien !",
-      "line_widths_pixels": [
-        174,
-        125
-      ],
-      "line_decoded_character_counts": [
-        28,
-        23
-      ],
-      "line_parser_unit_counts": [
-        29,
-        23
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 2,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        2
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:26BC",
-          "text": " : Cette lumière...\nje n'y vois plus rien !"
-        }
-      ],
-      "partial_event": true
-    },
-    {
-      "event_id": "0103",
-      "snes_ids": [
-        "C9:26F1"
-      ],
-      "android_ids": [
-        3419
-      ],
-      "confidence": "very_high_seeded",
-      "source_display": "\n Ahhhhh! A g...g...ghost!",
-      "android_french_raw": "Aaah ! Un fantôme !! ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Aaah ! Un fantôme !!",
-      "layout_markup_before_wrap": "Aaah ! Un fantôme !!",
-      "layout_hints": [],
-      "formatted_markup": "Aaah !\nUn fantôme !!",
-      "line_widths_pixels": [
-        37,
-        79
-      ],
-      "line_decoded_character_counts": [
-        6,
-        13
-      ],
-      "line_parser_unit_counts": [
-        6,
-        13
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        2
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": true,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:26F1",
-          "text": "\u000bAaah !\nUn fantôme !!"
-        }
-      ],
-      "partial_event": true
-    },
-    {
-      "event_id": "0103",
-      "snes_ids": [
-        "C9:276B"
-      ],
-      "android_ids": [
-        3431
-      ],
-      "confidence": "very_high_seeded",
-      "source_display": "\n Say what?",
-      "android_french_raw": "Qu-quoi ?_",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Qu-quoi ?",
-      "layout_markup_before_wrap": "Qu-quoi ?",
-      "layout_hints": [],
-      "formatted_markup": "Qu-quoi ?",
-      "line_widths_pixels": [
-        58
-      ],
-      "line_decoded_character_counts": [
-        9
-      ],
-      "line_parser_unit_counts": [
-        9
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": true,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:276B",
-          "text": "\u000bQu-quoi ?"
-        }
-      ],
-      "partial_event": true
-    },
-    {
-      "event_id": "0103",
-      "snes_ids": [
-        "C9:2778"
-      ],
-      "android_ids": [
-        3432
-      ],
-      "confidence": "very_high_seeded",
-      "source_display": "\n You mean this sword?..",
-      "android_french_raw": "Ah ! L'épée ! ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Ah ! L'épée !",
-      "layout_markup_before_wrap": "Ah ! L'épée !",
-      "layout_hints": [],
-      "formatted_markup": "Ah !\nL'épée !",
-      "line_widths_pixels": [
-        23,
-        48
-      ],
-      "line_decoded_character_counts": [
-        4,
-        8
-      ],
-      "line_parser_unit_counts": [
-        4,
-        8
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        2
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": true,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:2778",
-          "text": "\u000bAh !\nL'épée !"
-        }
-      ],
-      "partial_event": true
-    },
-    {
-      "event_id": "0103",
-      "snes_ids": [
-        "C9:27AE"
-      ],
-      "android_ids": [
-        3433
-      ],
-      "confidence": "very_high_seeded",
-      "source_display": "  The brilliant light is\n  gone in an instant.",
-      "android_french_raw": "%S(0,0) : La lumière a disparu... ",
-      "structural_markers_removed": [
-        "%S(0,0) :"
-      ],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "La lumière a disparu...",
-      "layout_markup_before_wrap": "La lumière a disparu...",
-      "layout_hints": [],
-      "formatted_markup": "La lumière a disparu...",
-      "line_widths_pixels": [
-        129
-      ],
-      "line_decoded_character_counts": [
-        23
-      ],
-      "line_parser_unit_counts": [
-        23
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 2,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        1
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
-      "formatted_entries": [
-        {
-          "id": "C9:27AE",
-          "text": "La lumière a disparu..."
-        }
-      ],
-      "partial_event": true
-    },
-    {
-      "event_id": "0103",
-      "snes_ids": [
+        "C9:261A",
+        "C9:2620",
+        "C9:2627",
+        "C9:2649",
+        "C9:265A",
+        "C9:2691",
+        "C9:26A8",
+        "C9:26BC",
+        "C9:26F1",
+        "C9:270E",
+        "C9:2715",
+        "C9:2723",
+        "C9:2728",
+        "C9:2740",
+        "C9:271E",
+        "C9:2735",
+        "C9:2745",
+        "C9:2753",
+        "C9:275F",
+        "C9:276B",
+        "C9:2778",
+        "C9:27AE",
         "C9:27E4"
       ],
       "android_ids": [
+        3413,
+        3414,
+        3415,
+        3416,
+        3417,
+        3418,
+        3419,
+        3420,
+        3421,
+        3422,
+        3423,
+        3424,
+        3425,
+        3426,
+        3427,
+        3428,
+        3429,
+        3430,
+        3431,
+        3432,
+        3433,
         3434
       ],
-      "confidence": "very_high_seeded",
-      "source_display": "%S(0,0):I have to get back!\n",
-      "android_french_raw": "%S(0,0) : Bon, il faut que je rentre au village ! ",
-      "structural_markers_removed": [],
-      "preserved_choice_terminal_suffix_ids": null,
-      "adjacent_nonsemantic_carrier_ids": null,
-      "adjacent_player_carrier_indexes": null,
-      "preserved_static_speaker_dynamic_addressee": null,
-      "preserved_leading_snes_player_prefix": null,
-      "positional_player_rebindings": null,
-      "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "%S(0,0) : Bon, il faut que je rentre au village !",
-      "layout_markup_before_wrap": "%S(0,0) : Bon, il faut que je rentre au village !",
-      "layout_hints": [],
-      "formatted_markup": "%S(0,0) : Bon, il faut que je\nrentre au village !\n",
-      "line_widths_pixels": [
-        192,
-        106
-      ],
-      "line_decoded_character_counts": [
-        31,
-        19
-      ],
-      "line_parser_unit_counts": [
-        32,
-        19
-      ],
-      "leading_text_x_position": null,
-      "leading_text_x_padding_pixels": 0,
-      "leading_text_x_parser_units": 0,
-      "source_visible_line_budget": 1,
-      "effective_line_budget": 3,
-      "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
-      "page_line_counts": [
-        2
-      ],
-      "inserted_page_break_count": 0,
-      "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
-      "event_level_forced_page_break": false,
+      "confidence": "user_authorized_targeted_scene_redistribution",
+      "round69_targeted_redistribution": true,
+      "android_identity_count_changed": false,
+      "note": "Reviewed Android-FR/SNES resegmentation; no new weak Android identity is created.",
       "formatted_entries": [
         {
+          "id": "C9:261A",
+          "text": ""
+        },
+        {
+          "id": "C9:2620",
+          "text": "...\n"
+        },
+        {
+          "id": "C9:2627",
+          "text": "Vas-y... Prends l'épée..."
+        },
+        {
+          "id": "C9:2649",
+          "text": " : Qui est\nlà ?"
+        },
+        {
+          "id": "C9:265A",
+          "text": "Et que fait cette épée là ?"
+        },
+        {
+          "id": "C9:2691",
+          "text": " : Ho..."
+        },
+        {
+          "id": "C9:26A8",
+          "text": " hisse !"
+        },
+        {
+          "id": "C9:26BC",
+          "text": " : Cette lumière...\nje n'y vois plus rien !"
+        },
+        {
+          "id": "C9:26F1",
+          "text": "\u000bAaah !\nUn fantôme !!"
+        },
+        {
+          "id": "C9:270E",
+          "text": "..."
+        },
+        {
+          "id": "C9:2715",
+          "text": "..."
+        },
+        {
+          "id": "C9:2723",
+          "text": "..."
+        },
+        {
+          "id": "C9:2728",
+          "text": "..."
+        },
+        {
+          "id": "C9:2740",
+          "text": "..."
+        },
+        {
+          "id": "C9:271E",
+          "text": "..."
+        },
+        {
+          "id": "C9:2735",
+          "text": "Je te\nconfie"
+        },
+        {
+          "id": "C9:2745",
+          "text": "l'Épée"
+        },
+        {
+          "id": "C9:2753",
+          "text": "... ..."
+        },
+        {
+          "id": "C9:275F",
+          "text": " : ?!"
+        },
+        {
+          "id": "C9:276B",
+          "text": "\u000bQu-quoi ?"
+        },
+        {
+          "id": "C9:2778",
+          "text": "\u000bAh !\nL'épée !"
+        },
+        {
+          "id": "C9:27AE",
+          "text": "La lumière a disparu..."
+        },
+        {
           "id": "C9:27E4",
-          "text": " : Bon, il faut que je\nrentre au village !\n"
+          "text": ": Bon, il faut que je\nrentre au\nvillage !\n"
         }
       ],
-      "partial_event": true
+      "automatic_216px_reflow": [
+        {
+          "id": "C9:27E4",
+          "reflowed_lines": [
+            {
+              "source_line": " : Bon, il faut que je rentre au village !",
+              "wrapped": ": Bon, il faut que je rentre au\nvillage !",
+              "widths_pixels": [
+                176,
+                46
+              ],
+              "decoded_characters": [
+                31,
+                9
+              ],
+              "parser_units": [
+                31,
+                9
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "event_id": "0104",
@@ -20074,6 +19738,24 @@
       ]
     },
     {
+      "event_id": "015C",
+      "snes_ids": [
+        "C9:4B7E"
+      ],
+      "android_ids": [
+        264
+      ],
+      "confidence": "coverage_audit_confirmed_android_fr_repair",
+      "coverage_repair": true,
+      "coverage_repair_mode": "append",
+      "formatted_entries": [
+        {
+          "id": "C9:4B7E",
+          "text": "Oh, Mademoiselle, depuis que vous\nêtes partie, Monsieur broie du noir\ntoute la journée...\fRevenez, je vous en prie !"
+        }
+      ]
+    },
+    {
       "event_id": "015D",
       "snes_ids": [
         "C9:4BC1"
@@ -21735,6 +21417,24 @@
       ]
     },
     {
+      "event_id": "016D",
+      "snes_ids": [
+        "C9:4F2F"
+      ],
+      "android_ids": [
+        1124
+      ],
+      "confidence": "coverage_audit_confirmed_android_fr_repair",
+      "coverage_repair": true,
+      "coverage_repair_mode": "append",
+      "formatted_entries": [
+        {
+          "id": "C9:4F2F",
+          "text": "Thanatos : Je regrette, mais j'ai\ndéjà drainé toute sa volonté.\nElle est à mes ordres, maintenant.\f%S(1,0) : Non !"
+        }
+      ]
+    },
+    {
       "event_id": "016E",
       "snes_ids": [
         "C9:51AD"
@@ -22106,6 +21806,24 @@
         {
           "id": "C9:524A",
           "text": "Thanatos : Ha ha ha...\nNous nous reverrons !"
+        }
+      ]
+    },
+    {
+      "event_id": "016E",
+      "snes_ids": [
+        "C9:51AD"
+      ],
+      "android_ids": [
+        1092
+      ],
+      "confidence": "coverage_audit_confirmed_android_fr_repair",
+      "coverage_repair": true,
+      "coverage_repair_mode": "append",
+      "formatted_entries": [
+        {
+          "id": "C9:51AD",
+          "text": "Thanatos : Je comprends mieux,\nc'est donc toi, le héros à l'Épée\nsacrée. Intéressant...\fTu restes un simple gamin ! Les légendes ont tendance à tout exagérer... Ha ha ha."
         }
       ]
     },
@@ -22984,8 +22702,7 @@
           "id": "C9:558B",
           "text": " : Quoi ?!\fMais alors, c'est papa qui a\nfait en sorte que Durac soit\nenvoyé chez la sorcière ?"
         }
-      ],
-      "partial_event": true
+      ]
     },
     {
       "event_id": "017F",
@@ -23045,8 +22762,7 @@
           "id": "C9:55C8",
           "text": "\u000bAutrement dit,\nil a voulu l'éloigner de moi !\nJe ne lui pardonnerai jamais !"
         }
-      ],
-      "partial_event": true
+      ]
     },
     {
       "event_id": "017F",
@@ -23108,8 +22824,29 @@
           "id": "C9:5610",
           "text": " : C'est bon,\nj'ai compris !\nOn s'en va, "
         }
+      ]
+    },
+    {
+      "event_id": "017F",
+      "snes_ids": [
+        "C9:55C8"
       ],
-      "partial_event": true
+      "android_ids": [
+        392
+      ],
+      "confidence": "coverage_audit_confirmed_android_fr_repair",
+      "coverage_repair": true,
+      "coverage_repair_mode": "append",
+      "formatted_entries": [
+        {
+          "id": "C9:55C8",
+          "text": "\u000bAutrement dit,\nil a voulu l'éloigner de moi !\nJe ne lui pardonnerai jamais !\fSoldat : Surveillez votre langage en présence du roi !"
+        },
+        {
+          "id": "C9:55FC",
+          "text": ""
+        }
+      ]
     },
     {
       "event_id": "0180",
@@ -33884,6 +33621,24 @@
         {
           "id": "C9:7E81",
           "text": ""
+        }
+      ]
+    },
+    {
+      "event_id": "01DA",
+      "snes_ids": [
+        "C9:7D47"
+      ],
+      "android_ids": [
+        670
+      ],
+      "confidence": "coverage_audit_confirmed_android_fr_repair",
+      "coverage_repair": true,
+      "coverage_repair_mode": "replace",
+      "formatted_entries": [
+        {
+          "id": "C9:7D47",
+          "text": ":\nHein ? Où ça ?"
         }
       ]
     },
@@ -60901,6 +60656,24 @@
       ]
     },
     {
+      "event_id": "036D",
+      "snes_ids": [
+        "C9:D43A"
+      ],
+      "android_ids": [
+        1157
+      ],
+      "confidence": "coverage_audit_confirmed_android_fr_repair",
+      "coverage_repair": true,
+      "coverage_repair_mode": "append",
+      "formatted_entries": [
+        {
+          "id": "C9:D43A",
+          "text": "Scorpion : Ohohohohoho !\nAdieu, vilains morveux !\fRobot : Krouik !"
+        }
+      ]
+    },
+    {
       "event_id": "036F",
       "snes_ids": [
         "C9:D515"
@@ -63933,20 +63706,17 @@
       "layout_hints": [
         "speaker_after_sentence"
       ],
-      "formatted_markup": "Hi hi hi...\nJe sais qui vous êtes...\n%S(0,0) : Pardon ?",
+      "formatted_markup": "Hi hi hi... Je sais qui vous êtes...\n%S(0,0) : Pardon ?",
       "line_widths_pixels": [
-        50,
-        137,
+        191,
         140
       ],
       "line_decoded_character_counts": [
-        11,
-        24,
+        36,
         20
       ],
       "line_parser_unit_counts": [
-        11,
-        24,
+        36,
         21
       ],
       "leading_text_x_position": null,
@@ -63955,9 +63725,9 @@
       "source_visible_line_budget": 3,
       "effective_line_budget": 3,
       "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
+      "semantic_line_break_preferences": false,
       "page_line_counts": [
-        3
+        2
       ],
       "inserted_page_break_count": 0,
       "inserted_leading_clear": false,
@@ -63967,9 +63737,10 @@
       "formatted_entries": [
         {
           "id": "C9:DE22",
-          "text": "Hi hi hi...\nJe sais qui vous êtes...\n"
+          "text": "Hi hi hi... Je sais qui vous êtes...\n"
         }
-      ]
+      ],
+      "semantic_layout_fallback": true
     },
     {
       "event_id": "0399",
@@ -63993,21 +63764,21 @@
       "android_french_normalized": "Des amis de Gemma, pas vrai ? Moi, j'suis une espionne pour le compte de Tasmanica, hi hi hi.",
       "layout_markup_before_wrap": "Des amis de Gemma, pas vrai ? Moi, j'suis une espionne pour le compte de Tasmanica, hi hi hi.",
       "layout_hints": [],
-      "formatted_markup": "Des amis de Gemma, pas vrai ?\nMoi, j'suis une espionne pour le\ncompte de Tasmanica, hi hi hi.",
+      "formatted_markup": "Des amis de Gemma, pas vrai ? Moi,\nj'suis une espionne pour le compte\nde Tasmanica, hi hi hi.",
       "line_widths_pixels": [
-        174,
-        183,
-        171
+        199,
+        202,
+        127
       ],
       "line_decoded_character_counts": [
-        29,
-        32,
-        30
+        34,
+        34,
+        23
       ],
       "line_parser_unit_counts": [
-        29,
-        32,
-        30
+        34,
+        34,
+        23
       ],
       "leading_text_x_position": null,
       "leading_text_x_padding_pixels": 0,
@@ -64015,7 +63786,7 @@
       "source_visible_line_budget": 3,
       "effective_line_budget": 3,
       "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
+      "semantic_line_break_preferences": false,
       "page_line_counts": [
         3
       ],
@@ -64027,9 +63798,10 @@
       "formatted_entries": [
         {
           "id": "C9:DE49",
-          "text": "\u000bDes amis de Gemma, pas vrai ?\nMoi, j'suis une espionne pour le\ncompte de Tasmanica, hi hi hi."
+          "text": "\u000bDes amis de Gemma, pas vrai ? Moi,\nj'suis une espionne pour le compte\nde Tasmanica, hi hi hi."
         }
-      ]
+      ],
+      "semantic_layout_fallback": true
     },
     {
       "event_id": "0399",
@@ -64078,7 +63850,7 @@
       "source_visible_line_budget": 3,
       "effective_line_budget": 3,
       "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
+      "semantic_line_break_preferences": false,
       "page_line_counts": [
         2,
         2
@@ -64093,7 +63865,8 @@
           "id": "C9:DE89",
           "text": "\u000bMon mari l'était aussi avant moi,\nmais pendant une mission, alors qu'il\fs'enfuyait après avoir dérobé un\nsecret, l'Empire l'a abattu. Snif..."
         }
-      ]
+      ],
+      "semantic_layout_fallback": true
     },
     {
       "event_id": "0399",
@@ -64142,7 +63915,7 @@
       "source_visible_line_budget": 3,
       "effective_line_budget": 3,
       "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
+      "semantic_line_break_preferences": false,
       "page_line_counts": [
         3,
         1
@@ -64157,7 +63930,8 @@
           "id": "C9:DED0",
           "text": "\u000bÀ l'est de la ville, il y a l'entrée\ndes égouts. C'est un passage\nsecret menant à Septentria.\fSeule la Résistance le connaît."
         }
-      ]
+      ],
+      "semantic_layout_fallback": true
     },
     {
       "event_id": "0399",
@@ -64203,7 +63977,7 @@
       "source_visible_line_budget": 2,
       "effective_line_budget": 3,
       "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
+      "semantic_line_break_preferences": false,
       "page_line_counts": [
         3
       ],
@@ -64217,7 +63991,8 @@
           "id": "C9:DF14",
           "text": "\u000bLe garde vous laissera passer si\nvous lui donnez le mot de passe\n“634”."
         }
-      ]
+      ],
+      "semantic_layout_fallback": true
     },
     {
       "event_id": "039A",
@@ -66375,11 +66150,12 @@
         "C9:E57D"
       ],
       "android_ids": [
-        1956
+        1956,
+        1957
       ],
-      "confidence": "very_high_seeded",
+      "confidence": "very_high_structural_review",
       "source_display": "Why's the Emperor taking\non the world..?\nI fear for my family!",
-      "android_french_raw": "L'Empereur semble prêt à déclencher une guerre mondiale. ",
+      "android_french_raw": "L'Empereur semble prêt à déclencher une guerre mondiale.  Même si notre armée est forte, je crains pour les miens. ",
       "structural_markers_removed": [],
       "preserved_choice_terminal_suffix_ids": null,
       "adjacent_nonsemantic_carrier_ids": null,
@@ -66388,21 +66164,27 @@
       "preserved_leading_snes_player_prefix": null,
       "positional_player_rebindings": null,
       "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "L'Empereur semble prêt à déclencher une guerre mondiale.",
-      "layout_markup_before_wrap": "L'Empereur semble prêt à déclencher une guerre mondiale.",
+      "android_french_normalized": "L'Empereur semble prêt à déclencher une guerre mondiale. Même si notre armée est forte, je crains pour les miens.",
+      "layout_markup_before_wrap": "L'Empereur semble prêt à déclencher une guerre mondiale. Même si notre armée est forte, je crains pour les miens.",
       "layout_hints": [],
-      "formatted_markup": "L'Empereur semble prêt à déclencher\nune guerre mondiale.",
+      "formatted_markup": "L'Empereur semble prêt\nà déclencher une guerre mondiale.\fMême si notre armée est forte,\nje crains pour les miens.",
       "line_widths_pixels": [
-        216,
-        121
+        136,
+        201,
+        179,
+        143
       ],
       "line_decoded_character_counts": [
-        35,
-        20
+        22,
+        33,
+        30,
+        25
       ],
       "line_parser_unit_counts": [
-        35,
-        20
+        22,
+        33,
+        30,
+        25
       ],
       "leading_text_x_position": null,
       "leading_text_x_padding_pixels": 0,
@@ -66412,17 +66194,18 @@
       "physical_page_capacity_mode": true,
       "semantic_line_break_preferences": true,
       "page_line_counts": [
+        2,
         2
       ],
-      "inserted_page_break_count": 0,
+      "inserted_page_break_count": 1,
       "inserted_leading_clear": false,
-      "page_break_encoding": null,
-      "page_break_strategy": null,
+      "page_break_encoding": "WAIT $00 + TEXT_CLEAR",
+      "page_break_strategy": "sentence_boundary",
       "event_level_forced_page_break": false,
       "formatted_entries": [
         {
           "id": "C9:E57D",
-          "text": "L'Empereur semble prêt à déclencher\nune guerre mondiale."
+          "text": "L'Empereur semble prêt\nà déclencher une guerre mondiale.\fMême si notre armée est forte,\nje crains pour les miens."
         }
       ]
     },
@@ -66432,11 +66215,11 @@
         "C9:E5BF"
       ],
       "android_ids": [
-        1957
+        1955
       ],
-      "confidence": "very_high_seeded",
+      "confidence": "very_high_structural_review",
       "source_display": "We have a big family here!",
-      "android_french_raw": "Même si notre armée est forte, je crains pour les miens. ",
+      "android_french_raw": "C'est une sacrée besogne de cuisiner pour une grande famille comme la nôtre ! ",
       "structural_markers_removed": [],
       "preserved_choice_terminal_suffix_ids": null,
       "adjacent_nonsemantic_carrier_ids": null,
@@ -66445,21 +66228,24 @@
       "preserved_leading_snes_player_prefix": null,
       "positional_player_rebindings": null,
       "ignored_alignment_trailing_player_context": null,
-      "android_french_normalized": "Même si notre armée est forte, je crains pour les miens.",
-      "layout_markup_before_wrap": "Même si notre armée est forte, je crains pour les miens.",
+      "android_french_normalized": "C'est une sacrée besogne de cuisiner pour une grande famille comme la nôtre !",
+      "layout_markup_before_wrap": "C'est une sacrée besogne de cuisiner pour une grande famille comme la nôtre !",
       "layout_hints": [],
-      "formatted_markup": "Même si notre armée est forte,\nje crains pour les miens.",
+      "formatted_markup": "C'est une sacrée besogne de\ncuisiner pour une grande famille\ncomme la nôtre !",
       "line_widths_pixels": [
-        179,
-        143
+        171,
+        189,
+        94
       ],
       "line_decoded_character_counts": [
-        30,
-        25
+        27,
+        32,
+        16
       ],
       "line_parser_unit_counts": [
-        30,
-        25
+        27,
+        32,
+        16
       ],
       "leading_text_x_position": null,
       "leading_text_x_padding_pixels": 0,
@@ -66469,7 +66255,7 @@
       "physical_page_capacity_mode": true,
       "semantic_line_break_preferences": true,
       "page_line_counts": [
-        2
+        3
       ],
       "inserted_page_break_count": 0,
       "inserted_leading_clear": false,
@@ -66479,7 +66265,7 @@
       "formatted_entries": [
         {
           "id": "C9:E5BF",
-          "text": "Même si notre armée est forte,\nje crains pour les miens."
+          "text": "C'est une sacrée besogne de\ncuisiner pour une grande famille\ncomme la nôtre !"
         }
       ]
     },
@@ -74830,6 +74616,24 @@
         {
           "id": "CA:2170",
           "text": "Préparez-vous à mourir !"
+        }
+      ]
+    },
+    {
+      "event_id": "04B3",
+      "snes_ids": [
+        "CA:208F"
+      ],
+      "android_ids": [
+        2724
+      ],
+      "confidence": "coverage_audit_confirmed_android_fr_repair",
+      "coverage_repair": true,
+      "coverage_repair_mode": "append",
+      "formatted_entries": [
+        {
+          "id": "CA:208F",
+          "text": "Sheek : Mouahaha !\fDes gamins comme vous\nne pourront jamais battre\nla puissance des forces du mal !\f%S(0,0) : Quoi ? Mais alors... vos pouvoirs... L'Empereur a réellement... ?!"
         }
       ]
     },
@@ -84714,7 +84518,7 @@
       "source_visible_line_budget": 1,
       "effective_line_budget": 3,
       "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
+      "semantic_line_break_preferences": false,
       "page_line_counts": [
         1
       ],
@@ -84728,7 +84532,8 @@
           "id": "CA:59E1",
           "text": "Chris : Qu'y a-t-il ?"
         }
-      ]
+      ],
+      "semantic_layout_fallback": true
     },
     {
       "event_id": "0511",
@@ -84752,18 +84557,15 @@
       "android_french_normalized": "Je vois... Alors, Durac est...",
       "layout_markup_before_wrap": "Je vois... Alors, Durac est...",
       "layout_hints": [],
-      "formatted_markup": "Je vois...\nAlors, Durac est...\n",
+      "formatted_markup": "Je vois... Alors, Durac est...\n",
       "line_widths_pixels": [
-        54,
-        107
+        165
       ],
       "line_decoded_character_counts": [
-        10,
-        19
+        30
       ],
       "line_parser_unit_counts": [
-        10,
-        19
+        30
       ],
       "leading_text_x_position": null,
       "leading_text_x_padding_pixels": 0,
@@ -84771,9 +84573,9 @@
       "source_visible_line_budget": 1,
       "effective_line_budget": 3,
       "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
+      "semantic_line_break_preferences": false,
       "page_line_counts": [
-        2
+        1
       ],
       "inserted_page_break_count": 0,
       "inserted_leading_clear": true,
@@ -84783,9 +84585,10 @@
       "formatted_entries": [
         {
           "id": "CA:59F8",
-          "text": "\u000bJe vois...\nAlors, Durac est...\n"
+          "text": "\u000bJe vois... Alors, Durac est...\n"
         }
-      ]
+      ],
+      "semantic_layout_fallback": true
     },
     {
       "event_id": "0511",
@@ -84825,7 +84628,7 @@
       "source_visible_line_budget": 1,
       "effective_line_budget": 3,
       "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
+      "semantic_line_break_preferences": false,
       "page_line_counts": [
         1
       ],
@@ -84839,7 +84642,8 @@
           "id": "CA:5A14",
           "text": "Ne perds pas espoir !"
         }
-      ]
+      ],
+      "semantic_layout_fallback": true
     },
     {
       "event_id": "0511",
@@ -84885,7 +84689,7 @@
       "source_visible_line_budget": 3,
       "effective_line_budget": 3,
       "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
+      "semantic_line_break_preferences": false,
       "page_line_counts": [
         3
       ],
@@ -84899,7 +84703,8 @@
           "id": "CA:5A2F",
           "text": "\u000bNous avons appris que Thanatos\nétait mêlé à tout ça, mais vous nous\navez devancés."
         }
-      ]
+      ],
+      "semantic_layout_fallback": true
     },
     {
       "event_id": "0511",
@@ -84942,7 +84747,7 @@
       "source_visible_line_budget": 1,
       "effective_line_budget": 3,
       "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
+      "semantic_line_break_preferences": false,
       "page_line_counts": [
         2
       ],
@@ -84956,7 +84761,8 @@
           "id": "CA:5A7F",
           "text": "\u000bMais l'Empereur a subitement\ndemandé des pourparlers !"
         }
-      ]
+      ],
+      "semantic_layout_fallback": true
     },
     {
       "event_id": "0511",
@@ -85002,7 +84808,7 @@
       "source_visible_line_budget": 2,
       "effective_line_budget": 3,
       "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
+      "semantic_line_break_preferences": false,
       "page_line_counts": [
         3
       ],
@@ -85016,7 +84822,8 @@
           "id": "CA:5AA7",
           "text": "Femme : Je comprends que tu aies\ndu mal à faire confiance à ceux qui\nont tué ton père."
         }
-      ]
+      ],
+      "semantic_layout_fallback": true
     },
     {
       "event_id": "0511",
@@ -85059,7 +84866,7 @@
       "source_visible_line_budget": 2,
       "effective_line_budget": 3,
       "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
+      "semantic_line_break_preferences": false,
       "page_line_counts": [
         2
       ],
@@ -85073,7 +84880,8 @@
           "id": "CA:5ADE",
           "text": "Peut-être que notre détermination a\nréussi à lui faire changer d'avis ?"
         }
-      ]
+      ],
+      "semantic_layout_fallback": true
     },
     {
       "event_id": "0511",
@@ -85097,21 +84905,21 @@
       "android_french_normalized": "Homme : La paix, c'est tout ce que nous voulons, après tout... on peut essayer.",
       "layout_markup_before_wrap": "Homme : La paix, c'est tout ce que nous voulons, après tout... on peut essayer.",
       "layout_hints": [],
-      "formatted_markup": "Homme : La paix, c'est tout ce que\nnous voulons, après tout...\non peut essayer.",
+      "formatted_markup": "Homme : La paix, c'est tout ce que\nnous voulons, après tout... on peut\nessayer.",
       "line_widths_pixels": [
         201,
-        159,
-        100
+        207,
+        52
       ],
       "line_decoded_character_counts": [
         34,
-        27,
-        16
+        35,
+        8
       ],
       "line_parser_unit_counts": [
         34,
-        27,
-        16
+        35,
+        8
       ],
       "leading_text_x_position": null,
       "leading_text_x_padding_pixels": 0,
@@ -85119,7 +84927,7 @@
       "source_visible_line_budget": 2,
       "effective_line_budget": 3,
       "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
+      "semantic_line_break_preferences": false,
       "page_line_counts": [
         3
       ],
@@ -85131,9 +84939,10 @@
       "formatted_entries": [
         {
           "id": "CA:5B11",
-          "text": "Homme : La paix, c'est tout ce que\nnous voulons, après tout...\non peut essayer."
+          "text": "Homme : La paix, c'est tout ce que\nnous voulons, après tout... on peut\nessayer."
         }
-      ]
+      ],
+      "semantic_layout_fallback": true
     },
     {
       "event_id": "0511",
@@ -85214,21 +85023,15 @@
           "android_french_normalized": "Chris : ... D'accord. Allons-y.",
           "layout_markup_before_wrap": "Chris : ... D'accord. Allons-y.",
           "layout_hints": [],
-          "formatted_markup": "Chris : ...\nD'accord.\nAllons-y.",
+          "formatted_markup": "Chris : ... D'accord. Allons-y.",
           "line_widths_pixels": [
-            57,
-            56,
-            53
+            174
           ],
           "line_decoded_character_counts": [
-            11,
-            9,
-            9
+            31
           ],
           "line_parser_unit_counts": [
-            11,
-            9,
-            9
+            31
           ],
           "leading_text_x_position": null,
           "leading_text_x_padding_pixels": 0,
@@ -85236,9 +85039,9 @@
           "source_visible_line_budget": 1,
           "effective_line_budget": 3,
           "physical_page_capacity_mode": true,
-          "semantic_line_break_preferences": true,
+          "semantic_line_break_preferences": false,
           "page_line_counts": [
-            3
+            1
           ],
           "inserted_page_break_count": 0,
           "inserted_leading_clear": false,
@@ -85248,7 +85051,7 @@
           "formatted_entries": [
             {
               "id": "CA:5B41",
-              "text": "Chris : ...\nD'accord.\nAllons-y."
+              "text": "Chris : ... D'accord. Allons-y."
             }
           ]
         },
@@ -85293,7 +85096,7 @@
           "source_visible_line_budget": 1,
           "effective_line_budget": 3,
           "physical_page_capacity_mode": true,
-          "semantic_line_break_preferences": true,
+          "semantic_line_break_preferences": false,
           "page_line_counts": [
             1
           ],
@@ -85356,7 +85159,7 @@
           "source_visible_line_budget": 2,
           "effective_line_budget": 3,
           "physical_page_capacity_mode": true,
-          "semantic_line_break_preferences": true,
+          "semantic_line_break_preferences": false,
           "page_line_counts": [
             3
           ],
@@ -85376,7 +85179,7 @@
       "formatted_entries": [
         {
           "id": "CA:5B41",
-          "text": "Chris : ...\nD'accord.\nAllons-y."
+          "text": "Chris : ... D'accord. Allons-y."
         },
         {
           "id": "CA:5B5F",
@@ -85386,7 +85189,8 @@
           "id": "CA:5B70",
           "text": "Si Durac rentre et que la Forteresse\nest arrêtée, votre périple prendra\nfin !"
         }
-      ]
+      ],
+      "semantic_layout_fallback": true
     },
     {
       "event_id": "0511",
@@ -85426,7 +85230,7 @@
       "source_visible_line_budget": 1,
       "effective_line_budget": 3,
       "physical_page_capacity_mode": true,
-      "semantic_line_break_preferences": true,
+      "semantic_line_break_preferences": false,
       "page_line_counts": [
         1
       ],
@@ -85440,7 +85244,8 @@
           "id": "CA:5BA4",
           "text": "Homme : Rejoignez-nous là-bas."
         }
-      ]
+      ],
+      "semantic_layout_fallback": true
     },
     {
       "event_id": "051D",
@@ -86443,6 +86248,24 @@
         {
           "id": "CA:5F40",
           "text": "Gestahl : Je vais enfin laver\nl'affront que vous m'avez fait\nsubir ! Vous allez le regretter !"
+        }
+      ]
+    },
+    {
+      "event_id": "052E",
+      "snes_ids": [
+        "CA:5EA7"
+      ],
+      "android_ids": [
+        2261
+      ],
+      "confidence": "coverage_audit_confirmed_android_fr_repair",
+      "coverage_repair": true,
+      "coverage_repair_mode": "append",
+      "formatted_entries": [
+        {
+          "id": "CA:5EA7",
+          "text": "Empereur : Hah, je vois que j'avais\nsous-estimé le héros à l'Épée\nsacrée...\fPas étonnant que vous ayez donné du fil à retordre à Gestahl et Thanatos."
         }
       ]
     },
@@ -89366,6 +89189,24 @@
       ]
     },
     {
+      "event_id": "055E",
+      "snes_ids": [
+        "CA:6835"
+      ],
+      "android_ids": [
+        2036
+      ],
+      "confidence": "coverage_audit_confirmed_android_fr_repair",
+      "coverage_repair": true,
+      "coverage_repair_mode": "append",
+      "formatted_entries": [
+        {
+          "id": "CA:6835",
+          "text": "\u000bJe ne rentrerai pas !\nJ'ai décidé de vivre ici...\navec Durac !\fTu n'avais qu'à pas parler tout le temps de lui devant moi... C'est de ta faute, tout ça !"
+        }
+      ]
+    },
+    {
       "event_id": "056C",
       "snes_ids": [
         "CA:6AAF"
@@ -91178,6 +91019,24 @@
       ]
     },
     {
+      "event_id": "0586",
+      "snes_ids": [
+        "CA:7093"
+      ],
+      "android_ids": [
+        2427
+      ],
+      "confidence": "coverage_audit_confirmed_android_fr_repair",
+      "coverage_repair": true,
+      "coverage_repair_mode": "append",
+      "formatted_entries": [
+        {
+          "id": "CA:7093",
+          "text": "Je me nomme Ombre, esprit des\nténèbres. Je régnais autrefois sur\nle royaume des forces du mal.\fJ'étais craint et haï. Mais mon pouvoir fut jadis scellé par un héros."
+        }
+      ]
+    },
+    {
       "event_id": "0587",
       "snes_ids": [
         "CA:7154",
@@ -91457,6 +91316,24 @@
         {
           "id": "CA:723A",
           "text": "\nVous obtenez les pouvoirs de\nLumina !"
+        }
+      ]
+    },
+    {
+      "event_id": "0587",
+      "snes_ids": [
+        "CA:718F"
+      ],
+      "android_ids": [
+        2535
+      ],
+      "confidence": "coverage_audit_confirmed_android_fr_repair",
+      "coverage_repair": true,
+      "coverage_repair_mode": "append",
+      "formatted_entries": [
+        {
+          "id": "CA:718F",
+          "text": "\u000bMais tout cela est fini, maintenant.\nEt un jour, cette île redeviendra\npierre.\fJ'espère que l'âme de ses habitants redeviendra comme avant, elle aussi."
         }
       ]
     },
@@ -97371,6 +97248,299 @@
   ],
   "automatic_216px_reflows": [
     {
+      "event_id": "0011",
+      "reflows": [
+        {
+          "id": "C9:08F0",
+          "reflowed_lines": [
+            {
+              "source_line": "La grotte est très dangereuse. Sois prudent !",
+              "wrapped": "La grotte est très dangereuse.\nSois prudent !",
+              "widths_pixels": [
+                184,
+                83
+              ],
+              "decoded_characters": [
+                30,
+                14
+              ],
+              "parser_units": [
+                30,
+                14
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "016E",
+      "reflows": [
+        {
+          "id": "C9:51AD",
+          "reflowed_lines": [
+            {
+              "source_line": "Tu restes un simple gamin ! Les légendes ont tendance à tout exagérer... Ha ha ha.",
+              "wrapped": "Tu restes un simple gamin ! Les\nlégendes ont tendance à tout\nexagérer... Ha ha ha.",
+              "widths_pixels": [
+                182,
+                172,
+                124
+              ],
+              "decoded_characters": [
+                31,
+                28,
+                21
+              ],
+              "parser_units": [
+                31,
+                28,
+                21
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "017F",
+      "reflows": [
+        {
+          "id": "C9:55C8",
+          "reflowed_lines": [
+            {
+              "source_line": "Soldat : Surveillez votre langage en présence du roi !",
+              "wrapped": "Soldat : Surveillez votre langage en\nprésence du roi !",
+              "widths_pixels": [
+                211,
+                102
+              ],
+              "decoded_characters": [
+                36,
+                17
+              ],
+              "parser_units": [
+                36,
+                17
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "0399",
+      "reflows": [
+        {
+          "id": "C9:DE89",
+          "reflowed_lines": [
+            {
+              "source_line": "J'ai décidé de le venger, alors je poursuis son combat. Je surveille ce qui se passe dans cette ville et je transmets des informations à Tasmanica.",
+              "wrapped": "J'ai décidé de le venger, alors je\npoursuis son combat. Je surveille ce\nqui se passe dans cette ville et je\ntransmets des informations à\nTasmanica.",
+              "widths_pixels": [
+                193,
+                214,
+                199,
+                171,
+                63
+              ],
+              "decoded_characters": [
+                34,
+                36,
+                35,
+                28,
+                10
+              ],
+              "parser_units": [
+                34,
+                36,
+                35,
+                28,
+                10
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "04B3",
+      "reflows": [
+        {
+          "id": "CA:208F",
+          "reflowed_lines": [
+            {
+              "source_line": "%S(0,0) : Quoi ? Mais alors... vos pouvoirs... L'Empereur a réellement... ?!",
+              "wrapped": "%S(0,0) : Quoi ? Mais alors...\nvos pouvoirs... L'Empereur a\nréellement... ?!",
+              "widths_pixels": [
+                197,
+                168,
+                88
+              ],
+              "decoded_characters": [
+                32,
+                28,
+                16
+              ],
+              "parser_units": [
+                33,
+                28,
+                16
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "0511",
+      "reflows": [
+        {
+          "id": "CA:5A7F",
+          "reflowed_lines": [
+            {
+              "source_line": "Il veut que l'Empire redevienne pacifique, et nous invite dans son palais, se disant prêt à cesser les hostilités. Peut-on lui faire confiance ?",
+              "wrapped": "Il veut que l'Empire redevienne\npacifique, et nous invite dans son\npalais, se disant prêt à cesser les\nhostilités. Peut-on lui faire\nconfiance ?",
+              "widths_pixels": [
+                178,
+                200,
+                202,
+                161,
+                71
+              ],
+              "decoded_characters": [
+                31,
+                34,
+                35,
+                29,
+                11
+              ],
+              "parser_units": [
+                31,
+                34,
+                35,
+                29,
+                11
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "052E",
+      "reflows": [
+        {
+          "id": "CA:5EA7",
+          "reflowed_lines": [
+            {
+              "source_line": "Pas étonnant que vous ayez donné du fil à retordre à Gestahl et Thanatos.",
+              "wrapped": "Pas étonnant que vous ayez donné\ndu fil à retordre à Gestahl et\nThanatos.",
+              "widths_pixels": [
+                205,
+                171,
+                58
+              ],
+              "decoded_characters": [
+                32,
+                30,
+                9
+              ],
+              "parser_units": [
+                32,
+                30,
+                9
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "055E",
+      "reflows": [
+        {
+          "id": "CA:6835",
+          "reflowed_lines": [
+            {
+              "source_line": "Tu n'avais qu'à pas parler tout le temps de lui devant moi... C'est de ta faute, tout ça !",
+              "wrapped": "Tu n'avais qu'à pas parler tout le\ntemps de lui devant moi...\nC'est de ta faute, tout ça !",
+              "widths_pixels": [
+                196,
+                145,
+                160
+              ],
+              "decoded_characters": [
+                34,
+                26,
+                28
+              ],
+              "parser_units": [
+                34,
+                26,
+                28
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "0586",
+      "reflows": [
+        {
+          "id": "CA:7093",
+          "reflowed_lines": [
+            {
+              "source_line": "J'étais craint et haï. Mais mon pouvoir fut jadis scellé par un héros.",
+              "wrapped": "J'étais craint et haï.\nMais mon pouvoir fut jadis scellé par\nun héros.",
+              "widths_pixels": [
+                124,
+                214,
+                56
+              ],
+              "decoded_characters": [
+                22,
+                37,
+                9
+              ],
+              "parser_units": [
+                22,
+                37,
+                9
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "0587",
+      "reflows": [
+        {
+          "id": "CA:718F",
+          "reflowed_lines": [
+            {
+              "source_line": "J'espère que l'âme de ses habitants redeviendra comme avant, elle aussi.",
+              "wrapped": "J'espère que l'âme de ses habitants\nredeviendra comme avant, elle aussi.",
+              "widths_pixels": [
+                211,
+                214
+              ],
+              "decoded_characters": [
+                35,
+                36
+              ],
+              "parser_units": [
+                35,
+                36
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
       "event_id": "04E1",
       "reflows": [
         {
@@ -97585,6 +97755,32 @@
     }
   ],
   "source_derived_layout_search_repairs": [
+    {
+      "event_id": "0103",
+      "repairs": [
+        {
+          "strategy": "newline_word_boundary",
+          "text_id": "C9:2735",
+          "source_offset": 5,
+          "step": 1,
+          "semantic_payload_changed": false
+        },
+        {
+          "strategy": "newline_word_boundary",
+          "text_id": "C9:27E4",
+          "source_offset": 21,
+          "step": 2,
+          "semantic_payload_changed": false
+        },
+        {
+          "strategy": "newline_word_boundary",
+          "text_id": "C9:2649",
+          "source_offset": 10,
+          "step": 3,
+          "semantic_payload_changed": false
+        }
+      ]
+    },
     {
       "event_id": "010C",
       "repairs": [
@@ -97999,55 +98195,6 @@
     }
   ],
   "explicit_post_wait_newline_repairs": [
-    {
-      "event_id": "0103",
-      "layout_text_id": "C9:265A",
-      "strategy": "prepend_explicit_newline_after_wait",
-      "validation_status": "batch_test_candidate",
-      "reason": "materialize line boundary previously assumed implicitly at WAIT"
-    },
-    {
-      "event_id": "0103",
-      "layout_text_id": "C9:2715",
-      "strategy": "prepend_explicit_newline_after_wait",
-      "validation_status": "batch_test_candidate",
-      "reason": "materialize line boundary previously assumed implicitly at WAIT"
-    },
-    {
-      "event_id": "0103",
-      "layout_text_id": "C9:2715",
-      "strategy": "append_explicit_newline_after_wait",
-      "validation_status": "batch_test_candidate",
-      "reason": "materialize line boundary previously assumed implicitly at WAIT"
-    },
-    {
-      "event_id": "0103",
-      "layout_text_id": "C9:271E",
-      "strategy": "prepend_explicit_newline_after_wait",
-      "validation_status": "batch_test_candidate",
-      "reason": "materialize line boundary previously assumed implicitly at WAIT"
-    },
-    {
-      "event_id": "0103",
-      "layout_text_id": "C9:2723",
-      "strategy": "prepend_explicit_newline_after_wait",
-      "validation_status": "batch_test_candidate",
-      "reason": "materialize line boundary previously assumed implicitly at WAIT"
-    },
-    {
-      "event_id": "0103",
-      "layout_text_id": "C9:2740",
-      "strategy": "prepend_explicit_newline_after_wait",
-      "validation_status": "batch_test_candidate",
-      "reason": "materialize line boundary previously assumed implicitly at WAIT"
-    },
-    {
-      "event_id": "0103",
-      "layout_text_id": "C9:2753",
-      "strategy": "prepend_explicit_newline_after_wait",
-      "validation_status": "batch_test_candidate",
-      "reason": "materialize line boundary previously assumed implicitly at WAIT"
-    },
     {
       "event_id": "0106",
       "layout_text_id": "C9:28EB",
