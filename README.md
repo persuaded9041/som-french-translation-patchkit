@@ -128,6 +128,7 @@ scene redistributions remain locked.
 Restructured dialogue prose is **not stored in clear text** outside the canonical
 sources. The active structural recipe layer is split by responsibility:
 
+- `dialogues_reviewed_alignment_recipes.json` — reviewed SNES/Android identities and structural provenance;
 - `dialogues_redistribution_recipes.json` — scene/carrier redistribution from Android tokens;
 - `dialogues_mapping_layout_recipes.json` — mapping-local token/layout reconstruction;
 - `dialogues_layout_search_recipes.json` — reviewed carrier/offset layout operations;

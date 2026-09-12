@@ -1,4 +1,4 @@
-# Development handoff — Round 85.5 dialogue-pipeline cleanup
+# Development handoff — Round 85.7 dialogue-generation refactor
 
 Operational handoff. The accompanying archive is authoritative over GitHub.
 
@@ -28,6 +28,7 @@ Canonical inputs are:
 
 Active structural recipe files:
 
+- `dialogues_reviewed_alignment_recipes.json`;
 - `dialogues_redistribution_recipes.json`;
 - `dialogues_mapping_layout_recipes.json`;
 - `dialogues_layout_search_recipes.json`;
@@ -48,7 +49,7 @@ python3 tools/import_android_text.py --only dialogue-auto
 python3 tools/import_android_text.py --only dialogue-format-mass --rom "Secret of Mana (USA).sfc"
 ```
 
-Historical pilot/review/batch modes were removed. Their useful runtime/identity decisions were consolidated into the canonical alignment and structural recipe layers.
+Historical pilot/review/batch modes were removed. Their useful runtime/identity decisions were consolidated into the canonical alignment and structural recipe layers. Round 85.7 additionally moves all reviewed `DIALOGUE_REVIEW_ROUND*` identity tables out of executable Python into `dialogues_reviewed_alignment_recipes.json`; the importer no longer contains round-named active helpers.
 
 A from-scratch mass generation currently reproduces `translations/dialogues_french.json` **byte-for-byte**: 701 complete events / 1947 entries. The reviewed layout-search recipes avoid rediscovering the same accepted structural cuts by brute force; every applied recipe is independently simulated and the exhaustive solver remains the fallback if the current Android-derived text no longer matches.
 
@@ -78,4 +79,4 @@ Do not reopen dialogue wording/identity without a concrete regression. Do not st
 
 ## Next work
 
-The pipeline architecture is now sufficiently clean to profile the **canonical** generation path. Optimize only measured hotspots, preserve from-scratch reproducibility, and require byte-identical `dialogues_french.json` between optimized and reference paths. Prefer removing repeated work/memoizing pure calculations before reconsidering multiprocessing.
+The dialogue-generation refactor is now checkpointed. The next phase may focus on performance only: profile the **canonical** generation path, optimize measured hotspots, preserve from-scratch reproducibility, and require byte-identical `dialogues_french.json` between optimized and reference paths. Prefer removing repeated work/memoizing pure calculations before reconsidering multiprocessing.

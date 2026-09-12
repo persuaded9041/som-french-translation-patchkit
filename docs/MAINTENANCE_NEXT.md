@@ -16,13 +16,17 @@
 
 **Sources:** clean-USA assets, Android EN/FR binaries, clean USA ROM metrics.
 
-**Human-reviewed structural inputs:** the five dialogue recipe JSON families plus the small manual-supplement file for genuine non-Android exceptions.
+**Human-reviewed structural inputs:** the six dialogue recipe JSON families plus the small manual-supplement file for genuine non-Android exceptions.
 
 **Generated outputs:** `dialogues_french.json`, `dialogues_auto.json`, unmapped/exclusion CSVs and mass-format reports. None should be required to generate another output.
 
 ## Profiling checkpoint
 
 Round 85.6 measured the cleaned canonical path. Pure memoization of alignment normalization/metrics/ROM-position decoding reduced `dialogue-auto` from about 9.3 s to about 5.2 s and the complete mass run from about 25.2 s to about 21.8 s in the checkpoint environment, with byte-identical outputs. A per-simulation line-metrics cache was rejected because it regressed the mass run to about 30.4 s.
+
+## Refactor checkpoint after Round 85.6
+
+Before further performance work, reviewed alignment history was moved out of executable Python into `dialogues_reviewed_alignment_recipes.json`. The importer no longer embeds `DIALOGUE_REVIEW_ROUND*` tables or round-named active helpers. Redistribution and mapping-layout recipes now share one Android-token renderer and one recipe-document validator. Static call-graph audit reports every top-level importer function reachable from the active CLI. Outputs remain byte-identical.
 
 ## Next step: profiling and optimization
 

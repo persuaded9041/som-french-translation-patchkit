@@ -89,6 +89,32 @@ def check_dialogue_pipeline(problems: list[str]) -> None:
                 elif part[0] not in {"a", "p", "x"}:
                     problems.append(f"mapping-layout ${event_id}/{text_id}: unknown part {part!r}")
 
+    reviewed_path = ROOT / "mappings" / "android" / "dialogues_reviewed_alignment_recipes.json"
+    reviewed_doc = json.loads(reviewed_path.read_text(encoding="utf-8"))
+    if reviewed_doc.get("format") != "dialogues-reviewed-alignment-recipes-v1":
+        problems.append("reviewed-alignment recipes use an unsupported format")
+    allowed_review_keys = {
+        "event_id", "parts", "android_ids", "confidence", "provenance",
+        "relation", "note", "android_namespace", "localization_systxt_id",
+    }
+    forbidden_payload_keys = {"text", "translation", "translation_fr", "french", "french_text"}
+    for record in reviewed_doc.get("records", []):
+        event_id = record.get("event_id", "?")
+        extra = set(record) - allowed_review_keys
+        if extra:
+            problems.append(f"reviewed-alignment ${event_id}: unsupported keys {sorted(extra)}")
+        if forbidden_payload_keys.intersection(record):
+            problems.append(f"reviewed-alignment ${event_id}: translated payload field is forbidden")
+        for part in record.get("parts", []):
+            if isinstance(part, str):
+                if not re.fullmatch(r"(?:C9|CA):[0-9A-F]{4}", part):
+                    problems.append(f"reviewed-alignment ${event_id}: invalid SNES carrier {part!r}")
+            elif isinstance(part, dict):
+                if set(part) != {"command", "index"} or part.get("command") != "player_name" or part.get("index") not in {0, 1, 2}:
+                    problems.append(f"reviewed-alignment ${event_id}: invalid structural command {part!r}")
+            else:
+                problems.append(f"reviewed-alignment ${event_id}: invalid part {part!r}")
+
     search_path = ROOT / "mappings" / "android" / "dialogues_layout_search_recipes.json"
     search_doc = json.loads(search_path.read_text(encoding="utf-8"))
     allowed = {"strategy", "text_id", "boundary_before_id", "source_offset", "step", "semantic_payload_changed"}
@@ -150,7 +176,7 @@ def main() -> None:
     print("  - `mana_tree_original` / `name_entry_extended` / `name_entry_prefill` / `vwf_intro` / `vwf_dialogues` / `intro_skip` own no translation-JSON dependencies")
     print("  - remaining component-local .bin/.txt assets are explicit non-prose data")
     print("  - dialogue generation never consumes dialogues_french.json as an input")
-    print("  - dialogue layout recipes contain structural references only, never translated prose")
+    print("  - dialogue alignment/layout recipes contain structural references only, never translated prose payloads")
     return 0
 
 

@@ -1,0 +1,5571 @@
+{
+  "format": "dialogues-reviewed-alignment-recipes-v1",
+  "description": "User-validated SNES/Android dialogue identities. Structural identity/provenance only; translated prose is never stored here and is read from Android resources at generation time.",
+  "records": [
+    {
+      "event_id": "0106",
+      "parts": [
+        "C9:2900"
+      ],
+      "android_ids": [
+        3482
+      ],
+      "confidence": "user_validated",
+      "provenance": "pilot"
+    },
+    {
+      "event_id": "0106",
+      "parts": [
+        "C9:294C"
+      ],
+      "android_ids": [
+        3484
+      ],
+      "confidence": "user_validated",
+      "provenance": "pilot"
+    },
+    {
+      "event_id": "0106",
+      "parts": [
+        "C9:299C"
+      ],
+      "android_ids": [
+        3486
+      ],
+      "confidence": "user_validated",
+      "provenance": "pilot"
+    },
+    {
+      "event_id": "0106",
+      "parts": [
+        "C9:29E8"
+      ],
+      "android_ids": [
+        3488
+      ],
+      "confidence": "user_validated",
+      "provenance": "pilot"
+    },
+    {
+      "event_id": "0106",
+      "parts": [
+        "C9:2A3D"
+      ],
+      "android_ids": [
+        3490
+      ],
+      "confidence": "user_validated",
+      "provenance": "pilot"
+    },
+    {
+      "event_id": "002C",
+      "parts": [
+        "C9:0CCF"
+      ],
+      "android_ids": [
+        2675
+      ],
+      "confidence": "user_validated",
+      "provenance": "pilot"
+    },
+    {
+      "event_id": "002C",
+      "parts": [
+        "C9:0D06"
+      ],
+      "android_ids": [
+        2676
+      ],
+      "confidence": "user_validated",
+      "provenance": "pilot"
+    },
+    {
+      "event_id": "010C",
+      "parts": [
+        "C9:2CBD",
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "C9:2CC5"
+      ],
+      "android_ids": [
+        42
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "many_snes_parts_to_one_android",
+      "note": "PLAYER_NAME is explicit between two SNES text tokens."
+    },
+    {
+      "event_id": "010C",
+      "parts": [
+        "C9:2D10"
+      ],
+      "android_ids": [
+        44
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "one_to_one",
+      "note": "Distinct speaker and wording; ordered local block."
+    },
+    {
+      "event_id": "010C",
+      "parts": [
+        "C9:2D37"
+      ],
+      "android_ids": [
+        45
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "one_to_one",
+      "note": "Distinct speaker and wording; ordered local block."
+    },
+    {
+      "event_id": "010C",
+      "parts": [
+        "C9:2D83"
+      ],
+      "android_ids": [
+        46
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "one_to_one",
+      "note": "Distinct speaker and wording; ordered local block."
+    },
+    {
+      "event_id": "010C",
+      "parts": [
+        "C9:2DE5",
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "C9:2DF5"
+      ],
+      "android_ids": [
+        47
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "many_snes_parts_to_one_android",
+      "note": "Android combines speaker prefix, PLAYER_NAME and following SNES text."
+    },
+    {
+      "event_id": "010C",
+      "parts": [
+        "C9:2E2F"
+      ],
+      "android_ids": [
+        48,
+        49
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "one_snes_to_many_android",
+      "note": "One SNES text token contains two speaker lines that Android splits."
+    },
+    {
+      "event_id": "010C",
+      "parts": [
+        "C9:2E70",
+        "C9:2EBD"
+      ],
+      "android_ids": [
+        50
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "many_snes_to_one_android",
+      "note": "Two SNES text tokens form one Android sentence."
+    },
+    {
+      "event_id": "010C",
+      "parts": [
+        "C9:2ED2",
+        "C9:2EEE"
+      ],
+      "android_ids": [
+        51
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "many_snes_to_one_android",
+      "note": "Two SNES text tokens form one Android sentence."
+    },
+    {
+      "event_id": "010C",
+      "parts": [
+        "C9:2F23"
+      ],
+      "android_ids": [
+        52
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "one_to_one",
+      "note": "Ordered local block."
+    },
+    {
+      "event_id": "010C",
+      "parts": [
+        "C9:2F5B"
+      ],
+      "android_ids": [
+        53
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "one_to_one",
+      "note": "Ordered local block."
+    },
+    {
+      "event_id": "010C",
+      "parts": [
+        "C9:2FB3"
+      ],
+      "android_ids": [
+        54
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "one_to_one",
+      "note": "Ordered local block."
+    },
+    {
+      "event_id": "010C",
+      "parts": [
+        "C9:3003"
+      ],
+      "android_ids": [
+        56
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "one_to_one",
+      "note": "Ordered local block; Android 55 is an empty localization slot."
+    },
+    {
+      "event_id": "010C",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "C9:306A"
+      ],
+      "android_ids": [
+        58,
+        59
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "one_snes_with_placeholder_to_many_android",
+      "note": "SNES embeds two speakers in one text token after PLAYER_NAME; Android splits them."
+    },
+    {
+      "event_id": "010C",
+      "parts": [
+        "C9:30A8"
+      ],
+      "android_ids": [
+        61
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "one_to_one",
+      "note": "English is an exact match, but the corresponding French slot is not a literal/obvious translation; verify scene semantics."
+    },
+    {
+      "event_id": "010C",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "C9:3104"
+      ],
+      "android_ids": [
+        62
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "placeholder_plus_snes_to_one_android",
+      "note": "Android omits the preceding standalone SNES 'ELLIOTT:You!' fragment; this unit covers only the player line."
+    },
+    {
+      "event_id": "010C",
+      "parts": [
+        "C9:311F"
+      ],
+      "android_ids": [
+        63
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "one_to_one",
+      "note": "Distinct earthquake line."
+    },
+    {
+      "event_id": "010C",
+      "parts": [
+        "C9:3162"
+      ],
+      "android_ids": [
+        65
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "one_to_one",
+      "note": "Distinct scream; Android 64 is empty."
+    },
+    {
+      "event_id": "010C",
+      "parts": [
+        "C9:317D",
+        "C9:319E"
+      ],
+      "android_ids": [
+        117
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "many_snes_to_one_android",
+      "note": "Android merges the two SNES monster-warning text tokens."
+    },
+    {
+      "event_id": "010C",
+      "parts": [
+        "C9:31D4"
+      ],
+      "android_ids": [
+        119
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "one_to_one",
+      "note": "Distinct tutorial line; Android 120 is an empty localization slot."
+    },
+    {
+      "event_id": "00B3",
+      "parts": [
+        "C9:16DD"
+      ],
+      "android_ids": [
+        2479
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "one_to_one",
+      "note": "Three-line NPC speech begins an exact ordered run."
+    },
+    {
+      "event_id": "00B3",
+      "parts": [
+        "C9:171C"
+      ],
+      "android_ids": [
+        2480
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "one_to_one",
+      "note": "Second entry of the same ordered NPC run."
+    },
+    {
+      "event_id": "00B3",
+      "parts": [
+        "C9:1767"
+      ],
+      "android_ids": [
+        2481
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "one_to_one",
+      "note": "Third entry of the same ordered NPC run."
+    },
+    {
+      "event_id": "0138",
+      "parts": [
+        "C9:3EB0",
+        "C9:3EFC",
+        "C9:3F48"
+      ],
+      "android_ids": [
+        869,
+        870,
+        871
+      ],
+      "confidence": "user_validated",
+      "provenance": "round2",
+      "relation": "block_redistribution",
+      "note": "English aligns 1:1 in order, but French redistributes the same scene content across the three slots; validate as a block, not per ID."
+    },
+    {
+      "event_id": "04E0",
+      "parts": [
+        "CA:288C",
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "CA:2893"
+      ],
+      "android_ids": [
+        2654
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "placeholder_join",
+      "note": "Speaker prefix + PLAYER_NAME + continuation match one Android anchor."
+    },
+    {
+      "event_id": "04E0",
+      "parts": [
+        "CA:28B6"
+      ],
+      "android_ids": [
+        2655
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match in a long ordered run."
+    },
+    {
+      "event_id": "04E0",
+      "parts": [
+        "CA:28E7"
+      ],
+      "android_ids": [
+        2656
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match in a long ordered run."
+    },
+    {
+      "event_id": "04E0",
+      "parts": [
+        "CA:2932"
+      ],
+      "android_ids": [
+        2657
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match in a long ordered run."
+    },
+    {
+      "event_id": "04E0",
+      "parts": [
+        "CA:297D"
+      ],
+      "android_ids": [
+        2658
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match in a long ordered run."
+    },
+    {
+      "event_id": "04E0",
+      "parts": [
+        "CA:29C9"
+      ],
+      "android_ids": [
+        2659
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match in a long ordered run."
+    },
+    {
+      "event_id": "04E0",
+      "parts": [
+        "CA:29FE"
+      ],
+      "android_ids": [
+        2660
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match in a long ordered run."
+    },
+    {
+      "event_id": "04E0",
+      "parts": [
+        "CA:2A41"
+      ],
+      "android_ids": [
+        2661
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match in a long ordered run."
+    },
+    {
+      "event_id": "04E0",
+      "parts": [
+        "CA:2A92"
+      ],
+      "android_ids": [
+        2662
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match in a long ordered run."
+    },
+    {
+      "event_id": "04E0",
+      "parts": [
+        "CA:2AE5"
+      ],
+      "android_ids": [
+        2663
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match in a long ordered run."
+    },
+    {
+      "event_id": "04E0",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "CA:2B31"
+      ],
+      "android_ids": [
+        2664
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "placeholder_join",
+      "note": "PLAYER_NAME + source text match the final Android anchor of the run."
+    },
+    {
+      "event_id": "066D",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "CA:8B0F"
+      ],
+      "android_ids": [
+        1851
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "placeholder_join",
+      "note": "PLAYER_NAME + source text; Android 1852 is an empty localization slot."
+    },
+    {
+      "event_id": "066D",
+      "parts": [
+        "CA:8B2C",
+        "CA:8B4A",
+        "CA:8B53"
+      ],
+      "android_ids": [
+        1853
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "many_snes_to_one_android",
+      "note": "SNES splits Rudolph's line around an event action; Android keeps one speech string."
+    },
+    {
+      "event_id": "066D",
+      "parts": [
+        "CA:8B69"
+      ],
+      "android_ids": [
+        1854
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match in ordered local run."
+    },
+    {
+      "event_id": "066D",
+      "parts": [
+        "CA:8BAE"
+      ],
+      "android_ids": [
+        1855
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match in ordered local run."
+    },
+    {
+      "event_id": "066D",
+      "parts": [
+        "CA:8BF7"
+      ],
+      "android_ids": [
+        1856
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match in ordered local run."
+    },
+    {
+      "event_id": "066D",
+      "parts": [
+        "CA:8C2F"
+      ],
+      "android_ids": [
+        1857
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match in ordered local run."
+    },
+    {
+      "event_id": "066D",
+      "parts": [
+        "CA:8C6A"
+      ],
+      "android_ids": [
+        1858
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match in ordered local run."
+    },
+    {
+      "event_id": "066D",
+      "parts": [
+        "CA:8CAC"
+      ],
+      "android_ids": [
+        1859
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match in ordered local run."
+    },
+    {
+      "event_id": "066D",
+      "parts": [
+        "CA:8CFC"
+      ],
+      "android_ids": [
+        1860
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match in ordered local run."
+    },
+    {
+      "event_id": "066D",
+      "parts": [
+        "CA:8D4B"
+      ],
+      "android_ids": [
+        1861
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match in ordered local run."
+    },
+    {
+      "event_id": "066D",
+      "parts": [
+        "CA:8D8A"
+      ],
+      "android_ids": [
+        1862
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match in ordered local run."
+    },
+    {
+      "event_id": "066D",
+      "parts": [
+        "CA:8DC0"
+      ],
+      "android_ids": [
+        1863
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match in ordered local run."
+    },
+    {
+      "event_id": "0511",
+      "parts": [
+        "CA:59E1"
+      ],
+      "android_ids": [
+        1983
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match at start of ordered scene run."
+    },
+    {
+      "event_id": "0511",
+      "parts": [
+        "CA:59F8"
+      ],
+      "android_ids": [
+        1984
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match."
+    },
+    {
+      "event_id": "0511",
+      "parts": [
+        "CA:5A14"
+      ],
+      "android_ids": [
+        1985
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match."
+    },
+    {
+      "event_id": "0511",
+      "parts": [
+        "CA:5A2F"
+      ],
+      "android_ids": [
+        1986
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match."
+    },
+    {
+      "event_id": "0511",
+      "parts": [
+        "CA:5A7F"
+      ],
+      "android_ids": [
+        1987
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match; Android 1988 adds dialogue absent from the SNES source before the next anchor."
+    },
+    {
+      "event_id": "0511",
+      "parts": [
+        "CA:5AA7"
+      ],
+      "android_ids": [
+        1990
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Exact English identity resumes after Android-only 1988 and empty 1989."
+    },
+    {
+      "event_id": "0511",
+      "parts": [
+        "CA:5ADE"
+      ],
+      "android_ids": [
+        1991
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match."
+    },
+    {
+      "event_id": "0511",
+      "parts": [
+        "CA:5B11"
+      ],
+      "android_ids": [
+        1992
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match."
+    },
+    {
+      "event_id": "0511",
+      "parts": [
+        "CA:5B41",
+        "CA:5B5A",
+        "CA:5B5F",
+        "CA:5B70"
+      ],
+      "android_ids": [
+        1993,
+        1994,
+        1995,
+        1996
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "sequence_block_with_android_extra",
+      "note": "SNES has three spoken statements plus a newline token; Android has four anchors because 1996 adds a Dyluck sentence absent from SNES. French redistributes the same local conversation across 1993-1996."
+    },
+    {
+      "event_id": "0511",
+      "parts": [
+        "CA:5BA4"
+      ],
+      "android_ids": [
+        1998
+      ],
+      "confidence": "user_validated",
+      "provenance": "round3",
+      "relation": "one_to_one",
+      "note": "Unique exact English match after the sequence block; 1999 is an empty localization slot."
+    },
+    {
+      "event_id": "022E",
+      "parts": [
+        "C9:98F3"
+      ],
+      "android_ids": [
+        1034
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Distinct Gnome introduction; exact ordered local anchor."
+    },
+    {
+      "event_id": "022E",
+      "parts": [
+        "C9:992A"
+      ],
+      "android_ids": [
+        1035
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Exact ordered local anchor."
+    },
+    {
+      "event_id": "022E",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 2
+        },
+        "C9:995B"
+      ],
+      "android_ids": [
+        1036
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "placeholder_join",
+      "note": "SNES PLAYER_NAME(2) + text equals the Android speaker line."
+    },
+    {
+      "event_id": "022E",
+      "parts": [
+        "C9:998A",
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "C9:99B7"
+      ],
+      "android_ids": [
+        1037
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "placeholder_join",
+      "note": "SNES splits the sentence around PLAYER_NAME(0); Android stores one anchor."
+    },
+    {
+      "event_id": "022E",
+      "parts": [
+        "C9:99BB"
+      ],
+      "android_ids": [
+        1038
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Exact ordered local anchor."
+    },
+    {
+      "event_id": "022E",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "C9:99E9"
+      ],
+      "android_ids": [
+        1039
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "placeholder_join",
+      "note": "SNES PLAYER_NAME(0) + text equals the Android speaker line."
+    },
+    {
+      "event_id": "022E",
+      "parts": [
+        "C9:9A10"
+      ],
+      "android_ids": [
+        1040
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Exact ordered local anchor."
+    },
+    {
+      "event_id": "022E",
+      "parts": [
+        "C9:9A45"
+      ],
+      "android_ids": [
+        1041
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Exact ordered local anchor; next Android slot is empty."
+    },
+    {
+      "event_id": "022E",
+      "parts": [
+        "C9:9A69"
+      ],
+      "android_ids": [
+        1043
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Exact ordered local anchor after event animation."
+    },
+    {
+      "event_id": "022E",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 1
+        },
+        "C9:9A9A",
+        "C9:9AA9"
+      ],
+      "android_ids": [
+        1044
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "placeholder_plus_event_split",
+      "note": "One Android line spans two SNES text tokens separated by character-action commands."
+    },
+    {
+      "event_id": "022E",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 2
+        },
+        "C9:9ACA"
+      ],
+      "android_ids": [
+        1045
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "placeholder_join",
+      "note": "SNES PLAYER_NAME(2) + text equals the Android speaker line."
+    },
+    {
+      "event_id": "022E",
+      "parts": [
+        "C9:9AE8"
+      ],
+      "android_ids": [
+        1046
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Exact final anchor of the scene run."
+    },
+    {
+      "event_id": "0581",
+      "parts": [
+        "CA:6BD6"
+      ],
+      "android_ids": [
+        956
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Same unique Undine introduction; Android expands 'Undine' to 'water elemental'."
+    },
+    {
+      "event_id": "0581",
+      "parts": [
+        "CA:6C16"
+      ],
+      "android_ids": [
+        957
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Unique ordered magic-introduction line."
+    },
+    {
+      "event_id": "0581",
+      "parts": [
+        "CA:6C41",
+        {
+          "command": "player_name",
+          "index": 1
+        },
+        "CA:6C44"
+      ],
+      "android_ids": [
+        958
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "placeholder_join",
+      "note": "SNES layout token + PLAYER_NAME(1) + continuation form one Android anchor."
+    },
+    {
+      "event_id": "0581",
+      "parts": [
+        "CA:6C81",
+        {
+          "command": "player_name",
+          "index": 2
+        },
+        "CA:6C84"
+      ],
+      "android_ids": [
+        960
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "placeholder_join",
+      "note": "SNES layout token + PLAYER_NAME(2) + continuation form one Android anchor."
+    },
+    {
+      "event_id": "0581",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "CA:6CC7"
+      ],
+      "android_ids": [
+        962
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "placeholder_join",
+      "note": "Exact player-name question in ordered run."
+    },
+    {
+      "event_id": "0581",
+      "parts": [
+        "CA:6CD2"
+      ],
+      "android_ids": [
+        963
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Unique Mana Sword explanation anchor."
+    },
+    {
+      "event_id": "0581",
+      "parts": [
+        "CA:6D1E"
+      ],
+      "android_ids": [
+        964
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Unique Ice Saber explanation anchor; French localization rewrites the explanation."
+    },
+    {
+      "event_id": "0581",
+      "parts": [
+        "CA:6D6B",
+        {
+          "command": "player_name",
+          "index": 1
+        },
+        "CA:6D6F"
+      ],
+      "android_ids": [
+        965
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "placeholder_join_with_french_continuation",
+      "note": "Android English anchor 965 is followed by empty 966, which French uses to continue the localized explanation."
+    },
+    {
+      "event_id": "0581",
+      "parts": [
+        "CA:6DB3"
+      ],
+      "android_ids": [
+        967
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Unique weapon-gift line."
+    },
+    {
+      "event_id": "0581",
+      "parts": [
+        "CA:6DF9"
+      ],
+      "android_ids": [
+        968
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Exact item-receipt text; preceding SNES newline/TEXT_X are layout commands, not semantic prose."
+    },
+    {
+      "event_id": "0581",
+      "parts": [
+        "CA:6E19"
+      ],
+      "android_ids": [
+        969
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Unique Undine farewell anchor."
+    },
+    {
+      "event_id": "0581",
+      "parts": [
+        "CA:6E50"
+      ],
+      "android_ids": [
+        971
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Exact power-acquisition notification; preceding SNES newline is layout-only."
+    },
+    {
+      "event_id": "0581",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 2
+        },
+        "CA:6E79"
+      ],
+      "android_ids": [
+        972
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "placeholder_join",
+      "note": "Exact player-name boast at the end of the scene."
+    },
+    {
+      "event_id": "04B3",
+      "parts": [
+        "CA:1ECE"
+      ],
+      "android_ids": [
+        2681
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Unique Emperor opening line."
+    },
+    {
+      "event_id": "04B3",
+      "parts": [
+        "CA:1F09"
+      ],
+      "android_ids": [
+        2682
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Exact ordered ancient-continent line."
+    },
+    {
+      "event_id": "04B3",
+      "parts": [
+        "CA:1F57"
+      ],
+      "android_ids": [
+        2683
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Exact ordered Mana Fortress line."
+    },
+    {
+      "event_id": "04B3",
+      "parts": [
+        "CA:1F97"
+      ],
+      "android_ids": [
+        2684
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Exact ordered threat; Android underscore is a presentation marker."
+    },
+    {
+      "event_id": "04B3",
+      "parts": [
+        "CA:1FBC"
+      ],
+      "android_ids": [
+        2685
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Exact short question in the same ordered run."
+    },
+    {
+      "event_id": "04B3",
+      "parts": [
+        "CA:1FE0"
+      ],
+      "android_ids": [
+        2686
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one_with_french_continuation",
+      "note": "English 2687-2688 are empty localization slots; French uses 2688 for extra Sheex detail."
+    },
+    {
+      "event_id": "04B3",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "CA:2033"
+      ],
+      "android_ids": [
+        2689
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "placeholder_join",
+      "note": "Exact player-name Dark Stalker reveal."
+    },
+    {
+      "event_id": "04B3",
+      "parts": [
+        "CA:2056"
+      ],
+      "android_ids": [
+        2690
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Exact Sheex transformation challenge."
+    },
+    {
+      "event_id": "04B3",
+      "parts": [
+        "CA:208F"
+      ],
+      "android_ids": [
+        2723
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one_with_french_continuation",
+      "note": "Post-battle scene resumes at Android 2723; empty English 2724 carries extra French reaction text."
+    },
+    {
+      "event_id": "04B3",
+      "parts": [
+        "CA:20D3"
+      ],
+      "android_ids": [
+        2725
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Unique underworld-contract line after the Android-ID jump."
+    },
+    {
+      "event_id": "04B3",
+      "parts": [
+        "CA:2128"
+      ],
+      "android_ids": [
+        2726
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Same Mana Fortress motive; minor pronoun wording difference does not affect identity."
+    },
+    {
+      "event_id": "04B3",
+      "parts": [
+        "CA:2170"
+      ],
+      "android_ids": [
+        2727
+      ],
+      "confidence": "user_validated",
+      "provenance": "round4",
+      "relation": "one_to_one",
+      "note": "Exact final threat of the ordered scene run."
+    },
+    {
+      "event_id": "0112",
+      "parts": [
+        "C9:3300"
+      ],
+      "android_ids": [
+        123
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one_subscene",
+      "note": "Exact unique rescue line. The enclosing SNES event later resets to Android ID 13 because it enters a different story subscene."
+    },
+    {
+      "event_id": "0112",
+      "parts": [
+        "C9:333D"
+      ],
+      "android_ids": [
+        13
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact Elliott scream; starts a new Android-local block after the rescue tutorial line."
+    },
+    {
+      "event_id": "0112",
+      "parts": [
+        "C9:3370"
+      ],
+      "android_ids": [
+        15
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one_with_android_expansion",
+      "note": "Distinct Mana Sword identification; Android adds a short concern sentence."
+    },
+    {
+      "event_id": "0112",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "C9:339F"
+      ],
+      "android_ids": [
+        16
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "placeholder_join",
+      "note": "PLAYER_NAME + source fragment equals Android speaker line."
+    },
+    {
+      "event_id": "0112",
+      "parts": [
+        "C9:33AC"
+      ],
+      "android_ids": [
+        17
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact ordered lore line."
+    },
+    {
+      "event_id": "0112",
+      "parts": [
+        "C9:33FB"
+      ],
+      "android_ids": [
+        18
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact ordered lore line."
+    },
+    {
+      "event_id": "0112",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "C9:3450"
+      ],
+      "android_ids": [
+        19
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "placeholder_join",
+      "note": "Exact player response after placeholder reconstruction."
+    },
+    {
+      "event_id": "0112",
+      "parts": [
+        "C9:3465"
+      ],
+      "android_ids": [
+        20
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one_minor_wording",
+      "note": "Same distinctive sword-reenergizing sentence; Android changes the opening interjection."
+    },
+    {
+      "event_id": "0112",
+      "parts": [
+        "C9:34B0"
+      ],
+      "android_ids": [
+        21
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact ordered line."
+    },
+    {
+      "event_id": "0112",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "C9:34E5"
+      ],
+      "android_ids": [
+        22
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "duplicate_resolved_by_local_order",
+      "note": "The same English question also exists at Android 832; the surrounding 15-24 block uniquely selects 22 here."
+    },
+    {
+      "event_id": "0112",
+      "parts": [
+        "C9:34F9"
+      ],
+      "android_ids": [
+        23
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact ordered destination line."
+    },
+    {
+      "event_id": "0112",
+      "parts": [
+        "C9:3526"
+      ],
+      "android_ids": [
+        24
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one_minor_wording",
+      "note": "Two hundred is numeric on SNES and written out on Android; otherwise same sentence."
+    },
+    {
+      "event_id": "0112",
+      "parts": [
+        "C9:3590",
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "C9:359A"
+      ],
+      "android_ids": [
+        26
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "placeholder_join",
+      "note": "SNES splits Timothy's line around PLAYER_NAME; Android stores one line."
+    },
+    {
+      "event_id": "0112",
+      "parts": [
+        "C9:35C1",
+        "C9:35F9"
+      ],
+      "android_ids": [
+        27
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "many_snes_to_one_android",
+      "note": "Android merges Jema's introduction and Water Palace departure into one anchor."
+    },
+    {
+      "event_id": "0204",
+      "parts": [
+        "C9:8EFF"
+      ],
+      "android_ids": [
+        839
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact ritual instruction."
+    },
+    {
+      "event_id": "0204",
+      "parts": [
+        "C9:8F73"
+      ],
+      "android_ids": [
+        842
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact post-animation line; Android IDs 840-841 are non-prose/empty localization slots."
+    },
+    {
+      "event_id": "0204",
+      "parts": [
+        "C9:8FA8"
+      ],
+      "android_ids": [
+        843
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact seed-sealing line."
+    },
+    {
+      "event_id": "0204",
+      "parts": [
+        "C9:8FE0"
+      ],
+      "android_ids": [
+        844
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact Mana-power line. French redistributes nearby explanatory detail."
+    },
+    {
+      "event_id": "0204",
+      "parts": [
+        "C9:9076"
+      ],
+      "android_ids": [
+        824
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one_reordered",
+      "note": "Exact unique English identity, but Android places this instruction before the ritual block (ID 824 versus 839-844) while SNES places it after. This is a genuine local reorder, not a fuzzy-match error."
+    },
+    {
+      "event_id": "036A",
+      "parts": [
+        "C9:D39D"
+      ],
+      "android_ids": [
+        1154
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact Scorpion boss exit line."
+    },
+    {
+      "event_id": "036A",
+      "parts": [
+        "C9:D3D3"
+      ],
+      "android_ids": [
+        1155
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one_typo_normalization",
+      "note": "SNES source has 'Recoverd'; Android corrects it to 'Recovered'."
+    },
+    {
+      "event_id": "036A",
+      "parts": [
+        "C9:D3EE"
+      ],
+      "android_ids": [
+        489
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one_subscene_reset",
+      "note": "Exact line after TEXT_CLOSE/TEXT_OPEN; Android stores this party follow-up in a different local block."
+    },
+    {
+      "event_id": "04E4",
+      "parts": [
+        "CA:3914"
+      ],
+      "android_ids": [
+        1448
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact distinctive white-dragon line."
+    },
+    {
+      "event_id": "04E4",
+      "parts": [
+        "CA:3942"
+      ],
+      "android_ids": [
+        1449
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact serpent/parents line."
+    },
+    {
+      "event_id": "04E4",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 1
+        },
+        "CA:3988"
+      ],
+      "android_ids": [
+        1451
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "placeholder_join",
+      "note": "PLAYER_NAME(1) + source fragment equals Android line."
+    },
+    {
+      "event_id": "04E4",
+      "parts": [
+        "CA:39B2"
+      ],
+      "android_ids": [
+        1452
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact Truffle suggestion; ends the discovery subscene."
+    },
+    {
+      "event_id": "04E4",
+      "parts": [
+        "CA:3A05"
+      ],
+      "android_ids": [
+        1372
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one_with_android_french_expansion",
+      "note": "Exact Android-English identity; French expands the setup."
+    },
+    {
+      "event_id": "04E4",
+      "parts": [
+        "CA:3A42"
+      ],
+      "android_ids": [
+        1374,
+        1375
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_snes_to_many_android",
+      "note": "One SNES token contains Nobleman and Truffle lines that Android splits."
+    },
+    {
+      "event_id": "04E4",
+      "parts": [
+        "CA:3A76"
+      ],
+      "android_ids": [
+        1376
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact ordered line."
+    },
+    {
+      "event_id": "04E4",
+      "parts": [
+        "CA:3AAD"
+      ],
+      "android_ids": [
+        1377
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact Flammie naming question."
+    },
+    {
+      "event_id": "04E4",
+      "parts": [
+        "CA:3AE1"
+      ],
+      "android_ids": [
+        1378
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "choice_text",
+      "note": "Same two choice labels; brackets/layout differ."
+    },
+    {
+      "event_id": "04E4",
+      "parts": [
+        "CA:3AF6",
+        "CA:3B23"
+      ],
+      "android_ids": [
+        1379,
+        1380
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "two_to_two_redistribution",
+      "note": "SNES and Android split 'Hang on / I sound like an idiot / you'd agree...' at different boundaries; validate as one local block."
+    },
+    {
+      "event_id": "04E4",
+      "parts": [
+        "CA:3B5D"
+      ],
+      "android_ids": [
+        1381
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact naming conclusion."
+    },
+    {
+      "event_id": "04E4",
+      "parts": [
+        "CA:3B91"
+      ],
+      "android_ids": [
+        1382
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact Cannon Travel instruction; French combines some following Fire Palace detail."
+    },
+    {
+      "event_id": "04E4",
+      "parts": [
+        "CA:3BCC"
+      ],
+      "android_ids": [
+        1383
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact Fire Palace destination line; French redistributes the instruction across 1382-1383."
+    },
+    {
+      "event_id": "04E8",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "CA:4261"
+      ],
+      "android_ids": [
+        134
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "duplicate_resolved_by_scene_context",
+      "note": "Short 'Heeelp!' has other Android occurrences; the following 135/169+ goblin block resolves this one to 134."
+    },
+    {
+      "event_id": "04E8",
+      "parts": [
+        "CA:427A"
+      ],
+      "android_ids": [
+        135
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "short_line_resolved_by_context",
+      "note": "Short exact 'Oooh!' immediately follows Android 134."
+    },
+    {
+      "event_id": "04E8",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "CA:42B8"
+      ],
+      "android_ids": [
+        169
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "placeholder_join",
+      "note": "Exact player capture line after placeholder reconstruction."
+    },
+    {
+      "event_id": "04E8",
+      "parts": [
+        "CA:42CA"
+      ],
+      "android_ids": [
+        170
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one_minor_speaker",
+      "note": "Goblin/Goblins speaker-number difference only."
+    },
+    {
+      "event_id": "04E8",
+      "parts": [
+        "CA:4300"
+      ],
+      "android_ids": [
+        171
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact main-dish line."
+    },
+    {
+      "event_id": "04E8",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "CA:433C"
+      ],
+      "android_ids": [
+        172
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "placeholder_join",
+      "note": "Exact plea after placeholder reconstruction."
+    },
+    {
+      "event_id": "04E8",
+      "parts": [
+        "CA:435D"
+      ],
+      "android_ids": [
+        174
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one_minor_speaker",
+      "note": "Goblin/Goblins speaker-number difference only."
+    },
+    {
+      "event_id": "04E8",
+      "parts": [
+        "CA:43BF"
+      ],
+      "android_ids": [
+        176
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one_minor_speaker",
+      "note": "Distinct dancing line in same ordered goblin block."
+    },
+    {
+      "event_id": "04E8",
+      "parts": [
+        "CA:442E"
+      ],
+      "android_ids": [
+        178
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "short_line_resolved_by_context",
+      "note": "Generic 'Hey!' accepted only because it sits between the goblin scene and the girl's next line."
+    },
+    {
+      "event_id": "04E8",
+      "parts": [
+        "CA:4442"
+      ],
+      "android_ids": [
+        180
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "short_line_resolved_by_context",
+      "note": "Generic 'Hey, you!' resolved by immediate local context."
+    },
+    {
+      "event_id": "04E8",
+      "parts": [
+        "CA:445F"
+      ],
+      "android_ids": [
+        182
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact distinctive girl line."
+    },
+    {
+      "event_id": "04E8",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "CA:4491"
+      ],
+      "android_ids": [
+        183
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "placeholder_join",
+      "note": "Exact plea after placeholder reconstruction."
+    },
+    {
+      "event_id": "04E8",
+      "parts": [
+        "CA:44A6"
+      ],
+      "android_ids": [
+        184
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact quiet line."
+    },
+    {
+      "event_id": "04E8",
+      "parts": [
+        "CA:44D6"
+      ],
+      "android_ids": [
+        186
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact escape line; closes the capture/rescue Android block."
+    },
+    {
+      "event_id": "04E8",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "CA:451B"
+      ],
+      "android_ids": [
+        125
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "placeholder_join_subscene_reset",
+      "note": "Exact player line; Android ID order resets from 186 to 125 at the post-rescue subscene."
+    },
+    {
+      "event_id": "04E8",
+      "parts": [
+        "CA:454F"
+      ],
+      "android_ids": [
+        126
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact search/mistaken-person setup."
+    },
+    {
+      "event_id": "04E8",
+      "parts": [
+        "CA:459F"
+      ],
+      "android_ids": [
+        127
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one_minor_wording",
+      "note": "Same mistaken-identity sentence with minor word-order change."
+    },
+    {
+      "event_id": "04E8",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "CA:45DB",
+        "CA:461D"
+      ],
+      "android_ids": [
+        128,
+        129
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "many_snes_to_many_android",
+      "note": "SNES packs player interruption + girl's joke/hurry across two source tokens; Android splits at speaker boundary into 128-129."
+    },
+    {
+      "event_id": "04E8",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "CA:4665"
+      ],
+      "android_ids": [
+        131
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "placeholder_join",
+      "note": "Exact 'Hey, wait!' line."
+    },
+    {
+      "event_id": "04E8",
+      "parts": [
+        "CA:4677"
+      ],
+      "android_ids": [
+        132
+      ],
+      "confidence": "user_validated",
+      "provenance": "round5",
+      "relation": "one_to_one",
+      "note": "Exact closing observation."
+    },
+    {
+      "event_id": "0083",
+      "parts": [
+        "C9:13BF"
+      ],
+      "android_ids": [
+        927
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "speaker_label_alignment",
+      "note": "Exact Geshtar: Idiot! Android line immediately precedes already accepted Android 928 in the same trapped-player exchange."
+    },
+    {
+      "event_id": "0187",
+      "parts": [
+        "C9:5B12"
+      ],
+      "android_ids": [
+        359
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "speaker_reattribution",
+      "note": "SNES Girl: Look out! is the exact Android Look out! line; Android represents the girl with PLAYER_NAME after the naming sequence."
+    },
+    {
+      "event_id": "024B",
+      "parts": [
+        "C9:9EC0"
+      ],
+      "android_ids": [
+        1229
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "speaker_label_alignment",
+      "note": "Android repeats the same Moogle / laughing / crying triplet several times; 1229 begins one exact triplet and the following two SNES fragments already use the identical localized reactions."
+    },
+    {
+      "event_id": "02EE",
+      "parts": [
+        "C9:C830"
+      ],
+      "android_ids": [
+        2557
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "speaker_label_alignment",
+      "note": "Exact Girl: A tiny little sprite! line immediately precedes already accepted Android 2558 in the same two-line exchange."
+    },
+    {
+      "event_id": "04A1",
+      "parts": [
+        "CA:17DA"
+      ],
+      "android_ids": [
+        2897
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "speaker_label_alignment",
+      "note": "Exact Fanha: You made it! opens the same contiguous Android confrontation whose 2899+ lines are already aligned."
+    },
+    {
+      "event_id": "04A1",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "CA:17EF"
+      ],
+      "android_ids": [
+        2898
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "speaker_reattribution",
+      "note": "SNES continuation is preceded by PLAYER_NAME 0 and corresponds exactly to Android PLAYER_NAME asking the same question immediately between 2897 and already accepted 2899."
+    },
+    {
+      "event_id": "051D",
+      "parts": [
+        "CA:5C6C"
+      ],
+      "android_ids": [
+        2221
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "speaker_label_alignment",
+      "note": "Exact Soldier: Pipe down! Android line is bracketed by already accepted Android 2220 and 2222 in the same trap sequence."
+    },
+    {
+      "event_id": "0020",
+      "parts": [
+        "C9:09A7"
+      ],
+      "android_ids": [
+        2460
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "speaker_reattribution",
+      "note": "SNES 'All:What luck...' corresponds to Android 'What luck...'; Android FR reattributes the reaction to PLAYER_NAME. Ordered immediately before the Tasnica answer."
+    },
+    {
+      "event_id": "0020",
+      "parts": [
+        "C9:09B9"
+      ],
+      "android_ids": [
+        2461,
+        2462
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "one_snes_to_many_android",
+      "note": "Android splits the same Tasnica answer into destination + direction records; ordered scene block is exact."
+    },
+    {
+      "event_id": "0021",
+      "parts": [
+        "C9:09F8"
+      ],
+      "android_ids": [
+        2452
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "speaker_reattribution",
+      "note": "SNES 'All:WHAT!?' corresponds to Android 'WHAT!?'; Android FR reattributes the reaction to PLAYER_NAME. Android 2453 is already the accepted immediately following answer."
+    },
+    {
+      "event_id": "0022",
+      "parts": [
+        "C9:0A44"
+      ],
+      "android_ids": [
+        2454
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "speaker_reattribution",
+      "note": "SNES 'All:Where is Joch?' corresponds to Android 'Where is Joch?'; Android FR reattributes the reaction to PLAYER_NAME."
+    },
+    {
+      "event_id": "0022",
+      "parts": [
+        "C9:0A58"
+      ],
+      "android_ids": [
+        2455,
+        2456
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "one_snes_to_many_android",
+      "note": "Android splits the same Gold Isle answer into destination + direction records in the ordered Joch scene."
+    },
+    {
+      "event_id": "0023",
+      "parts": [
+        "C9:0A8E"
+      ],
+      "android_ids": [
+        2457
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "speaker_reattribution",
+      "note": "SNES 'All:Surprise...' corresponds to Android 'Surprise...'; Android FR reattributes the reaction to PLAYER_NAME. Android 2458/2459 are already the accepted following answer."
+    },
+    {
+      "event_id": "0050",
+      "parts": [
+        "C9:10A5"
+      ],
+      "android_ids": [
+        198
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "choice_prompt_split",
+      "note": "Android 198/199/200 is the Save your game?/Yes/No triplet bracketed by the already aligned Neko stay block 194-196 and shop block 201-203."
+    },
+    {
+      "event_id": "0065",
+      "parts": [
+        "C9:1236"
+      ],
+      "android_ids": [
+        201
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "choice_prompt_split",
+      "note": "Android 201/202/203 is the contiguous Purrrfectly.../Buy/Sell triplet; option 202 is already accepted for this SNES choice."
+    },
+    {
+      "event_id": "0099",
+      "parts": [
+        "C9:14FE"
+      ],
+      "android_ids": [
+        188
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "choice_prompt_split",
+      "note": "Android 188/189/190 is the contiguous Welcome/Need anything?/Whatcha got?/Not really choice block; option 190 is already accepted in this SNES event."
+    },
+    {
+      "event_id": "0099",
+      "parts": [
+        "C9:1512"
+      ],
+      "android_ids": [
+        189
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "choice_option_split",
+      "note": "Exact Whatcha got? option immediately precedes already accepted Android 190 Not really."
+    },
+    {
+      "event_id": "00DF",
+      "parts": [
+        "C9:1DCF"
+      ],
+      "android_ids": [
+        420
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "choice_prompt_split",
+      "note": "Android 420/421/422 is the contiguous 50-GP prompt / Water Palace / Pandora block; Pandora 422 is already accepted for this event."
+    },
+    {
+      "event_id": "00DF",
+      "parts": [
+        "C9:1DED"
+      ],
+      "android_ids": [
+        421
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "choice_option_split",
+      "note": "Water Palace is the option immediately preceding already accepted Pandora 422 in the same Android block."
+    },
+    {
+      "event_id": "00E0",
+      "parts": [
+        "C9:1E14"
+      ],
+      "android_ids": [
+        1773
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "choice_prompt_split",
+      "note": "Android 1773/1774/1775 is the contiguous 50-GP prompt / Matango / Kakkara block; Kakkara 1775 is already accepted for this event."
+    },
+    {
+      "event_id": "00E0",
+      "parts": [
+        "C9:1E3D"
+      ],
+      "android_ids": [
+        1774
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "choice_option_split",
+      "note": "Matango is the option immediately preceding already accepted Kakkara 1775 in the same Android block."
+    },
+    {
+      "event_id": "00DC",
+      "parts": [
+        "C9:1DB6"
+      ],
+      "android_ids": [
+        271
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "choice_option_split",
+      "note": "Android 267/269/270/271 is the same ordered lodging exchange; Android 271 is the missing Nope option immediately after the already accepted Phew, okay option 270."
+    },
+    {
+      "event_id": "00E1",
+      "parts": [
+        "C9:1E5F"
+      ],
+      "android_ids": [
+        1653
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "choice_prompt_split",
+      "note": "Android 1653-1656 is the Cannon Travel prompt followed by Matango, Ice Country and Empire; this SNES state exposes Matango/Ice Country."
+    },
+    {
+      "event_id": "00E1",
+      "parts": [
+        "C9:1E98"
+      ],
+      "android_ids": [
+        1655
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "choice_option_split",
+      "note": "Ice Country is the Android option adjacent to Matango 1654 in the same Cannon Travel block."
+    },
+    {
+      "event_id": "00E3",
+      "parts": [
+        "C9:1F03"
+      ],
+      "android_ids": [
+        1654,
+        1655,
+        1656
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "choice_destination_list",
+      "note": "SNES concatenates the three destination labels into a numbered list; Android 1654/1655/1656 stores Matango, Ice Country and The Empire as three adjacent localization records."
+    },
+    {
+      "event_id": "01EE",
+      "parts": [
+        "C9:88F7"
+      ],
+      "android_ids": [
+        763
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "choice_prompt_split",
+      "note": "Android 763/764/765 is the contiguous send-outside prompt / Yes / No block."
+    },
+    {
+      "event_id": "02A7",
+      "parts": [
+        "C9:B580"
+      ],
+      "android_ids": [
+        1579,
+        1580
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "choice_prompt_split",
+      "note": "Android splits the two SNES prompt sentences into 1579/1580, immediately followed by Yes/No 1581/1582."
+    },
+    {
+      "event_id": "05B0",
+      "parts": [
+        "CA:77FF"
+      ],
+      "android_ids": [
+        1884
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "choice_option_split",
+      "note": "Android 1879-1886 is the contiguous 1..8 option run; SNES options 1-5 and 7-8 were already aligned to the surrounding IDs."
+    },
+    {
+      "event_id": "066B",
+      "parts": [
+        "CA:8A79"
+      ],
+      "android_ids": [
+        1845
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "choice_prompt_split",
+      "note": "Android 1845/1846/1847/1848 is the contiguous Be gone!/Well?/Yes/No block."
+    },
+    {
+      "event_id": "066B",
+      "parts": [
+        "CA:8A8A"
+      ],
+      "android_ids": [
+        1846
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round6",
+      "relation": "choice_prompt_split",
+      "note": "Android Well? immediately precedes the Yes/No pair in the same block."
+    },
+    {
+      "event_id": "00CE",
+      "parts": [
+        "C9:1B18"
+      ],
+      "android_ids": [
+        156
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round7",
+      "relation": "choice_option_split",
+      "note": "Android 155/156/157 is the contiguous 50-GP prompt / Water Palace / Gaia's Navel block; prompt 155 is already accepted for this exact SNES event."
+    },
+    {
+      "event_id": "00CE",
+      "parts": [
+        "C9:1B25"
+      ],
+      "android_ids": [
+        157
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round7",
+      "relation": "choice_option_split",
+      "note": "Gaia's Navel immediately follows Water Palace inside the same Android block anchored by accepted prompt 155."
+    },
+    {
+      "event_id": "00CF",
+      "parts": [
+        "C9:1B60"
+      ],
+      "android_ids": [
+        1255
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round7",
+      "relation": "choice_option_split",
+      "note": "Android 1254/1255/1256 is the contiguous prompt / Potos Village / Gaia's Navel block; prompt 1254 and Gaia's Navel 1256 are already accepted in this exact event."
+    },
+    {
+      "event_id": "00D0",
+      "parts": [
+        "C9:1B85"
+      ],
+      "android_ids": [
+        1326
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round7",
+      "relation": "choice_prompt_split",
+      "note": "Android 1326/1327/1328 is the contiguous 50-GP prompt / Kakkara Desert / Ice Country block and matches this SNES destination pair in order."
+    },
+    {
+      "event_id": "00D0",
+      "parts": [
+        "C9:1BB3"
+      ],
+      "android_ids": [
+        1327
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round7",
+      "relation": "choice_option_split",
+      "note": "Kakkara belongs to Android 1327 in this ordered Kakkara/Ice Country block; this replaces the earlier globally exact but scene-wrong Kakkara anchor."
+    },
+    {
+      "event_id": "00D0",
+      "parts": [
+        "C9:1BBC"
+      ],
+      "android_ids": [
+        1328
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round7",
+      "relation": "choice_option_split",
+      "note": "Ice Country immediately follows Kakkara in the same Android 1326-1328 choice block."
+    },
+    {
+      "event_id": "00E2",
+      "parts": [
+        "C9:1EEC"
+      ],
+      "android_ids": [
+        1922
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round7",
+      "relation": "choice_option_split",
+      "note": "Android 1921/1922/1923 is the contiguous Kakkara 50-GP prompt / negative / affirmative choice block; prompt 1921 is already accepted for this event."
+    },
+    {
+      "event_id": "00E2",
+      "parts": [
+        "C9:1EF3"
+      ],
+      "android_ids": [
+        1923
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round7",
+      "relation": "choice_option_split",
+      "note": "The affirmative SNES option belongs to Android 1923 in the same prompt block; this replaces the earlier globally exact but scene-wrong Sure! match."
+    },
+    {
+      "event_id": "0127",
+      "parts": [
+        "C9:3B05"
+      ],
+      "android_ids": [
+        916
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round7",
+      "relation": "speaker_label_alignment",
+      "note": "Exact Luka: Ha ha ha...welcome! fills the only Android-English gap between already accepted 915 and 917 in the same exchange."
+    },
+    {
+      "event_id": "0295",
+      "parts": [
+        "C9:AF19"
+      ],
+      "android_ids": [
+        1516
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round7",
+      "relation": "speaker_label_alignment",
+      "note": "Exact Guard: Stop lollygagging! immediately precedes already accepted Android 1517 and 1518 in the same ship scene."
+    },
+    {
+      "event_id": "029C",
+      "parts": [
+        "C9:B0E3"
+      ],
+      "android_ids": [
+        1545
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round7",
+      "relation": "speaker_label_alignment",
+      "note": "Exact Morie: Massage my back! immediately precedes the accepted 1546-1548 exchange."
+    },
+    {
+      "event_id": "029C",
+      "parts": [
+        "C9:B1B0"
+      ],
+      "android_ids": [
+        1552
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round7",
+      "relation": "speaker_reattribution",
+      "note": "SNES unlabeled Harrumph follows Morie's line and corresponds to Android PLAYER_NAME 1 Harrumph at 1552, bracketed by accepted 1551 and 1553."
+    },
+    {
+      "event_id": "029C",
+      "parts": [
+        "C9:B330"
+      ],
+      "android_ids": [
+        1564
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round7",
+      "relation": "one_snes_to_one_android_expanded",
+      "note": "SNES Soldier: No way! We're with Morie! is the same ordered line as Android 1564, whose English adds the staged departure immediately after accepted 1563."
+    },
+    {
+      "event_id": "0318",
+      "parts": [
+        "C9:CD95"
+      ],
+      "android_ids": [
+        2377
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round7",
+      "relation": "choice_prompt_split",
+      "note": "Android 2376-2380 is the contiguous Neko greeting / save-service / Save / Buy / Sell block; 2376, 2378 and 2379 are already accepted in this exact event."
+    },
+    {
+      "event_id": "036D",
+      "parts": [
+        "C9:D43A"
+      ],
+      "android_ids": [
+        1156
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round7",
+      "relation": "speaker_label_alignment",
+      "note": "Exact Boss send-off line precedes Android Robot 1157 and the already accepted overload exchange 1159-1161 in the same scene."
+    },
+    {
+      "event_id": "03AA",
+      "parts": [
+        "C9:E13E"
+      ],
+      "android_ids": [
+        2013
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round7",
+      "relation": "speaker_label_alignment",
+      "note": "Exact Krissie opening question immediately precedes already accepted Android 2014-2019."
+    },
+    {
+      "event_id": "03AA",
+      "parts": [
+        "C9:E234"
+      ],
+      "android_ids": [
+        2020
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round7",
+      "relation": "speaker_label_alignment",
+      "note": "Exact Krissie: You KNOW Dyluck? fills the only gap between accepted 2019 and 2021 in the same conversation."
+    },
+    {
+      "event_id": "0558",
+      "parts": [
+        "CA:65E8"
+      ],
+      "android_ids": [
+        2186
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round7",
+      "relation": "speaker_reattribution",
+      "note": "SNES unlabeled Where am I...? corresponds exactly to Android PLAYER_NAME 1 at 2186, between accepted Thanatos 2184 and PLAYER_NAME 0 line 2188."
+    },
+    {
+      "event_id": "00AA",
+      "parts": [
+        "C9:1547"
+      ],
+      "android_ids": [
+        2303
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round8",
+      "relation": "one_snes_to_one_android_expanded",
+      "note": "Android 2303-2306 is one contiguous lighthouse speech run. 2303 expands the SNES caretaker introduction and immediately precedes accepted 2304/2305."
+    },
+    {
+      "event_id": "00AA",
+      "parts": [
+        "C9:15FE"
+      ],
+      "android_ids": [
+        2306
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round8",
+      "relation": "one_snes_to_one_android_expanded",
+      "note": "Android 2306 begins with the exact SNES ancients-power sentence and directly follows accepted 2305 in the same lighthouse run."
+    },
+    {
+      "event_id": "0106",
+      "parts": [
+        "C9:2ADB"
+      ],
+      "android_ids": [
+        3494
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round8",
+      "relation": "one_to_one",
+      "note": "Exact final falling scream at Android 3494, immediately after already accepted 3492/3493."
+    },
+    {
+      "event_id": "0135",
+      "parts": [
+        "C9:3D64"
+      ],
+      "android_ids": [
+        887
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round8",
+      "relation": "one_snes_to_one_android_expanded",
+      "note": "Android 886/887 is the contiguous Jema/Luka-followers speech. 887 starts with the complete SNES sentence and adds the Android continuation."
+    },
+    {
+      "event_id": "0147",
+      "parts": [
+        "C9:45FD"
+      ],
+      "android_ids": [
+        237
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round8",
+      "relation": "one_snes_to_one_android_expanded",
+      "note": "Android 237-240 is the exact ordered gate-guard run. 237 expands 'This is Pandora' to 'This is the Kingdom of Pandora' immediately before accepted 238-240."
+    },
+    {
+      "event_id": "0157",
+      "parts": [
+        "C9:4A31"
+      ],
+      "android_ids": [
+        301
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round8",
+      "relation": "one_snes_to_one_android_expanded",
+      "note": "Android 300/301 is the same two-part NPC speech; 301 closely matches the missing second SNES block and directly follows accepted 300."
+    },
+    {
+      "event_id": "0159",
+      "parts": [
+        "C9:4AFE"
+      ],
+      "android_ids": [
+        305
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round8",
+      "relation": "one_to_one",
+      "note": "Exact Android-English line 305 fills the only gap between accepted 304 and 306 in the same conversation."
+    },
+    {
+      "event_id": "0167",
+      "parts": [
+        "C9:4C65"
+      ],
+      "android_ids": [
+        1058
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round8",
+      "relation": "speaker_label_alignment",
+      "note": "Android 1058 is the exact Phanna ellipsis and immediately precedes Android 1059 and the already aligned 1060-1068 scene. Android 1059 is semantically related to the following SNES line but remains layout-deferred because it resegments around PLAYER_NAME(1)."
+    },
+    {
+      "event_id": "0181",
+      "parts": [
+        "C9:5710"
+      ],
+      "android_ids": [
+        388
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round8",
+      "relation": "one_snes_to_one_android_expanded",
+      "note": "Android 388 contains the complete SNES king nightmare/zombie sentence plus an Empire-warning expansion; it belongs to the same ordered court scene as 390-394."
+    },
+    {
+      "event_id": "0193",
+      "parts": [
+        "C9:5F2E"
+      ],
+      "android_ids": [
+        369
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round8",
+      "relation": "one_snes_to_one_android_expanded",
+      "note": "Android 369 is the same cancellation/indignation line and immediately follows accepted 368 in the Elman scene."
+    },
+    {
+      "event_id": "01A5",
+      "parts": [
+        "C9:6366",
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "C9:6374"
+      ],
+      "android_ids": [
+        403
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round8",
+      "relation": "placeholder_join",
+      "note": "Android 403 combines the two SNES text fragments around PLAYER_NAME(0): 'You did it, %S(0,0)!' and the kingdom returning to normal."
+    },
+    {
+      "event_id": "01B2",
+      "parts": [
+        "C9:66DB"
+      ],
+      "android_ids": [
+        566
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round8",
+      "relation": "one_snes_to_one_android_expanded",
+      "note": "Android 566 contains the complete missing hope-to-forge-a-sword sentence and directly follows accepted 565."
+    },
+    {
+      "event_id": "01C6",
+      "parts": [
+        "C9:71AC",
+        {
+          "command": "player_name",
+          "index": 1
+        },
+        "C9:71C1"
+      ],
+      "android_ids": [
+        440
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round8",
+      "relation": "adapted_system_notice",
+      "note": "SNES 'Separated from %S(1,0).' and Android '%S(1,0) leaves.' are the same party-removal event; Android 440 immediately follows accepted departure line 439."
+    },
+    {
+      "event_id": "01D3",
+      "parts": [
+        "C9:7944"
+      ],
+      "android_ids": [
+        616,
+        617
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round8",
+      "relation": "one_snes_to_many_android_expanded",
+      "note": "Android 616/617 is the expanded sprite address ending in 'Brother!' immediately before accepted Android 618, which answers that address with the player reply at Android 618."
+    },
+    {
+      "event_id": "01DC",
+      "parts": [
+        "C9:7EB5"
+      ],
+      "android_ids": [
+        720
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "speaker_label_alignment",
+      "note": "Exact Soldier ellipsis opens Android 720-728, immediately before accepted 721/722."
+    },
+    {
+      "event_id": "01DC",
+      "parts": [
+        "C9:7FF4"
+      ],
+      "android_ids": [
+        728
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "one_to_one",
+      "note": "Android 728 is the exact three-person platform/bridge instruction and directly follows accepted 727."
+    },
+    {
+      "event_id": "01ED",
+      "parts": [
+        "C9:8771"
+      ],
+      "android_ids": [
+        754
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "one_to_one",
+      "note": "Exact Elinee apology at Android 754 immediately precedes accepted 755-758."
+    },
+    {
+      "event_id": "01F5",
+      "parts": [
+        "C9:899F"
+      ],
+      "android_ids": [
+        761
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "one_to_one",
+      "note": "Exact lost-magical-power sentence at Android 761 immediately follows accepted 760."
+    },
+    {
+      "event_id": "023A",
+      "parts": [
+        "C9:9CB8"
+      ],
+      "android_ids": [
+        973
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "speaker_reattribution",
+      "note": "Exact Crystal Orb question at Android 973 immediately precedes accepted 974/975; Android adds PLAYER_NAME(0) attribution."
+    },
+    {
+      "event_id": "0250",
+      "parts": [
+        "C9:A00D"
+      ],
+      "android_ids": [
+        1263
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "one_to_one",
+      "note": "Android 1263 is the exact village-in-shambles line between accepted 1262 and 1264."
+    },
+    {
+      "event_id": "02B2",
+      "parts": [
+        "C9:B89E"
+      ],
+      "android_ids": [
+        1642
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "one_snes_to_one_android_expanded",
+      "note": "Android 1642 begins with the exact Sea Hare tail/Hurrah line and adds the well action in the same Amar scene."
+    },
+    {
+      "event_id": "02B2",
+      "parts": [
+        "C9:B8F8"
+      ],
+      "android_ids": [
+        1664
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "one_snes_to_one_android_expanded",
+      "note": "Android 1664 begins with the exact belt reward and expands its legendary-knight description immediately before accepted 1665."
+    },
+    {
+      "event_id": "02B4",
+      "parts": [
+        "C9:B9D6"
+      ],
+      "android_ids": [
+        1636
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "one_snes_to_one_android_expanded",
+      "note": "Android 1636 begins with the exact missing Fire Seed sentence and adds the monster consequence directly after accepted 1635."
+    },
+    {
+      "event_id": "02B7",
+      "parts": [
+        "C9:BA6C"
+      ],
+      "android_ids": [
+        1623
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "one_to_one",
+      "note": "Exact Ice Country destination at Android 1623 in the relocation NPC branch."
+    },
+    {
+      "event_id": "02B7",
+      "parts": [
+        "C9:BA7C"
+      ],
+      "android_ids": [
+        1624
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "one_to_one",
+      "note": "Exact warm-town sentence at Android 1624 immediately after 1623; French continuation in the following English-empty slot is retained by anchor interval policy."
+    },
+    {
+      "event_id": "02E4",
+      "parts": [
+        "C9:C62F"
+      ],
+      "android_ids": [
+        2561
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "one_snes_to_one_android_expanded",
+      "note": "Android 2561 begins with the exact Serin legendary-warrior sentence and adds the great-war timing, directly after accepted 2560."
+    },
+    {
+      "event_id": "02F9",
+      "parts": [
+        "C9:C9D5"
+      ],
+      "android_ids": [
+        2294
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "one_snes_to_one_android_expanded",
+      "note": "Android 2294 begins with the exact 'not making it here' thought and expands the move-to-city idea immediately before accepted 2295."
+    },
+    {
+      "event_id": "02F9",
+      "parts": [
+        "C9:CA38"
+      ],
+      "android_ids": [
+        2296
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "one_snes_to_one_android_expanded",
+      "note": "Android 2296 begins with the exact 'you actually WANT one?' reaction and adds the giveaway rationale between accepted 2295 and 2297."
+    },
+    {
+      "event_id": "0363",
+      "parts": [
+        "C9:D1DB"
+      ],
+      "android_ids": [
+        500
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "one_snes_to_one_android_expanded",
+      "note": "Android 500 contains the exact leave-now/never-return warning plus 'Wait up!', immediately before accepted 501."
+    },
+    {
+      "event_id": "036F",
+      "parts": [
+        "C9:D563"
+      ],
+      "android_ids": [
+        1144
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "one_snes_to_one_android_expanded",
+      "note": "Android 1144 begins with the exact cannot-let-you-leave sentence and adds the secret-hideout reason immediately before accepted 1145."
+    },
+    {
+      "event_id": "036F",
+      "parts": [
+        "C9:D661"
+      ],
+      "android_ids": [
+        1151,
+        1152,
+        1153
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "one_snes_to_many_android",
+      "note": "The SNES Boys/Boss/Boys reaction is split into ordered Android 1151/1152/1153 directly after accepted 1149/1150."
+    },
+    {
+      "event_id": "039F",
+      "parts": [
+        "C9:DFF2"
+      ],
+      "android_ids": [
+        1871
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "one_snes_to_one_android_expanded",
+      "note": "Android 1871 contains the exact emperor-bizarre-thoughts sentence with a conversational preface, immediately before accepted 1872."
+    },
+    {
+      "event_id": "03D0",
+      "parts": [
+        "C9:E9A1"
+      ],
+      "android_ids": [
+        2315
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "one_snes_to_one_android_expanded",
+      "note": "Android 2315 contains the exact mountain/cave/monsters directions and directly precedes accepted 2316."
+    },
+    {
+      "event_id": "03DD",
+      "parts": [
+        "C9:ED6D"
+      ],
+      "android_ids": [
+        2445
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "speaker_label_alignment",
+      "note": "Android 2445 'Go away!' is the same Jehk rejection immediately before accepted 2446/2447; no global short-label matching is used."
+    },
+    {
+      "event_id": "04A3",
+      "parts": [
+        "CA:1A1E"
+      ],
+      "android_ids": [
+        2917
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "one_snes_to_one_android_expanded",
+      "note": "Android 2917 begins with the same Thanatos/Geshtar question-answer and expands it, bracketed by accepted 2915/2916 and 2918/2919."
+    },
+    {
+      "event_id": "04EA",
+      "parts": [
+        "CA:4C1F",
+        "CA:4C71"
+      ],
+      "android_ids": [
+        858
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "many_snes_to_one_android",
+      "note": "Android 858 combines the two consecutive SNES dwarf-cave/weapon/reforge fragments between accepted 857 and 859."
+    },
+    {
+      "event_id": "052F",
+      "parts": [
+        "CA:5FEF"
+      ],
+      "android_ids": [
+        2272
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "speaker_label_alignment",
+      "note": "Exact Voice: Hellooo line at Android 2272 between accepted 2271 and 2273."
+    },
+    {
+      "event_id": "0532",
+      "parts": [
+        "CA:61D8"
+      ],
+      "android_ids": [
+        2280
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "one_to_one",
+      "note": "Exact Matango/southwest instruction at Android 2280 immediately after accepted 2279."
+    },
+    {
+      "event_id": "0580",
+      "parts": [
+        "CA:6B9C"
+      ],
+      "android_ids": [
+        1048
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "system_message_equivalence",
+      "note": "Android 1048 'Gained Gnome's powers!' is the exact system-message equivalent immediately before accepted 1049."
+    },
+    {
+      "event_id": "0582",
+      "parts": [
+        "CA:6F3D"
+      ],
+      "android_ids": [
+        1807
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "system_message_equivalence",
+      "note": "Android 1807 'Gained Salamando's powers!' is the exact system-message equivalent immediately after accepted 1806."
+    },
+    {
+      "event_id": "0584",
+      "parts": [
+        "CA:6FD7",
+        "CA:7005"
+      ],
+      "android_ids": [
+        2649
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "many_snes_to_one_android",
+      "note": "Android 2649 compresses the two consecutive SNES Luna fragments into the same take-my-powers / Mana-is-fading message between accepted 2648 and 2651."
+    },
+    {
+      "event_id": "0587",
+      "parts": [
+        "CA:7154",
+        "CA:718F"
+      ],
+      "android_ids": [
+        2533
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round11",
+      "relation": "many_snes_to_one_android",
+      "note": "Android 2533 combines the two consecutive SNES Lumina introduction / king draining power / making gold fragments immediately before accepted 2536/2538."
+    },
+    {
+      "event_id": "0236",
+      "parts": [
+        "C9:9B8C"
+      ],
+      "android_ids": [
+        993,
+        994
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round18",
+      "relation": "one_snes_to_many_android",
+      "note": "SNES combines the two consecutive gnome warnings; Android EN splits them into 993/994 immediately before Android 995/996."
+    },
+    {
+      "event_id": "0236",
+      "parts": [
+        "C9:9BCB"
+      ],
+      "android_ids": [
+        995,
+        996
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round18",
+      "relation": "one_snes_to_many_android",
+      "note": "Exact player/gome exchange split into adjacent Android 995/996; retained explicitly because adding the preceding structural unit changes generic session segmentation."
+    },
+    {
+      "event_id": "0236",
+      "parts": [
+        "C9:9C20"
+      ],
+      "android_ids": [
+        999
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round18",
+      "relation": "speaker_reaction_adaptation",
+      "note": "The gnome's angry reaction sits exactly between already accepted Android 998 ('Take this!') and 1001 ('I'm out of here!'); Android adapts the wording to 'Why you little--!' while preserving speaker and scene position."
+    },
+    {
+      "event_id": "0293",
+      "parts": [
+        "C9:AEB6"
+      ],
+      "android_ids": [
+        1508,
+        1509
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round18",
+      "relation": "one_snes_to_many_android_equivalent_duplicate",
+      "note": "SNES packs Sergo 'Fire! Fire!' and the guard reply into one token; Android EN splits them into 1508/1509. The duplicate 1513/1514 pair has identical EN/FR, so the localized semantic result is unambiguous."
+    },
+    {
+      "event_id": "03E9",
+      "parts": [
+        "C9:F039"
+      ],
+      "android_ids": [
+        2349
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round18",
+      "relation": "duplicate_resolved_by_local_order",
+      "note": "Exact '...Gzzz...' follows already accepted Android 2347/2348 in this television sequence; the later duplicate 2355 belongs to a different programme block."
+    },
+    {
+      "event_id": "055E",
+      "parts": [
+        "CA:6828"
+      ],
+      "android_ids": [
+        2034
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round18",
+      "relation": "speaker_reaction_adaptation",
+      "note": "SNES 'Hush!' and Android EN 'Shut up!' are the same reaction immediately after accepted 2032/2033 and before accepted 2035."
+    },
+    {
+      "event_id": "055E",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 1
+        },
+        "CA:687F"
+      ],
+      "android_ids": [
+        2037
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round18",
+      "relation": "placeholder_plus_expanded_reaction",
+      "note": "SNES PLAYER_NAME(1)+':Liar!' is expanded by Android EN to the same player's 'T-that's... not true... You're lying!' exactly between accepted 2035 and 2038."
+    },
+    {
+      "event_id": "055E",
+      "parts": [
+        "CA:68B1"
+      ],
+      "android_ids": [
+        2040
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round18",
+      "relation": "speaker_label_alignment",
+      "note": "Exact 'Phanna: Ooh!' / Android 2040 is bracketed by already accepted 2038 and 2041 in the same confrontation."
+    },
+    {
+      "event_id": "055E",
+      "parts": [
+        "CA:6962",
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "CA:696C"
+      ],
+      "android_ids": [
+        2048
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round18",
+      "relation": "speaker_prefix_placeholder_join",
+      "note": "SNES splits 'KRISSIE:' + PLAYER_NAME(0) + 'What's up?' across two text carriers; Android EN 2048 stores the exact combined Krissie line in the same 2032-2055 scene."
+    },
+    {
+      "event_id": "00CD",
+      "parts": [
+        "C9:1A8A"
+      ],
+      "android_ids": [
+        163
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "cannon_response_prefix",
+      "note": "Android 163 begins with the exact Upper Land response and appends the shared cannon-boarding instruction stored by SNES in event $00FC."
+    },
+    {
+      "event_id": "00D1",
+      "parts": [
+        "C9:1BDE"
+      ],
+      "android_ids": [
+        155
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "choice_prompt_split",
+      "note": "The SNES choice branches to $00FD (Water Palace) and $00CD (Upper Land); Android 155 precedes destination IDs 156/157/158 in the same Cannon Travel block."
+    },
+    {
+      "event_id": "00D1",
+      "parts": [
+        "C9:1BFD"
+      ],
+      "android_ids": [
+        156
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "choice_option_split",
+      "note": "Water Palace is Android 156 in the same destination block."
+    },
+    {
+      "event_id": "00D1",
+      "parts": [
+        "C9:1C0A"
+      ],
+      "android_ids": [
+        158
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "choice_option_split",
+      "note": "Upper Land is Android 158 in the same block; this SNES state omits the intermediate Gaia's Navel option."
+    },
+    {
+      "event_id": "00E6",
+      "parts": [
+        "C9:1F92"
+      ],
+      "android_ids": [
+        1924
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "cannon_response_prefix",
+      "note": "Android 1924 begins with the same heading-back response; SNES then calls shared event $00FC."
+    },
+    {
+      "event_id": "00E7",
+      "parts": [
+        "C9:1FD3"
+      ],
+      "android_ids": [
+        1657
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "cannon_response_prefix",
+      "note": "$00E1 branches to $00E7 for Matango; Android 1657 follows option 1654."
+    },
+    {
+      "event_id": "00E8",
+      "parts": [
+        "C9:2000"
+      ],
+      "android_ids": [
+        1659
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "cannon_response_prefix",
+      "note": "$00E1 branches to $00E8 for Ice Country; Android 1659 is the matching response."
+    },
+    {
+      "event_id": "00E9",
+      "parts": [
+        "C9:203E"
+      ],
+      "android_ids": [
+        1661
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "cannon_response_prefix",
+      "note": "The three-way $00E3 choice routes its third selection to $00E9; Android 1661 follows Empire option 1656."
+    },
+    {
+      "event_id": "00EA",
+      "parts": [
+        "C9:207F"
+      ],
+      "android_ids": [
+        1776
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "cannon_response_prefix",
+      "note": "$00E0 branches to $00EA for Matango; Android 1776 follows option 1774."
+    },
+    {
+      "event_id": "00EB",
+      "parts": [
+        "C9:20B8"
+      ],
+      "android_ids": [
+        1779
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "cannon_response_prefix",
+      "note": "$00E0 branches to $00EB for Kakkara; Android 1779 is the desert response in that scene."
+    },
+    {
+      "event_id": "00EC",
+      "parts": [
+        "C9:20F7"
+      ],
+      "android_ids": [
+        1329
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "cannon_response_prefix",
+      "note": "$00D0 branches to $00EC for Kakkara; Android 1329 follows Kakkara option 1327."
+    },
+    {
+      "event_id": "00ED",
+      "parts": [
+        "C9:2146"
+      ],
+      "android_ids": [
+        1332
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "cannon_response_prefix",
+      "note": "$00D0 branches to $00ED for Ice Country; Android 1332 is the matching response."
+    },
+    {
+      "event_id": "00EF",
+      "parts": [
+        "C9:21A9"
+      ],
+      "android_ids": [
+        1257
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "cannon_response_prefix",
+      "note": "$00CF branches to $00EF for Potos; Android 1257 follows Potos option 1255."
+    },
+    {
+      "event_id": "00F0",
+      "parts": [
+        "C9:21D7"
+      ],
+      "android_ids": [
+        1259
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "cannon_response_prefix",
+      "note": "$00CF branches to $00F0 for Gaia's Navel; Android 1259 is the corresponding response."
+    },
+    {
+      "event_id": "00F2",
+      "parts": [
+        "C9:2220"
+      ],
+      "android_ids": [
+        1330
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "cannon_response_prefix",
+      "note": "Android 1330 expands the exact SNES retry response and shares the boarding suffix."
+    },
+    {
+      "event_id": "00F4",
+      "parts": [
+        "C9:229B"
+      ],
+      "android_ids": [
+        423
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "cannon_response_prefix",
+      "note": "$00DF branches to $00F4 for Water Palace; Android 423 follows option 421."
+    },
+    {
+      "event_id": "00F5",
+      "parts": [
+        "C9:22D6"
+      ],
+      "android_ids": [
+        425
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "cannon_response_prefix",
+      "note": "$00DF branches to $00F5 for Pandora; Android 425 follows option 422."
+    },
+    {
+      "event_id": "00FA",
+      "parts": [
+        "C9:2390"
+      ],
+      "android_ids": [
+        152
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "cannon_response_prefix",
+      "note": "Android 152 begins with the exact warning and appends the shared boarding instruction."
+    },
+    {
+      "event_id": "00FC",
+      "parts": [
+        "C9:246D"
+      ],
+      "android_ids": [
+        159
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "cannon_common_boarding_suffix",
+      "note": "SNES $00FC contains only 'Just slide into the cannon!'; Android folds that same suffix into destination responses. Android 159 is one representative proven block."
+    },
+    {
+      "event_id": "00FD",
+      "parts": [
+        "C9:2502"
+      ],
+      "android_ids": [
+        159
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "cannon_response_prefix",
+      "note": "$00CE branches to $00FD for Water Palace; Android 159 follows option 156."
+    },
+    {
+      "event_id": "00FE",
+      "parts": [
+        "C9:2541"
+      ],
+      "android_ids": [
+        161
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "cannon_response_prefix",
+      "note": "$00CE branches to $00FE for Gaia's Navel; Android 161 follows option 157."
+    },
+    {
+      "event_id": "01D6",
+      "parts": [
+        "C9:7C5B"
+      ],
+      "android_ids": [
+        535,
+        536
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "choice_prompt_split",
+      "note": "Android 535/536 are the contiguous appeal/donation prompt immediately followed by Yes/No 537/538."
+    },
+    {
+      "event_id": "01D6",
+      "parts": [
+        "C9:7C74"
+      ],
+      "android_ids": [
+        537
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "choice_option_split",
+      "note": "Yes is Android 537 immediately after the donation prompt."
+    },
+    {
+      "event_id": "01D6",
+      "parts": [
+        "C9:7C79"
+      ],
+      "android_ids": [
+        538
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "choice_option_split",
+      "note": "No is Android 538 in the same block."
+    },
+    {
+      "event_id": "01EE",
+      "parts": [
+        "C9:891D"
+      ],
+      "android_ids": [
+        764
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "choice_option_split",
+      "note": "Prompt 763 is already accepted; Yes 764 follows immediately."
+    },
+    {
+      "event_id": "01EE",
+      "parts": [
+        "C9:8922"
+      ],
+      "android_ids": [
+        765
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round20",
+      "relation": "choice_option_split",
+      "note": "No 765 follows Yes 764 in the same block."
+    },
+    {
+      "event_id": "0167",
+      "parts": [
+        "C9:4C65",
+        {
+          "command": "player_name",
+          "index": 1
+        },
+        "C9:4C73"
+      ],
+      "android_ids": [
+        1058,
+        1059
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round21",
+      "relation": "wait_player_resegmentation",
+      "note": "Android 1058/1059 is the contiguous opening immediately before accepted 1060. SNES stores the same turn as Phanna's ellipsis, WAIT $00, PLAYER_NAME(1), then the continuation; preserve both commands and redistribute only the official Android French around the existing name carrier."
+    },
+    {
+      "event_id": "01E5",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 1
+        },
+        "C9:82B9"
+      ],
+      "android_ids": [
+        668
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round21",
+      "relation": "placeholder_join",
+      "note": "Android 668 '%S(1,0) joined!' is exactly between accepted 666/667 and the following scene. SNES already emits PLAYER_NAME(1) immediately before the text carrier."
+    },
+    {
+      "event_id": "0609",
+      "parts": [
+        "CA:8690",
+        "CA:86A5"
+      ],
+      "android_ids": [
+        415
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round21",
+      "relation": "paired_direction_labels",
+      "note": "Android 415 merges the two SNES destination labels into one ordered row with ↑/↓ markers. SNES keeps those markers as stock D1/D2 glyphs around a newline-only carrier, so only the two official French labels are redistributed."
+    },
+    {
+      "event_id": "01DD",
+      "parts": [
+        "C9:806F"
+      ],
+      "android_ids": [
+        616,
+        619
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round22",
+      "relation": "branch_shared_prefix_female_address",
+      "note": "Android EN 616 supplies the shared Sprite warning and 619 is the immediately following female-address branch before exact girl response 620. Android FR deliberately redistributes the shared prefix across 616 and the female address into 619; combine only those official slots for the SNES female branch."
+    },
+    {
+      "event_id": "01DD",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 1
+        },
+        "C9:80A1",
+        {
+          "command": "player_name",
+          "index": 1
+        },
+        "C9:80A9"
+      ],
+      "android_ids": [
+        620
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round22",
+      "relation": "double_player_name_response",
+      "note": "Android 620 is the exact girl-name correction between female-address branch 619 and already accepted 621. SNES stores the same response around two existing PLAYER_NAME(1) commands."
+    },
+    {
+      "event_id": "02AE",
+      "parts": [
+        "C9:B691",
+        "C9:B6B9"
+      ],
+      "android_ids": [
+        1630
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round22",
+      "relation": "timed_wait10_resegmentation",
+      "note": "Android EN 1630 merges the two consecutive SNES Amar fragments around the stock WAIT $10 ('Faerie walnut... Huh...? You mean...'), immediately before exact 1631/1632. Keep WAIT $10 byte-for-byte and redistribute only complete sentences from official Android FR 1630 across its two existing text carriers."
+    },
+    {
+      "event_id": "07FE",
+      "parts": [
+        "CA:982A",
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "CA:982E"
+      ],
+      "android_ids": [
+        3399,
+        3401,
+        3406
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round22",
+      "relation": "ending_wakeup_staging",
+      "note": "Android EN redistributes the same ending wake-up turn over 3399 (%S(0,0)...), 3401 (wake up...) and 3406 (You must not fall now...), immediately before already accepted 3409. Android FR redistributes those slots again; preserve the stock SNES PLAYER_NAME(0) and use only the official localized pieces."
+    },
+    {
+      "event_id": "01B5",
+      "parts": [
+        "C9:6921",
+        "C9:6954"
+      ],
+      "android_ids": [
+        577
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round25",
+      "relation": "many_snes_to_one_android",
+      "note": "Android EN 577 is exactly the concatenation of the two consecutive SNES thoughts: 'Wait! I know! Try holding this axe!' followed by the already aligned Mana-power explanation."
+    },
+    {
+      "event_id": "04FD",
+      "parts": [
+        "CA:4E59"
+      ],
+      "android_ids": [
+        3372
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round25",
+      "relation": "ordered_scene_equivalence",
+      "note": "SNES '...Me too!' is the girl's response in the unique slot directly between already aligned Android 3371 'Ever!' and 3374 'And Dyluck too...'; Android EN renders the same response as '...Me neither!'."
+    },
+    {
+      "event_id": "028B",
+      "parts": [
+        "C9:ABBE"
+      ],
+      "android_ids": [
+        1535
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round25",
+      "relation": "ordered_scene_equivalence",
+      "note": "Android EN 1535 'Hey! Didn't you hear what I just said? Move!' is the immediate continuation of already aligned 1534 and is semantically identical to SNES 'You heard him! Move!'."
+    },
+    {
+      "event_id": "01E7",
+      "parts": [
+        "C9:8512"
+      ],
+      "android_ids": [
+        779
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round25",
+      "relation": "ordered_scene_equivalence",
+      "note": "Android EN 779 is the unique Thanatos-description line directly between already aligned 778 and 780 in the same Elinee confrontation; both versions explain that Thanatos is the agent who will overthrow/crush the kingdom from within."
+    },
+    {
+      "event_id": "04B6",
+      "parts": [
+        "CA:2237"
+      ],
+      "android_ids": [
+        2702
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round25",
+      "relation": "ordered_scene_equivalence",
+      "note": "Android EN 2702 'Oh no! It's not working!' is the unique reaction between already aligned 2700 seal failure and 2704 evacuation order; SNES expresses the same failed attempt as 'No good! It's too late!'."
+    },
+    {
+      "event_id": "0133",
+      "parts": [
+        "C9:3C90",
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "C9:3C97"
+      ],
+      "android_ids": [
+        811
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round25",
+      "relation": "speaker_prefix_join",
+      "note": "SNES stores 'LUKA:' separately from the already aligned question; Android EN 811 stores the same speaker label and question in one record."
+    },
+    {
+      "event_id": "0180",
+      "parts": [
+        "C9:5634",
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "C9:563B"
+      ],
+      "android_ids": [
+        372
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round25",
+      "relation": "speaker_prefix_join",
+      "note": "SNES stores 'JEMA:' separately from the already aligned greeting; Android EN 372 stores the same speaker label and greeting in one record."
+    },
+    {
+      "event_id": "002F",
+      "parts": [
+        "C9:0D94",
+        {
+          "command": "player_name",
+          "index": 1
+        },
+        "C9:0D9D"
+      ],
+      "android_ids": [
+        2697
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round25",
+      "relation": "speaker_prefix_join",
+      "note": "SNES stores 'PHANNA:' separately from the already aligned thanks line; Android EN 2697 stores the same speaker label and line in one record."
+    },
+    {
+      "event_id": "0186",
+      "parts": [
+        "C9:591B"
+      ],
+      "android_ids": [
+        343,
+        344
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round31",
+      "relation": "ordered_scene_segmentation",
+      "note": "Android EN 343/344 are the two consecutive recognition/question anchors immediately before already accepted 345-352. SNES stores the same exchange in one carrier; 344 is an exact 'You're a swordsman?' match and 343 is the localized adaptation of the preceding recognition line."
+    },
+    {
+      "event_id": "0186",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "C9:5A85",
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "C9:5A8C"
+      ],
+      "android_ids": [
+        351,
+        352
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round31",
+      "relation": "player_name_presentation_join",
+      "note": "Android EN 351/352 is exactly the final name-presentation exchange. SNES stores the period after the second PLAYER_NAME in the following carrier, so bind both existing text carriers together while preserving both PLAYER_NAME commands in place."
+    },
+    {
+      "event_id": "0384",
+      "parts": [
+        "C9:D913"
+      ],
+      "android_ids": [
+        1796
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round31",
+      "relation": "ordered_scene_resegmentation",
+      "note": "Android EN 1796 exactly covers the greeting/recognition portion of the first SNES carrier. Its trailing SNES sentence 'Watch this stove.' is the opening of already accepted Android 1797, so identity is preserved by assigning only 1796 here and leaving the existing C9:D951 -> 1797 mapping unchanged."
+    },
+    {
+      "event_id": "042D",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "CA:14AB",
+        "CA:14BA"
+      ],
+      "android_ids": [
+        3306
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round31",
+      "relation": "timed_wait10_resegmentation",
+      "note": "Android EN 3306 is the exact combined player-name reaction 'What the...!? Let's get out of here!'. SNES stores it in two consecutive carriers separated only by the stock WAIT $10; preserve the PLAYER_NAME, WAIT and the second carrier's stock leading newline."
+    },
+    {
+      "event_id": "042D",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 2
+        },
+        "CA:14D7"
+      ],
+      "android_ids": [
+        3307
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round31",
+      "relation": "trim_distant_player_context",
+      "note": "Android EN 3307 is exactly PLAYER_NAME(2): 'Uwaa!'. The automatic alignment had borrowed the later PLAYER_NAME(0) only as look-ahead context across a long action/effect bridge; keep that later name with the following mapping instead of treating it as part of this identity."
+    },
+    {
+      "event_id": "04E6",
+      "parts": [
+        "CA:3E7B",
+        "CA:3EA8"
+      ],
+      "android_ids": [
+        76
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "ordered_scene_resegmentation",
+      "note": "Android EN 76 contains the two consecutive villager protests that SNES stores in two carriers."
+    },
+    {
+      "event_id": "04E6",
+      "parts": [
+        "CA:3F11"
+      ],
+      "android_ids": [
+        80
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "contained_android_extension",
+      "note": "SNES begins the elder accusation; Android EN 80 contains the same opening followed by the sword explanation continued by the next mapped SNES carrier."
+    },
+    {
+      "event_id": "04E6",
+      "parts": [
+        "CA:3F97"
+      ],
+      "android_ids": [
+        82
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "contained_android_extension",
+      "note": "SNES 'VILLAGER: It's settled.' is the exact opening of Android EN 82 before the already aligned continuation."
+    },
+    {
+      "event_id": "04E2",
+      "parts": [
+        "CA:32F6"
+      ],
+      "android_ids": [
+        1282,
+        1283
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "ordered_scene_resegmentation",
+      "note": "Android EN 1282/1283 is the same elder response/reaction block; French legitimately redistributes the reaction into the following localization record."
+    },
+    {
+      "event_id": "04E2",
+      "parts": [
+        "CA:3335",
+        "CA:3359"
+      ],
+      "android_ids": [
+        1285
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "ordered_scene_resegmentation",
+      "note": "Between exact anchors 1284 and 1286, Android EN has only 1285; SNES splits the elder's transition into 'Okay, okay!' and 'Tyke!'."
+    },
+    {
+      "event_id": "04E2",
+      "parts": [
+        "CA:34DD"
+      ],
+      "android_ids": [
+        1297,
+        1298
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "preserve_accepted_mapping",
+      "note": "Freeze the previously accepted Sylphid/Grandpa mapping byte-for-byte while adding the adjacent 1299 identity."
+    },
+    {
+      "event_id": "04E2",
+      "parts": [
+        "CA:352B"
+      ],
+      "android_ids": [
+        1299
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "contained_android_equivalence",
+      "note": "SNES 'Sylphid: It is so!' and Android EN 1299 'Sylphid: As you wish!' are the same response in the tightly bracketed Sylphid exchange."
+    },
+    {
+      "event_id": "04E1",
+      "parts": [
+        "CA:2E21"
+      ],
+      "android_ids": [
+        3283
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "ordered_scene_equivalence",
+      "note": "Unique local Thanatos laugh immediately before the already aligned body-transfer speech."
+    },
+    {
+      "event_id": "04E1",
+      "parts": [
+        "CA:2FDA"
+      ],
+      "android_ids": [
+        3294
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "contained_android_equivalence",
+      "note": "Both versions explain that Thanatos' spirit/life is eternal but each inhabited body is mortal."
+    },
+    {
+      "event_id": "04E1",
+      "parts": [
+        "CA:301C"
+      ],
+      "android_ids": [
+        3295
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "contained_android_equivalence",
+      "note": "Both versions state that each new host makes Thanatos darker and that he feeds on hatred/destruction."
+    },
+    {
+      "event_id": "04E1",
+      "parts": [
+        "CA:30F8"
+      ],
+      "android_ids": [
+        3302,
+        3303
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "ordered_scene_resegmentation",
+      "note": "SNES combines the girl's plea and Thanatos' cry; Android EN stores them in consecutive 3302/3303."
+    },
+    {
+      "event_id": "04E1",
+      "parts": [
+        "CA:3190"
+      ],
+      "android_ids": [
+        3305
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "ordered_scene_equivalence",
+      "note": "Exact local demand for the heroes' bodies immediately before the already aligned escape reaction."
+    },
+    {
+      "event_id": "02F1",
+      "parts": [
+        "C9:C8A2"
+      ],
+      "android_ids": [
+        2287
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "user_validated_contextual_short_exact",
+      "note": "Exact 'Hello!' bracketed by event $02F0 -> 2286 and $02F2 -> 2288."
+    },
+    {
+      "event_id": "02F2",
+      "parts": [
+        "C9:C8AC"
+      ],
+      "android_ids": [
+        2288
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "user_validated_contextual_short_exact",
+      "note": "Exact 'Aieeee!' bracketed by $02F1 -> 2287 and $02F3 -> 2289."
+    },
+    {
+      "event_id": "066F",
+      "parts": [
+        "CA:8E0B"
+      ],
+      "android_ids": [
+        1844
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "user_validated_contextual_short_exact",
+      "note": "User validated the local ...SCRAM...! identity after reviewing Android EN/FR context."
+    },
+    {
+      "event_id": "059D",
+      "parts": [
+        "CA:7731"
+      ],
+      "android_ids": [
+        2513
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "user_validated_contextual_short_exact",
+      "note": "User validated the exact Locked! identity in its local Android context."
+    },
+    {
+      "event_id": "0194",
+      "parts": [
+        "C9:5FA5"
+      ],
+      "android_ids": [
+        371
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "user_validated_contextual_short_exact",
+      "note": "User validated Papa!! -> Android EN 371 Papa!!! in the local Pandora scene."
+    },
+    {
+      "event_id": "0111",
+      "parts": [
+        "C9:32EF"
+      ],
+      "android_ids": [
+        105
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "user_validated_contextual_short_exact",
+      "note": "User validated MAN: ... -> Android EN 105 Man: ... in the local Potos sequence."
+    },
+    {
+      "event_id": "04AB",
+      "parts": [
+        "CA:1BED"
+      ],
+      "android_ids": [
+        2746
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "user_validated_contextual_duplicate",
+      "note": "User validated Android EN 2746 for the SNES two-line hold-off/catch-up instruction; 2747 is a duplicate localization record."
+    },
+    {
+      "event_id": "03A6",
+      "parts": [
+        "C9:E0FA"
+      ],
+      "android_ids": [
+        1889
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "user_validated_event_segmentation",
+      "note": "User validated the separated Android anchor 1889 for the standalone 634! event."
+    },
+    {
+      "event_id": "03A7",
+      "parts": [
+        "C9:E113"
+      ],
+      "android_ids": [
+        1890
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "user_validated_event_segmentation",
+      "note": "User validated Android EN 1890 for the Enter! tail after reviewing the combined and separated Android variants."
+    },
+    {
+      "event_id": "05B1",
+      "parts": [
+        "CA:781E"
+      ],
+      "android_ids": [
+        1874
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "user_validated_password_sequence",
+      "note": "User validated the first Go away! anchor in the password-entry block."
+    },
+    {
+      "event_id": "05B2",
+      "parts": [
+        "CA:7833"
+      ],
+      "android_ids": [
+        1877
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "user_validated_password_sequence",
+      "note": "User validated the exact 6 ? ? progress anchor in the password-entry block."
+    },
+    {
+      "event_id": "05B3",
+      "parts": [
+        "CA:784E"
+      ],
+      "android_ids": [
+        1878
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "user_validated_password_sequence",
+      "note": "User validated the exact 6 3 ? progress anchor in the password-entry block."
+    },
+    {
+      "event_id": "05B4",
+      "parts": [
+        "CA:7864"
+      ],
+      "android_ids": [
+        1887
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round33",
+      "relation": "shared_called_tail_combined_anchor",
+      "note": "Identity is user-validated: Android EN 1887 combines 634 with the Enter! tail supplied on SNES by called event $03A7. Keep the identity, but do not inject the combined French payload into CA:7864 or it would duplicate the translated $03A7 tail."
+    },
+    {
+      "event_id": "00B6",
+      "parts": [
+        "C9:1832"
+      ],
+      "android_ids": [
+        2478
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round34",
+      "relation": "tight_local_scene_anchor",
+      "note": "Android EN 2478 is the unique King Mammon residence/hotel line, directly bracketed by the same Gold City block: $00B7 -> 2477 and $00B3 -> 2479-2481."
+    },
+    {
+      "event_id": "00BC",
+      "parts": [
+        "C9:1984"
+      ],
+      "android_ids": [
+        2494
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round34",
+      "relation": "unique_local_scene_equivalence",
+      "note": "Android EN 2494 is the unique Watts line in the same Gold City localization block and closely matches the complete SNES carrier; the following Watts forge prompt is Android 2496."
+    },
+    {
+      "event_id": "013B",
+      "parts": [
+        "C9:4123"
+      ],
+      "android_ids": [
+        874
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round34",
+      "relation": "exact_duplicate_resolved_by_scene",
+      "note": "The SNES line has two exact Android-EN duplicates (479/874); 874 is fixed by the local Luka sequence, immediately after $0139 -> 872-873 and before the adjacent 875/876 continuation."
+    },
+    {
+      "event_id": "013F",
+      "parts": [
+        "C9:4437"
+      ],
+      "android_ids": [
+        875
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round34",
+      "relation": "contained_local_scene_anchor",
+      "note": "Android EN 875 contains the complete SNES sentence and sits directly between the resolved Luka anchors 874 and $013C -> 876."
+    },
+    {
+      "event_id": "0151",
+      "parts": [
+        "C9:4881"
+      ],
+      "android_ids": [
+        311
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round34",
+      "relation": "tight_local_scene_anchor",
+      "note": "Android EN 311 is the unique close equivalent in the local Pandora family block, between $0150 -> 309 and $0152 -> 312; Android 310 is only an ellipsis."
+    },
+    {
+      "event_id": "0158",
+      "parts": [
+        "C9:4A76"
+      ],
+      "android_ids": [
+        296
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round34",
+      "relation": "unique_local_scene_equivalence",
+      "note": "Android EN 296 uniquely matches the missing wife/Phanna line inside the same local family/NPC block already occupied by 297-307 in neighboring SNES events."
+    },
+    {
+      "event_id": "01C0",
+      "parts": [
+        "C9:6FA4"
+      ],
+      "android_ids": [
+        482
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round34",
+      "relation": "tight_local_scene_anchor",
+      "note": "Android EN 482 is the unique village-location line and immediately precedes the already aligned Dwarf Village run $01C1-$01C4 -> 483-487."
+    },
+    {
+      "event_id": "02E2",
+      "parts": [
+        "C9:C58C"
+      ],
+      "android_ids": [
+        2548
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round34",
+      "relation": "unique_local_scene_equivalence",
+      "note": "Android EN 2548 uniquely carries the Serin/fifteen-years-ago castle history inside the Tasnica 2539-2565 scene block used by the neighboring events."
+    },
+    {
+      "event_id": "0390",
+      "parts": [
+        "C9:DC7A"
+      ],
+      "android_ids": [
+        1811
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round34",
+      "relation": "tight_local_scene_anchor",
+      "note": "Android EN 1811 is the unique near-exact line, directly between the local resident anchors 1808-1810 and $0391 -> 1812."
+    },
+    {
+      "event_id": "03E7",
+      "parts": [
+        "C9:EF61"
+      ],
+      "android_ids": [
+        2343
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round34",
+      "relation": "tight_local_scene_anchor",
+      "note": "Android EN 2343 is the unique meditation complaint, directly bracketed by $03E4 -> 2340-2342 and $03E8 -> 2344."
+    },
+    {
+      "event_id": "019C",
+      "parts": [
+        "C9:61D3"
+      ],
+      "android_ids": [
+        385
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round39",
+      "relation": "equivalent_duplicate_positional_tiebreak",
+      "note": "Android EN/FR 381 and 385 are strictly identical guard lines. Full SNES context shows the shared Pandora guard carrier; choose 385 because it belongs to the adjacent 386-388 Pandora block while retaining 381 as documented equivalent provenance."
+    },
+    {
+      "event_id": "01EA",
+      "parts": [
+        "C9:86C6"
+      ],
+      "android_ids": [
+        759
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round39",
+      "relation": "reused_snes_subevent_primary_payload",
+      "note": "The same SNES subevent is called from two contexts that Android materializes as 759 and 762. Both Android EN strings are identical; choose FR payload 759 because it carries the shared utterance without the Android-only 'Elinice :' speaker prefix duplicated by the second call-site entry."
+    },
+    {
+      "event_id": "02A9",
+      "parts": [
+        "C9:B5CE"
+      ],
+      "android_ids": [
+        1583
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round39",
+      "relation": "reused_snes_subevent_primary_payload",
+      "note": "The same SNES subevent is called twice and Android materializes the two call sites as 1577 and 1583. User accepts 1583 as the shared payload; it preserves 'Royaume de Kakkara' rather than changing Kakkara into a city."
+    },
+    {
+      "event_id": "0689",
+      "parts": [
+        "CA:8F20"
+      ],
+      "android_ids": [
+        769
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round39",
+      "relation": "user_validated_stock_english_override",
+      "note": "Android EN 769 is structurally proven by the event item command: $0689 executes OP_1E A4, i.e. weapon $24 = Whip/Leather Whip. The true Magic Rope chest is $0687 with OP_1E 46, item $06. Android FR incorrectly gives the same 'Fouet en cuir' text to both 469 (Magic Rope) and 769. Keep exact stock-USA 'Found the Whip!' instead of importing that bad localization."
+    },
+    {
+      "event_id": "00C0",
+      "parts": [
+        "C9:1A33"
+      ],
+      "android_ids": [
+        2508
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round40",
+      "relation": "contiguous_scene_gap",
+      "note": "SNES events $00BB/$00BA/$00B9/$00B8/$00BD/$00BE already map to Android 2505/2506/2507/2509/2510/2511/2512. Mammon's Money...MONEY / all MINE boast is the only missing Gold City utterance and Android EN 2508 is the unique intervening Mammon: Gold... GOLD! / all MINE line."
+    },
+    {
+      "event_id": "011B",
+      "parts": [
+        "C9:3801"
+      ],
+      "android_ids": [
+        35
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round40",
+      "relation": "callsite_duplicate_disambiguation",
+      "note": "Android EN 31 and 35 repeat the same banishment sentence with different FR payloads. SNES $011B follows $011A Have everything you need? / Yes / No, exactly matching Android 32-34 followed by the second banishment at 35; therefore 35 is the correct call-site localization."
+    },
+    {
+      "event_id": "023C",
+      "parts": [
+        "C9:9D5F"
+      ],
+      "android_ids": [
+        1205
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round40",
+      "relation": "equivalent_duplicate_same_block_tiebreak",
+      "note": "Android EN/FR 1184 and 1205 are strict equivalent copies of Neko: Purrrfect weather!. The stock $023C choice carriers Save/Buy/Sell are already concretely aligned to 1207/1208/1209, so the copy in that exact block is 1205."
+    },
+    {
+      "event_id": "023C",
+      "parts": [
+        "C9:9D7C"
+      ],
+      "android_ids": [
+        1206
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round40",
+      "relation": "contiguous_prompt_replacement",
+      "note": "SNES What can I do for you? is the prompt immediately before Save/Buy/Sell. Android 1206 occupies exactly the same slot immediately before the already proven 1207-1209 choices; Android rewrites the generic prompt as Neko: Meow, busy travelers! I'll even save the game!. Identity is structural block position, not French wording."
+    },
+    {
+      "event_id": "0114",
+      "parts": [
+        "C9:364B",
+        "C9:369A"
+      ],
+      "android_ids": [
+        90
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round40",
+      "relation": "multi_carrier_android_extension",
+      "note": "The two SNES carriers form one continuous Elder speech. Android EN 90 contains the whole speech with minor wording expansion and sits in the same Potos banishment block immediately before the already aligned $0115-$0118 lines 99/98/96/97."
+    },
+    {
+      "event_id": "02C0",
+      "parts": [
+        "C9:BC60",
+        "C9:BC72"
+      ],
+      "android_ids": [
+        2629
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round40",
+      "relation": "exact_split_sign_resegmentation",
+      "note": "The two positioned SNES carriers concatenate to Karon's Ferry / Out to lunch; Android EN 2629 is the unique combined sign and is bracketed by the adjacent Karon ferry events $02C1/$02C2."
+    },
+    {
+      "event_id": "03ED",
+      "parts": [
+        "C9:F13C"
+      ],
+      "android_ids": [
+        2364,
+        2365,
+        2366
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round40",
+      "relation": "contiguous_android_resegmentation",
+      "note": "The preceding carrier is already Android 2362-2363; this carrier contains the next three debate utterances in order and therefore maps to the immediately contiguous Android EN 2364-2366."
+    },
+    {
+      "event_id": "03ED",
+      "parts": [
+        "C9:F18D"
+      ],
+      "android_ids": [
+        2367
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round40",
+      "relation": "contiguous_android_transition_extension",
+      "note": "This is the terminal static/noise carrier of the same video. Android EN 2367 is the immediately following static transition before the already aligned $03EB/$03EC material; the Android version spells out more of the static/beep sequence."
+    },
+    {
+      "event_id": "0555",
+      "parts": [
+        "CA:632B",
+        {
+          "command": "player_name",
+          "index": 1
+        },
+        "CA:6337"
+      ],
+      "android_ids": [
+        2157
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round40",
+      "relation": "placeholder_join",
+      "note": "The SNES Dyluck prefix, PLAYER_NAME(1), and At last continuation are one utterance; Android EN 2157 is exactly the corresponding line between the already aligned 2156 and 2158 anchors."
+    },
+    {
+      "event_id": "0555",
+      "parts": [
+        "CA:63F1"
+      ],
+      "android_ids": [
+        2165
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round40",
+      "relation": "contained_local_scene_anchor",
+      "note": "Android EN 2165 is the unique Dyluck/Thanatos continuation immediately after the already aligned 2164 line. Android expands the explanation but preserves the same scene identity."
+    },
+    {
+      "event_id": "0555",
+      "parts": [
+        "CA:6423"
+      ],
+      "android_ids": [
+        2166,
+        2167
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round40",
+      "relation": "contiguous_android_resegmentation",
+      "note": "The SNES carrier contains both You can't be serious / She LOVES you and I can't handle this; Android EN splits those clauses across the consecutive anchors 2166 and 2167, directly before the already aligned 2170 Dyluck recovery line."
+    },
+    {
+      "event_id": "0013",
+      "parts": [
+        "C9:0923"
+      ],
+      "android_ids": [
+        389
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round41",
+      "relation": "user_validated_scene_paraphrase",
+      "note": "Full SNES-US context and the Pandora/Elinee Android block identify 389 as the same state dialogue: the SNES says the troops sent to fight the witch were captured, while Android EN paraphrases them as soundly defeated. User validated this identity from the contextual HTML."
+    },
+    {
+      "event_id": "028E",
+      "parts": [
+        "C9:AC32"
+      ],
+      "android_ids": [
+        1505
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round41",
+      "relation": "user_validated_android_extension",
+      "note": "Android EN 1505 begins with the exact Republic secret sandship identity and extends it with the Fire Palace mission. It sits directly in the Sandship block whose adjacent SNES events map to 1503-1507. User validated using the full-context HTML."
+    },
+    {
+      "event_id": "060A",
+      "parts": [
+        "CA:86B5"
+      ],
+      "android_ids": [
+        421
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round41",
+      "relation": "user_validated_reused_label_anchor",
+      "note": "This RETURN subevent is the reusable Water Palace destination label. Android 421 is the Water Palace label paired with 422 Pandora in the same Cannon Travel destination block; the same anchor may legitimately be reused by another SNES caller. User validated this provenance."
+    },
+    {
+      "event_id": "060B",
+      "parts": [
+        "CA:86C3"
+      ],
+      "android_ids": [
+        422
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round41",
+      "relation": "user_validated_reused_label_anchor",
+      "note": "This RETURN subevent is the reusable Kingdom of Pandora/Pandora destination label. Android 422 is the paired Pandora label immediately after Water Palace 421 in the same Cannon Travel block. User validated using the full-context HTML."
+    },
+    {
+      "event_id": "0235",
+      "parts": [
+        "C9:9B74"
+      ],
+      "android_ids": [
+        951
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round42",
+      "relation": "user_validated_trigger_scene_duplicate",
+      "note": "The short SNES reaction is textually ambiguous, but map $0115's walk-on trigger enters $0232 -> $0235 on the Tonpole/Biting Lizard boss map; Android EN 951 is the matching reaction immediately before 952 Received Gloves Orb. Android FR adds a presentation-only %S(0,0) speaker label absent from the SNES carrier; the existing formatter policy removes only that label without inventing PLAYER_NAME."
+    },
+    {
+      "event_id": "03CF",
+      "parts": [
+        "C9:E993"
+      ],
+      "android_ids": [
+        1976
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round42",
+      "relation": "user_validated_map_object_state_duplicate",
+      "note": "SNES $03CF is the direct event of map $007E object #4, visible only for event flag $3A == 2. The same map object set contains $03B5/$03B6/$03B7 already aligned to Android 1972/1973/1971, while doctor event $03BD is 1974+1975; Android EN 1976 is therefore the unique Phanna ellipsis in this exact scene state."
+    },
+    {
+      "event_id": "0521",
+      "parts": [
+        "CA:5CE6"
+      ],
+      "android_ids": [
+        2203
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round42",
+      "relation": "called_prefix_android_merge_suffix",
+      "note": "SNES $0521 first calls $04D4, which renders 'Welcome. The Emperor awaits you.', then its own carrier renders 'To your right, please.'. Their normalized concatenation is exactly Android EN 2203; Android 2204 is a strict EN+FR duplicate. Serialize only the official French suffix after the Android presentation separator so the already translated $04D4 welcome is not duplicated."
+    },
+    {
+      "event_id": "01D5",
+      "parts": [
+        "C9:7C25"
+      ],
+      "android_ids": [
+        605
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round42",
+      "relation": "user_validated_reused_subevent_equivalent_extension",
+      "note": "SNES $01D5 is reused by three call-sites. Android EN 605 and 608 are strict duplicate copies of the same elder response and their French payloads are identical; 605 is the representative anchor. Android extends the SNES wording with one short instruction sentence, which fits the existing three-line carrier safely."
+    },
+    {
+      "event_id": "022F",
+      "parts": [
+        "C9:9B1B",
+        {
+          "command": "player_name",
+          "index": 2
+        },
+        "C9:9B2C"
+      ],
+      "android_ids": [
+        1005
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round43",
+      "relation": "round43_player_name_resegmentation",
+      "note": "The two SNES carriers plus the unchanged PLAYER_NAME(2) command reconstruct exactly 'We can't leave %S(2,0) like this.'. Android EN 1005 is therefore exact; Android FR adds one official explanatory sentence. The reviewed formatter keeps PLAYER_NAME in place and adds an explicit page boundary so the maximum player name remains parser-safe."
+    },
+    {
+      "event_id": "02B9",
+      "parts": [
+        "C9:BAD6",
+        "C9:BAE8"
+      ],
+      "android_ids": [
+        1618
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round43",
+      "relation": "round43_shared_branch_prefix_redistribution",
+      "note": "C9:BAD6 'Salamando is ' is shared by a conditional branch: the jump path continues in already-aligned $02BD -> Android 1619 ('Salamando's my friend...'), while the fallthrough combines C9:BAD6+C9:BAE8 into Android 1618 ('Salamando is gone!...'). Android FR restructures both lines, so the shared prefix must become empty and the complete 1618 French payload belongs only to the fallthrough carrier."
+    },
+    {
+      "event_id": "0358",
+      "parts": [
+        "C9:D12C"
+      ],
+      "android_ids": [
+        2839
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round43",
+      "relation": "round43_shared_magic_prefix",
+      "note": "$0358 renders 'Gnome' then jumps to shared $0360 \"'s magic / will work!\", reconstructing exactly Android EN 2839. The full French sentence fits in the spirit-name carrier; $0360 is handled separately as shared layout-only suffix."
+    },
+    {
+      "event_id": "0359",
+      "parts": [
+        "C9:D13F"
+      ],
+      "android_ids": [
+        2844
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round43",
+      "relation": "round43_shared_magic_prefix",
+      "note": "$0359 + shared $0360 reconstruct exactly Android EN 2844 'Undine's magic will work!'. The full official French sentence is serialized in the name carrier."
+    },
+    {
+      "event_id": "035A",
+      "parts": [
+        "C9:D153"
+      ],
+      "android_ids": [
+        2852
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round43",
+      "relation": "round43_shared_magic_prefix",
+      "note": "$035A + shared $0360 reconstruct exactly Android EN 2852 'Sylphid's magic will work!'. The full official French sentence is serialized in the name carrier."
+    },
+    {
+      "event_id": "035B",
+      "parts": [
+        "C9:D168"
+      ],
+      "android_ids": [
+        2857
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round43",
+      "relation": "round43_shared_magic_prefix",
+      "note": "$035B + shared $0360 reconstruct exactly Android EN 2857 'Salamando's magic will work!'. Android FR's established spirit name is Athanor."
+    },
+    {
+      "event_id": "035C",
+      "parts": [
+        "C9:D17F"
+      ],
+      "android_ids": [
+        2865
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round43",
+      "relation": "round43_shared_magic_prefix",
+      "note": "$035C + shared $0360 reconstruct exactly Android EN 2865 'Lumina's magic will work!'. The full official French sentence is serialized in the name carrier."
+    },
+    {
+      "event_id": "035D",
+      "parts": [
+        "C9:D193"
+      ],
+      "android_ids": [
+        2870
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round43",
+      "relation": "round43_shared_magic_prefix",
+      "note": "$035D + shared $0360 reconstruct exactly Android EN 2870 'Shade's magic will work!'. Android FR's established spirit name is Ombre."
+    },
+    {
+      "event_id": "035E",
+      "parts": [
+        "C9:D1A6"
+      ],
+      "android_ids": [
+        2881
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round43",
+      "relation": "round43_shared_magic_prefix",
+      "note": "$035E + shared $0360 reconstruct exactly Android EN 2881 'Luna's magic will work!'. The full official French sentence is serialized in the name carrier."
+    },
+    {
+      "event_id": "0360",
+      "parts": [
+        "C9:D1C0",
+        "C9:D1CB"
+      ],
+      "android_ids": [
+        2839
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round43",
+      "relation": "round43_shared_magic_suffix_layout",
+      "note": "$0360 is the shared suffix called by the eight spirit-name events. Android stores each complete '[Spirit]'s magic will work!' sentence separately; 2839 is the representative proven composition. Because the full localized sentence is moved into each validated prefix (and Dryad uses a temporary manual supplement), these two carriers retain layout only and no duplicated words."
+    },
+    {
+      "event_id": "0500",
+      "parts": [
+        "CA:58B9"
+      ],
+      "android_ids": [
+        952
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round43",
+      "relation": "round43_weapon_orb_prefix",
+      "note": "$0500 renders 'Got Glove' then jumps to shared $0509 \"'s Orb!\", reconstructing the Gloves Orb message. Android EN 952 is a representative of strict EN+FR duplicates; the French terminal punctuation is left to the shared suffix."
+    },
+    {
+      "event_id": "0501",
+      "parts": [
+        "CA:58D5"
+      ],
+      "android_ids": [
+        122
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round43",
+      "relation": "round43_weapon_orb_prefix",
+      "note": "$0501 + shared $0509 reconstructs the Sword Orb message; Android EN 122 represents strict EN+FR duplicate copies. The shared suffix owns the final French exclamation."
+    },
+    {
+      "event_id": "0502",
+      "parts": [
+        "CA:58F1"
+      ],
+      "android_ids": [
+        1008
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round43",
+      "relation": "round43_weapon_orb_prefix",
+      "note": "$0502 + shared $0509 reconstructs the Axe Orb message; Android EN 1008 represents strict EN+FR duplicate copies. The shared suffix owns the final French exclamation."
+    },
+    {
+      "event_id": "0503",
+      "parts": [
+        "CA:590B"
+      ],
+      "android_ids": [
+        631
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round43",
+      "relation": "round43_weapon_orb_prefix",
+      "note": "$0503 + shared $0509 reconstructs the Spear Orb message; Android EN 631 represents strict EN+FR duplicate copies. The shared suffix owns the final French exclamation."
+    },
+    {
+      "event_id": "0504",
+      "parts": [
+        "CA:5927"
+      ],
+      "android_ids": [
+        901
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round43",
+      "relation": "round43_weapon_orb_prefix",
+      "note": "$0504 + shared $0509 reconstructs the Whip Orb message; Android EN 901 represents strict EN+FR duplicate copies. The shared suffix owns the final French exclamation."
+    },
+    {
+      "event_id": "0505",
+      "parts": [
+        "CA:5942"
+      ],
+      "android_ids": [
+        934
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round43",
+      "relation": "round43_weapon_orb_prefix",
+      "note": "$0505 + shared $0509 reconstructs the Bow/Arrow Orb message; Android EN 934 represents strict EN+FR duplicate copies. The shared suffix owns the final French exclamation."
+    },
+    {
+      "event_id": "0506",
+      "parts": [
+        "CA:595C"
+      ],
+      "android_ids": [
+        786
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round43",
+      "relation": "round43_weapon_orb_prefix",
+      "note": "$0506 + shared $0509 reconstructs the Boomerang Orb message; Android EN 786 represents strict EN+FR duplicate copies. The shared suffix owns the final French exclamation."
+    },
+    {
+      "event_id": "0507",
+      "parts": [
+        "CA:597C"
+      ],
+      "android_ids": [
+        1164
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round43",
+      "relation": "round43_weapon_orb_prefix",
+      "note": "$0507 + shared $0509 reconstructs the Javelin Orb message; Android EN 1164 represents strict EN+FR duplicate copies. The shared suffix owns the final French exclamation."
+    },
+    {
+      "event_id": "0509",
+      "parts": [
+        "CA:598C"
+      ],
+      "android_ids": [
+        952
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round43",
+      "relation": "round43_weapon_orb_suffix",
+      "note": "$0509 contributes the same terminal \"'s Orb!\" to all eight weapon-specific events. Android stores complete messages, so 952 is a representative proven composition; only the common French terminal ' !' remains in this shared subevent."
+    },
+    {
+      "event_id": "07FA",
+      "parts": [
+        "CA:979D"
+      ],
+      "android_ids": [
+        6
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round43",
+      "relation": "round43_gameover_plural_slot",
+      "note": "$07FA returns literal 'them' on a non-single-character game-over branch. Android EN 6/7 are identical dynamic frames, while FR 6 is the plural realization and FR 7 is the PLAYER_NAME realization. The non-text branch therefore selects the plural middle phrase from FR 6."
+    },
+    {
+      "event_id": "07FB",
+      "parts": [
+        "CA:97A8"
+      ],
+      "android_ids": [
+        6
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round43",
+      "relation": "round43_gameover_plural_slot",
+      "note": "$07FB returns literal 'them' on the other non-single-character game-over branch. As for $07FA, the event flags select Android FR 6's plural middle phrase; PLAYER_NAME remains owned by the separate $07F3 path."
+    },
+    {
+      "event_id": "07FF",
+      "parts": [
+        "CA:98B2",
+        "CA:98C8"
+      ],
+      "android_ids": [
+        7
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round43",
+      "relation": "round43_gameover_dynamic_frame",
+      "note": "$07FF supplies the fixed frame around a call to $07FB, which eventually returns either literal 'them' or the unchanged $07F3 PLAYER_NAME(0). Android EN 6/7 are 546 strict duplicate frame copies arranged as 273 FR plural/name pairs. Anchor 7 provides the PLAYER_NAME frame; the reviewed redistribution serializes only its fixed prefix/suffix and leaves the dynamic slot to the existing SNES call chain."
+    },
+    {
+      "event_id": "0012",
+      "parts": [
+        "C9:090A"
+      ],
+      "android_ids": [
+        378
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round44",
+      "relation": "round44_local_sequence_anchor",
+      "note": "Within caller $0180, the surrounding sequence is already locked to Android 372-376; after $0011 -> 376 'Head for Gaia's Navel!', Android 377 is a mobile-only warning and 378 is exactly 'And don't follow me!'. The SNES carrier says 'Don't come with me!', so 378 is the unique scene identity."
+    },
+    {
+      "event_id": "001F",
+      "parts": [
+        "C9:0983"
+      ],
+      "android_ids": [
+        2451
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round44",
+      "relation": "round44_jehk_out_with_return_layout",
+      "note": "The reusable subevent precedes four already-aligned party reactions and destination reports 2452-2462. Android 2451 is exactly 'The Sage is out!'; the older SNES 'Go away!' clause is redundant with the separately mapped Jehk rejection line $03DD -> 2445. Preserve one terminal SNES newline so the caller reaction begins on the next physical line."
+    },
+    {
+      "event_id": "0126",
+      "parts": [
+        "C9:3A39"
+      ],
+      "android_ids": [
+        3438
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round44",
+      "relation": "round44_player_name_followup_layout",
+      "note": "Immediately after the already-aligned sword-pull sequence, Android 3437 says the village is blocked and 3438 is '%S(0,0): I can cut through with this!'. The SNES event contains PLAYER_NAME(0) followed by ':I can cut through with this sword!', making 3438 unique. Keep PLAYER_NAME in stock command ownership and add explicit layout so a maximum nine-character name cannot wrap implicitly."
+    },
+    {
+      "event_id": "025F",
+      "parts": [
+        "C9:A255"
+      ],
+      "android_ids": [
+        1362
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round44",
+      "relation": "round44_local_sequence_anchor",
+      "note": "The local NPC block already maps $025D -> 1363 'Get the king's permission first!' and $025E -> 1364 'You may pass!'. Android 1362 'The king is in his chambers.' is the unique missing predecessor for SNES 'The king's inside.'."
+    },
+    {
+      "event_id": "02E6",
+      "parts": [
+        "C9:C68A"
+      ],
+      "android_ids": [
+        2567
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round44",
+      "relation": "round44_local_sequence_anchor",
+      "note": "Tasnica neighbors are already locked around Android 2562-2565. Android 2567 'Emperor Vandole's after our king! That scoundrel!' is the unique scene expansion of SNES 'The Emperor's after our King!'."
+    },
+    {
+      "event_id": "03AC",
+      "parts": [
+        "C9:E32D"
+      ],
+      "android_ids": [
+        1950
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round44",
+      "relation": "round44_local_sequence_anchor",
+      "note": "The surrounding Northtown NPCs are already locked to Android 1948, 1949, 1951, 1952 and 1953. Android 1950 is the sole missing slot and expands SNES 'We once fought the Republic.' into the citizen's personal wartime memory."
+    },
+    {
+      "event_id": "0320",
+      "parts": [
+        "C9:CE3D"
+      ],
+      "android_ids": [
+        110
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round44",
+      "relation": "round44_parameterized_inn_price_identity",
+      "note": "The stock caller supplies numeric price 5 between shared $0330/$0331; Android 110 is exactly the complete 5-GP standard inn prompt. Identity belongs to this parameterized path while serialization keeps the existing shared French template."
+    },
+    {
+      "event_id": "0321",
+      "parts": [
+        "C9:CE46"
+      ],
+      "android_ids": [
+        229
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round44",
+      "relation": "round44_parameterized_inn_price_identity",
+      "note": "The stock caller supplies numeric price 10 between shared $0330/$0331; Android 229 is a strict EN+FR copy of the complete 10-GP standard prompt (272 is an equivalent duplicate)."
+    },
+    {
+      "event_id": "0322",
+      "parts": [
+        "C9:CE50"
+      ],
+      "android_ids": [
+        502
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round44",
+      "relation": "round44_parameterized_inn_price_identity",
+      "note": "The stock caller supplies numeric price 15 between shared $0330/$0331; Android 502 is exactly the complete 15-GP standard prompt."
+    },
+    {
+      "event_id": "0324",
+      "parts": [
+        "C9:CE64"
+      ],
+      "android_ids": [
+        1365
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round44",
+      "relation": "round44_parameterized_inn_price_identity",
+      "note": "The stock caller supplies numeric price 50 between shared $0330/$0331; Android 1365 is a representative strict EN+FR duplicate of the complete 50-GP standard prompt (1644/1750 are equivalent copies)."
+    },
+    {
+      "event_id": "0325",
+      "parts": [
+        "C9:CE6E"
+      ],
+      "android_ids": [
+        1907
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round44",
+      "relation": "round44_parameterized_inn_price_identity",
+      "note": "The stock caller supplies numeric price 100 between shared $0330/$0331; Android 1907 is exactly the complete 100-GP standard prompt."
+    },
+    {
+      "event_id": "0326",
+      "parts": [
+        "C9:CE79"
+      ],
+      "android_ids": [
+        1961
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round44",
+      "relation": "round44_parameterized_inn_price_identity",
+      "note": "The stock caller supplies numeric price 120 between shared $0330/$0331; Android 1961 is exactly the complete 120-GP standard prompt."
+    },
+    {
+      "event_id": "0327",
+      "parts": [
+        "C9:CE84"
+      ],
+      "android_ids": [
+        2319
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round44",
+      "relation": "round44_parameterized_inn_price_identity",
+      "note": "The stock caller supplies numeric price 150 between shared $0330/$0331; Android 2319 is exactly the complete 150-GP standard prompt."
+    },
+    {
+      "event_id": "0328",
+      "parts": [
+        "C9:CE8F"
+      ],
+      "android_ids": [
+        2498
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round44",
+      "relation": "round44_parameterized_inn_price_identity",
+      "note": "The stock caller supplies numeric price 200 between shared $0330/$0331; Android 2498 is exactly the complete 200-GP standard prompt."
+    },
+    {
+      "event_id": "00C4",
+      "parts": [
+        "C9:1A62"
+      ],
+      "android_ids": [
+        1626
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round45",
+      "relation": "round45_exact_duplicate_scene_position",
+      "note": "SNES 'Huh!? All gone?' has two exact Android-English copies (1626/1689). Android 1626 sits in the Kakkara/Amar block immediately after the Ice Country/warm-town discussion and before King Amar, whereas 1689 belongs to the unrelated game-over block. The French payloads are semantically identical apart from leading layout, so 1626 is the unique scene identity."
+    },
+    {
+      "event_id": "01B6",
+      "parts": [
+        "C9:6AD2",
+        "C9:6B5A"
+      ],
+      "android_ids": [
+        584
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round45",
+      "relation": "round45_watts_shortcut_redistribution",
+      "note": "The two SNES carriers combine exactly to Android EN 584: 'And only I can do it!...shortcut...This will make it a lot easier for you!'. Android FR redistributes the shortcut introduction into already-owned slot 583 and the post-movement continuation into FR-only slot 585. Keep C9:6AD2 empty because existing C9:6A8A already renders the official shortcut introduction, then place slot 585 on C9:6B5A after the unchanged movement sequence."
+    },
+    {
+      "event_id": "01DA",
+      "parts": [
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "C9:7E64",
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "C9:7E72",
+        {
+          "command": "player_name",
+          "index": 0
+        },
+        "C9:7E81"
+      ],
+      "android_ids": [
+        676,
+        677
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round45",
+      "relation": "round45_girl_name_resegmentation",
+      "note": "The complete naming exchange is locked between Android 675 and the young-lady naming prompt 679. Android 676 owns '%S(0,0): My name is %S(0,0).' and 677 owns the intervening Girl response ending on 'I'm'. Android FR 677 deliberately removes the third boy-name repetition. Preserve the first two PLAYER_NAME(0) commands, omit only the third command immediately before C9:7E81, and serialize the official 676+677 French across the three SNES carriers."
+    },
+    {
+      "event_id": "04F0",
+      "parts": [
+        "CA:4D71"
+      ],
+      "android_ids": [
+        2541
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round45",
+      "relation": "round45_tasnica_object_state",
+      "note": "ROM map-object table $0018 contains two $02E0 guards ('This is the castle of Tasnica.' -> Android 2539) and object #2 -> $04F0. Android 2540-2541 is the same entrance anti-spy gate; 2541 says nobody is being let in and uniquely expands SNES 'No one's allowed now!'."
+    },
+    {
+      "event_id": "01CE",
+      "parts": [
+        "C9:7827"
+      ],
+      "android_ids": [
+        536
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round50",
+      "relation": "choice_prompt_split",
+      "note": "Android EN 536 is exactly the donation prompt and ends immediately before Android EN 537 'Yes'. SNES C9:7827 contains the prompt plus the stock opening '(' immediately before CHOICE_BEGIN, so 536 owns this carrier without crossing the choice command."
+    },
+    {
+      "event_id": "01CE",
+      "parts": [
+        "C9:7856"
+      ],
+      "android_ids": [
+        537
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round50",
+      "relation": "choice_option_split",
+      "note": "Android EN 537 is the affirmative 'Yes' slot between prompt 536 and already-aligned No 538. SNES C9:7856 is exactly the first CHOICE_OPTION label ('Okay'), so this is a structure-proven segmentation of the already-owned 536+537 unit."
+    },
+    {
+      "event_id": "03BA",
+      "parts": [
+        "C9:E57D"
+      ],
+      "android_ids": [
+        1956,
+        1957
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round85",
+      "relation": "round85_android_fr_continuation_redistribution",
+      "note": "Android EN 1956 owns the full SNES thought, while Android FR splits it across 1956 (world war) and 1957 (fear for family). Keep both FR units on this NPC."
+    },
+    {
+      "event_id": "03BB",
+      "parts": [
+        "C9:E5BF"
+      ],
+      "android_ids": [
+        1955
+      ],
+      "confidence": "very_high_structural_review",
+      "provenance": "round85",
+      "relation": "round85_android_fr_local_redistribution",
+      "note": "Android FR 1957 is the continuation of the previous NPC, so this large-family NPC must instead receive local Android FR 1955, which carries the official large-family/cooking line."
+    },
+    {
+      "event_id": "067E",
+      "parts": [
+        "CA:8E72"
+      ],
+      "android_ids": [
+        101254
+      ],
+      "android_namespace": "systxt",
+      "confidence": "very_high_structural_review",
+      "provenance": "round46",
+      "relation": "round46_systxt_chest_money",
+      "note": "All callers $068A-$068E invoke $067E as the generic 1000-GP chest subevent. Android systxt 101254 is the chest-specific 'Found $0d GP!' entry, adjacent to the Leather Whip and Magic Rope chest records 101255-101256; this adjacency disambiguates it from the unrelated duplicate systxt 100177."
+    },
+    {
+      "event_id": "067F",
+      "parts": [
+        "CA:8E8F"
+      ],
+      "android_ids": [
+        101254
+      ],
+      "android_namespace": "systxt",
+      "confidence": "very_high_structural_review",
+      "provenance": "round46",
+      "relation": "round46_systxt_chest_money",
+      "note": "The many $0680-$069F chest callers invoke $067F as the generic 50-GP reward subevent. Android systxt 101254 is the same parameterized chest-money message; the SNES hard-coded amount is substituted into the official French template."
+    },
+    {
+      "event_id": "0687",
+      "parts": [
+        "CA:8EEF"
+      ],
+      "android_ids": [
+        469
+      ],
+      "android_namespace": "scrtxt",
+      "confidence": "very_high_structural_review",
+      "provenance": "round46",
+      "relation": "round46_systxt_chest_localization_override",
+      "note": "$0687 grants item $06 via OP_1E 46, proving Magic Rope and retaining scrtxt EN 469 as the identity layer. scrtxt FR 469 is wrong (Fouet); the chest-specific systxt 101256 payload says Corde magique and is used only as localization-correction evidence, not as Android-English identity.",
+      "localization_systxt_id": 101256
+    },
+    {
+      "event_id": "0689",
+      "parts": [
+        "CA:8F20"
+      ],
+      "android_ids": [
+        769
+      ],
+      "android_namespace": "scrtxt",
+      "confidence": "very_high_structural_review",
+      "provenance": "round46",
+      "relation": "round46_systxt_chest_localization_override",
+      "note": "$0689 grants weapon $24 via OP_1E A4, proving Whip/Leather Whip and retaining scrtxt EN 769 as the identity layer. The older Round-39 stock-English workaround is superseded because chest-specific systxt 101255 supplies the correct official French Fouet en cuir payload.",
+      "localization_systxt_id": 101255
+    }
+  ]
+}

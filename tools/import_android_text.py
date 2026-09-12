@@ -64,8 +64,21 @@ DIALOGUE_MAPPING_LAYOUT_RECIPES = ROOT / "mappings" / "android" / "dialogues_map
 DIALOGUE_LAYOUT_SEARCH_RECIPES = ROOT / "mappings" / "android" / "dialogues_layout_search_recipes.json"
 DIALOGUE_CHOICE_LAYOUT_RECIPES = ROOT / "mappings" / "android" / "dialogues_choice_layout_recipes.json"
 DIALOGUE_COVERAGE_REPAIR_RECIPES = ROOT / "mappings" / "android" / "dialogues_coverage_repair_recipes.json"
+DIALOGUE_REVIEWED_ALIGNMENT_RECIPES = ROOT / "mappings" / "android" / "dialogues_reviewed_alignment_recipes.json"
 DIALOGUE_SOURCE = ROOT / "assets" / "dialogues.json"
 DIALOGUE_MANUAL_SUPPLEMENTS = ROOT / "translations" / "dialogues_manual_supplements.json"
+
+
+
+def _load_recipe_document(path: Path, *, label: str, expected: dict) -> dict:
+    """Load a structural recipe document and validate its schema markers."""
+    document = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(document, dict):
+        raise ValueError(f"{label}: recipe root must be an object")
+    for key, value in expected.items():
+        if document.get(key) != value:
+            raise ValueError(f"{label}: expected {key}={value!r}")
+    return document
 
 INTRO_ANDROID_IDS = tuple(range(3445, 3453))
 INTRO_TARGET_IDS = (
@@ -79,1383 +92,8 @@ INTRO_TARGET_IDS = (
     "CA:0E21",
 )
 
-# These mappings are deliberately tiny. They are a research checkpoint, not a
-# whole-game heuristic. Each accepted pair is independently the best lexical
-# candidate and is also supported by an ordered local scene run.
-DIALOGUE_PILOT_SCENES = (
-    {
-        "event_id": "0106",
-        "label": "waterfall conversation",
-        "pairs": (
-            ("C9:2900", 3482),
-            ("C9:294C", 3484),
-            ("C9:299C", 3486),
-            ("C9:29E8", 3488),
-            ("C9:2A3D", 3490),
-        ),
-    },
-    {
-        "event_id": "002C",
-        "label": "Sergo follow-up",
-        "pairs": (
-            ("C9:0CCF", 2675),
-            ("C9:0D06", 2676),
-        ),
-    },
-)
 
-# Examples that must remain outside automatic import despite apparently strong
-# text matches. They exercise duplicate and one-to-many failure modes.
-
-# Candidate round 2. Unlike DIALOGUE_PILOT_SCENES, these units are not yet
-# accepted mappings. They are deliberately richer review cases that exercise
-# placeholder reconstruction and one-to-many/many-to-one/block alignment.
-# ``snes_parts`` references canonical source text IDs and explicit dynamic-name
-# placeholders; no translated prose is stored here.
-DIALOGUE_REVIEW_ROUND2 = (
-    {
-        "event_id": "010C",
-        "label": "Potos village - Mana Sword aftermath",
-        "units": (
-            (("C9:2CBD", ("player_name", 0), "C9:2CC5"), (42,), "many_snes_parts_to_one_android", "very_high_candidate", "PLAYER_NAME is explicit between two SNES text tokens."),
-            (("C9:2D10",), (44,), "one_to_one", "very_high_candidate", "Distinct speaker and wording; ordered local block."),
-            (("C9:2D37",), (45,), "one_to_one", "very_high_candidate", "Distinct speaker and wording; ordered local block."),
-            (("C9:2D83",), (46,), "one_to_one", "very_high_candidate", "Distinct speaker and wording; ordered local block."),
-            (("C9:2DE5", ("player_name", 0), "C9:2DF5"), (47,), "many_snes_parts_to_one_android", "very_high_candidate", "Android combines speaker prefix, PLAYER_NAME and following SNES text."),
-            (("C9:2E2F",), (48, 49), "one_snes_to_many_android", "very_high_candidate", "One SNES text token contains two speaker lines that Android splits."),
-            (("C9:2E70", "C9:2EBD"), (50,), "many_snes_to_one_android", "very_high_candidate", "Two SNES text tokens form one Android sentence."),
-            (("C9:2ED2", "C9:2EEE"), (51,), "many_snes_to_one_android", "very_high_candidate", "Two SNES text tokens form one Android sentence."),
-            (("C9:2F23",), (52,), "one_to_one", "very_high_candidate", "Ordered local block."),
-            (("C9:2F5B",), (53,), "one_to_one", "very_high_candidate", "Ordered local block."),
-            (("C9:2FB3",), (54,), "one_to_one", "very_high_candidate", "Ordered local block."),
-            (("C9:3003",), (56,), "one_to_one", "very_high_candidate", "Ordered local block; Android 55 is an empty localization slot."),
-            (((("player_name", 0)), "C9:306A"), (58, 59), "one_snes_with_placeholder_to_many_android", "very_high_candidate", "SNES embeds two speakers in one text token after PLAYER_NAME; Android splits them."),
-            (("C9:30A8",), (61,), "one_to_one", "manual_review_semantic", "English is an exact match, but the corresponding French slot is not a literal/obvious translation; verify scene semantics."),
-            ((("player_name", 0), "C9:3104"), (62,), "placeholder_plus_snes_to_one_android", "very_high_candidate", "Android omits the preceding standalone SNES 'ELLIOTT:You!' fragment; this unit covers only the player line."),
-            (("C9:311F",), (63,), "one_to_one", "very_high_candidate", "Distinct earthquake line."),
-            (("C9:3162",), (65,), "one_to_one", "very_high_candidate", "Distinct scream; Android 64 is empty."),
-            (("C9:317D", "C9:319E"), (117,), "many_snes_to_one_android", "very_high_candidate", "Android merges the two SNES monster-warning text tokens."),
-            (("C9:31D4",), (119,), "one_to_one", "very_high_candidate", "Distinct tutorial line; Android 120 is an empty localization slot."),
-        ),
-    },
-    {
-        "event_id": "00B3",
-        "label": "Gold City - Light Palace / tower key NPC",
-        "units": (
-            (("C9:16DD",), (2479,), "one_to_one", "very_high_candidate", "Three-line NPC speech begins an exact ordered run."),
-            (("C9:171C",), (2480,), "one_to_one", "very_high_candidate", "Second entry of the same ordered NPC run."),
-            (("C9:1767",), (2481,), "one_to_one", "very_high_candidate", "Third entry of the same ordered NPC run."),
-        ),
-    },
-    {
-        "event_id": "0138",
-        "label": "Luka - Undine directions",
-        "units": (
-            (("C9:3EB0", "C9:3EFC", "C9:3F48"), (869, 870, 871), "block_redistribution", "block_candidate", "English aligns 1:1 in order, but French redistributes the same scene content across the three slots; validate as a block, not per ID."),
-        ),
-    },
-)
-
-
-# Round 6 records high-confidence structural correspondences discovered while
-# auditing partial events. These are not lexical guesses: each unit is anchored
-# by an ordered Android-English scene block and/or already accepted adjacent
-# choice options. Android may reattribute a reaction speaker or split a SNES
-# prompt + options across separate localization records.
-DIALOGUE_REVIEW_ROUND6 = (
-    {
-        "event_id": "0083",
-        "label": "Geshtar short speaker-labelled reaction",
-        "units": (
-            (("C9:13BF",), (927,), "speaker_label_alignment", "very_high_structural", "Exact Geshtar: Idiot! Android line immediately precedes already accepted Android 928 in the same trapped-player exchange."),
-        ),
-    },
-    {
-        "event_id": "0187",
-        "label": "Girl warning reattributed to PLAYER_NAME",
-        "units": (
-            (("C9:5B12",), (359,), "speaker_reattribution", "very_high_structural", "SNES Girl: Look out! is the exact Android Look out! line; Android represents the girl with PLAYER_NAME after the naming sequence."),
-        ),
-    },
-    {
-        "event_id": "024B",
-        "label": "Repeated moogle reaction triplet",
-        "units": (
-            (("C9:9EC0",), (1229,), "speaker_label_alignment", "very_high_structural", "Android repeats the same Moogle / laughing / crying triplet several times; 1229 begins one exact triplet and the following two SNES fragments already use the identical localized reactions."),
-        ),
-    },
-    {
-        "event_id": "02EE",
-        "label": "Tiny sprite speaker-labelled exchange",
-        "units": (
-            (("C9:C830",), (2557,), "speaker_label_alignment", "very_high_structural", "Exact Girl: A tiny little sprite! line immediately precedes already accepted Android 2558 in the same two-line exchange."),
-        ),
-    },
-    {
-        "event_id": "04A1",
-        "label": "Fanha confrontation opening speaker redistribution",
-        "units": (
-            (("CA:17DA",), (2897,), "speaker_label_alignment", "very_high_structural", "Exact Fanha: You made it! opens the same contiguous Android confrontation whose 2899+ lines are already aligned."),
-            ((("player_name", 0), "CA:17EF"), (2898,), "speaker_reattribution", "very_high_structural", "SNES continuation is preceded by PLAYER_NAME 0 and corresponds exactly to Android PLAYER_NAME asking the same question immediately between 2897 and already accepted 2899."),
-        ),
-    },
-    {
-        "event_id": "051D",
-        "label": "Soldier trap reaction speaker-labelled line",
-        "units": (
-            (("CA:5C6C",), (2221,), "speaker_label_alignment", "very_high_structural", "Exact Soldier: Pipe down! Android line is bracketed by already accepted Android 2220 and 2222 in the same trap sequence."),
-        ),
-    },
-    {
-        "event_id": "0020",
-        "label": "Joch running gag - Tasnica",
-        "units": (
-            (("C9:09A7",), (2460,), "speaker_reattribution", "very_high_structural", "SNES 'All:What luck...' corresponds to Android 'What luck...'; Android FR reattributes the reaction to PLAYER_NAME. Ordered immediately before the Tasnica answer."),
-            (("C9:09B9",), (2461, 2462), "one_snes_to_many_android", "very_high_structural", "Android splits the same Tasnica answer into destination + direction records; ordered scene block is exact."),
-        ),
-    },
-    {
-        "event_id": "0021",
-        "label": "Joch running gag - Palace of Darkness",
-        "units": (
-            (("C9:09F8",), (2452,), "speaker_reattribution", "very_high_structural", "SNES 'All:WHAT!?' corresponds to Android 'WHAT!?'; Android FR reattributes the reaction to PLAYER_NAME. Android 2453 is already the accepted immediately following answer."),
-        ),
-    },
-    {
-        "event_id": "0022",
-        "label": "Joch running gag - Gold Isle",
-        "units": (
-            (("C9:0A44",), (2454,), "speaker_reattribution", "very_high_structural", "SNES 'All:Where is Joch?' corresponds to Android 'Where is Joch?'; Android FR reattributes the reaction to PLAYER_NAME."),
-            (("C9:0A58",), (2455, 2456), "one_snes_to_many_android", "very_high_structural", "Android splits the same Gold Isle answer into destination + direction records in the ordered Joch scene."),
-        ),
-    },
-    {
-        "event_id": "0023",
-        "label": "Joch running gag - Moon Palace",
-        "units": (
-            (("C9:0A8E",), (2457,), "speaker_reattribution", "very_high_structural", "SNES 'All:Surprise...' corresponds to Android 'Surprise...'; Android FR reattributes the reaction to PLAYER_NAME. Android 2458/2459 are already the accepted following answer."),
-        ),
-    },
-    {
-        "event_id": "0050",
-        "label": "Neko save prompt split from Yes/No",
-        "units": (
-            (("C9:10A5",), (198,), "choice_prompt_split", "very_high_structural", "Android 198/199/200 is the Save your game?/Yes/No triplet bracketed by the already aligned Neko stay block 194-196 and shop block 201-203."),
-        ),
-    },
-    {
-        "event_id": "0065",
-        "label": "Neko shop prompt split from Buy/Sell",
-        "units": (
-            (("C9:1236",), (201,), "choice_prompt_split", "very_high_structural", "Android 201/202/203 is the contiguous Purrrfectly.../Buy/Sell triplet; option 202 is already accepted for this SNES choice."),
-        ),
-    },
-    {
-        "event_id": "0099",
-        "label": "Neko initial shop question split from choice",
-        "units": (
-            (("C9:14FE",), (188,), "choice_prompt_split", "very_high_structural", "Android 188/189/190 is the contiguous Welcome/Need anything?/Whatcha got?/Not really choice block; option 190 is already accepted in this SNES event."),
-            (("C9:1512",), (189,), "choice_option_split", "very_high_structural", "Exact Whatcha got? option immediately precedes already accepted Android 190 Not really."),
-        ),
-    },
-    {
-        "event_id": "00DF",
-        "label": "Cannon Travel Water Palace/Pandora choice",
-        "units": (
-            (("C9:1DCF",), (420,), "choice_prompt_split", "very_high_structural", "Android 420/421/422 is the contiguous 50-GP prompt / Water Palace / Pandora block; Pandora 422 is already accepted for this event."),
-            (("C9:1DED",), (421,), "choice_option_split", "very_high_structural", "Water Palace is the option immediately preceding already accepted Pandora 422 in the same Android block."),
-        ),
-    },
-    {
-        "event_id": "00E0",
-        "label": "Cannon Travel Matango/Kakkara choice",
-        "units": (
-            (("C9:1E14",), (1773,), "choice_prompt_split", "very_high_structural", "Android 1773/1774/1775 is the contiguous 50-GP prompt / Matango / Kakkara block; Kakkara 1775 is already accepted for this event."),
-            (("C9:1E3D",), (1774,), "choice_option_split", "very_high_structural", "Matango is the option immediately preceding already accepted Kakkara 1775 in the same Android block."),
-        ),
-    },
-    {
-        "event_id": "00DC",
-        "label": "Pandora lodging Nope option split",
-        "units": (
-            (("C9:1DB6",), (271,), "choice_option_split", "very_high_structural", "Android 267/269/270/271 is the same ordered lodging exchange; Android 271 is the missing Nope option immediately after the already accepted Phew, okay option 270."),
-        ),
-    },
-    {
-        "event_id": "00E1",
-        "label": "Cannon Travel Matango/Ice Country split",
-        "units": (
-            (("C9:1E5F",), (1653,), "choice_prompt_split", "very_high_structural", "Android 1653-1656 is the Cannon Travel prompt followed by Matango, Ice Country and Empire; this SNES state exposes Matango/Ice Country."),
-            (("C9:1E98",), (1655,), "choice_option_split", "very_high_structural", "Ice Country is the Android option adjacent to Matango 1654 in the same Cannon Travel block."),
-        ),
-    },
-    {
-        "event_id": "00E3",
-        "label": "Cannon Travel numbered destination list split",
-        "units": (
-            (("C9:1F03",), (1654, 1655, 1656), "choice_destination_list", "very_high_structural", "SNES concatenates the three destination labels into a numbered list; Android 1654/1655/1656 stores Matango, Ice Country and The Empire as three adjacent localization records."),
-        ),
-    },
-    {
-        "event_id": "01EE",
-        "label": "Elinee send-outside prompt split from Yes/No",
-        "units": (
-            (("C9:88F7",), (763,), "choice_prompt_split", "very_high_structural", "Android 763/764/765 is the contiguous send-outside prompt / Yes / No block."),
-        ),
-    },
-    {
-        "event_id": "02A7",
-        "label": "Tasnica rescue-team leaving choice",
-        "units": (
-            (("C9:B580",), (1579, 1580), "choice_prompt_split", "very_high_structural", "Android splits the two SNES prompt sentences into 1579/1580, immediately followed by Yes/No 1581/1582."),
-        ),
-    },
-    {
-        "event_id": "05B0",
-        "label": "Eight-way numeric choice - missing six",
-        "units": (
-            (("CA:77FF",), (1884,), "choice_option_split", "very_high_structural", "Android 1879-1886 is the contiguous 1..8 option run; SNES options 1-5 and 7-8 were already aligned to the surrounding IDs."),
-        ),
-    },
-    {
-        "event_id": "066B",
-        "label": "Be gone / Well? prompt split from Yes/No",
-        "units": (
-            (("CA:8A79",), (1845,), "choice_prompt_split", "very_high_structural", "Android 1845/1846/1847/1848 is the contiguous Be gone!/Well?/Yes/No block."),
-            (("CA:8A8A",), (1846,), "choice_prompt_split", "very_high_structural", "Android Well? immediately precedes the Yes/No pair in the same block."),
-        ),
-    },
-)
-
-
-# Round 20 follows Cannon Travel's destination/branch structure instead of lexical similarity.
-DIALOGUE_REVIEW_ROUND20 = (
-    {"event_id":"00CD","label":"Cannon Travel Upper Land response","units":((("C9:1A8A",),(163,),"cannon_response_prefix","very_high_structural","Android 163 begins with the exact Upper Land response and appends the shared cannon-boarding instruction stored by SNES in event $00FC."),)},
-    {"event_id":"00D1","label":"Cannon Travel Water Palace / Upper Land choice","units":((("C9:1BDE",),(155,),"choice_prompt_split","very_high_structural","The SNES choice branches to $00FD (Water Palace) and $00CD (Upper Land); Android 155 precedes destination IDs 156/157/158 in the same Cannon Travel block."),(("C9:1BFD",),(156,),"choice_option_split","very_high_structural","Water Palace is Android 156 in the same destination block."),(("C9:1C0A",),(158,),"choice_option_split","very_high_structural","Upper Land is Android 158 in the same block; this SNES state omits the intermediate Gaia's Navel option."))},
-    {"event_id":"00E6","label":"Cannon Travel Kakkara return response","units":((("C9:1F92",),(1924,),"cannon_response_prefix","very_high_structural","Android 1924 begins with the same heading-back response; SNES then calls shared event $00FC."),)},
-    {"event_id":"00E7","label":"Cannon Travel Matango response","units":((("C9:1FD3",),(1657,),"cannon_response_prefix","very_high_structural","$00E1 branches to $00E7 for Matango; Android 1657 follows option 1654."),)},
-    {"event_id":"00E8","label":"Cannon Travel Ice Country response","units":((("C9:2000",),(1659,),"cannon_response_prefix","very_high_structural","$00E1 branches to $00E8 for Ice Country; Android 1659 is the matching response."),)},
-    {"event_id":"00E9","label":"Cannon Travel Empire response","units":((("C9:203E",),(1661,),"cannon_response_prefix","very_high_structural","The three-way $00E3 choice routes its third selection to $00E9; Android 1661 follows Empire option 1656."),)},
-    {"event_id":"00EA","label":"Cannon Travel Matango response","units":((("C9:207F",),(1776,),"cannon_response_prefix","very_high_structural","$00E0 branches to $00EA for Matango; Android 1776 follows option 1774."),)},
-    {"event_id":"00EB","label":"Cannon Travel Kakkara response","units":((("C9:20B8",),(1779,),"cannon_response_prefix","very_high_structural","$00E0 branches to $00EB for Kakkara; Android 1779 is the desert response in that scene."),)},
-    {"event_id":"00EC","label":"Cannon Travel Kakkara response","units":((("C9:20F7",),(1329,),"cannon_response_prefix","very_high_structural","$00D0 branches to $00EC for Kakkara; Android 1329 follows Kakkara option 1327."),)},
-    {"event_id":"00ED","label":"Cannon Travel Ice Country response","units":((("C9:2146",),(1332,),"cannon_response_prefix","very_high_structural","$00D0 branches to $00ED for Ice Country; Android 1332 is the matching response."),)},
-    {"event_id":"00EF","label":"Cannon Travel Potos response","units":((("C9:21A9",),(1257,),"cannon_response_prefix","very_high_structural","$00CF branches to $00EF for Potos; Android 1257 follows Potos option 1255."),)},
-    {"event_id":"00F0","label":"Cannon Travel Gaia's Navel response","units":((("C9:21D7",),(1259,),"cannon_response_prefix","very_high_structural","$00CF branches to $00F0 for Gaia's Navel; Android 1259 is the corresponding response."),)},
-    {"event_id":"00F2","label":"Cannon Travel retry Kakkara response","units":((("C9:2220",),(1330,),"cannon_response_prefix","very_high_structural","Android 1330 expands the exact SNES retry response and shares the boarding suffix."),)},
-    {"event_id":"00F4","label":"Cannon Travel Water Palace response","units":((("C9:229B",),(423,),"cannon_response_prefix","very_high_structural","$00DF branches to $00F4 for Water Palace; Android 423 follows option 421."),)},
-    {"event_id":"00F5","label":"Cannon Travel Pandora response","units":((("C9:22D6",),(425,),"cannon_response_prefix","very_high_structural","$00DF branches to $00F5 for Pandora; Android 425 follows option 422."),)},
-    {"event_id":"00FA","label":"Cannon Travel initial boarding response","units":((("C9:2390",),(152,),"cannon_response_prefix","very_high_structural","Android 152 begins with the exact warning and appends the shared boarding instruction."),)},
-    {"event_id":"00FC","label":"Cannon Travel shared boarding instruction","units":((("C9:246D",),(159,),"cannon_common_boarding_suffix","very_high_structural","SNES $00FC contains only 'Just slide into the cannon!'; Android folds that same suffix into destination responses. Android 159 is one representative proven block."),)},
-    {"event_id":"00FD","label":"Cannon Travel Water Palace response","units":((("C9:2502",),(159,),"cannon_response_prefix","very_high_structural","$00CE branches to $00FD for Water Palace; Android 159 follows option 156."),)},
-    {"event_id":"00FE","label":"Cannon Travel Gaia's Navel response","units":((("C9:2541",),(161,),"cannon_response_prefix","very_high_structural","$00CE branches to $00FE for Gaia's Navel; Android 161 follows option 157."),)},
-    {"event_id":"01D6","label":"Dwarf elder donation prompt split before Yes/No","units":((("C9:7C5B",),(535,536),"choice_prompt_split","very_high_structural","Android 535/536 are the contiguous appeal/donation prompt immediately followed by Yes/No 537/538."),(("C9:7C74",),(537,),"choice_option_split","very_high_structural","Yes is Android 537 immediately after the donation prompt."),(("C9:7C79",),(538,),"choice_option_split","very_high_structural","No is Android 538 in the same block."))},
-    {"event_id":"01EE","label":"Elinee send-outside Yes/No anchors","units":((("C9:891D",),(764,),"choice_option_split","very_high_structural","Prompt 763 is already accepted; Yes 764 follows immediately."),(("C9:8922",),(765,),"choice_option_split","very_high_structural","No 765 follows Yes 764 in the same block."))},
-)
-
-
-# Round 21 resolves three conservative PARTIEL resegmentation cases. Android
-# English remains the identity layer; the formatter may only redistribute the
-# exact Android French localization around stock SNES structural carriers.
-DIALOGUE_REVIEW_ROUND21 = (
-    {
-        "event_id": "0167",
-        "label": "Phanna sacrifice opening resegmented around WAIT and PLAYER_NAME",
-        "units": (
-            (("C9:4C65", ("player_name", 1), "C9:4C73"), (1058, 1059), "wait_player_resegmentation", "very_high_structural", "Android 1058/1059 is the contiguous opening immediately before accepted 1060. SNES stores the same turn as Phanna's ellipsis, WAIT $00, PLAYER_NAME(1), then the continuation; preserve both commands and redistribute only the official Android French around the existing name carrier."),
-        ),
-    },
-    {
-        "event_id": "01E5",
-        "label": "Girl rejoins party placeholder join",
-        "units": (
-            ((("player_name", 1), "C9:82B9"), (668,), "placeholder_join", "very_high_structural", "Android 668 '%S(1,0) joined!' is exactly between accepted 666/667 and the following scene. SNES already emits PLAYER_NAME(1) immediately before the text carrier."),
-        ),
-    },
-    {
-        "event_id": "0609",
-        "label": "Haunted Forest / Gaia's Navel merged Android direction row",
-        "units": (
-            (("CA:8690", "CA:86A5"), (415,), "paired_direction_labels", "very_high_structural", "Android 415 merges the two SNES destination labels into one ordered row with ↑/↓ markers. SNES keeps those markers as stock D1/D2 glyphs around a newline-only carrier, so only the two official French labels are redistributed."),
-        ),
-    },
-)
-
-# Round 22 resolves three more PARTIEL cases where Android English proves a
-# branch/staging resegmentation. French text is taken only from the original
-# Android localization; no manual wording is introduced.
-DIALOGUE_REVIEW_ROUND22 = (
-    {
-        "event_id": "01DD",
-        "label": "Sprite female-name branch resegmentation",
-        "units": (
-            (("C9:806F",), (616, 619), "branch_shared_prefix_female_address", "very_high_structural", "Android EN 616 supplies the shared Sprite warning and 619 is the immediately following female-address branch before exact girl response 620. Android FR deliberately redistributes the shared prefix across 616 and the female address into 619; combine only those official slots for the SNES female branch."),
-            ((("player_name", 1), "C9:80A1", ("player_name", 1), "C9:80A9"), (620,), "double_player_name_response", "very_high_structural", "Android 620 is the exact girl-name correction between female-address branch 619 and already accepted 621. SNES stores the same response around two existing PLAYER_NAME(1) commands."),
-        ),
-    },
-    {
-        "event_id": "02AE",
-        "label": "Amar Faerie Walnut timed-WAIT resegmentation",
-        "units": (
-            (("C9:B691", "C9:B6B9"), (1630,), "timed_wait10_resegmentation", "very_high_structural", "Android EN 1630 merges the two consecutive SNES Amar fragments around the stock WAIT $10 ('Faerie walnut... Huh...? You mean...'), immediately before exact 1631/1632. Keep WAIT $10 byte-for-byte and redistribute only complete sentences from official Android FR 1630 across its two existing text carriers."),
-        ),
-    },
-    {
-        "event_id": "07FE",
-        "label": "Ending wake-up staging redistribution",
-        "units": (
-            (("CA:982A", ("player_name", 0), "CA:982E"), (3399, 3401, 3406), "ending_wakeup_staging", "very_high_structural", "Android EN redistributes the same ending wake-up turn over 3399 (%S(0,0)...), 3401 (wake up...) and 3406 (You must not fall now...), immediately before already accepted 3409. Android FR redistributes those slots again; preserve the stock SNES PLAYER_NAME(0) and use only the official localized pieces."),
-        ),
-    },
-)
-
-
-# Round 25 is the second high-leverage structural pass.  It targets only
-# nearly-complete events where Android English proves the missing SNES carrier
-# through an exact local merge/continuation or a uniquely bracketed scene line.
-# Android French remains payload only.
-DIALOGUE_REVIEW_ROUND25 = (
-    {
-        "event_id": "01B5",
-        "label": "Watts axe explanation split across two SNES carriers",
-        "units": (
-            (("C9:6921", "C9:6954"), (577,), "many_snes_to_one_android", "very_high_structural", "Android EN 577 is exactly the concatenation of the two consecutive SNES thoughts: 'Wait! I know! Try holding this axe!' followed by the already aligned Mana-power explanation."),
-        ),
-    },
-    {
-        "event_id": "04FD",
-        "label": "Ending girl response between Ever and Dyluck",
-        "units": (
-            (("CA:4E59",), (3372,), "ordered_scene_equivalence", "very_high_structural", "SNES '...Me too!' is the girl's response in the unique slot directly between already aligned Android 3371 'Ever!' and 3374 'And Dyluck too...'; Android EN renders the same response as '...Me neither!'."),
-        ),
-    },
-    {
-        "event_id": "028B",
-        "label": "Sandship commander move order",
-        "units": (
-            (("C9:ABBE",), (1535,), "ordered_scene_equivalence", "very_high_structural", "Android EN 1535 'Hey! Didn't you hear what I just said? Move!' is the immediate continuation of already aligned 1534 and is semantically identical to SNES 'You heard him! Move!'."),
-        ),
-    },
-    {
-        "event_id": "01E7",
-        "label": "Elinee Thanatos explanation",
-        "units": (
-            (("C9:8512",), (779,), "ordered_scene_equivalence", "very_high_structural", "Android EN 779 is the unique Thanatos-description line directly between already aligned 778 and 780 in the same Elinee confrontation; both versions explain that Thanatos is the agent who will overthrow/crush the kingdom from within."),
-        ),
-    },
-    {
-        "event_id": "04B6",
-        "label": "Dryad palace failure reaction",
-        "units": (
-            (("CA:2237",), (2702,), "ordered_scene_equivalence", "very_high_structural", "Android EN 2702 'Oh no! It's not working!' is the unique reaction between already aligned 2700 seal failure and 2704 evacuation order; SNES expresses the same failed attempt as 'No good! It's too late!'."),
-        ),
-    },
-    {
-        "event_id": "0133",
-        "label": "Luka speaker prefix merged into question",
-        "units": (
-            (("C9:3C90", ("player_name", 0), "C9:3C97"), (811,), "speaker_prefix_join", "very_high_structural", "SNES stores 'LUKA:' separately from the already aligned question; Android EN 811 stores the same speaker label and question in one record."),
-        ),
-    },
-    {
-        "event_id": "0180",
-        "label": "Jema speaker prefix merged into greeting",
-        "units": (
-            (("C9:5634", ("player_name", 0), "C9:563B"), (372,), "speaker_prefix_join", "very_high_structural", "SNES stores 'JEMA:' separately from the already aligned greeting; Android EN 372 stores the same speaker label and greeting in one record."),
-        ),
-    },
-    {
-        "event_id": "002F",
-        "label": "Phanna speaker prefix merged into thanks",
-        "units": (
-            (("C9:0D94", ("player_name", 1), "C9:0D9D"), (2697,), "speaker_prefix_join", "very_high_structural", "SNES stores 'PHANNA:' separately from the already aligned thanks line; Android EN 2697 stores the same speaker label and line in one record."),
-        ),
-    },
-)
-
-
-# Round 31 is a narrow second-pass follow-up on nearly-complete events.  Every
-# added identity is justified by ordered Android-English structure; Android
-# French remains localization payload only.
-DIALOGUE_REVIEW_ROUND31 = (
-    {
-        "event_id": "0186",
-        "label": "Girl recognition and swordsman question merged into one SNES carrier",
-        "units": (
-            (("C9:591B",), (343, 344), "ordered_scene_segmentation", "very_high_structural", "Android EN 343/344 are the two consecutive recognition/question anchors immediately before already accepted 345-352. SNES stores the same exchange in one carrier; 344 is an exact 'You're a swordsman?' match and 343 is the localized adaptation of the preceding recognition line."),
-            ((("player_name", 0), "C9:5A85", ("player_name", 0), "C9:5A8C"), (351, 352), "player_name_presentation_join", "very_high_structural", "Android EN 351/352 is exactly the final name-presentation exchange. SNES stores the period after the second PLAYER_NAME in the following carrier, so bind both existing text carriers together while preserving both PLAYER_NAME commands in place."),
-        ),
-    },
-    {
-        "event_id": "0384",
-        "label": "Stove introduction boundary shifted by Android segmentation",
-        "units": (
-            (("C9:D913",), (1796,), "ordered_scene_resegmentation", "very_high_structural", "Android EN 1796 exactly covers the greeting/recognition portion of the first SNES carrier. Its trailing SNES sentence 'Watch this stove.' is the opening of already accepted Android 1797, so identity is preserved by assigning only 1796 here and leaving the existing C9:D951 -> 1797 mapping unchanged."),
-        ),
-    },
-    {
-        "event_id": "042D",
-        "label": "Thanatos escape reaction split around stock WAIT $10",
-        "units": (
-            ((('player_name', 0), "CA:14AB", "CA:14BA"), (3306,), "timed_wait10_resegmentation", "very_high_structural", "Android EN 3306 is the exact combined player-name reaction 'What the...!? Let's get out of here!'. SNES stores it in two consecutive carriers separated only by the stock WAIT $10; preserve the PLAYER_NAME, WAIT and the second carrier's stock leading newline."),
-            ((("player_name", 2), "CA:14D7"), (3307,), "trim_distant_player_context", "very_high_structural", "Android EN 3307 is exactly PLAYER_NAME(2): 'Uwaa!'. The automatic alignment had borrowed the later PLAYER_NAME(0) only as look-ahead context across a long action/effect bridge; keep that later name with the following mapping instead of treating it as part of this identity."),
-        ),
-    },
-)
-
-
-# Round 33 continues the high-leverage second pass.  The first three scenes
-# were established by local Android-English structure and then shown to the
-# user in the dedicated validation HTML together with the remaining short
-# candidates.  The complete batch below is user-validated.  Android English
-# remains the identity layer; Android French is payload only.
-DIALOGUE_REVIEW_ROUND33 = (
-    {
-        "event_id": "04E6",
-        "label": "Potos banishment scene resegmented across Android anchors",
-        "units": (
-            (("CA:3E7B", "CA:3EA8"), (76,), "ordered_scene_resegmentation", "very_high_structural", "Android EN 76 contains the two consecutive villager protests that SNES stores in two carriers."),
-            (("CA:3F11",), (80,), "contained_android_extension", "very_high_structural", "SNES begins the elder accusation; Android EN 80 contains the same opening followed by the sword explanation continued by the next mapped SNES carrier."),
-            (("CA:3F97",), (82,), "contained_android_extension", "very_high_structural", "SNES 'VILLAGER: It's settled.' is the exact opening of Android EN 82 before the already aligned continuation."),
-        ),
-    },
-    {
-        "event_id": "04E2",
-        "label": "Sprite village elder scene local resegmentation",
-        "units": (
-            (("CA:32F6",), (1282, 1283), "ordered_scene_resegmentation", "very_high_structural", "Android EN 1282/1283 is the same elder response/reaction block; French legitimately redistributes the reaction into the following localization record."),
-            (("CA:3335", "CA:3359"), (1285,), "ordered_scene_resegmentation", "very_high_structural", "Between exact anchors 1284 and 1286, Android EN has only 1285; SNES splits the elder's transition into 'Okay, okay!' and 'Tyke!'."),
-            (("CA:34DD",), (1297, 1298), "preserve_accepted_mapping", "very_high_structural", "Freeze the previously accepted Sylphid/Grandpa mapping byte-for-byte while adding the adjacent 1299 identity."),
-            (("CA:352B",), (1299,), "contained_android_equivalence", "very_high_structural", "SNES 'Sylphid: It is so!' and Android EN 1299 'Sylphid: As you wish!' are the same response in the tightly bracketed Sylphid exchange."),
-        ),
-    },
-    {
-        "event_id": "04E1",
-        "label": "Thanatos and Dyluck final scene high-confidence local identities",
-        "units": (
-            (("CA:2E21",), (3283,), "ordered_scene_equivalence", "very_high_structural", "Unique local Thanatos laugh immediately before the already aligned body-transfer speech."),
-            (("CA:2FDA",), (3294,), "contained_android_equivalence", "very_high_structural", "Both versions explain that Thanatos' spirit/life is eternal but each inhabited body is mortal."),
-            (("CA:301C",), (3295,), "contained_android_equivalence", "very_high_structural", "Both versions state that each new host makes Thanatos darker and that he feeds on hatred/destruction."),
-            (("CA:30F8",), (3302, 3303), "ordered_scene_resegmentation", "very_high_structural", "SNES combines the girl's plea and Thanatos' cry; Android EN stores them in consecutive 3302/3303."),
-            (("CA:3190",), (3305,), "ordered_scene_equivalence", "very_high_structural", "Exact local demand for the heroes' bodies immediately before the already aligned escape reaction."),
-        ),
-    },
-    {
-        "event_id": "02F1",
-        "label": "Single-line greeting between consecutive Android anchors",
-        "units": (
-            (("C9:C8A2",), (2287,), "user_validated_contextual_short_exact", "user_validated", "Exact 'Hello!' bracketed by event $02F0 -> 2286 and $02F2 -> 2288."),
-        ),
-    },
-    {
-        "event_id": "02F2",
-        "label": "Single-line cry between consecutive Android anchors",
-        "units": (
-            (("C9:C8AC",), (2288,), "user_validated_contextual_short_exact", "user_validated", "Exact 'Aieeee!' bracketed by $02F1 -> 2287 and $02F3 -> 2289."),
-        ),
-    },
-    {
-        "event_id": "066F",
-        "label": "Validated short command in local scene",
-        "units": (
-            (("CA:8E0B",), (1844,), "user_validated_contextual_short_exact", "user_validated", "User validated the local ...SCRAM...! identity after reviewing Android EN/FR context."),
-        ),
-    },
-    {
-        "event_id": "059D",
-        "label": "Validated locked-door line",
-        "units": (
-            (("CA:7731",), (2513,), "user_validated_contextual_short_exact", "user_validated", "User validated the exact Locked! identity in its local Android context."),
-        ),
-    },
-    {
-        "event_id": "0194",
-        "label": "Validated Papa cry",
-        "units": (
-            (("C9:5FA5",), (371,), "user_validated_contextual_short_exact", "user_validated", "User validated Papa!! -> Android EN 371 Papa!!! in the local Pandora scene."),
-        ),
-    },
-    {
-        "event_id": "0111",
-        "label": "Validated silent man label",
-        "units": (
-            (("C9:32EF",), (105,), "user_validated_contextual_short_exact", "user_validated", "User validated MAN: ... -> Android EN 105 Man: ... in the local Potos sequence."),
-        ),
-    },
-    {
-        "event_id": "04AB",
-        "label": "Imperial troop hold-off instruction",
-        "units": (
-            (("CA:1BED",), (2746,), "user_validated_contextual_duplicate", "user_validated", "User validated Android EN 2746 for the SNES two-line hold-off/catch-up instruction; 2747 is a duplicate localization record."),
-        ),
-    },
-    {
-        "event_id": "03A6",
-        "label": "Password 634 call separated from Enter tail",
-        "units": (
-            (("C9:E0FA",), (1889,), "user_validated_event_segmentation", "user_validated", "User validated the separated Android anchor 1889 for the standalone 634! event."),
-        ),
-    },
-    {
-        "event_id": "03A7",
-        "label": "Password Enter tail",
-        "units": (
-            (("C9:E113",), (1890,), "user_validated_event_segmentation", "user_validated", "User validated Android EN 1890 for the Enter! tail after reviewing the combined and separated Android variants."),
-        ),
-    },
-    {
-        "event_id": "05B1",
-        "label": "Password failure response",
-        "units": (
-            (("CA:781E",), (1874,), "user_validated_password_sequence", "user_validated", "User validated the first Go away! anchor in the password-entry block."),
-        ),
-    },
-    {
-        "event_id": "05B2",
-        "label": "Password progress 6 ? ?",
-        "units": (
-            (("CA:7833",), (1877,), "user_validated_password_sequence", "user_validated", "User validated the exact 6 ? ? progress anchor in the password-entry block."),
-        ),
-    },
-    {
-        "event_id": "05B3",
-        "label": "Password progress 6 3 ?",
-        "units": (
-            (("CA:784E",), (1878,), "user_validated_password_sequence", "user_validated", "User validated the exact 6 3 ? progress anchor in the password-entry block."),
-        ),
-    },
-    {
-        "event_id": "05B4",
-        "label": "Password 634 plus shared Enter tail",
-        "units": (
-            (("CA:7864",), (1887,), "shared_called_tail_combined_anchor", "user_validated", "Identity is user-validated: Android EN 1887 combines 634 with the Enter! tail supplied on SNES by called event $03A7. Keep the identity, but do not inject the combined French payload into CA:7864 or it would duplicate the translated $03A7 tail."),
-        ),
-    },
-)
-
-
-# Round 34 continues the second high-leverage pass with only explicit
-# Android-English identities supported by tight local scene context.  No new
-# generic matcher rule is introduced here.
-DIALOGUE_REVIEW_ROUND34 = (
-    {
-        "event_id": "00B6",
-        "label": "Gold City residence/hotel sign between adjacent local anchors",
-        "units": (
-            (("C9:1832",), (2478,), "tight_local_scene_anchor", "very_high_structural", "Android EN 2478 is the unique King Mammon residence/hotel line, directly bracketed by the same Gold City block: $00B7 -> 2477 and $00B3 -> 2479-2481."),
-        ),
-    },
-    {
-        "event_id": "00BC",
-        "label": "Gold City Watts shop line",
-        "units": (
-            (("C9:1984",), (2494,), "unique_local_scene_equivalence", "very_high_structural", "Android EN 2494 is the unique Watts line in the same Gold City localization block and closely matches the complete SNES carrier; the following Watts forge prompt is Android 2496."),
-        ),
-    },
-    {
-        "event_id": "013B",
-        "label": "Luka Jema status line in ordered Water Palace sequence",
-        "units": (
-            (("C9:4123",), (874,), "exact_duplicate_resolved_by_scene", "very_high_structural", "The SNES line has two exact Android-EN duplicates (479/874); 874 is fixed by the local Luka sequence, immediately after $0139 -> 872-873 and before the adjacent 875/876 continuation."),
-        ),
-    },
-    {
-        "event_id": "013F",
-        "label": "Luka hope line immediately before stolen-seed scene",
-        "units": (
-            (("C9:4437",), (875,), "contained_local_scene_anchor", "very_high_structural", "Android EN 875 contains the complete SNES sentence and sits directly between the resolved Luka anchors 874 and $013C -> 876."),
-        ),
-    },
-    {
-        "event_id": "0151",
-        "label": "Pandora family anti-war line",
-        "units": (
-            (("C9:4881",), (311,), "tight_local_scene_anchor", "very_high_structural", "Android EN 311 is the unique close equivalent in the local Pandora family block, between $0150 -> 309 and $0152 -> 312; Android 310 is only an ellipsis."),
-        ),
-    },
-    {
-        "event_id": "0158",
-        "label": "Pandora missing-family line",
-        "units": (
-            (("C9:4A76",), (296,), "unique_local_scene_equivalence", "very_high_structural", "Android EN 296 uniquely matches the missing wife/Phanna line inside the same local family/NPC block already occupied by 297-307 in neighboring SNES events."),
-        ),
-    },
-    {
-        "event_id": "01C0",
-        "label": "Dwarf Village location line",
-        "units": (
-            (("C9:6FA4",), (482,), "tight_local_scene_anchor", "very_high_structural", "Android EN 482 is the unique village-location line and immediately precedes the already aligned Dwarf Village run $01C1-$01C4 -> 483-487."),
-        ),
-    },
-    {
-        "event_id": "02E2",
-        "label": "Tasnica Serin settlement history line",
-        "units": (
-            (("C9:C58C",), (2548,), "unique_local_scene_equivalence", "very_high_structural", "Android EN 2548 uniquely carries the Serin/fifteen-years-ago castle history inside the Tasnica 2539-2565 scene block used by the neighboring events."),
-        ),
-    },
-    {
-        "event_id": "0390",
-        "label": "Ice Country resident moved from Gold City",
-        "units": (
-            (("C9:DC7A",), (1811,), "tight_local_scene_anchor", "very_high_structural", "Android EN 1811 is the unique near-exact line, directly between the local resident anchors 1808-1810 and $0391 -> 1812."),
-        ),
-    },
-    {
-        "event_id": "03E7",
-        "label": "Lofty Mountains meditation NPC",
-        "units": (
-            (("C9:EF61",), (2343,), "tight_local_scene_anchor", "very_high_structural", "Android EN 2343 is the unique meditation complaint, directly bracketed by $03E4 -> 2340-2342 and $03E8 -> 2344."),
-        ),
-    },
-)
-
-
-# Round 39 records the user's validation of the four contextual cases reviewed
-# with full SNES-US call-site/object evidence.  Three choose a concrete Android
-# provenance/payload for a SNES carrier reused or duplicated by Android.  $0689
-# keeps Android EN 769 as the proven identity but intentionally rejects the bad
-# Android-FR payload and routes the exact stock-USA source text through the
-# ordinary `french_dialogues` translation/relocation pipeline.
-DIALOGUE_REVIEW_ROUND39 = (
-    {
-        "event_id": "019C",
-        "label": "Pandora Castle guard - equivalent duplicated Android carrier",
-        "units": (
-            (("C9:61D3",), (385,), "equivalent_duplicate_positional_tiebreak", "user_validated", "Android EN/FR 381 and 385 are strictly identical guard lines. Full SNES context shows the shared Pandora guard carrier; choose 385 because it belongs to the adjacent 386-388 Pandora block while retaining 381 as documented equivalent provenance."),
-        ),
-    },
-    {
-        "event_id": "01EA",
-        "label": "Elinee treasure-chest reused SNES subevent",
-        "units": (
-            (("C9:86C6",), (759,), "reused_snes_subevent_primary_payload", "user_validated", "The same SNES subevent is called from two contexts that Android materializes as 759 and 762. Both Android EN strings are identical; choose FR payload 759 because it carries the shared utterance without the Android-only 'Elinice :' speaker prefix duplicated by the second call-site entry."),
-        ),
-    },
-    {
-        "event_id": "02A9",
-        "label": "Sandship Kakkara directions reused SNES subevent",
-        "units": (
-            (("C9:B5CE",), (1583,), "reused_snes_subevent_primary_payload", "user_validated", "The same SNES subevent is called twice and Android materializes the two call sites as 1577 and 1583. User accepts 1583 as the shared payload; it preserves 'Royaume de Kakkara' rather than changing Kakkara into a city."),
-        ),
-    },
-    {
-        "event_id": "0689",
-        "label": "Leather Whip chest - Android-FR localization error",
-        "units": (
-            (("CA:8F20",), (769,), "user_validated_stock_english_override", "user_validated", "Android EN 769 is structurally proven by the event item command: $0689 executes OP_1E A4, i.e. weapon $24 = Whip/Leather Whip. The true Magic Rope chest is $0687 with OP_1E 46, item $06. Android FR incorrectly gives the same 'Fouet en cuir' text to both 469 (Magic Rope) and 769. Keep exact stock-USA 'Found the Whip!' instead of importing that bad localization."),
-        ),
-    },
-)
-
-# Round 40 accepts only structurally locked resegmentation cases discovered
-# after the Round-39 full-context audit.  These are explicit reviewed mappings,
-# not a new generic fuzzy rule: Android EN identity is fixed by contiguous local
-# scene order and the SNES carrier/call structure.
-DIALOGUE_REVIEW_ROUND40 = (
-    {
-        "event_id": "00C0",
-        "label": "Gold City Mammon boast - unique missing anchor in reconstructed block",
-        "units": (
-            (("C9:1A33",), (2508,), "contiguous_scene_gap", "very_high_structural", "SNES events $00BB/$00BA/$00B9/$00B8/$00BD/$00BE already map to Android 2505/2506/2507/2509/2510/2511/2512. Mammon's Money...MONEY / all MINE boast is the only missing Gold City utterance and Android EN 2508 is the unique intervening Mammon: Gold... GOLD! / all MINE line."),
-        ),
-    },
-    {
-        "event_id": "011B",
-        "label": "Potos final banishment - second call-site after departure prompt",
-        "units": (
-            (("C9:3801",), (35,), "callsite_duplicate_disambiguation", "very_high_structural", "Android EN 31 and 35 repeat the same banishment sentence with different FR payloads. SNES $011B follows $011A Have everything you need? / Yes / No, exactly matching Android 32-34 followed by the second banishment at 35; therefore 35 is the correct call-site localization."),
-        ),
-    },
-    {
-        "event_id": "023C",
-        "label": "Neko save-buy-sell block - lines immediately before proven choices",
-        "units": (
-            (("C9:9D5F",), (1205,), "equivalent_duplicate_same_block_tiebreak", "very_high_structural", "Android EN/FR 1184 and 1205 are strict equivalent copies of Neko: Purrrfect weather!. The stock $023C choice carriers Save/Buy/Sell are already concretely aligned to 1207/1208/1209, so the copy in that exact block is 1205."),
-            (("C9:9D7C",), (1206,), "contiguous_prompt_replacement", "very_high_structural", "SNES What can I do for you? is the prompt immediately before Save/Buy/Sell. Android 1206 occupies exactly the same slot immediately before the already proven 1207-1209 choices; Android rewrites the generic prompt as Neko: Meow, busy travelers! I'll even save the game!. Identity is structural block position, not French wording."),
-        ),
-    },
-    {
-        "event_id": "0114",
-        "label": "Potos elder banishment apology - two SNES carriers to one Android line",
-        "units": (
-            (("C9:364B", "C9:369A"), (90,), "multi_carrier_android_extension", "very_high_structural", "The two SNES carriers form one continuous Elder speech. Android EN 90 contains the whole speech with minor wording expansion and sits in the same Potos banishment block immediately before the already aligned $0115-$0118 lines 99/98/96/97."),
-        ),
-    },
-    {
-        "event_id": "02C0",
-        "label": "Karon ferry sign - split SNES sign to one Android anchor",
-        "units": (
-            (("C9:BC60", "C9:BC72"), (2629,), "exact_split_sign_resegmentation", "very_high_structural", "The two positioned SNES carriers concatenate to Karon's Ferry / Out to lunch; Android EN 2629 is the unique combined sign and is bracketed by the adjacent Karon ferry events $02C1/$02C2."),
-        ),
-    },
-    {
-        "event_id": "03ED",
-        "label": "Mandala video - Mana-energy debate contiguous Android block",
-        "units": (
-            (("C9:F13C",), (2364, 2365, 2366), "contiguous_android_resegmentation", "very_high_structural", "The preceding carrier is already Android 2362-2363; this carrier contains the next three debate utterances in order and therefore maps to the immediately contiguous Android EN 2364-2366."),
-            (("C9:F18D",), (2367,), "contiguous_android_transition_extension", "very_high_structural", "This is the terminal static/noise carrier of the same video. Android EN 2367 is the immediately following static transition before the already aligned $03EB/$03EC material; the Android version spells out more of the static/beep sequence."),
-        ),
-    },
-    {
-        "event_id": "0555",
-        "label": "Dyluck confrontation - contiguous call-structured Android scene",
-        "units": (
-            (("CA:632B", ("player_name", 1), "CA:6337"), (2157,), "placeholder_join", "very_high_structural", "The SNES Dyluck prefix, PLAYER_NAME(1), and At last continuation are one utterance; Android EN 2157 is exactly the corresponding line between the already aligned 2156 and 2158 anchors."),
-            (("CA:63F1",), (2165,), "contained_local_scene_anchor", "very_high_structural", "Android EN 2165 is the unique Dyluck/Thanatos continuation immediately after the already aligned 2164 line. Android expands the explanation but preserves the same scene identity."),
-            (("CA:6423",), (2166, 2167), "contiguous_android_resegmentation", "very_high_structural", "The SNES carrier contains both You can't be serious / She LOVES you and I can't handle this; Android EN splits those clauses across the consecutive anchors 2166 and 2167, directly before the already aligned 2170 Dyluck recovery line."),
-        ),
-    },
-)
-
-
-# Round 41 records the user's validation of the determinate candidates from the
-# Round-40 contextual HTML.  The two genuinely unresolved HTML cases ($0235 and
-# $03CF) are intentionally not included here: no unique identity was proposed.
-DIALOGUE_REVIEW_ROUND41 = (
-    {
-        "event_id": "0013",
-        "label": "Pandora troops sent against the witch - mobile paraphrase in locked scene block",
-        "units": (
-            (("C9:0923",), (389,), "user_validated_scene_paraphrase", "user_validated", "Full SNES-US context and the Pandora/Elinee Android block identify 389 as the same state dialogue: the SNES says the troops sent to fight the witch were captured, while Android EN paraphrases them as soundly defeated. User validated this identity from the contextual HTML."),
-        ),
-    },
-    {
-        "event_id": "028E",
-        "label": "Republic secret sandship - Android extension in the same Sandship block",
-        "units": (
-            (("C9:AC32",), (1505,), "user_validated_android_extension", "user_validated", "Android EN 1505 begins with the exact Republic secret sandship identity and extends it with the Fire Palace mission. It sits directly in the Sandship block whose adjacent SNES events map to 1503-1507. User validated using the full-context HTML."),
-        ),
-    },
-    {
-        "event_id": "060A",
-        "label": "Cannon Travel reusable destination label - Water Palace",
-        "units": (
-            (("CA:86B5",), (421,), "user_validated_reused_label_anchor", "user_validated", "This RETURN subevent is the reusable Water Palace destination label. Android 421 is the Water Palace label paired with 422 Pandora in the same Cannon Travel destination block; the same anchor may legitimately be reused by another SNES caller. User validated this provenance."),
-        ),
-    },
-    {
-        "event_id": "060B",
-        "label": "Cannon Travel reusable destination label - Pandora",
-        "units": (
-            (("CA:86C3",), (422,), "user_validated_reused_label_anchor", "user_validated", "This RETURN subevent is the reusable Kingdom of Pandora/Pandora destination label. Android 422 is the paired Pandora label immediately after Water Palace 421 in the same Cannon Travel block. User validated using the full-context HTML."),
-        ),
-    },
-)
-
-
-# Round 42 records the user's validation of four contextually reconstructed
-# identities from the dedicated full-context HTML.  These remain explicit local
-# review evidence: no generic short-exact/fuzzy matcher is added or weakened.
-DIALOGUE_REVIEW_ROUND42 = (
-    {
-        "event_id": "0235",
-        "label": "Tonpole/Biting Lizard aftermath - trigger/map/reward locked short reaction",
-        "units": (
-            (("C9:9B74",), (951,), "user_validated_trigger_scene_duplicate", "user_validated", "The short SNES reaction is textually ambiguous, but map $0115's walk-on trigger enters $0232 -> $0235 on the Tonpole/Biting Lizard boss map; Android EN 951 is the matching reaction immediately before 952 Received Gloves Orb. Android FR adds a presentation-only %S(0,0) speaker label absent from the SNES carrier; the existing formatter policy removes only that label without inventing PLAYER_NAME."),
-        ),
-    },
-    {
-        "event_id": "03CF",
-        "label": "Phanna at the doctor's house - direct map-object/state provenance",
-        "units": (
-            (("C9:E993",), (1976,), "user_validated_map_object_state_duplicate", "user_validated", "SNES $03CF is the direct event of map $007E object #4, visible only for event flag $3A == 2. The same map object set contains $03B5/$03B6/$03B7 already aligned to Android 1972/1973/1971, while doctor event $03BD is 1974+1975; Android EN 1976 is therefore the unique Phanna ellipsis in this exact scene state."),
-        ),
-    },
-    {
-        "event_id": "0521",
-        "label": "Emperor guard - called welcome prefix merged into Android record",
-        "units": (
-            (("CA:5CE6",), (2203,), "called_prefix_android_merge_suffix", "user_validated", "SNES $0521 first calls $04D4, which renders 'Welcome. The Emperor awaits you.', then its own carrier renders 'To your right, please.'. Their normalized concatenation is exactly Android EN 2203; Android 2204 is a strict EN+FR duplicate. Serialize only the official French suffix after the Android presentation separator so the already translated $04D4 welcome is not duplicated."),
-        ),
-    },
-    {
-        "event_id": "01D5",
-        "label": "Sprite-village elder reusable positive-response subevent",
-        "units": (
-            (("C9:7C25",), (605,), "user_validated_reused_subevent_equivalent_extension", "user_validated", "SNES $01D5 is reused by three call-sites. Android EN 605 and 608 are strict duplicate copies of the same elder response and their French payloads are identical; 605 is the representative anchor. Android extends the SNES wording with one short instruction sentence, which fits the existing three-line carrier safely."),
-        ),
-    },
-)
-
-
-# Round 43 records the user's validation of the high-leverage structural
-# families from the dedicated contextual HTML.  These are explicit local
-# identities/resegmentations, not a new automatic matcher rule.  Dryad is
-# deliberately absent here because Android has no matching English anchor; its
-# user-authorized temporary French payload lives in the manual supplements file
-# and therefore remains outside Android identity coverage.
-DIALOGUE_REVIEW_ROUND43 = (
-    {
-        "event_id": "022F",
-        "label": "Game-over rescue line - PLAYER_NAME(2) joins two SNES carriers",
-        "units": (
-            (("C9:9B1B", ("player_name", 2), "C9:9B2C"), (1005,), "round43_player_name_resegmentation", "user_validated", "The two SNES carriers plus the unchanged PLAYER_NAME(2) command reconstruct exactly 'We can't leave %S(2,0) like this.'. Android EN 1005 is therefore exact; Android FR adds one official explanatory sentence. The reviewed formatter keeps PLAYER_NAME in place and adds an explicit page boundary so the maximum player name remains parser-safe."),
-        ),
-    },
-    {
-        "event_id": "02B9",
-        "label": "Salamando missing - shared prefix before a branch",
-        "units": (
-            (("C9:BAD6", "C9:BAE8"), (1618,), "round43_shared_branch_prefix_redistribution", "user_validated", "C9:BAD6 'Salamando is ' is shared by a conditional branch: the jump path continues in already-aligned $02BD -> Android 1619 ('Salamando's my friend...'), while the fallthrough combines C9:BAD6+C9:BAE8 into Android 1618 ('Salamando is gone!...'). Android FR restructures both lines, so the shared prefix must become empty and the complete 1618 French payload belongs only to the fallthrough carrier."),
-        ),
-    },
-    {
-        "event_id": "0358",
-        "label": "Gnome orb reaction - composed shared suffix",
-        "units": (
-            (("C9:D12C",), (2839,), "round43_shared_magic_prefix", "user_validated", "$0358 renders 'Gnome' then jumps to shared $0360 " + '"\'s magic / will work!"' + ", reconstructing exactly Android EN 2839. The full French sentence fits in the spirit-name carrier; $0360 is handled separately as shared layout-only suffix."),
-        ),
-    },
-    {
-        "event_id": "0359",
-        "label": "Undine orb reaction - composed shared suffix",
-        "units": (
-            (("C9:D13F",), (2844,), "round43_shared_magic_prefix", "user_validated", "$0359 + shared $0360 reconstruct exactly Android EN 2844 'Undine's magic will work!'. The full official French sentence is serialized in the name carrier."),
-        ),
-    },
-    {
-        "event_id": "035A",
-        "label": "Sylphid orb reaction - composed shared suffix",
-        "units": (
-            (("C9:D153",), (2852,), "round43_shared_magic_prefix", "user_validated", "$035A + shared $0360 reconstruct exactly Android EN 2852 'Sylphid's magic will work!'. The full official French sentence is serialized in the name carrier."),
-        ),
-    },
-    {
-        "event_id": "035B",
-        "label": "Salamando orb reaction - composed shared suffix",
-        "units": (
-            (("C9:D168",), (2857,), "round43_shared_magic_prefix", "user_validated", "$035B + shared $0360 reconstruct exactly Android EN 2857 'Salamando's magic will work!'. Android FR's established spirit name is Athanor."),
-        ),
-    },
-    {
-        "event_id": "035C",
-        "label": "Lumina orb reaction - composed shared suffix",
-        "units": (
-            (("C9:D17F",), (2865,), "round43_shared_magic_prefix", "user_validated", "$035C + shared $0360 reconstruct exactly Android EN 2865 'Lumina's magic will work!'. The full official French sentence is serialized in the name carrier."),
-        ),
-    },
-    {
-        "event_id": "035D",
-        "label": "Shade orb reaction - composed shared suffix",
-        "units": (
-            (("C9:D193",), (2870,), "round43_shared_magic_prefix", "user_validated", "$035D + shared $0360 reconstruct exactly Android EN 2870 'Shade's magic will work!'. Android FR's established spirit name is Ombre."),
-        ),
-    },
-    {
-        "event_id": "035E",
-        "label": "Luna orb reaction - composed shared suffix",
-        "units": (
-            (("C9:D1A6",), (2881,), "round43_shared_magic_prefix", "user_validated", "$035E + shared $0360 reconstruct exactly Android EN 2881 'Luna's magic will work!'. The full official French sentence is serialized in the name carrier."),
-        ),
-    },
-    {
-        "event_id": "0360",
-        "label": "Shared spirit-orb suffix - represented by Gnome anchor",
-        "units": (
-            (("C9:D1C0", "C9:D1CB"), (2839,), "round43_shared_magic_suffix_layout", "user_validated", "$0360 is the shared suffix called by the eight spirit-name events. Android stores each complete '[Spirit]'s magic will work!' sentence separately; 2839 is the representative proven composition. Because the full localized sentence is moved into each validated prefix (and Dryad uses a temporary manual supplement), these two carriers retain layout only and no duplicated words."),
-        ),
-    },
-    {
-        "event_id": "0500",
-        "label": "Gloves Orb gain - shared $0509 suffix",
-        "units": ((("CA:58B9",), (952,), "round43_weapon_orb_prefix", "user_validated", "$0500 renders 'Got Glove' then jumps to shared $0509 " + '"\'s Orb!"' + ", reconstructing the Gloves Orb message. Android EN 952 is a representative of strict EN+FR duplicates; the French terminal punctuation is left to the shared suffix."),),
-    },
-    {
-        "event_id": "0501",
-        "label": "Sword Orb gain - shared $0509 suffix",
-        "units": ((("CA:58D5",), (122,), "round43_weapon_orb_prefix", "user_validated", "$0501 + shared $0509 reconstructs the Sword Orb message; Android EN 122 represents strict EN+FR duplicate copies. The shared suffix owns the final French exclamation."),),
-    },
-    {
-        "event_id": "0502",
-        "label": "Axe Orb gain - shared $0509 suffix",
-        "units": ((("CA:58F1",), (1008,), "round43_weapon_orb_prefix", "user_validated", "$0502 + shared $0509 reconstructs the Axe Orb message; Android EN 1008 represents strict EN+FR duplicate copies. The shared suffix owns the final French exclamation."),),
-    },
-    {
-        "event_id": "0503",
-        "label": "Spear Orb gain - shared $0509 suffix",
-        "units": ((("CA:590B",), (631,), "round43_weapon_orb_prefix", "user_validated", "$0503 + shared $0509 reconstructs the Spear Orb message; Android EN 631 represents strict EN+FR duplicate copies. The shared suffix owns the final French exclamation."),),
-    },
-    {
-        "event_id": "0504",
-        "label": "Whip Orb gain - shared $0509 suffix",
-        "units": ((("CA:5927",), (901,), "round43_weapon_orb_prefix", "user_validated", "$0504 + shared $0509 reconstructs the Whip Orb message; Android EN 901 represents strict EN+FR duplicate copies. The shared suffix owns the final French exclamation."),),
-    },
-    {
-        "event_id": "0505",
-        "label": "Bow Orb gain - shared $0509 suffix",
-        "units": ((("CA:5942",), (934,), "round43_weapon_orb_prefix", "user_validated", "$0505 + shared $0509 reconstructs the Bow/Arrow Orb message; Android EN 934 represents strict EN+FR duplicate copies. The shared suffix owns the final French exclamation."),),
-    },
-    {
-        "event_id": "0506",
-        "label": "Boomerang Orb gain - shared $0509 suffix",
-        "units": ((("CA:595C",), (786,), "round43_weapon_orb_prefix", "user_validated", "$0506 + shared $0509 reconstructs the Boomerang Orb message; Android EN 786 represents strict EN+FR duplicate copies. The shared suffix owns the final French exclamation."),),
-    },
-    {
-        "event_id": "0507",
-        "label": "Javelin Orb gain - shared $0509 suffix",
-        "units": ((("CA:597C",), (1164,), "round43_weapon_orb_prefix", "user_validated", "$0507 + shared $0509 reconstructs the Javelin Orb message; Android EN 1164 represents strict EN+FR duplicate copies. The shared suffix owns the final French exclamation."),),
-    },
-    {
-        "event_id": "0509",
-        "label": "Shared weapon-orb suffix - represented by Gloves Orb anchor",
-        "units": ((("CA:598C",), (952,), "round43_weapon_orb_suffix", "user_validated", "$0509 contributes the same terminal " + '"\'s Orb!"' + " to all eight weapon-specific events. Android stores complete messages, so 952 is a representative proven composition; only the common French terminal ' !' remains in this shared subevent."),),
-    },
-    {
-        "event_id": "07FA",
-        "label": "Game-over plural dynamic slot - first helper",
-        "units": ((("CA:979D",), (6,), "round43_gameover_plural_slot", "user_validated", "$07FA returns literal 'them' on a non-single-character game-over branch. Android EN 6/7 are identical dynamic frames, while FR 6 is the plural realization and FR 7 is the PLAYER_NAME realization. The non-text branch therefore selects the plural middle phrase from FR 6."),),
-    },
-    {
-        "event_id": "07FB",
-        "label": "Game-over plural dynamic slot - second helper",
-        "units": ((("CA:97A8",), (6,), "round43_gameover_plural_slot", "user_validated", "$07FB returns literal 'them' on the other non-single-character game-over branch. As for $07FA, the event flags select Android FR 6's plural middle phrase; PLAYER_NAME remains owned by the separate $07F3 path."),),
-    },
-    {
-        "event_id": "07FF",
-        "label": "Game-over dynamic frame around $07FB/$07FA/$07F3 result",
-        "units": (
-            (("CA:98B2", "CA:98C8"), (7,), "round43_gameover_dynamic_frame", "user_validated", "$07FF supplies the fixed frame around a call to $07FB, which eventually returns either literal 'them' or the unchanged $07F3 PLAYER_NAME(0). Android EN 6/7 are 546 strict duplicate frame copies arranged as 273 FR plural/name pairs. Anchor 7 provides the PLAYER_NAME frame; the reviewed redistribution serializes only its fixed prefix/suffix and leaves the dynamic slot to the existing SNES call chain."),
-        ),
-    },
-)
-
-
-# Round 3 extends the validated method to two long, highly coherent scene runs
-# plus one localization-heavy Resistance scene. English identity remains the
-# primary acceptance signal; French wording may be adapted or redistributed.
-DIALOGUE_REVIEW_ROUND3 = (
-    {
-        "event_id": "04E0",
-        "label": "Jema - Pure Land directions after the Fortress revival",
-        "units": (
-            (("CA:288C", ("player_name", 0), "CA:2893"), (2654,), "placeholder_join", "very_high_candidate", "Speaker prefix + PLAYER_NAME + continuation match one Android anchor."),
-            (("CA:28B6",), (2655,), "one_to_one", "very_high_candidate", "Unique exact English match in a long ordered run."),
-            (("CA:28E7",), (2656,), "one_to_one", "very_high_candidate", "Unique exact English match in a long ordered run."),
-            (("CA:2932",), (2657,), "one_to_one", "very_high_candidate", "Unique exact English match in a long ordered run."),
-            (("CA:297D",), (2658,), "one_to_one", "very_high_candidate", "Unique exact English match in a long ordered run."),
-            (("CA:29C9",), (2659,), "one_to_one", "very_high_candidate", "Unique exact English match in a long ordered run."),
-            (("CA:29FE",), (2660,), "one_to_one", "very_high_candidate", "Unique exact English match in a long ordered run."),
-            (("CA:2A41",), (2661,), "one_to_one", "very_high_candidate", "Unique exact English match in a long ordered run."),
-            (("CA:2A92",), (2662,), "one_to_one", "very_high_candidate", "Unique exact English match in a long ordered run."),
-            (("CA:2AE5",), (2663,), "one_to_one", "very_high_candidate", "Unique exact English match in a long ordered run."),
-            ((("player_name", 0), "CA:2B31"), (2664,), "placeholder_join", "very_high_candidate", "PLAYER_NAME + source text match the final Android anchor of the run."),
-        ),
-    },
-    {
-        "event_id": "066D",
-        "label": "Santa Claus / Frost Gigas aftermath",
-        "units": (
-            ((("player_name", 0), "CA:8B0F"), (1851,), "placeholder_join", "very_high_candidate", "PLAYER_NAME + source text; Android 1852 is an empty localization slot."),
-            (("CA:8B2C", "CA:8B4A", "CA:8B53"), (1853,), "many_snes_to_one_android", "very_high_candidate", "SNES splits Rudolph's line around an event action; Android keeps one speech string."),
-            (("CA:8B69",), (1854,), "one_to_one", "very_high_candidate", "Unique exact English match in ordered local run."),
-            (("CA:8BAE",), (1855,), "one_to_one", "very_high_candidate", "Unique exact English match in ordered local run."),
-            (("CA:8BF7",), (1856,), "one_to_one", "very_high_candidate", "Unique exact English match in ordered local run."),
-            (("CA:8C2F",), (1857,), "one_to_one", "very_high_candidate", "Unique exact English match in ordered local run."),
-            (("CA:8C6A",), (1858,), "one_to_one", "very_high_candidate", "Unique exact English match in ordered local run."),
-            (("CA:8CAC",), (1859,), "one_to_one", "very_high_candidate", "Unique exact English match in ordered local run."),
-            (("CA:8CFC",), (1860,), "one_to_one", "very_high_candidate", "Unique exact English match in ordered local run."),
-            (("CA:8D4B",), (1861,), "one_to_one", "very_high_candidate", "Unique exact English match in ordered local run."),
-            (("CA:8D8A",), (1862,), "one_to_one", "very_high_candidate", "Unique exact English match in ordered local run."),
-            (("CA:8DC0",), (1863,), "one_to_one", "very_high_candidate", "Unique exact English match in ordered local run."),
-        ),
-    },
-    {
-        "event_id": "0511",
-        "label": "Resistance meeting before the Emperor truce",
-        "units": (
-            (("CA:59E1",), (1983,), "one_to_one", "very_high_candidate", "Unique exact English match at start of ordered scene run."),
-            (("CA:59F8",), (1984,), "one_to_one", "very_high_candidate", "Unique exact English match."),
-            (("CA:5A14",), (1985,), "one_to_one", "very_high_candidate", "Unique exact English match."),
-            (("CA:5A2F",), (1986,), "one_to_one", "very_high_candidate", "Unique exact English match."),
-            (("CA:5A7F",), (1987,), "one_to_one", "very_high_candidate", "Unique exact English match; Android 1988 adds dialogue absent from the SNES source before the next anchor."),
-            (("CA:5AA7",), (1990,), "one_to_one", "very_high_candidate", "Exact English identity resumes after Android-only 1988 and empty 1989."),
-            (("CA:5ADE",), (1991,), "one_to_one", "very_high_candidate", "Unique exact English match."),
-            (("CA:5B11",), (1992,), "one_to_one", "very_high_candidate", "Unique exact English match."),
-            (("CA:5B41", "CA:5B5A", "CA:5B5F", "CA:5B70"), (1993, 1994, 1995, 1996), "sequence_block_with_android_extra", "block_candidate", "SNES has three spoken statements plus a newline token; Android has four anchors because 1996 adds a Dyluck sentence absent from SNES. French redistributes the same local conversation across 1993-1996."),
-            (("CA:5BA4",), (1998,), "one_to_one", "very_high_candidate", "Unique exact English match after the sequence block; 1999 is an empty localization slot."),
-        ),
-    },
-)
-
-
-# Round 7 continues the structural PARTIEL audit. It deliberately targets
-# ordered Android-English gaps and prompt/choice blocks where neighboring
-# accepted IDs prove identity. It also corrects two short-label lexical matches
-# whose global exact wording pointed at the wrong Android scene.
-DIALOGUE_REVIEW_ROUND7 = (
-    {
-        "event_id": "00CE",
-        "label": "Cannon Travel Water Palace / Gaia's Navel choice",
-        "units": (
-            (("C9:1B18",), (156,), "choice_option_split", "very_high_structural", "Android 155/156/157 is the contiguous 50-GP prompt / Water Palace / Gaia's Navel block; prompt 155 is already accepted for this exact SNES event."),
-            (("C9:1B25",), (157,), "choice_option_split", "very_high_structural", "Gaia's Navel immediately follows Water Palace inside the same Android block anchored by accepted prompt 155."),
-        ),
-    },
-    {
-        "event_id": "00CF",
-        "label": "Cannon Travel Potos / Gaia's Navel choice",
-        "units": (
-            (("C9:1B60",), (1255,), "choice_option_split", "very_high_structural", "Android 1254/1255/1256 is the contiguous prompt / Potos Village / Gaia's Navel block; prompt 1254 and Gaia's Navel 1256 are already accepted in this exact event."),
-        ),
-    },
-    {
-        "event_id": "00D0",
-        "label": "Cannon Travel Kakkara / Ice Country choice",
-        "units": (
-            (("C9:1B85",), (1326,), "choice_prompt_split", "very_high_structural", "Android 1326/1327/1328 is the contiguous 50-GP prompt / Kakkara Desert / Ice Country block and matches this SNES destination pair in order."),
-            (("C9:1BB3",), (1327,), "choice_option_split", "very_high_structural", "Kakkara belongs to Android 1327 in this ordered Kakkara/Ice Country block; this replaces the earlier globally exact but scene-wrong Kakkara anchor."),
-            (("C9:1BBC",), (1328,), "choice_option_split", "very_high_structural", "Ice Country immediately follows Kakkara in the same Android 1326-1328 choice block."),
-        ),
-    },
-    {
-        "event_id": "00E2",
-        "label": "Cannon Travel Kakkara yes/no choice",
-        "units": (
-            (("C9:1EEC",), (1922,), "choice_option_split", "very_high_structural", "Android 1921/1922/1923 is the contiguous Kakkara 50-GP prompt / negative / affirmative choice block; prompt 1921 is already accepted for this event."),
-            (("C9:1EF3",), (1923,), "choice_option_split", "very_high_structural", "The affirmative SNES option belongs to Android 1923 in the same prompt block; this replaces the earlier globally exact but scene-wrong Sure! match."),
-        ),
-    },
-    {
-        "event_id": "0127",
-        "label": "Luka welcome line inside ordered Water Palace exchange",
-        "units": (
-            (("C9:3B05",), (916,), "speaker_label_alignment", "very_high_structural", "Exact Luka: Ha ha ha...welcome! fills the only Android-English gap between already accepted 915 and 917 in the same exchange."),
-        ),
-    },
-    {
-        "event_id": "0295",
-        "label": "Guard reaction before ordered ship-food exchange",
-        "units": (
-            (("C9:AF19",), (1516,), "speaker_label_alignment", "very_high_structural", "Exact Guard: Stop lollygagging! immediately precedes already accepted Android 1517 and 1518 in the same ship scene."),
-        ),
-    },
-    {
-        "event_id": "029C",
-        "label": "Morie / Meria confrontation ordered gaps",
-        "units": (
-            (("C9:B0E3",), (1545,), "speaker_label_alignment", "very_high_structural", "Exact Morie: Massage my back! immediately precedes the accepted 1546-1548 exchange."),
-            (("C9:B1B0",), (1552,), "speaker_reattribution", "very_high_structural", "SNES unlabeled Harrumph follows Morie's line and corresponds to Android PLAYER_NAME 1 Harrumph at 1552, bracketed by accepted 1551 and 1553."),
-            (("C9:B330",), (1564,), "one_snes_to_one_android_expanded", "very_high_structural", "SNES Soldier: No way! We're with Morie! is the same ordered line as Android 1564, whose English adds the staged departure immediately after accepted 1563."),
-        ),
-    },
-    {
-        "event_id": "0318",
-        "label": "Neko save-service line before Save/Buy/Sell options",
-        "units": (
-            (("C9:CD95",), (2377,), "choice_prompt_split", "very_high_structural", "Android 2376-2380 is the contiguous Neko greeting / save-service / Save / Buy / Sell block; 2376, 2378 and 2379 are already accepted in this exact event."),
-        ),
-    },
-    {
-        "event_id": "036D",
-        "label": "Scorpion boss send-off before robot overload",
-        "units": (
-            (("C9:D43A",), (1156,), "speaker_label_alignment", "very_high_structural", "Exact Boss send-off line precedes Android Robot 1157 and the already accepted overload exchange 1159-1161 in the same scene."),
-        ),
-    },
-    {
-        "event_id": "03AA",
-        "label": "Krissie resistance introduction ordered gaps",
-        "units": (
-            (("C9:E13E",), (2013,), "speaker_label_alignment", "very_high_structural", "Exact Krissie opening question immediately precedes already accepted Android 2014-2019."),
-            (("C9:E234",), (2020,), "speaker_label_alignment", "very_high_structural", "Exact Krissie: You KNOW Dyluck? fills the only gap between accepted 2019 and 2021 in the same conversation."),
-        ),
-    },
-    {
-        "event_id": "0558",
-        "label": "Girl awakening line in Thanatos scene",
-        "units": (
-            (("CA:65E8",), (2186,), "speaker_reattribution", "very_high_structural", "SNES unlabeled Where am I...? corresponds exactly to Android PLAYER_NAME 1 at 2186, between accepted Thanatos 2184 and PLAYER_NAME 0 line 2188."),
-        ),
-    },
-)
-
-
-# Round 8 focuses on user-reviewed PARTIEL events. Every mapping below is
-# supported by the ordered Android-English scene around already accepted
-# anchors; no French-only identity inference is used.
-DIALOGUE_REVIEW_ROUND8 = (
-    {
-        "event_id": "00AA",
-        "label": "Picard lighthouse ordered continuation",
-        "units": (
-            (("C9:1547",), (2303,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 2303-2306 is one contiguous lighthouse speech run. 2303 expands the SNES caretaker introduction and immediately precedes accepted 2304/2305."),
-            (("C9:15FE",), (2306,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 2306 begins with the exact SNES ancients-power sentence and directly follows accepted 2305 in the same lighthouse run."),
-        ),
-    },
-    {
-        "event_id": "0106",
-        "label": "Waterfall fragmented opening and falling scream",
-        "units": (
-            (("C9:2ADB",), (3494,), "one_to_one", "very_high_structural", "Exact final falling scream at Android 3494, immediately after already accepted 3492/3493."),
-        ),
-    },
-    {
-        "event_id": "0135",
-        "label": "Jema Mana study continuation",
-        "units": (
-            (("C9:3D64",), (887,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 886/887 is the contiguous Jema/Luka-followers speech. 887 starts with the complete SNES sentence and adds the Android continuation."),
-        ),
-    },
-    {
-        "event_id": "0147",
-        "label": "Pandora gate introduction",
-        "units": (
-            (("C9:45FD",), (237,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 237-240 is the exact ordered gate-guard run. 237 expands 'This is Pandora' to 'This is the Kingdom of Pandora' immediately before accepted 238-240."),
-        ),
-    },
-    {
-        "event_id": "0157",
-        "label": "Pandora ruins NPC continuation",
-        "units": (
-            (("C9:4A31",), (301,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 300/301 is the same two-part NPC speech; 301 closely matches the missing second SNES block and directly follows accepted 300."),
-        ),
-    },
-    {
-        "event_id": "0159",
-        "label": "Phanna and Dyluck exchange ordered gap",
-        "units": (
-            (("C9:4AFE",), (305,), "one_to_one", "very_high_structural", "Exact Android-English line 305 fills the only gap between accepted 304 and 306 in the same conversation."),
-        ),
-    },
-    {
-        "event_id": "0167",
-        "label": "Phanna sacrifice scene opening",
-        "units": (
-            (("C9:4C65",), (1058,), "speaker_label_alignment", "very_high_structural", "Android 1058 is the exact Phanna ellipsis and immediately precedes Android 1059 and the already aligned 1060-1068 scene. Android 1059 is semantically related to the following SNES line but remains layout-deferred because it resegments around PLAYER_NAME(1)."),
-        ),
-    },
-    {
-        "event_id": "0181",
-        "label": "Pandora king nightmare line",
-        "units": (
-            (("C9:5710",), (388,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 388 contains the complete SNES king nightmare/zombie sentence plus an Empire-warning expansion; it belongs to the same ordered court scene as 390-394."),
-        ),
-    },
-    {
-        "event_id": "0193",
-        "label": "Nobleman breaks off arrangement",
-        "units": (
-            (("C9:5F2E",), (369,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 369 is the same cancellation/indignation line and immediately follows accepted 368 in the Elman scene."),
-        ),
-    },
-    {
-        "event_id": "01A5",
-        "label": "Pandora king victory opening",
-        "units": (
-            (("C9:6366", ("player_name", 0), "C9:6374"), (403,), "placeholder_join", "very_high_structural", "Android 403 combines the two SNES text fragments around PLAYER_NAME(0): 'You did it, %S(0,0)!' and the kingdom returning to normal."),
-        ),
-    },
-    {
-        "event_id": "01B2",
-        "label": "Watts splendid sword continuation",
-        "units": (
-            (("C9:66DB",), (566,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 566 contains the complete missing hope-to-forge-a-sword sentence and directly follows accepted 565."),
-        ),
-    },
-    {
-        "event_id": "01C6",
-        "label": "Girl party-separation notice",
-        "units": (
-            (("C9:71AC", ("player_name", 1), "C9:71C1"), (440,), "adapted_system_notice", "very_high_structural", "SNES 'Separated from %S(1,0).' and Android '%S(1,0) leaves.' are the same party-removal event; Android 440 immediately follows accepted departure line 439."),
-        ),
-    },
-    {
-        "event_id": "01D3",
-        "label": "Sprite naming banter opening",
-        "units": (
-            (("C9:7944",), (616, 617), "one_snes_to_many_android_expanded", "very_high_structural", "Android 616/617 is the expanded sprite address ending in 'Brother!' immediately before accepted Android 618, which answers that address with the player reply at Android 618."),
-        ),
-    },
-)
-
-
-# Round 4 deliberately maximizes structural variety while keeping strong
-# Android-English identity. It covers elemental acquisition, multiple dynamic
-# party-name placeholders, dialogue split by event actions, French continuation
-# slots, and a late-game scene whose Android IDs jump between pre/post-battle
-# dialogue while preserving narrative order.
-DIALOGUE_REVIEW_ROUND4 = (
-    {
-        "event_id": "022E",
-        "label": "Gnome joins the party after Tropicallo",
-        "units": (
-            (("C9:98F3",), (1034,), "one_to_one", "very_high_candidate", "Distinct Gnome introduction; exact ordered local anchor."),
-            (("C9:992A",), (1035,), "one_to_one", "very_high_candidate", "Exact ordered local anchor."),
-            ((("player_name", 2), "C9:995B"), (1036,), "placeholder_join", "very_high_candidate", "SNES PLAYER_NAME(2) + text equals the Android speaker line."),
-            (("C9:998A", ("player_name", 0), "C9:99B7"), (1037,), "placeholder_join", "very_high_candidate", "SNES splits the sentence around PLAYER_NAME(0); Android stores one anchor."),
-            (("C9:99BB",), (1038,), "one_to_one", "very_high_candidate", "Exact ordered local anchor."),
-            ((("player_name", 0), "C9:99E9"), (1039,), "placeholder_join", "very_high_candidate", "SNES PLAYER_NAME(0) + text equals the Android speaker line."),
-            (("C9:9A10",), (1040,), "one_to_one", "very_high_candidate", "Exact ordered local anchor."),
-            (("C9:9A45",), (1041,), "one_to_one", "very_high_candidate", "Exact ordered local anchor; next Android slot is empty."),
-            (("C9:9A69",), (1043,), "one_to_one", "very_high_candidate", "Exact ordered local anchor after event animation."),
-            ((("player_name", 1), "C9:9A9A", "C9:9AA9"), (1044,), "placeholder_plus_event_split", "very_high_candidate", "One Android line spans two SNES text tokens separated by character-action commands."),
-            ((("player_name", 2), "C9:9ACA"), (1045,), "placeholder_join", "very_high_candidate", "SNES PLAYER_NAME(2) + text equals the Android speaker line."),
-            (("C9:9AE8",), (1046,), "one_to_one", "very_high_candidate", "Exact final anchor of the scene run."),
-        ),
-    },
-    {
-        "event_id": "0581",
-        "label": "Undine grants magic and the Pole Dart",
-        "units": (
-            (("CA:6BD6",), (956,), "one_to_one", "very_high_candidate", "Same unique Undine introduction; Android expands 'Undine' to 'water elemental'."),
-            (("CA:6C16",), (957,), "one_to_one", "very_high_candidate", "Unique ordered magic-introduction line."),
-            (("CA:6C41", ("player_name", 1), "CA:6C44"), (958,), "placeholder_join", "very_high_candidate", "SNES layout token + PLAYER_NAME(1) + continuation form one Android anchor."),
-            (("CA:6C81", ("player_name", 2), "CA:6C84"), (960,), "placeholder_join", "very_high_candidate", "SNES layout token + PLAYER_NAME(2) + continuation form one Android anchor."),
-            ((("player_name", 0), "CA:6CC7"), (962,), "placeholder_join", "very_high_candidate", "Exact player-name question in ordered run."),
-            (("CA:6CD2",), (963,), "one_to_one", "very_high_candidate", "Unique Mana Sword explanation anchor."),
-            (("CA:6D1E",), (964,), "one_to_one", "very_high_candidate", "Unique Ice Saber explanation anchor; French localization rewrites the explanation."),
-            (("CA:6D6B", ("player_name", 1), "CA:6D6F"), (965,), "placeholder_join_with_french_continuation", "very_high_candidate", "Android English anchor 965 is followed by empty 966, which French uses to continue the localized explanation."),
-            (("CA:6DB3",), (967,), "one_to_one", "very_high_candidate", "Unique weapon-gift line."),
-            (("CA:6DF9",), (968,), "one_to_one", "very_high_candidate", "Exact item-receipt text; preceding SNES newline/TEXT_X are layout commands, not semantic prose."),
-            (("CA:6E19",), (969,), "one_to_one", "very_high_candidate", "Unique Undine farewell anchor."),
-            (("CA:6E50",), (971,), "one_to_one", "very_high_candidate", "Exact power-acquisition notification; preceding SNES newline is layout-only."),
-            ((("player_name", 2), "CA:6E79"), (972,), "placeholder_join", "very_high_candidate", "Exact player-name boast at the end of the scene."),
-        ),
-    },
-    {
-        "event_id": "04B3",
-        "label": "Emperor trap and Sheex / Dark Stalker reveal",
-        "units": (
-            (("CA:1ECE",), (2681,), "one_to_one", "very_high_candidate", "Unique Emperor opening line."),
-            (("CA:1F09",), (2682,), "one_to_one", "very_high_candidate", "Exact ordered ancient-continent line."),
-            (("CA:1F57",), (2683,), "one_to_one", "very_high_candidate", "Exact ordered Mana Fortress line."),
-            (("CA:1F97",), (2684,), "one_to_one", "very_high_candidate", "Exact ordered threat; Android underscore is a presentation marker."),
-            (("CA:1FBC",), (2685,), "one_to_one", "very_high_candidate", "Exact short question in the same ordered run."),
-            (("CA:1FE0",), (2686,), "one_to_one_with_french_continuation", "very_high_candidate", "English 2687-2688 are empty localization slots; French uses 2688 for extra Sheex detail."),
-            ((("player_name", 0), "CA:2033"), (2689,), "placeholder_join", "very_high_candidate", "Exact player-name Dark Stalker reveal."),
-            (("CA:2056",), (2690,), "one_to_one", "very_high_candidate", "Exact Sheex transformation challenge."),
-            (("CA:208F",), (2723,), "one_to_one_with_french_continuation", "very_high_candidate", "Post-battle scene resumes at Android 2723; empty English 2724 carries extra French reaction text."),
-            (("CA:20D3",), (2725,), "one_to_one", "very_high_candidate", "Unique underworld-contract line after the Android-ID jump."),
-            (("CA:2128",), (2726,), "one_to_one", "very_high_candidate", "Same Mana Fortress motive; minor pronoun wording difference does not affect identity."),
-            (("CA:2170",), (2727,), "one_to_one", "very_high_candidate", "Exact final threat of the ordered scene run."),
-        ),
-    },
-)
-
-
-# Round 5 is the final pre-automation stress test. It deliberately targets
-# events whose strong lexical anchors are not globally monotonic in Android ID
-# order. Four cases are explained by one SNES event spanning multiple Android
-# subscene blocks; event $0204 contains a genuine local content reorder.
-DIALOGUE_REVIEW_ROUND5 = (
-    {
-        "event_id": "0112",
-        "label": "Mantis Ant rescue - isolated tutorial subscene",
-        "units": (
-            (("C9:3300",), (123,), "one_to_one_subscene", "very_high_candidate", "Exact unique rescue line. The enclosing SNES event later resets to Android ID 13 because it enters a different story subscene."),
-        ),
-    },
-    {
-        "event_id": "0112",
-        "label": "Mana Sword explanation and Jema departure",
-        "units": (
-            (("C9:333D",), (13,), "one_to_one", "very_high_candidate", "Exact Elliott scream; starts a new Android-local block after the rescue tutorial line."),
-            (("C9:3370",), (15,), "one_to_one_with_android_expansion", "very_high_candidate", "Distinct Mana Sword identification; Android adds a short concern sentence."),
-            ((("player_name", 0), "C9:339F"), (16,), "placeholder_join", "very_high_candidate", "PLAYER_NAME + source fragment equals Android speaker line."),
-            (("C9:33AC",), (17,), "one_to_one", "very_high_candidate", "Exact ordered lore line."),
-            (("C9:33FB",), (18,), "one_to_one", "very_high_candidate", "Exact ordered lore line."),
-            ((("player_name", 0), "C9:3450"), (19,), "placeholder_join", "very_high_candidate", "Exact player response after placeholder reconstruction."),
-            (("C9:3465",), (20,), "one_to_one_minor_wording", "very_high_candidate", "Same distinctive sword-reenergizing sentence; Android changes the opening interjection."),
-            (("C9:34B0",), (21,), "one_to_one", "very_high_candidate", "Exact ordered line."),
-            ((("player_name", 0), "C9:34E5"), (22,), "duplicate_resolved_by_local_order", "very_high_candidate", "The same English question also exists at Android 832; the surrounding 15-24 block uniquely selects 22 here."),
-            (("C9:34F9",), (23,), "one_to_one", "very_high_candidate", "Exact ordered destination line."),
-            (("C9:3526",), (24,), "one_to_one_minor_wording", "very_high_candidate", "Two hundred is numeric on SNES and written out on Android; otherwise same sentence."),
-            (("C9:3590", ("player_name", 0), "C9:359A"), (26,), "placeholder_join", "very_high_candidate", "SNES splits Timothy's line around PLAYER_NAME; Android stores one line."),
-            (("C9:35C1", "C9:35F9"), (27,), "many_snes_to_one_android", "very_high_candidate", "Android merges Jema's introduction and Water Palace departure into one anchor."),
-        ),
-    },
-    {
-        "event_id": "0204",
-        "label": "Water Palace Mana Seed ritual",
-        "units": (
-            (("C9:8EFF",), (839,), "one_to_one", "very_high_candidate", "Exact ritual instruction."),
-            (("C9:8F73",), (842,), "one_to_one", "very_high_candidate", "Exact post-animation line; Android IDs 840-841 are non-prose/empty localization slots."),
-            (("C9:8FA8",), (843,), "one_to_one", "very_high_candidate", "Exact seed-sealing line."),
-            (("C9:8FE0",), (844,), "one_to_one", "very_high_candidate", "Exact Mana-power line. French redistributes nearby explanatory detail."),
-        ),
-    },
-    {
-        "event_id": "0204",
-        "label": "Water Palace instruction genuinely relocated in Android",
-        "units": (
-            (("C9:9076",), (824,), "one_to_one_reordered", "very_high_candidate", "Exact unique English identity, but Android places this instruction before the ritual block (ID 824 versus 839-844) while SNES places it after. This is a genuine local reorder, not a fuzzy-match error."),
-        ),
-    },
-    {
-        "event_id": "036A",
-        "label": "Scorpion Army boss aftermath",
-        "units": (
-            (("C9:D39D",), (1154,), "one_to_one", "very_high_candidate", "Exact Scorpion boss exit line."),
-            (("C9:D3D3",), (1155,), "one_to_one_typo_normalization", "very_high_candidate", "SNES source has 'Recoverd'; Android corrects it to 'Recovered'."),
-        ),
-    },
-    {
-        "event_id": "036A",
-        "label": "Water Palace follow-up after recovered seed",
-        "units": (
-            (("C9:D3EE",), (489,), "one_to_one_subscene_reset", "very_high_candidate", "Exact line after TEXT_CLOSE/TEXT_OPEN; Android stores this party follow-up in a different local block."),
-        ),
-    },
-    {
-        "event_id": "04E4",
-        "label": "White dragon discovery",
-        "units": (
-            (("CA:3914",), (1448,), "one_to_one", "very_high_candidate", "Exact distinctive white-dragon line."),
-            (("CA:3942",), (1449,), "one_to_one", "very_high_candidate", "Exact serpent/parents line."),
-            ((("player_name", 1), "CA:3988"), (1451,), "placeholder_join", "very_high_candidate", "PLAYER_NAME(1) + source fragment equals Android line."),
-            (("CA:39B2",), (1452,), "one_to_one", "very_high_candidate", "Exact Truffle suggestion; ends the discovery subscene."),
-        ),
-    },
-    {
-        "event_id": "04E4",
-        "label": "Truffle raises and names Flammie",
-        "units": (
-            (("CA:3A05",), (1372,), "one_to_one_with_android_french_expansion", "very_high_candidate", "Exact Android-English identity; French expands the setup."),
-            (("CA:3A42",), (1374, 1375), "one_snes_to_many_android", "very_high_candidate", "One SNES token contains Nobleman and Truffle lines that Android splits."),
-            (("CA:3A76",), (1376,), "one_to_one", "very_high_candidate", "Exact ordered line."),
-            (("CA:3AAD",), (1377,), "one_to_one", "very_high_candidate", "Exact Flammie naming question."),
-            (("CA:3AE1",), (1378,), "choice_text", "very_high_candidate", "Same two choice labels; brackets/layout differ."),
-            (("CA:3AF6", "CA:3B23"), (1379, 1380), "two_to_two_redistribution", "very_high_candidate", "SNES and Android split 'Hang on / I sound like an idiot / you'd agree...' at different boundaries; validate as one local block."),
-            (("CA:3B5D",), (1381,), "one_to_one", "very_high_candidate", "Exact naming conclusion."),
-            (("CA:3B91",), (1382,), "one_to_one", "very_high_candidate", "Exact Cannon Travel instruction; French combines some following Fire Palace detail."),
-            (("CA:3BCC",), (1383,), "one_to_one", "very_high_candidate", "Exact Fire Palace destination line; French redistributes the instruction across 1382-1383."),
-        ),
-    },
-    {
-        "event_id": "04E8",
-        "label": "Goblin capture and rescue",
-        "units": (
-            ((("player_name", 0), "CA:4261"), (134,), "duplicate_resolved_by_scene_context", "very_high_candidate", "Short 'Heeelp!' has other Android occurrences; the following 135/169+ goblin block resolves this one to 134."),
-            (("CA:427A",), (135,), "short_line_resolved_by_context", "very_high_candidate", "Short exact 'Oooh!' immediately follows Android 134."),
-            ((("player_name", 0), "CA:42B8"), (169,), "placeholder_join", "very_high_candidate", "Exact player capture line after placeholder reconstruction."),
-            (("CA:42CA",), (170,), "one_to_one_minor_speaker", "very_high_candidate", "Goblin/Goblins speaker-number difference only."),
-            (("CA:4300",), (171,), "one_to_one", "very_high_candidate", "Exact main-dish line."),
-            ((("player_name", 0), "CA:433C"), (172,), "placeholder_join", "very_high_candidate", "Exact plea after placeholder reconstruction."),
-            (("CA:435D",), (174,), "one_to_one_minor_speaker", "very_high_candidate", "Goblin/Goblins speaker-number difference only."),
-            (("CA:43BF",), (176,), "one_to_one_minor_speaker", "very_high_candidate", "Distinct dancing line in same ordered goblin block."),
-            (("CA:442E",), (178,), "short_line_resolved_by_context", "very_high_candidate", "Generic 'Hey!' accepted only because it sits between the goblin scene and the girl's next line."),
-            (("CA:4442",), (180,), "short_line_resolved_by_context", "very_high_candidate", "Generic 'Hey, you!' resolved by immediate local context."),
-            (("CA:445F",), (182,), "one_to_one", "very_high_candidate", "Exact distinctive girl line."),
-            ((("player_name", 0), "CA:4491"), (183,), "placeholder_join", "very_high_candidate", "Exact plea after placeholder reconstruction."),
-            (("CA:44A6",), (184,), "one_to_one", "very_high_candidate", "Exact quiet line."),
-            (("CA:44D6",), (186,), "one_to_one", "very_high_candidate", "Exact escape line; closes the capture/rescue Android block."),
-        ),
-    },
-    {
-        "event_id": "04E8",
-        "label": "Girl post-rescue conversation",
-        "units": (
-            ((("player_name", 0), "CA:451B"), (125,), "placeholder_join_subscene_reset", "very_high_candidate", "Exact player line; Android ID order resets from 186 to 125 at the post-rescue subscene."),
-            (("CA:454F",), (126,), "one_to_one", "very_high_candidate", "Exact search/mistaken-person setup."),
-            (("CA:459F",), (127,), "one_to_one_minor_wording", "very_high_candidate", "Same mistaken-identity sentence with minor word-order change."),
-            ((("player_name", 0), "CA:45DB", "CA:461D"), (128, 129), "many_snes_to_many_android", "very_high_candidate", "SNES packs player interruption + girl's joke/hurry across two source tokens; Android splits at speaker boundary into 128-129."),
-            ((("player_name", 0), "CA:4665"), (131,), "placeholder_join", "very_high_candidate", "Exact 'Hey, wait!' line."),
-            (("CA:4677",), (132,), "one_to_one", "very_high_candidate", "Exact closing observation."),
-        ),
-    },
-)
-
+# ---- Android text decoding and structural recipe rendering -----------------
 
 def read_scrtxt(path: Path) -> dict[int, str]:
     """Read an Android scrtxt binary into ``android_id -> UTF-8 text``."""
@@ -1504,60 +142,92 @@ def _redistribution_tokens(text: str) -> list[str]:
     return _REDISTRIBUTION_TOKEN_RE.findall(text.replace("_", " "))
 
 
+def _android_token_cache(french: dict[int, str], android_ids, *, context: str) -> dict[int, list[str]]:
+    cache: dict[int, list[str]] = {}
+    for android_id in sorted({int(value) for value in android_ids}):
+        if android_id not in french:
+            raise ValueError(f"{context}: missing Android FR ID {android_id}")
+        cache[android_id] = _redistribution_tokens(french[android_id])
+    return cache
+
+
+def _render_android_token_recipe(
+    *,
+    parts: list,
+    seps: list,
+    token_cache: dict[int, list[str]],
+    context: str,
+    declared_android_ids: set[int] | None = None,
+    allow_transforms: bool = False,
+) -> str:
+    """Render one prose-free carrier recipe from Android-token references."""
+    if len(seps) != len(parts) + 1:
+        raise ValueError(f"{context}: invalid separator count")
+    chunks = [str(seps[0])]
+    for index, part in enumerate(parts):
+        if not isinstance(part, list) or not part:
+            raise ValueError(f"{context}: invalid part {part!r}")
+        kind = part[0]
+        if kind == "a":
+            max_len = 4 if allow_transforms else 3
+            if len(part) not in ({3, 4} if allow_transforms else {3}):
+                raise ValueError(f"{context}: invalid Android token ref {part!r}")
+            android_id, token_index = int(part[1]), int(part[2])
+            if declared_android_ids is not None and android_id not in declared_android_ids:
+                raise ValueError(f"{context}: undeclared Android ID {android_id}")
+            tokens = token_cache.get(android_id)
+            if tokens is None:
+                raise ValueError(f"{context}: missing Android token cache for {android_id}")
+            if not 0 <= token_index < len(tokens):
+                raise ValueError(f"{context}: token index out of range {part!r}")
+            token = tokens[token_index]
+            if len(part) == 4:
+                transform = part[3]
+                if transform == "capitalize":
+                    token = token[:1].upper() + token[1:]
+                elif transform == "lower_first":
+                    token = token[:1].lower() + token[1:]
+                else:
+                    raise ValueError(f"{context}: unknown transform {transform!r}")
+        elif kind == "p":
+            if len(part) != 2 or int(part[1]) not in {0, 1, 2}:
+                raise ValueError(f"{context}: invalid PLAYER_NAME ref {part!r}")
+            token = f"%S({int(part[1])},0)"
+        elif kind == "x":
+            if len(part) != 2 or re.search(r"[A-Za-zÀ-ÿŒœ]", str(part[1])):
+                raise ValueError(f"{context}: literal prose forbidden {part!r}")
+            token = str(part[1])
+        else:
+            raise ValueError(f"{context}: unknown part kind {kind!r}")
+        chunks.append(token)
+        chunks.append(str(seps[index + 1]))
+    return "".join(chunks)
+
+
 def _load_dialogue_redistribution_recipes(french: dict[int, str]) -> tuple[dict[str, dict[str, str]], dict[str, dict]]:
-    document = json.loads(DIALOGUE_REDISTRIBUTION_RECIPES.read_text(encoding="utf-8"))
-    if document.get("format_version") != 1:
-        raise ValueError("Unsupported dialogue redistribution recipe format")
-    if document.get("source") != "sources/android/scrtxt_fr.bin":
-        raise ValueError("Dialogue redistribution recipes must source Android FR directly")
+    document = _load_recipe_document(
+        DIALOGUE_REDISTRIBUTION_RECIPES,
+        label="Dialogue redistribution recipes",
+        expected={"format_version": 1, "source": "sources/android/scrtxt_fr.bin"},
+    )
 
     rendered: dict[str, dict[str, str]] = {}
     event_meta: dict[str, dict] = {}
-    android_token_cache: dict[int, list[str]] = {}
 
     for event_id, event_recipe in document.get("events", {}).items():
         android_ids = [int(x) for x in event_recipe.get("android_ids", [])]
-        missing = [x for x in android_ids if x not in french]
-        if missing:
-            raise ValueError(f"Redistribution ${event_id}: missing Android FR IDs {missing}")
-        for android_id in android_ids:
-            android_token_cache.setdefault(android_id, _redistribution_tokens(french[android_id]))
+        token_cache = _android_token_cache(french, android_ids, context=f"Redistribution ${event_id}")
+        declared_android_ids = set(android_ids)
 
         values: dict[str, str] = {}
         for sid, recipe in event_recipe.get("carriers", {}).items():
-            parts = recipe.get("parts", [])
-            seps = recipe.get("seps", [])
-            if len(seps) != len(parts) + 1:
-                raise ValueError(f"Redistribution ${event_id}/{sid}: invalid separator count")
-            chunks = [seps[0]]
-            for index, part in enumerate(parts):
-                if not isinstance(part, list) or not part:
-                    raise ValueError(f"Redistribution ${event_id}/{sid}: invalid part {part!r}")
-                kind = part[0]
-                if kind == "a":
-                    if len(part) != 3:
-                        raise ValueError(f"Redistribution ${event_id}/{sid}: invalid Android token ref {part!r}")
-                    android_id, token_index = int(part[1]), int(part[2])
-                    if android_id not in android_ids:
-                        raise ValueError(f"Redistribution ${event_id}/{sid}: undeclared Android ID {android_id}")
-                    tokens = android_token_cache[android_id]
-                    if not 0 <= token_index < len(tokens):
-                        raise ValueError(f"Redistribution ${event_id}/{sid}: token index out of range {part!r}")
-                    token = tokens[token_index]
-                elif kind == "p":
-                    if len(part) != 2 or int(part[1]) not in {0, 1, 2}:
-                        raise ValueError(f"Redistribution ${event_id}/{sid}: invalid PLAYER_NAME ref {part!r}")
-                    token = f"%S({int(part[1])},0)"
-                elif kind == "x":
-                    if len(part) != 2 or re.search(r"[A-Za-zÀ-ÿŒœ]", str(part[1])):
-                        raise ValueError(f"Redistribution ${event_id}/{sid}: literal prose forbidden in recipe {part!r}")
-                    token = str(part[1])
-                else:
-                    raise ValueError(f"Redistribution ${event_id}/{sid}: unknown part kind {kind!r}")
-                chunks.append(token)
-                chunks.append(seps[index + 1])
-            value = "".join(chunks)
-            values[sid] = value
+            values[sid] = _render_android_token_recipe(
+                parts=recipe.get("parts", []),
+                seps=recipe.get("seps", []),
+                token_cache=token_cache,
+                context=f"Redistribution ${event_id}/{sid}",
+                declared_android_ids=declared_android_ids,
+            )
         rendered[event_id] = values
         event_meta[event_id] = {"android_ids": android_ids, "round": int(event_recipe.get("round", 0) or 0)}
     return rendered, event_meta
@@ -1571,11 +241,11 @@ def _mapping_layout_recipe_index() -> dict[tuple[str, tuple[str, ...], tuple[int
     punctuation/layout separators and optional case transforms. Actual words are
     always read from ``scrtxt_fr.bin`` at generation time.
     """
-    document = json.loads(DIALOGUE_MAPPING_LAYOUT_RECIPES.read_text(encoding="utf-8"))
-    if document.get("format_version") != 1:
-        raise ValueError("Unsupported dialogue mapping-layout recipe format")
-    if document.get("source") != "sources/android/scrtxt_fr.bin":
-        raise ValueError("Dialogue mapping-layout recipes must source Android FR directly")
+    document = _load_recipe_document(
+        DIALOGUE_MAPPING_LAYOUT_RECIPES,
+        label="Dialogue mapping-layout recipes",
+        expected={"format_version": 1, "source": "sources/android/scrtxt_fr.bin"},
+    )
     out = {}
     for recipe in document.get("recipes", []):
         key = (
@@ -1601,7 +271,6 @@ def _render_mapping_layout_recipe(mapping: dict, french: dict[int, str]) -> tupl
     if recipe is None:
         return None
 
-    token_cache: dict[int, list[str]] = {}
     values: dict[str, str] = {}
     provenance_ids = sorted({
         int(part[1])
@@ -1609,50 +278,16 @@ def _render_mapping_layout_recipe(mapping: dict, french: dict[int, str]) -> tupl
         for part in carrier.get("parts", [])
         if isinstance(part, list) and part and part[0] == "a"
     })
-    for android_id in provenance_ids:
-        if android_id not in french:
-            raise ValueError(f"Mapping-layout recipe {key}: missing Android FR ID {android_id}")
-        token_cache[android_id] = _redistribution_tokens(french[android_id])
+    token_cache = _android_token_cache(french, provenance_ids, context=f"Mapping-layout recipe {key}")
 
     for text_id, carrier in recipe.get("carriers", {}).items():
-        parts = carrier.get("parts", [])
-        seps = carrier.get("seps", [])
-        if len(seps) != len(parts) + 1:
-            raise ValueError(f"Mapping-layout recipe {key}/{text_id}: invalid separator count")
-        chunks = [seps[0]]
-        for i, part in enumerate(parts):
-            if not isinstance(part, list) or not part:
-                raise ValueError(f"Mapping-layout recipe {key}/{text_id}: invalid part {part!r}")
-            kind = part[0]
-            if kind == "a":
-                if len(part) not in {3, 4}:
-                    raise ValueError(f"Mapping-layout recipe {key}/{text_id}: invalid Android token ref {part!r}")
-                android_id, token_index = int(part[1]), int(part[2])
-                tokens = token_cache[android_id]
-                if not 0 <= token_index < len(tokens):
-                    raise ValueError(f"Mapping-layout recipe {key}/{text_id}: token index out of range {part!r}")
-                token = tokens[token_index]
-                if len(part) == 4:
-                    transform = part[3]
-                    if transform == "capitalize":
-                        token = token[:1].upper() + token[1:]
-                    elif transform == "lower_first":
-                        token = token[:1].lower() + token[1:]
-                    else:
-                        raise ValueError(f"Mapping-layout recipe {key}/{text_id}: unknown transform {transform!r}")
-            elif kind == "p":
-                if len(part) != 2 or int(part[1]) not in {0, 1, 2}:
-                    raise ValueError(f"Mapping-layout recipe {key}/{text_id}: invalid PLAYER_NAME ref {part!r}")
-                token = f"%S({int(part[1])},0)"
-            elif kind == "x":
-                if len(part) != 2 or re.search(r"[A-Za-zÀ-ÿŒœ]", str(part[1])):
-                    raise ValueError(f"Mapping-layout recipe {key}/{text_id}: literal prose forbidden {part!r}")
-                token = str(part[1])
-            else:
-                raise ValueError(f"Mapping-layout recipe {key}/{text_id}: unknown part kind {kind!r}")
-            chunks.append(token)
-            chunks.append(seps[i + 1])
-        values[str(text_id)] = "".join(chunks)
+        values[str(text_id)] = _render_android_token_recipe(
+            parts=carrier.get("parts", []),
+            seps=carrier.get("seps", []),
+            token_cache=token_cache,
+            context=f"Mapping-layout recipe {key}/{text_id}",
+            allow_transforms=True,
+        )
 
     return values, {
         "event_id": key[0],
@@ -1678,11 +313,11 @@ def _load_dialogue_coverage_repair_recipes(
     text carriers. They contain no translated prose: only event/carrier IDs,
     Android IDs, structural separators, and append/replace mode.
     """
-    document = json.loads(DIALOGUE_COVERAGE_REPAIR_RECIPES.read_text(encoding="utf-8"))
-    if document.get("format_version") != 1:
-        raise ValueError("Unsupported dialogue coverage-repair recipe format")
-    if document.get("source") != "sources/android/scrtxt_fr.bin":
-        raise ValueError("Dialogue coverage repairs must source Android FR directly")
+    document = _load_recipe_document(
+        DIALOGUE_COVERAGE_REPAIR_RECIPES,
+        label="Dialogue coverage-repair recipes",
+        expected={"format_version": 1, "source": "sources/android/scrtxt_fr.bin"},
+    )
     by_event = {event["event_id"]: event for event in source_document.get("events", [])}
     result: dict[str, list[dict]] = {}
     seen: set[tuple[str, str]] = set()
@@ -1786,9 +421,11 @@ def _load_reviewed_choice_layout_recipes(source_document: dict) -> dict[str, dic
     reviewed away during Round 72.  Source-shape validation prevents a stale
     recipe from silently applying after extraction changes.
     """
-    document = json.loads(DIALOGUE_CHOICE_LAYOUT_RECIPES.read_text(encoding="utf-8"))
-    if document.get("format_version") != 1:
-        raise ValueError("Unsupported dialogue choice-layout recipe format")
+    document = _load_recipe_document(
+        DIALOGUE_CHOICE_LAYOUT_RECIPES,
+        label="Dialogue choice-layout recipes",
+        expected={"format_version": 1},
+    )
 
     events = {event["event_id"]: event for event in source_document.get("events", [])}
     recipes: dict[str, dict] = {}
@@ -1902,74 +539,6 @@ def load_dialogue_text_entries(path: Path = DIALOGUE_SOURCE) -> dict[str, dict]:
     return result
 
 
-# Round 11 continues the PARTIEL review using the same conservative structural
-# rules as round 8. Every mapping is demonstrated by Android English and the
-# ordered local scene; generic short labels/options are intentionally excluded.
-DIALOGUE_REVIEW_ROUND11 = (
-    {"event_id": "01DC", "label": "Pandora ruins soldiers ordered gaps", "units": (
-        (("C9:7EB5",), (720,), "speaker_label_alignment", "very_high_structural", "Exact Soldier ellipsis opens Android 720-728, immediately before accepted 721/722."),
-        (("C9:7FF4",), (728,), "one_to_one", "very_high_structural", "Android 728 is the exact three-person platform/bridge instruction and directly follows accepted 727."),
-    )},
-    {"event_id": "01ED", "label": "Elinee apology opening", "units": ((("C9:8771",), (754,), "one_to_one", "very_high_structural", "Exact Elinee apology at Android 754 immediately precedes accepted 755-758."),)},
-    {"event_id": "01F5", "label": "Elinee lost magic continuation", "units": ((("C9:899F",), (761,), "one_to_one", "very_high_structural", "Exact lost-magical-power sentence at Android 761 immediately follows accepted 760."),)},
-    {"event_id": "023A", "label": "Crystal Orb question opening", "units": ((("C9:9CB8",), (973,), "speaker_reattribution", "very_high_structural", "Exact Crystal Orb question at Android 973 immediately precedes accepted 974/975; Android adds PLAYER_NAME(0) attribution."),)},
-    {"event_id": "0250", "label": "Matango village shambles gap", "units": ((("C9:A00D",), (1263,), "one_to_one", "very_high_structural", "Android 1263 is the exact village-in-shambles line between accepted 1262 and 1264."),)},
-    {"event_id": "02B2", "label": "Amar Sea Hare and belt ordered gaps", "units": (
-        (("C9:B89E",), (1642,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 1642 begins with the exact Sea Hare tail/Hurrah line and adds the well action in the same Amar scene."),
-        (("C9:B8F8",), (1664,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 1664 begins with the exact belt reward and expands its legendary-knight description immediately before accepted 1665."),
-    )},
-    {"event_id": "02B4", "label": "Fire Seed missing continuation", "units": ((("C9:B9D6",), (1636,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 1636 begins with the exact missing Fire Seed sentence and adds the monster consequence directly after accepted 1635."),)},
-    {"event_id": "02B7", "label": "Ice Country relocation branch", "units": (
-        (("C9:BA6C",), (1623,), "one_to_one", "very_high_structural", "Exact Ice Country destination at Android 1623 in the relocation NPC branch."),
-        (("C9:BA7C",), (1624,), "one_to_one", "very_high_structural", "Exact warm-town sentence at Android 1624 immediately after 1623; French continuation in the following English-empty slot is retained by anchor interval policy."),
-    )},
-    {"event_id": "02E4", "label": "Serin legendary warrior continuation", "units": ((("C9:C62F",), (2561,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 2561 begins with the exact Serin legendary-warrior sentence and adds the great-war timing, directly after accepted 2560."),)},
-    {"event_id": "02F9", "label": "Sea Hare merchant ordered gaps", "units": (
-        (("C9:C9D5",), (2294,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 2294 begins with the exact 'not making it here' thought and expands the move-to-city idea immediately before accepted 2295."),
-        (("C9:CA38",), (2296,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 2296 begins with the exact 'you actually WANT one?' reaction and adds the giveaway rationale between accepted 2295 and 2297."),
-    )},
-    {"event_id": "0363", "label": "Sprite elder warning opening", "units": ((("C9:D1DB",), (500,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 500 contains the exact leave-now/never-return warning plus 'Wait up!', immediately before accepted 501."),)},
-    {"event_id": "036F", "label": "Scorpion hideout ordered gaps", "units": (
-        (("C9:D563",), (1144,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 1144 begins with the exact cannot-let-you-leave sentence and adds the secret-hideout reason immediately before accepted 1145."),
-        (("C9:D661",), (1151, 1152, 1153), "one_snes_to_many_android", "very_high_structural", "The SNES Boys/Boss/Boys reaction is split into ordered Android 1151/1152/1153 directly after accepted 1149/1150."),
-    )},
-    {"event_id": "039F", "label": "Empire bizarre thoughts opening", "units": ((("C9:DFF2",), (1871,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 1871 contains the exact emperor-bizarre-thoughts sentence with a conversational preface, immediately before accepted 1872."),)},
-    {"event_id": "03D0", "label": "Palace of Darkness cave opening", "units": ((("C9:E9A1",), (2315,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 2315 contains the exact mountain/cave/monsters directions and directly precedes accepted 2316."),)},
-    {"event_id": "03DD", "label": "Jehk rejection opening", "units": ((("C9:ED6D",), (2445,), "speaker_label_alignment", "very_high_structural", "Android 2445 'Go away!' is the same Jehk rejection immediately before accepted 2446/2447; no global short-label matching is used."),)},
-    {"event_id": "04A3", "label": "Thanatos Geshtar explanation", "units": ((("CA:1A1E",), (2917,), "one_snes_to_one_android_expanded", "very_high_structural", "Android 2917 begins with the same Thanatos/Geshtar question-answer and expands it, bracketed by accepted 2915/2916 and 2918/2919."),)},
-    {"event_id": "04EA", "label": "Gaia Navel dwarves resegmentation", "units": ((("CA:4C1F", "CA:4C71"), (858,), "many_snes_to_one_android", "very_high_structural", "Android 858 combines the two consecutive SNES dwarf-cave/weapon/reforge fragments between accepted 857 and 859."),)},
-    {"event_id": "052F", "label": "Truffle voice opening", "units": ((("CA:5FEF",), (2272,), "speaker_label_alignment", "very_high_structural", "Exact Voice: Hellooo line at Android 2272 between accepted 2271 and 2273."),)},
-    {"event_id": "0532", "label": "Truffle Matango destination ending", "units": ((("CA:61D8",), (2280,), "one_to_one", "very_high_structural", "Exact Matango/southwest instruction at Android 2280 immediately after accepted 2279."),)},
-    {"event_id": "0580", "label": "Gnome gained-powers system line", "units": ((("CA:6B9C",), (1048,), "system_message_equivalence", "very_high_structural", "Android 1048 'Gained Gnome's powers!' is the exact system-message equivalent immediately before accepted 1049."),)},
-    {"event_id": "0582", "label": "Salamando gained-powers system line", "units": ((("CA:6F3D",), (1807,), "system_message_equivalence", "very_high_structural", "Android 1807 'Gained Salamando's powers!' is the exact system-message equivalent immediately after accepted 1806."),)},
-    {"event_id": "0584", "label": "Luna power grant resegmentation", "units": ((("CA:6FD7", "CA:7005"), (2649,), "many_snes_to_one_android", "very_high_structural", "Android 2649 compresses the two consecutive SNES Luna fragments into the same take-my-powers / Mana-is-fading message between accepted 2648 and 2651."),)},
-    {"event_id": "0587", "label": "Lumina introduction resegmentation", "units": ((("CA:7154", "CA:718F"), (2533,), "many_snes_to_one_android", "very_high_structural", "Android 2533 combines the two consecutive SNES Lumina introduction / king draining power / making gold fragments immediately before accepted 2536/2538."),)},
-)
-
-
-# Round 18 targets the same speaker/resegmentation family as the user-reviewed
-# ``All:`` Joch reactions.  Every unit is anchored by Android English and the
-# ordered local scene; no global short-label matching is used.
-DIALOGUE_REVIEW_ROUND18 = (
-    {"event_id": "0236", "label": "Gnome entrance resegmentation", "units": (
-        (("C9:9B8C",), (993, 994), "one_snes_to_many_android", "very_high_structural", "SNES combines the two consecutive gnome warnings; Android EN splits them into 993/994 immediately before Android 995/996."),
-        (("C9:9BCB",), (995, 996), "one_snes_to_many_android", "very_high_structural", "Exact player/gome exchange split into adjacent Android 995/996; retained explicitly because adding the preceding structural unit changes generic session segmentation."),
-        (("C9:9C20",), (999,), "speaker_reaction_adaptation", "very_high_structural", "The gnome's angry reaction sits exactly between already accepted Android 998 ('Take this!') and 1001 ('I'm out of here!'); Android adapts the wording to 'Why you little--!' while preserving speaker and scene position."),
-    )},
-    {"event_id": "0293", "label": "Sandship Sergo/guard speaker split", "units": (
-        (("C9:AEB6",), (1508, 1509), "one_snes_to_many_android_equivalent_duplicate", "very_high_structural", "SNES packs Sergo 'Fire! Fire!' and the guard reply into one token; Android EN splits them into 1508/1509. The duplicate 1513/1514 pair has identical EN/FR, so the localized semantic result is unambiguous."),
-    )},
-    {"event_id": "03E9", "label": "Television sleep reaction ordered duplicate", "units": (
-        (("C9:F039",), (2349,), "duplicate_resolved_by_local_order", "very_high_structural", "Exact '...Gzzz...' follows already accepted Android 2347/2348 in this television sequence; the later duplicate 2355 belongs to a different programme block."),
-    )},
-    {"event_id": "055E", "label": "Phanna/Krissie speaker resegmentation", "units": (
-        (("CA:6828",), (2034,), "speaker_reaction_adaptation", "very_high_structural", "SNES 'Hush!' and Android EN 'Shut up!' are the same reaction immediately after accepted 2032/2033 and before accepted 2035."),
-        ((("player_name", 1), "CA:687F"), (2037,), "placeholder_plus_expanded_reaction", "very_high_structural", "SNES PLAYER_NAME(1)+':Liar!' is expanded by Android EN to the same player's 'T-that's... not true... You're lying!' exactly between accepted 2035 and 2038."),
-        (("CA:68B1",), (2040,), "speaker_label_alignment", "very_high_structural", "Exact 'Phanna: Ooh!' / Android 2040 is bracketed by already accepted 2038 and 2041 in the same confrontation."),
-        (("CA:6962", ("player_name", 0), "CA:696C"), (2048,), "speaker_prefix_placeholder_join", "very_high_structural", "SNES splits 'KRISSIE:' + PLAYER_NAME(0) + 'What's up?' across two text carriers; Android EN 2048 stores the exact combined Krissie line in the same 2032-2055 scene."),
-    )},
-)
-
 
 def english_anchor_interval(anchor_id: int, english: dict[int, str]) -> list[int]:
     """Return an English non-empty ID plus following empty slots up to the next anchor."""
@@ -2024,164 +593,6 @@ def android_anchor_units(anchor_ids: tuple[int, ...], english: dict[int, str]) -
     return result
 
 
-# Round 44 promotes only structurally determinate identities recovered after
-# Round 43. The user authorized marking no-doubt cases as validated. These are
-# explicit local/parameterized identities, not a new automatic matching rule.
-DIALOGUE_REVIEW_ROUND44 = (
-    {
-        "event_id": "0012",
-        "label": "Jema Pandora departure - exact local sequence gap",
-        "units": ((('C9:090A',), (378,), "round44_local_sequence_anchor", "user_validated", "Within caller $0180, the surrounding sequence is already locked to Android 372-376; after $0011 -> 376 'Head for Gaia's Navel!', Android 377 is a mobile-only warning and 378 is exactly 'And don't follow me!'. The SNES carrier says 'Don't come with me!', so 378 is the unique scene identity."),),
-    },
-    {
-        "event_id": "001F",
-        "label": "Jehk reusable rejection - Sage is out",
-        "units": ((('C9:0983',), (2451,), "round44_jehk_out_with_return_layout", "user_validated", "The reusable subevent precedes four already-aligned party reactions and destination reports 2452-2462. Android 2451 is exactly 'The Sage is out!'; the older SNES 'Go away!' clause is redundant with the separately mapped Jehk rejection line $03DD -> 2445. Preserve one terminal SNES newline so the caller reaction begins on the next physical line."),),
-    },
-    {
-        "event_id": "0126",
-        "label": "Sword-cut follow-up - direct PLAYER_NAME scene",
-        "units": ((('C9:3A39',), (3438,), "round44_player_name_followup_layout", "user_validated", "Immediately after the already-aligned sword-pull sequence, Android 3437 says the village is blocked and 3438 is '%S(0,0): I can cut through with this!'. The SNES event contains PLAYER_NAME(0) followed by ':I can cut through with this sword!', making 3438 unique. Keep PLAYER_NAME in stock command ownership and add explicit layout so a maximum nine-character name cannot wrap implicitly."),),
-    },
-    {
-        "event_id": "025F",
-        "label": "Matango castle guard - king inside",
-        "units": ((('C9:A255',), (1362,), "round44_local_sequence_anchor", "user_validated", "The local NPC block already maps $025D -> 1363 'Get the king's permission first!' and $025E -> 1364 'You may pass!'. Android 1362 'The king is in his chambers.' is the unique missing predecessor for SNES 'The king's inside.'."),),
-    },
-    {
-        "event_id": "02E6",
-        "label": "Tasnica citizen - Emperor after the king",
-        "units": ((('C9:C68A',), (2567,), "round44_local_sequence_anchor", "user_validated", "Tasnica neighbors are already locked around Android 2562-2565. Android 2567 'Emperor Vandole's after our king! That scoundrel!' is the unique scene expansion of SNES 'The Emperor's after our King!'."),),
-    },
-    {
-        "event_id": "03AC",
-        "label": "Northtown citizen - Republic war memory",
-        "units": ((('C9:E32D',), (1950,), "round44_local_sequence_anchor", "user_validated", "The surrounding Northtown NPCs are already locked to Android 1948, 1949, 1951, 1952 and 1953. Android 1950 is the sole missing slot and expands SNES 'We once fought the Republic.' into the citizen's personal wartime memory."),),
-    },
-    {
-        "event_id": "0320", "label": "Parameterized inn - 5 GP",
-        "units": ((('C9:CE3D',), (110,), "round44_parameterized_inn_price_identity", "user_validated", "The stock caller supplies numeric price 5 between shared $0330/$0331; Android 110 is exactly the complete 5-GP standard inn prompt. Identity belongs to this parameterized path while serialization keeps the existing shared French template."),),
-    },
-    {
-        "event_id": "0321", "label": "Parameterized inn - 10 GP",
-        "units": ((('C9:CE46',), (229,), "round44_parameterized_inn_price_identity", "user_validated", "The stock caller supplies numeric price 10 between shared $0330/$0331; Android 229 is a strict EN+FR copy of the complete 10-GP standard prompt (272 is an equivalent duplicate)."),),
-    },
-    {
-        "event_id": "0322", "label": "Parameterized inn - 15 GP",
-        "units": ((('C9:CE50',), (502,), "round44_parameterized_inn_price_identity", "user_validated", "The stock caller supplies numeric price 15 between shared $0330/$0331; Android 502 is exactly the complete 15-GP standard prompt."),),
-    },
-    {
-        "event_id": "0324", "label": "Parameterized inn - 50 GP",
-        "units": ((('C9:CE64',), (1365,), "round44_parameterized_inn_price_identity", "user_validated", "The stock caller supplies numeric price 50 between shared $0330/$0331; Android 1365 is a representative strict EN+FR duplicate of the complete 50-GP standard prompt (1644/1750 are equivalent copies)."),),
-    },
-    {
-        "event_id": "0325", "label": "Parameterized inn - 100 GP",
-        "units": ((('C9:CE6E',), (1907,), "round44_parameterized_inn_price_identity", "user_validated", "The stock caller supplies numeric price 100 between shared $0330/$0331; Android 1907 is exactly the complete 100-GP standard prompt."),),
-    },
-    {
-        "event_id": "0326", "label": "Parameterized inn - 120 GP",
-        "units": ((('C9:CE79',), (1961,), "round44_parameterized_inn_price_identity", "user_validated", "The stock caller supplies numeric price 120 between shared $0330/$0331; Android 1961 is exactly the complete 120-GP standard prompt."),),
-    },
-    {
-        "event_id": "0327", "label": "Parameterized inn - 150 GP",
-        "units": ((('C9:CE84',), (2319,), "round44_parameterized_inn_price_identity", "user_validated", "The stock caller supplies numeric price 150 between shared $0330/$0331; Android 2319 is exactly the complete 150-GP standard prompt."),),
-    },
-    {
-        "event_id": "0328", "label": "Parameterized inn - 200 GP",
-        "units": ((('C9:CE8F',), (2498,), "round44_parameterized_inn_price_identity", "user_validated", "The stock caller supplies numeric price 200 between shared $0330/$0331; Android 2498 is exactly the complete 200-GP standard prompt."),),
-    },
-)
-
-# Round 45 continues the explicit structural pass. No generic matcher is added:
-# each identity below is accepted only because its scene/object/resegmentation
-# provenance is determinate under the standing user authorization for no-doubt cases.
-DIALOGUE_REVIEW_ROUND45 = (
-    {
-        "event_id": "00C4",
-        "label": "Kakkara vanished-place reaction - exact duplicate disambiguated by scene",
-        "units": ((("C9:1A62",), (1626,), "round45_exact_duplicate_scene_position", "user_validated", "SNES 'Huh!? All gone?' has two exact Android-English copies (1626/1689). Android 1626 sits in the Kakkara/Amar block immediately after the Ice Country/warm-town discussion and before King Amar, whereas 1689 belongs to the unrelated game-over block. The French payloads are semantically identical apart from leading layout, so 1626 is the unique scene identity."),),
-    },
-    {
-        "event_id": "01B6",
-        "label": "Watts shortcut - Android 583/584/585 redistribution",
-        "units": ((("C9:6AD2", "C9:6B5A"), (584,), "round45_watts_shortcut_redistribution", "user_validated", "The two SNES carriers combine exactly to Android EN 584: 'And only I can do it!...shortcut...This will make it a lot easier for you!'. Android FR redistributes the shortcut introduction into already-owned slot 583 and the post-movement continuation into FR-only slot 585. Keep C9:6AD2 empty because existing C9:6A8A already renders the official shortcut introduction, then place slot 585 on C9:6B5A after the unchanged movement sequence."),),
-    },
-    {
-        "event_id": "01DA",
-        "label": "Girl naming scene - Android identity with PLAYER_NAME layout deferred",
-        "units": (
-            ((("player_name", 0), "C9:7E64", ("player_name", 0), "C9:7E72", ("player_name", 0), "C9:7E81"), (676, 677), "round45_girl_name_resegmentation", "user_validated", "The complete naming exchange is locked between Android 675 and the young-lady naming prompt 679. Android 676 owns '%S(0,0): My name is %S(0,0).' and 677 owns the intervening Girl response ending on 'I'm'. Android FR 677 deliberately removes the third boy-name repetition. Preserve the first two PLAYER_NAME(0) commands, omit only the third command immediately before C9:7E81, and serialize the official 676+677 French across the three SNES carriers."),
-        ),
-    },
-    {
-        "event_id": "04F0",
-        "label": "Tasnica entrance guard - map-object state proof",
-        "units": ((("CA:4D71",), (2541,), "round45_tasnica_object_state", "user_validated", "ROM map-object table $0018 contains two $02E0 guards ('This is the castle of Tasnica.' -> Android 2539) and object #2 -> $04F0. Android 2540-2541 is the same entrance anti-spy gate; 2541 says nobody is being let in and uniquely expands SNES 'No one's allowed now!'."),),
-    },
-)
-
-
-# Round 50 refines one already-proven Android/SNES many-to-many unit. It adds
-# no Android identity: the existing $01CE mapping [536,537] is split according
-# to the stock CHOICE_BEGIN boundary, with 536 owning the donation prompt and
-# 537 owning the affirmative option. Android EN 538 already owns the following
-# stock No option, making the three-slot prompt/Yes/No structure determinate.
-DIALOGUE_REVIEW_ROUND50 = (
-    {
-        "event_id": "01CE",
-        "label": "Dwarf show donation prompt / Yes choice segmentation",
-        "units": (
-            (("C9:7827",), (536,), "choice_prompt_split", "very_high_structural", "Android EN 536 is exactly the donation prompt and ends immediately before Android EN 537 'Yes'. SNES C9:7827 contains the prompt plus the stock opening '(' immediately before CHOICE_BEGIN, so 536 owns this carrier without crossing the choice command."),
-            (("C9:7856",), (537,), "choice_option_split", "very_high_structural", "Android EN 537 is the affirmative 'Yes' slot between prompt 536 and already-aligned No 538. SNES C9:7856 is exactly the first CHOICE_OPTION label ('Okay'), so this is a structure-proven segmentation of the already-owned 536+537 unit."),
-        ),
-    },
-)
-
-
-# Round 46 introduces a deliberately separate Android ``systxt`` identity
-# namespace for the stock chest-message family.  These records are explicit
-# structural reviews only; ``systxt`` is never added to the generic scrtxt
-# candidate index.  The 101254-101256 block is uniquely chest-specific and
-# matches the SNES $067E/$067F money subevents plus $0689/$0687 item grants.
-DIALOGUE_REVIEW_ROUND46_SYSTEM = (
-    {
-        "event_id": "067E",
-        "label": "Chest reward - 1000 GP via system-text template",
-        "snes_ids": ("CA:8E72",),
-        "android_ids": (101254,),
-        "relation": "round46_systxt_chest_money",
-        "note": "All callers $068A-$068E invoke $067E as the generic 1000-GP chest subevent. Android systxt 101254 is the chest-specific 'Found $0d GP!' entry, adjacent to the Leather Whip and Magic Rope chest records 101255-101256; this adjacency disambiguates it from the unrelated duplicate systxt 100177.",
-    },
-    {
-        "event_id": "067F",
-        "label": "Chest reward - 50 GP via system-text template",
-        "snes_ids": ("CA:8E8F",),
-        "android_ids": (101254,),
-        "relation": "round46_systxt_chest_money",
-        "note": "The many $0680-$069F chest callers invoke $067F as the generic 50-GP reward subevent. Android systxt 101254 is the same parameterized chest-money message; the SNES hard-coded amount is substituted into the official French template.",
-    },
-    {
-        "event_id": "0687",
-        "label": "Magic Rope chest - scrtxt English identity, systxt French correction",
-        "snes_ids": ("CA:8EEF",),
-        "android_ids": (469,),
-        "identity_namespace": "scrtxt",
-        "localization_systxt_id": 101256,
-        "relation": "round46_systxt_chest_localization_override",
-        "note": "$0687 grants item $06 via OP_1E 46, proving Magic Rope and retaining scrtxt EN 469 as the identity layer. scrtxt FR 469 is wrong (Fouet); the chest-specific systxt 101256 payload says Corde magique and is used only as localization-correction evidence, not as Android-English identity.",
-    },
-    {
-        "event_id": "0689",
-        "label": "Leather Whip chest - scrtxt English identity, systxt French correction",
-        "snes_ids": ("CA:8F20",),
-        "android_ids": (769,),
-        "identity_namespace": "scrtxt",
-        "localization_systxt_id": 101255,
-        "relation": "round46_systxt_chest_localization_override",
-        "note": "$0689 grants weapon $24 via OP_1E A4, proving Whip/Leather Whip and retaining scrtxt EN 769 as the identity layer. The older Round-39 stock-English workaround is superseded because chest-specific systxt 101255 supplies the correct official French Fouet en cuir payload.",
-    },
-)
-
 
 # ---- Conservative whole-dialogue Android alignment -------------------------
 
@@ -2190,15 +601,6 @@ DEFAULT_DIALOGUE_UNMAPPED_CSV = ROOT / "mappings" / "android" / "dialogues_unmap
 DEFAULT_DIALOGUE_FORMAT_MASS_OUTPUT = ROOT / "translations" / "dialogues_french.json"
 DEFAULT_DIALOGUE_FORMAT_MASS_REPORT = ROOT / "mappings" / "android" / "dialogues_format_mass.json"
 DEFAULT_DIALOGUE_FORMAT_MASS_EXCLUDED_CSV = ROOT / "mappings" / "android" / "dialogues_format_mass_excluded.csv"
-# First post-pilot runtime batch. Every selected event is complete: all of its
-# semantic SNES text IDs are accepted by the Android aligner and pass the
-# conservative structural formatter. This prevents mixed EN/FR test scenes.
-
-
-# First larger explicit expansion after the pagination rule was runtime-validated.
-# The list is intentionally frozen rather than discovered dynamically: future
-# formatter changes must not silently change which events enter the patch.
-
 # These two stress-test sources were explicitly reviewed and have no confident
 # standalone Android-English equivalent. Automatic passes must never force them.
 DIALOGUE_FORCED_UNMAPPED = {
@@ -3346,105 +1748,74 @@ def _auto_accept_session_blocks(
             accepted.append({**operation, "confidence": confidence})
     return accepted
 
-# Round 85 repairs dialogue identities exposed by the exhaustive Android-FR
-# coverage audit. These are determinate local-sequence corrections, not a new
-# generic matcher. They supersede older lexical choices where Android FR
-# redistributed content differently from Android EN or where a global duplicate
-# won over the scene-local identity.
-DIALOGUE_REVIEW_ROUND85 = (
-    {
-        "event_id": "03BA",
-        "label": "Northtown family NPC - Android FR continuation redistribution",
-        "units": ((('C9:E57D',), (1956, 1957), "round85_android_fr_continuation_redistribution", "user_validated", "Android EN 1956 owns the full SNES thought, while Android FR splits it across 1956 (world war) and 1957 (fear for family). Keep both FR units on this NPC."),),
-    },
-    {
-        "event_id": "03BB",
-        "label": "Northtown large-family NPC - recover displaced Android FR line",
-        "units": ((('C9:E5BF',), (1955,), "round85_android_fr_local_redistribution", "user_validated", "Android FR 1957 is the continuation of the previous NPC, so this large-family NPC must instead receive local Android FR 1955, which carries the official large-family/cooking line."),),
-    },
-)
+# User-validated alignment identities are data, not executable round-specific code.
+
+
+def _load_reviewed_alignment_recipes() -> list[dict]:
+    """Load user-validated SNES/Android identities from structural recipe data."""
+    document = _load_recipe_document(
+        DIALOGUE_REVIEWED_ALIGNMENT_RECIPES,
+        label="Reviewed-alignment recipes",
+        expected={"format": "dialogues-reviewed-alignment-recipes-v1"},
+    )
+    records = document.get("records")
+    if not isinstance(records, list):
+        raise ValueError("Reviewed-alignment recipes must contain a records list")
+    return records
+
+
+def _decode_review_part(part):
+    if isinstance(part, str):
+        return part
+    if isinstance(part, dict) and part.get("command") == "player_name":
+        index = part.get("index")
+        if isinstance(index, int) and 0 <= index <= 2:
+            return ("player_name", index)
+    raise ValueError(f"Unsupported reviewed-alignment part: {part!r}")
 
 
 def _auto_reviewed_records(source: dict[str, dict]) -> list[dict]:
-    """Flatten all user-validated rounds into authoritative mapping blocks."""
+    """Materialize authoritative reviewed identities from structural recipes."""
     records: list[dict] = []
-    for scene in DIALOGUE_PILOT_SCENES:
-        for snes_id, android_id in scene["pairs"]:
-            records.append(
-                {
-                    "event_id": scene["event_id"],
-                    "snes_ids": [snes_id],
-                    "android_ids": [android_id],
-                    "confidence": "user_validated",
-                    "provenance": "pilot",
-                    "source_display": source[snes_id]["source"],
-                }
-            )
-    for round_name, batch in (
-        ("round2", DIALOGUE_REVIEW_ROUND2),
-        ("round3", DIALOGUE_REVIEW_ROUND3),
-        ("round4", DIALOGUE_REVIEW_ROUND4),
-        ("round5", DIALOGUE_REVIEW_ROUND5),
-        ("round6", DIALOGUE_REVIEW_ROUND6),
-        ("round7", DIALOGUE_REVIEW_ROUND7),
-        ("round8", DIALOGUE_REVIEW_ROUND8),
-        ("round11", DIALOGUE_REVIEW_ROUND11),
-        ("round18", DIALOGUE_REVIEW_ROUND18),
-        ("round20", DIALOGUE_REVIEW_ROUND20),
-        ("round21", DIALOGUE_REVIEW_ROUND21),
-        ("round22", DIALOGUE_REVIEW_ROUND22),
-        ("round25", DIALOGUE_REVIEW_ROUND25),
-        ("round31", DIALOGUE_REVIEW_ROUND31),
-        ("round33", DIALOGUE_REVIEW_ROUND33),
-        ("round34", DIALOGUE_REVIEW_ROUND34),
-        ("round39", DIALOGUE_REVIEW_ROUND39),
-        ("round40", DIALOGUE_REVIEW_ROUND40),
-        ("round41", DIALOGUE_REVIEW_ROUND41),
-        ("round42", DIALOGUE_REVIEW_ROUND42),
-        ("round43", DIALOGUE_REVIEW_ROUND43),
-        ("round44", DIALOGUE_REVIEW_ROUND44),
-        ("round45", DIALOGUE_REVIEW_ROUND45),
-        ("round50", DIALOGUE_REVIEW_ROUND50),
-        ("round85", DIALOGUE_REVIEW_ROUND85),
-    ):
-        for scene in batch:
-            for parts, android_ids, relation, _candidate_confidence, note in scene["units"]:
-                snes_ids, source_display = render_snes_review_parts(parts, source, event_id=scene["event_id"])
-                records.append(
-                    {
-                        "event_id": scene["event_id"],
-                        "snes_ids": snes_ids,
-                        "android_ids": list(android_ids),
-                        "confidence": "very_high_structural_review" if round_name in {"round6", "round7", "round8", "round11", "round18", "round20", "round21", "round22", "round25", "round31", "round33", "round34", "round39", "round40", "round41", "round42", "round43", "round44", "round45", "round50", "round85"} else "user_validated",
-                        "provenance": round_name,
-                        "relation": relation,
-                        "note": note,
-                        "source_display": source_display,
-                    }
-                )
-    # Round 46 is a separate reviewed Android system-text namespace.  Append
-    # these records after every scrtxt round so they supersede earlier scrtxt
-    # ownership for the same chest carriers without entering generic matching.
-    for item in DIALOGUE_REVIEW_ROUND46_SYSTEM:
-        records.append(
-            {
-                "event_id": item["event_id"],
-                "snes_ids": list(item["snes_ids"]),
-                "android_ids": list(item["android_ids"]),
-                "android_namespace": item.get("identity_namespace", "systxt"),
-                **({"localization_systxt_id": item["localization_systxt_id"]} if item.get("localization_systxt_id") else {}),
-                "confidence": "very_high_structural_review",
-                "provenance": "round46",
+    for item in _load_reviewed_alignment_recipes():
+        event_id = item.get("event_id")
+        android_ids = item.get("android_ids")
+        raw_parts = item.get("parts")
+        if not isinstance(event_id, str) or not isinstance(android_ids, list) or not isinstance(raw_parts, list):
+            raise ValueError(f"Invalid reviewed-alignment recipe: {item!r}")
+        parts = tuple(_decode_review_part(part) for part in raw_parts)
+        snes_ids, source_display = render_snes_review_parts(parts, source, event_id=event_id)
+        if item.get("provenance") == "round46":
+            record = {
+                "event_id": event_id,
+                "snes_ids": snes_ids,
+                "android_ids": list(android_ids),
+                "android_namespace": item.get("android_namespace", "systxt"),
+            }
+            if "localization_systxt_id" in item:
+                record["localization_systxt_id"] = item["localization_systxt_id"]
+            record.update({
+                "confidence": item.get("confidence", "user_validated"),
+                "provenance": item.get("provenance", "reviewed_recipe"),
                 "relation": item["relation"],
                 "note": item["note"],
-                "source_display": " ".join(source[text_id]["source"] for text_id in item["snes_ids"]),
+                "source_display": source_display,
+            })
+        else:
+            record = {
+                "event_id": event_id,
+                "snes_ids": snes_ids,
+                "android_ids": list(android_ids),
+                "confidence": item.get("confidence", "user_validated"),
+                "provenance": item.get("provenance", "reviewed_recipe"),
             }
-        )
+            if "relation" in item:
+                record["relation"] = item["relation"]
+            if "note" in item:
+                record["note"] = item["note"]
+            record["source_display"] = source_display
+        records.append(record)
 
-    # A later structural round may intentionally expand an earlier reviewed
-    # block (round21 does this for $0167). Keep the latest whole reviewed unit
-    # whenever source-ID ownership overlaps. Existing pre-round21 rounds do not
-    # overlap, so this affects only explicitly superseded evidence.
     claimed: set[str] = set()
     latest_records: list[dict] = []
     for record in reversed(records):
@@ -3454,6 +1825,7 @@ def _auto_reviewed_records(source: dict[str, dict]) -> list[dict]:
         claimed.update(record["snes_ids"])
     latest_records.reverse()
     return latest_records
+
 
 
 def _auto_french_unit(anchor_id: int, english: dict[int, str], french: dict[int, str]) -> tuple[str, ...]:
@@ -9072,7 +7444,7 @@ def _format_called_prefix_android_merge_suffix(
     return values, report
 
 
-def _format_round46_system_chest(
+def _format_android_system_chest(
     source_document: dict,
     mapping: dict,
     advances: dict[str, int],
@@ -9180,7 +7552,7 @@ def _remove_android_only_vocative(text: str, policy: str) -> str:
     return result.strip()
 
 
-def _round48_without_android_only_vocative(source_document: dict, mapping: dict) -> tuple[dict, dict | None]:
+def _format_without_android_only_vocative(source_document: dict, mapping: dict) -> tuple[dict, dict | None]:
     snes_ids = tuple(mapping.get("snes_ids", []))
     android_ids = tuple(mapping.get("android_ids", []))
     if len(snes_ids) != 1 or len(android_ids) != 1:
@@ -9222,7 +7594,7 @@ DIALOGUE_ANDROID_ONLY_SPEAKER_LABEL_KEYS = {
 }
 
 
-def _round49_without_android_only_speaker_label(
+def _format_without_android_only_speaker_label(
     source_document: dict, mapping: dict
 ) -> tuple[dict, dict | None]:
     snes_ids = tuple(mapping.get("snes_ids", []))
@@ -9265,11 +7637,11 @@ def _round49_without_android_only_speaker_label(
 # Round 54 exact recoveries from already-proven Android identities. These are
 # event-specific serialization rules only; no generic matcher/formatter is widened.
 
-DIALOGUE_ROUND54_ANDROID_FR_OMISSION_PARTIALS = {
+DIALOGUE_ANDROID_FR_OMISSION_PARTIALS = {
     "013A": ("C9:40D7",),
 }
 
-def _apply_round67_user_reviewed_scene_redistributions(
+def _apply_reviewed_scene_redistributions(
     event: dict,
     translations: dict[str, str],
     *,
@@ -9382,10 +7754,10 @@ def _format_mass_mapping(
     if recipe_result is not None:
         return recipe_result
 
-    mapping, _round48_vocative_repair = _round48_without_android_only_vocative(
+    mapping, _round48_vocative_repair = _format_without_android_only_vocative(
         source_document, mapping
     )
-    mapping, _round49_speaker_label_repair = _round49_without_android_only_speaker_label(
+    mapping, _round49_speaker_label_repair = _format_without_android_only_speaker_label(
         source_document, mapping
     )
     common = {
@@ -9403,7 +7775,7 @@ def _format_mass_mapping(
             prefer_semantic_line_breaks=prefer_semantic_line_breaks,
         )
     if mapping.get("relation") in {"round46_systxt_chest_money", "round46_systxt_chest_localization_override"}:
-        return _format_round46_system_chest(
+        return _format_android_system_chest(
             source_document, mapping, advances,
             prefer_semantic_line_breaks=prefer_semantic_line_breaks,
         )
@@ -9692,7 +8064,7 @@ def _replace_boundary_whitespace_with_page_break(text: str, *, first: bool) -> s
     return text[:punctuation_end] + "\f" + text[end:]
 
 
-def _apply_round48_0127_pagination(event: dict, translations: dict[str, str]) -> list[dict]:
+def _apply_0127_reviewed_pagination(event: dict, translations: dict[str, str]) -> list[dict]:
     """Apply the reviewed $0127 page boundaries from generated Android-FR text.
 
     The repair identifies sentence boundaries in the freshly formatted carriers;
@@ -9748,7 +8120,7 @@ def _apply_round48_0127_pagination(event: dict, translations: dict[str, str]) ->
     }]
 
 
-def _apply_round49_04e9_wait00_clears(event: dict, translations: dict[str, str]) -> list[dict]:
+def _apply_04e9_reviewed_wait00_clears(event: dict, translations: dict[str, str]) -> list[dict]:
     """Clear exact full-page carriers after existing WAIT $00 commands."""
     if event.get("event_id") != "04E9":
         return []
@@ -9788,7 +8160,7 @@ def _apply_round49_04e9_wait00_clears(event: dict, translations: dict[str, str])
     return repairs
 
 
-def _apply_round50_01ce_choice_page_clear(event: dict, translations: dict[str, str]) -> list[dict]:
+def _apply_01ce_reviewed_choice_page_clear(event: dict, translations: dict[str, str]) -> list[dict]:
     """Start the exact $01CE donation-choice unit on a fresh page.
 
     Android EN 536/537/538 is the determinate prompt/Yes/No triplet and the
@@ -10732,9 +9104,11 @@ def _automatic_layout_search_score(simulation) -> tuple[int, int, int, int]:
 
 @lru_cache(maxsize=1)
 def _reviewed_layout_search_recipe_index() -> dict[str, list[dict]]:
-    document = json.loads(DIALOGUE_LAYOUT_SEARCH_RECIPES.read_text(encoding="utf-8"))
-    if document.get("format_version") != 1:
-        raise ValueError("Unsupported dialogue layout-search recipe format")
+    document = _load_recipe_document(
+        DIALOGUE_LAYOUT_SEARCH_RECIPES,
+        label="Dialogue layout-search recipes",
+        expected={"format_version": 1},
+    )
     recipes = document.get("events", {})
     if not isinstance(recipes, dict):
         raise ValueError("Dialogue layout-search recipes must contain an events object")
@@ -11949,7 +10323,7 @@ def make_dialogue_format_mass(
             event_reports.extend(coverage_reports)
 
         if event_id == "04E2":
-            round67_reports, _ = _apply_round67_user_reviewed_scene_redistributions(
+            round67_reports, _ = _apply_reviewed_scene_redistributions(
                 event, event_translations, english=english, redistribution_values=redistribution_values,
                 layout_deferred_ids=complete_layout_deferred_ids, missing_ids=[],
             )
@@ -12005,13 +10379,13 @@ def make_dialogue_format_mass(
         explicit_post_wait_newline_repairs_by_event[event_id] = _apply_explicit_post_wait_newlines(
             event_id, event_translations, source_text_by_id=source_text_by_id
         )
-        round48_pagination_repairs_by_event[event_id] = _apply_round48_0127_pagination(
+        round48_pagination_repairs_by_event[event_id] = _apply_0127_reviewed_pagination(
             event, event_translations
         )
-        round49_04e9_wait00_clear_repairs_by_event[event_id] = _apply_round49_04e9_wait00_clears(
+        round49_04e9_wait00_clear_repairs_by_event[event_id] = _apply_04e9_reviewed_wait00_clears(
             event, event_translations
         )
-        round50_01ce_choice_page_clear_repairs_by_event[event_id] = _apply_round50_01ce_choice_page_clear(
+        round50_01ce_choice_page_clear_repairs_by_event[event_id] = _apply_01ce_reviewed_choice_page_clear(
             event, event_translations
         )
         # Final presentation-only pass: legacy/manual/redistributed inserts may
@@ -13180,7 +11554,7 @@ def make_dialogue_format_mass(
             event_reports.extend(manual_reports)
 
         if event_id == "04E1":
-            round67_reports, round67_resolved_missing_ids = _apply_round67_user_reviewed_scene_redistributions(
+            round67_reports, round67_resolved_missing_ids = _apply_reviewed_scene_redistributions(
                 event, event_translations, english=english, redistribution_values=redistribution_values,
                 layout_deferred_ids=layout_deferred_ids, missing_ids=missing_ids,
             )
@@ -13728,7 +12102,7 @@ def make_dialogue_format_mass(
     # counterpart is genuinely absent. Keep those events visibly PARTIEL so
     # the remaining English carrier is easy to find later rather than being
     # mistaken for a fully localized event.
-    for event_id, omitted_ids in DIALOGUE_ROUND54_ANDROID_FR_OMISSION_PARTIALS.items():
+    for event_id, omitted_ids in DIALOGUE_ANDROID_FR_OMISSION_PARTIALS.items():
         if event_id not in accepted_events:
             raise ValueError(f"Round-54 FR-omission PARTIEL ${event_id} was not accepted")
         if event_id not in partial_accepted_events:

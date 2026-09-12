@@ -15,6 +15,7 @@ translations/      generated or explicitly validated French bound to SNES IDs
 
 These files encode reviewed project decisions and must remain versioned:
 
+- `dialogues_reviewed_alignment_recipes.json` — user-validated SNES/Android identity/provenance recipes;
 - `dialogues_redistribution_recipes.json` — prose-free whole-scene Android-FR resegmentation recipes;
 - `dialogues_coverage_repair_recipes.json` — prose-free coverage repair recipes;
 - `dialogues_mapping_layout_recipes.json` — mapping-local Android-token/layout recipes;
