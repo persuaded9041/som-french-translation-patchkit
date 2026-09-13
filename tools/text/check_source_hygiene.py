@@ -118,6 +118,89 @@ def check_dialogue_pipeline(problems: list[str]) -> None:
             else:
                 problems.append(f"reviewed-alignment ${event_id}: invalid part {part!r}")
 
+    final_layout_path = ROOT / "recipes" / "android" / "dialogues_final_layout.json"
+    final_layout_doc = json.loads(final_layout_path.read_text(encoding="utf-8"))
+    allowed_top = {"format_version", "source", "description", "validated_against", "events"}
+    extra_top = set(final_layout_doc) - allowed_top
+    if extra_top:
+        problems.append(f"final-layout recipes: unsupported top-level keys {sorted(extra_top)}")
+    if final_layout_doc.get("format_version") != 1:
+        problems.append("final-layout recipes use an unsupported format version")
+    prose_re = re.compile(r"[A-Za-zÀ-ÿŒœ]")
+    for event_id, event in final_layout_doc.get("events", {}).items():
+        if set(event) != {"carriers"}:
+            problems.append(f"final-layout ${event_id}: unsupported event payload keys {sorted(set(event) - {'carriers'})}")
+        for text_id, carrier in event.get("carriers", {}).items():
+            allowed_carrier = {"semantic_sha256", "semantic_part_count", "seps"}
+            extra = set(carrier) - allowed_carrier
+            if extra:
+                problems.append(f"final-layout ${event_id}/{text_id}: unsupported keys {sorted(extra)}")
+            semantic_hash = str(carrier.get("semantic_sha256", ""))
+            if not re.fullmatch(r"[0-9a-f]{64}", semantic_hash):
+                problems.append(f"final-layout ${event_id}/{text_id}: invalid semantic SHA-256")
+            count = carrier.get("semantic_part_count")
+            seps = carrier.get("seps", [])
+            if not isinstance(count, int) or count < 1 or len(seps) != count + 1:
+                problems.append(f"final-layout ${event_id}/{text_id}: invalid semantic count/separator shape")
+            for sep in seps:
+                if not isinstance(sep, str) or re.search(r"[^ \n\f]", sep):
+                    problems.append(f"final-layout ${event_id}/{text_id}: non-layout separator {sep!r}")
+                if isinstance(sep, str) and prose_re.search(sep):
+                    problems.append(f"final-layout ${event_id}/{text_id}: prose in separator {sep!r}")
+
+    final_structure_path = ROOT / "recipes" / "android" / "dialogues_final_structure.json"
+    final_structure_doc = json.loads(final_structure_path.read_text(encoding="utf-8"))
+    allowed_top = {"format_version", "source", "description", "validated_against", "events"}
+    extra_top = set(final_structure_doc) - allowed_top
+    if extra_top:
+        problems.append(f"final-structure recipes: unsupported top-level keys {sorted(extra_top)}")
+    if final_structure_doc.get("format_version") != 1:
+        problems.append("final-structure recipes use an unsupported format version")
+    allowed_operations = {
+        "inline_omitted_player_name_with_clear",
+        "add_leading_clear",
+        "remove_leading_clear",
+        "preserve_source_punctuation_carrier",
+        "prepend_source_leading_punctuation",
+    }
+    for event_id, event in final_structure_doc.get("events", {}).items():
+        if set(event) != {"carriers"}:
+            problems.append(f"final-structure ${event_id}: unsupported event payload keys")
+        for text_id, carrier in event.get("carriers", {}).items():
+            if set(carrier) != {"operation"}:
+                problems.append(f"final-structure ${event_id}/{text_id}: unsupported carrier payload keys")
+                continue
+            if carrier.get("operation") not in allowed_operations:
+                problems.append(f"final-structure ${event_id}/{text_id}: invalid structural operation")
+
+    post_layout_path = ROOT / "recipes" / "android" / "dialogues_post_structure_layout.json"
+    post_layout_doc = json.loads(post_layout_path.read_text(encoding="utf-8"))
+    extra_top = set(post_layout_doc) - allowed_top
+    if extra_top:
+        problems.append(f"post-structure layout recipes: unsupported top-level keys {sorted(extra_top)}")
+    if post_layout_doc.get("format_version") != 1:
+        problems.append("post-structure layout recipes use an unsupported format version")
+    for event_id, event in post_layout_doc.get("events", {}).items():
+        if set(event) != {"carriers"}:
+            problems.append(f"post-structure layout ${event_id}: unsupported event payload keys")
+        for text_id, carrier in event.get("carriers", {}).items():
+            allowed_carrier = {"semantic_sha256", "semantic_part_count", "seps"}
+            extra = set(carrier) - allowed_carrier
+            if extra:
+                problems.append(f"post-structure layout ${event_id}/{text_id}: unsupported keys {sorted(extra)}")
+            semantic_hash = str(carrier.get("semantic_sha256", ""))
+            if not re.fullmatch(r"[0-9a-f]{64}", semantic_hash):
+                problems.append(f"post-structure layout ${event_id}/{text_id}: invalid semantic SHA-256")
+            count = carrier.get("semantic_part_count")
+            seps = carrier.get("seps", [])
+            if not isinstance(count, int) or count < 1 or len(seps) != count + 1:
+                problems.append(f"post-structure layout ${event_id}/{text_id}: invalid semantic count/separator shape")
+            for sep in seps:
+                if not isinstance(sep, str) or re.search(r"[^ \n\f]", sep):
+                    problems.append(f"post-structure layout ${event_id}/{text_id}: non-layout separator {sep!r}")
+                if isinstance(sep, str) and prose_re.search(sep):
+                    problems.append(f"post-structure layout ${event_id}/{text_id}: prose in separator {sep!r}")
+
     search_path = ROOT / "recipes" / "android" / "dialogues_layout_search.json"
     search_doc = json.loads(search_path.read_text(encoding="utf-8"))
     allowed = {"strategy", "text_id", "boundary_before_id", "source_offset", "step", "semantic_payload_changed"}

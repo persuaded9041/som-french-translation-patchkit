@@ -202,6 +202,80 @@ def resolve_structural_command_overrides(
     return result
 
 
+
+def resolve_structural_command_insertions(
+    translation_document: dict,
+    source_document: dict,
+) -> dict[str, dict[int, tuple[tuple[str, str], ...]]]:
+    """Resolve exact translated-only command insertions before stock commands.
+
+    This is intentionally narrower than arbitrary event editing.  Each insertion
+    is anchored to an existing stock command identified by its exact name/args
+    and adjacency to a semantic text carrier.  It is used for reviewed speaker
+    boundaries where the translated script needs a fresh dialogue page before a
+    stock PLAYER_NAME command while the canonical USA event remains untouched.
+    """
+    raw = translation_document.get("user_validated_structural_command_insertions", [])
+    if not isinstance(raw, list):
+        raise ValueError("user_validated_structural_command_insertions must be a list")
+    events = {event.get("event_id"): event for event in source_document.get("events", [])}
+    result: dict[str, dict[int, tuple[tuple[str, str], ...]]] = {}
+    for entry in raw:
+        if not isinstance(entry, dict):
+            raise ValueError("Every structural command insertion entry must be an object")
+        event_id = entry.get("event_id")
+        insertions = entry.get("insertions")
+        reason = entry.get("reason")
+        if not isinstance(event_id, str) or event_id not in events:
+            raise ValueError(f"Unknown structural-command-insertion event ID: {event_id!r}")
+        if not isinstance(insertions, list) or not insertions:
+            raise ValueError(f"Structural command insertion ${event_id}: insertions must be a non-empty list")
+        if not isinstance(reason, str) or not reason:
+            raise ValueError(f"Structural command insertion ${event_id}: reason is required")
+        tokens = events[event_id].get("tokens", [])
+        text_index = {
+            token.get("id"): index
+            for index, token in enumerate(tokens)
+            if token.get("type") in {"text", "ending_text"}
+        }
+        event_result = result.setdefault(event_id, {})
+        for spec in insertions:
+            if not isinstance(spec, dict):
+                raise ValueError(f"Structural command insertion ${event_id}: insertion spec must be an object")
+            target = spec.get("before_command")
+            commands = spec.get("commands")
+            if not isinstance(target, dict) or not isinstance(commands, list) or not commands:
+                raise ValueError(f"Structural command insertion ${event_id}: before_command and commands are required")
+            name = target.get("name")
+            args = target.get("args", "")
+            before_id = target.get("immediately_before_text_id")
+            if not isinstance(name, str) or not isinstance(args, str) or not isinstance(before_id, str):
+                raise ValueError(f"Structural command insertion ${event_id}: malformed command anchor")
+            if before_id not in text_index:
+                raise ValueError(f"Structural command insertion ${event_id}: unknown anchor {before_id}")
+            command_index = text_index[before_id] - 1
+            if command_index < 0:
+                raise ValueError(f"Structural command insertion ${event_id}: missing command before {before_id}")
+            token = tokens[command_index]
+            if token.get("type") != "command" or token.get("name") != name or token.get("args", "") != args:
+                raise ValueError(
+                    f"Structural command insertion ${event_id}: expected {name} {args!r} immediately before {before_id}"
+                )
+            rendered = []
+            for command in commands:
+                if not isinstance(command, dict) or not isinstance(command.get("name"), str) or not isinstance(command.get("args", ""), str):
+                    raise ValueError(f"Structural command insertion ${event_id}: malformed inserted command")
+                rendered.append((command["name"], command.get("args", "")))
+            if command_index in event_result:
+                raise ValueError(f"Structural command insertion ${event_id}: duplicate insertion before token {command_index}")
+            event_result[command_index] = tuple(rendered)
+    return result
+
+
+def load_structural_command_insertions(path: Path, source_document: dict) -> dict[str, dict[int, tuple[tuple[str, str], ...]]]:
+    document = json.loads(path.read_text(encoding="utf-8"))
+    return resolve_structural_command_insertions(document, source_document)
+
 def load_structural_command_overrides(path: Path, source_document: dict) -> dict[str, dict[int, tuple[str, str] | None]]:
     document = json.loads(path.read_text(encoding="utf-8"))
     return resolve_structural_command_overrides(document, source_document)

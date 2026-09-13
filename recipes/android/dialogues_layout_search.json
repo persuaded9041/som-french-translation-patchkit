@@ -12,19 +12,11 @@
         "semantic_payload_changed": false
       },
       {
-        "strategy": "newline_word_boundary",
-        "text_id": "C9:27E4",
-        "boundary_before_id": null,
-        "source_offset": 21,
-        "step": 2,
-        "semantic_payload_changed": false
-      },
-      {
         "strategy": "newline_before_carrier_via_previous",
         "text_id": "C9:2649",
         "boundary_before_id": "C9:265A",
         "source_offset": -1,
-        "step": 3,
+        "step": 2,
         "semantic_payload_changed": false
       }
     ],

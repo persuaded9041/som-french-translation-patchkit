@@ -89,6 +89,28 @@ def _render_android_token_recipe(
     return "".join(chunks)
 
 
+
+
+@lru_cache(maxsize=1)
+def reviewed_live_prefix_layout_lock_ids() -> frozenset[str]:
+    """Carrier IDs whose reviewed redistribution newlines/page controls are final.
+
+    The recipe flag is structural metadata only; translated prose still comes
+    exclusively from Android FR token references.
+    """
+    document = _load_recipe_document(
+        DIALOGUE_REDISTRIBUTION_RECIPES,
+        label="Dialogue redistribution recipes",
+        expected={"format_version": 1, "source": "sources/android/scrtxt_fr.bin"},
+    )
+    return frozenset(
+        str(sid)
+        for event in document.get("events", {}).values()
+        for sid, carrier in event.get("carriers", {}).items()
+        if carrier.get("preserve_live_prefix_layout") is True
+    )
+
+
 def load_dialogue_redistribution_recipes(french: dict[int, str]) -> tuple[dict[str, dict[str, str]], dict[str, dict]]:
     document = _load_recipe_document(
         DIALOGUE_REDISTRIBUTION_RECIPES,

@@ -30,6 +30,7 @@ from shared.core.rom import validate_base_rom  # noqa: E402
 from shared.dialogue.structure import (  # noqa: E402
     load_structural_omission_token_indexes,
     load_structural_command_overrides,
+    load_structural_command_insertions,
     load_choice_option_position_overrides,
 )
 from shared.text.translation_json import load_translation  # noqa: E402
@@ -323,6 +324,9 @@ def main() -> None:
     structural_command_overrides = load_structural_command_overrides(
         args.translation.resolve(), document
     )
+    structural_command_insertions = load_structural_command_insertions(
+        args.translation.resolve(), document
+    )
     choice_option_overrides = load_choice_option_position_overrides(
         args.translation.resolve(), document
     )
@@ -360,6 +364,7 @@ def main() -> None:
             player_names=player_names,
             omitted_command_token_indexes=structural_omissions.get(event["event_id"]),
             structural_command_overrides=structural_command_overrides.get(event["event_id"]),
+            structural_command_insertions_before=structural_command_insertions.get(event["event_id"]),
             choice_option_position_overrides=choice_option_overrides.get(event["event_id"]),
         )
         for event in events
@@ -385,6 +390,9 @@ def main() -> None:
         baseline_structural_command_overrides = load_structural_command_overrides(
             baseline_path, document
         )
+        baseline_structural_command_insertions = load_structural_command_insertions(
+            baseline_path, document
+        )
         baseline_choice_option_overrides = load_choice_option_position_overrides(
             baseline_path, document
         )
@@ -397,6 +405,7 @@ def main() -> None:
                 player_names=player_names,
                 omitted_command_token_indexes=baseline_structural_omissions.get(event["event_id"]),
                 structural_command_overrides=baseline_structural_command_overrides.get(event["event_id"]),
+                structural_command_insertions_before=baseline_structural_command_insertions.get(event["event_id"]),
                 choice_option_position_overrides=baseline_choice_option_overrides.get(event["event_id"]),
             )
             for event in events

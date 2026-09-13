@@ -144,6 +144,9 @@ TRANSLATION_TRAILING_PAGE_BREAK_ALLOWLIST = frozenset({
     ("03EA", "C9:F04C"),  # song: page 1 + intermediate page, then stock sound bridge
     ("04E2", "CA:31EE"),  # Papy! -> fresh page before Grandpa reply/action bridge
     ("04E3", "CA:36C7"),  # Truffaut pages -> fresh page before PLAYER_NAME(0) reaction
+    ("01D3", "C9:7944"),  # round85.54 reviewed speaker-page split
+    ("0289", "C9:A8ED"),  # round85.54 reviewed speaker-page split
+    ("02D2", "C9:BF1A"),  # round85.54 reviewed speaker-page split
 })
 # A translated chunk that follows an existing stock WAIT can request a clear
 # without another wait. The formatter uses this to replace legacy leading blank
@@ -442,6 +445,7 @@ def serialize_event(
     source: bool,
     omitted_command_token_indexes: frozenset[int] | set[int] | None = None,
     structural_command_overrides: dict[int, tuple[str, str] | None] | None = None,
+    structural_command_insertions_before: dict[int, tuple[tuple[str, str], ...]] | None = None,
     choice_option_position_overrides: dict[int, int] | None = None,
 ) -> bytes:
     """Serialize one event against its canonical clean-ROM source and optional translations.
@@ -462,16 +466,29 @@ def serialize_event(
     translations = translations or {}
     omitted = frozenset(omitted_command_token_indexes or ())
     command_overrides = dict(structural_command_overrides or {})
+    command_insertions = dict(structural_command_insertions_before or {})
     choice_overrides = dict(choice_option_position_overrides or {})
     if source and omitted:
         raise ValueError(f"Event ${event_id:04X}: source serialization cannot omit commands")
     if source and command_overrides:
         raise ValueError(f"Event ${event_id:04X}: source serialization cannot override commands")
+    if source and command_insertions:
+        raise ValueError(f"Event ${event_id:04X}: source serialization cannot insert commands")
     if source and choice_overrides:
         raise ValueError(f"Event ${event_id:04X}: source serialization cannot move CHOICE_OPTION commands")
     invalid_indexes = sorted(index for index in omitted if index < 0 or index >= len(event["tokens"]))
     if invalid_indexes:
         raise ValueError(f"Event ${event_id:04X}: invalid omitted command token indexes: {invalid_indexes}")
+    invalid_insertion_indexes = sorted(index for index in command_insertions if index < 0 or index >= len(event["tokens"]))
+    if invalid_insertion_indexes:
+        raise ValueError(f"Event ${event_id:04X}: invalid structural command insertion token indexes: {invalid_insertion_indexes}")
+    for index, commands in command_insertions.items():
+        if not commands:
+            raise ValueError(f"Event ${event_id:04X}: empty structural command insertion before token {index}")
+        for name, args in commands:
+            if not isinstance(name, str) or not isinstance(args, str):
+                raise ValueError(f"Event ${event_id:04X}: inserted command must use string name/args")
+
     invalid_command_indexes = sorted(index for index in command_overrides if index < 0 or index >= len(event["tokens"]))
     if invalid_command_indexes:
         raise ValueError(f"Event ${event_id:04X}: invalid structural command override token indexes: {invalid_command_indexes}")
@@ -500,6 +517,9 @@ def serialize_event(
 
     out = bytearray()
     for index, (token, original_token) in enumerate(zip(event["tokens"], canonical["tokens"])):
+        if index in command_insertions:
+            for name, args in command_insertions[index]:
+                out += _command_bytes({"name": name, "args": args})
         kind = token["type"]
         if kind != original_token["type"]:
             raise ValueError(

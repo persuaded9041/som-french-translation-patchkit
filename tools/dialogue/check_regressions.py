@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from shared.dialogue.pipeline.alignment import make_dialogue_auto_alignment  # noqa: E402
-from shared.dialogue.pipeline.common import DEFAULT_SCRTXT_EN, DEFAULT_SCRTXT_FR, read_scrtxt  # noqa: E402
+from shared.dialogue.pipeline.common import DEFAULT_SCRTXT_EN, DEFAULT_SCRTXT_FR, read_scrtxt, normalize_android_prose  # noqa: E402
 from shared.dialogue.pipeline.formatter import make_dialogue_format_mass  # noqa: E402
 from shared.extracted.assets import load_or_extract_dialogues
 
@@ -61,11 +61,26 @@ def check_targeted_reviews(manual: dict, french: dict, mass: dict) -> None:
         "CA:2BED": "Mon corps actuel est sur le point de\nse corrompre.\nIl me faut un nouveau corps...",
         "CA:2C3A": "Un être humain ordinaire est incapable\nde contenir longtemps mon énergie.\fIl me faut donc le corps d'un être\nd'exception.\fOr, une ou deux fois par siècle, un\nhumain naît avec le Sang des ténèbres\ndans les veines.",
         "CA:2C84": "",
-        "CA:2C93": "Lorsque je me transfère dans ce corps\nexceptionnel, mon pouvoir se trouve\ndécuplé.\fUn corps... comme celui de Durac !\fSon pouvoir maléfique a dû être scellé\nquand il était jeune... Il n'en est\ndevenu que plus droit et juste !\fAvec mon nouveau corps et la\nForteresse de Mana, je forgerai un\nmonde à mon image !",
     }
     for sid, text in expected_04e1.items():
         if semantic_layout_normalized(active.get(sid, "")) != semantic_layout_normalized(text):
             die(f"$04E1 {sid} semantic payload drifted")
+
+    # Round 85.66/85.67 validated coverage must be sourced from Android FR,
+    # never frozen as localized prose in this regression.
+    android_fr = read_scrtxt(DEFAULT_SCRTXT_FR)
+    for sid, android_ids in {
+        "CA:2C93": [3260, 3261],
+        "CA:2DF2": [3278],
+        "C9:DE89": [1897],
+        "CA:3A05": [1373],
+        "CA:5A7F": [1988],
+    }.items():
+        rendered = semantic_layout_normalized(active.get(sid, ""))
+        for android_id in android_ids:
+            expected = semantic_layout_normalized(normalize_android_prose(android_fr[android_id]).replace("_", "").strip())
+            if expected not in rendered:
+                die(f"Round-85 validated Android-FR coverage missing: {sid} <- {android_id}")
 
     expected_04e2 = {"CA:32C5": " : Non !\nC'est pas possible !\n", "CA:32D7": "Ils se sont sûrement échappés !"}
     for sid, text in expected_04e2.items():
@@ -82,6 +97,21 @@ def check_targeted_reviews(manual: dict, french: dict, mass: dict) -> None:
     }
     if expected_override not in french.get("user_validated_structural_command_overrides", []):
         die("$04E2 PLAYER_NAME resegmentation drifted/missing")
+
+    # Round 85.54/85.55-v2 locked visual/speaker sentinels. These are exact
+    # layout checks because the bugs were caused by rolling-window speaker
+    # fragments rather than semantic mistranslation.
+    if active.get("C9:6CDD") != "\vLutin : Bah, ma mémoire finira\nbien par revenir ! ":
+        die("$01B9 first speaker carrier layout drifted")
+    if active.get("C9:6D0D") != "Faut être\npositif dans la vie, hé hé hé !":
+        die("$01B9 continuation carrier layout drifted")
+    if active.get("C9:7D47") != ": Hein ? Où ça ?":
+        die("$01DA single-line player reply drifted")
+    if active.get("C9:7E72") != ".\fHum... Drôle de nom.\nMoi, c'est... ":
+        die("$01DA girl-speaker exception/page boundary drifted")
+    structural_insertions = french.get("user_validated_structural_command_insertions", [])
+    if {entry.get("event_id") for entry in structural_insertions} != {"0112", "01DD", "02EE", "03AA", "04A1", "05F8"}:
+        die("Round-85.55 structural-command insertion event set drifted")
 
     cov = mass["coverage"]
     if cov.get("user_validated_visually_complete_event_count", 0) < 5:
@@ -138,8 +168,8 @@ def check_scene_recipes(french: dict, mass: dict, auto: dict, recipes: dict) -> 
         "accepted_event_count": 701,
         "complete_accepted_event_count": 701,
         "partial_accepted_event_count": 0,
-        "accepted_semantic_source_id_count": 1815,
-        "translation_entry_count": 1947,
+        "accepted_semantic_source_id_count": 1813,
+        "translation_entry_count": 1956,
         "excluded_event_count": 3,
     }
     for key, value in expected_cov.items():

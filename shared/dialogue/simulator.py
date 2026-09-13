@@ -347,6 +347,11 @@ class _Simulator:
         ):
             self.last_safe_split = len(self.line_glyphs)
         self.line_glyphs.append(glyph)
+        # The live current line is visible state even before an explicit newline
+        # commits it to ``visible_lines``. A WAIT immediately after TEXT_CLEAR
+        # must therefore snapshot a fresh one-line page instead of reusing the
+        # preceding page merely because no line has been committed yet.
+        self.changed_since_snapshot = True
 
     def add_glyph(self, glyph: Glyph) -> None:
         # A real $7F newline advances the dialogue cursor immediately. Once
@@ -876,6 +881,7 @@ def simulate_event(
     player_names: dict[int, str] | None = None,
     omitted_command_token_indexes: frozenset[int] | set[int] | None = None,
     structural_command_overrides: dict[int, tuple[str, str] | None] | None = None,
+    structural_command_insertions_before: dict[int, tuple[tuple[str, str], ...]] | None = None,
     choice_option_position_overrides: dict[int, int] | None = None,
 ) -> EventSimulation:
     font = font or make_dialogue_font(base_rom)
@@ -892,6 +898,7 @@ def simulate_event(
         source=False,
         omitted_command_token_indexes=omitted_command_token_indexes,
         structural_command_overrides=structural_command_overrides,
+        structural_command_insertions_before=structural_command_insertions_before,
         choice_option_position_overrides=choice_option_position_overrides,
     )
     return _Simulator(

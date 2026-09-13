@@ -98,3 +98,8 @@ Re-running the simulator on the candidate mass translation produces **0 errors, 
 0 implicit runtime wraps**. `WAIT00_THIRD_LINE_SCROLL_RISK` remains a review-only informational
 flag and is not a simulator error/warning. The HTML still supports NEW/MODIFIED/TO REVIEW tags
 and preserved review state.
+
+
+### Round 85.56 translated-only command insertions
+
+The simulator now accepts the same exact-anchor translated command-insertion map as the dialogue serializer. These insertions are never applied during source/no-op serialization. They exist only for user-reviewed translated speaker boundaries and are resolved against the clean-USA token stream before simulation. Round 85.56 final validation remains 701 events, 0 errors, 0 warnings and 0 implicit wraps with 9-character simulated player names.

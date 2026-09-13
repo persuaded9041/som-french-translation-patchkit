@@ -1,0 +1,660 @@
+{
+  "format_version": 1,
+  "source": "Round-85.53 canonical dialogue payload after recipes/android/dialogues_final_structure.json",
+  "description": "User-validated Round-85.54/85.55-v2 post-structure layout delta. Contains only semantic fingerprints/counts and spaces/newlines/page separators; no translated prose.",
+  "validated_against": {
+    "round": "85.55-v2"
+  },
+  "events": {
+    "0020": {
+      "carriers": {
+        "C9:09A7": {
+          "semantic_sha256": "2e1a6eff350140fbbeeeb46d3a3a800f16ac0da80ae77ca37615b77fc58a67a9",
+          "semantic_part_count": 2,
+          "seps": [
+            "",
+            " ",
+            " "
+          ]
+        },
+        "C9:09B9": {
+          "semantic_sha256": "3f8fd1fa8078d1a97991b728dbf57e516cbd22a43f89ef5b0ff08f59de010428",
+          "semantic_part_count": 29,
+          "seps": [
+            "",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\f",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            ""
+          ]
+        }
+      }
+    },
+    "010C": {
+      "carriers": {
+        "C9:2ED2": {
+          "semantic_sha256": "20b247fc39a71dde33efe00b290c9f1496142019c81f080dc829cc6071f31435",
+          "semantic_part_count": 12,
+          "seps": [
+            "",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            "\f",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n"
+          ]
+        }
+      }
+    },
+    "0112": {
+      "carriers": {
+        "C9:34B0": {
+          "semantic_sha256": "728060cd7fb792335ae094d2ddc48b468361afcb4954e1496878fdbff4c574e3",
+          "semantic_part_count": 9,
+          "seps": [
+            "",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " "
+          ]
+        }
+      }
+    },
+    "01B9": {
+      "carriers": {
+        "C9:6CDD": {
+          "semantic_sha256": "6f868545ccdca63d3bf7f7ce8f2361af6be3e030c3a55372e104615420069804",
+          "semantic_part_count": 10,
+          "seps": [
+            "",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            " "
+          ]
+        },
+        "C9:6D0D": {
+          "semantic_sha256": "d22ba4469103a1da2fbc8bccd40144e819f07a613ab26a7e209528182f1c83e0",
+          "semantic_part_count": 10,
+          "seps": [
+            "",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            ""
+          ]
+        }
+      }
+    },
+    "01D3": {
+      "carriers": {
+        "C9:7944": {
+          "semantic_sha256": "3c84820ffd83a0994558146778dc3f6cebcb2f94490b13cee119a5b70fc9684d",
+          "semantic_part_count": 19,
+          "seps": [
+            "",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\f"
+          ]
+        }
+      }
+    },
+    "01DA": {
+      "carriers": {
+        "C9:7D47": {
+          "semantic_sha256": "b765ab173196d8291addef786e077e83ea7254dc1a560b9ab99753d947969e19",
+          "semantic_part_count": 6,
+          "seps": [
+            "",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            ""
+          ]
+        },
+        "C9:7E64": {
+          "semantic_sha256": "5aafff91bd0a14c1d8eeba5d2f1b4832b146396d29eaf9c01dca1d03cac02522",
+          "semantic_part_count": 3,
+          "seps": [
+            " ",
+            " ",
+            " ",
+            "\n"
+          ]
+        },
+        "C9:7E72": {
+          "semantic_sha256": "244ce97d03045b19f35a598171959987d2b610bdabb613a6a2edb87f2329ec9e",
+          "semantic_part_count": 7,
+          "seps": [
+            "",
+            "\f",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " "
+          ]
+        }
+      }
+    },
+    "01DD": {
+      "carriers": {
+        "C9:806F": {
+          "semantic_sha256": "018379ce84b9174de237607879241dfa3ebf36175c1f91447d4affb3c4122084",
+          "semantic_part_count": 18,
+          "seps": [
+            "",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            " "
+          ]
+        },
+        "C9:80A1": {
+          "semantic_sha256": "b2c0d24f9fcd027e67e2529e074be075eb12ecbe87ed3101e8f7efecd29d30e1",
+          "semantic_part_count": 7,
+          "seps": [
+            "",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " "
+          ]
+        }
+      }
+    },
+    "0289": {
+      "carriers": {
+        "C9:A8ED": {
+          "semantic_sha256": "45dd955d63faa2ca410d305bbc59bc0563270e3706849f78305f060a6c9521a2",
+          "semantic_part_count": 12,
+          "seps": [
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\f"
+          ]
+        }
+      }
+    },
+    "02D2": {
+      "carriers": {
+        "C9:BF1A": {
+          "semantic_sha256": "8466fca971b340880347a60a530c8faf232283177b7def7611413407e9c0d0e7",
+          "semantic_part_count": 14,
+          "seps": [
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\f"
+          ]
+        }
+      }
+    },
+    "02EE": {
+      "carriers": {
+        "C9:C830": {
+          "semantic_sha256": "0f443eedcd722447b8582430319a6c9994ac2ee508ad230bf9af8cc0f03630cf",
+          "semantic_part_count": 11,
+          "seps": [
+            "",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            " "
+          ]
+        },
+        "C9:C84D": {
+          "semantic_sha256": "f707e472e45d0f040eff1c65b42ebc4b024a4337f7cd6e2b4de6c72484ec254c",
+          "semantic_part_count": 17,
+          "seps": [
+            "",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            "\f",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            ""
+          ]
+        }
+      }
+    },
+    "03AA": {
+      "carriers": {
+        "C9:E13E": {
+          "semantic_sha256": "fc01d4f386f6592dcf90f828c4ab26a3a9a70a50f40ecc476c162ef4f5ac836e",
+          "semantic_part_count": 9,
+          "seps": [
+            "",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " "
+          ]
+        },
+        "C9:E165": {
+          "semantic_sha256": "4789ee1d7a236d49d3c8f9f9550aa8b1510382e99b06beb193aa4db1ec035e4c",
+          "semantic_part_count": 9,
+          "seps": [
+            "",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            ""
+          ]
+        }
+      }
+    },
+    "0429": {
+      "carriers": {
+        "CA:0FE3": {
+          "semantic_sha256": "39d5b12722d558f7f2b9c43eb479cd86f4222d1e144dd49930b3b0bc31728700",
+          "semantic_part_count": 7,
+          "seps": [
+            "",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            "\n"
+          ]
+        }
+      }
+    },
+    "04A1": {
+      "carriers": {
+        "CA:17DA": {
+          "semantic_sha256": "3e8ed923e11c9205266d4ab8c14e464ceff58045e229d69215ac8d9b07a8ea27",
+          "semantic_part_count": 7,
+          "seps": [
+            "",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " "
+          ]
+        },
+        "CA:17EF": {
+          "semantic_sha256": "aedbe5eaff43f9cf8fa11e325558b8f80c6170555b09352e49cef09c086d67a6",
+          "semantic_part_count": 9,
+          "seps": [
+            "",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            ""
+          ]
+        }
+      }
+    },
+    "0555": {
+      "carriers": {
+        "CA:632B": {
+          "semantic_sha256": "874c30233f1f9868977a6fbbb21cecd91e8d1d9752302c59abf4e1babe9fdbb5",
+          "semantic_part_count": 2,
+          "seps": [
+            "\n",
+            " ",
+            " "
+          ]
+        }
+      }
+    },
+    "0558": {
+      "carriers": {
+        "CA:653F": {
+          "semantic_sha256": "0ad4fe72db4b1c97baa274155958754e5dd50e85afcc914bab8f24cffdd28bdb",
+          "semantic_part_count": 1,
+          "seps": [
+            " ",
+            " "
+          ]
+        },
+        "CA:6542": {
+          "semantic_sha256": "82d5f7e9bdec01755a8584214f6d0fcf58367df68329fd73a9db2c5bdf000c86",
+          "semantic_part_count": 1,
+          "seps": [
+            " ",
+            ""
+          ]
+        },
+        "CA:6549": {
+          "semantic_sha256": "d8cc11bb864e2692e0357fc9e717193393345f48e9caf22c5470f1bccdba0f48",
+          "semantic_part_count": 1,
+          "seps": [
+            " ",
+            "\n"
+          ]
+        },
+        "CA:65A6": {
+          "semantic_sha256": "0523e2f48892de517f4a01453ecfa6b2b50356a40f10a1fc34e8cef61d0b198d",
+          "semantic_part_count": 3,
+          "seps": [
+            " ",
+            " ",
+            "\n",
+            ""
+          ]
+        },
+        "CA:65E8": {
+          "semantic_sha256": "665157bc313539e04ab7a86f44e375f1ad268659fdb75e68e8b72482fbaf5173",
+          "semantic_part_count": 11,
+          "seps": [
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            "\f",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n"
+          ]
+        },
+        "CA:6617": {
+          "semantic_sha256": "db04c1de23f344e9f461a350e44fe3b34a1f08a58b93f1e3add49589fc006123",
+          "semantic_part_count": 9,
+          "seps": [
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            " "
+          ]
+        }
+      }
+    },
+    "0559": {
+      "carriers": {
+        "CA:6766": {
+          "semantic_sha256": "3f6e5b05037f340f02391041bd8d6fec54a4454f95cbfcd2b4c9c5299dc04106",
+          "semantic_part_count": 17,
+          "seps": [
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            " "
+          ]
+        }
+      }
+    },
+    "0592": {
+      "carriers": {
+        "CA:752E": {
+          "semantic_sha256": "abd6050db078edf1434519ca0a74dcfb01943ca5f1f6a580028369eb143ed943",
+          "semantic_part_count": 11,
+          "seps": [
+            "",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n",
+            "\f",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n"
+          ]
+        }
+      }
+    },
+    "05F8": {
+      "carriers": {
+        "CA:7C98": {
+          "semantic_sha256": "6c5ccb7b0684d3fd5794794daaecc725acaf0a49c8b5643c31d312d5765696e7",
+          "semantic_part_count": 7,
+          "seps": [
+            "",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            "\n"
+          ]
+        },
+        "CA:7D32": {
+          "semantic_sha256": "25826651c2b9d725f19b28476a4f1e81c9b8a904e167384d8db9df3457240616",
+          "semantic_part_count": 13,
+          "seps": [
+            "",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            ""
+          ]
+        },
+        "CA:80C2": {
+          "semantic_sha256": "37a2317936bff4181a70374c5e439b99b5bb6820ef79029f43f2b1acf766af0a",
+          "semantic_part_count": 3,
+          "seps": [
+            " ",
+            " ",
+            " ",
+            ""
+          ]
+        },
+        "CA:8300": {
+          "semantic_sha256": "882e9325bcae35f4a4f09252888b763b12afba215effd8dfb6bb8653f393c476",
+          "semantic_part_count": 3,
+          "seps": [
+            "",
+            " ",
+            " ",
+            "\n"
+          ]
+        },
+        "CA:8381": {
+          "semantic_sha256": "0ad4fe72db4b1c97baa274155958754e5dd50e85afcc914bab8f24cffdd28bdb",
+          "semantic_part_count": 1,
+          "seps": [
+            "",
+            " "
+          ]
+        },
+        "CA:8384": {
+          "semantic_sha256": "d29dce44599400e91369dcb73219036a75e288e10977201507f8c1cbd84186a7",
+          "semantic_part_count": 1,
+          "seps": [
+            "",
+            "\n"
+          ]
+        },
+        "CA:83F0": {
+          "semantic_sha256": "22e708cc46ab6303c6dcd1597ff771d652603c515abd2955247a9fa22a15e80e",
+          "semantic_part_count": 8,
+          "seps": [
+            " ",
+            " ",
+            " ",
+            " ",
+            "\n",
+            " ",
+            " ",
+            " ",
+            ""
+          ]
+        }
+      }
+    }
+  }
+}

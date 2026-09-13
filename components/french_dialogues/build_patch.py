@@ -46,9 +46,11 @@ from shared.core.rom import ROM_SIZE_OFFSET, expand_rom, update_checksum, valida
 from shared.dialogue.structure import (  # noqa: E402
     load_structural_omission_token_indexes,
     load_structural_command_overrides,
+    load_structural_command_insertions,
     load_choice_option_position_overrides,
     resolve_choice_option_position_overrides,
     resolve_structural_command_overrides,
+    resolve_structural_command_insertions,
     resolve_structural_omission_token_indexes,
 )
 from shared.text.translation_json import load_translation, resolve_translation  # noqa: E402
@@ -106,6 +108,9 @@ def build(
             structural_command_overrides = resolve_structural_command_overrides(
                 translation_document, document
             )
+            structural_command_insertions = resolve_structural_command_insertions(
+                translation_document, document
+            )
             choice_option_overrides = resolve_choice_option_position_overrides(
                 translation_document, document
             )
@@ -125,6 +130,9 @@ def build(
                 translation_file, document, translations=translations
             )
             structural_command_overrides = load_structural_command_overrides(
+                translation_file, document
+            )
+            structural_command_insertions = load_structural_command_insertions(
                 translation_file, document
             )
             choice_option_overrides = load_choice_option_position_overrides(
@@ -157,6 +165,7 @@ def build(
             )
     omitted_commands = sum(len(indexes) for indexes in structural_omissions.values())
     structural_command_override_count = sum(len(indexes) for indexes in structural_command_overrides.values())
+    structural_command_insertion_count = sum(len(indexes) for indexes in structural_command_insertions.values())
     choice_override_count = sum(len(indexes) for indexes in choice_option_overrides.values())
     if omitted_commands:
         reports.append(
@@ -168,6 +177,12 @@ def build(
         reports.append(
             f"User-validated translated command override(s): {structural_command_override_count} "
             f"across {len(structural_command_overrides)} event(s)"
+        )
+
+    if structural_command_insertion_count:
+        reports.append(
+            f"User-validated translated command insertion boundary(s): {structural_command_insertion_count} "
+            f"across {len(structural_command_insertions)} event(s)"
         )
 
     if choice_override_count:
@@ -193,6 +208,7 @@ def build(
             source=False,
             omitted_command_token_indexes=structural_omissions.get(event["event_id"]),
             structural_command_overrides=structural_command_overrides.get(event["event_id"]),
+            structural_command_insertions_before=structural_command_insertions.get(event["event_id"]),
             choice_option_position_overrides=choice_option_overrides.get(event["event_id"]),
         )
         if not source_data or source_data[-1] != 0x00:

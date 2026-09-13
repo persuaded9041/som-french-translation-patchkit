@@ -82,97 +82,19 @@ French text lives separately under `translations/` in sparse `*_french.json`
 files. The validated translations formerly stored in component CSV/BIN inputs for
 `french_name_entry_extended`, `french_menus`, `french_opening`, and `french_intro` have been migrated there.
 
-`french_dialogues` uses the **simulator-filtered Android-FR mass pass** during a normal standalone build. `translations/dialogues_french.json` is a generated local performance cache/review artifact, never canonical provenance: a fingerprint-valid copy is reused, otherwise the same pipeline regenerates and persists it from canonical Android/source inputs. The current corpus contains **701 simulator-clean playable events / 1815 accepted semantic source IDs / 1947 active sparse translation entries**: **701 complete + 0 PARTIEL**. Semantic Android alignment remains **1798 / 1838 (97.8%)**, with **40 unresolved semantic IDs**; the only exclusions are the three routing-audited unused/orphan events `$0269`, `$02DE`, `$0603`. Independent simulation reports **0 errors / 0 warnings / 0 implicit runtime wraps**. Manual-JP, validated-suppression and shared-prefix provenance remains explicit in the canonical metadata. `$035F/C9:D1B8` remains strictly `Dryade`; never restore `Dryade fera réagir l'orbe !`.
+`french_dialogues` uses the **simulator-filtered Android-FR mass pass** during a normal standalone build. `translations/dialogues_french.json` is a generated local performance cache/review artifact, never canonical provenance: a fingerprint-valid copy is reused, otherwise the same pipeline regenerates and persists it from canonical Android/source inputs. The current corpus contains **701 simulator-clean playable events / 1813 accepted semantic source IDs / 1956 active sparse translation entries**: **701 complete + 0 PARTIEL**. Semantic Android alignment remains **1798 / 1838 (97.8%)**, with **40 unresolved semantic IDs**; the only exclusions are the three routing-audited unused/orphan events `$0269`, `$02DE`, `$0603`. Independent simulation reports **0 errors / 0 warnings / 0 implicit runtime wraps**. Manual-JP, validated-suppression and shared-prefix provenance remains explicit in the canonical metadata. `$035F/C9:D1B8` remains strictly `Dryade`; never restore `Dryade fera réagir l'orbe !`.
 
 `french_resources` follows the same provenance rule: `reports/android/text_resources_android.json` is an optional review output, while `translations/text_resources_french.json` is a generated local performance cache/review artifact. A fingerprint-valid copy is reused; otherwise the component regenerates and persists it from the clean-USA text-resource extraction, `recipes/android/text_resources_layout.json`, and Android `systxt_en/fr.bin`. Neither file is canonical provenance.
 
 ## Dialogue checkpoint
 
-The current development checkpoint is **Round 85 — post-audit dialogue coverage/layout cleanup**. Round 84 Name Entry remains fully runtime-validated and locked. Round 85 re-audits dialogue coverage, restores missing Android-FR scene units, improves generic carrier-boundary and live-PLAYER_NAME reflow, and adds the source-derived Android 2151–2155 transition at `$0559`. The user accepts this state for continued development; detailed runtime validation of the newly audited dialogue cases is deferred to the next complete playthrough.
-Dialogue identity remains **1798 / 1838 (97.8%)**; the remaining unresolved Android
-IDs are not reopened by this checkpoint. The playable dialogue corpus contains
-**701 events = 701 complete + 0 PARTIEL**, with **1815 accepted semantic source IDs /
-1947 active sparse translation entries**. The only exclusions are the three
-routing-audited unused/orphan stock events `$0269`, `$02DE`, `$0603`.
+**Round 85.68 is the promoted canonical dialogue state.** It canonizes the complete user-validated review chain through the Android-FR completeness audit. A fresh deletion/regeneration of `translations/dialogues_french.json` reproduces the accepted review JSON byte-for-byte (SHA-256 `a507bd8b715cef6f6f2d81165c3fab62a2e8c4d27d090cc5b68ddfbb07769728`).
 
-Independent simulation reports **0 errors / 0 warnings / 0 implicit runtime wraps**.
-The runtime-validated dialogue contract is **<= 38 decoded glyphs** and **<= 216 px
-advance** for ordinary dialogue lines. `vwf_dialogues` contains the validated parser
-capacity correction that removes the delayed/shifted 35th-glyph artifact.
+The playable dialogue corpus is **701 events = 701 complete + 0 PARTIEL**, with **1813 accepted semantic source IDs / 1956 sparse translation entries**. Android identity remains **1798 / 1838 (97.8%)**; the only exclusions remain the routing-audited unused/orphan events `$0269`, `$02DE`, `$0603`. Independent simulation reports **0 errors / 0 warnings / 0 implicit runtime wraps**.
 
-The deterministic Android-FR generation pipeline owns the 216-px reflow and all
-reviewed dialogue serialization. No French prose was hard-coded to solve the migration: wrapping, generated
-page transitions, live `PLAYER_NAME` prefix accounting, stock transition reuse and
-choice-specific layout handling are generic and independently simulator-gated.
-A reproducibility amendment stores the seven reviewed outer-choice-decoration removals
-in `recipes/android/dialogues_choice_layout.json`; that file contains only
-canonical event/carrier identities, never French text. When one of those reviewed rows
-would otherwise force a fresh page, the owning Android-backed prompt is retried with the
-existing compact wrapper before the decoration is removed. Thus a fresh
-`dialogue-format-mass` run reproduces the reviewed choice presentation instead of
-silently restoring stock parentheses. Reviewed Round 67/68/69 identities, wording and
-scene redistributions remain locked.
+The final reviewed delta lives in `recipes/android/dialogues_round85_review.json`. It stores no French prose: only Android IDs, structural carrier/control operations, choice coordinates, semantic fingerprints and layout separators. The `$05F8` one-line-page preview defect was also fixed in `shared/dialogue/simulator.py`; it was a simulator snapshot issue, not missing serialized dialogue.
 
-Restructured dialogue prose is **not stored in clear text** outside the canonical
-sources. All canonical Android structural decisions live under `recipes/android/`. Generated review/audit material belongs under `reports/android/` and is never a build input.
-
-The active structural recipe layer is split by responsibility:
-
-- `dialogues_reviewed_alignment.json` — reviewed SNES/Android identities and structural provenance;
-- `dialogues_redistribution.json` — scene/carrier redistribution from Android tokens;
-- `dialogues_mapping_layout.json` — mapping-local token/layout reconstruction;
-- `dialogues_layout_search.json` — reviewed carrier/offset layout operations;
-- `dialogues_coverage_repair.json` — source-derived coverage repairs;
-- `dialogues_choice_layout.json` — reviewed choice geometry/layout operations.
-
-These files contain IDs, token references, punctuation and structural operations only.
-Actual localized prose is read from `sources/android/scrtxt_fr.bin` on every generation.
-Genuine non-Android French remains isolated in `translations/dialogues_manual_supplements.json`.
-`translations/dialogues_french.json` is a generated local cache that may be kept during development; it is never required as canonical input and can always be regenerated. `reports/android/dialogues_auto.json`, the unmapped/exclusion CSVs and the mass-format reports remain generated-on-demand review outputs.
-
-Operational material:
-
-- `docs/HANDOFF.md` — authoritative current state and next work;
-- `docs/DIALOGUE_FORMAT.md` / `docs/DIALOGUE_SIMULATOR.md` — formatting/runtime model;
-- `reports/android/dialogues_manual_supplements.html` — generated manual-provenance review sheet (ignored; regenerate on demand);
-- `recipes/android/dialogues_redistribution.json` — source-derived scene recipes.
-- `recipes/android/dialogues_choice_layout.json` — structural-only reviewed choice-layout recipes; no localized prose.
-
-Historical investigation is retained only where it still documents active runtime invariants or rejected paths worth preserving; obsolete round-specific audit snapshots have been removed.
-
-Dialogue formatting follows the runtime-validated 216-pixel safe-width / 38-parser-unit /
-3-line limits. Extra pages use the validated `WAIT $00` + `TEXT_CLEAR` transition,
-with sentence boundaries preferred; timed waits are preserved. Dynamic
-`PLAYER_NAME`, proven `TEXT_X` geometries and existing event interruptions are handled
-only by explicitly proven structural rules. Stock rolling-window persistence after
-interactive `WAIT $00` is preserved rather than deduplicated automatically. Unsupported
-structures are rejected rather than guessed. Choice rows use the ordinary VWF renderer;
-option-start and terminal-boundary synchronization keep the stock magenta geometry aligned,
-and `french_dialogues` may minimally move only a later option anchor when decoded text would
-otherwise be overwritten. The 701-event corpus as a whole still requires the planned
-full-game playthrough; the Round-52 structural changes are runtime-validated; the Round-54 exact recoveries and the Round-57 omission/suppression changes are pending runtime validation.
-
-`tools/dialogue/simulate.py` is the user-validated static guardrail: it
-re-decodes the final serialized event bytes and independently checks DTE,
-`PLAYER_NAME`, VWF geometry, parser capacity, wraps, page controls and the rolling
-window. Detailed rules and the conservative structural fallbacks are documented in
-`docs/DIALOGUE_FORMAT.md` and `docs/DIALOGUE_SIMULATOR.md`.
-
-`tools/dialogue/extract_japanese.py` is the analysis-only bridge from a canonical
-USA dialogue carrier ID (for example `C9:916F`) to original **SNES-JP** evidence.
-It identifies the owning USA event, reads the same event ID from a user-supplied
-clean Japanese ROM, decodes the original SFC Japanese text codec, and refuses to
-invent a one-to-one carrier when regional scripts are resegmented. Its regression
-checker is `tools/dialogue/check_japanese_extractor.py`; usage and confidence
-levels are documented in `docs/JAPANESE_DIALOGUE_EXTRACTION.md`. It is not part of
-the build and never creates Android identity.
-
-For the current development checkpoint and next work, see `docs/HANDOFF.md`. `docs/MAINTENANCE_NEXT.md` tracks the remaining maintenance work. The dialogue pipeline cleanup/modularization is complete, and Round 85.10 establishes the optimized serial reference path (~5.8 s median mass generation in the checkpoint environment) without changing Android/SNES provenance or serialized outputs. The accepted non-dialogue UI-VWF architecture and extension rules are summarized in `docs/UI_VWF.md`. The rejected Watts forge experiments and the runtime proof chain remain in `docs/FORGE_VWF_RESEARCH.md`; read both files before extending `vwf_ui`.
-
-See `docs/TEXT_INVENTORY.md` for coverage, `docs/TRANSLATIONS.md` for the source/translation
-model and ID scheme, `docs/ANDROID_TEXT_ALIGNMENT.md` for the Android English/French alignment method and conservative whole-dialogue mapping, `docs/TEXT_COMPONENT_AUDIT.md` for component
-ownership and legacy-source cleanup, and `docs/TEXT_RESEARCH_NOTES.md` for the
-reverse-engineering trail behind the inventory.
+Promoted patch hashes are `ff5890b9284dc25231fa8b9bbae05f6f43b03c131c91dfe7f2fb1f11259f92c1` for `french_dialogues.ips` and `b9ed5221ad54b653aa98713e59b72191cdc9cca668b9b44e9aa4f1f2c44dcfd5` for `all.ips`. See `docs/HANDOFF.md` and `checkpoints/round85_68/`.
 
 ## Shared library
 

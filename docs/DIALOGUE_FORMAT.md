@@ -398,6 +398,12 @@ separator-omission fallback was separately runtime-validated on its earlier righ
 checkpoint. The `$00DF` minimal rightward later-anchor storage shift also remains validated.
 The 560-event corpus as a whole still requires full-game playthrough validation.
 
+## 8.4.1 Round 85.68 final reviewed replay
+
+After the older final-layout/final-structure stages, `recipes/android/dialogues_round85_review.json` replays the user-validated 85.57-85.67 delta. The recipe cannot store localized prose. Semantic additions reference Android-FR IDs, structural changes are generic carrier/control operations, and presentation changes are guarded by semantic SHA-256 fingerprints plus layout-only separators. Reviewed choice coordinates and command overrides are replayed before final independent simulation. A completely fresh generation must match the promoted JSON byte-for-byte.
+
+The simulator also marks the live current line as changed as soon as a glyph is appended. This is required so a `WAIT` after `TEXT_CLEAR` snapshots a fresh one-line page; without it `$05F8/CA:8010` could appear to lose its continuation in HTML even though the serialized bytes were correct.
+
 ## 8.5 Independent HTML simulation
 
 `tools/dialogue/simulate.py` provides a downstream audit of the final serialized event bytes. It independently reapplies the dialogue `$E8` decoder, PLAYER_NAME expansion, validated VWF metrics, 38-glyph capacity, 256-pixel visible-ink preflight, explicit page controls and the three-line page limit. The standalone HTML renders the actual 8x12 glyph bitmaps and flags implicit runtime wraps or unsupported layout commands. See `docs/DIALOGUE_SIMULATOR.md`.
@@ -768,3 +774,14 @@ Round 54 runs only after the Round-53 Android source audit proved that no additi
 - `$0592 / Android 1030`: place the official French on the available third physical line after the stock `WAIT $18`, preserving the following `WAIT $00 + TEXT_CLEAR`; Android 1031 remains deferred.
 
 Relative to the runtime-validated Round-52 payload, **1745/1745 existing entries are byte-for-byte unchanged**, **8 entries are added**, and none are removed or modified. Corpus: **686 events = 665 complete + 21 PARTIEL**, **1663 visible semantic IDs / 1753 JSON entries**, exclusions unchanged at **15 alignment-incomplete + 2 formatter-rejected + 1 simulator-rejected**. Static simulation remains **0 errors / 0 warnings / 0 implicit wraps**. The Round-54 payload is pending runtime validation.
+
+
+## Round 85.56 — final speaker/live-window canonicalization
+
+The post-Round-85.53 visual review found a final class of issues that a per-carrier wrap check could not detect: live three-line windows may span several carriers, and a stock `PLAYER_NAME` can therefore appear visually in the middle of another speaker's retained sentence. Round 85.56 keeps Android FR as the prose source and models the reviewed fix in two source-only layers.
+
+`dialogues_final_structure.json` contains only operation names. Exact clean-USA adjacency plus translated-only command metadata proves each operation before it can run. Supported operations are limited to moving an already-existing player-name binding into its carrier, moving a clear-only marker, and preserving punctuation-only source material. No translated word is stored. `dialogues_post_structure_layout.json` then changes only whitespace/newlines/generated page separators after a semantic fingerprint check.
+
+Translated-only command insertions are likewise exact-anchor metadata. The serializer and simulator accept them only before the proved stock command token; source serialization rejects them. This is used for reviewed fresh-speaker pages and does not create a generic rule that every PLAYER_NAME starts a page. `$01DA/C9:7E72` is explicitly a one-scene exception.
+
+A missing/stale `translations/dialogues_french.json` must regenerate to SHA-256 `1c8bbe8aac838ffb7872ce2fd89bc8b799b229d946ae2742c0a97e6e39654d1a` for the Round-85.56 checkpoint.

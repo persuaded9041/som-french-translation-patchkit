@@ -16,13 +16,19 @@ from shared.dialogue.translation import (
     player_placeholder_width, MAX_PLAYER_NAME_CHARS, make_translation_document as make_dialogue_translation_document,
 )
 from shared.dialogue.codec import TRANSLATION_CLEAR, TRANSLATION_TRAILING_PAGE_BREAK_ALLOWLIST, parse_event
-from shared.dialogue.structure import resolve_structural_omission_token_indexes, resolve_structural_command_overrides
+from shared.dialogue.structure import (resolve_structural_omission_token_indexes, resolve_structural_command_overrides,
+    resolve_structural_command_insertions)
 from shared.core.rom import validate_base_rom
 from .common import ROOT, _load_recipe_document, normalize_android_prose, normalize_alignment_text, sentence_break_positions
 from .policies import *
 from .alignment import make_dialogue_auto_alignment, is_semantic_text
+from .final_layout import apply_validated_final_layout
+from .final_structure import apply_validated_final_structure
+from .post_structure_layout import apply_validated_post_structure_layout
+from .review_delta import (apply_round85_review_delta, reviewed_structural_command_overrides,
+    reviewed_choice_option_position_overrides, reviewed_appended_entry_order)
 from .recipes import (
-    load_dialogue_redistribution_recipes, _render_mapping_layout_recipe,
+    load_dialogue_redistribution_recipes, reviewed_live_prefix_layout_lock_ids, _render_mapping_layout_recipe,
     _load_dialogue_coverage_repair_recipes, _apply_dialogue_coverage_repairs,
     _load_reviewed_choice_layout_recipes, _load_manual_dialogue_supplements,
     _format_manual_supplement, _format_android_extra_page, _parameterized_inn_prompt,
@@ -4824,6 +4830,8 @@ def _try_live_player_prefix_reflow(
         text_id = token.get("id")
         if text_id not in candidate:
             continue
+        if text_id in reviewed_live_prefix_layout_lock_ids():
+            continue
         previous = tokens[index - 1]
         if previous.get("type") != "command" or previous.get("name") != "PLAYER_NAME":
             continue
@@ -4831,7 +4839,17 @@ def _try_live_player_prefix_reflow(
         # A leading page/clear control resets the live prefix before prose.
         if not value or value.startswith(("\v", "\f")):
             continue
-        parts = value.split("\n")
+        # Reflow only inside the current visible page segment.  A form-feed
+        # (WAIT $00 + TEXT_CLEAR) or clear marker is a hard runtime boundary and
+        # must never be swallowed while joining earlier soft NEWLINEs.
+        control_match = re.search(r"[\v\f]", value)
+        if control_match:
+            prefix_segment = value[:control_match.start()]
+            control_suffix = value[control_match.start():]
+        else:
+            prefix_segment = value
+            control_suffix = ""
+        parts = prefix_segment.split("\n")
         first = parts[0]
         if not first.strip():
             continue
@@ -4841,8 +4859,7 @@ def _try_live_player_prefix_reflow(
         # orphan word before the preserved next line (for example
         # ``... ou il`` / ``va`` / ``s'en prendre ...``).  Extend the live
         # prefix reflow through consecutive soft lines until a genuine
-        # sentence boundary.  This lets words move across obsolete soft wraps
-        # while preserving explicit sentence-level layout.
+        # sentence boundary, but never across the hard control boundary above.
         logical_first = first
         consumed_parts = 1
         sentence_end_re = re.compile(r"(?:\.{3}|[.!?…])[”\"»')\]]*\s*$")
@@ -4866,7 +4883,7 @@ def _try_live_player_prefix_reflow(
             continue
         if wrapped == logical_first and consumed_parts == 1:
             continue
-        replacement = "\n".join([wrapped, *parts[consumed_parts:]])
+        replacement = "\n".join([wrapped, *parts[consumed_parts:]]) + control_suffix
         candidate[text_id] = replacement
         repairs.append({
             "strategy": "live_player_name_prefix_reflow",
@@ -4986,6 +5003,15 @@ def make_dialogue_format_mass(
     )
     structural_command_overrides_by_event = resolve_structural_command_overrides(
         {"user_validated_structural_command_overrides": list(DIALOGUE_USER_VALIDATED_STRUCTURAL_COMMAND_OVERRIDES)},
+        source_document,
+    )
+    final_structural_command_override_entries = reviewed_structural_command_overrides()
+    final_structural_command_overrides_by_event = resolve_structural_command_overrides(
+        {"user_validated_structural_command_overrides": final_structural_command_override_entries},
+        source_document,
+    )
+    structural_command_insertions_by_event = resolve_structural_command_insertions(
+        {"user_validated_structural_command_insertions": list(DIALOGUE_USER_VALIDATED_STRUCTURAL_COMMAND_INSERTIONS)},
         source_document,
     )
     redistribution_values, redistribution_meta = load_dialogue_redistribution_recipes(french)
@@ -7309,6 +7335,90 @@ def make_dialogue_format_mass(
         ]
         accepted_events.sort(key=lambda value: int(value, 16))
 
+    # Round 85.53A: replay the complete user-validated Round-85.52 layout
+    # only after every canonical semantic/structural formatter stage has run.
+    # The recipe contains no translated prose: semantic fingerprints must match
+    # the freshly generated carriers before any spaces/newlines/page separators
+    # are changed. Every changed event is independently resimulated with
+    # 9-character player names before the layout is accepted.
+    validated_final_layout_repairs_by_event: dict[str, list[dict]] = {}
+    source_event_by_id = {event["event_id"]: event for event in source_document["events"]}
+    for event_id in accepted_events:
+        candidate, repairs = apply_validated_final_layout(
+            event_id, translations_by_event[event_id]
+        )
+        if not repairs:
+            continue
+        simulation = simulate_event(
+            base_rom,
+            source_event_by_id[event_id],
+            candidate,
+            font=font,
+            player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+            omitted_command_token_indexes=structural_omission_indexes_by_event.get(event_id),
+            structural_command_overrides=structural_command_overrides_by_event.get(event_id),
+            choice_option_position_overrides=choice_option_position_overrides_by_event.get(event_id),
+        )
+        if _simulation_blocking_score(simulation)[0] != 0:
+            raise ValueError(
+                f"Final reviewed layout for ${event_id} no longer simulates cleanly"
+            )
+        translations_by_event[event_id] = candidate
+        validated_final_layout_repairs_by_event[event_id] = repairs
+
+    # Round 85.56: apply the separately reviewed Round-85.54/85.55-v2
+    # speaker-structure delta only after the established Round-85.52 layout has
+    # been reproduced. Structural recipes contain no French prose: they may
+    # inline an omitted stock PLAYER_NAME placeholder, move a clear-only marker,
+    # or preserve punctuation proved by the clean-USA source. A second layout
+    # recipe then replays only spaces/newlines/page separators.
+    validated_final_structure_repairs_by_event: dict[str, list[dict]] = {}
+    validated_post_structure_layout_repairs_by_event: dict[str, list[dict]] = {}
+    validated_round85_review_repairs_by_event: dict[str, list[dict]] = {}
+
+    # Round 85.57-85.67: replay the complete user-validated choice geometry
+    # before the final review-delta simulation. The recipe contains only source
+    # IDs, command coordinates and structural metadata, never localized prose.
+    reviewed_choice_entries = reviewed_choice_option_position_overrides()
+    choice_option_position_overrides_by_event = {}
+    for entry in reviewed_choice_entries:
+        event_id = str(entry["event_id"])
+        choice_option_position_overrides_by_event.setdefault(event_id, {})[int(entry["token_index"])] = int(entry["translated_position"])
+
+    for event_id in accepted_events:
+        event = source_event_by_id[event_id]
+        candidate, structure_repairs = apply_validated_final_structure(
+            event,
+            translations_by_event[event_id],
+            structural_command_overrides=final_structural_command_overrides_by_event.get(event_id),
+        )
+        candidate, layout_repairs = apply_validated_post_structure_layout(event_id, candidate)
+        candidate, review_repairs = apply_round85_review_delta(event_id, candidate, french)
+        if not structure_repairs and not layout_repairs and not review_repairs:
+            continue
+        simulation = simulate_event(
+            base_rom,
+            event,
+            candidate,
+            font=font,
+            player_names={0: "000000000", 1: "000000000", 2: "000000000"},
+            omitted_command_token_indexes=structural_omission_indexes_by_event.get(event_id),
+            structural_command_overrides=final_structural_command_overrides_by_event.get(event_id),
+            structural_command_insertions_before=structural_command_insertions_by_event.get(event_id),
+            choice_option_position_overrides=choice_option_position_overrides_by_event.get(event_id),
+        )
+        if _simulation_blocking_score(simulation)[0] != 0:
+            raise ValueError(
+                f"Round-85.56 reviewed final structure/layout for ${event_id} no longer simulates cleanly"
+            )
+        translations_by_event[event_id] = candidate
+        if structure_repairs:
+            validated_final_structure_repairs_by_event[event_id] = structure_repairs
+        if layout_repairs:
+            validated_post_structure_layout_repairs_by_event[event_id] = layout_repairs
+        if review_repairs:
+            validated_round85_review_repairs_by_event[event_id] = review_repairs
+
     translations: dict[str, str] = {}
     formatted: list[dict] = []
     for event_id in accepted_events:
@@ -7327,7 +7437,15 @@ def make_dialogue_format_mass(
             if token.get("type") == "text"
         )
     }
-    ordered_entries = sorted(translations.items(), key=lambda item: source_order[item[0]])
+    reviewed_appended_ids = reviewed_appended_entry_order()
+    reviewed_appended_rank = {text_id: index for index, text_id in enumerate(reviewed_appended_ids)}
+    ordered_entries = sorted(
+        translations.items(),
+        key=lambda item: (
+            1 if item[0] in reviewed_appended_rank else 0,
+            reviewed_appended_rank.get(item[0], source_order.get(item[0], 1 << 30)),
+        ),
+    )
     translation_document = make_dialogue_translation_document(
         ordered_entries,
         group="dialogues.android_format_mass_simulator_filtered",
@@ -7434,7 +7552,7 @@ def make_dialogue_format_mass(
         if entry.get("event_id") in accepted_event_set
     ]
     translation_document["user_validated_structural_command_overrides"] = [
-        entry for entry in DIALOGUE_USER_VALIDATED_STRUCTURAL_COMMAND_OVERRIDES
+        entry for entry in final_structural_command_override_entries
         if entry.get("event_id") in accepted_event_set
     ]
     translation_document["user_validated_partial_layout_preservations"] = []
@@ -7480,10 +7598,10 @@ def make_dialogue_format_mass(
         ),
         "reason": "user_validated_dynamic_price_generalization",
     }]
-    translation_document["choice_option_position_overrides"] = [
-        {"event_id": event_id, **repair}
-        for event_id in accepted_events
-        for repair in adaptive_choice_anchor_repairs_by_event.get(event_id, [])
+    translation_document["choice_option_position_overrides"] = reviewed_choice_entries
+    translation_document["user_validated_structural_command_insertions"] = [
+        entry for entry in DIALOGUE_USER_VALIDATED_STRUCTURAL_COMMAND_INSERTIONS
+        if entry.get("event_id") in accepted_event_set
     ]
 
     stage_counts: dict[str, int] = {}
@@ -7748,7 +7866,8 @@ def make_dialogue_format_mass(
             complete_event_metadata(event_id) for event_id in user_validated_complete_events
         ],
         "user_validated_structural_omissions": list(DIALOGUE_USER_VALIDATED_STRUCTURAL_OMISSIONS),
-        "user_validated_structural_command_overrides": list(DIALOGUE_USER_VALIDATED_STRUCTURAL_COMMAND_OVERRIDES),
+        "user_validated_structural_command_overrides": list(final_structural_command_override_entries),
+        "user_validated_structural_command_insertions": list(DIALOGUE_USER_VALIDATED_STRUCTURAL_COMMAND_INSERTIONS),
         "manual_dialogue_supplements": translation_document["manual_dialogue_supplements"],
         "user_validated_stock_english_overrides": translation_document["user_validated_stock_english_overrides"],
         "parameterized_android_templates": translation_document["parameterized_android_templates"],
@@ -7823,6 +7942,16 @@ def make_dialogue_format_mass(
         "source_derived_layout_search_repairs": [
             {"event_id": event_id, "repairs": repairs}
             for event_id, repairs in source_derived_layout_search_repairs_by_event.items()
+            if repairs
+        ],
+        "validated_final_layout_repairs": [
+            {"event_id": event_id, "repairs": repairs}
+            for event_id, repairs in validated_final_layout_repairs_by_event.items()
+            if repairs
+        ],
+        "validated_round85_review_repairs": [
+            {"event_id": event_id, "repairs": repairs}
+            for event_id, repairs in validated_round85_review_repairs_by_event.items()
             if repairs
         ],
         "unpaused_scroll_repairs": [
