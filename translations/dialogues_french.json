@@ -52,7 +52,7 @@
         },
         {
           "id": "C9:0A44",
-          "text": "Encore ?!\f "
+          "text": "%S(0,0) : Encore ?!"
         },
         {
           "id": "C9:0A58",
@@ -796,7 +796,7 @@
         },
         {
           "id": "C9:27AE",
-          "text": "La lumière a disparu..."
+          "text": "%S(0,0) : La lumière a disparu..."
         },
         {
           "id": "C9:27E4",
@@ -880,7 +880,7 @@
         },
         {
           "id": "C9:2B85",
-          "text": " ! Le chef du village te\ncherche. Tu as encore fait une\nbêtise, pas vrai ?"
+          "text": "Le chef du village te cherche.\nTu as encore fait une bêtise, pas\nvrai ?"
         },
         {
           "id": "C9:2BC4",
@@ -1032,7 +1032,7 @@
         },
         {
           "id": "C9:3370",
-          "text": "Voyageur : On dirait que cette\népée est bel et bien la véritable\nÉpée de Mana. L'heure est grave.\fNotre monde est en péril.\n"
+          "text": "Voyageur : On dirait que cette\népée est bel et bien la véritable\nÉpée de Mana.\fL'heure est grave.\nNotre monde est en péril.\n"
         },
         {
           "id": "C9:339F",
@@ -1072,11 +1072,11 @@
         },
         {
           "id": "C9:3590",
-          "text": "Ness : "
+          "text": "Ness : Hé, le chef veut te voir !\nIl dit d'aller chez lui !"
         },
         {
           "id": "C9:359A",
-          "text": " !\nHé, le chef veut te voir !\nIl dit d'aller chez lui !"
+          "text": ""
         },
         {
           "id": "C9:35C1",
@@ -1168,7 +1168,7 @@
         },
         {
           "id": "C9:3A39",
-          "text": " :\nAvec cette épée, je vais pouvoir\nme frayer un chemin."
+          "text": " : Avec cette épée,\nje vais pouvoir me frayer\nun chemin."
         },
         {
           "id": "C9:3A8C",
@@ -1304,7 +1304,7 @@
         },
         {
           "id": "C9:41C5",
-          "text": "\u000bPourtant, je n'ai pas l'impression\nque l'Empire soit responsable, cette\nfois."
+          "text": "\u000bPourtant, je n'ai pas l'impression\nque l'Empire soit responsable,\ncette fois."
         },
         {
           "id": "C9:420D",
@@ -1396,7 +1396,7 @@
         },
         {
           "id": "C9:46BE",
-          "text": "Monsieur et Mademoiselle sont à\nl'étage. Monsieur et Mademoiselle\nsont au château."
+          "text": "Monsieur et Mademoiselle sont à\nl'étage."
         },
         {
           "id": "C9:46F0",
@@ -1820,7 +1820,7 @@
         },
         {
           "id": "C9:5B49",
-          "text": "Nous sommes perdus !\nNotre pays a été envoûté par une\nsorcière !"
+          "text": "Nous sommes perdus ! Notre pays\na été envoûté par une sorcière !"
         },
         {
           "id": "C9:5B81",
@@ -1852,7 +1852,7 @@
         },
         {
           "id": "C9:5D30",
-          "text": "Il y a 15 ans, une grande guerre a\néclaté entre notre royaume et\nl'Empire."
+          "text": "Il y a 15 ans, une grande\nguerre a éclaté entre notre\nroyaume et l'Empire."
         },
         {
           "id": "C9:5D68",
@@ -1880,7 +1880,7 @@
         },
         {
           "id": "C9:5EA9",
-          "text": "mais elle est allée s'enticher d'un\nsoldat !"
+          "text": "mais elle est allée\ns'enticher d'un soldat !"
         },
         {
           "id": "C9:5EE8",
@@ -1976,7 +1976,7 @@
         },
         {
           "id": "C9:63A6",
-          "text": "\u000bGemma avait raison à ton sujet, tu es\nbel et bien le héros à l'Épée\nsacrée !"
+          "text": "\u000bGemma avait raison à ton sujet,\ntu es bel et bien le héros\nà l'Épée sacrée !"
         },
         {
           "id": "C9:63E4",
@@ -2220,7 +2220,7 @@
         },
         {
           "id": "C9:70BF",
-          "text": "\nTenez ! Vous voyez ?! Ça fiche la\ntrouille !"
+          "text": "\nTenez ! Vous voyez ?!\nÇa fiche la trouille !"
         },
         {
           "id": "C9:70D1",
@@ -2228,7 +2228,7 @@
         },
         {
           "id": "C9:7107",
-          "text": ":\nTu es sûr ? Je te préviens,\nje n'irai pas, moi !\fTu veux quand même y aller\nseul ?\n("
+          "text": ": Tu es sûr ?\nJe te préviens, je n'irai pas, moi !\fTu veux quand même y aller\nseul ?\n("
         },
         {
           "id": "C9:713A",
@@ -2592,7 +2592,7 @@
         },
         {
           "id": "C9:8256",
-          "text": " : Hé hé...\nJe savais que tu viendrais.\nMerci !"
+          "text": " : Hé hé... Je savais\nque tu viendrais. Merci !"
         },
         {
           "id": "C9:827F",
@@ -2692,11 +2692,11 @@
         },
         {
           "id": "C9:8846",
-          "text": "\u000bJe vais redevenir une gentille vieille\ndame et mener une vie paisible, c'est\npromis !"
+          "text": "\u000bJe vais redevenir une gentille\nvieille dame et mener une vie\npaisible, c'est promis !"
         },
         {
           "id": "C9:8892",
-          "text": "\u000bLe jeune homme que vous cherchiez\ndevrait se trouver aux ruines de\nPandora."
+          "text": "\u000bLe jeune homme que vous\ncherchiez devrait se trouver aux\nruines de Pandora."
         },
         {
           "id": "C9:88F7",
@@ -2956,7 +2956,7 @@
         },
         {
           "id": "C9:9456",
-          "text": " !\fMaintenant que l'Empire est\nen marche, nous devons restaurer\nl'Épée sans perdre un instant !"
+          "text": "Maintenant que l'Empire est\nen marche, nous devons restaurer\nl'Épée sans perdre un instant !"
         },
         {
           "id": "C9:9478",
@@ -3016,7 +3016,7 @@
         },
         {
           "id": "C9:9737",
-          "text": "Mon mari a tellement de frères que\nmême moi je ne sais plus qui est qui,\nparfois !"
+          "text": "Mon mari a tellement de frères\nque même moi je ne sais plus\nqui est qui, parfois !"
         },
         {
           "id": "C9:9760",
@@ -3292,7 +3292,7 @@
         },
         {
           "id": "C9:A1B3",
-          "text": "\nHum ? Zut ! Je me suis cogné en\natterrissant... et on dirait bien que\nj'ai encore oublié !"
+          "text": "\u000bHum ? Zut ! Je me suis cogné en\natterrissant... et on dirait bien que\nj'ai encore oublié !"
         },
         {
           "id": "C9:A1E3",
@@ -3328,7 +3328,7 @@
         },
         {
           "id": "C9:A30C",
-          "text": "Pourtant, l'un des nôtres a aperçu\nun dragon blanc dans la grotte du\nnord, hier !"
+          "text": "\u000bPourtant, l'un des nôtres a aperçu\nun dragon blanc dans la grotte du\nnord, hier !"
         },
         {
           "id": "C9:A35D",
@@ -3852,7 +3852,7 @@
         },
         {
           "id": "C9:B941",
-          "text": "Omar : Si Mana continue de faiblir,\nles puits s'assécheront peut-être\nde nouveau."
+          "text": "Omar : Si Mana continue de faiblir,\nles puits s'assécheront\npeut-être de nouveau."
         },
         {
           "id": "C9:B99D",
@@ -3916,7 +3916,7 @@
         },
         {
           "id": "C9:BBEF",
-          "text": "\u000bIl paraît qu'une queue de lièvre\nmarin permet de ramener l'eau aux\npuits taris."
+          "text": "\u000bIl paraît qu'une queue de lièvre\nmarin permet de ramener\nl'eau aux puits taris."
         },
         {
           "id": "C9:BC3A",
@@ -3968,7 +3968,7 @@
         },
         {
           "id": "C9:BE80",
-          "text": "%S(0,0) : La Graine n'est pas\nlà !!\nQuelqu'un l'aurait volée ?"
+          "text": "%S(0,0) : La Graine\nn'est pas là !! Quelqu'un\nl'aurait volée ?"
         },
         {
           "id": "C9:BE9B",
@@ -4044,7 +4044,7 @@
         },
         {
           "id": "C9:C158",
-          "text": "Roi : Alors comme ça, j'ai\nété victime d'une tentative\nd'assassinat... Le ciel soit loué !\fIl s'en est fallu de peu."
+          "text": "Roi : Alors comme ça, j'ai été\nvictime d'une tentative\nd'assassinat...\fLe ciel soit loué !\nIl s'en est fallu de peu."
         },
         {
           "id": "C9:C18B",
@@ -4064,7 +4064,7 @@
         },
         {
           "id": "C9:C2A9",
-          "text": "\u000bJe dois agir pour entraver les\nagissements de l'Empire\nà travers le monde."
+          "text": "\u000bJe dois agir pour entraver\nles agissements de l'Empire\nà travers le monde."
         },
         {
           "id": "C9:C2D9",
@@ -4080,7 +4080,7 @@
         },
         {
           "id": "C9:C390",
-          "text": "Le Royaume de Pandora, dans le\nbassin de Gaïa, est allié avec notre\nRépublique."
+          "text": "Le Royaume de Pandora,\ndans le bassin de Gaïa, est\nallié avec notre République."
         },
         {
           "id": "C9:C3B8",
@@ -4636,7 +4636,7 @@
         },
         {
           "id": "C9:DB77",
-          "text": "Quoi ? La Graine du Feu ? Je n'y ai\npas touché ! J'ai retenu la leçon,\nl'autre fois !"
+          "text": "Quoi ? La Graine du Feu ?\nJe n'y ai pas touché ! J'ai retenu\nla leçon, l'autre fois !"
         },
         {
           "id": "C9:DBA9",
@@ -4644,7 +4644,7 @@
         },
         {
           "id": "C9:DBE4",
-          "text": "Scorpion : Idiot ! Aide-les, pendant\nque tu y es ! Tu n'as donc rien dans\nle cerveau ?!"
+          "text": "Scorpion : Idiot ! Aide-les,\npendant que tu y es ! Tu n'as donc\nrien dans le cerveau ?!"
         },
         {
           "id": "C9:DC03",
@@ -4700,7 +4700,7 @@
         },
         {
           "id": "C9:DDF1",
-          "text": "Vous obtenez la Clef de la Tour\ndorée !"
+          "text": "Vous obtenez la Clef\nde la Tour dorée !"
         },
         {
           "id": "C9:DE22",
@@ -4824,7 +4824,7 @@
         },
         {
           "id": "C9:E32D",
-          "text": "J'ai perdu mon père dans la guerre\ncontre la République de Tasmanica,\nil y a 15 ans."
+          "text": "J'ai perdu mon père dans la guerre\ncontre la République de\nTasmanica, il y a 15 ans."
         },
         {
           "id": "C9:E34D",
@@ -4872,7 +4872,7 @@
         },
         {
           "id": "C9:E548",
-          "text": "Comme il n'y a plus de fêtes au\npalais, ma sœur met ses robes de bal\nà la maison."
+          "text": "Comme il n'y a plus de fêtes au\npalais, ma sœur met ses robes\nde bal à la maison."
         },
         {
           "id": "C9:E57D",
@@ -5216,7 +5216,7 @@
         },
         {
           "id": "CA:1012",
-          "text": " : Les dragons comme\nFlammie devaient être des\nbénévodons, à l'origine..."
+          "text": " : Les dragons comme\nFlammie devaient être\ndes bénévodons, à l'origine..."
         },
         {
           "id": "CA:1042",
@@ -5280,7 +5280,7 @@
         },
         {
           "id": "CA:11C9",
-          "text": "\u000bC'est juste que ce monde et celui\ndes lutins vont se séparer...\nOn ne pourra plus se voir."
+          "text": "\u000bC'est juste que ce monde\net celui des lutins vont se séparer...\nOn ne pourra plus se voir."
         },
         {
           "id": "CA:1219",
@@ -6420,7 +6420,7 @@
         },
         {
           "id": "CA:4ABC",
-          "text": "\u000bIl y a d'ores et déjà des intrus qui\nrôdent autour de ce temple pour le\nsurveiller."
+          "text": "\u000bIl y a d'ores et déjà des intrus\nqui rôdent autour de ce temple\npour le surveiller."
         },
         {
           "id": "CA:4B1E",
@@ -6588,7 +6588,7 @@
         },
         {
           "id": "CA:5C2F",
-          "text": "Je vais me débarrasser à la fois de\nla Résistance et du héros à l'Épée\nsacrée !"
+          "text": "Je vais me débarrasser à la fois\nde la Résistance et du héros\nà l'Épée sacrée !"
         },
         {
           "id": "CA:5C6C",
@@ -6616,7 +6616,7 @@
         },
         {
           "id": "CA:5D34",
-          "text": "Ah ! Si seulement je n'avais pas\ninsisté pour qu'on leur laisse une\nchance... !"
+          "text": "Ah ! Si seulement je n'avais pas\ninsisté pour qu'on leur laisse\nune chance... !"
         },
         {
           "id": "CA:5D5C",
@@ -6684,7 +6684,7 @@
         },
         {
           "id": "CA:60C0",
-          "text": "\u000bC'est grâce à Flammie !\nIl a grandi d'un coup, et il vole,\nmaintenant !"
+          "text": "\u000bC'est grâce à Flammie !\nIl a grandi d'un coup, et\nil vole, maintenant !"
         },
         {
           "id": "CA:60FA",
@@ -6836,7 +6836,7 @@
         },
         {
           "id": "CA:6676",
-          "text": "Décidément, ce jeune homme pourrait\nm'être très utile. Sur ce... je vous\nlaisse !"
+          "text": "Décidément, ce jeune homme\npourrait m'être très utile. Sur ce...\nje vous laisse !"
         },
         {
           "id": "CA:66A1",
@@ -7100,7 +7100,7 @@
         },
         {
           "id": "CA:71E3",
-          "text": "\u000bJe vous donne mon pouvoir, avant\nque la lumière ne disparaisse de ce\nmonde."
+          "text": "\u000bJe vous donne mon pouvoir,\navant que la lumière ne disparaisse\nde ce monde."
         },
         {
           "id": "CA:723A",
@@ -7108,11 +7108,11 @@
         },
         {
           "id": "CA:7397",
-          "text": "L'Épée entre en symbiose avec la\nGraine !"
+          "text": "L'Épée entre en symbiose\navec la Graine !"
         },
         {
           "id": "CA:73F5",
-          "text": "L'Épée entre en symbiose avec la\nGraine !"
+          "text": "L'Épée entre en symbiose\navec la Graine !"
         },
         {
           "id": "CA:7437",
@@ -7656,7 +7656,7 @@
         },
         {
           "id": "CA:889F",
-          "text": "%S(0,0) : Aïe !\nOn ne pourra pas traverser ces\nflammes !"
+          "text": "%S(0,0) : Aïe ! On ne pourra\npas traverser ces flammes !"
         },
         {
           "id": "CA:892F",
@@ -7760,7 +7760,7 @@
         },
         {
           "id": "CA:8E72",
-          "text": "Vous trouvez 1000 pièces d'or dans\nle coffre !"
+          "text": "Vous trouvez 1000 pièces d'or\ndans le coffre !"
         },
         {
           "id": "CA:8E8F",
@@ -7804,7 +7804,7 @@
         },
         {
           "id": "CA:986B",
-          "text": "%S(0,0) : Oh là là,\nqu'est-ce qui m'est\narrivé... ?"
+          "text": "%S(0,0) : Oh là là,\nqu'est-ce qui m'est arrivé... ?"
         },
         {
           "id": "CA:98B2",
@@ -8188,9 +8188,15 @@
           "args": "00",
           "immediately_before_text_id": "C9:34E5",
           "omit": true
+        },
+        {
+          "name": "PLAYER_NAME",
+          "args": "00",
+          "immediately_before_text_id": "C9:359A",
+          "omit": true
         }
       ],
-      "reason": "round85_55_user_requested_fresh_page_at_player_speaker_turn"
+      "reason": "round85_55_speaker_turns_plus_second_pass_lot2_android_fr_26_stock_vocative_omission"
     },
     {
       "event_id": "01DD",
@@ -8511,6 +8517,30 @@
         }
       ],
       "reason": "lot5_validated_regroup_android_fr_sentence_on_three_lines"
+    },
+    {
+      "event_id": "0108",
+      "commands": [
+        {
+          "name": "PLAYER_NAME",
+          "args": "00",
+          "immediately_before_text_id": "C9:2B85",
+          "omit": true
+        }
+      ],
+      "reason": "dialogue_second_pass_lot2_android_fr_39_omits_stock_vocative"
+    },
+    {
+      "event_id": "0212",
+      "commands": [
+        {
+          "name": "PLAYER_NAME",
+          "args": "00",
+          "immediately_before_text_id": "C9:9456",
+          "omit": true
+        }
+      ],
+      "reason": "second_pass_lot5_android_fr_902_omits_stock_player_vocative"
     }
   ],
   "user_validated_partial_layout_preservations": [],
@@ -8890,6 +8920,29 @@
       "reason": "dialogue_audit_lot1_0021_fresh_page_after_dynamic_speaker"
     },
     {
+      "event_id": "0022",
+      "insertions": [
+        {
+          "before_command": {
+            "name": "OP_20",
+            "args": "1E",
+            "immediately_before_text_id": "C9:0A58"
+          },
+          "commands": [
+            {
+              "name": "WAIT",
+              "args": "00"
+            },
+            {
+              "name": "TEXT_CLEAR",
+              "args": ""
+            }
+          ]
+        }
+      ],
+      "reason": "dialogue_second_pass_lot1_0022_fresh_page_after_dynamic_speaker"
+    },
+    {
       "event_id": "0592",
       "insertions": [
         {
@@ -9228,6 +9281,95 @@
         }
       ],
       "reason": "round85_55_user_requested_keep_dynamic_speaker_name_with_colon_and_reply"
+    },
+    {
+      "event_id": "028A",
+      "insertions": [
+        {
+          "before_command": {
+            "name": "PLAYER_NAME",
+            "args": "01",
+            "immediately_before_text_id": "C9:A9CE"
+          },
+          "commands": [
+            {
+              "name": "TEXT_CLEAR",
+              "args": ""
+            }
+          ]
+        }
+      ],
+      "reason": "second_pass_lot6_validated_fresh_page_after_wait00_before_new_speaker"
+    },
+    {
+      "event_id": "04B6",
+      "insertions": [
+        {
+          "before_command": {
+            "name": "PLAYER_NAME",
+            "args": "02",
+            "immediately_before_text_id": "CA:237E"
+          },
+          "commands": [
+            {
+              "name": "TEXT_CLEAR",
+              "args": ""
+            }
+          ]
+        }
+      ],
+      "reason": "second_pass_lot10_validated_fresh_page_after_dryad_wait00"
+    },
+    {
+      "event_id": "04E1",
+      "insertions": [
+        {
+          "before_command": {
+            "name": "PLAYER_NAME",
+            "args": "01",
+            "immediately_before_text_id": "CA:2E98"
+          },
+          "commands": [
+            {
+              "name": "TEXT_CLEAR",
+              "args": ""
+            }
+          ]
+        }
+      ],
+      "reason": "second_pass_lot11_validated_fresh_page_after_thanatos_wait00"
+    },
+    {
+      "event_id": "04EA",
+      "insertions": [
+        {
+          "before_command": {
+            "name": "PLAYER_NAME",
+            "args": "00",
+            "immediately_before_text_id": "CA:49D3"
+          },
+          "commands": [
+            {
+              "name": "TEXT_CLEAR",
+              "args": ""
+            }
+          ]
+        },
+        {
+          "before_command": {
+            "name": "OP_32",
+            "args": "0C 00",
+            "immediately_before_text_id": "CA:4B1E"
+          },
+          "commands": [
+            {
+              "name": "TEXT_CLEAR",
+              "args": ""
+            }
+          ]
+        }
+      ],
+      "reason": "second_pass_lot11_validated_fresh_pages_after_luka_wait00"
     }
   ]
 }

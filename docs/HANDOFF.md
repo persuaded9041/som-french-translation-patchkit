@@ -1,107 +1,83 @@
-# LATEST DIALOGUE AUDIT CHECKPOINT — 2026-09-14
+# HANDOFF — Secret of Mana FR — dialogue second exhaustive pass complete
 
-The 12-batch deep dialogue audit and the subsequent global Android-FR vocative scan are complete. See `docs/DIALOGUE_FULL_AUDIT_CHECKPOINT.md`. The generated dialogue state is 701/701 simulator-clean with 1957 translated carriers. All validated audit fixes are canonicalized and reproducible. The pending `$035F / C9:D1B8` question is resolved: the validated manual surcharge is now `Dryade fera réagir l'orbe !`, while `$0360` remains neutralized.
+Date: 2026-09-14
 
-Current post-audit reproducible artifacts after the validated `$035F` Dryade fix:
+This archive is authoritative over GitHub. The reference ROM is **Secret of Mana (USA), unheadered** and must never be redistributed.
 
-- `translations/dialogues_french.json`: `79d1e6f737a7f6393d03dab4af8a31e6697f09c55c27faa8b3ab338070749f45`;
-- `patches/french_dialogues.ips`: `75a06c3070aead2cf00931582adfe3684800237e698d38c5caed4286c7789333`;
-- `patches/all.ips`: `f1609b97bf6c82b431b64458cee8ee64fd9e33db8aca2057fab70ee921fde83a`.
+## Current promoted dialogue state
 
-See `reports/LOT1_TO_FINAL_CORRECTIONS_VERIFICATION.md` for the post-regeneration correction sentinels.
+The second independent exhaustive playable-dialogue pass is complete. It reviewed all **701 accepted playable events** event-by-event in 12 lots and was followed by a dedicated cleanup/non-regression validation.
 
-Recipe cleanup (2026-09-14): the eight historical stage-specific dialogue recipe files were consolidated into `recipes/android/dialogues_formatting.json` and `recipes/android/dialogues_review.json`. The active dialogue recipe surface is now four JSON files (alignment, redistribution, formatting, review). Fresh dialogue generation and full IPS builds are byte-identical to the pre-cleanup state. See `reports/RECIPES_CLEANUP.md`.
-
----
-
-# HANDOFF — Round 85.68 promoted checkpoint
-
-This archive is authoritative over GitHub.
-
-### Recipe hygiene checkpoint (2026-09-14)
-
-After the recipe-file consolidation, a liveness audit removed 15 dead/superseded rule units (3 unmatched mapping-layout recipes, 8 final-layout carriers fully replayed by `review_delta`, 2 late no-op layout/review rules, and 2 superseded reviewed-alignment records). Fresh dialogue generation remains byte-identical (`79d1e6f7…749f45`). Apparent coverage-repair overlaps were tested and retained where removal changes generated dialogue. Details: `reports/RECIPES_CLEANUP.md`.
-
-
-## Promoted state
-
-Round **85.68** canonizes the entire user-validated review chain from 85.57 through 85.67. There is no longer a split between a promoted 85.56 source state and later review-only JSON. `translations/dialogues_french.json` is again fully reproducible from canonical inputs.
-
-Fresh regeneration SHA-256: `a507bd8b715cef6f6f2d81165c3fab62a2e8c4d27d090cc5b68ddfbb07769728`.
-
-Current dialogue state:
-
-- Android identity: **1798/1838 (97.8%)**;
-- **701 events = 701 complete + 0 PARTIEL**;
-- **1813 accepted semantic source IDs / 1957 sparse JSON entries**;
-- exclusions remain only `$0269`, `$02DE`, `$0603`;
-- simulation: **0 errors / 0 warnings / 0 implicit wraps**.
-
-## What Round 85.68 promotes
-
-- validated batches 85.57-85.65 (choice geometry, quotes, local wrapping, rewards/status presentation, `$04E2/$04E8/$07FD`, full `$0429`, full `$0555`);
-- validated Round-85.66 `$04E1` structural repair;
-- `$05F8` audit: the `pour venir chercher l'Épée.` tail was already present in serialized bytes; the missing preview was a simulator snapshot bug, now fixed;
-- caller/context findings for `$0358/$035F/$07FA/$07FB`; `$035F/C9:D1B8` is now the full validated message `Dryade fera réagir l'orbe !`;
-- global Android-FR completeness audit and the three recovered source-backed omissions: `$0399 <- 1897`, `$04E4 <- 1373`, `$0511 <- 1988`.
-
-## Canonical recipe architecture
-
-`recipes/android/dialogues_review.json#review_delta` is the late replay layer for the accepted 85.57-85.67 delta. It stores **no localized prose**. It contains only:
-
-- Android-FR IDs for source-backed append operations;
-- carrier IDs and generic structural operations (merge/split/clear/punctuation/control);
-- reviewed structural-command and choice-coordinate metadata;
-- semantic SHA-256 fingerprints plus spaces/newlines/page separators for layout replay.
-
-If Android/source semantics drift, generation fails instead of silently replaying stale layout. The seven review-created carriers retain the exact validated append order so a fresh generator is byte-identical to the accepted review JSON.
-
-## Proofs
-
-`checkpoints/round85_68/` contains generation/build/check logs and the final visual simulator output.
-
-- clean regeneration equals the accepted 85.67 review JSON byte-for-byte;
-- all 2048 scripts parse; 713 clean-source dialogue events round-trip exactly;
-- manual supplements, redistribution recipes, source hygiene and dialogue regressions pass;
-- 701-event simulator: 0 errors, 0 warnings, 0 implicit wraps;
-- double fresh build is reproducible.
-
-Promoted IPS hashes:
-
-- `patches/french_dialogues.ips`: `ff5890b9284dc25231fa8b9bbae05f6f43b03c131c91dfe7f2fb1f11259f92c1`
-- `patches/all.ips`: `b9ed5221ad54b653aa98713e59b72191cdc9cca668b9b44e9aa4f1f2c44dcfd5`
-
-## Core invariants
-
-Android FR remains the prose source of truth; no hard-coded localized prose in formatter recipes; `WAIT != NEWLINE`; max 3 live lines; <=216 px / <=38 decoded glyphs; 9-character dynamic-name worst case; preserve reviewed choice/highlight geometry and timed controls.
-
-## Next work
-
-Dialogue visual/completeness consolidation is complete. The next planned subject is the **items/objects translation procedure**, beginning with design/discussion before changing translation data. Do not reopen validated dialogue wording or structure unless a concrete runtime regression is observed.
-
-## Exhaustive dialogue audit — lots 1–12 complete (2026-09-14)
-
-A second exhaustive playable-dialogue audit has now been completed event-by-event in 12 lots, covering all **701 accepted playable events**. The pass checked Android-FR completeness, serialized display flow, clean-USA event-command preservation, and human visual formatting.
-
-Final verified state after the audit:
+Final verified state:
 
 - **701/701** accepted playable events simulator-clean;
 - **1959 translated carriers**;
-- Android alignment identity remains **1798/1838**;
-- **0 error / 0 warning / 0 implicit wrap** in the full dialogue simulation;
-- speaker-label guardrail: **0** `Nom :` / `%S(...) :` hard-newline findings;
-- rolling-scroll review guardrail: **0** remaining candidates;
-- redistribution audit: **302 active carriers**, clean;
-- source hygiene: clean;
+- Android alignment identity **1798/1838**;
+- **0 errors / 0 warnings / 0 implicit wraps**;
+- speaker-label guardrail: **0** hard-newline findings after `Nom :` / `%S(...) :`;
+- rolling-scroll discovery guardrail: **0 new candidates**;
+- redistribution: **302 active carriers**, 0 simulator-filtered;
+- manual supplement schema v3: **17 carriers = 15 translations + 2 suppressions**;
 - source round-trip: **713 events / 87,487 bytes**;
-- all **2048 stock event scripts** parse successfully.
+- all **2048 stock event scripts** parse successfully;
+- source hygiene clean.
 
-The final global pass also caught and restored four earlier validated rolling-scroll fixes (`$00AA`, `$0112`, `$0180`, `$01B9`) and the lot-1 dynamic-speaker fresh-page architecture for `$0020/$0021/$0023`, preventing late historical recipes from silently restoring obsolete layouts.
+Final SHA-256:
 
-Two complete `build.py <clean-USA-ROM> all --combine` builds were run consecutively and were byte-identical. Reference hashes:
+- `translations/dialogues_french.json`: `3e4cacd926e31d6dfe9f9021d1026c4f71dc68ccd88ce4481749e47764d2b7d9`
+- `patches/french_dialogues.ips`: `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31`
+- `patches/all.ips`: `49eb639aa0117d603c5cd6c92ba617f6c853da68cead59c34cf970658e94fd23`
 
-- `translations/dialogues_french.json`: `4c71ee39ef1c10acbff1934401afdb4ded788bb525b7282c5a8227606863be82`
-- `patches/french_dialogues.ips`: `006281fc3240ccef2ab10abe0d3a307ed274d13ab58d62a52503776c64b06c79`
-- `patches/all.ips`: `a4510f1675a9b0be80518961338d847b3218f296dfa74032954b6b79570dc2e4`
+## Post-pass non-regression proof
 
-Preserve the existing invariants: Android FR remains the primary prose source; `WAIT != NEWLINE`; `$0360` remains neutralized; `$035F / C9:D1B8` remains `Dryade fera réagir l'orbe !`; dynamic Android `%S(...)` vocatives remain real `PLAYER_NAME` commands. The reviewed one-line rolling-scroll pattern is represented by WAIT-only markup (`\r`) followed by NEWLINE and must remain a manually reviewed layout choice rather than a generic automatic rewrite.
+The exact pre-second-pass baseline was recovered and compared carrier-by-carrier with the final cold-regenerated JSON.
+
+- baseline carriers: **1959**;
+- final carriers: **1959**;
+- explicitly reviewed/validated carrier changes: **46**;
+- non-target carriers byte-for-byte unchanged: **1913/1913**;
+- carriers added: **0**;
+- carriers removed: **0**.
+
+The 46 changed carriers are **exactly** the validated target set from lots 1-12. There are no extra carrier differences outside that set.
+
+Structural metadata differs only in the reviewed events:
+
+- command overrides: `$0108`, `$0112`, `$0212`;
+- command insertions: `$0022`, `$028A`, `$04B6`, `$04E1`, `$04EA`.
+
+No other top-level semantic/source metadata changed between the second-pass starting checkpoint and the final state.
+
+A fresh cold regeneration after cleanup reproduces the promoted JSON hash. A forced rebuild of `french_dialogues.ips` was run twice and both outputs are byte-identical to each other **and** to the promoted patch; `all.ips` was likewise recombined twice and matches the promoted patch byte-for-byte.
+
+See `checkpoints/SECOND_PASS_POST_VALIDATION.md` for the final validation details.
+
+## Core invariants
+
+- Android FR remains the primary prose source.
+- No localized French prose is hard-coded in formatter/layout recipes.
+- `WAIT != NEWLINE`.
+- Maximum 3 live lines, <=216 px, <=38 decoded characters.
+- Dynamic names must remain valid for the 9-character worst case.
+- `$0360` remains neutralized.
+- `$035F / C9:D1B8` remains `Dryade fera réagir l'orbe !`.
+- Android `%S(...)` vocatives remain real `PLAYER_NAME` commands.
+- `$066D / CA:8D4B` is explicitly validated as a WAIT-only controlled-scroll case; controlled scrolling remains a manual layout decision, not a global rewrite rule.
+- Existing choice/highlight geometry and timed event commands must be preserved unless a concrete runtime defect is demonstrated.
+
+## Canonical dialogue inputs
+
+`translations/dialogues_french.json` is a generated, fingerprint-validated cache/review artifact, not canonical prose provenance. Canonical dialogue generation uses the Android EN/FR sources, clean-USA extraction, reviewed alignment/redistribution metadata, manual supplements and structural/layout recipes.
+
+The active dialogue recipe surface under `recipes/android/` remains:
+
+- `dialogues_reviewed_alignment.json`
+- `dialogues_redistribution.json`
+- `dialogues_formatting.json`
+- `dialogues_review.json`
+
+## Next work
+
+The dialogue audit is complete. The next planned subject is the **items/objects translation procedure**, beginning with design/discussion before changing translation data.
+
+Do not reopen validated dialogue wording or structure merely for style. Reopen a dialogue only if a concrete runtime, serialization, source-identity, caller/sub-event, or layout regression is demonstrated.

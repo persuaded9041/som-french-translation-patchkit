@@ -139,16 +139,16 @@ def check_targeted_reviews(manual: dict, french: dict, mass: dict) -> None:
         "CA:7E4B": "Bientôt les bénévodons du monde\nentier se rassembleront et\nfusionneront en un être unique et\r\nimmense...",
         "CA:8010": "Pour vaincre définitivement\nl'Empereur ressuscité, il usa de ses\ndernières forces pour venir\r\nchercher l'Épée.",
         "CA:8471": " : Je suis de la tribu de\nMana... Je vais accomplir\nle destin de mes parents\r\net protéger ce monde si merveilleux !",
-        "CA:889F": "%S(0,0) : Aïe !\nOn ne pourra pas traverser ces\nflammes !",
+        "CA:889F": "%S(0,0) : Aïe ! On ne pourra\npas traverser ces flammes !",
         "CA:892F": "%S(0,0) : Ah... Il y a un\nbouclier ! On n'arrivera pas à\nentrer ! Partons...",
         "CA:8D4B": "\vJ'ai retenu la leçon : si le pouvoir\nde Mana est utilisé à mauvais\nescient, cela peut devenir très\r\ndangereux !",
-        "CA:986B": "%S(0,0) : Oh là là,\nqu'est-ce qui m'est\narrivé... ?",
+        "CA:986B": "%S(0,0) : Oh là là,\nqu'est-ce qui m'est arrivé... ?",
     }
     for sid, expected in expected_audit_late_layout.items():
         if active.get(sid) != expected:
             die(f"Exhaustive-audit validated layout drifted: {sid}")
 
-    for sid in ("C9:09A7", "C9:09F8", "C9:0A8E"):
+    for sid in ("C9:09A7", "C9:09F8", "C9:0A44", "C9:0A8E"):
         if " :\n" in active.get(sid, ""):
             die(f"Lot-1 dynamic speaker label newline regressed: {sid}")
 
@@ -168,8 +168,8 @@ def check_targeted_reviews(manual: dict, french: dict, mass: dict) -> None:
 
     structural_insertions = french.get("user_validated_structural_command_insertions", [])
     expected_structural_insertion_events = {
-        "0020", "0021", "0023", "0112", "01DD", "02B7", "02EE", "036F", "038C", "038D",
-        "03AA", "04A1", "04E2", "0592", "05F8",
+        "0020", "0021", "0022", "0023", "0112", "01DD", "028A", "02B7", "02EE", "036F", "038C", "038D",
+        "03AA", "04A1", "04B6", "04E1", "04E2", "04EA", "0592", "05F8",
     }
     if {entry.get("event_id") for entry in structural_insertions} != expected_structural_insertion_events:
         die("validated structural-command insertion event set drifted")
@@ -178,7 +178,8 @@ def check_targeted_reviews(manual: dict, french: dict, mass: dict) -> None:
     # derived from Android FR at check time; only IDs/carriers are locked here.
     android_fr = read_scrtxt(DEFAULT_SCRTXT_FR)
     audited_android_replacements = {
-        "C9:09A7": [2460], "C9:09F8": [2452], "C9:0A8E": [2457],
+        "C9:09A7": [2460], "C9:09F8": [2452], "C9:0A44": [2454], "C9:0A8E": [2457],
+        "C9:27AE": [3433], "C9:2B85": [39], "C9:3590": [26],
         "C9:37AF": [109], "C9:3AC3": [914], "C9:68BA": [574],
         "C9:9B74": [951], "C9:9CB8": [973], "C9:9D38": [991],
         "C9:9E14": [1168], "C9:9F44": [1203], "C9:A02A": [1264],
@@ -207,6 +208,135 @@ def check_targeted_reviews(manual: dict, french: dict, mass: dict) -> None:
     # carries a dynamic addressee absent from the desired localized rendering.
     if semantic_layout_normalized(active.get("C9:AF50", "")) != semantic_layout_normalized("Hé, salut ! J'suis au paradis, ici !"):
         die("$0295 validated local vocative removal drifted")
+
+    if active.get("C9:359A") != "":
+        die("$0112 Android-FR 26 consolidation must leave C9:359A empty")
+    if active.get("C9:3370") != "Voyageur : On dirait que cette\népée est bel et bien la véritable\nÉpée de Mana.\fL'heure est grave.\nNotre monde est en péril.\n":
+        die("$0112 second-pass validated two-page pagination drifted")
+
+    second_pass_lot4_layout = {
+        "C9:5B49": "Nous sommes perdus ! Notre pays\na été envoûté par une sorcière !",
+        "C9:5D30": "Il y a 15 ans, une grande\nguerre a éclaté entre notre\nroyaume et l'Empire.",
+        "C9:5EA9": "mais elle est allée\ns'enticher d'un soldat !",
+        "C9:63A6": "\vGemma avait raison à ton sujet,\ntu es bel et bien le héros\nà l'Épée sacrée !",
+        "C9:70BF": "\nTenez ! Vous voyez ?!\nÇa fiche la trouille !",
+        "C9:7107": ": Tu es sûr ?\nJe te préviens, je n'irai pas, moi !\fTu veux quand même y aller\nseul ?\n(",
+    }
+    for sid, expected in second_pass_lot4_layout.items():
+        if active.get(sid) != expected:
+            die(f"second-pass lot 4 validated layout drifted: {sid}")
+
+    second_pass_lot6_layout = {
+        "C9:A1B3": "\vHum ? Zut ! Je me suis cogné en\natterrissant... et on dirait bien que\nj'ai encore oublié !",
+        "C9:A30C": "\vPourtant, l'un des nôtres a aperçu\nun dragon blanc dans la grotte du\nnord, hier !",
+    }
+    for sid, expected in second_pass_lot6_layout.items():
+        if active.get(sid) != expected:
+            die(f"second-pass lot 6 validated fresh-page layout drifted: {sid}")
+
+    second_pass_lot7_layout = {
+        "C9:B941": "Omar : Si Mana continue de faiblir,\nles puits s'assécheront\npeut-être de nouveau.",
+        "C9:BBEF": "\vIl paraît qu'une queue de lièvre\nmarin permet de ramener\nl'eau aux puits taris.",
+        "C9:BE80": "%S(0,0) : La Graine\nn'est pas là !! Quelqu'un\nl'aurait volée ?",
+        "C9:C158": "Roi : Alors comme ça, j'ai été\nvictime d'une tentative\nd'assassinat...\fLe ciel soit loué !\nIl s'en est fallu de peu.",
+        "C9:C2A9": "\vJe dois agir pour entraver\nles agissements de l'Empire\nà travers le monde.",
+        "C9:C390": "Le Royaume de Pandora,\ndans le bassin de Gaïa, est\nallié avec notre République.",
+    }
+    for sid, expected in second_pass_lot7_layout.items():
+        if active.get(sid) != expected:
+            die(f"second-pass lot 7 validated layout drifted: {sid}")
+
+    second_pass_lot8_layout = {
+        "C9:C766": "Même si l'Empire nous attaque,\nnous ne craignons rien à l'intérieur\nde ce château !",
+        "C9:C88B": "Mais comment êtes-vous\narrivés ici ?",
+        "C9:CA5A": "Vous obtenez une queue de\nlièvre marin !",
+        "C9:CA73": "%S(0,0) : Rangeons-la\nprécieusement pour ne pas\nla perdre !",
+        "C9:D3EE": "%S(0,0) : Ramenons-la\nau Temple de l'Eau !",
+        "C9:D515": "%S(0,0) : Ah !\nLa Graine de l'Eau !",
+    }
+    for sid, expected in second_pass_lot8_layout.items():
+        if active.get(sid) != expected:
+            die(f"second-pass lot 8 validated layout drifted: {sid}")
+    second_pass_lot9_layout = {
+        "C9:DB77": "Quoi ? La Graine du Feu ?\nJe n\'y ai pas touché ! J\'ai retenu\nla leçon, l\'autre fois !",
+        "C9:DBE4": "Scorpion : Idiot ! Aide-les,\npendant que tu y es ! Tu n\'as donc\nrien dans le cerveau ?!",
+        "C9:DDF1": "Vous obtenez la Clef\nde la Tour dorée !",
+        "C9:E32D": "J\'ai perdu mon père dans la guerre\ncontre la République de\nTasmanica, il y a 15 ans.",
+        "C9:E548": "Comme il n\'y a plus de fêtes au\npalais, ma sœur met ses robes\nde bal à la maison.",
+    }
+    for sid, expected in second_pass_lot9_layout.items():
+        if active.get(sid) != expected:
+            die(f"second-pass lot 9 validated layout drifted: {sid}")
+
+    second_pass_lot10_layout = {
+        "CA:1012": " : Les dragons comme\nFlammie devaient être\ndes bénévodons, à l'origine...",
+        "CA:11C9": "\vC'est juste que ce monde\net celui des lutins vont se séparer...\nOn ne pourra plus se voir.",
+    }
+    for sid, expected in second_pass_lot10_layout.items():
+        if active.get(sid) != expected:
+            die(f"second-pass lot 10 validated layout drifted: {sid}")
+
+    second_pass_lot11_layout = {
+        "CA:4ABC": "\vIl y a d'ores et déjà des intrus\nqui rôdent autour de ce temple\npour le surveiller.",
+        "CA:5C2F": "Je vais me débarrasser à la fois\nde la Résistance et du héros\nà l'Épée sacrée !",
+        "CA:5D34": "Ah ! Si seulement je n'avais pas\ninsisté pour qu'on leur laisse\nune chance... !",
+        "CA:60C0": "\vC'est grâce à Flammie !\nIl a grandi d'un coup, et\nil vole, maintenant !",
+        "CA:6676": "Décidément, ce jeune homme\npourrait m'être très utile. Sur ce...\nje vous laisse !",
+    }
+    for sid, expected in second_pass_lot11_layout.items():
+        if active.get(sid) != expected:
+            die(f"second-pass lot 11 validated layout drifted: {sid}")
+
+    second_pass_lot12_layout = {
+        "CA:71E3": "\vJe vous donne mon pouvoir,\navant que la lumière ne disparaisse\nde ce monde.",
+        "CA:7397": "L'Épée entre en symbiose\navec la Graine !",
+        "CA:73F5": "L'Épée entre en symbiose\navec la Graine !",
+        "CA:889F": "%S(0,0) : Aïe ! On ne pourra\npas traverser ces flammes !",
+        "CA:8E72": "Vous trouvez 1000 pièces d'or\ndans le coffre !",
+        "CA:986B": "%S(0,0) : Oh là là,\nqu'est-ce qui m'est arrivé... ?",
+        "CA:8D4B": "\vJ'ai retenu la leçon : si le pouvoir\nde Mana est utilisé à mauvais\nescient, cela peut devenir très\r\ndangereux !",
+    }
+    for sid, expected in second_pass_lot12_layout.items():
+        if active.get(sid) != expected:
+            die(f"second-pass lot 12 validated layout/scroll drifted: {sid}")
+
+    lot6_insertions = {x.get("event_id"): x for x in french.get("user_validated_structural_command_insertions", [])}
+    expected_028a = {
+        "before_command": {"name": "PLAYER_NAME", "args": "01", "immediately_before_text_id": "C9:A9CE"},
+        "commands": [{"name": "TEXT_CLEAR", "args": ""}],
+    }
+    if expected_028a not in lot6_insertions.get("028A", {}).get("insertions", []):
+        die("$028A second-pass lot 6 fresh-page insertion drifted")
+    expected_04b6 = {
+        "before_command": {"name": "PLAYER_NAME", "args": "02", "immediately_before_text_id": "CA:237E"},
+        "commands": [{"name": "TEXT_CLEAR", "args": ""}],
+    }
+    if expected_04b6 not in lot6_insertions.get("04B6", {}).get("insertions", []):
+        die("$04B6 second-pass lot 10 fresh-page insertion drifted")
+    expected_04e1 = {
+        "before_command": {"name": "PLAYER_NAME", "args": "01", "immediately_before_text_id": "CA:2E98"},
+        "commands": [{"name": "TEXT_CLEAR", "args": ""}],
+    }
+    if expected_04e1 not in lot6_insertions.get("04E1", {}).get("insertions", []):
+        die("$04E1 second-pass lot 11 fresh-page insertion drifted")
+    expected_04ea_a = {
+        "before_command": {"name": "PLAYER_NAME", "args": "00", "immediately_before_text_id": "CA:49D3"},
+        "commands": [{"name": "TEXT_CLEAR", "args": ""}],
+    }
+    expected_04ea_b = {
+        "before_command": {"name": "OP_32", "args": "0C 00", "immediately_before_text_id": "CA:4B1E"},
+        "commands": [{"name": "TEXT_CLEAR", "args": ""}],
+    }
+    for expected in (expected_04ea_a, expected_04ea_b):
+        if expected not in lot6_insertions.get("04EA", {}).get("insertions", []):
+            die("$04EA second-pass lot 11 fresh-page insertion drifted")
+    structural_overrides = {x.get("event_id"): x for x in french.get("user_validated_structural_command_overrides", [])}
+    expected_0108 = {"name": "PLAYER_NAME", "args": "00", "immediately_before_text_id": "C9:2B85", "omit": True}
+    if expected_0108 not in structural_overrides.get("0108", {}).get("commands", []):
+        die("$0108 Android-FR vocative omission drifted")
+    expected_0112 = {"name": "PLAYER_NAME", "args": "00", "immediately_before_text_id": "C9:359A", "omit": True}
+    if expected_0112 not in structural_overrides.get("0112", {}).get("commands", []):
+        die("$0112 Android-FR 26 stock vocative omission drifted")
 
     for sid in ("C9:B1B0", "C9:9BCB"):
         if not active.get(sid, "").startswith(" : "):
@@ -274,7 +404,7 @@ def check_scene_recipes(french: dict, mass: dict, auto: dict, recipes: dict) -> 
         "accepted_event_count": 701,
         "complete_accepted_event_count": 701,
         "partial_accepted_event_count": 0,
-        "accepted_semantic_source_id_count": 1813,
+        "accepted_semantic_source_id_count": 1812,
         "translation_entry_count": 1959,
         "excluded_event_count": 3,
     }

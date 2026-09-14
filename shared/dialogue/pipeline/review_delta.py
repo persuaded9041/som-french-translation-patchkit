@@ -88,6 +88,12 @@ def _apply_operation(current: dict[str, str], op: dict, french: dict[int, str], 
             raise ValueError(f"{text_id}: leading clear already present")
         current[text_id] = "\v" + before
         return
+    if kind == "replace_leading_newline_with_clear":
+        before = current[text_id]
+        if not before.startswith("\n"):
+            raise ValueError(f"{text_id}: expected leading newline")
+        current[text_id] = "\v" + before[1:]
+        return
     if kind == "prepend_punctuation":
         current[text_id] = op["value"] + current[text_id].lstrip()
         return
@@ -147,6 +153,10 @@ def _apply_operation(current: dict[str, str], op: dict, french: dict[int, str], 
         if not units:
             raise ValueError(f"{text_id}: replace_android resolved to empty payload")
         payload = op.get("android_separator", " ").join(units)
+        if op.get("strip_leading_speaker_label"):
+            payload, count = re.subn(r"^[^:\n]+:\s*", "", payload, count=1)
+            if count != 1 or not payload:
+                raise ValueError(f"{text_id}: expected leading Android speaker label")
         if op.get("break_after_leading_label"):
             payload, count = re.subn(r"^(%S\([0-2],0\)\s*:\s*)", lambda m: m.group(1).rstrip() + "\n", payload, count=1)
             if count != 1:
