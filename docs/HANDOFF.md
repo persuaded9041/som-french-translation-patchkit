@@ -78,3 +78,30 @@ Android FR remains the prose source of truth; no hard-coded localized prose in f
 ## Next work
 
 Dialogue visual/completeness consolidation is complete. The next planned subject is the **items/objects translation procedure**, beginning with design/discussion before changing translation data. Do not reopen validated dialogue wording or structure unless a concrete runtime regression is observed.
+
+## Exhaustive dialogue audit — lots 1–12 complete (2026-09-14)
+
+A second exhaustive playable-dialogue audit has now been completed event-by-event in 12 lots, covering all **701 accepted playable events**. The pass checked Android-FR completeness, serialized display flow, clean-USA event-command preservation, and human visual formatting.
+
+Final verified state after the audit:
+
+- **701/701** accepted playable events simulator-clean;
+- **1959 translated carriers**;
+- Android alignment identity remains **1798/1838**;
+- **0 error / 0 warning / 0 implicit wrap** in the full dialogue simulation;
+- speaker-label guardrail: **0** `Nom :` / `%S(...) :` hard-newline findings;
+- rolling-scroll review guardrail: **0** remaining candidates;
+- redistribution audit: **302 active carriers**, clean;
+- source hygiene: clean;
+- source round-trip: **713 events / 87,487 bytes**;
+- all **2048 stock event scripts** parse successfully.
+
+The final global pass also caught and restored four earlier validated rolling-scroll fixes (`$00AA`, `$0112`, `$0180`, `$01B9`) and the lot-1 dynamic-speaker fresh-page architecture for `$0020/$0021/$0023`, preventing late historical recipes from silently restoring obsolete layouts.
+
+Two complete `build.py <clean-USA-ROM> all --combine` builds were run consecutively and were byte-identical. Reference hashes:
+
+- `translations/dialogues_french.json`: `4c71ee39ef1c10acbff1934401afdb4ded788bb525b7282c5a8227606863be82`
+- `patches/french_dialogues.ips`: `006281fc3240ccef2ab10abe0d3a307ed274d13ab58d62a52503776c64b06c79`
+- `patches/all.ips`: `a4510f1675a9b0be80518961338d847b3218f296dfa74032954b6b79570dc2e4`
+
+Preserve the existing invariants: Android FR remains the primary prose source; `WAIT != NEWLINE`; `$0360` remains neutralized; `$035F / C9:D1B8` remains `Dryade fera réagir l'orbe !`; dynamic Android `%S(...)` vocatives remain real `PLAYER_NAME` commands. The reviewed one-line rolling-scroll pattern is represented by WAIT-only markup (`\r`) followed by NEWLINE and must remain a manually reviewed layout choice rather than a generic automatic rewrite.

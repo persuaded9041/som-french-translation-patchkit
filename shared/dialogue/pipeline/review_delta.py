@@ -35,7 +35,7 @@ def load_round85_review_recipe() -> dict:
                     raise ValueError(f"Round-85 review ${event_id}: unsafe punctuation payload")
         for text_id, spec in event.get("layout", {}).items():
             seps = spec.get("seps", [])
-            if any(re.search(r"[^ \n\f]", value) for value in seps):
+            if any(re.search(r"[^ \n\f\r]", value) for value in seps):
                 raise ValueError(f"Round-85 review ${event_id}/{text_id}: non-layout separator")
     return doc
 
@@ -59,7 +59,7 @@ def _apply_operation(current: dict[str, str], op: dict, french: dict[int, str], 
         return
     if kind == "set_layout_literal":
         value = op.get("value", "")
-        if re.search(r"[^ \n\f]", value):
+        if re.search(r"[^ \n\f\r]", value):
             raise ValueError("set_layout_literal may contain layout only")
         current[text_id] = value
         return
@@ -96,6 +96,13 @@ def _apply_operation(current: dict[str, str], op: dict, french: dict[int, str], 
         after = before.replace("%%", "%")
         if after == before:
             raise ValueError(f"{text_id}: expected duplicated percent")
+        current[text_id] = after
+        return
+    if kind == "remove_dynamic_vocative_before_bang":
+        before = current[text_id]
+        after, count = re.subn(r"\s*%S\(\d+,0\)\s*(?=!)", " ", before, count=1)
+        if count != 1 or "%S(" in after:
+            raise ValueError(f"{text_id}: expected exactly one dynamic vocative before !")
         current[text_id] = after
         return
     if kind == "add_android":
@@ -235,7 +242,7 @@ def apply_round85_review_delta(event_id: str, translations: dict[str, str], fren
             if layout.get("semantic_part_count", 0) != 0:
                 raise ValueError(f"Round-85 review ${event_id}/{text_id}: empty carrier/layout mismatch")
             value = layout.get("empty_layout", "")
-            if re.search(r"[^ \n\f]", value):
+            if re.search(r"[^ \n\f\r]", value):
                 raise ValueError(f"Round-85 review ${event_id}/{text_id}: invalid empty layout")
             if current[text_id] != value:
                 current[text_id] = value

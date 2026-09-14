@@ -146,7 +146,7 @@ def check_dialogue_pipeline(problems: list[str]) -> None:
             if not isinstance(count, int) or count < 1 or len(seps) != count + 1:
                 problems.append(f"final-layout ${event_id}/{text_id}: invalid semantic count/separator shape")
             for sep in seps:
-                if not isinstance(sep, str) or re.search(r"[^ \n\f]", sep):
+                if not isinstance(sep, str) or re.search(r"[^ \n\f\r]", sep):
                     problems.append(f"final-layout ${event_id}/{text_id}: non-layout separator {sep!r}")
                 if isinstance(sep, str) and prose_re.search(sep):
                     problems.append(f"final-layout ${event_id}/{text_id}: prose in separator {sep!r}")
@@ -197,7 +197,7 @@ def check_dialogue_pipeline(problems: list[str]) -> None:
             if not isinstance(count, int) or count < 1 or len(seps) != count + 1:
                 problems.append(f"post-structure layout ${event_id}/{text_id}: invalid semantic count/separator shape")
             for sep in seps:
-                if not isinstance(sep, str) or re.search(r"[^ \n\f]", sep):
+                if not isinstance(sep, str) or re.search(r"[^ \n\f\r]", sep):
                     problems.append(f"post-structure layout ${event_id}/{text_id}: non-layout separator {sep!r}")
                 if isinstance(sep, str) and prose_re.search(sep):
                     problems.append(f"post-structure layout ${event_id}/{text_id}: prose in separator {sep!r}")

@@ -18,14 +18,15 @@ import re
 from .common import ROOT, _load_recipe_section
 
 DIALOGUE_REVIEW_RECIPES = ROOT / "recipes" / "android" / "dialogues_review.json"
-_LAYOUT_SEPARATOR_RE = re.compile(r"[ \n\f]+")
+_LAYOUT_SEPARATOR_RE = re.compile(r"[ \n\f\r]+")
 
 
 def _split_layout(text: str) -> tuple[list[str], list[str]]:
     """Return semantic chunks and the layout separators around/between them.
 
-    Only ordinary spaces, explicit NEWLINE markup (``\n``), and generated page
-    boundaries (``\f`` = WAIT $00 + TEXT_CLEAR in translation markup) are
+    Only ordinary spaces, explicit NEWLINE markup (``\n``), generated page
+    boundaries (``\f`` = WAIT $00 + TEXT_CLEAR), and reviewed pause-only
+    boundaries (``\r`` = WAIT $00) are
     considered mutable layout. All other bytes/markup remain part of the
     semantic chunks and therefore participate in the fingerprint.
     """
@@ -86,7 +87,7 @@ def _recipe_index() -> dict[str, dict[str, dict]]:
             seps = recipe.get("seps")
             if not isinstance(seps, list) or not all(isinstance(value, str) for value in seps):
                 raise ValueError(f"Final-layout ${event_id}/{text_id}: invalid separators")
-            if any(re.search(r"[^ \n\f]", value) for value in seps):
+            if any(re.search(r"[^ \n\f\r]", value) for value in seps):
                 raise ValueError(f"Final-layout ${event_id}/{text_id}: separators contain non-layout data")
             semantic_count = int(recipe.get("semantic_part_count", -1))
             semantic_hash = str(recipe.get("semantic_sha256", ""))

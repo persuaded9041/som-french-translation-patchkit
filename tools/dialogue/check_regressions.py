@@ -100,19 +100,76 @@ def check_targeted_reviews(manual: dict, french: dict, mass: dict) -> None:
         die("$01B9 first speaker carrier layout drifted")
     if active.get("C9:6D0D") != "Faut être\npositif dans la vie, hé hé hé !":
         die("$01B9 continuation carrier layout drifted")
-    if active.get("C9:7D47") != ": Hein ? Où ça ?":
-        die("$01DA single-line player reply drifted")
+    if active.get("C9:7D47") != " : Ah bon ?!\nComment ça ?":
+        die("$01DA Android-FR player reply drifted")
     if active.get("C9:7E72") != ".\fHum... Drôle de nom.\nMoi, c'est... ":
         die("$01DA girl-speaker exception/page boundary drifted")
     if active.get("C9:D1B8") != "Dryade fera réagir l'orbe !":
         die("$035F full Dryade orb-message surcharge drifted")
     if active.get("C9:D1C0") != "\n" or active.get("C9:D1CB") != "":
         die("$0360 shared suffix must remain neutralized after full $035F surcharge")
+    # Lot-5 validated pagination/layout sentinels.  These exact checks lock the
+    # user-reviewed WAIT-only rolling-window layouts and the cross-carrier
+    # three-line regrouping without changing Android-FR semantic payloads.
+    expected_lot5 = {
+        "C9:7C5B": "Je vous sens ému jusqu'aux larmes,\ncher spectateur... Voulez-vous\nfaire un geste pour ce malheureux\r\nenfant frappé par l'injustice ?\fUn simple don de 100 pièces\nferait déjà beaucoup pour ce\npauvre petit !\f  (",
+        "C9:8512": "Elinice : Thanatos est un chevalier\nmage au service de l'Empire\nVandole, qui va détruire\r\nvotre petit royaume de l'intérieur !",
+        "C9:8F73": "Rusalka : Ton Épée s'est alignée\nsur la puissance\nde la Graine de Mana,\r\net résonne désormais à l'unisson\r\navec elle !",
+        "C9:8FE0": "\ndésormais le pouvoir de la Graine\nde Mana.",
+        "C9:9076": "Rusalka : %S(0,0),\nsi l'Empire réussit à réactiver\nla Forteresse,\r\nle pouvoir de Mana\r\ndisparaîtra à tout\r\njamais de ce monde.",
+        "C9:910D": "\nou tout sera perdu !",
+        "C9:924F": "\vL'Épée ne pourra être\nravivée si les sceaux sont\nbrisés avant qu'elle n'entre\r\nen symbiose avec les Graines !",
+        "C9:97D6": "Notre fils Durac a tant\nde travail qu'il n'a jamais\nle temps de venir nous voir,\r\nalors que Pandora est si près !",
+    }
+    for sid, expected in expected_lot5.items():
+        if active.get(sid) != expected:
+            die(f"Lot-5 validated layout drifted: {sid}")
+
+    # Exhaustive dialogue-audit late-layout sentinels. These lock the reviewed
+    # rolling-scroll and final-lot speaker/pagination fixes so earlier formatting
+    # recipes cannot silently restore obsolete page clears or label breaks.
+    expected_audit_late_layout = {
+        "C9:1573": "Sous le récif de corail\nau nord-est de cette île dort\nun continent englouti abritant\r\nune civilisation ancienne.",
+        "C9:33AC": "\vVoyageur : D'après la légende,\nl'Épée doit être retirée par\nun brave lorsqu'un grand\r\ndanger menace notre monde.",
+        "C9:5686": "Ils sont dans un état second\net se dirigent tous vers\nles ruines au sud de Pandora,\r\ncomme vidés de leur énergie.",
+        "C9:6D1D": "\vChef : Si le Flagellateur\nqui était enfermé dans le temple\ns'est échappé, c'est qu'il doit\r\nêtre possible d'y pénétrer.",
+        "CA:752E": "J'accepte de te tenir compagnie\njusque-là...\nalors sois reconnaissant, hein ?",
+        "CA:757E": "%S(0,0) : Zut !\nIl ne se passe rien !",
+        "CA:76B2": "\nComme vous voudrez,\nVotre Majesté...\n",
+        "CA:7E4B": "Bientôt les bénévodons du monde\nentier se rassembleront et\nfusionneront en un être unique et\r\nimmense...",
+        "CA:8010": "Pour vaincre définitivement\nl'Empereur ressuscité, il usa de ses\ndernières forces pour venir\r\nchercher l'Épée.",
+        "CA:8471": " : Je suis de la tribu de\nMana... Je vais accomplir\nle destin de mes parents\r\net protéger ce monde si merveilleux !",
+        "CA:889F": "%S(0,0) : Aïe !\nOn ne pourra pas traverser ces\nflammes !",
+        "CA:892F": "%S(0,0) : Ah... Il y a un\nbouclier ! On n'arrivera pas à\nentrer ! Partons...",
+        "CA:8D4B": "\vJ'ai retenu la leçon : si le pouvoir\nde Mana est utilisé à mauvais\nescient, cela peut devenir très\r\ndangereux !",
+        "CA:986B": "%S(0,0) : Oh là là,\nqu'est-ce qui m'est\narrivé... ?",
+    }
+    for sid, expected in expected_audit_late_layout.items():
+        if active.get(sid) != expected:
+            die(f"Exhaustive-audit validated layout drifted: {sid}")
+
+    for sid in ("C9:09A7", "C9:09F8", "C9:0A8E"):
+        if " :\n" in active.get(sid, ""):
+            die(f"Lot-1 dynamic speaker label newline regressed: {sid}")
+
+    lot12_colon_carriers = (
+        "CA:7A0C", "CA:7A43", "CA:7A7D", "CA:7AB0", "CA:7B38", "CA:7B69",
+        "CA:7C98", "CA:7CBA", "CA:7D32", "CA:7D5E", "CA:7DA9", "CA:80B4",
+        "CA:8300", "CA:8381", "CA:838A", "CA:839E", "CA:843F", "CA:8471",
+        "CA:84B9", "CA:84DE", "CA:8528",
+    )
+    for sid in lot12_colon_carriers:
+        if not active.get(sid, "").startswith(" :"):
+            die(f"$05F8 French speaker-colon spacing drifted: {sid}")
+
+    lot5_020f = [x for x in french.get("choice_option_position_overrides", []) if x.get("event_id") == "020F"]
+    if len(lot5_020f) != 1 or lot5_020f[0].get("translated_position") != 21:
+        die("$020F validated visible choice gap drifted")
 
     structural_insertions = french.get("user_validated_structural_command_insertions", [])
     expected_structural_insertion_events = {
-        "0023", "0112", "01DD", "02B7", "02EE", "036F", "038C", "038D",
-        "03AA", "04A1", "04E2", "05F8",
+        "0020", "0021", "0023", "0112", "01DD", "02B7", "02EE", "036F", "038C", "038D",
+        "03AA", "04A1", "04E2", "0592", "05F8",
     }
     if {entry.get("event_id") for entry in structural_insertions} != expected_structural_insertion_events:
         die("validated structural-command insertion event set drifted")
@@ -127,7 +184,7 @@ def check_targeted_reviews(manual: dict, french: dict, mass: dict) -> None:
         "C9:9E14": [1168], "C9:9F44": [1203], "C9:A02A": [1264],
         "C9:AA04": [1524], "C9:ABFB": [1480], "C9:BE42": [1735, 1736],
         "C9:DA79": [1800], "CA:40AF": [87], "CA:4126": [91],
-        "C9:AF50": [1518], "C9:B2BD": [1560], "C9:BDD6": [1705],
+        "C9:B2BD": [1560], "C9:BDD6": [1705],
         "C9:BDFE": [1701], "C9:BE80": [1734], "C9:BEC3": [2579],
         "C9:CA73": [2298], "C9:D3EE": [489], "C9:D515": [1142],
         "C9:DA8C": [1801], "C9:E0D9": [1891, 1892], "C9:E0FA": [1889],
@@ -146,6 +203,11 @@ def check_targeted_reviews(manual: dict, french: dict, mass: dict) -> None:
         actual = semantic_layout_normalized(active.get(sid, ""))
         if actual != expected:
             die(f"dialogue-audit Android-FR dynamic payload drifted: {sid} <- {android_ids}")
+    # $0295 is an explicitly user-validated local adaptation: Android FR 1518
+    # carries a dynamic addressee absent from the desired localized rendering.
+    if semantic_layout_normalized(active.get("C9:AF50", "")) != semantic_layout_normalized("Hé, salut ! J'suis au paradis, ici !"):
+        die("$0295 validated local vocative removal drifted")
+
     for sid in ("C9:B1B0", "C9:9BCB"):
         if not active.get(sid, "").startswith(" : "):
             die(f"dialogue-audit stock PLAYER_NAME separator drifted: {sid}")
@@ -213,7 +275,7 @@ def check_scene_recipes(french: dict, mass: dict, auto: dict, recipes: dict) -> 
         "complete_accepted_event_count": 701,
         "partial_accepted_event_count": 0,
         "accepted_semantic_source_id_count": 1813,
-        "translation_entry_count": 1957,
+        "translation_entry_count": 1959,
         "excluded_event_count": 3,
     }
     for key, value in expected_cov.items():

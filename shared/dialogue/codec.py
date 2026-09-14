@@ -136,6 +136,8 @@ COMMAND_OPCODES = {name: opcode for opcode, name in COMMAND_NAMES.items()}
 # the original event scripts. Canonical source assets never contain this marker.
 TRANSLATION_PAGE_BREAK = "\f"
 TRANSLATION_PAGE_BREAK_BYTES = bytes((0x28, 0x00, 0x52))
+TRANSLATION_WAIT = "\r"
+TRANSLATION_WAIT_BYTES = bytes((0x28, 0x00))
 # Exact user-reviewed carrier boundaries where a generated WAIT $00 + TEXT_CLEAR
 # must be emitted *after* the translated carrier and before the next canonical
 # command/text token. This remains deliberately allow-listed rather than making
@@ -273,7 +275,8 @@ def encode_translated_dialogue_text(text: str, *, allow_trailing_page_break: boo
     """Encode translated text plus generated layout markers.
 
     ``\f`` compiles to stock ``WAIT $00 + TEXT_CLEAR`` between generated
-    pages. A trailing ``\f`` is accepted only when the caller has structurally
+    pages. ``\r`` compiles to stock ``WAIT $00`` only and is used before an
+    explicit ``\n`` when a reviewed three-line box should roll by one line. A trailing ``\f`` is accepted only when the caller has structurally
     proven that a choice begins immediately afterwards, so a stripped decorative
     ``(`` carrier can still preserve its required page transition. ``\v``
     compiles to ``TEXT_CLEAR`` only and is allowed solely at the beginning of a
@@ -288,6 +291,15 @@ def encode_translated_dialogue_text(text: str, *, allow_trailing_page_break: boo
     if TRANSLATION_CLEAR in text:
         raise ValueError("Translated dialogue clear marker is only valid at the start of a text chunk")
     if not text:
+        return bytes(out)
+    if TRANSLATION_WAIT in text:
+        parts = text.split(TRANSLATION_WAIT)
+        if any(part == "" for part in parts):
+            raise ValueError("Translated dialogue WAIT marker cannot be leading, trailing, or repeated")
+        for index, part in enumerate(parts):
+            out += encode_translated_dialogue_text(part, allow_trailing_page_break=allow_trailing_page_break)
+            if index + 1 < len(parts):
+                out += TRANSLATION_WAIT_BYTES
         return bytes(out)
     if text.endswith(TRANSLATION_PAGE_BREAK):
         if not allow_trailing_page_break:

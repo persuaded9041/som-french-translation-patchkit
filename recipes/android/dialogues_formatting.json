@@ -4735,18 +4735,6 @@
           "lot": 3
         },
         {
-          "event_id": "01DA",
-          "carrier_id": "C9:7D47",
-          "mode": "replace",
-          "android_ids": [
-            670
-          ],
-          "separator": "",
-          "strip_player_name": true,
-          "newline_after_colon": true,
-          "lot": 4
-        },
-        {
           "event_id": "0399",
           "carrier_id": "C9:DE89",
           "mode": "append",

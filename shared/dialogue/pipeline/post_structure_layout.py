@@ -36,7 +36,7 @@ def _recipe_index() -> dict[str, dict[str, dict]]:
             seps = recipe.get("seps")
             if not isinstance(seps, list) or not all(isinstance(value, str) for value in seps):
                 raise ValueError(f"Post-structure layout ${event_id}/{text_id}: invalid separators")
-            if any(re.search(r"[^ \n\f]", value) for value in seps):
+            if any(re.search(r"[^ \n\f\r]", value) for value in seps):
                 raise ValueError(f"Post-structure layout ${event_id}/{text_id}: separators contain non-layout data")
             semantic_count = int(recipe.get("semantic_part_count", -1))
             semantic_hash = str(recipe.get("semantic_sha256", ""))
