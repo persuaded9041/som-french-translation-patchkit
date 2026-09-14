@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 RECIPES = ROOT / "recipes/android/dialogues_redistribution.json"
 COVERAGE = ROOT / "recipes/android/dialogues_coverage_repair.json"
+ROUND85_REVIEW = ROOT / "recipes/android/dialogues_round85_review.json"
 FRENCH = ROOT / "translations/dialogues_french.json"
 SCRTXT_FR = ROOT / "sources/android/scrtxt_fr.bin"
 
@@ -59,13 +60,26 @@ def main() -> None:
                 if part[0] not in {"a", "p", "x"}:
                     die(f"{ev}/{sid}: unknown part kind {part!r}")
 
-    from shared.dialogue.pipeline.common import read_scrtxt
+    from shared.dialogue.pipeline.common import read_scrtxt, normalize_android_prose
     from shared.dialogue.pipeline.recipes import load_dialogue_redistribution_recipes
 
     fr = read_scrtxt(SCRTXT_FR)
     rendered, _ = load_dialogue_redistribution_recipes(fr)
     coverage = json.loads(COVERAGE.read_text(encoding="utf-8")) if COVERAGE.exists() else {"repairs": []}
     coverage_append = {(r.get("event_id"), r.get("carrier_id")) for r in coverage.get("repairs", []) if r.get("mode") == "append"}
+    review = json.loads(ROUND85_REVIEW.read_text(encoding="utf-8")) if ROUND85_REVIEW.exists() else {"events": {}}
+    review_append = {
+        (event_id, op.get("text_id"))
+        for event_id, spec in review.get("events", {}).items()
+        for op in spec.get("operations", [])
+        if op.get("operation") == "append_android"
+    }
+    review_replace = {
+        (event_id, op.get("text_id")): tuple(int(x) for x in op.get("android_ids", []))
+        for event_id, spec in review.get("events", {}).items()
+        for op in spec.get("operations", [])
+        if op.get("operation") in {"replace_android", "add_android"}
+    }
     active = (
         active_entries(json.loads(FRENCH.read_text(encoding="utf-8")))
         if FRENCH.exists() else None
@@ -92,7 +106,15 @@ def main() -> None:
                 continue
             actual_sem = semantic_payload(actual)
             expected_sem = semantic_payload(expected)
-            if (ev, sid) in coverage_append:
+            if (ev, sid) in review_replace:
+                replacement_sem = semantic_payload(" ".join(
+                    normalize_android_prose(fr[i]).replace("_", "").strip()
+                    for i in review_replace[(ev, sid)]
+                    if normalize_android_prose(fr[i]).replace("_", "").strip()
+                ))
+                if actual_sem != replacement_sem:
+                    die(f"{ev}/{sid}: Round-85 Android replacement semantic payload drifted")
+            elif (ev, sid) in coverage_append or (ev, sid) in review_append:
                 if not actual_sem.startswith(expected_sem):
                     die(f"{ev}/{sid}: generated semantic payload prefix drifted before coverage append")
             elif actual_sem != expected_sem:

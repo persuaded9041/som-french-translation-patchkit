@@ -13,6 +13,10 @@ from functools import lru_cache
 
 from .common import ROOT, _load_recipe_document, normalize_android_prose
 from .final_layout import _split_layout, _semantic_sha256
+from shared.dialogue.translation import (
+    DIALOGUE_WRAP_PIXELS, DIALOGUE_WRAP_CHARS, semantic_wrap_markup,
+    _sentence_aware_extra_page_wrap, _sentence_aware_three_page_wrap,
+)
 
 RECIPE = ROOT / "recipes" / "android" / "dialogues_round85_review.json"
 
@@ -47,7 +51,7 @@ def reviewed_appended_entry_order() -> list[str]:
     return list(load_round85_review_recipe().get("appended_entry_order", []))
 
 
-def _apply_operation(current: dict[str, str], op: dict, french: dict[int, str]) -> None:
+def _apply_operation(current: dict[str, str], op: dict, french: dict[int, str], advances: dict[str, int] | None = None) -> None:
     kind = op["operation"]
     text_id = op.get("text_id")
     if kind == "set_empty":
@@ -93,6 +97,78 @@ def _apply_operation(current: dict[str, str], op: dict, french: dict[int, str]) 
         if after == before:
             raise ValueError(f"{text_id}: expected duplicated percent")
         current[text_id] = after
+        return
+    if kind == "add_android":
+        if text_id in current and current[text_id]:
+            raise ValueError(f"{text_id}: add_android target already translated")
+        units = []
+        for android_id in op["android_ids"]:
+            unit = normalize_android_prose(french[int(android_id)]).replace("_", "").strip()
+            if unit:
+                units.append(unit)
+        if not units:
+            raise ValueError(f"{text_id}: add_android resolved to empty payload")
+        payload = op.get("android_separator", " ").join(units)
+        if op.get("break_after_leading_label"):
+            payload, count = re.subn(r"^(%S\([0-2],0\)\s*:\s*)", lambda m: m.group(1).rstrip() + "\n", payload, count=1)
+            if count != 1:
+                raise ValueError(f"{text_id}: expected leading Android dynamic label")
+        if op.get("reflow", True):
+            if advances is None:
+                raise ValueError("add_android reflow requires VWF advances")
+            wrapped, widths, chars, units_count = semantic_wrap_markup(payload, advances, max_pixels=DIALOGUE_WRAP_PIXELS)
+            if len(widths) > 6:
+                wrapped, widths, chars, units_count, _counts, _strategy = _sentence_aware_three_page_wrap(
+                    payload, advances, max_pixels=DIALOGUE_WRAP_PIXELS, max_chars=DIALOGUE_WRAP_CHARS,
+                    prefer_semantic_line_breaks=True, first_line_prefix_pixels=0, first_line_prefix_units=0)
+            elif len(widths) > 3:
+                wrapped, widths, chars, units_count, _counts, _strategy = _sentence_aware_extra_page_wrap(
+                    payload, advances, max_pixels=DIALOGUE_WRAP_PIXELS, max_chars=DIALOGUE_WRAP_CHARS,
+                    prefer_semantic_line_breaks=True, first_line_prefix_pixels=0, first_line_prefix_units=0)
+            payload = wrapped
+        current[text_id] = payload
+        return
+    if kind == "replace_android":
+        if text_id not in current:
+            raise ValueError(f"{text_id}: replace target missing")
+        before = current[text_id]
+        units = []
+        for android_id in op["android_ids"]:
+            unit = normalize_android_prose(french[int(android_id)]).replace("_", "").strip()
+            if unit:
+                units.append(unit)
+        if not units:
+            raise ValueError(f"{text_id}: replace_android resolved to empty payload")
+        payload = op.get("android_separator", " ").join(units)
+        if op.get("break_after_leading_label"):
+            payload, count = re.subn(r"^(%S\([0-2],0\)\s*:\s*)", lambda m: m.group(1).rstrip() + "\n", payload, count=1)
+            if count != 1:
+                raise ValueError(f"{text_id}: expected leading Android dynamic label")
+        if op.get("reflow", True):
+            if advances is None:
+                raise ValueError("replace_android reflow requires VWF advances")
+            wrapped, widths, chars, units_count = semantic_wrap_markup(
+                payload, advances, max_pixels=DIALOGUE_WRAP_PIXELS
+            )
+            if len(widths) > 6:
+                wrapped, widths, chars, units_count, _counts, _strategy = _sentence_aware_three_page_wrap(
+                    payload, advances, max_pixels=DIALOGUE_WRAP_PIXELS, max_chars=DIALOGUE_WRAP_CHARS,
+                    prefer_semantic_line_breaks=True, first_line_prefix_pixels=0, first_line_prefix_units=0,
+                )
+            elif len(widths) > 3:
+                wrapped, widths, chars, units_count, _counts, _strategy = _sentence_aware_extra_page_wrap(
+                    payload, advances, max_pixels=DIALOGUE_WRAP_PIXELS, max_chars=DIALOGUE_WRAP_CHARS,
+                    prefer_semantic_line_breaks=True, first_line_prefix_pixels=0, first_line_prefix_units=0,
+                )
+            payload = wrapped
+        if op.get("preserve_edge_layout", True):
+            lead = re.match(r"^[\v\n]+", before)
+            trail = re.search(r"\n+$", before)
+            if lead and not payload.startswith(("\v", "\n")):
+                payload = lead.group(0) + payload
+            if trail and not payload.endswith("\n"):
+                payload = payload + trail.group(0)
+        current[text_id] = payload
         return
     if kind == "append_android":
         before = current.get(text_id)
@@ -141,7 +217,7 @@ def _apply_operation(current: dict[str, str], op: dict, french: dict[int, str]) 
     raise ValueError(f"Unsupported Round-85 review operation {kind!r}")
 
 
-def apply_round85_review_delta(event_id: str, translations: dict[str, str], french: dict[int, str]) -> tuple[dict[str, str], list[dict]]:
+def apply_round85_review_delta(event_id: str, translations: dict[str, str], french: dict[int, str], advances: dict[str, int] | None = None) -> tuple[dict[str, str], list[dict]]:
     spec = load_round85_review_recipe().get("events", {}).get(str(event_id))
     if not spec:
         return translations, []
@@ -149,7 +225,7 @@ def apply_round85_review_delta(event_id: str, translations: dict[str, str], fren
     repairs = []
     for op in spec.get("operations", []):
         before = dict(current)
-        _apply_operation(current, op, french)
+        _apply_operation(current, op, french, advances)
         if current != before:
             repairs.append({"operation": op["operation"], "text_id": op.get("text_id"), "localized_prose_hardcoded": False})
     for text_id, layout in spec.get("layout", {}).items():

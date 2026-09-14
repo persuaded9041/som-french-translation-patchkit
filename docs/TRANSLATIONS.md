@@ -208,9 +208,7 @@ USA text from `assets/dialogues.json` and shows only the final manual decision.
 Generate it on demand with `tools/dialogue/generate_manual_supplements_html.py`;
 `--check` only verifies a locally materialized copy.
 `tools/dialogue/check_manual_supplements.py` validates the exact carrier set, the
-minimal schema, codec encodability and the two allow-listed suppressions. The older
-expanded `$035F` payload `Dryade fera réagir l'orbe !` remains withdrawn; the active
-manual payload is exactly `Dryade`.
+minimal schema, codec encodability and the two allow-listed suppressions. The `$035F` follow-up was revisited after the full dialogue audit. Runtime tracing shows that stock `$035F` concatenates the `Dryad` carrier with the shared `$0360` suffix (`'s magic will work!`). Because French `$0360` is intentionally neutralized for the seven Android-aligned elemental branches, the active validated manual payload is now the full message `Dryade fera réagir l'orbe !`. This remains a manual localization exception and does not create Android identity evidence.
 
 On request it can materialize `reports/android/dialogues_auto.json` plus
 `reports/android/dialogues_unmapped.csv`; normal checks regenerate the same alignment in memory. After the reviewed rounds, semantic Android

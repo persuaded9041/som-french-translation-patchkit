@@ -36,7 +36,7 @@
         },
         {
           "id": "C9:09A7",
-          "text": "Tiens donc... "
+          "text": "%S(0,0) :\nTiens donc..."
         },
         {
           "id": "C9:09B9",
@@ -44,7 +44,7 @@
         },
         {
           "id": "C9:09F8",
-          "text": "Ah bon ?"
+          "text": "%S(0,0) :\nAh bon ?"
         },
         {
           "id": "C9:0A04",
@@ -60,7 +60,7 @@
         },
         {
           "id": "C9:0A8E",
-          "text": "Vous vous moquez de nous, là !\n"
+          "text": "%S(0,0) :\nVous vous moquez de nous, là !\n"
         },
         {
           "id": "C9:0A9F",
@@ -1112,7 +1112,7 @@
         },
         {
           "id": "C9:37AF",
-          "text": "Oh, tu t'en vas ?\nÀ plus tard !"
+          "text": "Oh, tu t'en vas, %S(0,0) ?\nÀ plus tard !"
         },
         {
           "id": "C9:37CE",
@@ -1180,7 +1180,7 @@
         },
         {
           "id": "C9:3AC3",
-          "text": "Gemma : Voyons !\nUn peu de respect !"
+          "text": "Gemma : Voyons, %S(0,0) !\nUn peu de respect !"
         },
         {
           "id": "C9:3ADC",
@@ -2060,7 +2060,7 @@
         },
         {
           "id": "C9:68BA",
-          "text": "Watts : J'ai essayé de fabriquer\nune hache, mais elle n'a rien de\nspécial. Je me demande pourquoi..."
+          "text": "Watts : %S(0,0) ! J'ai\nessayé de fabriquer une hache,\nmais elle n'a rien de spécial.\fJe me demande pourquoi..."
         },
         {
           "id": "C9:6901",
@@ -2068,7 +2068,7 @@
         },
         {
           "id": "C9:6921",
-          "text": "J'ai compris !"
+          "text": "\nJ'ai compris !"
         },
         {
           "id": "C9:6954",
@@ -3124,7 +3124,7 @@
         },
         {
           "id": "C9:9B74",
-          "text": "Mais qu'est-ce que ?!"
+          "text": "%S(0,0) :\nMais qu'est-ce que ?!"
         },
         {
           "id": "C9:9B8C",
@@ -3132,7 +3132,7 @@
         },
         {
           "id": "C9:9BCB",
-          "text": "Dégage toi-même !\nOn est pressés !\fGnome : Insolent !\nJe vais te donner une leçon !\n"
+          "text": " : Dégage toi-même !\nOn est pressés !\fGnome : Insolent !\nJe vais te donner une leçon !\n"
         },
         {
           "id": "C9:9C0E",
@@ -3152,7 +3152,7 @@
         },
         {
           "id": "C9:9CB8",
-          "text": "Qu'est-ce que c'est que cet orbe de\ncristal ?"
+          "text": "%S(0,0) :\nQu'est-ce que c'est que cet orbe de\ncristal ?"
         },
         {
           "id": "C9:9CDC",
@@ -3164,7 +3164,7 @@
         },
         {
           "id": "C9:9D38",
-          "text": "C'est dans cette salle que doit se\ntrouver la Graine.\n"
+          "text": "%S(0,0) :\nC'est dans cette salle que doit se\ntrouver la Graine.\n"
         },
         {
           "id": "C9:9D5F",
@@ -3192,7 +3192,7 @@
         },
         {
           "id": "C9:9E14",
-          "text": "Il y a quelque chose, là !\nÉloignons-nous !"
+          "text": "%S(0,0) :\nIl y a quelque chose, là !\nÉloignons-nous !"
         },
         {
           "id": "C9:9E9D",
@@ -3216,7 +3216,7 @@
         },
         {
           "id": "C9:9F44",
-          "text": "Les mogs vont pouvoir retourner\ndans leur village, maintenant."
+          "text": "%S(0,0) :\nLes mogs vont pouvoir retourner\ndans leur village, maintenant."
         },
         {
           "id": "C9:9F88",
@@ -3236,7 +3236,7 @@
         },
         {
           "id": "C9:A02A",
-          "text": "\u000bQue s'est-il passé ?"
+          "text": "\u000b%S(0,0) :\nQue s'est-il passé ?"
         },
         {
           "id": "C9:A052",
@@ -3360,7 +3360,7 @@
         },
         {
           "id": "C9:A4E9",
-          "text": "\u000bCe serpent géant avait tué notre\nprécédent roi, Agaricus."
+          "text": "\u000bCe serpent géant avait tué notre\nprécédent roi, Agaricus.\fIl est désormais vengé !\nSnif..."
         },
         {
           "id": "C9:A527",
@@ -3476,7 +3476,7 @@
         },
         {
           "id": "C9:AA04",
-          "text": "Nous sommes sauvés !"
+          "text": "%S(0,0) :\nNous sommes sauvés !"
         },
         {
           "id": "C9:AA28",
@@ -3520,7 +3520,7 @@
         },
         {
           "id": "C9:ABFB",
-          "text": "Un vaisseau !\nMontons à bord !"
+          "text": "%S(0,0) :\nUn vaisseau !\nMontons à bord !"
         },
         {
           "id": "C9:AC1D",
@@ -3596,7 +3596,7 @@
         },
         {
           "id": "C9:AF50",
-          "text": "Hé, salut !\nJ'suis au paradis, ici !"
+          "text": "Hé, salut %S(0,0) !\nJ'suis au paradis, ici !"
         },
         {
           "id": "C9:AF84",
@@ -3656,7 +3656,7 @@
         },
         {
           "id": "C9:B1B0",
-          "text": "Peuh !"
+          "text": " : Peuh !"
         },
         {
           "id": "C9:B1C4",
@@ -3688,7 +3688,7 @@
         },
         {
           "id": "C9:B2BD",
-          "text": "Mais...\nQue ?"
+          "text": "%S(0,0) :\nMais...\nQue ?"
         },
         {
           "id": "C9:B2CE",
@@ -3956,19 +3956,19 @@
         },
         {
           "id": "C9:BDD6",
-          "text": "Bien joué !\nLe sort a balayé les flammes !"
+          "text": "%S(0,0) :\nBien joué !\nLe sort a balayé les flammes !"
         },
         {
           "id": "C9:BDFE",
-          "text": "Zut...\nMême le sort Givre ne marche pas\ncontre elles ?!"
+          "text": "%S(0,0) :\fZut...\nMême le sort Givre ne marche pas\ncontre elles ?!"
         },
         {
           "id": "C9:BE42",
-          "text": "Vous replacez la Graine sur son\nautel.\nJe dois aligner l'Épée sur la Graine !"
+          "text": "Vous replacez la Graine sur son\nautel. %S(0,0) : Je dois aligner\nl'Épée sur la Graine !"
         },
         {
           "id": "C9:BE80",
-          "text": "La Graine n'est pas là !!\nQuelqu'un l'aurait volée ?"
+          "text": "%S(0,0) :\nLa Graine n'est pas là !!\nQuelqu'un l'aurait volée ?"
         },
         {
           "id": "C9:BE9B",
@@ -3976,7 +3976,7 @@
         },
         {
           "id": "C9:BEC3",
-          "text": "Majesté !\nReprenez vos esprits !"
+          "text": "%S(0,0) :\nMajesté !\nReprenez vos esprits !"
         },
         {
           "id": "C9:BEDC",
@@ -4236,7 +4236,7 @@
         },
         {
           "id": "C9:CA73",
-          "text": "Rangeons-la précieusement pour ne\npas la perdre !"
+          "text": "%S(0,0) :\nRangeons-la précieusement pour ne\npas la perdre !"
         },
         {
           "id": "C9:CAA6",
@@ -4424,7 +4424,7 @@
         },
         {
           "id": "C9:D1B8",
-          "text": "Dryade"
+          "text": "Dryade fera réagir l'orbe !"
         },
         {
           "id": "C9:D1C0",
@@ -4476,7 +4476,7 @@
         },
         {
           "id": "C9:D3EE",
-          "text": "Ramenons-la au Temple de l'Eau !"
+          "text": "%S(0,0) :\nRamenons-la au Temple de l'Eau !"
         },
         {
           "id": "C9:D43A",
@@ -4492,7 +4492,7 @@
         },
         {
           "id": "C9:D515",
-          "text": "Ah !\nLa Graine de l'Eau !"
+          "text": "%S(0,0) :\nAh !\nLa Graine de l'Eau !"
         },
         {
           "id": "C9:D53C",
@@ -4607,8 +4607,12 @@
           "text": "Même au cœur du plus violent\nblizzard, cet endroit reste chaud !\nQuel luxe ! Ohoho !"
         },
         {
+          "id": "C9:DA79",
+          "text": "%S(0,0) :\n...\n?"
+        },
+        {
           "id": "C9:DA8C",
-          "text": "Il y a un drôle de bruit à\nl'intérieur. On l'ouvre ?\n"
+          "text": "%S(0,0) :\fIl y a un drôle de bruit à\nl'intérieur.\nOn l'ouvre ?\n"
         },
         {
           "id": "C9:DAB9",
@@ -4756,11 +4760,11 @@
         },
         {
           "id": "C9:E0D9",
-          "text": "634 ! 634 !! C'est bon,\nj'ai compris !! Chuuut !"
+          "text": "%S(0,0) :\n634 ! 634 !! C'est bon,\nj'ai compris !! Chuuut !"
         },
         {
           "id": "C9:E0FA",
-          "text": "634 !\n"
+          "text": "%S(0,0) :\n634 !\n"
         },
         {
           "id": "C9:E113",
@@ -5144,11 +5148,11 @@
         },
         {
           "id": "C9:F0C2",
-          "text": "Celui-ci a l'air cassé !"
+          "text": "%S(0,0) :\nCelui-ci a l'air cassé !"
         },
         {
           "id": "C9:F0E4",
-          "text": "Ah !\nIl a explosé !"
+          "text": "%S(0,0) :\nAh !\nIl a explosé !"
         },
         {
           "id": "C9:F0FA",
@@ -5376,7 +5380,7 @@
         },
         {
           "id": "CA:151D",
-          "text": "J'ai juste eu un vertige..."
+          "text": " J'ai juste eu un vertige..."
         },
         {
           "id": "CA:152D",
@@ -5388,7 +5392,7 @@
         },
         {
           "id": "CA:17B9",
-          "text": "Tiens, c'est bizarre..."
+          "text": "%S(0,0) :\nTiens, c'est bizarre..."
         },
         {
           "id": "CA:17DA",
@@ -5512,11 +5516,11 @@
         },
         {
           "id": "CA:1E1B",
-          "text": "On ne peut pas passer par là !\nCherchons une autre entrée !"
+          "text": "%S(0,0) :\nOn ne peut pas passer par là !\nCherchons une autre entrée !"
         },
         {
           "id": "CA:1E59",
-          "text": "Je ne peux plus bouger !"
+          "text": "%S(0,0) :\nJe ne peux plus bouger !"
         },
         {
           "id": "CA:1E70",
@@ -5576,15 +5580,15 @@
         },
         {
           "id": "CA:21CB",
-          "text": "La Graine se trouve en haut !\nDépêchons-nous !"
+          "text": "%S(0,0) :\nLa Graine se trouve en haut !\nDépêchons-nous !"
         },
         {
           "id": "CA:2201",
-          "text": "Le sceau a été brisé !\nIl est trop tard ?!"
+          "text": "%S(0,0) :\nLe sceau a été brisé !\nIl est trop tard ?!"
         },
         {
           "id": "CA:2237",
-          "text": "Zut !\nIl ne se passe rien !"
+          "text": "%S(0,0) :\nZut !\nIl ne se passe rien !"
         },
         {
           "id": "CA:2258",
@@ -5924,11 +5928,11 @@
         },
         {
           "id": "CA:32C5",
-          "text": " : Non !\nC'est pas possible !\n"
+          "text": ": Quelle horreur !\nC'est terrible !"
         },
         {
           "id": "CA:32D7",
-          "text": "Ils se sont sûrement échappés !"
+          "text": ": Non !\nC'est pas possible !\nIls se sont sûrement échappés !"
         },
         {
           "id": "CA:32F6",
@@ -6060,7 +6064,7 @@
         },
         {
           "id": "CA:3914",
-          "text": "C'est toi, le dragon de la légende ?\nTu m'as l'air bien jeune\npour avoir connu ça."
+          "text": "%S(0,0) :\fC'est toi, le dragon de la légende ?\nTu m'as l'air bien jeune pour avoir\nconnu ça."
         },
         {
           "id": "CA:3942",
@@ -6072,7 +6076,7 @@
         },
         {
           "id": "CA:39B2",
-          "text": "Il a beau être un bébé, il est trop\ngros pour qu'on le porte. Allons en\nparler au roi."
+          "text": "%S(0,0) :\fIl a beau être un bébé, il est trop\ngros pour qu'on le porte.\nAllons en parler au roi."
         },
         {
           "id": "CA:3A05",
@@ -6220,7 +6224,7 @@
         },
         {
           "id": "CA:40AF",
-          "text": "Je vais devoir te\ndemander de quitter\nle village."
+          "text": "Je vais devoir te demander de\nquitter le village, %S(0,0)."
         },
         {
           "id": "CA:40E6",
@@ -6228,7 +6232,7 @@
         },
         {
           "id": "CA:4126",
-          "text": "Tu ne dois pas t'en souvenir, mais..."
+          "text": "%S(0,0), tu ne dois pas t'en\nsouvenir, mais..."
         },
         {
           "id": "CA:4158",
@@ -6592,7 +6596,7 @@
         },
         {
           "id": "CA:5CC6",
-          "text": "Tiens ?\nMais où sont les membres de la\nRésistance ?"
+          "text": "%S(0,0) :\fTiens ?\nMais où sont les membres de la\nRésistance ?"
         },
         {
           "id": "CA:5CE6",
@@ -6876,7 +6880,7 @@
         },
         {
           "id": "CA:6828",
-          "text": "Lâche-moi !"
+          "text": " Lâche-moi !"
         },
         {
           "id": "CA:6835",
@@ -6960,7 +6964,7 @@
         },
         {
           "id": "CA:6BB9",
-          "text": "Vite !\nLa Graine de Mana !"
+          "text": "%S(0,0) :\nVite !\nLa Graine de Mana !"
         },
         {
           "id": "CA:6BD6",
@@ -7116,7 +7120,7 @@
         },
         {
           "id": "CA:7459",
-          "text": "Aïe !\n"
+          "text": " Aïe !\n"
         },
         {
           "id": "CA:7472",
@@ -7124,7 +7128,7 @@
         },
         {
           "id": "CA:747F",
-          "text": " : ..."
+          "text": " : ...\f%S(0,0) : %S(2,0), ça va ?\n%S(2,0) : ..."
         },
         {
           "id": "CA:748F",
@@ -7160,7 +7164,7 @@
         },
         {
           "id": "CA:757E",
-          "text": "Zut !\nIl ne se passe rien !"
+          "text": "%S(0,0) :\nZut !\nIl ne se passe rien !"
         },
         {
           "id": "CA:75E0",
@@ -7644,11 +7648,11 @@
         },
         {
           "id": "CA:889F",
-          "text": "Aïe !\nOn ne pourra pas traverser ces\nflammes !"
+          "text": "%S(0,0) :\fAïe !\nOn ne pourra pas traverser ces\nflammes !"
         },
         {
           "id": "CA:892F",
-          "text": "Ah... Il y a un bouclier ! On\nn'arrivera pas à entrer ! Partons..."
+          "text": "%S(0,0) :\nAh... Il y a un bouclier ! On\nn'arrivera pas à entrer ! Partons..."
         },
         {
           "id": "CA:8967",
@@ -7792,7 +7796,7 @@
         },
         {
           "id": "CA:986B",
-          "text": "Oh là là, qu'est-ce qui m'est\narrivé...\n?"
+          "text": "%S(0,0) :\fOh là là, qu'est-ce qui m'est\narrivé...\n?"
         },
         {
           "id": "CA:98B2",
@@ -8143,24 +8147,6 @@
         }
       ],
       "reason": "round69_android_fr_1023_omits_sprite_name_label"
-    },
-    {
-      "event_id": "04E2",
-      "commands": [
-        {
-          "name": "PLAYER_NAME",
-          "args": "01",
-          "immediately_before_text_id": "CA:32C5",
-          "translated_args": "02"
-        },
-        {
-          "name": "PLAYER_NAME",
-          "args": "02",
-          "immediately_before_text_id": "CA:32D7",
-          "omit": true
-        }
-      ],
-      "reason": "round67_user_validated_android_fr_1281_speaker_resegmentation"
     },
     {
       "event_id": "0112",
@@ -8819,6 +8805,153 @@
     }
   ],
   "user_validated_structural_command_insertions": [
+    {
+      "event_id": "02B7",
+      "insertions": [
+        {
+          "before_command": {
+            "name": "OP_12",
+            "args": "AF",
+            "immediately_before_text_id": "C9:BA6C"
+          },
+          "commands": [
+            {
+              "name": "WAIT",
+              "args": "00"
+            },
+            {
+              "name": "TEXT_CLEAR",
+              "args": ""
+            }
+          ]
+        }
+      ],
+      "reason": "dialogue_audit_validated_page_boundary_before_second_unit"
+    },
+    {
+      "event_id": "038D",
+      "insertions": [
+        {
+          "before_command": {
+            "name": "COMPLETE_ACTIONS",
+            "args": "",
+            "immediately_before_text_id": "C9:DBA9"
+          },
+          "commands": [
+            {
+              "name": "TEXT_CLEAR",
+              "args": ""
+            }
+          ]
+        }
+      ],
+      "reason": "dialogue_audit_validated_clear_after_fire_seed_wait"
+    },
+    {
+      "event_id": "038C",
+      "insertions": [
+        {
+          "before_command": {
+            "name": "TEXT_X",
+            "args": "03",
+            "immediately_before_text_id": "C9:DAB5"
+          },
+          "commands": [
+            {
+              "name": "WAIT",
+              "args": "00"
+            },
+            {
+              "name": "TEXT_CLEAR",
+              "args": ""
+            }
+          ]
+        }
+      ],
+      "reason": "dialogue_audit_validated_fresh_choice_page_after_dynamic_prompt"
+    },
+    {
+      "event_id": "036F",
+      "insertions": [
+        {
+          "before_command": {
+            "name": "OP_20",
+            "args": "52",
+            "immediately_before_text_id": "C9:D563"
+          },
+          "commands": [
+            {
+              "name": "WAIT",
+              "args": "00"
+            },
+            {
+              "name": "TEXT_CLEAR",
+              "args": ""
+            }
+          ]
+        },
+        {
+          "before_command": {
+            "name": "COMPLETE_ACTIONS",
+            "args": "",
+            "immediately_before_text_id": "C9:D591"
+          },
+          "commands": [
+            {
+              "name": "TEXT_CLEAR",
+              "args": ""
+            }
+          ]
+        }
+      ],
+      "reason": "dialogue_audit_validated_scopion_scene_page_boundaries"
+    },
+    {
+      "event_id": "0023",
+      "insertions": [
+        {
+          "before_command": {
+            "name": "OP_20",
+            "args": "1E",
+            "immediately_before_text_id": "C9:0A9F"
+          },
+          "commands": [
+            {
+              "name": "WAIT",
+              "args": "00"
+            },
+            {
+              "name": "TEXT_CLEAR",
+              "args": ""
+            }
+          ]
+        }
+      ],
+      "reason": "dialogue_audit_restore_android_fr_dynamic_speaker_without_unpaused_scroll"
+    },
+    {
+      "event_id": "04E2",
+      "insertions": [
+        {
+          "before_command": {
+            "name": "PLAYER_NAME",
+            "args": "02",
+            "immediately_before_text_id": "CA:32D7"
+          },
+          "commands": [
+            {
+              "name": "WAIT",
+              "args": "00"
+            },
+            {
+              "name": "TEXT_CLEAR",
+              "args": ""
+            }
+          ]
+        }
+      ],
+      "reason": "round85_dialogue_audit_restore_android_fr_1280_before_1281"
+    },
     {
       "event_id": "0112",
       "insertions": [

@@ -82,21 +82,16 @@ def check_targeted_reviews(manual: dict, french: dict, mass: dict) -> None:
             if expected not in rendered:
                 die(f"Round-85 validated Android-FR coverage missing: {sid} <- {android_id}")
 
-    expected_04e2 = {"CA:32C5": " : Non !\nC'est pas possible !\n", "CA:32D7": "Ils se sont sûrement échappés !"}
+    expected_04e2 = {
+        "CA:32C5": ": Quelle horreur !\nC'est terrible !",
+        "CA:32D7": ": Non !\nC'est pas possible !\nIls se sont sûrement échappés !",
+    }
     for sid, text in expected_04e2.items():
         if semantic_layout_normalized(active.get(sid, "")) != semantic_layout_normalized(text):
             die(f"$04E2 {sid} semantic payload drifted")
 
-    expected_override = {
-        "event_id": "04E2",
-        "commands": [
-            {"name": "PLAYER_NAME", "args": "01", "immediately_before_text_id": "CA:32C5", "translated_args": "02"},
-            {"name": "PLAYER_NAME", "args": "02", "immediately_before_text_id": "CA:32D7", "omit": True},
-        ],
-        "reason": "round67_user_validated_android_fr_1281_speaker_resegmentation",
-    }
-    if expected_override not in french.get("user_validated_structural_command_overrides", []):
-        die("$04E2 PLAYER_NAME resegmentation drifted/missing")
+    if any(entry.get("event_id") == "04E2" for entry in french.get("user_validated_structural_command_overrides", [])):
+        die("$04E2 must preserve both stock PLAYER_NAME commands after Android-FR 1280 restoration")
 
     # Round 85.54/85.55-v2 locked visual/speaker sentinels. These are exact
     # layout checks because the bugs were caused by rolling-window speaker
@@ -109,9 +104,59 @@ def check_targeted_reviews(manual: dict, french: dict, mass: dict) -> None:
         die("$01DA single-line player reply drifted")
     if active.get("C9:7E72") != ".\fHum... Drôle de nom.\nMoi, c'est... ":
         die("$01DA girl-speaker exception/page boundary drifted")
+    if active.get("C9:D1B8") != "Dryade fera réagir l'orbe !":
+        die("$035F full Dryade orb-message surcharge drifted")
+    if active.get("C9:D1C0") != "\n" or active.get("C9:D1CB") != "":
+        die("$0360 shared suffix must remain neutralized after full $035F surcharge")
+
     structural_insertions = french.get("user_validated_structural_command_insertions", [])
-    if {entry.get("event_id") for entry in structural_insertions} != {"0112", "01DD", "02EE", "03AA", "04A1", "05F8"}:
-        die("Round-85.55 structural-command insertion event set drifted")
+    expected_structural_insertion_events = {
+        "0023", "0112", "01DD", "02B7", "02EE", "036F", "038C", "038D",
+        "03AA", "04A1", "04E2", "05F8",
+    }
+    if {entry.get("event_id") for entry in structural_insertions} != expected_structural_insertion_events:
+        die("validated structural-command insertion event set drifted")
+
+    # Full dialogue-audit dynamic-name restoration sentinels.  All prose is
+    # derived from Android FR at check time; only IDs/carriers are locked here.
+    android_fr = read_scrtxt(DEFAULT_SCRTXT_FR)
+    audited_android_replacements = {
+        "C9:09A7": [2460], "C9:09F8": [2452], "C9:0A8E": [2457],
+        "C9:37AF": [109], "C9:3AC3": [914], "C9:68BA": [574],
+        "C9:9B74": [951], "C9:9CB8": [973], "C9:9D38": [991],
+        "C9:9E14": [1168], "C9:9F44": [1203], "C9:A02A": [1264],
+        "C9:AA04": [1524], "C9:ABFB": [1480], "C9:BE42": [1735, 1736],
+        "C9:DA79": [1800], "CA:40AF": [87], "CA:4126": [91],
+        "C9:AF50": [1518], "C9:B2BD": [1560], "C9:BDD6": [1705],
+        "C9:BDFE": [1701], "C9:BE80": [1734], "C9:BEC3": [2579],
+        "C9:CA73": [2298], "C9:D3EE": [489], "C9:D515": [1142],
+        "C9:DA8C": [1801], "C9:E0D9": [1891, 1892], "C9:E0FA": [1889],
+        "C9:F0C2": [2369], "C9:F0E4": [2372], "CA:17B9": [2891],
+        "CA:1E1B": [2752], "CA:1E59": [2680], "CA:21CB": [2679],
+        "CA:2201": [2700], "CA:2237": [2702], "CA:3914": [1448],
+        "CA:39B2": [1452], "CA:5CC6": [2216], "CA:6BB9": [1049],
+        "CA:757E": [1012], "CA:889F": [1699], "CA:892F": [3133],
+        "CA:986B": [3409],
+    }
+    for sid, android_ids in audited_android_replacements.items():
+        expected = semantic_layout_normalized(" ".join(
+            normalize_android_prose(android_fr[i]).replace("_", "").strip()
+            for i in android_ids
+        ))
+        actual = semantic_layout_normalized(active.get(sid, ""))
+        if actual != expected:
+            die(f"dialogue-audit Android-FR dynamic payload drifted: {sid} <- {android_ids}")
+    for sid in ("C9:B1B0", "C9:9BCB"):
+        if not active.get(sid, "").startswith(" : "):
+            die(f"dialogue-audit stock PLAYER_NAME separator drifted: {sid}")
+    for android_id in (1409, 1410):
+        expected = semantic_layout_normalized(normalize_android_prose(android_fr[android_id]).replace("_", "").strip())
+        if expected not in semantic_layout_normalized(active.get("C9:A4E9", "")):
+            die(f"$026A Android-FR continuation missing: {android_id}")
+    for android_id in (1021, 1022):
+        expected = semantic_layout_normalized(normalize_android_prose(android_fr[android_id]).replace("_", "").strip())
+        if expected not in semantic_layout_normalized(active.get("CA:747F", "")):
+            die(f"$0592 Android-FR continuation missing: {android_id}")
 
     cov = mass["coverage"]
     if cov.get("user_validated_visually_complete_event_count", 0) < 5:
@@ -141,10 +186,9 @@ def check_targeted_reviews(manual: dict, french: dict, mass: dict) -> None:
     reports_04e2 = [x for x in mass.get("formatted_mappings", []) if x.get("event_id") == "04E2"]
     r04e2 = next((x for x in reports_04e2 if x.get("snes_ids") == ["CA:32C5", "CA:32D7"]), None)
     r69 = next((x for x in reports_04e2 if x.get("round69_targeted_redistribution")), None)
-    if r04e2 is not None:
-        if not r04e2.get("translated_player_name_resegmentation") or not r04e2.get("android_fr_1280_intentionally_omitted"):
-            die("$04E2 reviewed speaker redistribution report drifted")
-    elif r69 is None:
+    if r04e2 is not None and r04e2.get("android_fr_1280_intentionally_omitted"):
+        die("$04E2 must no longer report Android-FR 1280 as omitted")
+    if r69 is None:
         die("$04E2 reviewed redistribution report missing")
 
 
@@ -169,7 +213,7 @@ def check_scene_recipes(french: dict, mass: dict, auto: dict, recipes: dict) -> 
         "complete_accepted_event_count": 701,
         "partial_accepted_event_count": 0,
         "accepted_semantic_source_id_count": 1813,
-        "translation_entry_count": 1956,
+        "translation_entry_count": 1957,
         "excluded_event_count": 3,
     }
     for key, value in expected_cov.items():

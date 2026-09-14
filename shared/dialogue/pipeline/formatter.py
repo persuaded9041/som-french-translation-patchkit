@@ -2892,13 +2892,13 @@ def _apply_reviewed_scene_redistributions(
             "android_ids": [1280, 1281],
             "confidence": "user_reviewed_speaker_redistribution",
             "semantic_alignment_count_changed": False,
-            "translated_player_name_resegmentation": True,
-            "android_fr_1280_intentionally_omitted": True,
-            "round67_user_reviewed_scene_redistribution": True,
+            "translated_player_name_resegmentation": False,
+            "android_fr_1280_restored": True,
+            "round85_dialogue_audit_reviewed_scene_redistribution": True,
             "source": "recipes/android/dialogues_redistribution.json + sources/android/scrtxt_fr.bin",
             "note": (
-                "User-directed Android-FR 1281 split reproduced from the token-index recipe; "
-                "PLAYER_NAME(2) owns both carriers through translated-only command metadata."
+                "Android-FR 1280 and 1281 are both reproduced from the token-index recipe; "
+                "the two stock PLAYER_NAME commands are preserved with a reviewed WAIT+TEXT_CLEAR between them."
             ),
             "formatted_entries": [{"id": k, "text": v} for k, v in values.items()],
         })
@@ -5282,6 +5282,7 @@ def make_dialogue_format_mass(
                 base_rom, event, values, font=font,
                 player_names={0: "000000000", 1: "000000000", 2: "000000000"},
                 structural_command_overrides=structural_overrides,
+                structural_command_insertions_before=structural_command_insertions_by_event.get(event_id),
             )
             blocking = [issue for issue in simulation.issues if issue.severity in {"error", "warning"}]
             wraps = sum(
@@ -7393,7 +7394,7 @@ def make_dialogue_format_mass(
             structural_command_overrides=final_structural_command_overrides_by_event.get(event_id),
         )
         candidate, layout_repairs = apply_validated_post_structure_layout(event_id, candidate)
-        candidate, review_repairs = apply_round85_review_delta(event_id, candidate, french)
+        candidate, review_repairs = apply_round85_review_delta(event_id, candidate, french, advances)
         if not structure_repairs and not layout_repairs and not review_repairs:
             continue
         simulation = simulate_event(

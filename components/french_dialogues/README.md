@@ -45,8 +45,8 @@ The audited Round-85 corpus contains:
 
 - 713 text-bearing stock events in `assets/dialogues.json`;
 - 701 accepted playable French events, 0 PARTIEL;
-- 1815 accepted semantic source IDs;
-- 1947 sparse generated translation entries;
+- 1813 accepted semantic source IDs;
+- 1957 sparse generated translation entries;
 - 3 excluded routing-audited unused/orphan events: `$0269`, `$02DE`, `$0603`;
 - independent simulation: 0 errors, 0 warnings, 0 implicit runtime wraps.
 

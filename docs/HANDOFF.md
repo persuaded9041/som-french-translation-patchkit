@@ -1,3 +1,17 @@
+# LATEST DIALOGUE AUDIT CHECKPOINT — 2026-09-14
+
+The 12-batch deep dialogue audit and the subsequent global Android-FR vocative scan are complete. See `docs/DIALOGUE_FULL_AUDIT_CHECKPOINT.md`. The generated dialogue state is 701/701 simulator-clean with 1957 translated carriers. All validated audit fixes are canonicalized and reproducible. The pending `$035F / C9:D1B8` question is resolved: the validated manual surcharge is now `Dryade fera réagir l'orbe !`, while `$0360` remains neutralized.
+
+Current post-audit reproducible artifacts after the validated `$035F` Dryade fix:
+
+- `translations/dialogues_french.json`: `79d1e6f737a7f6393d03dab4af8a31e6697f09c55c27faa8b3ab338070749f45`;
+- `patches/french_dialogues.ips`: `75a06c3070aead2cf00931582adfe3684800237e698d38c5caed4286c7789333`;
+- `patches/all.ips`: `f1609b97bf6c82b431b64458cee8ee64fd9e33db8aca2057fab70ee921fde83a`.
+
+See `reports/LOT1_TO_FINAL_CORRECTIONS_VERIFICATION.md` for the post-regeneration correction sentinels.
+
+---
+
 # HANDOFF — Round 85.68 promoted checkpoint
 
 This archive is authoritative over GitHub.
@@ -12,7 +26,7 @@ Current dialogue state:
 
 - Android identity: **1798/1838 (97.8%)**;
 - **701 events = 701 complete + 0 PARTIEL**;
-- **1813 accepted semantic source IDs / 1956 sparse JSON entries**;
+- **1813 accepted semantic source IDs / 1957 sparse JSON entries**;
 - exclusions remain only `$0269`, `$02DE`, `$0603`;
 - simulation: **0 errors / 0 warnings / 0 implicit wraps**.
 
@@ -21,7 +35,7 @@ Current dialogue state:
 - validated batches 85.57-85.65 (choice geometry, quotes, local wrapping, rewards/status presentation, `$04E2/$04E8/$07FD`, full `$0429`, full `$0555`);
 - validated Round-85.66 `$04E1` structural repair;
 - `$05F8` audit: the `pour venir chercher l'Épée.` tail was already present in serialized bytes; the missing preview was a simulator snapshot bug, now fixed;
-- caller/context findings for `$0358/$035F/$07FA/$07FB`; `$035F/C9:D1B8` remains exactly `Dryade`;
+- caller/context findings for `$0358/$035F/$07FA/$07FB`; `$035F/C9:D1B8` is now the full validated message `Dryade fera réagir l'orbe !`;
 - global Android-FR completeness audit and the three recovered source-backed omissions: `$0399 <- 1897`, `$04E4 <- 1373`, `$0511 <- 1988`.
 
 ## Canonical recipe architecture

@@ -89,8 +89,8 @@ def main() -> None:
                 raise SystemExit(f"{text_id}: text is not dialogue-codec encodable: {exc}") from exc
 
     by_manual_id = {e["id"]: e for e in entries}
-    if by_manual_id["C9:D1B8"] != {"id": "C9:D1B8", "text": "Dryade"}:
-        raise SystemExit("$035F must remain the validated minimal Dryade surcharge")
+    if by_manual_id["C9:D1B8"] != {"id": "C9:D1B8", "text": "Dryade fera réagir l'orbe !"}:
+        raise SystemExit("$035F must remain the validated full Dryade orb-message surcharge")
     if by_manual_id["C9:40D7"] != {"id": "C9:40D7", "suppress": True}:
         raise SystemExit("$013A/C9:40D7 validated suppression changed")
     if by_manual_id["CA:2C84"] != {"id": "CA:2C84", "suppress": True}:

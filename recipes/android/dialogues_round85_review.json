@@ -88,24 +88,6 @@
       "reason": "round69_android_fr_1023_omits_sprite_name_label"
     },
     {
-      "event_id": "04E2",
-      "commands": [
-        {
-          "name": "PLAYER_NAME",
-          "args": "01",
-          "immediately_before_text_id": "CA:32C5",
-          "translated_args": "02"
-        },
-        {
-          "name": "PLAYER_NAME",
-          "args": "02",
-          "immediately_before_text_id": "CA:32D7",
-          "omit": true
-        }
-      ],
-      "reason": "round67_user_validated_android_fr_1281_speaker_resegmentation"
-    },
-    {
       "event_id": "0112",
       "commands": [
         {
@@ -795,6 +777,22 @@
     },
     "04E4": {
       "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "CA:39B2",
+          "android_ids": [
+            1452
+          ],
+          "break_after_leading_label": true
+        },
+        {
+          "operation": "replace_android",
+          "text_id": "CA:3914",
+          "android_ids": [
+            1448
+          ],
+          "break_after_leading_label": true
+        },
         {
           "operation": "append_android",
           "text_id": "CA:3A05",
@@ -1490,7 +1488,16 @@
       }
     },
     "036A": {
-      "operations": [],
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:D3EE",
+          "android_ids": [
+            489
+          ],
+          "break_after_leading_label": true
+        }
+      ],
       "layout": {
         "C9:D3D3": {
           "semantic_sha256": "74ca404c523ef864b556721e6a76668d2c28410495ae3b26ffe4a8e43da12940",
@@ -1835,6 +1842,625 @@
           ]
         }
       }
+    },
+    "01B5": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:68BA",
+          "android_ids": [
+            574
+          ]
+        },
+        {
+          "operation": "prepend_punctuation",
+          "text_id": "C9:6921",
+          "value": "\n"
+        }
+      ],
+      "layout": {}
+    },
+    "042D": {
+      "operations": [
+        {
+          "operation": "prepend_punctuation",
+          "text_id": "CA:151D",
+          "value": " "
+        }
+      ],
+      "layout": {}
+    },
+    "055E": {
+      "operations": [
+        {
+          "operation": "prepend_punctuation",
+          "text_id": "CA:6828",
+          "value": " "
+        }
+      ],
+      "layout": {}
+    },
+    "0592": {
+      "operations": [
+        {
+          "operation": "prepend_punctuation",
+          "text_id": "CA:7459",
+          "value": " "
+        },
+        {
+          "operation": "append_android",
+          "text_id": "CA:747F",
+          "android_ids": [
+            1021,
+            1022
+          ],
+          "separator": "\f",
+          "android_separator": "\n"
+        }
+      ],
+      "layout": {}
+    },
+    "0020": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:09A7",
+          "android_ids": [
+            2460
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "0021": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:09F8",
+          "android_ids": [
+            2452
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "0023": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:0A8E",
+          "android_ids": [
+            2457
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "0119": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:37AF",
+          "android_ids": [
+            109
+          ]
+        }
+      ],
+      "layout": {}
+    },
+    "0127": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:3AC3",
+          "android_ids": [
+            914
+          ]
+        }
+      ],
+      "layout": {}
+    },
+    "0235": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:9B74",
+          "android_ids": [
+            951
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "023A": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:9CB8",
+          "android_ids": [
+            973
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "023B": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:9D38",
+          "android_ids": [
+            991
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "023F": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:9E14",
+          "android_ids": [
+            1168
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "024C": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:9F44",
+          "android_ids": [
+            1203
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "0250": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:A02A",
+          "android_ids": [
+            1264
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "028B": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:AA04",
+          "android_ids": [
+            1524
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "028C": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:ABFB",
+          "android_ids": [
+            1480
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "02CD": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:BE42",
+          "android_ids": [
+            1735,
+            1736
+          ]
+        }
+      ],
+      "layout": {}
+    },
+    "04E6": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "CA:40AF",
+          "android_ids": [
+            87
+          ]
+        }
+      ],
+      "layout": {}
+    },
+    "04E7": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "CA:4126",
+          "android_ids": [
+            91
+          ]
+        }
+      ],
+      "layout": {}
+    },
+    "029C": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:B2BD",
+          "android_ids": [
+            1560
+          ],
+          "break_after_leading_label": true
+        },
+        {
+          "operation": "prepend_punctuation",
+          "text_id": "C9:B1B0",
+          "value": " : "
+        }
+      ],
+      "layout": {}
+    },
+    "0295": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:AF50",
+          "android_ids": [
+            1518
+          ]
+        }
+      ],
+      "layout": {}
+    },
+    "02C9": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:BDD6",
+          "android_ids": [
+            1705
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "02CC": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:BDFE",
+          "android_ids": [
+            1701
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "02CE": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:BE80",
+          "android_ids": [
+            1734
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "02D1": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:BEC3",
+          "android_ids": [
+            2579
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "02F9": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:CA73",
+          "android_ids": [
+            2298
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "036F": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:D515",
+          "android_ids": [
+            1142
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "038C": {
+      "operations": [
+        {
+          "operation": "add_android",
+          "text_id": "C9:DA79",
+          "android_ids": [
+            1800
+          ],
+          "break_after_leading_label": true
+        },
+        {
+          "operation": "replace_android",
+          "text_id": "C9:DA8C",
+          "android_ids": [
+            1801
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "03A5": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:E0D9",
+          "android_ids": [
+            1891,
+            1892
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "03A6": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:E0FA",
+          "android_ids": [
+            1889
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "03EB": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:F0C2",
+          "android_ids": [
+            2369
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "03EC": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "C9:F0E4",
+          "android_ids": [
+            2372
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "04A0": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "CA:17B9",
+          "android_ids": [
+            2891
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "04B0": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "CA:1E1B",
+          "android_ids": [
+            2752
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "04B2": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "CA:1E59",
+          "android_ids": [
+            2680
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "04B4": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "CA:21CB",
+          "android_ids": [
+            2679
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "04B6": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "CA:2237",
+          "android_ids": [
+            2702
+          ],
+          "break_after_leading_label": true
+        },
+        {
+          "operation": "replace_android",
+          "text_id": "CA:2201",
+          "android_ids": [
+            2700
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "0520": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "CA:5CC6",
+          "android_ids": [
+            2216
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "0580": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "CA:6BB9",
+          "android_ids": [
+            1049
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "0593": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "CA:757E",
+          "android_ids": [
+            1012
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "063D": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "CA:889F",
+          "android_ids": [
+            1699
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "0658": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "CA:892F",
+          "android_ids": [
+            3133
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "07FE": {
+      "operations": [
+        {
+          "operation": "replace_android",
+          "text_id": "CA:986B",
+          "android_ids": [
+            3409
+          ],
+          "break_after_leading_label": true
+        }
+      ],
+      "layout": {}
+    },
+    "0236": {
+      "operations": [
+        {
+          "operation": "prepend_punctuation",
+          "text_id": "C9:9BCB",
+          "value": " : "
+        }
+      ],
+      "layout": {}
+    },
+    "026A": {
+      "operations": [
+        {
+          "operation": "append_android",
+          "text_id": "C9:A4E9",
+          "android_ids": [
+            1409,
+            1410
+          ],
+          "separator": "\f",
+          "android_separator": "\n"
+        }
+      ],
+      "layout": {}
     }
   },
   "appended_entry_order": [
