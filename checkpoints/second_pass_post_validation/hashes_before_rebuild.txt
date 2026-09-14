@@ -1,3 +1,0 @@
-3e4cacd926e31d6dfe9f9021d1026c4f71dc68ccd88ce4481749e47764d2b7d9  translations/dialogues_french.json
-dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31  patches/french_dialogues.ips
-49eb639aa0117d603c5cd6c92ba617f6c853da68cead59c34cf970658e94fd23  patches/all.ips

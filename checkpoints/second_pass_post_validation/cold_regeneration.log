@@ -1,4 +1,0 @@
-Generated /mnt/data/som_second_pass_lot9/som_work/translations/dialogues_french.json from /mnt/data/som_second_pass_lot9/som_work/sources/android/scrtxt_en.bin + /mnt/data/som_second_pass_lot9/som_work/sources/android/scrtxt_fr.bin + clean-USA dialogue extraction
-Generated /mnt/data/som_second_pass_lot9/som_work/reports/android/dialogues_format_mass.json from /mnt/data/som_second_pass_lot9/som_work/sources/android/scrtxt_en.bin + /mnt/data/som_second_pass_lot9/som_work/sources/android/scrtxt_fr.bin + clean-USA dialogue extraction + clean USA ROM VWF metrics
-Generated /mnt/data/som_second_pass_lot9/som_work/reports/android/dialogues_format_mass_excluded.csv from mass dialogue formatting
-Dialogue format mass: 701 simulator-clean event(s), 1959 translated source token(s); 3 event(s) excluded

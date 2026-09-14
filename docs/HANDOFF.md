@@ -1,4 +1,4 @@
-# HANDOFF — Secret of Mana FR — dialogue second exhaustive pass complete
+# HANDOFF — Secret of Mana FR — dialogue corpus frozen after third exhaustive pass
 
 Date: 2026-09-14
 
@@ -6,21 +6,25 @@ This archive is authoritative over GitHub. The reference ROM is **Secret of Mana
 
 ## Current promoted dialogue state
 
-The second independent exhaustive playable-dialogue pass is complete. It reviewed all **701 accepted playable events** event-by-event in 12 lots and was followed by a dedicated cleanup/non-regression validation.
+The third and final independent exhaustive playable-dialogue pass is complete. It reviewed the accepted playable corpus event-by-event in 12 lots, focusing on cross-event continuity, real dialogue-box state, event-command timing, speaker attribution, Android-FR redistribution, small carriers, choices and possible side effects from the first two passes.
+
+**No dialogue change was required in any of the 12 lots.** The strict global validation proves that the generated dialogue document is byte-for-byte identical to the clean second-pass checkpoint.
 
 Final verified state:
 
-- **701/701** accepted playable events simulator-clean;
-- **1959 translated carriers**;
-- Android alignment identity **1798/1838**;
-- **0 errors / 0 warnings / 0 implicit wraps**;
-- speaker-label guardrail: **0** hard-newline findings after `Nom :` / `%S(...) :`;
-- rolling-scroll discovery guardrail: **0 new candidates**;
-- redistribution: **302 active carriers**, 0 simulator-filtered;
-- manual supplement schema v3: **17 carriers = 15 translations + 2 suppressions**;
-- source round-trip: **713 events / 87,487 bytes**;
-- all **2048 stock event scripts** parse successfully;
-- source hygiene clean.
+- **701/701** accepted playable events simulator-clean
+- **1959 translated carriers**
+- Android alignment identity **1798/1838**
+- **0 errors / 0 warnings / 0 implicit wraps**
+- speaker-label guardrail: **0 findings**
+- rolling-scroll discovery guardrail: **0 new candidates**
+- redistribution: **302 active carriers**, 0 simulator-filtered
+- manual supplements: **17 carriers = 15 translations + 2 suppressions**
+- source round-trip: **713 events / 87,487 bytes**
+- all **2048 stock event scripts** parse successfully
+- source hygiene clean
+- cold regeneration byte-identical
+- double build reproducible
 
 Final SHA-256:
 
@@ -28,29 +32,21 @@ Final SHA-256:
 - `patches/french_dialogues.ips`: `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31`
 - `patches/all.ips`: `49eb639aa0117d603c5cd6c92ba617f6c853da68cead59c34cf970658e94fd23`
 
-## Post-pass non-regression proof
+## Third-pass non-regression proof
 
-The exact pre-second-pass baseline was recovered and compared carrier-by-carrier with the final cold-regenerated JSON.
+Against the exact promoted starting checkpoint:
 
-- baseline carriers: **1959**;
-- final carriers: **1959**;
-- explicitly reviewed/validated carrier changes: **46**;
-- non-target carriers byte-for-byte unchanged: **1913/1913**;
-- carriers added: **0**;
-- carriers removed: **0**.
+- starting carriers: **1959**
+- final carriers: **1959**
+- changed carriers: **0**
+- carriers added: **0**
+- carriers removed: **0**
+- top-level semantic/source metadata changes: **0**
 
-The 46 changed carriers are **exactly** the validated target set from lots 1-12. There are no extra carrier differences outside that set.
+A fresh cold `dialogue-format-mass` regeneration reproduced the promoted JSON byte-for-byte. Full simulation with the normal worst-case name and with `WWWWWWWWW` both produced 701 events, 0 errors, 0 warnings and 0 implicit wraps. The three global WAIT-$00 third-line review risks are historical reviewed informational cases, not new findings.
 
-Structural metadata differs only in the reviewed events:
+Two independent rebuilds of `french_dialogues.ips` are byte-identical to each other and to the promoted patch. Two independent recombinations of `all.ips` likewise match the promoted patch exactly.
 
-- command overrides: `$0108`, `$0112`, `$0212`;
-- command insertions: `$0022`, `$028A`, `$04B6`, `$04E1`, `$04EA`.
-
-No other top-level semantic/source metadata changed between the second-pass starting checkpoint and the final state.
-
-A fresh cold regeneration after cleanup reproduces the promoted JSON hash. A forced rebuild of `french_dialogues.ips` was run twice and both outputs are byte-identical to each other **and** to the promoted patch; `all.ips` was likewise recombined twice and matches the promoted patch byte-for-byte.
-
-See `checkpoints/SECOND_PASS_POST_VALIDATION.md` for the final validation details.
 
 ## Core invariants
 
@@ -62,7 +58,7 @@ See `checkpoints/SECOND_PASS_POST_VALIDATION.md` for the final validation detail
 - `$0360` remains neutralized.
 - `$035F / C9:D1B8` remains `Dryade fera réagir l'orbe !`.
 - Android `%S(...)` vocatives remain real `PLAYER_NAME` commands.
-- `$066D / CA:8D4B` is explicitly validated as a WAIT-only controlled-scroll case; controlled scrolling remains a manual layout decision, not a global rewrite rule.
+- `$066D / CA:8D4B` remains the explicitly validated WAIT-only controlled-scroll case; controlled scrolling is a manual layout decision, not a global rewrite rule.
 - Existing choice/highlight geometry and timed event commands must be preserved unless a concrete runtime defect is demonstrated.
 
 ## Canonical dialogue inputs
@@ -76,8 +72,8 @@ The active dialogue recipe surface under `recipes/android/` remains:
 - `dialogues_formatting.json`
 - `dialogues_review.json`
 
-## Next work
+## Status / next work
 
-The dialogue audit is complete. The next planned subject is the **items/objects translation procedure**, beginning with design/discussion before changing translation data.
+The playable dialogue corpus is now **frozen**. Do not run another exhaustive dialogue pass unless a concrete in-game, serialization, source-identity, caller/sub-event or layout defect is observed.
 
-Do not reopen validated dialogue wording or structure merely for style. Reopen a dialogue only if a concrete runtime, serialization, source-identity, caller/sub-event, or layout regression is demonstrated.
+The next planned project subject remains the **items/objects translation procedure**, beginning with design/discussion before changing translation data.
