@@ -335,9 +335,14 @@ def make_chunk_commit_helper() -> bytes:
 
     Non-line-break chunks keep the runtime-validated generic conversion. For
     line-break chunks at the old <=32-character contract, preserve the validated
-    stock behavior. A newly possible 33..38-character line-break chunk must be
-    converted too, otherwise the stock progression loop would try to process
-    more than the 32 physical bitmap cells.
+    stock behavior and invalidate any interrupted same-line continuation. A
+    newly possible 33..38-character line-break chunk must be converted too.
+
+    For tagged event-dialogue chunks that are converted, capture the exact
+    sub-cell remainder through the dialogue continuation helper at `$ED:7990`.
+    `vwf_ui` installs this shared helper byte-identically, but its non-dialogue
+    renderer never passes the event-render scope gate, so the dialogue-only call
+    is unreachable in standalone UI use.
     """
     code = bytearray()
     labels: dict[str, int] = {}
@@ -364,11 +369,17 @@ def make_chunk_commit_helper() -> bytes:
     br(0x10, "convert")                # non-line-break: validated conversion
     emit(0xAD, 0x8E, 0x93)             # line-break chunk
     emit(0xC9, 0x21)                   # <=32 stays on validated stock path
-    br(0x90, "return")
+    br(0x90, "linebreak_clear")
+    br(0x80, "convert")
+
+    label("linebreak_clear")
+    emit(0x9C, 0xD0, 0x93)             # clear dialogue continuation-valid byte
+    br(0x80, "return")
 
     label("convert")
     # A full 38-character chunk has no first padded slot; snapshot once here.
     emit(0x22, 0x80, 0x73, 0xED)       # JSL $ED7380
+    emit(0x22, 0x90, 0x79, 0xED)       # JSL $ED7990 exact continuation capture
 
     emit(0xAD, 0xCE, 0xA1)
     emit(0x29, 0x80)                    # preserve line-end bit

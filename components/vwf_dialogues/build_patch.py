@@ -123,6 +123,17 @@ from shared.vwf.renderer_runtime import (  # noqa: E402
 RENDER_ENTRY_FILE = 0x00167D
 
 ENTRY_HELPER_FILE = 0x2D7040
+CONTINUATION_PREP_HELPER_FILE = 0x2D7930
+CONTINUATION_PREP_HELPER_CPU = 0xED7930
+CONTINUATION_SAVE_HELPER_FILE = 0x2D7990
+CONTINUATION_SAVE_HELPER_CPU = 0xED7990
+
+# Persistent exact sub-cell continuation state for interrupted dialogue chunks.
+CONT_VALID = 0x93D0
+CONT_PHASE = 0x93D1
+CONT_EXPECTED_CELL = 0x93D2
+CONT_LINE = 0x93D3
+CONT_TILE = 0x93D4  # 12 bytes through $93DF
 DTE_NEW_THRESHOLD = DIALOGUE_DTE_THRESHOLD
 FONT_BASE = 0x12DC00
 DIALOGUE_CHARS = DIALOGUE_FRENCH_CHARS
@@ -291,14 +302,27 @@ def make_parser_fetch_helper() -> bytes:
 
     # New parser invocation: derive the real physical budget from the same
     # stock state that feeds $A1CA, but keep it in pixels instead of glyphs.
+    # A stock fresh dialogue line has 29 physical cells remaining here.  The
+    # parser preflight starts its speculative cursor at +1 px only in that
+    # left-edge case so fit checks account for the validated outline inset.
+    # $9381 is retained only as parser-local historical scratch; the renderer
+    # no longer reads it.  Runtime rendering starts at +1 px by default and an
+    # exact same-line continuation overrides that value from $93D0-$93DF.
     a.emit(0xA9, 0x00)
+    a.emit(0x8F, *lo24(0x7E9381))             # parser-local inset marker = 0 (renderer ignores)
     a.emit(0x8F, *lo24(WRAP_CURSOR))
     a.emit(0x8F, *lo24(WRAP_CURSOR + 1))
     a.emit(0x8F, *lo24(WRAP_LAST_VALID))
     a.emit(0xAF, *lo24(0x7EA16A))
     a.emit(0x38)
     a.emit(0xEF, *lo24(0x7EA181))             # SBC.l current physical cell
-    a.emit(0x8F, *lo24(WRAP_BUDGET))
+    a.emit(0x8F, *lo24(WRAP_BUDGET))          # temporarily remaining cells
+    a.emit(0xC9, 0x1D)                        # stock fresh-line remainder = 29
+    a.rel8(0xD0, "no_left_inset")
+    a.emit(0xA9, 0x01)
+    a.emit(0x8F, *lo24(0x7E9381))             # parser-local inset marker = 1
+    a.emit(0x8F, *lo24(WRAP_CURSOR))          # parser preflight sees same inset
+    a.label("no_left_inset")
     a.emit(0xA9, 0x00)
     a.emit(0x8F, *lo24(WRAP_BUDGET + 1))
     a.emit(0xC2, 0x20)
@@ -495,6 +519,178 @@ WRAP_GLYPH_HELPER = make_wrap_glyph_helper()
 PARSER_FETCH_HELPER = make_parser_fetch_helper()
 
 
+def make_continuation_prep_helper() -> bytes:
+    """Restore the exact VWF sub-cell phase for a same-line continuation.
+
+    The stock progression path rounds an interrupted chunk up to whole 8-pixel
+    cells.  If the useful VWF width ended inside the final cell, resume by
+    reusing that already-visible cell and rewinding every persistent stock
+    destination coordinate that advanced with it.
+    """
+    a = MiniAssembler(CONTINUATION_PREP_HELPER_CPU)
+
+    # Default to the runtime-validated 1 px left inset for a newly rendered
+    # chunk.  A proven same-line continuation below overrides this with the
+    # exact saved sub-cell phase, so WAIT resumes do not gain an extra pixel.
+    a.emit(0xA9, 0x01)
+    a.emit(0x8D, 0x82, 0x93)
+
+    a.emit(0xAD, 0xD0, 0x93)
+    a.rel8(0xF0, "ret")
+    a.emit(0xAD, 0xD3, 0x93)
+    a.emit(0xCD, 0x5D, 0xA1)
+    a.rel8(0xD0, "invalidate")
+    a.emit(0xAD, 0xD2, 0x93)
+    a.emit(0xCD, 0x81, 0xA1)
+    a.rel8(0xD0, "invalidate")
+
+    # Proven same-line continuation.  A non-zero phase means the previous
+    # chunk's last physical cell was only partially occupied.
+    a.emit(0xAD, 0xD1, 0x93)
+    a.emit(0x8D, 0x82, 0x93)
+    a.rel8(0xF0, "consume")
+
+    # Reuse the previous cell in every persistent stock coordinate.  $A189 is
+    # deliberately NOT rewound: stock resets that private-bitmap source pointer
+    # to $9000 for each text-engine invocation.
+    a.emit(0xCE, 0x81, 0xA1)              # DEC $A181 logical physical cell
+    a.emit(0xCE, 0x7D, 0xA1)              # DEC $A17D tilemap X
+    a.emit(0xC2, 0x20)                    # REP #$20
+    a.emit(0xAD, 0x7E, 0xA1)
+    a.emit(0x38)
+    a.emit(0xE9, 0x02, 0x00)
+    a.emit(0x8D, 0x7E, 0xA1)              # $A17E -= 2 tile numbers
+    a.emit(0xAD, 0x8C, 0xA1)
+    a.emit(0x38)
+    a.emit(0xE9, 0x10, 0x00)
+    a.emit(0x8D, 0x8C, 0xA1)              # $A18C -= $10 VRAM words (=32 bytes)
+    a.emit(0xE2, 0x20)                    # SEP #$20
+
+    # Seed bitmap cell 0 with the already-rendered partial cell, then let the
+    # compositor continue at CONT_PHASE inside it.
+    a.emit(0xA2, 0x00, 0x00)
+    a.label("copy")
+    a.emit(0xBD, 0xD4, 0x93)
+    a.emit(0x9D, 0x00, 0x90)
+    a.emit(0xE8)
+    a.emit(0xE0, 0x0C, 0x00)
+    a.rel8(0xD0, "copy")
+
+    a.label("consume")
+    a.emit(0x9C, 0xD0, 0x93)
+    a.emit(0x6B)
+    a.label("invalidate")
+    a.emit(0x9C, 0xD0, 0x93)
+    a.label("ret")
+    a.emit(0x6B)
+    return a.resolve()
+
+
+def make_continuation_save_helper() -> bytes:
+    """Capture the exact useful remainder and final partial bitmap cell.
+
+    This helper runs at final commit, after the renderer has visited its padded
+    $80 slots.  Padding spaces advance the cursor by 4 px each, so recover the
+    useful phase from the final cursor using the parity of the saved decoded
+    count.  The useful physical-cell count in $938F then identifies the exact
+    partial bitmap cell without relying on the padding-inflated cursor.
+    """
+    a = MiniAssembler(CONTINUATION_SAVE_HELPER_CPU)
+
+    a.emit(0xAD, 0xCE, 0xA1)
+    a.rel8(0x30, "clear")               # line break terminates continuity
+    a.emit(0xAD, 0x8E, 0x93)
+    a.rel8(0xF0, "clear")               # empty chunk
+
+    # phase_useful = (final_cursor - 4*(38-count)) mod 8.  Since 38 is even,
+    # odd decoded counts contribute exactly +4 mod 8; XOR #$04 removes it.
+    a.emit(0xAD, 0x82, 0x93)
+    a.emit(0x29, 0x07)
+    a.emit(0x8D, 0xD1, 0x93)
+    a.emit(0xAD, 0x8E, 0x93)
+    a.emit(0x29, 0x01)
+    a.rel8(0xF0, "phase_ready")
+    a.emit(0xAD, 0xD1, 0x93)
+    a.emit(0x49, 0x04)
+    a.emit(0x8D, 0xD1, 0x93)
+    a.label("phase_ready")
+    a.emit(0xAD, 0xD1, 0x93)
+    a.rel8(0xF0, "clear")               # exact cell boundary needs no carry
+
+    # Stock progression will leave A181 at current + ceil(useful_width/8).
+    a.emit(0xAD, 0x81, 0xA1)
+    a.emit(0x18)
+    a.emit(0x6D, 0x8F, 0x93)
+    a.emit(0x8D, 0xD2, 0x93)
+    a.emit(0xAD, 0x5D, 0xA1)
+    a.emit(0x8D, 0xD3, 0x93)
+
+    # The partial useful cell is physical_cells-1. Convert that cell index to
+    # the private bitmap byte offset (cell * 12) and preserve its 12 rows.
+    a.emit(0xAD, 0x8F, 0x93)
+    a.emit(0x3A)                            # cells - 1
+    a.emit(0x0A, 0x0A, 0x0A)              # *8
+    a.emit(0x8D, 0x86, 0x93)
+    a.emit(0x9C, 0x87, 0x93)
+    a.emit(0xC2, 0x20)
+    a.emit(0xAD, 0x86, 0x93)
+    a.emit(0x4A)                            # *4
+    a.emit(0x18)
+    a.emit(0x6D, 0x86, 0x93)               # *12
+    a.emit(0xAA)
+    a.emit(0xE2, 0x20)
+    a.emit(0xA0, 0x00, 0x00)
+    a.label("copy")
+    a.emit(0xBD, 0x00, 0x90)
+    a.emit(0x99, 0xD4, 0x93)
+    a.emit(0xE8, 0xC8)
+    a.emit(0xC0, 0x0C, 0x00)
+    a.rel8(0xD0, "copy")
+
+    a.emit(0xA9, 0x01)
+    a.emit(0x8D, 0xD0, 0x93)
+    a.emit(0x6B)
+    a.label("clear")
+    a.emit(0x9C, 0xD0, 0x93)
+    a.emit(0x6B)
+    return a.resolve()
+
+
+def make_dialogue_chunk_commit_helper() -> bytes:
+    """Stock validated cell conversion plus exact continuation capture."""
+    a = MiniAssembler(0xED7340)
+    a.emit(0x22, 0xB0, 0x73, 0xED)
+    a.rel8(0x90, "return")
+    a.emit(0xAD, 0x8E, 0x93)
+    a.emit(0xC9, 0x27)
+    a.rel8(0xB0, "return")
+    a.emit(0xAD, 0xCE, 0xA1)
+    a.rel8(0x10, "convert")
+    a.emit(0xAD, 0x8E, 0x93)
+    a.emit(0xC9, 0x21)
+    a.rel8(0x90, "linebreak_clear")
+    a.rel8(0x80, "convert")
+    a.label("linebreak_clear")
+    a.emit(0x9C, 0xD0, 0x93)
+    a.rel8(0x80, "return")
+    a.label("convert")
+    a.emit(0x22, 0x80, 0x73, 0xED)
+    a.emit(0x22, *lo24(CONTINUATION_SAVE_HELPER_CPU))
+    a.emit(0xAD, 0xCE, 0xA1)
+    a.emit(0x29, 0x80)
+    a.emit(0x0D, 0x8F, 0x93)
+    a.emit(0x8D, 0xCE, 0xA1)
+    a.label("return")
+    a.emit(0xA9, 0x00)
+    a.emit(0x5C, 0xB7, 0x16, 0xC0)
+    return a.resolve()
+
+
+CONTINUATION_PREP_HELPER = make_continuation_prep_helper()
+CONTINUATION_SAVE_HELPER = make_continuation_save_helper()
+DIALOGUE_CHUNK_COMMIT_HELPER = make_dialogue_chunk_commit_helper()
+
+
 def make_entry_helper() -> bytes:
     """Initialize VWF state only for the exact event-engine renderer caller.
 
@@ -551,9 +747,9 @@ def make_entry_helper() -> bytes:
     emit(0xA9, 0x01, 0x8D, 0x85, 0x93) # active = 1
     emit(0xAD, 0xCE, 0xA1, 0x29, 0x7F, 0x8D, 0x8E, 0x93)  # save count
     emit(0x9C, 0x8F, 0x93)             # clear physical-cell result
-    emit(0x9C, 0x82, 0x93)             # STZ pixel cursor
     emit(0xA2, 0x00, 0x00)             # LDX #$0000
     emit(0x9E, 0x00, 0x90, 0xE8, 0xE0, 0x80, 0x01, 0xD0, 0xF7)  # clear bitmap
+    emit(0x22, *lo24(CONTINUATION_PREP_HELPER_CPU))  # fresh inset or exact sub-cell continuation
     emit(0xA9, 0x26, 0x8D, 0x76, 0xA1) # 38 decoded slots on private-buffer path
     emit(0x5C, 0x82, 0x16, 0xC0)       # JML $C01682
 
@@ -654,15 +850,17 @@ def validate_helper_layout() -> None:
         ("char-start helper", CHAR_START_HELPER_FILE, len(CHAR_START_HELPER), WIDTH_TABLE_FILE),
         ("width table", WIDTH_TABLE_FILE, 128, OUTLINE_POST_HELPER_FILE),
         ("outline helper", OUTLINE_POST_HELPER_FILE, len(OUTLINE_POST_HELPER), CHUNK_COMMIT_HELPER_FILE),
-        ("chunk commit helper", CHUNK_COMMIT_HELPER_FILE, len(CHUNK_COMMIT_HELPER), CHUNK_CELLS_SNAPSHOT_FILE),
+        ("chunk commit helper", CHUNK_COMMIT_HELPER_FILE, len(DIALOGUE_CHUNK_COMMIT_HELPER), CHUNK_CELLS_SNAPSHOT_FILE),
         ("chunk snapshot helper", CHUNK_CELLS_SNAPSHOT_FILE, len(CHUNK_CELLS_SNAPSHOT_HELPER), EVENT_RENDER_SCOPE_HELPER_FILE),
-        ("event-render scope helper", EVENT_RENDER_SCOPE_HELPER_FILE, len(EVENT_RENDER_SCOPE_HELPER), 0x2D7400),
+        ("event-render scope helper", EVENT_RENDER_SCOPE_HELPER_FILE, len(EVENT_RENDER_SCOPE_HELPER), PARSER_FETCH_HELPER_FILE),
         ("parser-fetch helper", PARSER_FETCH_HELPER_FILE, len(PARSER_FETCH_HELPER), WRAP_GLYPH_HELPER_FILE),
         ("wrap-glyph helper", WRAP_GLYPH_HELPER_FILE, len(WRAP_GLYPH_HELPER), RIGHT_EDGE_TABLE_FILE),
         ("right-edge table", RIGHT_EDGE_TABLE_FILE, 128, CHOICE_GEOMETRY_HELPER_FILE),
         ("choice geometry helper", CHOICE_GEOMETRY_HELPER_FILE, len(CHOICE_GEOMETRY_HELPER), CHOICE_VISUAL_HELPER_FILE),
         ("choice visual helper", CHOICE_VISUAL_HELPER_FILE, len(CHOICE_VISUAL_HELPER), CHOICE_TRACKER_HELPER_FILE),
-        ("choice tracker helper", CHOICE_TRACKER_HELPER_FILE, len(CHOICE_TRACKER_HELPER), SHARED_UI_DISPATCH_FILE),
+        ("choice tracker helper", CHOICE_TRACKER_HELPER_FILE, len(CHOICE_TRACKER_HELPER), CONTINUATION_PREP_HELPER_FILE),
+        ("continuation prep helper", CONTINUATION_PREP_HELPER_FILE, len(CONTINUATION_PREP_HELPER), CONTINUATION_SAVE_HELPER_FILE),
+        ("continuation save helper", CONTINUATION_SAVE_HELPER_FILE, len(CONTINUATION_SAVE_HELPER), SHARED_UI_DISPATCH_FILE),
     )
     for label, start, size, next_start in blocks:
         if start + size > next_start:
@@ -915,9 +1113,11 @@ def build(base: bytes) -> bytes:
         (FONT_ROW_HELPER_FILE, FONT_ROW_HELPER),
         (WIDTH_TABLE_FILE, width_table),
         (OUTLINE_POST_HELPER_FILE, OUTLINE_POST_HELPER),
-        (CHUNK_COMMIT_HELPER_FILE, CHUNK_COMMIT_HELPER),
+        (CHUNK_COMMIT_HELPER_FILE, DIALOGUE_CHUNK_COMMIT_HELPER),
         (CHUNK_CELLS_SNAPSHOT_FILE, CHUNK_CELLS_SNAPSHOT_HELPER),
         (EVENT_RENDER_SCOPE_HELPER_FILE, EVENT_RENDER_SCOPE_HELPER),
+        (CONTINUATION_PREP_HELPER_FILE, CONTINUATION_PREP_HELPER),
+        (CONTINUATION_SAVE_HELPER_FILE, CONTINUATION_SAVE_HELPER),
         (PARSER_FETCH_HELPER_FILE, PARSER_FETCH_HELPER),
         (WRAP_GLYPH_HELPER_FILE, WRAP_GLYPH_HELPER),
         (RIGHT_EDGE_TABLE_FILE, right_edge_table),

@@ -93,7 +93,10 @@ For a tagged event-render invocation:
 - pixels are ORed into the current 12-byte cell and spilled into the next cell;
 - the full `$7E:9000-$917F` bitmap is cleared before rendering because adjacent
   glyphs can share cells;
-- no forced 8 px realignment is used between glyphs.
+- no forced 8 px realignment is used between glyphs;
+- a normal renderer invocation initializes the private bitmap pixel cursor to `1`, which preserves the left outline of a glyph drawn against the dialogue window edge;
+- a structurally proven same-line interrupted continuation does **not** add that inset again: `$ED:7930` replaces the default `1` with the saved 0-7 px phase and reuses the preserved partial bitmap cell;
+- independently, parser preflight starts its speculative cursor at `1` only when the authoritative stock state reports a true fresh left-edge line (`$A16A-$A181 == 29`), so right-edge fit checks include the one-pixel inset on fresh lines without pretending that an interrupted continuation starts at the window edge. `$9381` is only parser-local historical scratch and is not consumed by the renderer.
 
 The per-character start helper remains fixed at `$ED:7180`. The old `$ED:71F4`
 punctuation trampoline is no longer part of the runtime path because framing is
@@ -183,19 +186,24 @@ number of physical 8-pixel columns to transfer/allocate. Those quantities are
 equivalent in the original fixed-width renderer but not in a VWF.
 
 The generic path therefore converts interrupted, non-line-break chunks before
-stock progression:
+stock progression while preserving the exact VWF remainder:
 
 1. tagged renderer entry saves `$A1CE & $7F` in `$7E:938E` and clears `$7E:938F`;
-2. the tagged private-buffer renderer continues through 38 logical slots;
-3. at the start of the first padded slot, when `X == saved_decoded_count`,
+2. a normal chunk starts with the validated 1 px left inset; if `$7E:93D0-$93DF`
+   proves that this invocation continues the same stock line/cell, `$ED:7930`
+   instead restores the previous partial bitmap cell and its exact 0-7 px phase;
+3. the tagged private-buffer renderer continues through 38 logical slots;
+4. at the start of the first padded slot, when `X == saved_decoded_count`,
    `$ED:7380` captures `ceil(useful_pixel_width / 8)` in `$7E:938F`;
-4. at renderer completion, `$ED:7340` replaces the low count in `$A1CE` with
-   that physical-cell count only when the stock line-break bit is clear;
-5. normal stock transfer/allocation then runs unchanged.
+5. at renderer completion, `$ED:7990` reconstructs the useful pre-padding
+   sub-cell phase, saves the final partial 12-byte bitmap cell and records the
+   stock line/cell expected for a valid continuation;
+6. `$ED:7340` replaces the low count in `$A1CE` with that physical-cell count
+   only when the stock line-break bit is clear; normal stock transfer/allocation
+   then runs unchanged.
 
 The snapshot is based on the actual decoded buffer, so DTE expansion and dynamic
-name insertion are included automatically. No event address, movement opcode, or
-WAIT opcode is recognized by `vwf_dialogues`.
+name insertion are included automatically. No event address, movement opcode, or WAIT opcode is recognized by `vwf_dialogues`; continuation is structural and is accepted only when the saved stock line and expected physical cell still match.
 
 A full 38-character chunk has no padded slot. Final commit therefore invokes the
 same snapshot helper once at `X=38`. An exact 256 px 8-bit cursor wrap is mapped

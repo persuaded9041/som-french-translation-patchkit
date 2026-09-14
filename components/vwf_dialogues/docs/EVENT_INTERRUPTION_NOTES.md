@@ -115,3 +115,28 @@ No per-event correction remains in the component.
 WAIT: convert VWF pixel width to physical cells after rendering and before stock
 progression. Its parser/rendering path is different, so the implementation is not
 shared.
+
+## Exact sub-cell continuation after interrupted chunks
+
+Whole-cell conversion fixes stock progression, but it can still introduce a small
+visual gap when useful VWF text ends inside its final 8-pixel cell.  The
+runtime-validated opening falling-hero cry exposed this residual error clearly.
+With the validated 1 px left inset, the first fragment ends at **54 px**.  Stock
+physical progression must nevertheless allocate `ceil(54 / 8) = 7` cells, so a
+naive next invocation begins at **56 px**: exactly **2 artificial pixels** are
+inserted between the two fragments.
+
+The final generic correction keeps whole-cell stock progression intact while
+preserving the sub-cell remainder separately.  At commit time, `$ED:7990`
+reconstructs the useful pre-padding phase, records the expected stock line/cell,
+and copies the final partial 12-byte bitmap cell into `$7E:93D4-$93DF`.  On the
+next renderer invocation, `$ED:7930` accepts that state only when the live stock
+line and physical cell match.  It then reuses the previous partial cell and
+restores the exact 0-7 px phase instead of applying the normal +1 px new-chunk
+inset.
+
+For the falling-hero cry, the continuation therefore resumes at **54 px**, not
+56 px.  Runtime validation confirms that the artificial 2 px gap disappears,
+the final punctuation remains intact, and ordinary line starts still retain the
+1 px left-outline inset.  No event ID, WAIT opcode, movement opcode, or literal
+text is special-cased; the acceptance test is purely structural.

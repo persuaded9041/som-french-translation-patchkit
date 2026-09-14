@@ -9,9 +9,10 @@ Adds variable-width rendering to stock event dialogue while leaving GAME SELECT 
 - The parser bridge activates structurally for the event-parser caller `$114B`; GAME SELECT remains stock.
 - The shared private buffer allows up to 38 logical decoded characters while physical output remains limited to the stock 32-cell / 256-pixel bitmap.
 - `$C0:168A-$C0:16B0` remains intact.
-- Interruptions/WAIT use generic VWF-width-to-physical-cell conversion.
+- Interruptions/WAIT use generic VWF-width-to-physical-cell conversion plus exact sub-cell continuation: a partial final 8-pixel cell is preserved and reused when the next renderer invocation proves it is continuing the same physical line.
 - The post-outline repair remains runtime-validated for tagged `$C9/$CA` dialogue; the same exact renderer tag is used for relocated `$E8-$EC` scripts.
 - Pixel-aware preflight prevents source glyphs from being consumed past the physical right edge; the `You have a sword` clipping case is runtime-validated as repaired.
+- Ordinary dialogue chunks start the private VWF bitmap at pixel cursor `1`, preserving the left outline of glyphs drawn against the dialogue window's left edge. A proven same-line interrupted continuation overrides that default with the exact saved sub-cell phase, so the 1 px inset is not accumulated after `WAIT`.
 
 ## Interactive choice rows
 

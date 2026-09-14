@@ -96,7 +96,7 @@ Dialogue recipe data is consolidated by responsibility under `recipes/android/`:
 
 The exact second-pass starting and final JSONs both contain **1959 carriers**. Exactly **46 explicitly reviewed carriers changed**; the other **1913 carriers are byte-for-byte unchanged**. No carriers were added or removed. Structural metadata changes are limited to the validated events documented in `docs/HANDOFF.md` and `checkpoints/SECOND_PASS_POST_VALIDATION.md`.
 
-A fresh cold regeneration reproduces `translations/dialogues_french.json` with SHA-256 `3e4cacd926e31d6dfe9f9021d1026c4f71dc68ccd88ce4481749e47764d2b7d9`. Promoted patch hashes are `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31` for `french_dialogues.ips` and `49eb639aa0117d603c5cd6c92ba617f6c853da68cead59c34cf970658e94fd23` for `all.ips`. A forced double rebuild is byte-identical to these promoted patches.
+A fresh cold regeneration reproduces `translations/dialogues_french.json` with SHA-256 `3e4cacd926e31d6dfe9f9021d1026c4f71dc68ccd88ce4481749e47764d2b7d9`. Promoted dialogue-data hash remains `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31` for `french_dialogues.ips`. After the runtime-validated `vwf_dialogues` left-inset / exact interrupted-chunk continuation fix, the promoted combined `all.ips` SHA-256 is `9fc13efe50b7e315dab7238ee2142d9e245ea51ae9e51768a6ad9f6e42248029`. A forced double rebuild is byte-identical to these promoted patches.
 
 See `docs/HANDOFF.md` for the current handoff and `checkpoints/SECOND_PASS_POST_VALIDATION.md` for the final non-regression proof.
 

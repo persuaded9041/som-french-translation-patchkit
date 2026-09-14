@@ -48,10 +48,11 @@ for the owning component even when the current generated payload is shorter.
 | dialogue text relocation | `0x281800-0x281FFF` | `$E8:1800-$1FFF` | reserved event-loader resolver helper; current helper is 83 bytes at `$E8:1800-$1852` |
 | dialogue text relocation | `0x282000-0x2CFFFF` | `$E8:2000-$EC:FFFF` | reserved deterministic relocated-event pool |
 | dialogue VWF | `0x2D7040-0x2D72E9` | `$ED:7040-$72E9` | caller gate, render/advance helpers, width table and post-outline repair (fixed blocks with intentional gaps) |
-| dialogue VWF | `0x2D7340-0x2D73AA` | `$ED:7340-$73AA` | runtime-validated generic interrupted-chunk physical-cell commit/snapshot helpers |
+| dialogue VWF | `0x2D7340-0x2D73AA` | `$ED:7340-$73AA` | runtime-validated interrupted-chunk physical-cell commit/snapshot helpers; commit also captures exact same-line continuation state |
 | dialogue VWF | `0x2D73B0-0x2D73B8` | `$ED:73B0-$73B8` | runtime-validated renderer-active scope helper |
 | intro skip | `0x2D7400-0x2D74FF` | `$ED:7400-$74FF` | reserved intro-skip input helper region |
 | dialogue VWF | `0x2D7500-0x2D77FF` | `$ED:7500-$77FF` | pixel-aware parser preflight, glyph-fit helper and framed-right-edge table; gaps reserved to `vwf_dialogues` |
+| dialogue VWF | `0x2D7930-0x2D79F9` | `$ED:7930-$79F9` | exact interrupted same-line VWF continuation restore/capture helpers; deliberately placed after choice helpers and before shared dispatcher |
 | shared UI/dialogue dispatcher | `0x2D7A00-0x2D7A7F` | `$ED:7A00-$7A7F` | byte-identical renderer-entry dispatcher installed by `vwf_dialogues` / `vwf_ui` |
 | UI VWF renderer | `0x2D7B00-0x2D7CFF` | `$ED:7B00-$7CFF` | `vwf_ui` standalone non-dialogue UI renderer reserve (Forge backend first) |
 | UI VWF metrics | `0x2D7D00-0x2D7D7F` | `$ED:7D00-$7D7F` | `vwf_ui` validated 128-entry advance table |
@@ -88,7 +89,7 @@ uses `$7E:9390-$93BB` for private VWF decoding. Component-owned config bytes at
 `$C7:4C80-$4C84` select intro mode 1 or dialogue mode 2.
 
 `vwf_dialogues` uses renderer hooks in bank `$C0` and helper/table space in the
-`$ED:7040-$73B8` and `$ED:7500-$792A` areas. Choice rows use the same renderer path as ordinary dialogue; there is no `vwf_dialogues` `$9381` choice tag. The measured-end two-option path additionally uses `$7E:93BC-$93C0` for private visual/highlight boundaries while leaving stock `$A1D7[]` logical and untouched. Core renderer scratch remains `$7E:9382-$938F`.
+`$ED:7040-$73B8`, `$ED:7500-$792A` and `$ED:7930-$79F9` areas. Choice rows use the same renderer path as ordinary dialogue. `$9381` is parser-local historical scratch only; it is not a renderer/choice tag and the validated +1 px renderer inset is established directly at renderer entry unless exact continuation state overrides it. The measured-end two-option path additionally uses `$7E:93BC-$93C0` for private visual/highlight boundaries while leaving stock `$A1D7[]` logical and untouched. Core renderer scratch remains `$7E:9382-$938F`.
 These bytes are used only for caller-tagged event-render
 invocations in stock banks `$C9/$CA` and validated reserved banks `$E8-$EC`. `vwf_intro`
 intercepts translated intro event `$0400` before `vwf_dialogues` reaches its entry

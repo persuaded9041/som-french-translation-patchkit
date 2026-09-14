@@ -35,7 +35,7 @@ cross-component view.
 | ROM `$ED:7180-$71D9` | 90 bytes | Per-character Y helper + chunk-boundary snapshot + stock-choice option/terminal anchor resync + private-buffer load | Runtime-validated on `$0331`; GAME SELECT remains stock |
 | ROM `$ED:7200-$727F` | 128 bytes | Dialogue advance table | Runtime-validated |
 | ROM `$ED:7280-$72E9` | 106 bytes | Cross-cell outline-boundary repair | Runtime-validated exact-tag repair on stock and relocated dialogue |
-| ROM `$ED:7340-$736D` | 46 bytes | Generic physical-cell commit + >32 line-break safety conversion | Runtime-validated ordinary-dialogue path; no choice-only state remains |
+| ROM `$ED:7340-$7378` | 57 bytes | Generic physical-cell commit + >32 line-break safety conversion + exact-continuation capture call | Runtime-validated ordinary-dialogue path; byte-identical shared install with `vwf_ui` |
 | ROM `$ED:7380-$73AA` | 43 bytes | Useful-width -> physical-cell snapshot helper | Runtime-validated |
 | ROM `$ED:73B0-$73B8` | 9 bytes | Test private renderer-active tag for internal hooks | Runtime-validated |
 | ROM `$ED:7500-$76A8` | 425 bytes | Dialogue parser pixel-budget preflight / safe-space rewind helper | Runtime-validated ordinary-dialogue path; choice commands receive no `vwf_dialogues` parser special case |
@@ -44,9 +44,12 @@ cross-component view.
 | ROM `$ED:7800-$782D` | 46 bytes | Choice highlight geometry helper | Runtime-validated on `$00CE/$00CF/$00D0/$00D1/$0202` and short-choice fallback |
 | ROM `$ED:7880-$7901` | 130 bytes | Two-option visual-boundary helper with decorated-choice fallback, two-cell private left compaction and late-first-option right-edge compaction | Runtime-validated on `$00CE/$00CF/$00D0/$00D1/$0202` |
 | ROM `$ED:7910-$792A` | 27 bytes | Last non-space VWF endpoint tracker for active two-option rows | Runtime-validated as part of the measured-end path |
+| ROM `$ED:7930-$7986` | 87 bytes | Exact interrupted-chunk continuation restore / partial-cell rewind helper | Runtime-validated with the opening falling-hero split cry |
+| ROM `$ED:7990-$79F9` | 106 bytes | Exact useful-phase + partial-bitmap-cell continuation capture helper | Runtime-validated with the opening falling-hero split cry |
 | ROM `$ED:7A00-$7A2B` | 44 bytes | Shared renderer-entry dispatcher installed by `vwf_dialogues` / `vwf_ui` | Current payload inside the shared `$ED:7A00-$7A7F` reservation; choice-helper growth is guarded before this block |
 | ROM `$D2:DFE4-$E0DF` | 252 bytes | `dialogue_french` glyph span `$D3-$E7` | Canonical shared glyph bytes; overlaps the intro `$D4-$E5` subset byte-identically |
 | WRAM `$7E:9380` | 1 byte | Shared parser mode (`2` during `vwf_dialogues` private dialogue decoding) | Runtime-validated; parser phase only |
+| WRAM `$7E:9381` | 1 byte | Parser-local fresh-left-edge marker (`1` when stock remaining width is 29 cells at parser start) | Historical scratch retained by parser preflight; renderer does **not** read it; `vwf_intro` use is mutually exclusive |
 | WRAM `$7E:9390-$93BB` | 44 bytes | Shared decoded-text private buffer; up to 38 dialogue glyphs + control/padding | Runtime-validated |
 | WRAM `$7E:9382` | 1 byte | Private dialogue pixel cursor | Tagged event render (`$C9/$CA` or validated `$E8-$EC`) |
 | WRAM `$7E:9383-$9384` | 2 bytes | Row shift/composition scratch | Tagged event render (`$C9/$CA` or validated `$E8-$EC`) |
@@ -57,6 +60,7 @@ cross-component view.
 | WRAM `$7E:938C-$938D` | 2 bytes | Outline-repair scratch | Runtime-validated exact-tag post-outline repair on `vwf_dialogues` dialogue |
 | WRAM `$7E:938E` | 1 byte | Saved decoded-character count for current chunk | Tagged event render (`$C9/$CA` or validated `$E8-$EC`) |
 | WRAM `$7E:938F` | 1 byte | Saved physical-cell count for current useful chunk | Tagged event render (`$C9/$CA` or validated `$E8-$EC`) |
+| WRAM `$7E:93D0-$93DF` | 16 bytes | Exact interrupted-chunk continuation state: valid flag, 0-7 px phase, expected stock cell/line and preserved 12-byte partial bitmap cell | Tagged event dialogue only; consumed once on a structurally matching same-line continuation |
 | WRAM `$7E:93BC` | 1 byte | Last non-space VWF endpoint for active two-option row | Choice render only |
 | WRAM `$7E:93BD-$93BF` | 3 bytes | Private visual boundaries: first option, second option, terminal | Runtime-validated wide-choice geometry |
 | WRAM `$7E:93C0` | 1 byte | Private choice geometry valid flag | Choice render only |
