@@ -9,8 +9,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 RECIPES = ROOT / "recipes/android/dialogues_redistribution.json"
-COVERAGE = ROOT / "recipes/android/dialogues_coverage_repair.json"
-ROUND85_REVIEW = ROOT / "recipes/android/dialogues_round85_review.json"
+FORMATTING = ROOT / "recipes/android/dialogues_formatting.json"
+REVIEW = ROOT / "recipes/android/dialogues_review.json"
 FRENCH = ROOT / "translations/dialogues_french.json"
 SCRTXT_FR = ROOT / "sources/android/scrtxt_fr.bin"
 
@@ -65,9 +65,11 @@ def main() -> None:
 
     fr = read_scrtxt(SCRTXT_FR)
     rendered, _ = load_dialogue_redistribution_recipes(fr)
-    coverage = json.loads(COVERAGE.read_text(encoding="utf-8")) if COVERAGE.exists() else {"repairs": []}
+    formatting = json.loads(FORMATTING.read_text(encoding="utf-8"))
+    coverage = formatting.get("sections", {}).get("coverage_repair", {"repairs": []})
     coverage_append = {(r.get("event_id"), r.get("carrier_id")) for r in coverage.get("repairs", []) if r.get("mode") == "append"}
-    review = json.loads(ROUND85_REVIEW.read_text(encoding="utf-8")) if ROUND85_REVIEW.exists() else {"events": {}}
+    review_doc = json.loads(REVIEW.read_text(encoding="utf-8"))
+    review = review_doc.get("sections", {}).get("review_delta", {"events": {}})
     review_append = {
         (event_id, op.get("text_id"))
         for event_id, spec in review.get("events", {}).items()

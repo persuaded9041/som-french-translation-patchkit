@@ -4,16 +4,16 @@ from __future__ import annotations
 from functools import lru_cache
 import re
 
-from .common import ROOT, _load_recipe_document
+from .common import ROOT, _load_recipe_section
 from .final_layout import _split_layout, _semantic_sha256
 
-DIALOGUE_POST_STRUCTURE_LAYOUT_RECIPES = ROOT / "recipes" / "android" / "dialogues_post_structure_layout.json"
+DIALOGUE_REVIEW_RECIPES = ROOT / "recipes" / "android" / "dialogues_review.json"
 
 
 @lru_cache(maxsize=1)
 def _recipe_index() -> dict[str, dict[str, dict]]:
-    document = _load_recipe_document(
-        DIALOGUE_POST_STRUCTURE_LAYOUT_RECIPES,
+    document = _load_recipe_section(
+        DIALOGUE_REVIEW_RECIPES, "post_structure_layout",
         label="Dialogue post-structure layout recipes",
         expected={"format_version": 1},
     )

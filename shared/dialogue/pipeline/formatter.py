@@ -19,7 +19,7 @@ from shared.dialogue.codec import TRANSLATION_CLEAR, TRANSLATION_TRAILING_PAGE_B
 from shared.dialogue.structure import (resolve_structural_omission_token_indexes, resolve_structural_command_overrides,
     resolve_structural_command_insertions)
 from shared.core.rom import validate_base_rom
-from .common import ROOT, _load_recipe_document, normalize_android_prose, normalize_alignment_text, sentence_break_positions
+from .common import ROOT, _load_recipe_document, _load_recipe_section, normalize_android_prose, normalize_alignment_text, sentence_break_positions
 from .policies import *
 from .alignment import make_dialogue_auto_alignment, is_semantic_text
 from .final_layout import apply_validated_final_layout
@@ -34,7 +34,7 @@ from .recipes import (
     _format_manual_supplement, _format_android_extra_page, _parameterized_inn_prompt,
 )
 
-DIALOGUE_LAYOUT_SEARCH_RECIPES = ROOT / "recipes" / "android" / "dialogues_layout_search.json"
+DIALOGUE_FORMATTING_RECIPES = ROOT / "recipes" / "android" / "dialogues_formatting.json"
 
 DIALOGUE_RUNTIME_VALIDATED_WAIT00_OVERLAP_EVENTS = frozenset()
 
@@ -4266,8 +4266,8 @@ def _automatic_layout_search_score(simulation) -> tuple[int, int, int, int]:
 
 @lru_cache(maxsize=1)
 def _reviewed_layout_search_recipe_index() -> dict[str, list[dict]]:
-    document = _load_recipe_document(
-        DIALOGUE_LAYOUT_SEARCH_RECIPES,
+    document = _load_recipe_section(
+        DIALOGUE_FORMATTING_RECIPES, "layout_search",
         label="Dialogue layout-search recipes",
         expected={"format_version": 1},
     )
@@ -5028,7 +5028,7 @@ def make_dialogue_format_mass(
         raise ValueError(
             "Round-85 $0559 coverage recipe missing/drifted: expected "
             "CA:6787 <- Android 2151..2155. Refresh "
-            "recipes/android/dialogues_coverage_repair.json."
+            "recipes/android/dialogues_formatting.json#coverage_repair."
         )
     if lot6[0].get("separator") != "\f" or lot6[0].get("android_separator") != "\f" or not lot6[0].get("wrap_android_units"):
         raise ValueError("Round-85 $0559 coverage recipe structural settings drifted")

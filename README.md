@@ -86,13 +86,18 @@ files. The validated translations formerly stored in component CSV/BIN inputs fo
 
 `french_resources` follows the same provenance rule: `reports/android/text_resources_android.json` is an optional review output, while `translations/text_resources_french.json` is a generated local performance cache/review artifact. A fingerprint-valid copy is reused; otherwise the component regenerates and persists it from the clean-USA text-resource extraction, `recipes/android/text_resources_layout.json`, and Android `systxt_en/fr.bin`. Neither file is canonical provenance.
 
+
+### Recipe layout
+
+Dialogue recipe data is consolidated by responsibility under `recipes/android/`: `dialogues_reviewed_alignment.json`, `dialogues_redistribution.json`, `dialogues_formatting.json`, and `dialogues_review.json`. The formatting/review files contain named sections that preserve the former stage schemas and application order. See `recipes/android/README.md` and `reports/RECIPES_CLEANUP.md`.
+
 ## Dialogue checkpoint
 
 **Round 85.68 is the promoted canonical dialogue state.** It canonizes the complete user-validated review chain through the Android-FR completeness audit. A fresh deletion/regeneration of `translations/dialogues_french.json` reproduces the accepted review JSON byte-for-byte (SHA-256 `a507bd8b715cef6f6f2d81165c3fab62a2e8c4d27d090cc5b68ddfbb07769728`).
 
 The playable dialogue corpus is **701 events = 701 complete + 0 PARTIEL**, with **1813 accepted semantic source IDs / 1957 sparse translation entries**. Android identity remains **1798 / 1838 (97.8%)**; the only exclusions remain the routing-audited unused/orphan events `$0269`, `$02DE`, `$0603`. Independent simulation reports **0 errors / 0 warnings / 0 implicit runtime wraps**.
 
-The final reviewed delta lives in `recipes/android/dialogues_round85_review.json`. It stores no French prose: only Android IDs, structural carrier/control operations, choice coordinates, semantic fingerprints and layout separators. The `$05F8` one-line-page preview defect was also fixed in `shared/dialogue/simulator.py`; it was a simulator snapshot issue, not missing serialized dialogue.
+The final reviewed delta now lives in the `review_delta` section of `recipes/android/dialogues_review.json`. It stores no French prose: only Android IDs, structural carrier/control operations, choice coordinates, semantic fingerprints and layout separators. The `$05F8` one-line-page preview defect was also fixed in `shared/dialogue/simulator.py`; it was a simulator snapshot issue, not missing serialized dialogue.
 
 Promoted patch hashes are `ff5890b9284dc25231fa8b9bbae05f6f43b03c131c91dfe7f2fb1f11259f92c1` for `french_dialogues.ips` and `b9ed5221ad54b653aa98713e59b72191cdc9cca668b9b44e9aa4f1f2c44dcfd5` for `all.ips`. See `docs/HANDOFF.md` and `checkpoints/round85_68/`.
 

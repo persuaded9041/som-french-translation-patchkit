@@ -2880,19 +2880,6 @@
       "note": "Exact Android-English line 305 fills the only gap between accepted 304 and 306 in the same conversation."
     },
     {
-      "event_id": "0167",
-      "parts": [
-        "C9:4C65"
-      ],
-      "android_ids": [
-        1058
-      ],
-      "confidence": "very_high_structural_review",
-      "provenance": "round8",
-      "relation": "speaker_label_alignment",
-      "note": "Android 1058 is the exact Phanna ellipsis and immediately precedes Android 1059 and the already aligned 1060-1068 scene. Android 1059 is semantically related to the following SNES line but remains layout-deferred because it resegments around PLAYER_NAME(1)."
-    },
-    {
       "event_id": "0181",
       "parts": [
         "C9:5710"
@@ -4641,19 +4628,6 @@
       "provenance": "round39",
       "relation": "reused_snes_subevent_primary_payload",
       "note": "The same SNES subevent is called twice and Android materializes the two call sites as 1577 and 1583. User accepts 1583 as the shared payload; it preserves 'Royaume de Kakkara' rather than changing Kakkara into a city."
-    },
-    {
-      "event_id": "0689",
-      "parts": [
-        "CA:8F20"
-      ],
-      "android_ids": [
-        769
-      ],
-      "confidence": "very_high_structural_review",
-      "provenance": "round39",
-      "relation": "user_validated_stock_english_override",
-      "note": "Android EN 769 is structurally proven by the event item command: $0689 executes OP_1E A4, i.e. weapon $24 = Whip/Leather Whip. The true Magic Rope chest is $0687 with OP_1E 46, item $06. Android FR incorrectly gives the same 'Fouet en cuir' text to both 469 (Magic Rope) and 769. Keep exact stock-USA 'Found the Whip!' instead of importing that bad localization."
     },
     {
       "event_id": "00C0",

@@ -14,15 +14,17 @@ translations/      generated or explicitly validated French bound to SNES IDs
 
 ## Canonical structural inputs
 
-These files encode reviewed project decisions and must remain versioned:
+The active recipe surface is intentionally small. Dialogue recipes are grouped by responsibility instead of historical round/stage files:
 
-- `dialogues_reviewed_alignment.json` — user-validated SNES/Android identity/provenance recipes;
-- `dialogues_redistribution.json` — prose-free whole-scene Android-FR resegmentation recipes;
-- `dialogues_coverage_repair.json` — prose-free coverage repair recipes;
-- `dialogues_mapping_layout.json` — mapping-local Android-token/layout recipes;
-- `dialogues_layout_search.json` — reviewed structural layout-search operations;
-- `dialogues_choice_layout.json` — reviewed choice-layout decisions;
-- `text_resources_layout.json` — prose-free text-resource layout recipes.
+- `dialogues_reviewed_alignment.json` — user-validated SNES/Android identity and provenance;
+- `dialogues_redistribution.json` — prose-free whole-scene Android-FR resegmentation;
+- `dialogues_formatting.json` — intermediate formatting recipes, with sections `mapping_layout`, `layout_search`, `choice_layout`, and `coverage_repair`;
+- `dialogues_review.json` — late validated replay, with sections `final_layout`, `final_structure`, `post_structure_layout`, and `review_delta`;
+- `text_resources_layout.json` — prose-free non-dialogue text-resource layout recipes.
+
+The consolidated files preserve the former section schemas and application order. They contain no localized prose; Android-FR words are still read from `sources/android/scrtxt_fr.bin` during generation. Historical per-stage recipe files belong in Git history, not the working tree.
+
+A rule-liveness pass also removed 15 obsolete/superseded rule units from the consolidated data. The current files intentionally contain only rules that still participate in the canonical generation path; see `reports/RECIPES_CLEANUP.md` for the audited removals and the few apparent overlaps that are intentionally retained.
 
 Genuinely non-Android French prose belongs only in
 `translations/dialogues_manual_supplements.json`.

@@ -28,6 +28,23 @@ def _load_recipe_document(path: Path, *, label: str, expected: dict) -> dict:
     return document
 
 
+def _load_recipe_section(path: Path, section: str, *, label: str, expected: dict) -> dict:
+    """Load one named section from a consolidated structural recipe document."""
+    container = _load_recipe_document(
+        path, label=f"{label} container", expected={"format_version": 1}
+    )
+    sections = container.get("sections")
+    if not isinstance(sections, dict) or section not in sections:
+        raise ValueError(f"{label}: missing recipe section {section!r}")
+    document = sections[section]
+    if not isinstance(document, dict):
+        raise ValueError(f"{label}: section {section!r} must be an object")
+    for key, value in expected.items():
+        if document.get(key) != value:
+            raise ValueError(f"{label}: expected {key}={value!r}")
+    return document
+
+
 def read_scrtxt(path: Path) -> dict[int, str]:
     """Read an Android scrtxt/systxt table."""
     return read_string_table(path)

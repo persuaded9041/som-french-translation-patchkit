@@ -15,9 +15,9 @@ from functools import lru_cache
 from pathlib import Path
 import re
 
-from .common import ROOT, _load_recipe_document
+from .common import ROOT, _load_recipe_section
 
-DIALOGUE_FINAL_LAYOUT_RECIPES = ROOT / "recipes" / "android" / "dialogues_final_layout.json"
+DIALOGUE_REVIEW_RECIPES = ROOT / "recipes" / "android" / "dialogues_review.json"
 _LAYOUT_SEPARATOR_RE = re.compile(r"[ \n\f]+")
 
 
@@ -67,8 +67,8 @@ def _semantic_sha256(parts: list[str]) -> str:
 
 @lru_cache(maxsize=1)
 def _recipe_index() -> dict[str, dict[str, dict]]:
-    document = _load_recipe_document(
-        DIALOGUE_FINAL_LAYOUT_RECIPES,
+    document = _load_recipe_section(
+        DIALOGUE_REVIEW_RECIPES, "final_layout",
         label="Dialogue final-layout recipes",
         expected={"format_version": 1},
     )

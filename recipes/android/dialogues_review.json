@@ -1,0 +1,5563 @@
+{
+  "format_version": 1,
+  "description": "Consolidated late dialogue review recipes. Sections preserve the former final-layout/final-structure/post-structure/review-delta schemas and application order; no localized prose is stored.",
+  "sections": {
+    "final_layout": {
+      "format_version": 1,
+      "source": "canonical dialogue formatter semantic payload derived from sources/android/scrtxt_fr.bin",
+      "description": "User-validated final dialogue layout. Contains only carrier IDs, semantic fingerprints/counts and whitespace/page separators; no translated prose.",
+      "validated_against": {
+        "round": "85.52",
+        "dialogues_french_sha256": "cde1e7e36af8e41c9afeba549b0bf4ecff7cd01059d0607066870ab6ab83d964"
+      },
+      "events": {
+        "0011": {
+          "carriers": {
+            "C9:08F0": {
+              "semantic_sha256": "41c79757cc872de3a090f7b1b205a40cb9e10fe3030bab0f852ff9b5ebb30e77",
+              "semantic_part_count": 18,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0023": {
+          "carriers": {
+            "C9:0ABB": {
+              "semantic_sha256": "1be10447675b9e7a56b45672b8dd38c57414af73a09dd7e45e08933de09dc1c5",
+              "semantic_part_count": 16,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0030": {
+          "carriers": {
+            "C9:0E1F": {
+              "semantic_sha256": "97b4fd8362b19f34ba6426c4a7675f7e664e2eb2934ead88e0738fa05bae3752",
+              "semantic_part_count": 16,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "00B9": {
+          "carriers": {
+            "C9:18FE": {
+              "semantic_sha256": "296a808fa6b5a7b9325112c33219d95a1dd84d3db1eee70e99583a3b52e1dc16",
+              "semantic_part_count": 12,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "00E8": {
+          "carriers": {
+            "C9:2000": {
+              "semantic_sha256": "4ab4a3278f48d858232f90314d1ec4e88c49ddb47dc35e3fed0c303cc1e83aaa",
+              "semantic_part_count": 8,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n"
+              ]
+            }
+          }
+        },
+        "00FE": {
+          "carriers": {
+            "C9:2541": {
+              "semantic_sha256": "45e09e2f2aef230cde1fa6c6a9295d94bd1e2cce9ce070c04150f98d8c436261",
+              "semantic_part_count": 14,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n"
+              ]
+            }
+          }
+        },
+        "010C": {
+          "carriers": {
+            "C9:2D37": {
+              "semantic_sha256": "81a4119c3b7e89f362114e43f761a1d3031d5afddf4d1b76ee35d428965d427c",
+              "semantic_part_count": 14,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "C9:2D83": {
+              "semantic_sha256": "f4ca3835d0e4ddd0e1096a1c429aa88cd07a1c6bd04cb87c0e23351eafe15c7b",
+              "semantic_part_count": 18,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "C9:31D4": {
+              "semantic_sha256": "dae678e4583fa38072f683d6cafa1a7e7a2b406c20a449132aa5e5911b4fae5f",
+              "semantic_part_count": 26,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0112": {
+          "carriers": {
+            "C9:35F9": {
+              "semantic_sha256": "44ba187fd6c1f155764b32df3879ca282f48273b88ad64f840da9629c2c06c90",
+              "semantic_part_count": 5,
+              "seps": [
+                "",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0115": {
+          "carriers": {
+            "C9:36B9": {
+              "semantic_sha256": "baa082e0463ed51914ff6813eb57efd413fa2daa537e861bf1af61ae0913d4ea",
+              "semantic_part_count": 17,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "011A": {
+          "carriers": {
+            "C9:37CE": {
+              "semantic_sha256": "fe92360b90f02cd6eeeb6ba642d1db4b9fe5bd0fbc96a562d16483b9e0946e14",
+              "semantic_part_count": 7,
+              "seps": [
+                "",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n"
+              ]
+            }
+          }
+        },
+        "0143": {
+          "carriers": {
+            "C9:4510": {
+              "semantic_sha256": "7729412a580477ddd1e8a8a795d36dd47b55feb3214533bca452937436456621",
+              "semantic_part_count": 8,
+              "seps": [
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0147": {
+          "carriers": {
+            "C9:4613": {
+              "semantic_sha256": "310feae7bde60643b6f0e432490377da061250556806f1f8aa8736a5f5920b15",
+              "semantic_part_count": 8,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "015E": {
+          "carriers": {
+            "C9:4BE6": {
+              "semantic_sha256": "44ae8e56e7bfc31889b30b13eb7f7fd2ac830437214ceef0dbcbda17c781aaeb",
+              "semantic_part_count": 11,
+              "seps": [
+                "",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "017F": {
+          "carriers": {
+            "C9:55C8": {
+              "semantic_sha256": "71771033a6b4d35745462f28edd2873cbe214ab2dd455d55c1a581e4f208e0f7",
+              "semantic_part_count": 25,
+              "seps": [
+                "",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0183": {
+          "carriers": {
+            "C9:5875": {
+              "semantic_sha256": "68094def07e52a19b789519d4448d8963bcea51ee3ed6670c9274de29ba7f518",
+              "semantic_part_count": 11,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "019A": {
+          "carriers": {
+            "C9:6148": {
+              "semantic_sha256": "d744363bd4d70b73cd9759c703f249408861e99d49bfde4d5f9d12b07a1cb2af",
+              "semantic_part_count": 13,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "01A1": {
+          "carriers": {
+            "C9:62CE": {
+              "semantic_sha256": "0ece348d6d4a34b21c7af55ecbe3ac4c11780836db2d7e78e0910787c3fa2e1a",
+              "semantic_part_count": 8,
+              "seps": [
+                "",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "01A2": {
+          "carriers": {
+            "C9:6302": {
+              "semantic_sha256": "0a60ad200d44f59b6fb52e9283c726d1e7d6a084b70282248ca4735e83d7d0c0",
+              "semantic_part_count": 7,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "01CE": {
+          "carriers": {
+            "C9:7710": {
+              "semantic_sha256": "5e6a2d7c19f69f39387f8c5a22d13377cdbab36ed0c008265cfe7138c4a30fda",
+              "semantic_part_count": 6,
+              "seps": [
+                "",
+                "\n",
+                " ",
+                "\n",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "01D0": {
+          "carriers": {
+            "C9:78D1": {
+              "semantic_sha256": "a92b90e8c4e871c10af4513dd33df5068225cf96e03d7164daef8a368802a6d5",
+              "semantic_part_count": 19,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0204": {
+          "carriers": {
+            "C9:8F73": {
+              "semantic_sha256": "62862f760434dabd87d3c6dc312c254ae8395c508dbff0f83469b63604e47b56",
+              "semantic_part_count": 22,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "C9:902F": {
+              "semantic_sha256": "d5f3e09124fd413574cce0500d24b8ef2202fee300c9208ff053993c6e22b0af",
+              "semantic_part_count": 18,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "C9:9076": {
+              "semantic_sha256": "a62be21f3da44a2e4e6634b5be71f50aff5645006228b5e0033743809ba9f0b2",
+              "semantic_part_count": 21,
+              "seps": [
+                "",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "020A": {
+          "carriers": {
+            "C9:91D9": {
+              "semantic_sha256": "d9d80da8bc768f817d5bd82cadf9566d2fd5cf3d52e8d848d1642655034b2cec",
+              "semantic_part_count": 23,
+              "seps": [
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "024B": {
+          "carriers": {
+            "C9:9EF8": {
+              "semantic_sha256": "47f6600408157c4f2112b8fe806a6973924ba9cd8d6322c14ae07de010086668",
+              "semantic_part_count": 12,
+              "seps": [
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0264": {
+          "carriers": {
+            "C9:A3C9": {
+              "semantic_sha256": "20e3b865f2cacf2771912258939ccfd7d9994aeaf2b3b766149cb6c92d20b65f",
+              "semantic_part_count": 8,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0267": {
+          "carriers": {
+            "C9:A440": {
+              "semantic_sha256": "ddf3f14d514f43683e750e7e881ae56310794fb0400d8d238bf71a255cc72867",
+              "semantic_part_count": 16,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "029E": {
+          "carriers": {
+            "C9:B36B": {
+              "semantic_sha256": "724671ac7e14051dfe70f977bdb8985fef6fbcda1f4298e63e72b9eefccf5068",
+              "semantic_part_count": 15,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "C9:B3CC": {
+              "semantic_sha256": "b794e8c69de765fbea6e3066a2f91c28135293a14cffb836792499afb771ffd7",
+              "semantic_part_count": 9,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "02D3": {
+          "carriers": {
+            "C9:BF9F": {
+              "semantic_sha256": "a0e0639b43994f930bea8e1cc992931c23077cfcdbb0dfbefa10361648f3e4b1",
+              "semantic_part_count": 9,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "02D6": {
+          "carriers": {
+            "C9:C2A9": {
+              "semantic_sha256": "b7f6d8d6ef98a9ce58e220645f9e62f7b9b13d5f55eaf8ee3661a074fe6705a2",
+              "semantic_part_count": 13,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "02E3": {
+          "carriers": {
+            "C9:C5E2": {
+              "semantic_sha256": "eff7c54696f7321c956cb183022c411ca45cae522b64f3baea1d776b3ec94f41",
+              "semantic_part_count": 9,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "02E6": {
+          "carriers": {
+            "C9:C68A": {
+              "semantic_sha256": "ac8608704b1888949d01c539dab4636f0a24fd5bd6ec97388d150cc088bcadd0",
+              "semantic_part_count": 14,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "02EC": {
+          "carriers": {
+            "C9:C7D7": {
+              "semantic_sha256": "5be50a5690f5721fefd53f5fc1686f6e1ef31d4deacfb29de253d1e70747ef7e",
+              "semantic_part_count": 12,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                ""
+              ]
+            }
+          }
+        },
+        "0319": {
+          "carriers": {
+            "C9:CDFE": {
+              "semantic_sha256": "fe92360b90f02cd6eeeb6ba642d1db4b9fe5bd0fbc96a562d16483b9e0946e14",
+              "semantic_part_count": 7,
+              "seps": [
+                "",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n"
+              ]
+            }
+          }
+        },
+        "0386": {
+          "carriers": {
+            "C9:D9AA": {
+              "semantic_sha256": "a7dd82350f0771dc60ff6e29df93894905beae1e2d0cc9e3ddec468d01f09e4d",
+              "semantic_part_count": 12,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0392": {
+          "carriers": {
+            "C9:DCBB": {
+              "semantic_sha256": "ce0463101b2cf2b543bff397fcb9defcf9889b093ddffa1ada80201478cc6661",
+              "semantic_part_count": 11,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "03CD": {
+          "carriers": {
+            "C9:E8E9": {
+              "semantic_sha256": "18757528f9f79ca0e6869dbc26e25a89a927e809451ab19c08c6cbabcd6621f2",
+              "semantic_part_count": 8,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "03D0": {
+          "carriers": {
+            "C9:E9EC": {
+              "semantic_sha256": "69e8399c3ccf535012c686a80bf5f5a5515ffc9e17c49c742a64301518cf9890",
+              "semantic_part_count": 16,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0409": {
+          "carriers": {
+            "CA:0E60": {
+              "semantic_sha256": "f2ef05a96311b5cd7607e88be52aa8598982f73ce9d03eaa7edab0670339ebf8",
+              "semantic_part_count": 13,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0429": {
+          "carriers": {
+            "CA:109B": {
+              "semantic_sha256": "63fcc8e758461c0cb64407468ad03188d1f7b06f6ddcfa1378dc0359d72146c0",
+              "semantic_part_count": 6,
+              "seps": [
+                "",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:10FC": {
+              "semantic_sha256": "800f21fb10fbcd44c1fff837f271d0423b737e315b74349cfab74df65362b6b0",
+              "semantic_part_count": 23,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:11C9": {
+              "semantic_sha256": "f179c3f7a4033844b5f393d7c758519c990b39bbe358776df73cbc9c9d592338",
+              "semantic_part_count": 18,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:1219": {
+              "semantic_sha256": "ee11c16864a4ac836a2019169d59341b7b0d3a0731609064b53c76368647fc30",
+              "semantic_part_count": 13,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:1263": {
+              "semantic_sha256": "814b42eddc906173fbd0b1f269477b270e496fbb475e352f9c928eb3e7667afe",
+              "semantic_part_count": 14,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:1301": {
+              "semantic_sha256": "0329b44c4b26078d0f13145f32b85e8d2263cd915ad8c7ff583b54d334ef5361",
+              "semantic_part_count": 20,
+              "seps": [
+                "",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "04B3": {
+          "carriers": {
+            "CA:2033": {
+              "semantic_sha256": "b132e8f9161d0ec5b67fffb00fd43c3fc383924e67c79084d210b602bdd1c03c",
+              "semantic_part_count": 13,
+              "seps": [
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "04B6": {
+          "carriers": {
+            "CA:2334": {
+              "semantic_sha256": "5b5626059131bbd4ede869c01515ea4aa110bdff60d7ad998ca1566c25d65f77",
+              "semantic_part_count": 13,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "04C8": {
+          "carriers": {
+            "CA:2644": {
+              "semantic_sha256": "daa0b91fb9384e1fa52169bb35ad233cf8e7af96aed847b6e9bdaacbdbd430ce",
+              "semantic_part_count": 10,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "04D4": {
+          "carriers": {
+            "CA:281B": {
+              "semantic_sha256": "33b0ffa11830157b187c69a70be28572bd482d5930469aec7d9ef89e759a9f14",
+              "semantic_part_count": 7,
+              "seps": [
+                "",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n"
+              ]
+            }
+          }
+        },
+        "04E1": {
+          "carriers": {
+            "CA:2C3A": {
+              "semantic_sha256": "ff3bda4363b3a6f85bdd5793476cad2eff5ba92da4904e17c74a1be509ffff02",
+              "semantic_part_count": 38,
+              "seps": [
+                "",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "04E2": {
+          "carriers": {
+            "CA:3362": {
+              "semantic_sha256": "c83f14b88c6763fad3e8a780ae47226622251ce6973536506d7b6fc52f9f5c68",
+              "semantic_part_count": 8,
+              "seps": [
+                "",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                ""
+              ]
+            },
+            "CA:33A6": {
+              "semantic_sha256": "bc6d0c8f5e9746b475b0b860683bc4bbc4e4fe739b33306bd0bab2e0c3da5a74",
+              "semantic_part_count": 14,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:33E4": {
+              "semantic_sha256": "eafff5cc410269bb997fe00137dc07bc0f6376e9470b84148e7d5ef6969baa9d",
+              "semantic_part_count": 13,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:3423": {
+              "semantic_sha256": "85f711aeb953adc5200e54c56bcfe95f32bc6e5eceed302de04f5f8f84e91d59",
+              "semantic_part_count": 13,
+              "seps": [
+                "",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:3548": {
+              "semantic_sha256": "3846d8f1310fc13f2b3970aaac68af0adf71d3334e006b673d4bb06087a3ce5a",
+              "semantic_part_count": 15,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:3617": {
+              "semantic_sha256": "1ffb7bc8b4ac844180b80a7b00e2be5013254967e2067b4e2e38951db022a3a6",
+              "semantic_part_count": 20,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:3688": {
+              "semantic_sha256": "f310be925fe4456068ab3ae3134d88697ba03fb4f2537b782b2df085bd92a30c",
+              "semantic_part_count": 20,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "04E3": {
+          "carriers": {
+            "CA:38A3": {
+              "semantic_sha256": "ccb7a013c5eff4cc5e0d18ac372e99af7948bab37878ce76b3183336c73b2e7e",
+              "semantic_part_count": 12,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "04E4": {
+          "carriers": {
+            "CA:3942": {
+              "semantic_sha256": "ef4a14d4d6fc54658bff2d35c9840eea95b3d6f5c1e7054c38c0e549c1258dcf",
+              "semantic_part_count": 10,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "04E5": {
+          "carriers": {
+            "CA:3C3C": {
+              "semantic_sha256": "df4e58d29e533c1b3e357d9f72ae41165c324445d4b73c7dcc19ab155ccd238b",
+              "semantic_part_count": 21,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:3CA9": {
+              "semantic_sha256": "ea3e0dc80f5ce7de3e44b27f9a372d579b29fbccdffe3636e603076ce043976f",
+              "semantic_part_count": 14,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:3D43": {
+              "semantic_sha256": "1921d99bdf3f4da722e15739dc0a35e943d77a0d5e214b9ca03bdb7376183646",
+              "semantic_part_count": 26,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:3DBF": {
+              "semantic_sha256": "4319a2434622f7f86105d2daaea45286424f5d8494ef1077d40a1f4765215b77",
+              "semantic_part_count": 18,
+              "seps": [
+                "",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:3E48": {
+              "semantic_sha256": "5c66ec6df4d845e1ab0800f40f9742d8c994b906220872eb05092c550b1fd34b",
+              "semantic_part_count": 17,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "04E6": {
+          "carriers": {
+            "CA:3F11": {
+              "semantic_sha256": "0e43134ea4c37eb8ea0267f18b21c409837eb4193f96a54862567298eee07de9",
+              "semantic_part_count": 12,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                "\n"
+              ]
+            },
+            "CA:3F48": {
+              "semantic_sha256": "258c92e4695a260405ffd748d7694ff7be4837dca380fd602e3dfc6d5b56b9a2",
+              "semantic_part_count": 15,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:40E6": {
+              "semantic_sha256": "0de9c5bc5f6550dd41b77d2d5e748b72e4928c43dc88ffb87ef9f0f30cfa2bcf",
+              "semantic_part_count": 21,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "04E7": {
+          "carriers": {
+            "CA:4211": {
+              "semantic_sha256": "52e5e0898522a77e460a943e714609844b9977bb9485f0872fa7ab1122c03c78",
+              "semantic_part_count": 9,
+              "seps": [
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "04E9": {
+          "carriers": {
+            "CA:46F5": {
+              "semantic_sha256": "1ebe45e94cef3e57b49fe58d6ba26317b33d1b1fa7e2b1185289c7fc906d0131",
+              "semantic_part_count": 14,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:4797": {
+              "semantic_sha256": "2fc17a791b3eaa98b5fc6541dd9c4a170b4b2328a7db26260f3eba7c6a511dd5",
+              "semantic_part_count": 14,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:48DC": {
+              "semantic_sha256": "4d5671c77491cfc03614dcf39f5c391f88bba17b61099c626ed5a4aec879b9fe",
+              "semantic_part_count": 14,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "04EA": {
+          "carriers": {
+            "CA:4C71": {
+              "semantic_sha256": "6d2d738d64ab198712dca365abf55c77ea8d94e780e2231f493b5b8be5b1a168",
+              "semantic_part_count": 8,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "04FD": {
+          "carriers": {
+            "CA:4E85": {
+              "semantic_sha256": "858c36ecf0ab09816d566731ffc073e272a55fdc2f70f419bbd057fa99d12702",
+              "semantic_part_count": 15,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0555": {
+          "carriers": {
+            "CA:63F1": {
+              "semantic_sha256": "163de9769dc9269736b2f18b286fc96d9ca3afb9ded2301f9c7ffdf6b36757e0",
+              "semantic_part_count": 20,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0586": {
+          "carriers": {
+            "CA:7093": {
+              "semantic_sha256": "b307a4e0bde7e2f96e881305670f471a92d5be9fc7f4848d74466ccafc8711d8",
+              "semantic_part_count": 30,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0587": {
+          "carriers": {
+            "CA:718F": {
+              "semantic_sha256": "4df74959d097df0b33b1a80728754ccbb5d05e89ae1998522f26a54a11fe07a6",
+              "semantic_part_count": 24,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "059B": {
+          "carriers": {
+            "CA:76B2": {
+              "semantic_sha256": "caeee1074731254285ebe1307d44995956ecb3cc9e6bc03f4c826376ac6f62bb",
+              "semantic_part_count": 5,
+              "seps": [
+                "\n",
+                " ",
+                " ",
+                "\f",
+                " ",
+                "\n"
+              ]
+            },
+            "CA:771B": {
+              "semantic_sha256": "34f84cc92ea5d2971878973c5547604823f9393872986e6c691244ce5cf75d98",
+              "semantic_part_count": 9,
+              "seps": [
+                "",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "05F8": {
+          "carriers": {
+            "CA:7AF1": {
+              "semantic_sha256": "782e091da9bd9a451de4ea73a5868872084b46d63fb24afb8b6374f968e78ff9",
+              "semantic_part_count": 6,
+              "seps": [
+                "",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:7BC9": {
+              "semantic_sha256": "b63d606a6ce3932cea98d32a1ffdb2edbfc77584c897386637c526cb1cc678fa",
+              "semantic_part_count": 12,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:7C54": {
+              "semantic_sha256": "a524afcf5c611a881bde35c12eb7c20a3086ffdbd2fc88241f613bc541b3736d",
+              "semantic_part_count": 15,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                ""
+              ]
+            },
+            "CA:7D5E": {
+              "semantic_sha256": "22448a115e4881d61a3b3b179080dd62533ba722c0d7438bebd7e34af7d1d92a",
+              "semantic_part_count": 15,
+              "seps": [
+                "",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:7E4B": {
+              "semantic_sha256": "f7294c36087fd0e8389d89d68d73919cae4d534c5675d32e6aa0a6c9fbb9535a",
+              "semantic_part_count": 16,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:7E94": {
+              "semantic_sha256": "f8fcd07d31f1d20e6a6925140e541e51512d27bdce450be9d2be29cfbc66b0e6",
+              "semantic_part_count": 13,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:7EC7": {
+              "semantic_sha256": "3d0e256812fa6a967e1204b7d8627ea37546733ea20f2beb7d9a9f7b8c3ed63b",
+              "semantic_part_count": 11,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:7F40": {
+              "semantic_sha256": "185a4c89c4625cec13380aaeaba079bdc1c12a2395041e1df88785f4ed24f33c",
+              "semantic_part_count": 12,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:7F84": {
+              "semantic_sha256": "1bb25fbada1e67f6b1d697cc4f5570161273b75951ebbcc16a6599aa0c955c79",
+              "semantic_part_count": 15,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:7FC4": {
+              "semantic_sha256": "9fc722f4df44ec87ec6a9f84aa4940c97b3bf7ade7ef6a8b09ab0820311f2df9",
+              "semantic_part_count": 29,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:814D": {
+              "semantic_sha256": "825f9fee771d9cc42c93eee6a918c6567ea42d985da391f46fe2918ea7f9a388",
+              "semantic_part_count": 8,
+              "seps": [
+                "",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:81B7": {
+              "semantic_sha256": "c4ee408adc71191c5536486289462a816e4e17f7678055f542388d1ec753283d",
+              "semantic_part_count": 16,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:81EF": {
+              "semantic_sha256": "acbd659615027769983b937f946f29f889e69902cdd41f3373006d1a4f4f3fdb",
+              "semantic_part_count": 17,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:8236": {
+              "semantic_sha256": "0717ce27d296cadf3616a7933f7b7285e3c00769dbaa3934e67d64e02e834a34",
+              "semantic_part_count": 14,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:828E": {
+              "semantic_sha256": "ec549ad041eed67e490e429253f6db52c040bb6d9049e7c34aa32b33d58abc24",
+              "semantic_part_count": 8,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:84B9": {
+              "semantic_sha256": "c5d6ec817be390fcf92198c25d1cde33dae2958860f18886a8a79e69563e559a",
+              "semantic_part_count": 13,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:84DE": {
+              "semantic_sha256": "b99ea9bf59b865f7fe497ae3fedc848d7d38a4c55709d421d35f4a783d63e6da",
+              "semantic_part_count": 21,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "067F": {
+          "carriers": {
+            "CA:8E8F": {
+              "semantic_sha256": "ae965e7a82401d7d83776317081709018df9c2c5213870ad43ea96b0752bd550",
+              "semantic_part_count": 9,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        }
+      }
+    },
+    "final_structure": {
+      "format_version": 1,
+      "source": "canonical dialogue formatter + clean USA event structure",
+      "description": "User-validated Round-85.55 speaker/structural payload operations. Contains only carrier IDs and structural operation names; no translated prose.",
+      "validated_against": {
+        "round": "85.55-v2"
+      },
+      "events": {
+        "0112": {
+          "carriers": {
+            "C9:339F": {
+              "operation": "inline_omitted_player_name_with_clear"
+            },
+            "C9:3450": {
+              "operation": "inline_omitted_player_name_with_clear"
+            },
+            "C9:34E5": {
+              "operation": "inline_omitted_player_name_with_clear"
+            }
+          }
+        },
+        "01DD": {
+          "carriers": {
+            "C9:80A1": {
+              "operation": "inline_omitted_player_name_with_clear"
+            }
+          }
+        },
+        "02EE": {
+          "carriers": {
+            "C9:C84D": {
+              "operation": "inline_omitted_player_name_with_clear"
+            }
+          }
+        },
+        "03AA": {
+          "carriers": {
+            "C9:E165": {
+              "operation": "inline_omitted_player_name_with_clear"
+            },
+            "C9:E174": {
+              "operation": "add_leading_clear"
+            },
+            "C9:E1BB": {
+              "operation": "inline_omitted_player_name_with_clear"
+            },
+            "C9:E20B": {
+              "operation": "inline_omitted_player_name_with_clear"
+            },
+            "C9:E234": {
+              "operation": "add_leading_clear"
+            },
+            "C9:E253": {
+              "operation": "inline_omitted_player_name_with_clear"
+            }
+          }
+        },
+        "04A1": {
+          "carriers": {
+            "CA:17EF": {
+              "operation": "inline_omitted_player_name_with_clear"
+            }
+          }
+        },
+        "0558": {
+          "carriers": {
+            "CA:653F": {
+              "operation": "preserve_source_punctuation_carrier"
+            },
+            "CA:6542": {
+              "operation": "preserve_source_punctuation_carrier"
+            },
+            "CA:65E8": {
+              "operation": "prepend_source_leading_punctuation"
+            }
+          }
+        },
+        "05F8": {
+          "carriers": {
+            "CA:7A43": {
+              "operation": "remove_leading_clear"
+            },
+            "CA:7A7D": {
+              "operation": "remove_leading_clear"
+            },
+            "CA:7AEC": {
+              "operation": "remove_leading_clear"
+            },
+            "CA:7C98": {
+              "operation": "remove_leading_clear"
+            },
+            "CA:7D32": {
+              "operation": "remove_leading_clear"
+            },
+            "CA:80B4": {
+              "operation": "remove_leading_clear"
+            },
+            "CA:8300": {
+              "operation": "remove_leading_clear"
+            },
+            "CA:8381": {
+              "operation": "remove_leading_clear"
+            }
+          }
+        }
+      }
+    },
+    "post_structure_layout": {
+      "format_version": 1,
+      "source": "Round-85.53 canonical dialogue payload after recipes/android/dialogues_review.json#final_structure",
+      "description": "User-validated Round-85.54/85.55-v2 post-structure layout delta. Contains only semantic fingerprints/counts and spaces/newlines/page separators; no translated prose.",
+      "validated_against": {
+        "round": "85.55-v2"
+      },
+      "events": {
+        "0020": {
+          "carriers": {
+            "C9:09A7": {
+              "semantic_sha256": "2e1a6eff350140fbbeeeb46d3a3a800f16ac0da80ae77ca37615b77fc58a67a9",
+              "semantic_part_count": 2,
+              "seps": [
+                "",
+                " ",
+                " "
+              ]
+            },
+            "C9:09B9": {
+              "semantic_sha256": "3f8fd1fa8078d1a97991b728dbf57e516cbd22a43f89ef5b0ff08f59de010428",
+              "semantic_part_count": 29,
+              "seps": [
+                "",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "010C": {
+          "carriers": {
+            "C9:2ED2": {
+              "semantic_sha256": "20b247fc39a71dde33efe00b290c9f1496142019c81f080dc829cc6071f31435",
+              "semantic_part_count": 12,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n"
+              ]
+            }
+          }
+        },
+        "0112": {
+          "carriers": {
+            "C9:34B0": {
+              "semantic_sha256": "728060cd7fb792335ae094d2ddc48b468361afcb4954e1496878fdbff4c574e3",
+              "semantic_part_count": 9,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " "
+              ]
+            }
+          }
+        },
+        "01B9": {
+          "carriers": {
+            "C9:6CDD": {
+              "semantic_sha256": "6f868545ccdca63d3bf7f7ce8f2361af6be3e030c3a55372e104615420069804",
+              "semantic_part_count": 10,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " "
+              ]
+            },
+            "C9:6D0D": {
+              "semantic_sha256": "d22ba4469103a1da2fbc8bccd40144e819f07a613ab26a7e209528182f1c83e0",
+              "semantic_part_count": 10,
+              "seps": [
+                "",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "01D3": {
+          "carriers": {
+            "C9:7944": {
+              "semantic_sha256": "3c84820ffd83a0994558146778dc3f6cebcb2f94490b13cee119a5b70fc9684d",
+              "semantic_part_count": 19,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f"
+              ]
+            }
+          }
+        },
+        "01DA": {
+          "carriers": {
+            "C9:7D47": {
+              "semantic_sha256": "b765ab173196d8291addef786e077e83ea7254dc1a560b9ab99753d947969e19",
+              "semantic_part_count": 6,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "C9:7E64": {
+              "semantic_sha256": "5aafff91bd0a14c1d8eeba5d2f1b4832b146396d29eaf9c01dca1d03cac02522",
+              "semantic_part_count": 3,
+              "seps": [
+                " ",
+                " ",
+                " ",
+                "\n"
+              ]
+            },
+            "C9:7E72": {
+              "semantic_sha256": "244ce97d03045b19f35a598171959987d2b610bdabb613a6a2edb87f2329ec9e",
+              "semantic_part_count": 7,
+              "seps": [
+                "",
+                "\f",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " "
+              ]
+            }
+          }
+        },
+        "01DD": {
+          "carriers": {
+            "C9:806F": {
+              "semantic_sha256": "018379ce84b9174de237607879241dfa3ebf36175c1f91447d4affb3c4122084",
+              "semantic_part_count": 18,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " "
+              ]
+            }
+          }
+        },
+        "0289": {
+          "carriers": {
+            "C9:A8ED": {
+              "semantic_sha256": "45dd955d63faa2ca410d305bbc59bc0563270e3706849f78305f060a6c9521a2",
+              "semantic_part_count": 12,
+              "seps": [
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f"
+              ]
+            }
+          }
+        },
+        "02D2": {
+          "carriers": {
+            "C9:BF1A": {
+              "semantic_sha256": "8466fca971b340880347a60a530c8faf232283177b7def7611413407e9c0d0e7",
+              "semantic_part_count": 14,
+              "seps": [
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f"
+              ]
+            }
+          }
+        },
+        "02EE": {
+          "carriers": {
+            "C9:C830": {
+              "semantic_sha256": "0f443eedcd722447b8582430319a6c9994ac2ee508ad230bf9af8cc0f03630cf",
+              "semantic_part_count": 11,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " "
+              ]
+            },
+            "C9:C84D": {
+              "semantic_sha256": "f707e472e45d0f040eff1c65b42ebc4b024a4337f7cd6e2b4de6c72484ec254c",
+              "semantic_part_count": 17,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "03AA": {
+          "carriers": {
+            "C9:E13E": {
+              "semantic_sha256": "fc01d4f386f6592dcf90f828c4ab26a3a9a70a50f40ecc476c162ef4f5ac836e",
+              "semantic_part_count": 9,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " "
+              ]
+            },
+            "C9:E165": {
+              "semantic_sha256": "4789ee1d7a236d49d3c8f9f9550aa8b1510382e99b06beb193aa4db1ec035e4c",
+              "semantic_part_count": 9,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0429": {
+          "carriers": {
+            "CA:0FE3": {
+              "semantic_sha256": "39d5b12722d558f7f2b9c43eb479cd86f4222d1e144dd49930b3b0bc31728700",
+              "semantic_part_count": 7,
+              "seps": [
+                "",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n"
+              ]
+            }
+          }
+        },
+        "04A1": {
+          "carriers": {
+            "CA:17DA": {
+              "semantic_sha256": "3e8ed923e11c9205266d4ab8c14e464ceff58045e229d69215ac8d9b07a8ea27",
+              "semantic_part_count": 7,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " "
+              ]
+            },
+            "CA:17EF": {
+              "semantic_sha256": "aedbe5eaff43f9cf8fa11e325558b8f80c6170555b09352e49cef09c086d67a6",
+              "semantic_part_count": 9,
+              "seps": [
+                "",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0555": {
+          "carriers": {
+            "CA:632B": {
+              "semantic_sha256": "874c30233f1f9868977a6fbbb21cecd91e8d1d9752302c59abf4e1babe9fdbb5",
+              "semantic_part_count": 2,
+              "seps": [
+                "\n",
+                " ",
+                " "
+              ]
+            }
+          }
+        },
+        "0558": {
+          "carriers": {
+            "CA:653F": {
+              "semantic_sha256": "0ad4fe72db4b1c97baa274155958754e5dd50e85afcc914bab8f24cffdd28bdb",
+              "semantic_part_count": 1,
+              "seps": [
+                " ",
+                " "
+              ]
+            },
+            "CA:6542": {
+              "semantic_sha256": "82d5f7e9bdec01755a8584214f6d0fcf58367df68329fd73a9db2c5bdf000c86",
+              "semantic_part_count": 1,
+              "seps": [
+                " ",
+                ""
+              ]
+            },
+            "CA:6549": {
+              "semantic_sha256": "d8cc11bb864e2692e0357fc9e717193393345f48e9caf22c5470f1bccdba0f48",
+              "semantic_part_count": 1,
+              "seps": [
+                " ",
+                "\n"
+              ]
+            },
+            "CA:65A6": {
+              "semantic_sha256": "0523e2f48892de517f4a01453ecfa6b2b50356a40f10a1fc34e8cef61d0b198d",
+              "semantic_part_count": 3,
+              "seps": [
+                " ",
+                " ",
+                "\n",
+                ""
+              ]
+            },
+            "CA:65E8": {
+              "semantic_sha256": "665157bc313539e04ab7a86f44e375f1ad268659fdb75e68e8b72482fbaf5173",
+              "semantic_part_count": 11,
+              "seps": [
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n"
+              ]
+            },
+            "CA:6617": {
+              "semantic_sha256": "db04c1de23f344e9f461a350e44fe3b34a1f08a58b93f1e3add49589fc006123",
+              "semantic_part_count": 9,
+              "seps": [
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " "
+              ]
+            }
+          }
+        },
+        "0559": {
+          "carriers": {
+            "CA:6766": {
+              "semantic_sha256": "3f6e5b05037f340f02391041bd8d6fec54a4454f95cbfcd2b4c9c5299dc04106",
+              "semantic_part_count": 17,
+              "seps": [
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " "
+              ]
+            }
+          }
+        },
+        "0592": {
+          "carriers": {
+            "CA:752E": {
+              "semantic_sha256": "abd6050db078edf1434519ca0a74dcfb01943ca5f1f6a580028369eb143ed943",
+              "semantic_part_count": 11,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n"
+              ]
+            }
+          }
+        },
+        "05F8": {
+          "carriers": {
+            "CA:7C98": {
+              "semantic_sha256": "6c5ccb7b0684d3fd5794794daaecc725acaf0a49c8b5643c31d312d5765696e7",
+              "semantic_part_count": 7,
+              "seps": [
+                "",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n"
+              ]
+            },
+            "CA:7D32": {
+              "semantic_sha256": "25826651c2b9d725f19b28476a4f1e81c9b8a904e167384d8db9df3457240616",
+              "semantic_part_count": 13,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:80C2": {
+              "semantic_sha256": "37a2317936bff4181a70374c5e439b99b5bb6820ef79029f43f2b1acf766af0a",
+              "semantic_part_count": 3,
+              "seps": [
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:8300": {
+              "semantic_sha256": "882e9325bcae35f4a4f09252888b763b12afba215effd8dfb6bb8653f393c476",
+              "semantic_part_count": 3,
+              "seps": [
+                "",
+                " ",
+                " ",
+                "\n"
+              ]
+            },
+            "CA:8381": {
+              "semantic_sha256": "0ad4fe72db4b1c97baa274155958754e5dd50e85afcc914bab8f24cffdd28bdb",
+              "semantic_part_count": 1,
+              "seps": [
+                "",
+                " "
+              ]
+            },
+            "CA:8384": {
+              "semantic_sha256": "d29dce44599400e91369dcb73219036a75e288e10977201507f8c1cbd84186a7",
+              "semantic_part_count": 1,
+              "seps": [
+                "",
+                "\n"
+              ]
+            },
+            "CA:83F0": {
+              "semantic_sha256": "22e708cc46ab6303c6dcd1597ff771d652603c515abd2955247a9fa22a15e80e",
+              "semantic_part_count": 8,
+              "seps": [
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        }
+      }
+    },
+    "review_delta": {
+      "format_version": 1,
+      "source": "Round 85.57-85.67 user-validated review state; Android FR remains canonical prose source",
+      "description": "Late structural/layout replay. No localized prose is stored.",
+      "structural_command_overrides": [
+        {
+          "event_id": "01C5",
+          "commands": [
+            {
+              "name": "CHOICE_OPTION",
+              "args": "08",
+              "immediately_before_text_id": "C9:7140",
+              "translated_args": "0D"
+            }
+          ],
+          "reason": "round69_android_fr_continue_exit_choice_anchor"
+        },
+        {
+          "event_id": "0205",
+          "commands": [
+            {
+              "name": "PLAYER_NAME",
+              "args": "00",
+              "immediately_before_text_id": "C9:90DE",
+              "omit": true
+            }
+          ],
+          "reason": "round69_whole_scene_android_fr_0204_0205_continuation"
+        },
+        {
+          "event_id": "0227",
+          "commands": [
+            {
+              "name": "PLAYER_NAME",
+              "args": "01",
+              "immediately_before_text_id": "C9:9827",
+              "omit": true
+            }
+          ],
+          "reason": "round69_user_requested_move_player_name_inside_C9_9827"
+        },
+        {
+          "event_id": "04E6",
+          "commands": [
+            {
+              "name": "PLAYER_NAME",
+              "args": "00",
+              "immediately_before_text_id": "CA:3FC1",
+              "omit": true
+            },
+            {
+              "name": "WAIT",
+              "args": "00",
+              "immediately_before_text_id": "CA:3FE4",
+              "omit": true
+            }
+          ],
+          "reason": "round69_user_requested_move_player_name_inside_CA_3FC1"
+        },
+        {
+          "event_id": "0559",
+          "commands": [
+            {
+              "name": "PLAYER_NAME",
+              "args": "00",
+              "immediately_before_text_id": "CA:6741",
+              "omit": true
+            },
+            {
+              "name": "PLAYER_NAME",
+              "args": "01",
+              "immediately_before_text_id": "CA:6744",
+              "omit": true
+            }
+          ],
+          "reason": "round69_android_fr_2147_player_name_resegmentation"
+        },
+        {
+          "event_id": "0592",
+          "commands": [
+            {
+              "name": "PLAYER_NAME",
+              "args": "02",
+              "immediately_before_text_id": "CA:748F",
+              "omit": true
+            }
+          ],
+          "reason": "round69_android_fr_1023_omits_sprite_name_label"
+        },
+        {
+          "event_id": "0112",
+          "commands": [
+            {
+              "name": "PLAYER_NAME",
+              "args": "00",
+              "immediately_before_text_id": "C9:339F",
+              "omit": true
+            },
+            {
+              "name": "PLAYER_NAME",
+              "args": "00",
+              "immediately_before_text_id": "C9:3450",
+              "omit": true
+            },
+            {
+              "name": "PLAYER_NAME",
+              "args": "00",
+              "immediately_before_text_id": "C9:34E5",
+              "omit": true
+            }
+          ],
+          "reason": "round85_55_user_requested_fresh_page_at_player_speaker_turn"
+        },
+        {
+          "event_id": "01DD",
+          "commands": [
+            {
+              "name": "PLAYER_NAME",
+              "args": "01",
+              "immediately_before_text_id": "C9:80A1",
+              "omit": true
+            }
+          ],
+          "reason": "round85_55_user_requested_fresh_page_at_player_speaker_turn"
+        },
+        {
+          "event_id": "02EE",
+          "commands": [
+            {
+              "name": "PLAYER_NAME",
+              "args": "02",
+              "immediately_before_text_id": "C9:C84D",
+              "omit": true
+            }
+          ],
+          "reason": "round85_55_user_requested_fresh_page_at_player_speaker_turn"
+        },
+        {
+          "event_id": "03AA",
+          "commands": [
+            {
+              "name": "PLAYER_NAME",
+              "args": "00",
+              "immediately_before_text_id": "C9:E165",
+              "omit": true
+            },
+            {
+              "name": "PLAYER_NAME",
+              "args": "00",
+              "immediately_before_text_id": "C9:E1BB",
+              "omit": true
+            },
+            {
+              "name": "PLAYER_NAME",
+              "args": "01",
+              "immediately_before_text_id": "C9:E20B",
+              "omit": true
+            },
+            {
+              "name": "PLAYER_NAME",
+              "args": "01",
+              "immediately_before_text_id": "C9:E253",
+              "omit": true
+            }
+          ],
+          "reason": "round85_55_user_requested_fresh_page_at_player_speaker_turn"
+        },
+        {
+          "event_id": "04A1",
+          "commands": [
+            {
+              "name": "PLAYER_NAME",
+              "args": "00",
+              "immediately_before_text_id": "CA:17EF",
+              "omit": true
+            }
+          ],
+          "reason": "round85_55_user_requested_fresh_page_at_player_speaker_turn"
+        },
+        {
+          "event_id": "00E3",
+          "commands": [
+            {
+              "name": "WAIT",
+              "args": "00",
+              "immediately_after_text_id": "C9:1F03",
+              "omit": true
+            }
+          ],
+          "reason": "round85_57_user_requested_direct_three_destination_choice_without_numbered_preamble"
+        },
+        {
+          "event_id": "023C",
+          "reason": "Round 85.59 review-only: undecorated three-option choice, remove outer padding and keep one decoded-cell separator between labels.",
+          "commands": [
+            {
+              "name": "TEXT_X",
+              "args": "03",
+              "immediately_before_text_id": "C9:9D96",
+              "translated_name": "TEXT_X",
+              "translated_args": "00"
+            },
+            {
+              "name": "CHOICE_OPTION",
+              "args": "05",
+              "immediately_before_text_id": "C9:9D9A",
+              "translated_name": "CHOICE_OPTION",
+              "translated_args": "00"
+            },
+            {
+              "name": "CHOICE_OPTION",
+              "args": "12",
+              "immediately_before_text_id": "C9:9DA5",
+              "translated_name": "CHOICE_OPTION",
+              "translated_args": "14"
+            }
+          ]
+        },
+        {
+          "event_id": "0318",
+          "reason": "Round 85.59 review-only: undecorated three-option choice, remove outer padding and keep one decoded-cell separator between labels.",
+          "commands": [
+            {
+              "name": "TEXT_X",
+              "args": "03",
+              "immediately_before_text_id": "C9:CDB2",
+              "translated_name": "TEXT_X",
+              "translated_args": "00"
+            },
+            {
+              "name": "CHOICE_OPTION",
+              "args": "05",
+              "immediately_before_text_id": "C9:CDB6",
+              "translated_name": "CHOICE_OPTION",
+              "translated_args": "00"
+            },
+            {
+              "name": "CHOICE_OPTION",
+              "args": "12",
+              "immediately_before_text_id": "C9:CDC1",
+              "translated_name": "CHOICE_OPTION",
+              "translated_args": "14"
+            }
+          ]
+        },
+        {
+          "event_id": "065F",
+          "reason": "Round 85.59 review-only: undecorated three-option choice, remove outer padding and keep one decoded-cell separator between labels.",
+          "commands": [
+            {
+              "name": "TEXT_X",
+              "args": "03",
+              "immediately_before_text_id": "CA:8998",
+              "translated_name": "TEXT_X",
+              "translated_args": "00"
+            },
+            {
+              "name": "CHOICE_OPTION",
+              "args": "05",
+              "immediately_before_text_id": "CA:899C",
+              "translated_name": "CHOICE_OPTION",
+              "translated_args": "00"
+            },
+            {
+              "name": "CHOICE_OPTION",
+              "args": "12",
+              "immediately_before_text_id": "CA:89A7",
+              "translated_name": "CHOICE_OPTION",
+              "translated_args": "14"
+            }
+          ]
+        },
+        {
+          "event_id": "036A",
+          "reason": "Round 85.61 review-only: one-line Mana Seed reward; reduce stock TEXT_X from 4 to 2 cells so the full VWF line stays at the 216px-safe boundary while remaining visually centered as closely as the proven TEXT_X grid allows.",
+          "commands": [
+            {
+              "name": "TEXT_X",
+              "args": "04",
+              "immediately_before_text_id": "C9:D3D3",
+              "translated_name": "TEXT_X",
+              "translated_args": "02"
+            }
+          ]
+        },
+        {
+          "event_id": "0500",
+          "reason": "Round 85.62 review-only: one-line centered weapon orb reward; compact stock TEXT_X to fit safe 216px VWF line.",
+          "commands": [
+            {
+              "name": "TEXT_X",
+              "args": "06",
+              "immediately_before_text_id": "CA:58B9",
+              "translated_name": "TEXT_X",
+              "translated_args": "02"
+            }
+          ]
+        },
+        {
+          "event_id": "0501",
+          "reason": "Round 85.62 review-only: one-line centered weapon orb reward; compact stock TEXT_X to fit safe 216px VWF line.",
+          "commands": [
+            {
+              "name": "TEXT_X",
+              "args": "06",
+              "immediately_before_text_id": "CA:58D5",
+              "translated_name": "TEXT_X",
+              "translated_args": "03"
+            }
+          ]
+        },
+        {
+          "event_id": "0502",
+          "reason": "Round 85.62 review-only: one-line centered weapon orb reward; compact stock TEXT_X to fit safe 216px VWF line.",
+          "commands": [
+            {
+              "name": "TEXT_X",
+              "args": "07",
+              "immediately_before_text_id": "CA:58F1",
+              "translated_name": "TEXT_X",
+              "translated_args": "01"
+            }
+          ]
+        },
+        {
+          "event_id": "0503",
+          "reason": "Round 85.62 review-only: one-line centered weapon orb reward; compact stock TEXT_X to fit safe 216px VWF line.",
+          "commands": [
+            {
+              "name": "TEXT_X",
+              "args": "06",
+              "immediately_before_text_id": "CA:590B",
+              "translated_name": "TEXT_X",
+              "translated_args": "01"
+            }
+          ]
+        },
+        {
+          "event_id": "0504",
+          "reason": "Round 85.62 review-only: one-line centered weapon orb reward; compact stock TEXT_X to fit safe 216px VWF line.",
+          "commands": [
+            {
+              "name": "TEXT_X",
+              "args": "06",
+              "immediately_before_text_id": "CA:5927",
+              "translated_name": "TEXT_X",
+              "translated_args": "01"
+            }
+          ]
+        },
+        {
+          "event_id": "0505",
+          "reason": "Round 85.62 review-only: one-line centered weapon orb reward; compact stock TEXT_X to fit safe 216px VWF line.",
+          "commands": [
+            {
+              "name": "TEXT_X",
+              "args": "07",
+              "immediately_before_text_id": "CA:5942",
+              "translated_name": "TEXT_X",
+              "translated_args": "04"
+            }
+          ]
+        },
+        {
+          "event_id": "0507",
+          "reason": "Round 85.62 review-only: one-line weapon orb reward; full text is 214px so no horizontal cell padding remains.",
+          "commands": [
+            {
+              "name": "TEXT_X",
+              "args": "05",
+              "immediately_before_text_id": "CA:597C",
+              "translated_name": "TEXT_X",
+              "translated_args": "00"
+            }
+          ]
+        },
+        {
+          "event_id": "0584",
+          "reason": "Round 85.62 review-only: place Luna reward on the middle line; remove leading newline and stock TEXT_X padding so the 214px VWF line remains safe.",
+          "commands": [
+            {
+              "name": "TEXT_X",
+              "args": "03",
+              "immediately_before_text_id": "CA:7044",
+              "translated_name": "TEXT_X",
+              "translated_args": "00"
+            }
+          ]
+        },
+        {
+          "event_id": "0586",
+          "reason": "Round 85.62 review-only: place Ombre reward on the middle line; remove leading newline and stock TEXT_X padding so the 213px VWF line remains safe.",
+          "commands": [
+            {
+              "name": "TEXT_X",
+              "args": "03",
+              "immediately_before_text_id": "CA:712D",
+              "translated_name": "TEXT_X",
+              "translated_args": "00"
+            }
+          ]
+        },
+        {
+          "event_id": "066D",
+          "reason": "Round 85.62 review-only: one-line horizontally centered Fire Seed reward; compact stock TEXT_X to 2 cells for a 208px total line.",
+          "commands": [
+            {
+              "name": "TEXT_X",
+              "args": "05",
+              "immediately_before_text_id": "CA:8DC0",
+              "translated_name": "TEXT_X",
+              "translated_args": "02"
+            }
+          ]
+        }
+      ],
+      "choice_option_position_overrides": [
+        {
+          "event_id": "00CE",
+          "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+          "token_index": 13,
+          "source_position": 14,
+          "translated_position": 17,
+          "previous_text_id": "C9:1B18",
+          "decoded_label_cells": 15,
+          "choice_commands_preserved_except_coordinate": true
+        },
+        {
+          "event_id": "00CF",
+          "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+          "token_index": 9,
+          "source_position": 10,
+          "translated_position": 16,
+          "previous_text_id": "C9:1B60",
+          "decoded_label_cells": 13,
+          "choice_commands_preserved_except_coordinate": true
+        },
+        {
+          "event_id": "00D0",
+          "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+          "token_index": 9,
+          "source_position": 11,
+          "translated_position": 20,
+          "previous_text_id": "C9:1BB3",
+          "decoded_label_cells": 17,
+          "choice_commands_preserved_except_coordinate": true
+        },
+        {
+          "event_id": "00D1",
+          "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+          "token_index": 11,
+          "source_position": 15,
+          "translated_position": 18,
+          "previous_text_id": "C9:1BFD",
+          "decoded_label_cells": 15,
+          "choice_commands_preserved_except_coordinate": true
+        },
+        {
+          "event_id": "00DB",
+          "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+          "token_index": 12,
+          "source_position": 9,
+          "translated_position": 10,
+          "previous_text_id": "C9:1D35",
+          "decoded_label_cells": 7,
+          "choice_commands_preserved_except_coordinate": true
+        },
+        {
+          "event_id": "00DC",
+          "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+          "token_index": 23,
+          "source_position": 17,
+          "translated_position": 18,
+          "previous_text_id": "C9:1DA9",
+          "decoded_label_cells": 15,
+          "choice_commands_preserved_except_coordinate": true
+        },
+        {
+          "event_id": "00DF",
+          "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+          "token_index": 9,
+          "source_position": 17,
+          "translated_position": 18,
+          "previous_text_id": "C9:1DED",
+          "decoded_label_cells": 15,
+          "choice_commands_preserved_except_coordinate": true
+        },
+        {
+          "event_id": "00E2",
+          "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+          "token_index": 9,
+          "source_position": 12,
+          "translated_position": 13,
+          "previous_text_id": "C9:1EEC",
+          "decoded_label_cells": 9,
+          "choice_commands_preserved_except_coordinate": true
+        },
+        {
+          "event_id": "0200",
+          "strategy": "round85_59_one_visible_choice_cell_gap",
+          "token_index": 10,
+          "source_position": 11,
+          "translated_position": 17,
+          "previous_text_id": "C9:8D05",
+          "decoded_label_cells": 14,
+          "choice_commands_preserved_except_coordinate": true
+        },
+        {
+          "event_id": "020F",
+          "strategy": "shift_choice_option_right_for_decoded_vwf_label",
+          "token_index": 7,
+          "source_position": 11,
+          "translated_position": 20,
+          "previous_text_id": "C9:9329",
+          "decoded_label_cells": 16,
+          "choice_commands_preserved_except_coordinate": true
+        },
+        {
+          "event_id": "0310",
+          "strategy": "round85_59_one_visible_choice_cell_gap",
+          "token_index": 10,
+          "source_position": 10,
+          "translated_position": 13,
+          "previous_text_id": "C9:CCA0",
+          "decoded_label_cells": 7,
+          "choice_commands_preserved_except_coordinate": true
+        },
+        {
+          "event_id": "0314",
+          "strategy": "round85_59_one_visible_choice_cell_gap",
+          "token_index": 7,
+          "source_position": 10,
+          "translated_position": 13,
+          "previous_text_id": "C9:CD3B",
+          "decoded_label_cells": 7,
+          "choice_commands_preserved_except_coordinate": true
+        },
+        {
+          "event_id": "0319",
+          "strategy": "round85_59_one_visible_choice_cell_gap",
+          "token_index": 13,
+          "source_position": 10,
+          "translated_position": 13,
+          "previous_text_id": "C9:CE1F",
+          "decoded_label_cells": 7,
+          "choice_commands_preserved_except_coordinate": true
+        },
+        {
+          "event_id": "00E3",
+          "strategy": "round85_57_direct_destination_labels_one_cell_gap",
+          "token_index": 7,
+          "source_position": 7,
+          "translated_position": 10,
+          "previous_text_id": "C9:1F32",
+          "decoded_label_cells": 7,
+          "choice_commands_preserved_except_coordinate": true
+        },
+        {
+          "event_id": "00E3",
+          "strategy": "round85_57_direct_destination_labels_one_cell_gap",
+          "token_index": 9,
+          "source_position": 11,
+          "translated_position": 24,
+          "previous_text_id": "C9:1F37",
+          "decoded_label_cells": 13,
+          "choice_commands_preserved_except_coordinate": true
+        },
+        {
+          "event_id": "01DF",
+          "strategy": "round85_57_three_choice_one_cell_gap",
+          "token_index": 11,
+          "source_position": 12,
+          "translated_position": 17,
+          "previous_text_id": "C9:817F",
+          "decoded_label_cells": 11,
+          "choice_commands_preserved_except_coordinate": true
+        },
+        {
+          "event_id": "01DF",
+          "strategy": "round85_57_three_choice_one_cell_gap",
+          "token_index": 13,
+          "source_position": 18,
+          "translated_position": 25,
+          "previous_text_id": "C9:8185",
+          "decoded_label_cells": 7,
+          "choice_commands_preserved_except_coordinate": true
+        },
+        {
+          "strategy": "round85_59_one_visible_choice_cell_gap",
+          "choice_commands_preserved_except_coordinate": true,
+          "event_id": "0202",
+          "token_index": 12,
+          "source_position": 15,
+          "translated_position": 16,
+          "previous_text_id": "C9:8DF2",
+          "decoded_label_cells": 12
+        },
+        {
+          "strategy": "round85_59_one_visible_choice_cell_gap",
+          "choice_commands_preserved_except_coordinate": true,
+          "event_id": "0065",
+          "token_index": 7,
+          "source_position": 10,
+          "translated_position": 11,
+          "previous_text_id": "C9:1263",
+          "decoded_label_cells": 7
+        }
+      ],
+      "events": {
+        "00E3": {
+          "operations": [
+            {
+              "operation": "extract_numbered_choice_lines",
+              "source_id": "C9:1F03",
+              "targets": [
+                "C9:1F32",
+                "C9:1F37",
+                "C9:1F3C"
+              ],
+              "clear_source": true
+            },
+            {
+              "operation": "set_layout_literal",
+              "text_id": "C9:1F2C",
+              "value": "\n\n"
+            }
+          ],
+          "layout": {}
+        },
+        "00FB": {
+          "operations": [
+            {
+              "operation": "strip_trailing_choice_decoration",
+              "text_id": "C9:2459"
+            }
+          ],
+          "layout": {}
+        },
+        "01DF": {
+          "operations": [
+            {
+              "operation": "strip_trailing_choice_decoration",
+              "text_id": "C9:818A"
+            },
+            {
+              "operation": "set_empty",
+              "text_id": "C9:817B"
+            }
+          ],
+          "layout": {}
+        },
+        "023C": {
+          "operations": [
+            {
+              "operation": "strip_trailing_choice_decoration",
+              "text_id": "C9:9DA5"
+            },
+            {
+              "operation": "set_empty",
+              "text_id": "C9:9D96"
+            }
+          ],
+          "layout": {}
+        },
+        "0318": {
+          "operations": [
+            {
+              "operation": "strip_trailing_choice_decoration",
+              "text_id": "C9:CDC1"
+            },
+            {
+              "operation": "set_empty",
+              "text_id": "C9:CDB2"
+            }
+          ],
+          "layout": {}
+        },
+        "065F": {
+          "operations": [
+            {
+              "operation": "strip_trailing_choice_decoration",
+              "text_id": "CA:89A7"
+            },
+            {
+              "operation": "set_empty",
+              "text_id": "CA:8998"
+            }
+          ],
+          "layout": {}
+        },
+        "02C0": {
+          "operations": [
+            {
+              "operation": "replace_terminal_open_quote_with_close",
+              "text_id": "C9:BC72"
+            }
+          ],
+          "layout": {}
+        },
+        "04E3": {
+          "operations": [
+            {
+              "operation": "replace_terminal_open_quote_with_close",
+              "text_id": "CA:3787"
+            }
+          ],
+          "layout": {}
+        },
+        "0399": {
+          "operations": [
+            {
+              "operation": "append_android",
+              "text_id": "C9:DE89",
+              "android_ids": [
+                1897
+              ],
+              "separator": "\f"
+            }
+          ],
+          "layout": {
+            "C9:DE89": {
+              "semantic_sha256": "9d9a514ffa2281669882639e5e11025b01f11f18af1d9811e9ec876ac72a0230",
+              "semantic_part_count": 48,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "04E4": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "CA:39B2",
+              "android_ids": [
+                1452
+              ],
+              "break_after_leading_label": true
+            },
+            {
+              "operation": "replace_android",
+              "text_id": "CA:3914",
+              "android_ids": [
+                1448
+              ],
+              "break_after_leading_label": true
+            },
+            {
+              "operation": "append_android",
+              "text_id": "CA:3A05",
+              "android_ids": [
+                1373
+              ],
+              "separator": "\f"
+            }
+          ],
+          "layout": {
+            "CA:3A05": {
+              "semantic_sha256": "e66f63d9e92f2d5a0b355b79d18c9a0bdd31d55e170db47d3d87e1b0bd957322",
+              "semantic_part_count": 24,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0511": {
+          "operations": [
+            {
+              "operation": "append_android",
+              "text_id": "CA:5A7F",
+              "android_ids": [
+                1988
+              ],
+              "separator": "\f"
+            }
+          ],
+          "layout": {
+            "CA:5A7F": {
+              "semantic_sha256": "f8ff731525a67c5d427d7fea5710b6d08eae8060ef34deeb90ba542506aad1d9",
+              "semantic_part_count": 32,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "04E1": {
+          "operations": [
+            {
+              "operation": "append_android",
+              "text_id": "CA:2C93",
+              "android_ids": [
+                3260,
+                3261
+              ],
+              "separator": "\f"
+            },
+            {
+              "operation": "append_android",
+              "text_id": "CA:2DF2",
+              "android_ids": [
+                3278
+              ],
+              "separator": " "
+            },
+            {
+              "operation": "merge_carrier",
+              "text_id": "CA:2D76",
+              "source_id": "CA:2D88",
+              "separator": " ",
+              "clear_source": true
+            },
+            {
+              "operation": "split_trailing_word_punctuation",
+              "source_id": "CA:2EC8",
+              "word_target_id": "CA:2F02",
+              "punct_target_id": "CA:2F06"
+            },
+            {
+              "operation": "remove_leading_clear",
+              "text_id": "CA:2DB2"
+            },
+            {
+              "operation": "prepend_punctuation",
+              "text_id": "CA:30F8",
+              "value": " : "
+            }
+          ],
+          "layout": {
+            "CA:2C93": {
+              "semantic_sha256": "9763daa70a5515069f0eb554095a4181739fbc2fe0fd5ef33eaef823c3fadba9",
+              "semantic_part_count": 75,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                "\n",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                ""
+              ]
+            },
+            "CA:2D6C": {
+              "semantic_sha256": "c474d0ac57602ccd1ac1c28d9c56c1a3c395b197552454d49182e4e9e6c65a80",
+              "semantic_part_count": 6,
+              "seps": [
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:2D76": {
+              "semantic_sha256": "107b35a82dffccb82cef1867d3ed03a95dd22c4467c73cba17b885c8405b125d",
+              "semantic_part_count": 6,
+              "seps": [
+                " ",
+                " ",
+                "\n",
+                "\n",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:2DA5": {
+              "semantic_sha256": "0f2f61db2d5534c134bc7a060da4a75a2aa98f497056359f4cf3813ec0cf45a1",
+              "semantic_part_count": 1,
+              "seps": [
+                " ",
+                ""
+              ]
+            },
+            "CA:2DB2": {
+              "semantic_sha256": "a90f1d7a065f5ae7ffe1c3f8f6bb29d2cd48c8bbc6ca4c802734a75826edbd04",
+              "semantic_part_count": 4,
+              "seps": [
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:2F02": {
+              "semantic_sha256": "ca62d211fd7d93e1213c62b845dd4a0e778101d7796c38f76267c18523cbb7ab",
+              "semantic_part_count": 1,
+              "seps": [
+                " ",
+                ""
+              ]
+            },
+            "CA:2F06": {
+              "semantic_sha256": "97d33f27e633ec7e527e74093a432492118fa396bc6cb4226be2205036e6ad25",
+              "semantic_part_count": 1,
+              "seps": [
+                " ",
+                ""
+              ]
+            },
+            "CA:2F09": {
+              "semantic_sha256": "bd850ffd9d3bc3d44bb9e7350aafdd2967e2f0f6b6f76cb694599026c8980c7e",
+              "semantic_part_count": 8,
+              "seps": [
+                "\n",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0429": {
+          "operations": [
+            {
+              "operation": "remove_leading_clear",
+              "text_id": "CA:1082"
+            },
+            {
+              "operation": "remove_leading_clear",
+              "text_id": "CA:13BD"
+            }
+          ],
+          "layout": {
+            "CA:1105": {
+              "semantic_sha256": "a9afdf359add04671120a9e529729c01e042019d42f9e78970457988688809cf",
+              "semantic_part_count": 3,
+              "seps": [
+                "",
+                "\n",
+                " ",
+                " "
+              ]
+            },
+            "CA:110A": {
+              "semantic_sha256": "9a9704e20c50acecf59d9262502e11b64cc801031c8f277163100f3bc9a5fcf3",
+              "semantic_part_count": 7,
+              "seps": [
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:1198": {
+              "semantic_sha256": "b253d98be3666f9886aa2b7f50e2150bd4f20210aeab70dda54cf21dc368b21d",
+              "semantic_part_count": 16,
+              "seps": [
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:138D": {
+              "semantic_sha256": "82d5f7e9bdec01755a8584214f6d0fcf58367df68329fd73a9db2c5bdf000c86",
+              "semantic_part_count": 1,
+              "seps": [
+                " ",
+                ""
+              ]
+            },
+            "CA:13CF": {
+              "semantic_sha256": "69b0159dbd682a0b743b1549e4fc8bc373a5d7f37cb403ba1e5a65705c984f8a",
+              "semantic_part_count": 11,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0555": {
+          "operations": [
+            {
+              "operation": "remove_leading_clear",
+              "text_id": "CA:639B"
+            },
+            {
+              "operation": "remove_leading_clear",
+              "text_id": "CA:63D8"
+            }
+          ],
+          "layout": {
+            "CA:631A": {
+              "semantic_sha256": "25e11e3a2c107eb0f7057a0c56a42b04a7fca706f55aef43a1235a8828548812",
+              "semantic_part_count": 3,
+              "seps": [
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:6337": {
+              "semantic_sha256": "db0ab4b651398ba13875fc911fa33353cf5ac200cf38c45b72aee8fd41908a15",
+              "semantic_part_count": 7,
+              "seps": [
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                ""
+              ]
+            },
+            "CA:6347": {
+              "semantic_sha256": "080da77cb09f2ac647dbea598641f0111867e6726c3f2ca2970bc666fb8b3bcd",
+              "semantic_part_count": 15,
+              "seps": [
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                ""
+              ]
+            },
+            "CA:639B": {
+              "semantic_sha256": "4bfaed2252ff6d42ed41ca34ca53f35e9789f1c0152025845c49fa53ef281eb1",
+              "semantic_part_count": 7,
+              "seps": [
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:63D8": {
+              "semantic_sha256": "41a7220f83a4b35df757240389ec5fb15b87f6552b7901bb99ca20a33da23896",
+              "semantic_part_count": 14,
+              "seps": [
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:6423": {
+              "semantic_sha256": "4ef4a054c99b1a4013c6b3278438f3b041369d408739b07b5c6112f748fbdfee",
+              "semantic_part_count": 36,
+              "seps": [
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:6480": {
+              "semantic_sha256": "b122ffce2ce5ed9ec88001deab6968a154d215cd45c07dd8634a94f0b3a2a167",
+              "semantic_part_count": 4,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " "
+              ]
+            },
+            "CA:6495": {
+              "semantic_sha256": "52cae7b158e97ef743de4cf9d44094e3bfd11c5eaf02a84f2c011e2814df0856",
+              "semantic_part_count": 2,
+              "seps": [
+                " ",
+                "\n",
+                " "
+              ]
+            },
+            "CA:649C": {
+              "semantic_sha256": "fc22228241ebcfe8d9529eb8f42bd9dc0259888fe7da8ec2e7e7cd7c96008a1b",
+              "semantic_part_count": 2,
+              "seps": [
+                " ",
+                "\n",
+                ""
+              ]
+            },
+            "CA:64A6": {
+              "semantic_sha256": "1ccfc6a14a2fe47c4bba7dd5f3e514de6fc99a69dc1623de11aca55f773c226b",
+              "semantic_part_count": 24,
+              "seps": [
+                "",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " "
+              ]
+            }
+          }
+        },
+        "0586": {
+          "operations": [
+            {
+              "operation": "add_leading_clear",
+              "text_id": "CA:712D"
+            }
+          ],
+          "layout": {}
+        },
+        "07FD": {
+          "operations": [
+            {
+              "operation": "collapse_duplicate_percent",
+              "text_id": "CA:97D1"
+            }
+          ],
+          "layout": {}
+        },
+        "013B": {
+          "operations": [],
+          "layout": {
+            "C9:4123": {
+              "semantic_sha256": "db8b415febcc095963840075f9b6866a27939aa03631ec6987cb288cbd540e1c",
+              "semantic_part_count": 19,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "015A": {
+          "operations": [],
+          "layout": {
+            "C9:4B2E": {
+              "semantic_sha256": "e671d1dd93098cc119022eabdd52e88ec09f420a3fca5e3621ae25f7cf995424",
+              "semantic_part_count": 2,
+              "seps": [
+                "",
+                " ",
+                " "
+              ]
+            },
+            "C9:4B36": {
+              "semantic_sha256": "ca311f69cf3be6a65e56a52a3b1c8bb99d3854056e108bb82dd27276f5f7d514",
+              "semantic_part_count": 5,
+              "seps": [
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0186": {
+          "operations": [],
+          "layout": {
+            "C9:5A8C": {
+              "semantic_sha256": "d0dddb1cae84c08895f0c132c94a2b32f5afab2c694d1084d2285593b7061beb",
+              "semantic_part_count": 5,
+              "seps": [
+                "",
+                "\f",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "036A": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:D3EE",
+              "android_ids": [
+                489
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {
+            "C9:D3D3": {
+              "semantic_sha256": "74ca404c523ef864b556721e6a76668d2c28410495ae3b26ffe4a8e43da12940",
+              "semantic_part_count": 7,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "03A7": {
+          "operations": [],
+          "layout": {
+            "C9:E113": {
+              "semantic_sha256": "b8c3c9e64028877daaaf7d7d8e48a0fbb1aeb00bfa8afa3f98199d7293bf1172",
+              "semantic_part_count": 3,
+              "seps": [
+                "\n",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "03AA": {
+          "operations": [],
+          "layout": {
+            "C9:E20B": {
+              "semantic_sha256": "6d255c50b329989412ae24bd7d6888fb47840fe89ab74e1625881a3fabd82fbe",
+              "semantic_part_count": 17,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "03AC": {
+          "operations": [],
+          "layout": {
+            "C9:E32D": {
+              "semantic_sha256": "ff992a784f265f2093820e293fd0efbeed5151f38ddb0b3b8aed33a5d9863ab0",
+              "semantic_part_count": 17,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "04E2": {
+          "operations": [],
+          "layout": {
+            "CA:34DD": {
+              "semantic_sha256": "25477c06a4f09e56541bf05a5ba548c82dedeb87b4b9483cd025dfdeb140966f",
+              "semantic_part_count": 17,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                "\f",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "04E8": {
+          "operations": [],
+          "layout": {
+            "CA:4261": {
+              "semantic_sha256": "a0818b5d94c0351e53b498a1abb6353dab8d2c39a17ae11a5cf9f6eb6f352155",
+              "semantic_part_count": 9,
+              "seps": [
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:43BF": {
+              "semantic_sha256": "6dd71b806b0215d359eb964f36cbf32b0e2fea4864051a6cb7155dec5fccd082",
+              "semantic_part_count": 13,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            },
+            "CA:461D": {
+              "semantic_sha256": "5383b1e7a7849179d7c00511163ffdf0cc22782db76d48de69774cea0082e565",
+              "semantic_part_count": 16,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                "\n",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0500": {
+          "operations": [],
+          "layout": {
+            "CA:58B9": {
+              "semantic_sha256": "6972def03b6e0c5a6de933a9a7d134f22070f8b9960994886f1a87761f8fe663",
+              "semantic_part_count": 6,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0501": {
+          "operations": [],
+          "layout": {
+            "CA:58D5": {
+              "semantic_sha256": "da36f70c8be2c15de5e0fcdd5dd5b41ea1c11b63aaa958a948482bed817e3c61",
+              "semantic_part_count": 5,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0502": {
+          "operations": [],
+          "layout": {
+            "CA:58F1": {
+              "semantic_sha256": "653d23d81ad86df062ec8ef326f31395399a64eaf4ef6d155b5c26f748a39926",
+              "semantic_part_count": 6,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0503": {
+          "operations": [],
+          "layout": {
+            "CA:590B": {
+              "semantic_sha256": "c2aaa2c50cbb9104a5311f651efcffe7a812e1a4c5de9b468b2f2b7068720a5f",
+              "semantic_part_count": 6,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0504": {
+          "operations": [],
+          "layout": {
+            "CA:5927": {
+              "semantic_sha256": "5dedf4187e2ba779c4ca033607d15d9415f9748e304cec25c416974c853d127b",
+              "semantic_part_count": 6,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0505": {
+          "operations": [],
+          "layout": {
+            "CA:5942": {
+              "semantic_sha256": "52ba775d82fc1aa5b2845d0bc8af7425e31c6d4af1d51dc3ee5edbeb9b592dc7",
+              "semantic_part_count": 5,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0507": {
+          "operations": [],
+          "layout": {
+            "CA:597C": {
+              "semantic_sha256": "57b31736cea3dd966a3d43c3c54dccdf811a4c03010a9773858938c79caa074e",
+              "semantic_part_count": 6,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "0584": {
+          "operations": [],
+          "layout": {
+            "CA:7044": {
+              "semantic_sha256": "357fb0b4bf3f14f7ab73bb817a0df44908871393fd77b00bb1403dbc486210bc",
+              "semantic_part_count": 7,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "066D": {
+          "operations": [],
+          "layout": {
+            "CA:8DC0": {
+              "semantic_sha256": "73c7cc21d7bebcc67d9cd96d053c059919304cb1e00ef5cdd1d34876d061faef",
+              "semantic_part_count": 7,
+              "seps": [
+                "",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                " ",
+                ""
+              ]
+            }
+          }
+        },
+        "01B5": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:68BA",
+              "android_ids": [
+                574
+              ]
+            },
+            {
+              "operation": "prepend_punctuation",
+              "text_id": "C9:6921",
+              "value": "\n"
+            }
+          ],
+          "layout": {}
+        },
+        "042D": {
+          "operations": [
+            {
+              "operation": "prepend_punctuation",
+              "text_id": "CA:151D",
+              "value": " "
+            }
+          ],
+          "layout": {}
+        },
+        "055E": {
+          "operations": [
+            {
+              "operation": "prepend_punctuation",
+              "text_id": "CA:6828",
+              "value": " "
+            }
+          ],
+          "layout": {}
+        },
+        "0592": {
+          "operations": [
+            {
+              "operation": "prepend_punctuation",
+              "text_id": "CA:7459",
+              "value": " "
+            },
+            {
+              "operation": "append_android",
+              "text_id": "CA:747F",
+              "android_ids": [
+                1021,
+                1022
+              ],
+              "separator": "\f",
+              "android_separator": "\n"
+            }
+          ],
+          "layout": {}
+        },
+        "0020": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:09A7",
+              "android_ids": [
+                2460
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "0021": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:09F8",
+              "android_ids": [
+                2452
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "0023": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:0A8E",
+              "android_ids": [
+                2457
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "0119": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:37AF",
+              "android_ids": [
+                109
+              ]
+            }
+          ],
+          "layout": {}
+        },
+        "0127": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:3AC3",
+              "android_ids": [
+                914
+              ]
+            }
+          ],
+          "layout": {}
+        },
+        "0235": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:9B74",
+              "android_ids": [
+                951
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "023A": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:9CB8",
+              "android_ids": [
+                973
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "023B": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:9D38",
+              "android_ids": [
+                991
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "023F": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:9E14",
+              "android_ids": [
+                1168
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "024C": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:9F44",
+              "android_ids": [
+                1203
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "0250": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:A02A",
+              "android_ids": [
+                1264
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "028B": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:AA04",
+              "android_ids": [
+                1524
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "028C": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:ABFB",
+              "android_ids": [
+                1480
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "02CD": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:BE42",
+              "android_ids": [
+                1735,
+                1736
+              ]
+            }
+          ],
+          "layout": {}
+        },
+        "04E6": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "CA:40AF",
+              "android_ids": [
+                87
+              ]
+            }
+          ],
+          "layout": {}
+        },
+        "04E7": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "CA:4126",
+              "android_ids": [
+                91
+              ]
+            }
+          ],
+          "layout": {}
+        },
+        "029C": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:B2BD",
+              "android_ids": [
+                1560
+              ],
+              "break_after_leading_label": true
+            },
+            {
+              "operation": "prepend_punctuation",
+              "text_id": "C9:B1B0",
+              "value": " : "
+            }
+          ],
+          "layout": {}
+        },
+        "0295": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:AF50",
+              "android_ids": [
+                1518
+              ]
+            }
+          ],
+          "layout": {}
+        },
+        "02C9": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:BDD6",
+              "android_ids": [
+                1705
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "02CC": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:BDFE",
+              "android_ids": [
+                1701
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "02CE": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:BE80",
+              "android_ids": [
+                1734
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "02D1": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:BEC3",
+              "android_ids": [
+                2579
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "02F9": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:CA73",
+              "android_ids": [
+                2298
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "036F": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:D515",
+              "android_ids": [
+                1142
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "038C": {
+          "operations": [
+            {
+              "operation": "add_android",
+              "text_id": "C9:DA79",
+              "android_ids": [
+                1800
+              ],
+              "break_after_leading_label": true
+            },
+            {
+              "operation": "replace_android",
+              "text_id": "C9:DA8C",
+              "android_ids": [
+                1801
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "03A5": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:E0D9",
+              "android_ids": [
+                1891,
+                1892
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "03A6": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:E0FA",
+              "android_ids": [
+                1889
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "03EB": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:F0C2",
+              "android_ids": [
+                2369
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "03EC": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "C9:F0E4",
+              "android_ids": [
+                2372
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "04A0": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "CA:17B9",
+              "android_ids": [
+                2891
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "04B0": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "CA:1E1B",
+              "android_ids": [
+                2752
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "04B2": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "CA:1E59",
+              "android_ids": [
+                2680
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "04B4": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "CA:21CB",
+              "android_ids": [
+                2679
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "04B6": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "CA:2237",
+              "android_ids": [
+                2702
+              ],
+              "break_after_leading_label": true
+            },
+            {
+              "operation": "replace_android",
+              "text_id": "CA:2201",
+              "android_ids": [
+                2700
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "0520": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "CA:5CC6",
+              "android_ids": [
+                2216
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "0580": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "CA:6BB9",
+              "android_ids": [
+                1049
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "0593": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "CA:757E",
+              "android_ids": [
+                1012
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "063D": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "CA:889F",
+              "android_ids": [
+                1699
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "0658": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "CA:892F",
+              "android_ids": [
+                3133
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "07FE": {
+          "operations": [
+            {
+              "operation": "replace_android",
+              "text_id": "CA:986B",
+              "android_ids": [
+                3409
+              ],
+              "break_after_leading_label": true
+            }
+          ],
+          "layout": {}
+        },
+        "0236": {
+          "operations": [
+            {
+              "operation": "prepend_punctuation",
+              "text_id": "C9:9BCB",
+              "value": " : "
+            }
+          ],
+          "layout": {}
+        },
+        "026A": {
+          "operations": [
+            {
+              "operation": "append_android",
+              "text_id": "C9:A4E9",
+              "android_ids": [
+                1409,
+                1410
+              ],
+              "separator": "\f",
+              "android_separator": "\n"
+            }
+          ],
+          "layout": {}
+        }
+      },
+      "appended_entry_order": [
+        "C9:1F2C",
+        "C9:817B",
+        "C9:9D96",
+        "C9:CDB2",
+        "CA:8998",
+        "CA:2F02",
+        "CA:2F06"
+      ]
+    }
+  }
+}

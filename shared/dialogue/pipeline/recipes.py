@@ -5,14 +5,12 @@ from functools import lru_cache
 from pathlib import Path
 import re
 
-from .common import ROOT, _load_recipe_document, normalize_android_prose, sentence_break_positions
+from .common import ROOT, _load_recipe_document, _load_recipe_section, normalize_android_prose, sentence_break_positions
 from .policies import *
 from shared.dialogue.translation import event_text_index, normalize_android_french, semantic_wrap_markup, format_mapping as format_dialogue_mapping
 
 DIALOGUE_REDISTRIBUTION_RECIPES = ROOT / "recipes" / "android" / "dialogues_redistribution.json"
-DIALOGUE_MAPPING_LAYOUT_RECIPES = ROOT / "recipes" / "android" / "dialogues_mapping_layout.json"
-DIALOGUE_CHOICE_LAYOUT_RECIPES = ROOT / "recipes" / "android" / "dialogues_choice_layout.json"
-DIALOGUE_COVERAGE_REPAIR_RECIPES = ROOT / "recipes" / "android" / "dialogues_coverage_repair.json"
+DIALOGUE_FORMATTING_RECIPES = ROOT / "recipes" / "android" / "dialogues_formatting.json"
 DIALOGUE_MANUAL_SUPPLEMENTS = ROOT / "translations" / "dialogues_manual_supplements.json"
 
 _REDISTRIBUTION_TOKEN_RE = re.compile(r"%S\(\d+,0\)|[\wÀ-ÿŒœ’'-]+|[^\w\s]", re.UNICODE)
@@ -148,8 +146,8 @@ def _mapping_layout_recipe_index() -> dict[tuple[str, tuple[str, ...], tuple[int
     punctuation/layout separators and optional case transforms. Actual words are
     always read from ``scrtxt_fr.bin`` at generation time.
     """
-    document = _load_recipe_document(
-        DIALOGUE_MAPPING_LAYOUT_RECIPES,
+    document = _load_recipe_section(
+        DIALOGUE_FORMATTING_RECIPES, "mapping_layout",
         label="Dialogue mapping-layout recipes",
         expected={"format_version": 1, "source": "sources/android/scrtxt_fr.bin"},
     )
@@ -220,8 +218,8 @@ def _load_dialogue_coverage_repair_recipes(
     text carriers. They contain no translated prose: only event/carrier IDs,
     Android IDs, structural separators, and append/replace mode.
     """
-    document = _load_recipe_document(
-        DIALOGUE_COVERAGE_REPAIR_RECIPES,
+    document = _load_recipe_section(
+        DIALOGUE_FORMATTING_RECIPES, "coverage_repair",
         label="Dialogue coverage-repair recipes",
         expected={"format_version": 1, "source": "sources/android/scrtxt_fr.bin"},
     )
@@ -329,8 +327,8 @@ def _load_reviewed_choice_layout_recipes(source_document: dict) -> dict[str, dic
     reviewed away during Round 72.  Source-shape validation prevents a stale
     recipe from silently applying after extraction changes.
     """
-    document = _load_recipe_document(
-        DIALOGUE_CHOICE_LAYOUT_RECIPES,
+    document = _load_recipe_section(
+        DIALOGUE_FORMATTING_RECIPES, "choice_layout",
         label="Dialogue choice-layout recipes",
         expected={"format_version": 1},
     )

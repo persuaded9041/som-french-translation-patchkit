@@ -51,6 +51,11 @@ def rel(path: Path) -> str:
     return path.relative_to(ROOT).as_posix()
 
 
+def recipe_section(filename: str, section: str) -> dict:
+    document = json.loads((ROOT / "recipes" / "android" / filename).read_text(encoding="utf-8"))
+    return document["sections"][section]
+
+
 
 def check_dialogue_pipeline(problems: list[str]) -> None:
     """Guard the Android-derived dialogue provenance architecture."""
@@ -68,8 +73,7 @@ def check_dialogue_pipeline(problems: list[str]) -> None:
                     f"dialogue generator reads its own generated output in {generator_file.relative_to(ROOT)}: {needle}"
                 )
 
-    recipe_path = ROOT / "recipes" / "android" / "dialogues_mapping_layout.json"
-    document = json.loads(recipe_path.read_text(encoding="utf-8"))
+    document = recipe_section("dialogues_formatting.json", "mapping_layout")
     if document.get("source") != "sources/android/scrtxt_fr.bin":
         problems.append("mapping-layout recipes do not declare Android FR as their source")
     prose_re = re.compile(r"[A-Za-zÀ-ÿŒœ]")
@@ -118,8 +122,7 @@ def check_dialogue_pipeline(problems: list[str]) -> None:
             else:
                 problems.append(f"reviewed-alignment ${event_id}: invalid part {part!r}")
 
-    final_layout_path = ROOT / "recipes" / "android" / "dialogues_final_layout.json"
-    final_layout_doc = json.loads(final_layout_path.read_text(encoding="utf-8"))
+    final_layout_doc = recipe_section("dialogues_review.json", "final_layout")
     allowed_top = {"format_version", "source", "description", "validated_against", "events"}
     extra_top = set(final_layout_doc) - allowed_top
     if extra_top:
@@ -148,8 +151,7 @@ def check_dialogue_pipeline(problems: list[str]) -> None:
                 if isinstance(sep, str) and prose_re.search(sep):
                     problems.append(f"final-layout ${event_id}/{text_id}: prose in separator {sep!r}")
 
-    final_structure_path = ROOT / "recipes" / "android" / "dialogues_final_structure.json"
-    final_structure_doc = json.loads(final_structure_path.read_text(encoding="utf-8"))
+    final_structure_doc = recipe_section("dialogues_review.json", "final_structure")
     allowed_top = {"format_version", "source", "description", "validated_against", "events"}
     extra_top = set(final_structure_doc) - allowed_top
     if extra_top:
@@ -173,8 +175,7 @@ def check_dialogue_pipeline(problems: list[str]) -> None:
             if carrier.get("operation") not in allowed_operations:
                 problems.append(f"final-structure ${event_id}/{text_id}: invalid structural operation")
 
-    post_layout_path = ROOT / "recipes" / "android" / "dialogues_post_structure_layout.json"
-    post_layout_doc = json.loads(post_layout_path.read_text(encoding="utf-8"))
+    post_layout_doc = recipe_section("dialogues_review.json", "post_structure_layout")
     extra_top = set(post_layout_doc) - allowed_top
     if extra_top:
         problems.append(f"post-structure layout recipes: unsupported top-level keys {sorted(extra_top)}")
@@ -201,8 +202,7 @@ def check_dialogue_pipeline(problems: list[str]) -> None:
                 if isinstance(sep, str) and prose_re.search(sep):
                     problems.append(f"post-structure layout ${event_id}/{text_id}: prose in separator {sep!r}")
 
-    search_path = ROOT / "recipes" / "android" / "dialogues_layout_search.json"
-    search_doc = json.loads(search_path.read_text(encoding="utf-8"))
+    search_doc = recipe_section("dialogues_formatting.json", "layout_search")
     allowed = {"strategy", "text_id", "boundary_before_id", "source_offset", "step", "semantic_payload_changed"}
     for event_id, operations in search_doc.get("events", {}).items():
         for operation in operations:

@@ -1106,7 +1106,7 @@ Reproducible evidence is stored in the importer's Round-51 reproducible evidence
 
 ## Round 52 exact structural formatter recovery
 
-Round 52 changes **no Android identity, no automatic matcher and no namespace rule**. Semantic alignment therefore remains **1798 / 1838 (97.8%)**, with the same **40 unresolved** carriers fully accounted by the Round-51 residual audit. The round instead serializes six already-owned mappings that were previously kept stock because their French payload crossed stock WAIT/action boundaries. Every case remains an explicit reviewed structural mapping. Its current serialization is expressed through `dialogues_mapping_layout.json`; no generic WAIT/action fallback is widened.
+Round 52 changes **no Android identity, no automatic matcher and no namespace rule**. Semantic alignment therefore remains **1798 / 1838 (97.8%)**, with the same **40 unresolved** carriers fully accounted by the Round-51 residual audit. The round instead serializes six already-owned mappings that were previously kept stock because their French payload crossed stock WAIT/action boundaries. Every case remains an explicit reviewed structural mapping. Its current serialization is expressed through `recipes/android/dialogues_formatting.json#mapping_layout`; no generic WAIT/action fallback is widened.
 
 - `$01B5/C9:6921+C9:6954 -> Android 577`: Android FR already moved the axe instruction into the preceding owned slot 575. The remaining two French sentences therefore split at `J'ai compris !` around the unchanged stock `WAIT $00 / TEXT_CLOSE / action / WAIT $08 / TEXT_OPEN` scene bridge.
 - `$01B9/C9:6C0F+C9:6C21 -> Android 593`: the elder reprimand remains before the stock actor action + `WAIT $04`; `Excusez-le...` resumes after it.

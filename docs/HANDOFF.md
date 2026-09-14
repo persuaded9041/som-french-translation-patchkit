@@ -10,11 +10,18 @@ Current post-audit reproducible artifacts after the validated `$035F` Dryade fix
 
 See `reports/LOT1_TO_FINAL_CORRECTIONS_VERIFICATION.md` for the post-regeneration correction sentinels.
 
+Recipe cleanup (2026-09-14): the eight historical stage-specific dialogue recipe files were consolidated into `recipes/android/dialogues_formatting.json` and `recipes/android/dialogues_review.json`. The active dialogue recipe surface is now four JSON files (alignment, redistribution, formatting, review). Fresh dialogue generation and full IPS builds are byte-identical to the pre-cleanup state. See `reports/RECIPES_CLEANUP.md`.
+
 ---
 
 # HANDOFF — Round 85.68 promoted checkpoint
 
 This archive is authoritative over GitHub.
+
+### Recipe hygiene checkpoint (2026-09-14)
+
+After the recipe-file consolidation, a liveness audit removed 15 dead/superseded rule units (3 unmatched mapping-layout recipes, 8 final-layout carriers fully replayed by `review_delta`, 2 late no-op layout/review rules, and 2 superseded reviewed-alignment records). Fresh dialogue generation remains byte-identical (`79d1e6f7…749f45`). Apparent coverage-repair overlaps were tested and retained where removal changes generated dialogue. Details: `reports/RECIPES_CLEANUP.md`.
+
 
 ## Promoted state
 
@@ -40,7 +47,7 @@ Current dialogue state:
 
 ## Canonical recipe architecture
 
-`recipes/android/dialogues_round85_review.json` is the late replay layer for the accepted 85.57-85.67 delta. It stores **no localized prose**. It contains only:
+`recipes/android/dialogues_review.json#review_delta` is the late replay layer for the accepted 85.57-85.67 delta. It stores **no localized prose**. It contains only:
 
 - Android-FR IDs for source-backed append operations;
 - carrier IDs and generic structural operations (merge/split/clear/punctuation/control);

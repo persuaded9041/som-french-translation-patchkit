@@ -400,7 +400,7 @@ The 560-event corpus as a whole still requires full-game playthrough validation.
 
 ## 8.4.1 Round 85.68 final reviewed replay
 
-After the older final-layout/final-structure stages, `recipes/android/dialogues_round85_review.json` replays the user-validated 85.57-85.67 delta. The recipe cannot store localized prose. Semantic additions reference Android-FR IDs, structural changes are generic carrier/control operations, and presentation changes are guarded by semantic SHA-256 fingerprints plus layout-only separators. Reviewed choice coordinates and command overrides are replayed before final independent simulation. A completely fresh generation must match the promoted JSON byte-for-byte.
+After the older final-layout/final-structure stages, `recipes/android/dialogues_review.json#review_delta` replays the user-validated 85.57-85.67 delta. The recipe cannot store localized prose. Semantic additions reference Android-FR IDs, structural changes are generic carrier/control operations, and presentation changes are guarded by semantic SHA-256 fingerprints plus layout-only separators. Reviewed choice coordinates and command overrides are replayed before final independent simulation. A completely fresh generation must match the promoted JSON byte-for-byte.
 
 The simulator also marks the live current line as changed as soon as a glyph is appended. This is required so a `WAIT` after `TEXT_CLEAR` snapshots a fresh one-line page; without it `$05F8/CA:8010` could appear to lose its continuation in HTML even though the serialized bytes were correct.
 
@@ -443,7 +443,7 @@ for binding only when the actual future event tokens prove the same `PLAYER_NAME
 after linear `WAIT`/`TEXT_CLEAR`/`OP_32`/`COMPLETE_ACTIONS` controls; the command itself
 stays in its original SNES position.
 
-Round 72 adds a reproducibility layer for the reviewed decoration decisions that had already been accepted in the generated checkpoint. `recipes/android/dialogues_choice_layout.json` records only the exact event/opening/closing carrier identities; it contains no French prose. These reviewed strips are reapplied even when the newer choice-specific simulator geometry would make the decorated row simulator-clean. If restoring the stock choice-row newline would otherwise create a fresh page, only the owning Android-FR mapping is reformatted with the existing compact wrapper before stripping. This preserves the reviewed output while keeping extraction/insertion fully source-derived.
+Round 72 adds a reproducibility layer for the reviewed decoration decisions that had already been accepted in the generated checkpoint. `recipes/android/dialogues_formatting.json#choice_layout` records only the exact event/opening/closing carrier identities; it contains no French prose. These reviewed strips are reapplied even when the newer choice-specific simulator geometry would make the decorated row simulator-clean. If restoring the stock choice-row newline would otherwise create a fresh page, only the owning Android-FR mapping is reformatted with the existing compact wrapper before stripping. This preserves the reviewed output while keeping extraction/insertion fully source-derived.
 
 `PLAYER_NAME` presentation mismatches are normalized only when the SNES structure
 proves that no event command needs to be invented or moved. An exact leading
@@ -780,7 +780,7 @@ Relative to the runtime-validated Round-52 payload, **1745/1745 existing entries
 
 The post-Round-85.53 visual review found a final class of issues that a per-carrier wrap check could not detect: live three-line windows may span several carriers, and a stock `PLAYER_NAME` can therefore appear visually in the middle of another speaker's retained sentence. Round 85.56 keeps Android FR as the prose source and models the reviewed fix in two source-only layers.
 
-`dialogues_final_structure.json` contains only operation names. Exact clean-USA adjacency plus translated-only command metadata proves each operation before it can run. Supported operations are limited to moving an already-existing player-name binding into its carrier, moving a clear-only marker, and preserving punctuation-only source material. No translated word is stored. `dialogues_post_structure_layout.json` then changes only whitespace/newlines/generated page separators after a semantic fingerprint check.
+`recipes/android/dialogues_review.json#final_structure` contains only operation names. Exact clean-USA adjacency plus translated-only command metadata proves each operation before it can run. Supported operations are limited to moving an already-existing player-name binding into its carrier, moving a clear-only marker, and preserving punctuation-only source material. No translated word is stored. `recipes/android/dialogues_review.json#post_structure_layout` then changes only whitespace/newlines/generated page separators after a semantic fingerprint check.
 
 Translated-only command insertions are likewise exact-anchor metadata. The serializer and simulator accept them only before the proved stock command token; source serialization rejects them. This is used for reviewed fresh-speaker pages and does not create a generic rule that every PLAYER_NAME starts a page. `$01DA/C9:7E72` is explicitly a one-scene exception.
 

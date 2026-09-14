@@ -13,10 +13,10 @@ import json
 import re
 from functools import lru_cache
 
-from .common import ROOT, _load_recipe_document
+from .common import ROOT, _load_recipe_section
 from shared.dialogue.codec import TRANSLATION_CLEAR
 
-DIALOGUE_FINAL_STRUCTURE_RECIPES = ROOT / "recipes" / "android" / "dialogues_final_structure.json"
+DIALOGUE_REVIEW_RECIPES = ROOT / "recipes" / "android" / "dialogues_review.json"
 _ALLOWED_OPERATIONS = {
     "inline_omitted_player_name_with_clear",
     "add_leading_clear",
@@ -30,8 +30,8 @@ _LEADING_PUNCTUATION_RE = re.compile(r"^([\s:;,.!?…'\"()\-–—]+)")
 
 @lru_cache(maxsize=1)
 def _recipe_index() -> dict[str, dict[str, str]]:
-    document = _load_recipe_document(
-        DIALOGUE_FINAL_STRUCTURE_RECIPES,
+    document = _load_recipe_section(
+        DIALOGUE_REVIEW_RECIPES, "final_structure",
         label="Dialogue final-structure recipes",
         expected={"format_version": 1},
     )

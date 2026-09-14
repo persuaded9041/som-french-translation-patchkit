@@ -11,18 +11,18 @@ import json
 import re
 from functools import lru_cache
 
-from .common import ROOT, _load_recipe_document, normalize_android_prose
+from .common import ROOT, _load_recipe_section, normalize_android_prose
 from .final_layout import _split_layout, _semantic_sha256
 from shared.dialogue.translation import (
     DIALOGUE_WRAP_PIXELS, DIALOGUE_WRAP_CHARS, semantic_wrap_markup,
     _sentence_aware_extra_page_wrap, _sentence_aware_three_page_wrap,
 )
 
-RECIPE = ROOT / "recipes" / "android" / "dialogues_round85_review.json"
+RECIPE = ROOT / "recipes" / "android" / "dialogues_review.json"
 
 @lru_cache(maxsize=1)
 def load_round85_review_recipe() -> dict:
-    doc = _load_recipe_document(RECIPE, label="Round-85 reviewed dialogue delta", expected={"format_version": 1})
+    doc = _load_recipe_section(RECIPE, "review_delta", label="Round-85 reviewed dialogue delta", expected={"format_version": 1})
     forbidden = re.compile(r"[A-Za-zÀ-ÿ]{3,}")
     # Operations/layout are structural only. Reasons/strategy labels and IDs are metadata.
     for event_id, event in doc.get("events", {}).items():

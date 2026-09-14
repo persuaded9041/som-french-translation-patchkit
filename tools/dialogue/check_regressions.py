@@ -17,7 +17,7 @@ from shared.extracted.assets import load_or_extract_dialogues
 
 MANUAL = ROOT / "translations/dialogues_manual_supplements.json"
 RECIPES = ROOT / "recipes/android/dialogues_redistribution.json"
-COVERAGE_RECIPES = ROOT / "recipes/android/dialogues_coverage_repair.json"
+FORMATTING_RECIPES = ROOT / "recipes/android/dialogues_formatting.json"
 
 ROUND69_EVENTS = {
     "010C", "015A", "01C5", "0204", "0205", "0227", "04E2", "04E5", "04E6",
@@ -248,7 +248,7 @@ def check_scene_recipes(french: dict, mass: dict, auto: dict, recipes: dict) -> 
 
 
 def check_postaudit(french: dict, mass: dict, manual: dict) -> None:
-    coverage_recipes = json.loads(COVERAGE_RECIPES.read_text(encoding="utf-8"))
+    coverage_recipes = json.loads(FORMATTING_RECIPES.read_text(encoding="utf-8"))["sections"]["coverage_repair"]
     lot6 = [r for r in coverage_recipes.get("repairs", []) if r.get("event_id") == "0559" and r.get("carrier_id") == "CA:6787"]
     if len(lot6) != 1:
         die("expected exactly one $0559/CA:6787 coverage recipe")
