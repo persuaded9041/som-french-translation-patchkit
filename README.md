@@ -30,7 +30,8 @@ The ROM itself is deliberately not included.
 - `french_intro` - validated French new-game event `$0400` payload, private intro DTE and accented glyphs.
 - `vwf_intro` - new-game intro VWF renderer/runtime, private parser buffer and validated intro window; owns no translation.
 - `vwf_dialogues` - runtime-validated variable-width renderer for stock `$C9/$CA` event dialogue and `french_dialogues` relocated `$E8-$EC` events under the same caller gate; interactive choice rows use the same VWF path; stock/decorated fallback geometry plus private measured-end geometry and the long-row right-edge compaction rule are runtime-validated on the Potos test path.
-- `intro_skip` - hold R for about two seconds during the introduction to skip directly to the waterfall scene.
+- `intro_skip` - runtime-validated hold-R intro skip for translated event `$0400`: continuous R for 120 normal-loop ticks, release-to-cancel, safe mid-text/WAIT commit to the waterfall. The eight normal narrative phases are covered; the final Mode-7/flyover phase remains deliberately outside scope.
+  Validation history: `docs/INTRO_SKIP_VALIDATION.md`; assembly/event-engine map: `docs/INTRO_EVENT_ARCHITECTURE.md`.
 - `french_dialogues` - deterministic source/translation reinsertion for all stock text-bearing event scripts except intro `$0400`, with in-place rebuilds and deterministic expanded-ROM relocation for growth.
 - `vwf_ui` - standalone VWF extensions for non-dialogue UI paths; the first runtime-validated backend is Watts' Forge weapon row, with exact builder tagging, dynamic suffix compaction and a local +3 logical-line margin.
 - `french_resources` - deterministic reinsertion of reviewed French `$CA` name resources (magic, spirits, weapons, equipment, items, enemies and locations), with a fingerprint-validated local French JSON cache regenerated from the clean-ROM resource inventory, reviewed Android identity recipe and Android EN/FR sources when stale or absent.
@@ -96,7 +97,7 @@ Dialogue recipe data is consolidated by responsibility under `recipes/android/`:
 
 The exact second-pass starting and final JSONs both contain **1959 carriers**. Exactly **46 explicitly reviewed carriers changed**; the other **1913 carriers are byte-for-byte unchanged**. No carriers were added or removed. Structural metadata changes are limited to the validated events documented in `docs/HANDOFF.md` and `checkpoints/SECOND_PASS_POST_VALIDATION.md`.
 
-A fresh cold regeneration reproduces `translations/dialogues_french.json` with SHA-256 `3e4cacd926e31d6dfe9f9021d1026c4f71dc68ccd88ce4481749e47764d2b7d9`. Promoted dialogue-data hash remains `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31` for `french_dialogues.ips`. After the runtime-validated `vwf_dialogues` left-inset / exact interrupted-chunk continuation fix, the promoted combined `all.ips` SHA-256 is `9fc13efe50b7e315dab7238ee2142d9e245ea51ae9e51768a6ad9f6e42248029`. A forced double rebuild is byte-identical to these promoted patches.
+A fresh cold regeneration reproduces `translations/dialogues_french.json` with SHA-256 `3e4cacd926e31d6dfe9f9021d1026c4f71dc68ccd88ce4481749e47764d2b7d9`. Promoted dialogue-data hash remains `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31` for `french_dialogues.ips`. After promotion of the runtime-validated 120-tick `intro_skip`, the current combined `all.ips` SHA-256 is `253ffde42f6977e714e9d27351089a2fbf0400bf46293ca8ed8967e38aad6b6d`. A forced double rebuild/recombine is byte-identical to the promoted patches.
 
 See `docs/HANDOFF.md` for the current handoff and `checkpoints/SECOND_PASS_POST_VALIDATION.md` for the final non-regression proof.
 

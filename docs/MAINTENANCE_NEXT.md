@@ -73,4 +73,12 @@ The title arrangement no longer uses optimal LZ compression. It is emitted as a 
 
 ## Next step
 
-Treat Round 85.10 as the serial dialogue-performance reference and Round 85.13 as the validated opening-storage reference. Further optimization should require a concrete hotspot or functional need.
+Treat Round 85.10 as the serial dialogue-performance reference and Round 85.13
+as the validated opening-storage reference. The next **functional** opening task
+is not compression optimization: it is the startup-credit accent research in
+`OPENING_CREDIT_ACCENT_RESEARCH.md`.
+
+The current one-cell startup-credit `É` in former `Z` tile `$7A` remains the
+promoted baseline until the credit fade path is fully reverse engineered. Do not
+replace it with a two-row accent implementation until the accent row can be
+proved to share the credit's fade-in/fade-out state.

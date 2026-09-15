@@ -1,44 +1,82 @@
-# Skippable new-game introduction
+# intro_skip — validated hold-R introduction skip
 
-Adds the runtime-validated **hold R to skip** control to translated new-game
-intro event `$0400`. It owns no translation text.
+`intro_skip` is the runtime-validated skip component for translated new-game
+event `$0400`. It replaces the former legacy/experimental implementation.
 
-## Runtime contract
+## Final behavior
 
-The event-engine hook at `$C0:012C` activates only when the live event is in
-bank `$CA` and `$0C02 <= pointer < $0E8B`, the exact validated `$0400` window.
-Holding **R** continuously for 120 NMI frames redirects the live event pointer
-to the private script at `$CA:FFC0`. The timer is non-blocking, so the intro
-continues while the button is held; releasing R cancels the hold immediately.
+During the normal narrative portion of the French intro, hold **R continuously
+for 120 normal-loop ticks**. Releasing R before the counter reaches zero cancels
+the request completely; a later hold starts again from the full 120 ticks.
+Separated short presses therefore do not accumulate.
 
-A tiny hook at `$C0:AC34` also observes physical R release once per NMI. This
-prevents two shorter presses from accumulating if the event-engine hook happens
-not to execute during the release interval. Both hooks restore the stock
-instructions they replace before returning to stock code.
+When the hold completes, the skip is committed at an already validated safe
+point:
 
-The private script is command-only data:
+- inside a live text carrier, the live parser cursor is redirected to the
+  private tail at `$CA:FFC0`;
+- during a stock timed `WAIT` (`$D0 == $82`), the normal-loop helper prepares
+  the same tail and lets the untouched C1 `WAIT` handler expire naturally.
+
+The tail closes the current text, resets to waterfall room `$0000`, balances the
+intro `$CFF8` context, then jumps to stock event `$0106`:
 
 ```text
 51 18 00 2A F8 11 06 00
 ```
 
-It follows the validated stock end-of-intro cleanup while omitting only the
-`$1D $7F` Mode 7 world-map flyover, then arrives directly at the waterfall.
+The final Mode-7/flyover phase beginning at `$CA:0E82 = 1D 7F` is deliberately
+outside the validated scope. The component is validated across the eight normal
+narrative text/WAIT phases before that transition.
 
-## Ownership
+## Dependencies
 
-- ROM reserve: `$ED:7400-$74FF`; active code currently occupies
-  `$ED:7400-$7487` and `$ED:7490-$74AD`.
-- Private event: `$CA:FFC0-$FFC7`.
-- Temporary WRAM: `$7E:938A-$938B`, only during translated intro `$0400`.
-- No prose or generated translation asset belongs to this component.
+The runtime proof was performed on the translated/VWF intro, so the component
+manifest explicitly requires:
 
-The WRAM reuse is deliberately mutually exclusive with `vwf_dialogues`;
-`vwf_intro` intercepts `$0400` before the dialogue renderer can use the same
-scratch bytes. See `docs/MEMORY_MAP.md` for exact ranges.
+- `french_intro`
+- `vwf_intro`
 
-## Sources
+Standalone component IPS files are still authored against the clean unheadered
+USA ROM, as required by the patchkit; `requires` controls composition/rebuild
+order.
 
-- `build_patch.py`: canonical executable emitter.
-- `src/intro_skip.asm`: readable 65C816 mirror/reference.
-- `docs/MEMORY_MAP.md`: component-local ROM/WRAM ownership.
+## Validated architecture
+
+Three hooks are used; there is **no NMI hook**:
+
+- `$C0:012C` → `$ED:7488`: active-text observer/initializer;
+- `$C0:16EA` → `$CA:FFC8`: live parser commit point for mid-text departure in the standalone/runtime-proven stack;
+- `$C2:C786` → `$ED:7400`: normal-loop hold/decrement logic and safe timed-WAIT commit.
+
+`vwf_dialogues` also owns `$C0:16EA` for its mode-2 pixel-aware parser preflight.
+The aggregate builder therefore has one explicit merge rule: when both components
+are selected, `$C0:16EA` points to the 16-byte dispatcher at `$ED:73C0`. Parser
+mode 2 jumps unchanged to `$ED:7500`; all other modes jump to the validated
+`intro_skip` helper `$CA:FFC8`. The standalone `intro_skip` IPS keeps the direct
+validated hook, and the dispatcher is inert.
+
+Input is read from the game's synchronized pad-1 copy `$7E:0042`, with R at bit
+`$10`. The 16-bit state at `$7E:938A-$938B` uses:
+
+- `$FFFF`: inactive / no continuous hold;
+- `$0001-$FFFE`: countdown in progress;
+- `$0000`: hold completed, pending commit.
+
+Helpers are kept entirely inside the pre-existing `$ED:7400-$74FF` component
+reservation. This is important: two earlier generalization attempts glitched at
+boot because their growing C7 helper overflowed into the shared VWF routine at
+`$C7:43D0-$43E7`. The validated implementation deliberately relocates the
+extensible helpers to ED and leaves that C7 region untouched.
+
+See:
+
+- `../../docs/INTRO_SKIP_VALIDATION.md` — complete proof ladder and rejected variants;
+- `../../docs/INTRO_EVENT_ARCHITECTURE.md` — event-engine / intro reverse engineering;
+- `docs/MEMORY_MAP.md` — exact final allocations.
+
+## Source of truth
+
+`build_patch.py` is the canonical emitter. `src/intro_skip.asm` is a readable
+mirror of the same validated logic. The builder contains size/allocation guards
+so future edits cannot silently overflow `$ED:7400-$74FF` or `$CA:FFC0-$FFFF`.

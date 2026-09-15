@@ -1,6 +1,11 @@
 {
   "id": "intro_skip",
   "short_name": "intro-skip",
-  "name": "Skippable new-game introduction",
-  "build_order": 70
+  "name": "Hold-R new-game introduction skip",
+  "build_order": 70,
+  "requires": [
+    "french_intro",
+    "vwf_intro"
+  ],
+  "parser_fetch_dispatcher": true
 }

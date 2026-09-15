@@ -105,11 +105,39 @@ The validated VWF runtime window remains `$CA:0C02-$0E8A` (exclusive end `$0E8B`
 
 After checksum recomputation, applying `french_intro` and `vwf_intro` together reproduces the former hybrid Round-76 `vwf_intro` patch byte-for-byte.
 
-## Intro skip compatibility
+## Intro skip compatibility / validated status
 
-`intro_skip` hooks `$C0:012C-$012F`, a runtime-validated execution point during the translated new-game introduction. While event `$0400` is in live event bank `$CA` and pointer range `$0C02-$0E8A`, holding R (`$4218` bit `$10`) continuously for 120 NMI frames redirects the live event pointer to `$CA:FFC0-$FFC7`. That private script mirrors the stock end of `$0400` while omitting only the `$1D $7F` Mode 7 world-map flyover. Runtime testing confirms the non-blocking hold, reset on release, direct arrival at the waterfall, and correct dialogue-frame transitions.
+`intro_skip` is now the runtime-validated 120-tick continuous-R hold skip for
+translated event `$0400`. It explicitly requires `french_intro` and `vwf_intro`,
+matching the configuration used during the proof ladder.
 
-The component reserves `$ED:7400-$74FF` for its input and NMI helpers, between the extended-ROM allocations of `vwf_dialogues` and `french_menus`. It samples the stock frame counter at `$7E:00F4` and reuses `$7E:938A-$938B` only during translated intro event `$0400`. `vwf_intro` intercepts that event before `vwf_dialogues` reaches its renderer-entry hook, so `vwf_dialogues` does not use its overlapping width-index scratch during the intro. The NMI hook at `$C0:AC34-$AC37` clears the active-hold flag whenever R is released so separate presses cannot accumulate if the event-engine hook misses the release interval.
+The promoted implementation uses three hooks and no NMI interception:
+
+- `$C0:012C -> $ED:7488` while text is active;
+- standalone `$C0:16EA -> $CA:FFC8` to consume a completed request from the live parser;
+- `$C2:C786 -> $ED:7400` for normal-loop hold/decrement logic and safe timed-WAIT commit.
+
+`vwf_dialogues` independently uses `$C0:16EA` for parser mode 2. The aggregate
+compatibility layer therefore resolves that one shared hook to `$ED:73C0`: mode 2
+JMLs to the unchanged dialogue helper `$ED:7500`, while every other mode JMLs to
+`$CA:FFC8`. The standalone patches retain their own direct hooks; the dispatcher
+is activated only after aggregate composition.
+
+R is read from synchronized pad state `$7E:0042` bit `$10`. `$7E:938A-$938B`
+is one 16-bit state/countdown (`$FFFF` inactive, `$0000` completed). Release before
+zero resets the full duration, so separated presses cannot accumulate. The private
+tail `$CA:FFC0-$FFC7` closes text, resets to waterfall room `$0000`, balances
+`$CFF8`, and jumps to stock `$0106`.
+
+The validated runtime window ends before `$CA:0E82 = 1D 7F`; the final Mode-7 /
+flyover engine is deliberately outside scope. The C1 timed-WAIT handler remains
+untouched.
+
+Earlier compound `safe-global`, `buffered-input`, and `immediate-R` experiments
+remain rejected historical evidence. Two later boot-glitching generalizations were
+traced to code-size overflow into shared VWF code at `$C7:43D0-$43E7`; the final
+helpers are therefore kept inside the owned `$ED:7400-$74FF` reserve with explicit
+builder size guards. See `docs/INTRO_SKIP_VALIDATION.md`.
 
 
 ## Header/checksum writes
@@ -124,6 +152,7 @@ merge rules have been applied.
 - byte-identical functional overlap required for standalone operation: allowed;
 - checksum overlap: allowed and recomputed;
 - legacy threshold-byte overlap with the context-sensitive dialogue router: allowed and resolved;
+- `$C0:16EA` `vwf_dialogues` / `intro_skip` parser-fetch overlap: allowed only through the explicit `$ED:73C0` aggregate dispatcher merge rule;
 - any other differing functional overlap: build failure.
 
 The normal maintenance target is the modified component by itself plus the full
@@ -180,8 +209,7 @@ SELECT also calls `$C0:1664`; bank/state checks alone are not safe discriminator
 `french_intro` owns the translated payload of event `$0400`; `vwf_intro` owns its VWF runtime path and intercepts that event
 at `$C0:1664` and exits before `vwf_dialogues` reaches `$C0:167D`. This keeps the
 shared `$7E:9380+` scratch mutually exclusive even though `vwf_dialogues` now also
-handles ordinary `$CA` event dialogue. `intro_skip`'s `$938A-$938B` intro timer
-is protected by the same early interception.
+handles ordinary `$CA` event dialogue. The validated `intro_skip` `$938A-$938B` countdown remains structurally separated by the same early interception and is used only during translated `$0400`.
 
 Renderer architecture, metrics, caller discrimination and generic event-
 interruption handling belong to `components/vwf_dialogues/docs/`, not to this

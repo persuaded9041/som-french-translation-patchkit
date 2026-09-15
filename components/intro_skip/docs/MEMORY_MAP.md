@@ -1,29 +1,28 @@
-# Memory map — intro_skip
+# Memory map — intro_skip (runtime-validated final implementation)
+
+The former pre-restart/NMI implementation has been removed. These are the
+current validated allocations for the 120-tick continuous-R hold skip.
 
 | Range | Size | Purpose | Status |
 | --- | ---: | --- | --- |
-| ROM `$C0:012C-$012F` | 4 bytes | Event-engine hook to `$ED:7400`; helper reproduces the overwritten `PHP / SEP #$20 / REP #$10` prologue before returning at `$C0:0131` | Runtime-validated |
-| ROM `$C0:AC34-$AC37` | 4 bytes | Per-NMI release hook to `$ED:7490`; helper restores the complete overwritten `LDA $000E / AND $000F` sequence before returning at `$C0:AC3A` | Runtime-validated |
-| ROM `$CA:FFC0-$FFC7` | 8 bytes | Clean transition to waterfall, omitting the Mode 7 flyover | Runtime-validated |
-| ROM `$ED:7400-$7487` | 136 bytes | Intro gate, non-blocking R-hold timer and event-pointer redirect | Runtime-validated |
-| ROM `$ED:7488-$748F` | 8 bytes | Reserved gap before NMI helper | Free inside component reserve |
-| ROM `$ED:7490-$74AD` | 30 bytes | Per-NMI physical-release helper | Runtime-validated |
-| ROM `$ED:74AE-$74FF` | 82 bytes | Remaining component reserve | Free inside component reserve |
-| WRAM `$7E:938A` | 1 byte | NMI frame at which the current R hold began | Runtime-validated, translated intro only |
-| WRAM `$7E:938B` | 1 byte | R-hold active flag | Runtime-validated, translated intro only |
+| ROM `$C0:012C-$012F` | 4 bytes | JML to active-text observer `$ED:7488` | Runtime validated |
+| ROM `$C0:16EA-$16ED` | 4 bytes | standalone JML to `$CA:FFC8`; aggregate merge routes through `$ED:73C0` when `vwf_dialogues` is present | Direct intro path runtime validated; aggregate dispatcher statically audited |
+| ROM `$C2:C786-$C789` | 4 bytes | JML to normal-loop hold/WAIT helper `$ED:7400` | Runtime validated |
+| ROM `$CA:FFC0-$FFC7` | 8 bytes | private command-only waterfall tail | Runtime validated |
+| ROM `$CA:FFC8-$FFFE` | 55 bytes | live-parser completed-hold commit helper | Runtime validated |
+| ROM `$ED:73C0-$73CF` | 16 bytes | aggregate parser-fetch dispatcher: mode 2 -> `$ED:7500`, otherwise -> `$CA:FFC8` | Inert in standalone patch; aggregate compatibility path |
+| ROM `$ED:7400-$7484` | 133 bytes | normal-loop R hold/decrement + timed-WAIT commit | Runtime validated |
+| ROM `$ED:7485-$7487` | 3 bytes | gap | Free inside component reserve |
+| ROM `$ED:7488-$74F5` | 110 bytes | active-text timer init/arm/cancel observer | Runtime validated |
+| ROM `$ED:74F6-$74FF` | 10 bytes | gap | Free inside component reserve |
+| WRAM `$7E:938A-$938B` | 2 bytes | 16-bit hold countdown / state sentinel | Runtime validated during translated `$0400` |
 
-The component owns the full ROM reservation `$ED:7400-$74FF`, although only the
-ranges listed above currently contain code. The builder checks the whole reserve
-is unused on the clean expanded ROM and prevents the two generated helpers from
-growing into one another or beyond `$ED:74FF`.
+The component continues to reserve the full `$ED:7400-$74FF` block. No code is
+placed in the formerly problematic C7 free-space vicinity: the shared VWF helper
+at `$C7:43D0-$43E7` and menu/UI allocations at `$C7:4400+` remain untouched.
 
-The timer samples the stock NMI frame counter `$7E:00F4`. `$7E:938A-$938B` are
-unused by `vwf_intro`'s intro VWF renderer, whose local scratch occupies
-`$7E:9380-$9389` and whose parser buffer is `$7E:9390-$93BB`. `vwf_dialogues`
-uses `$7E:938A-$938B` as part of its ordinary event-render scratch, but
-`vwf_intro` intercepts translated event `$0400` before `vwf_dialogues` reaches
-its renderer entry. Their lifetimes are therefore mutually exclusive.
-
-The NMI helper only clears `$7E:938B` when a hold is active and R is physically
-released. This prevents separate presses from accumulating even if the
-event-engine hook is not sampled during the release interval.
+`$7E:938A-$938B` overlaps scratch used by `vwf_dialogues` outside the intro.
+This is safe under the validated lifetime split: `vwf_intro` intercepts translated
+`$0400` before the ordinary dialogue renderer path. `intro_skip` explicitly
+requires `french_intro` + `vwf_intro` so that assumption is part of component
+composition rather than an undocumented convention.

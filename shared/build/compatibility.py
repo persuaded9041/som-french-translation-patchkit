@@ -8,6 +8,28 @@ from shared.name_entry.dte import NAME_DTE_BASE_CONFIG_FILE, NAME_DTE_HOOK, NAME
 
 DTE_THRESHOLD_OFFSET = 0x0016F6
 
+# C0:16EA is normally owned by vwf_dialogues' pixel-aware parser preflight.
+# intro_skip's standalone runtime proof uses the same stock source-fetch hook.
+# When both are selected, a tiny dispatcher at ED:73C0 preserves both paths.
+PARSER_FETCH_OFFSET = 0x0016EA
+PARSER_FETCH_END = 0x0016EE
+INTRO_SKIP_PARSER_DISPATCHER_HOOK = bytes((0x5C, 0xC0, 0x73, 0xED))
+
+def _uses_parser_fetch_dispatcher(component) -> bool:
+    return bool(component.metadata.get("parser_fetch_dispatcher"))
+
+def _is_dialogue_vwf(component) -> bool:
+    return component.id == "vwf_dialogues"
+
+def _mergeable_parser_fetch(left, right, offset: int) -> bool:
+    if not (PARSER_FETCH_OFFSET <= offset < PARSER_FETCH_END):
+        return False
+    return (
+        (_uses_parser_fetch_dispatcher(left) and _is_dialogue_vwf(right))
+        or (_uses_parser_fetch_dispatcher(right) and _is_dialogue_vwf(left))
+    )
+
+
 
 def _uses_dialogue_dte_router(component) -> bool:
     return bool(component.metadata.get("dialogue_dte_router"))
@@ -67,6 +89,9 @@ def audit_overlaps(components, patch_data: dict[str, bytes]) -> tuple[int, int]:
                 if _declared_override(left, right, offset):
                     declared += 1
                     continue
+                if _mergeable_parser_fetch(left, right, offset):
+                    declared += 1
+                    continue
                 left_threshold = _threshold(left)
                 right_threshold = _threshold(right)
                 if offset == DTE_THRESHOLD_OFFSET:
@@ -99,6 +124,12 @@ def audit_overlaps(components, patch_data: dict[str, bytes]) -> tuple[int, int]:
 
 
 def apply_merge_rules(rom: bytearray, components) -> None:
+    # Preserve both C0:16EA users without changing either standalone component:
+    # parser mode 2 goes to vwf_dialogues ED:7500; every other mode goes through
+    # intro_skip's validated CA:FFC8 helper, which replays stock outside $0400.
+    if any(_uses_parser_fetch_dispatcher(c) for c in components) and any(_is_dialogue_vwf(c) for c in components):
+        rom[PARSER_FETCH_OFFSET:PARSER_FETCH_END] = INTRO_SKIP_PARSER_DISPATCHER_HOOK
+
     # `vwf_dialogues` / `french_dialogues` install the full event-dialogue router and are later than 02 in
     # component order, so their hook owns the shared parser site in aggregate
     # builds. Never rewrite one byte of that JML with a legacy threshold.

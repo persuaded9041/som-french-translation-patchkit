@@ -40,9 +40,10 @@ for the owning component even when the current generated payload is shorter.
 | French intro + intro VWF | `0x0AFF70-0x0AFFB7` | `$CA:FF70-$FFB7` | byte-identical relocation of unchanged stock events `$0401-$040F` |
 | intro VWF | WRAM | `$7E:9380-$9389` | intro-only VWF scratch state |
 | shared VWF parser | WRAM | `$7E:9390-$93BB` | 44-byte decoded-text private buffer shared by intro/dialogue modes |
-| intro skip | `0x00012C-0x00012F` | `$C0:012C-$012F` | runtime-validated event-engine hook and R trigger, gated to translated event `$0400` |
-| intro skip | `0x0000AC34-0x0000AC37` | `$C0:AC34-$AC37` | per-NMI R-release reset hook |
-| intro skip | `0x0AFFC0-0x0AFFC7` | `$CA:FFC0-$FFC7` | runtime-validated R-triggered end-of-intro cleanup + direct-waterfall event |
+| intro skip | `0x00012C-0x00012F` | `$C0:012C-$012F` | runtime-validated active-text observer hook to `$ED:7488` |
+| intro skip | `0x0016EA-0x0016ED` | `$C0:16EA-$16ED` | runtime-validated live-parser commit hook to `$CA:FFC8` |
+| intro skip | `0x02C786-0x02C789` | `$C2:C786-$C789` | runtime-validated normal-loop hold/WAIT hook to `$ED:7400` |
+| intro skip | `0x0AFFC0-0x0AFFFF` | `$CA:FFC0-$FFFF` | private skip tail `$FFC0-$FFC7` + 55-byte parser helper `$FFC8-$FFFE`; `$FFFF` remains free |
 | dialogue text relocation | `0x01E794-0x01E799` | `$C1:E794-$E799` | runtime-validated sparse-event resolver hook; installed only when relocation is used |
 | dialogue text relocation | `0x280000-0x2817FF` | `$E8:0000-$17FF` | sparse 2048-entry 24-bit relocation table |
 | dialogue text relocation | `0x281800-0x281FFF` | `$E8:1800-$1FFF` | reserved event-loader resolver helper; current helper is 83 bytes at `$E8:1800-$1852` |
@@ -50,7 +51,8 @@ for the owning component even when the current generated payload is shorter.
 | dialogue VWF | `0x2D7040-0x2D72E9` | `$ED:7040-$72E9` | caller gate, render/advance helpers, width table and post-outline repair (fixed blocks with intentional gaps) |
 | dialogue VWF | `0x2D7340-0x2D73AA` | `$ED:7340-$73AA` | runtime-validated interrupted-chunk physical-cell commit/snapshot helpers; commit also captures exact same-line continuation state |
 | dialogue VWF | `0x2D73B0-0x2D73B8` | `$ED:73B0-$73B8` | runtime-validated renderer-active scope helper |
-| intro skip | `0x2D7400-0x2D74FF` | `$ED:7400-$74FF` | reserved intro-skip input helper region |
+| intro skip / dialogue parser merge | `0x2D73C0-0x2D73CF` | `$ED:73C0-$73CF` | 16-byte aggregate dispatcher for shared `$C0:16EA`: parser mode 2 -> dialogue preflight `$ED:7500`, otherwise -> intro-skip parser helper `$CA:FFC8` |
+| intro skip | `0x2D7400-0x2D74FF` | `$ED:7400-$74FF` | owned validated reserve: C2 helper `$7400-$7484`, gap `$7485-$7487`, C0 observer `$7488-$74F5`, gap `$74F6-$74FF` |
 | dialogue VWF | `0x2D7500-0x2D77FF` | `$ED:7500-$77FF` | pixel-aware parser preflight, glyph-fit helper and framed-right-edge table; gaps reserved to `vwf_dialogues` |
 | dialogue VWF | `0x2D7930-0x2D79F9` | `$ED:7930-$79F9` | exact interrupted same-line VWF continuation restore/capture helpers; deliberately placed after choice helpers and before shared dispatcher |
 | shared UI/dialogue dispatcher | `0x2D7A00-0x2D7A7F` | `$ED:7A00-$7A7F` | byte-identical renderer-entry dispatcher installed by `vwf_dialogues` / `vwf_ui` |
@@ -99,7 +101,7 @@ The complete hook-by-hook allocation, fixed addresses and scratch ownership are
 documented in `components/vwf_dialogues/docs/MEMORY_MAP.md`. This root map
 intentionally avoids duplicating renderer status and calibration details.
 
-`intro_skip` runtime checkpoint reuses `$7E:938A-$938B` only during translated intro event `$0400` for a non-blocking R-hold timer. `vwf_intro` intercepts that event before `vwf_dialogues`'s renderer entry, so `vwf_dialogues` does not use its overlapping width-index scratch during the intro. A 4-byte NMI hook at `$C0:AC34-$AC37` clears the active-hold flag on physical R release so separate presses cannot accumulate. Both helpers remain inside the existing `$ED:7400-$74FF` reserve.
+`intro_skip` now runtime-validates `$7E:938A-$938B` as one 16-bit continuous-hold countdown (`$FFFF` inactive, `$0000` completed) during translated event `$0400`, and owns `$ED:7400-$74FF` for its two helpers. `vwf_intro` intercepts this event before ordinary `vwf_dialogues`, preserving the existing scratch-lifetime separation. See `docs/INTRO_SKIP_VALIDATION.md`.
 
 
 ## vwf_ui — non-dialogue UI VWF

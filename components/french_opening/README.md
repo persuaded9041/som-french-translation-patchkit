@@ -55,6 +55,12 @@ former `Z` slot), because the scrolling overlay is unsuitable for the credit
 fade. Literal `Z` is therefore rejected by the builder. This reservation is
 local to the opening font and does not affect the shared French charset.
 
+
+This is the **current validated baseline**, not the desired final treatment for
+`CHAUVIRÉ`. The next research target is to restore tile `$7A` to `Z` and render
+the acute accent for the credit on the row above the base `E`, synchronized with
+the stock credit fade. See `../../docs/OPENING_CREDIT_ACCENT_RESEARCH.md`.
+
 ## Memory
 
 - `$EE:9000-$9FFF`: reserved helper region; current helper is 37 bytes at

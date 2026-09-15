@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the runtime-validated non-blocking 2-second R-hold intro skip."""
+"""Build the runtime-validated hold-R intro skip component."""
 from __future__ import annotations
 
 import argparse
@@ -10,145 +10,267 @@ ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from shared.core.asm import MiniAssembler, lo24  # noqa: E402
 from shared.core.ips import make_ips  # noqa: E402
 from shared.core.rom import ROM_SIZE_OFFSET, expand_rom, update_checksum, validate_base_rom  # noqa: E402
-from shared.core.asm import MiniAssembler, lo24  # noqa: E402
 
-EVENT_HOOK_FILE = 0x00012C
-EVENT_RETURN_SNES = 0xC00131
-EVENT_HOOK_STOCK = bytes.fromhex("08 E2 20 C2")
+# Runtime-validated final UX: R must remain held for 120 normal-loop ticks.
+HOLD_TICKS = 120
 
-NMI_RELEASE_HOOK_FILE = 0x0000AC34
-NMI_RETURN_SNES = 0xC0AC3A
-NMI_RELEASE_HOOK_STOCK = bytes.fromhex("AD 0E 00 2D")  # LDA $000E / first byte of AND $000F
-
-SKIP_SCRIPT_FILE = 0x0AFFC0
-SKIP_SCRIPT_SNES = 0xCAFFC0
-HELPER_FILE = 0x2D7400
-HELPER_SNES = 0xED7400
-NMI_HELPER_FILE = 0x2D7490
-NMI_HELPER_SNES = 0xED7490
-HELPER_RESERVED_END = 0x2D74FF
-
-EVENT_HOOK_PATCH = bytes((0x5C, *lo24(HELPER_SNES)))
-NMI_RELEASE_HOOK_PATCH = bytes((0x5C, *lo24(NMI_HELPER_SNES)))
+# Exact translated-intro window. $0E82 is the final $1D $7F transition into
+# the separate Mode-7/flyover engine and is deliberately outside this component.
 INTRO_START = 0x0C02
-INTRO_END = 0x0E8B
-HOLD_FRAMES = 0x78
-HOLD_START_WRAM = 0x7E938A
-HOLD_ACTIVE_WRAM = 0x7E938B
+INTRO_TEXT_START = 0x0C0C
+INTRO_PARSER_COMMIT_START = 0x0C54
+INTRO_NORMAL_END = 0x0E82
 
+# Synchronized stock pad-1 state; R is bit $10 of the low byte.
+PAD1_WRAM = 0x7E0042
+R_MASK = 0x10
+
+# 16-bit state machine:
+#   $FFFF = inactive / no continuous hold in progress
+#   $0001-$FFFE = hold countdown in progress
+#   $0000 = hold completed; skip request is committed at the next safe point
+TIMER_WRAM = 0x7E938A
+TIMER_INACTIVE = 0xFFFF
+
+# Validated hooks / private code.
+# Optional aggregate parser-fetch dispatcher. The standalone/runtime-proven
+# intro path still hooks C0:16EA directly to CA:FFC8. When vwf_dialogues is
+# present, the aggregate merge rule rewrites only that hook to ED:73C0 so parser
+# mode 2 continues to ED:7500 while every other mode uses the validated intro
+# helper. This keeps component patches modular and preserves dialogue preflight.
+PARSER_DISPATCHER_SNES = 0xED73C0
+PARSER_DISPATCHER_FILE = 0x2D73C0
+PARSER_MODE_WRAM = 0x7E9380
+DIALOGUE_PARSER_HELPER_SNES = 0xED7500
+
+C0_OBSERVER_HOOK_FILE = 0x00012C
+C0_OBSERVER_HOOK_STOCK = bytes.fromhex("08 E2 20 C2 10")
+C0_OBSERVER_RETURN_SNES = 0xC00131
+C0_OBSERVER_SNES = 0xED7488
+C0_OBSERVER_FILE = 0x2D7488
+
+PARSER_HOOK_FILE = 0x0016EA
+PARSER_HOOK_STOCK = bytes.fromhex("B9 00 00 C8")
+PARSER_RETURN_SNES = 0xC016EE
+PARSER_HELPER_SNES = 0xCAFFC8
+PARSER_HELPER_FILE = 0x0AFFC8
+
+C2_LOOP_HOOK_FILE = 0x02C786
+C2_LOOP_HOOK_STOCK = bytes.fromhex("E2 20 C2 10")
+C2_LOOP_RETURN_SNES = 0xC2C78A
+C2_HELPER_SNES = 0xED7400
+C2_HELPER_FILE = 0x2D7400
+
+SKIP_SCRIPT_SNES = 0xCAFFC0
+SKIP_SCRIPT_FILE = 0x0AFFC0
 SKIP_SCRIPT = bytes.fromhex("51 18 00 2A F8 11 06 00")
 
+HELPER_RESERVED_START = 0x2D7400
+HELPER_RESERVED_END = 0x2D74FF
 
 
-def build_helper() -> bytes:
-    a = MiniAssembler(HELPER_SNES)
+def _emit_timer_inactive(a: MiniAssembler) -> None:
+    a.emit(0xA9, TIMER_INACTIVE & 0xFF, TIMER_INACTIVE >> 8)  # LDA #$FFFF
+    a.emit(0x8F, *lo24(TIMER_WRAM))                           # STA.l timer
 
-    # Reproduce the stock prologue overwritten at C0:012C.
-    a.emit(0x08)                    # PHP
-    a.emit(0xE2, 0x20)              # SEP #$20 (8-bit A)
-    a.emit(0xC2, 0x10)              # REP #$10 (16-bit X/Y)
 
-    # `intro_skip` is active only in translated intro event bank $CA.
-    a.emit(0xAF, *lo24(0x001D03))   # LDA.l $001D03
-    a.emit(0xC9, 0xCA)              # CMP #$CA
-    a.rel8(0xD0, "done8")           # BNE
+def _emit_timer_start(a: MiniAssembler) -> None:
+    a.emit(0xA9, HOLD_TICKS & 0xFF, HOLD_TICKS >> 8)         # LDA #hold ticks
+    a.emit(0x8F, *lo24(TIMER_WRAM))                           # STA.l timer
 
-    a.emit(0xC2, 0x20)              # REP #$20
-    a.emit(0xAF, *lo24(0x001D01))   # LDA.l $001D01
 
-    # Deterministic initialization at the first byte of event $0400.
-    a.emit(0xC9, INTRO_START & 0xFF, INTRO_START >> 8)
-    a.rel8(0xD0, "range_check")     # BNE
+def build_parser_dispatcher() -> bytes:
+    """Aggregate-only route: dialogue mode 2 -> ED:7500, else intro helper."""
+    a = MiniAssembler(PARSER_DISPATCHER_SNES)
+    a.emit(0xAF, *lo24(PARSER_MODE_WRAM))
+    a.emit(0xC9, 0x02)
+    a.rel8(0xF0, "dialogue")
+    a.emit(0x5C, *lo24(PARSER_HELPER_SNES))
+    a.label("dialogue")
+    a.emit(0x5C, *lo24(DIALOGUE_PARSER_HELPER_SNES))
+    return a.resolve()
+
+
+def build_c2_helper() -> bytes:
+    """Observe/decrement R holds in the normal intro loop and commit WAIT skips."""
+    a = MiniAssembler(C2_HELPER_SNES)
+
+    # Reproduce the four stock bytes displaced at C2:C786, then preserve the
+    # stock-visible processor flags while this helper performs mixed-width work.
     a.emit(0xE2, 0x20)              # SEP #$20
-    a.emit(0xA9, 0x00)              # LDA #$00
-    a.emit(0x8F, *lo24(HOLD_ACTIVE_WRAM))
-    a.emit(0x8F, *lo24(HOLD_START_WRAM))
-    a.emit(0xC2, 0x20)              # REP #$20
-    a.emit(0xAF, *lo24(0x001D01))   # reload pointer
+    a.emit(0xC2, 0x10)              # REP #$10
+    a.emit(0x08)                    # PHP
 
-    a.label("range_check")
+    # Gate strictly to translated event $0400's normal pre-Mode-7 window.
+    a.emit(0xA5, 0xD3)              # LDA $D3
+    a.emit(0xC9, 0xCA)              # CMP #$CA
+    a.rel8(0xD0, "done")            # BNE
+    a.emit(0xC2, 0x20)              # REP #$20
+    a.emit(0xA5, 0xD1)              # LDA $D1 (16-bit D1:D2)
     a.emit(0xC9, INTRO_START & 0xFF, INTRO_START >> 8)
     a.rel8(0x90, "done16")          # BCC
-    a.emit(0xC9, INTRO_END & 0xFF, INTRO_END >> 8)
+    a.emit(0xC9, INTRO_NORMAL_END & 0xFF, INTRO_NORMAL_END >> 8)
     a.rel8(0xB0, "done16")          # BCS
 
+    # Once zero is reached, keep the request sticky until a validated commit
+    # point consumes it; do not let a release at the same instant cancel it.
+    a.emit(0xAF, *lo24(TIMER_WRAM))
+    a.emit(0xC9, 0x00, 0x00)
+    a.rel8(0xF0, "expired")
+
+    # Hold semantics. A release at any time before zero cancels the countdown.
     a.emit(0xE2, 0x20)              # SEP #$20
-    a.emit(0xAF, *lo24(0x004218))   # LDA.l $4218
-    a.emit(0x29, 0x10)              # AND #$10 (runtime-validated R)
-    a.rel8(0xF0, "released")        # BEQ
-
-    # First observed held frame: remember stock NMI frame counter and return.
-    a.emit(0xAF, *lo24(HOLD_ACTIVE_WRAM))
-    a.rel8(0xD0, "holding")         # BNE
-    a.emit(0xAF, *lo24(0x0000F4))   # LDA.l $00F4
-    a.emit(0x8F, *lo24(HOLD_START_WRAM))
-    a.emit(0xA9, 0x01)
-    a.emit(0x8F, *lo24(HOLD_ACTIVE_WRAM))
-    a.rel8(0x80, "done8")           # BRA
-
-    # Subsequent calls are non-blocking: compare elapsed modulo-256 frames.
-    a.label("holding")
-    a.emit(0xAF, *lo24(0x0000F4))   # LDA.l $00F4
-    a.emit(0x38)                     # SEC
-    a.emit(0xEF, *lo24(HOLD_START_WRAM))  # SBC.l $7E938A
-    a.emit(0xC9, HOLD_FRAMES)        # CMP #$78
-    a.rel8(0x90, "done8")           # BCC
-
-    # Threshold reached: disarm local state, then use the runtime-validated
-    # event-pointer redirect.
-    a.emit(0xA9, 0x00)
-    a.emit(0x8F, *lo24(HOLD_ACTIVE_WRAM))
+    a.emit(0xAF, *lo24(PAD1_WRAM))
+    a.emit(0x29, R_MASK)            # AND #R
+    a.rel8(0xD0, "held")            # BNE
     a.emit(0xC2, 0x20)              # REP #$20
-    a.emit(0xA9, 0xC0, 0xFF)        # LDA #$FFC0
-    a.emit(0x8F, *lo24(0x001D01))
+    _emit_timer_inactive(a)
     a.emit(0xE2, 0x20)
-    a.emit(0xA9, 0xCA)
-    a.emit(0x8F, *lo24(0x001D03))
-    a.rel8(0x80, "done8")           # BRA
+    a.rel8(0x80, "done")
 
-    # Any release before the threshold cancels the hold completely.
-    a.label("released")
-    a.emit(0xA9, 0x00)
-    a.emit(0x8F, *lo24(HOLD_ACTIVE_WRAM))
-    a.rel8(0x80, "done8")
+    a.label("held")
+    a.emit(0xC2, 0x20)              # REP #$20
+    a.emit(0xAF, *lo24(TIMER_WRAM))
+    a.emit(0xC9, 0xFF, 0xFF)
+    a.rel8(0xD0, "counting")
+    _emit_timer_start(a)
+    a.emit(0xE2, 0x20)
+    a.rel8(0x80, "done")
+
+    a.label("counting")
+    a.emit(0x3A)                    # DEC A (16-bit)
+    a.emit(0x8F, *lo24(TIMER_WRAM))
+    a.emit(0xC9, 0x00, 0x00)
+    a.rel8(0xD0, "done16")
+
+    # C1 timed WAIT ($D0 == $82) is a validated safe commit point. Prepare the
+    # private tail and let the untouched stock WAIT handler expire naturally.
+    a.label("expired")
+    a.emit(0xE2, 0x20)
+    a.emit(0xA5, 0xD0)              # LDA $D0
+    a.emit(0xC9, 0x82)              # CMP #$82
+    a.rel8(0xD0, "done")
+    a.emit(0xC2, 0x20)
+    _emit_timer_inactive(a)         # consume completed request
+    a.emit(0xE2, 0x20)
+    a.emit(0xA9, 0xC0); a.emit(0x85, 0xD1)
+    a.emit(0xA9, 0xFF); a.emit(0x85, 0xD2)
+    a.emit(0xA9, 0xCA); a.emit(0x85, 0xD3)
+    a.emit(0xA9, 0x01); a.emit(0x85, 0x4F)  # stock WAIT expires next tick
+    a.rel8(0x80, "done")
 
     a.label("done16")
+    a.emit(0xE2, 0x20)
+    a.label("done")
+    a.emit(0x28)                    # PLP
+    a.emit(0x5C, *lo24(C2_LOOP_RETURN_SNES))
+    return a.resolve()
+
+
+def build_c0_observer() -> bytes:
+    """Initialize/arm/cancel the same hold timer while intro text is active."""
+    a = MiniAssembler(C0_OBSERVER_SNES)
+
+    # Reproduce the full stock prologue skipped by the four-byte JML hook.
+    a.emit(0x08)                    # PHP
     a.emit(0xE2, 0x20)              # SEP #$20
-    a.label("done8")
-    a.emit(0x5C, *lo24(EVENT_RETURN_SNES))  # JML $C00131
+    a.emit(0xC2, 0x10)              # REP #$10
+
+    a.emit(0xAF, *lo24(0x001D03))
+    a.emit(0xC9, 0xCA)
+    a.rel8(0xD0, "done")
+    a.emit(0xC2, 0x20)
+    a.emit(0xAF, *lo24(0x001D01))
+    a.emit(0xC9, INTRO_TEXT_START & 0xFF, INTRO_TEXT_START >> 8)
+    a.rel8(0x90, "done16")
+    a.emit(0xC9, INTRO_NORMAL_END & 0xFF, INTRO_NORMAL_END >> 8)
+    a.rel8(0xB0, "done16")
+
+    # WRAM is naturally zero on a fresh boot. Convert that ambiguous initial
+    # zero to the explicit inactive sentinel at the first proven text entry.
+    a.emit(0xC9, INTRO_TEXT_START & 0xFF, INTRO_TEXT_START >> 8)
+    a.rel8(0xD0, "initialized")
+    a.emit(0xAF, *lo24(TIMER_WRAM))
+    a.emit(0xC9, 0x00, 0x00)
+    a.rel8(0xD0, "initialized")
+    _emit_timer_inactive(a)
+
+    a.label("initialized")
+    # Completed requests are sticky until the parser/WAIT commit consumes them.
+    a.emit(0xAF, *lo24(TIMER_WRAM))
+    a.emit(0xC9, 0x00, 0x00)
+    a.rel8(0xF0, "done16")
+
+    a.emit(0xE2, 0x20)
+    a.emit(0xAF, *lo24(PAD1_WRAM))
+    a.emit(0x29, R_MASK)
+    a.rel8(0xD0, "held")
+
+    # Release before completion cancels and resets the full hold duration.
+    a.emit(0xC2, 0x20)
+    _emit_timer_inactive(a)
+    a.emit(0xE2, 0x20)
+    a.rel8(0x80, "done")
+
+    a.label("held")
+    a.emit(0xC2, 0x20)
+    a.emit(0xAF, *lo24(TIMER_WRAM))
+    a.emit(0xC9, 0xFF, 0xFF)
+    a.rel8(0xD0, "done16")          # C2 owns countdown decrement
+    _emit_timer_start(a)
+    a.emit(0xE2, 0x20)
+    a.rel8(0x80, "done")
+
+    a.label("done16")
+    a.emit(0xE2, 0x20)
+    a.label("done")
+    a.emit(0x5C, *lo24(C0_OBSERVER_RETURN_SNES))
     return a.resolve()
 
 
-INPUT_HELPER = build_helper()
+def build_parser_helper() -> bytes:
+    """Commit an already-completed hold from inside a live text carrier."""
+    a = MiniAssembler(PARSER_HELPER_SNES)
 
+    a.emit(0x08)                    # PHP
+    a.emit(0xE2, 0x20)
+    a.emit(0xC2, 0x10)
+    a.emit(0xAF, *lo24(0x001D03))
+    a.emit(0xC9, 0xCA)
+    a.rel8(0xD0, "stock8")
 
-def build_nmi_release_helper() -> bytes:
-    """Clear an active R hold on any NMI that observes R released.
+    a.emit(0xC2, 0x20)
+    # Start at the second carrier: the first carrier is intentionally excluded
+    # so the fresh-boot zero cannot be consumed before C0 initializes $938A.
+    a.emit(0xC0, INTRO_PARSER_COMMIT_START & 0xFF, INTRO_PARSER_COMMIT_START >> 8)
+    a.rel8(0x90, "stock16")
+    a.emit(0xC0, INTRO_NORMAL_END & 0xFF, INTRO_NORMAL_END >> 8)
+    a.rel8(0xB0, "stock16")
+    a.emit(0xAF, *lo24(TIMER_WRAM))
+    a.emit(0xC9, 0x00, 0x00)
+    a.rel8(0xD0, "stock16")
 
-    This is deliberately tiny and non-blocking. It restores the stock
-    instructions overwritten at C0:AC34 before returning to C0:AC3A.
-    """
-    a = MiniAssembler(NMI_HELPER_SNES)
+    # Consume request and redirect live parser Y to the validated tail.
+    _emit_timer_inactive(a)
+    a.emit(0xA0, 0xC0, 0xFF)       # LDY #$FFC0
 
-    # NMI is already in 8-bit A at this point. Do not touch X/Y.
-    a.emit(0xAF, *lo24(HOLD_ACTIVE_WRAM))  # LDA.l $7E938B
-    a.rel8(0xF0, "stock")                  # BEQ
-    a.emit(0xAF, *lo24(0x004218))           # LDA.l $4218
-    a.emit(0x29, 0x10)                      # AND #$10 (runtime-validated R)
-    a.rel8(0xD0, "stock")                  # BNE: still held
-    a.emit(0xA9, 0x00)                      # LDA #$00
-    a.emit(0x8F, *lo24(HOLD_ACTIVE_WRAM))   # STA.l $7E938B
-
-    a.label("stock")
-    a.emit(0xAD, 0x0E, 0x00)                # LDA $000E
-    a.emit(0x2D, 0x0F, 0x00)                # AND $000F
-    a.emit(0x5C, *lo24(NMI_RETURN_SNES))      # JML $C0AC3A
+    a.label("stock16")
+    a.emit(0xE2, 0x20)
+    a.label("stock8")
+    a.emit(0x28)                    # PLP
+    a.emit(0xB9, 0x00, 0x00)       # displaced LDA $0000,Y
+    a.emit(0xC8)                    # displaced INY
+    a.emit(0x5C, *lo24(PARSER_RETURN_SNES))
     return a.resolve()
 
 
-NMI_RELEASE_HELPER = build_nmi_release_helper()
+PARSER_DISPATCHER = build_parser_dispatcher()
+C2_HELPER = build_c2_helper()
+C0_OBSERVER = build_c0_observer()
+PARSER_HELPER = build_parser_helper()
 
 
 def main() -> None:
@@ -157,45 +279,62 @@ def main() -> None:
     parser.add_argument("-o", "--output", type=Path, default=ROOT / "build" / "patch.ips")
     args = parser.parse_args()
 
-    rom_path = args.rom.resolve()
-    base = rom_path.read_bytes()
+    base = args.rom.resolve().read_bytes()
     validate_base_rom(base)
 
-    if base[EVENT_HOOK_FILE:EVENT_HOOK_FILE + len(EVENT_HOOK_STOCK)] != EVENT_HOOK_STOCK:
-        raise SystemExit("Unexpected stock bytes at C0:012C event-engine hook")
-    if base[NMI_RELEASE_HOOK_FILE:NMI_RELEASE_HOOK_FILE + len(NMI_RELEASE_HOOK_STOCK)] != NMI_RELEASE_HOOK_STOCK:
-        raise SystemExit("Unexpected stock bytes at C0:AC34 NMI release hook")
-    if base[SKIP_SCRIPT_FILE:SKIP_SCRIPT_FILE + len(SKIP_SCRIPT)] != b"\xFF" * len(SKIP_SCRIPT):
-        raise SystemExit("Expected CA:FFC0-FFC7 intro-skip script area to be unused ($FF)")
+    if base[C0_OBSERVER_HOOK_FILE:C0_OBSERVER_HOOK_FILE + len(C0_OBSERVER_HOOK_STOCK)] != C0_OBSERVER_HOOK_STOCK:
+        raise SystemExit("Unexpected stock bytes at C0:012C intro text observer hook")
+    if base[PARSER_HOOK_FILE:PARSER_HOOK_FILE + len(PARSER_HOOK_STOCK)] != PARSER_HOOK_STOCK:
+        raise SystemExit("Unexpected stock bytes at C0:16EA live parser hook")
+    if base[C2_LOOP_HOOK_FILE:C2_LOOP_HOOK_FILE + len(C2_LOOP_HOOK_STOCK)] != C2_LOOP_HOOK_STOCK:
+        raise SystemExit("Unexpected stock bytes at C2:C786 normal-loop hook")
+    if base[SKIP_SCRIPT_FILE:SKIP_SCRIPT_FILE + 0x40] != b"\xFF" * 0x40:
+        raise SystemExit("Expected CA:FFC0-FFFF intro-skip private area to be stock $FF")
 
     rom = expand_rom(base)
     rom[ROM_SIZE_OFFSET] = 0x0C
-    if rom[HELPER_FILE:HELPER_RESERVED_END + 1] != b"\x00" * (HELPER_RESERVED_END - HELPER_FILE + 1):
-        raise SystemExit("Expected ED:7400-74FF intro-skip helper area to be unused ($00)")
-    if HELPER_FILE + len(INPUT_HELPER) - 1 >= NMI_HELPER_FILE:
-        raise SystemExit("Intro-skip input helper overlaps ED:7490 NMI release helper")
-    if NMI_HELPER_FILE + len(NMI_RELEASE_HELPER) - 1 > HELPER_RESERVED_END:
-        raise SystemExit("Intro-skip NMI helper exceeds reserved ED:7400-74FF region")
+    if rom[HELPER_RESERVED_START:HELPER_RESERVED_END + 1] != b"\x00" * 0x100:
+        raise SystemExit("Expected ED:7400-74FF intro-skip reserve to be unused ($00)")
 
-    rom[EVENT_HOOK_FILE:EVENT_HOOK_FILE + len(EVENT_HOOK_PATCH)] = EVENT_HOOK_PATCH
-    rom[NMI_RELEASE_HOOK_FILE:NMI_RELEASE_HOOK_FILE + len(NMI_RELEASE_HOOK_PATCH)] = NMI_RELEASE_HOOK_PATCH
+    if rom[PARSER_DISPATCHER_FILE:PARSER_DISPATCHER_FILE + len(PARSER_DISPATCHER)] != b"\x00" * len(PARSER_DISPATCHER):
+        raise SystemExit("Expected ED:73C0-73CF parser-dispatcher gap to be unused ($00)")
+
+    if C2_HELPER_FILE + len(C2_HELPER) > C0_OBSERVER_FILE:
+        raise SystemExit("C2 helper overlaps C0 observer")
+    if C0_OBSERVER_FILE + len(C0_OBSERVER) > HELPER_RESERVED_END + 1:
+        raise SystemExit("C0 observer exceeds ED:7400-74FF reserve")
+    if PARSER_HELPER_FILE + len(PARSER_HELPER) > 0x0B0000:
+        raise SystemExit("Parser helper exceeds CA:FFFF")
+
+    # The aggregate compatibility merge may route C0:16EA through this 16-byte
+    # dispatcher when vwf_dialogues is also selected. Standalone intro_skip keeps
+    # the exact runtime-proven direct C0:16EA -> CA:FFC8 hook below.
+    rom[PARSER_DISPATCHER_FILE:PARSER_DISPATCHER_FILE + len(PARSER_DISPATCHER)] = PARSER_DISPATCHER
+
+    # Hooks. C0:012C's helper reproduces 5 stock prologue bytes and returns at
+    # C0:0131; the other two helpers reproduce exactly their displaced bytes.
+    rom[C0_OBSERVER_HOOK_FILE:C0_OBSERVER_HOOK_FILE + 4] = bytes((0x5C, *lo24(C0_OBSERVER_SNES)))
+    rom[PARSER_HOOK_FILE:PARSER_HOOK_FILE + 4] = bytes((0x5C, *lo24(PARSER_HELPER_SNES)))
+    rom[C2_LOOP_HOOK_FILE:C2_LOOP_HOOK_FILE + 4] = bytes((0x5C, *lo24(C2_HELPER_SNES)))
+
     rom[SKIP_SCRIPT_FILE:SKIP_SCRIPT_FILE + len(SKIP_SCRIPT)] = SKIP_SCRIPT
-    rom[HELPER_FILE:HELPER_FILE + len(INPUT_HELPER)] = INPUT_HELPER
-    rom[NMI_HELPER_FILE:NMI_HELPER_FILE + len(NMI_RELEASE_HELPER)] = NMI_RELEASE_HELPER
-    update_checksum(rom)
+    rom[PARSER_HELPER_FILE:PARSER_HELPER_FILE + len(PARSER_HELPER)] = PARSER_HELPER
+    rom[C2_HELPER_FILE:C2_HELPER_FILE + len(C2_HELPER)] = C2_HELPER
+    rom[C0_OBSERVER_FILE:C0_OBSERVER_FILE + len(C0_OBSERVER)] = C0_OBSERVER
 
+    update_checksum(rom)
     patch = make_ips(base, bytes(rom))
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(patch)
 
-    print("Event hook: C0:012C -> JML $ED7400; return C0:0131")
-    print("NMI release hook: C0:AC34 -> JML $ED7490; restore stock LDA/AND then return C0:AC3A")
-    print("Intro gate: CA:0C02-0E8A")
-    print("Input: hold $4218 bit $10 (runtime-validated as R) for 120 NMI frames")
-    print("Timer state: $7E:938A-$938B during translated event $0400; `vwf_intro` intercepts that intro before `vwf_dialogues` renderer entry")
-    print(f"Skip script: CA:FFC0-${0xFFC0 + len(SKIP_SCRIPT) - 1:04X}")
-    print(f"Input helper: ED:7400-${0x7400 + len(INPUT_HELPER) - 1:04X}")
-    print(f"NMI release helper: ED:7490-${0x7490 + len(NMI_RELEASE_HELPER) - 1:04X}")
+    print(f"Validated hold duration: {HOLD_TICKS} normal-loop ticks")
+    print("Pad source: $7E:0042 bit $10 (R)")
+    print("Validated normal-intro window: CA:0C02-0E81; final Mode-7 phase excluded")
+    print(f"Aggregate parser dispatcher: ED:73C0-${0x73C0 + len(PARSER_DISPATCHER) - 1:04X} ({len(PARSER_DISPATCHER)} bytes)")
+    print(f"C2 helper: ED:7400-${0x7400 + len(C2_HELPER) - 1:04X} ({len(C2_HELPER)} bytes)")
+    print(f"C0 observer: ED:7488-${0x7488 + len(C0_OBSERVER) - 1:04X} ({len(C0_OBSERVER)} bytes)")
+    print(f"Skip tail: CA:FFC0-${0xFFC0 + len(SKIP_SCRIPT) - 1:04X}")
+    print(f"Parser helper: CA:FFC8-${0xFFC8 + len(PARSER_HELPER) - 1:04X} ({len(PARSER_HELPER)} bytes)")
     print(f"IPS: {args.output}")
 
 

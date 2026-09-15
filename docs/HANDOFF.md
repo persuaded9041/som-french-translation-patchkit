@@ -1,6 +1,6 @@
-# HANDOFF — Secret of Mana FR — dialogue second exhaustive pass complete
+# HANDOFF — Secret of Mana FR — intro_skip promoted / opening credit accent research next
 
-Date: 2026-09-14
+Date: 2026-09-15
 
 This archive is authoritative over GitHub. The reference ROM is **Secret of Mana (USA), unheadered** and must never be redistributed.
 
@@ -26,7 +26,7 @@ Final SHA-256:
 
 - `translations/dialogues_french.json`: `3e4cacd926e31d6dfe9f9021d1026c4f71dc68ccd88ce4481749e47764d2b7d9`
 - `patches/french_dialogues.ips`: `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31`
-- `patches/all.ips`: `9fc13efe50b7e315dab7238ee2142d9e245ea51ae9e51768a6ad9f6e42248029`
+- `patches/all.ips`: `253ffde42f6977e714e9d27351089a2fbf0400bf46293ca8ed8967e38aad6b6d`
 
 ## Post-freeze targeted runtime correction — dialogue VWF
 
@@ -62,8 +62,6 @@ No other top-level semantic/source metadata changed between the second-pass star
 
 A fresh cold regeneration after cleanup reproduces the promoted JSON hash. A forced rebuild of `french_dialogues.ips` was run twice and both outputs are byte-identical to each other **and** to the promoted patch; `all.ips` was likewise recombined twice and matches the promoted patch byte-for-byte.
 
-See `checkpoints/SECOND_PASS_POST_VALIDATION.md` for the final validation details.
-
 ## Core invariants
 
 - Android FR remains the primary prose source.
@@ -88,8 +86,101 @@ The active dialogue recipe surface under `recipes/android/` remains:
 - `dialogues_formatting.json`
 - `dialogues_review.json`
 
+## Intro `$0400` / validated `intro_skip`
+
+The static introduction map remains in `docs/INTRO_EVENT_ARCHITECTURE.md`. The
+isolated proof ladder in `docs/INTRO_SKIP_RESTART_PLAN.md` is now **complete**;
+its detailed runtime record is `docs/INTRO_SKIP_VALIDATION.md`.
+
+The former legacy/NMI component has been replaced by the validated implementation:
+
+- input source: synchronized pad 1 `$7E:0042`, R bit `$10`;
+- required hold: **120 continuous normal-loop ticks**;
+- release before expiry cancels completely; short presses do not accumulate;
+- state: 16-bit `$7E:938A-$938B` (`$FFFF` inactive, `$0000` completed);
+- active-text observation: `$C0:012C -> $ED:7488`;
+- standalone live mid-carrier commit: `$C0:16EA -> $CA:FFC8`;
+- aggregate with `vwf_dialogues`: shared `$C0:16EA -> $ED:73C0`, mode 2 -> `$ED:7500`, other modes -> `$CA:FFC8`;
+- normal-loop / timed-WAIT handling: `$C2:C786 -> $ED:7400`;
+- validated private tail: `$CA:FFC0-$FFC7` = `51 18 00 2A F8 11 06 00`;
+- C1 timed-WAIT handler itself remains stock; there is no NMI hook.
+
+The implementation covers all eight normal narrative text/WAIT phases before
+`$CA:0E82 = 1D 7F`. The final Mode-7/flyover engine remains deliberately outside
+the validated scope.
+
+Promoted patch SHA-256:
+
+- `patches/intro_skip.ips`: `b37d529eb25eae572212d6f7179461785e463dfef9055fd840e00f5754136c16`
+- `patches/all.ips`: `253ffde42f6977e714e9d27351089a2fbf0400bf46293ca8ed8967e38aad6b6d`
+- validated autonomous FR+VWF+skip 120: `f9f21e070d898f8ef8f05709a6ce8796dbc70a2b2faf2979e56f6c2517ed5997`
+
+A key regression lesson is now documented: the early global attempts that glitched
+at boot had grown a helper past its C7 free-space slot and overwritten the shared
+VWF helper at `$C7:43D0-$43E7`. The final design keeps all extensible helpers in
+the owned `$ED:7400-$74FF` reserve, with size guards in the builder.
+
+`intro_skip` now explicitly requires `french_intro` and `vwf_intro`, matching the
+configuration actually used for runtime validation.
+The standalone intro path is runtime-validated. The `$ED:73C0` aggregate
+dispatcher was added only to compose that path with the pre-existing
+`vwf_dialogues` mode-2 `$C0:16EA` hook; the resulting full `all.ips` has now also
+been runtime-validated by the user. The standalone component patch and the
+autonomous FR+VWF+skip test stack are likewise runtime-validated.
+
+## Current `french_opening` state and next research target
+
+The current `french_opening` implementation is a validated baseline and must be
+preserved while the next opening-credit experiment is studied.
+
+Current startup-credit behavior:
+
+- five startup credits are sourced from `translations/opening_text_french.json`;
+- the French-only fifth credit is `Traduction : E.CHAUVIRÉ`;
+- credits use the stock fixed-width startup-credit renderer and the validated
+  180-frame dwell;
+- the current `É` in startup credits is a dedicated one-cell glyph in opening-font
+  tile `$7A`, which replaces the original `Z` tile;
+- because of that reservation, the builder currently rejects literal `Z` in the
+  opening text/credits;
+- the scrolling prologue already has a separate accent-overlay convention using
+  `$7D` acute, `$7E` grave and `$7F` circumflex on the row above the base letters.
+
+The **next project target** is to remove the startup-credit `$7A = É` compromise:
+restore a normal `Z`, render the final `É` of `CHAUVIRÉ` as a base `E` on the
+credit row plus an acute accent on the tile row immediately above, and make that
+accent participate in the **same fade-in and fade-out** as the credit itself.
+
+Important historical runtime evidence supplied by the user: an earlier
+implementation had already succeeded in displaying the accent on the row above
+the credit, but the accent row did **not** follow the credit line's fade-in /
+fade-out. That is the key failure to explain before implementing a new solution.
+Do not merely recreate the old overlay.
+
+The dedicated research brief is `docs/OPENING_CREDIT_ACCENT_RESEARCH.md` and the
+next-chat prompt is `docs/NEXT_CHAT_PROMPT.md`.
+
 ## Next work
 
-The dialogue audit is complete. The next planned subject is the **items/objects translation procedure**, beginning with design/discussion before changing translation data.
+The next discussion must focus on **`french_opening` startup-credit rendering**,
+not on dialogues and not on further `intro_skip` development.
 
-Do not reopen validated dialogue wording or structure merely for style. Reopen a dialogue only if a concrete runtime, serialization, source-identity, caller/sub-event, or layout regression is demonstrated.
+First perform a deep reverse-engineering study of the startup-credit renderer and
+fade path. The first deliverable should be an evidence-based map of:
+
+- the five-credit loop and record decoder;
+- where the visible credit row is written in tilemap/WRAM/VRAM;
+- what row exists immediately above it and how it is updated;
+- how fade-in and fade-out are actually implemented (palette, tile attributes,
+  buffer selection, brightness, or another mechanism);
+- why an independently written accent row can remain visible or otherwise fail
+  to track the credit fade;
+- which existing prologue accent machinery can be reused and which cannot.
+
+Only after the fade mechanism is proved should a new implementation be proposed.
+The target design must restore the normal opening-font `Z`, keep `CHAUVIRÉ`, and
+render the acute accent above its base `E` while following the credit line's
+fade frame-for-frame.
+
+The dialogue corpus remains frozen. `intro_skip` is promoted and should not be
+modified as part of this opening-credit work.

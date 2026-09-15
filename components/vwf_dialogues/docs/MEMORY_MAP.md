@@ -28,7 +28,7 @@ cross-component view.
 | ROM `$C0:16B1-$16B6` | 6 bytes | Cursor advance / stock loop termination hook | Runtime-validated |
 | ROM `$C0:16F5-$16F8` | 4 bytes | Context-sensitive direct/DTE router hook (`$E6` base, `$E8` dialogue) | Runtime-validated for `♪`, `°`, `;` and intro/dialogue separation |
 | ROM `$C0:1B5F-$1B6C` | 14 bytes | Choice highlight geometry hook; private measured-end bounds when valid, stock `$A1D7[]` otherwise | Runtime-validated on wide and decorated Potos choices |
-| ROM `$C0:16EA-$16ED` | 4 bytes | Dialogue-only source-fetch / pixel-wrap preflight hook | Runtime-validated on known right-edge overflow case; stock replay outside parser mode 2 |
+| ROM `$C0:16EA-$16ED` | 4 bytes | Dialogue-only source-fetch / pixel-wrap preflight hook | Runtime-validated standalone; aggregate with `intro_skip` routes through shared `$ED:73C0` dispatcher then returns mode 2 unchanged to `$ED:7500` |
 | ROM `$ED:7040-$7092` | 83 bytes | Caller/bank gate + normal bitmap/decoded-count/38-slot VWF initialization for every accepted event-render invocation, including choices | Ordinary dialogue scope runtime-validated; choice rows intentionally use the same path |
 | ROM `$ED:70C0-$70F4` | 53 bytes | Table-driven cursor advance / termination helper | Runtime-validated |
 | ROM `$ED:7100-$710F` | 16 bytes | Dialogue scope wrapper; shared-row call or stock font-row fallback | Runtime-validated shared-row path |
@@ -74,9 +74,10 @@ because translated intro event `$0400` is intercepted by `vwf_intro` at
 `$C0:1664` and exits before `vwf_dialogues` reaches `$C0:167D`. Any renderer call
 that does reach `vwf_dialogues` clears `$9385` before classifying the caller.
 
-`intro_skip` reuses `$7E:938A-$938B` only during that same translated intro.
+The runtime-validated `intro_skip` component uses `$7E:938A-$938B` as its 16-bit hold countdown only during that same translated intro.
 Again, `vwf_intro`'s early renderer interception prevents `vwf_dialogues`'s
-event VWF path from using those bytes during event `$0400`.
+event VWF path from using those bytes during event `$0400`. The old intro-skip
+timer semantics are not evidence for the restart implementation.
 
 The stock progression code at `$C0:13A3` is intentionally unmodified.
 
