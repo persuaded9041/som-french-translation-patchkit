@@ -96,6 +96,12 @@ The principal ROM/WRAM allocations are documented in `docs/MEMORY_MAP.md` and
 in each component's technical documentation. New code/data must be placed only
 after checking those ranges against all existing components.
 
+## dialogue_background standalone status
+
+`dialogue_background` is a promoted runtime-validated standalone component, but its manifest deliberately sets `aggregate_enabled: false`. The root builder therefore allows targeted reconstruction while excluding it from `all` / `--combine`.
+
+The v1 bytes intentionally preserve the validated Stage-11 test candidate. That means its temporary `$7E:93D0-$93F1` state overlaps `vwf_dialogues` interrupted-continuation state at `$7E:93D0-$93DF`, and HDMA channel 6 / color-window ownership has not yet been composed with map effects. Do not combine `dialogue_background` with the aggregate until those two integration problems have been resolved and runtime-tested.
+
 
 ## Intro payload / VWF split
 

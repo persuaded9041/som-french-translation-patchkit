@@ -18,11 +18,16 @@ ROOT = Path(__file__).resolve().parent
 DEFAULT_PATCH_DIR = ROOT / "patches"
 
 
+def aggregate_components(components):
+    """Components currently admitted to the validated aggregate/all.ips set."""
+    return [component for component in components if component.metadata.get("aggregate_enabled", True)]
+
+
 def resolve_selection(values: list[str], components):
     aliases = {component.short_name: component for component in components}
     aliases.update({component.id: component for component in components})
     if not values or values == ["all"]:
-        return components
+        return aggregate_components(components)
     if "all" in values:
         raise SystemExit("Component 'all' must be used alone")
     selected = []
@@ -91,14 +96,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
             "Rebuild reusable standalone component IPS files and optionally combine the stored "
-            "component patches into all.ips."
+            "aggregate-enabled component patches into all.ips."
         )
     )
     parser.add_argument("rom", nargs="?", type=Path, help="clean unheadered Secret of Mana (USA) ROM")
     parser.add_argument(
         "components",
         nargs="*",
-        help="component short names/IDs to rebuild; default: all (unless --combine is used alone)",
+        help="component short names/IDs to rebuild; default: all aggregate-enabled components (unless --combine is used alone)",
     )
     parser.add_argument(
         "--patch-dir",
@@ -123,7 +128,8 @@ def main() -> None:
 
     if args.list:
         for component in components:
-            print(f"{component.short_name:12} {component.id:26} {component.name}")
+            status = "" if component.metadata.get("aggregate_enabled", True) else " [standalone-only]"
+            print(f"{component.short_name:20} {component.id:26} {component.name}{status}")
         return
     if args.rom is None:
         parser.error("rom is required unless --list is used")
@@ -144,7 +150,7 @@ def main() -> None:
     if selected:
         # A full rebuild warms the complete deterministic root extraction cache
         # once. Targeted builds stay lazy and only create assets they consume.
-        if len(selected) == len(components):
+        if len(selected) == len(aggregate_components(components)) and set(c.id for c in selected) == set(c.id for c in aggregate_components(components)):
             materialize_all_assets(base)
 
         patch_dir.mkdir(parents=True, exist_ok=True)
@@ -168,8 +174,9 @@ def main() -> None:
         print("Use --combine to create all.ips from the complete set of stored component patches.")
         return
 
-    patch_data = load_component_patches(components, patch_dir)
-    patch, rom, checksum, identical, declared = combine_patches(base, components, patch_data)
+    combined_components = aggregate_components(components)
+    patch_data = load_component_patches(combined_components, patch_dir)
+    patch, rom, checksum, identical, declared = combine_patches(base, combined_components, patch_data)
     output = (args.output or (patch_dir / "all.ips")).resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_bytes(patch)
@@ -179,7 +186,7 @@ def main() -> None:
         args.patched_rom.write_bytes(rom)
 
     print("\nCombined components:")
-    for component in components:
+    for component in combined_components:
         print(f"  - {component.id}")
     print(f"Compatible identical overlapping bytes: {identical}")
     print(f"Declared special/header overlapping bytes: {declared}")

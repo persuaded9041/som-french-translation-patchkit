@@ -1,4 +1,10 @@
 # HANDOFF — Secret of Mana FR — opening credit accent fade promoted
+## dialogue_background — promoted standalone v1 (2026-09-15)
+
+The hardware semi-transparent dialogue-window experiment is now promoted under semantic component ID `dialogue_background`. Runtime validation covers a normal animated dialogue frame and the inn reservation sequence with asynchronous ordinary + GP/type-2 frames (`1 opens -> 2 opens -> 1 closes -> 2 closes`). The successful model tracks explicit ownership of global live bounds `$A165-$A168`; `$A162` context restoration must never be treated as geometry ownership.
+
+The component remains `aggregate_enabled: false`: it preserves the exact validated Stage-11 allocation (`$7E:93D0-$93F1`, HDMA ch6), which conflicts with `vwf_dialogues` continuation scratch and has not yet been composed with existing map color-math/HDMA effects. `all.ips` remains unchanged. See `docs/DIALOGUE_TRANSPARENCY_RESEARCH.md`.
+
 
 Date: 2026-09-15
 

@@ -1,0 +1,7 @@
+{
+  "id": "dialogue_background",
+  "short_name": "dialogue-background",
+  "name": "Hardware semi-transparent dialogue background",
+  "build_order": 65,
+  "aggregate_enabled": false
+}

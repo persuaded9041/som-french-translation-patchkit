@@ -55,6 +55,8 @@ for the owning component even when the current generated payload is shorter.
 | intro skip | `0x2D7400-0x2D74FF` | `$ED:7400-$74FF` | owned validated reserve: C2 helper `$7400-$7484`, gap `$7485-$7487`, C0 observer `$7488-$74F5`, gap `$74F6-$74FF` |
 | dialogue VWF | `0x2D7500-0x2D77FF` | `$ED:7500-$77FF` | pixel-aware parser preflight, glyph-fit helper and framed-right-edge table; gaps reserved to `vwf_dialogues` |
 | dialogue VWF | `0x2D7930-0x2D79F9` | `$ED:7930-$79F9` | exact interrupted same-line VWF continuation restore/capture helpers; deliberately placed after choice helpers and before shared dispatcher |
+| dialogue_background (standalone v1) | `0x1FA908+` | `$DF:A908+` | ownership/lifecycle/HDMA helper payload; aggregate-disabled until this temporary allocation is formally reserved |
+| dialogue_background (standalone v1) | WRAM | `$7E:93D0-$93F1` | cached ordinary/type-2 rectangles, active/owner state and WH0/WH1 HDMA table; **known overlap with `vwf_dialogues` `$93D0-$93DF` continuation state**, therefore not aggregate-safe |
 | shared UI/dialogue dispatcher | `0x2D7A00-0x2D7A7F` | `$ED:7A00-$7A7F` | byte-identical renderer-entry dispatcher installed by `vwf_dialogues` / `vwf_ui` |
 | UI VWF renderer | `0x2D7B00-0x2D7CFF` | `$ED:7B00-$7CFF` | `vwf_ui` standalone non-dialogue UI renderer reserve (Forge backend first) |
 | UI VWF metrics | `0x2D7D00-0x2D7D7F` | `$ED:7D00-$7D7F` | `vwf_ui` validated 128-entry advance table |

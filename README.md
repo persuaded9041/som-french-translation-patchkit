@@ -30,6 +30,7 @@ The ROM itself is deliberately not included.
 - `french_intro` - validated French new-game event `$0400` payload, private intro DTE and accented glyphs.
 - `vwf_intro` - new-game intro VWF renderer/runtime, private parser buffer and validated intro window; owns no translation.
 - `vwf_dialogues` - runtime-validated variable-width renderer for stock `$C9/$CA` event dialogue and `french_dialogues` relocated `$E8-$EC` events under the same caller gate; interactive choice rows use the same VWF path; stock/decorated fallback geometry plus private measured-end geometry and the long-row right-edge compaction rule are runtime-validated on the Potos test path.
+- `dialogue_background` - runtime-validated standalone hardware semi-transparent dialogue-window background. It follows animated stock frame geometry and supports the asynchronous ordinary + GP/type-2 inn pair. It is intentionally `aggregate_enabled: false` until HDMA/color-math coexistence and WRAM integration are validated.
 - `intro_skip` - runtime-validated hold-R intro skip for translated event `$0400`: continuous R for 120 normal-loop ticks, release-to-cancel, safe mid-text/WAIT commit to the waterfall. The eight normal narrative phases are covered; the final Mode-7/flyover phase remains deliberately outside scope.
   Validation history: `docs/INTRO_SKIP_VALIDATION.md`; assembly/event-engine map: `docs/INTRO_EVENT_ARCHITECTURE.md`.
 - `french_dialogues` - deterministic source/translation reinsertion for all stock text-bearing event scripts except intro `$0400`, with in-place rebuilds and deterministic expanded-ROM relocation for growth.
@@ -37,6 +38,7 @@ The ROM itself is deliberately not included.
 - `french_resources` - deterministic reinsertion of reviewed French `$CA` name resources (magic, spirits, weapons, equipment, items, enemies and locations), with a fingerprint-validated local French JSON cache regenerated from the clean-ROM resource inventory, reviewed Android identity recipe and Android EN/FR sources when stale or absent.
 
 Component metadata lives in `components/*/component.json`. Public component IDs are semantic and intentionally unnumbered. The aggregate builder discovers components from these manifests and applies their explicit `build_order`; folder names therefore do not control patch precedence. Adding a component does not require a hard-coded component list in the root scripts.
+A component may temporarily declare `"aggregate_enabled": false` while it is runtime-valid standalone but not yet proven safe for `all.ips`. Such components remain discoverable/buildable by ID or short name, but `all` and `--combine` deliberately exclude them until that flag is promoted.
 
 Standalone component IPS files may be kept in `patches/` as reusable build
 snapshots. Each `build_patch.py` can reconstruct its patch from the clean USA ROM plus
@@ -137,13 +139,13 @@ python3 build.py "Secret of Mana (USA).sfc" french-intro vwf-intro
 ```
 
 The same command accepts component IDs instead of short names. To rebuild every
-component patch:
+**aggregate-enabled** component patch:
 
 ```bash
 python3 build.py "Secret of Mana (USA).sfc" all
 ```
 
-Once all component IPS files exist, combine the stored patches without
+Once all aggregate-enabled component IPS files exist, combine the stored patches without
 rebuilding any component:
 
 ```bash
@@ -158,7 +160,7 @@ python3 build.py "Secret of Mana (USA).sfc" vwf-dialogues --combine
 ```
 
 Only `vwf_dialogues.ips` is rebuilt; all other component patches are reused.
-The compatibility audit is then run over the complete stored set before
+The compatibility audit is then run over the complete aggregate-enabled stored set before
 `all.ips` is produced. This also catches shared-code changes that require a
 second component to be rebuilt: incompatible stale overlaps abort instead of
 being silently merged.

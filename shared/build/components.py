@@ -53,7 +53,7 @@ def _validate_manifest(folder: str, metadata: object, manifest: Path) -> dict[st
         if not isinstance(rule.get("reason"), str) or not rule["reason"]:
             raise SystemExit(f"{folder}: override rule needs a non-empty reason: {rule!r}")
 
-    for flag in ("dialogue_dte_router", "name_dte_router"):
+    for flag in ("dialogue_dte_router", "name_dte_router", "aggregate_enabled"):
         if flag in metadata and not isinstance(metadata[flag], bool):
             raise SystemExit(f"{folder}: {flag} must be boolean")
     if "shared_charset_profile" in metadata and not isinstance(metadata["shared_charset_profile"], str):
@@ -103,6 +103,11 @@ def discover_components(root: Path) -> list[Component]:
             if required.metadata["build_order"] >= component.metadata["build_order"]:
                 raise SystemExit(
                     f"{component.id}: dependency {required_id!r} must have a lower build_order"
+                )
+            if component.metadata.get("aggregate_enabled", True) and not required.metadata.get("aggregate_enabled", True):
+                raise SystemExit(
+                    f"{component.id}: aggregate-enabled component cannot require aggregate-disabled "
+                    f"component {required_id!r}"
                 )
         for rule in component.metadata.get("overrides", []):
             overridden_id = rule["component"]
