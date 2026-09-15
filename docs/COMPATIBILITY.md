@@ -86,7 +86,7 @@ real fourth-row `ï` insertion path. The diagnostic is not part of canonical dat
 
 ## Opening-font local glyph
 
-`french_opening` reserves tile `$7A` of its own title-screen font for the one-cell startup-credit `É`. This is local to the opening font, does not consume a shared French charset code, and introduces no new ROM/WRAM allocation or cross-component merge rule. The component builder rejects literal `Z` text because that opening-font slot is no longer available as `Z`.
+`french_opening` keeps tile `$7A` of its title-screen font as the stock `Z`. The final startup-credit `É` is rendered as stock `E` plus acute tile `$7D` on the row above. Its fade synchronization is local to the opening arrangement's existing credit-only CGRAM HDMA tables (`15/8` -> validated `7/16` scanline split), so it consumes no shared French charset code and introduces no new ROM/WRAM allocation or cross-component merge rule.
 
 The relocated opening arrangement lives entirely in bank `$EE` and keeps the stock `$C1:0014` resource-loader/decompressor path. This is deliberate compatibility with `mana_tree_original`, whose runtime resource hook owns extended-bank `$EF` resources. The combined architecture was runtime-validated.
 

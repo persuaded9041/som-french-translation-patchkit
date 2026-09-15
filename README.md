@@ -26,7 +26,7 @@ The ROM itself is deliberately not included.
 - `name_entry_prefill` - editable default-name prefill driven by a component-local JSON (`Randi`, `Primm`, `Popoi`); requires `name_entry_extended` for lowercase/grid support.
 - `french_name_entry_prefill` - French default-name overlay (`Randy`, `Prim`, `Popoï`), with its own JSON and fourth-row token support; requires `name_entry_prefill` + `french_name_entry_extended`.
 - `french_menus` - French GAME SELECT and GAME FILE text pipeline, dynamic frame widths and French accented glyphs.
-- `french_opening` - French startup credits/opening text.
+- `french_opening` - French startup credits/opening text, including the runtime-validated two-row `É` credit overlay with stock `Z` restored and synchronized CGRAM fade.
 - `french_intro` - validated French new-game event `$0400` payload, private intro DTE and accented glyphs.
 - `vwf_intro` - new-game intro VWF renderer/runtime, private parser buffer and validated intro window; owns no translation.
 - `vwf_dialogues` - runtime-validated variable-width renderer for stock `$C9/$CA` event dialogue and `french_dialogues` relocated `$E8-$EC` events under the same caller gate; interactive choice rows use the same VWF path; stock/decorated fallback geometry plus private measured-end geometry and the long-row right-edge compaction rule are runtime-validated on the Potos test path.

@@ -78,7 +78,7 @@ The GAME FILE relocation uses the stock-`$FF` gap after the French-intro DTE all
 must be checked against both the reserved ranges above and the actual IPS write
 maps produced by all components.
 
-`french_opening` also repurposes tile `$7A` inside its existing opening-font resource as a one-cell `É` for startup credits. This is a font-slot convention rather than a new ROM or WRAM allocation; the scrolling-text accent tiles `$7D-$7F` remain unchanged.
+`french_opening` keeps opening-font tile `$7A` as the stock `Z`. Startup-credit `É` is rendered as stock `E` plus acute tile `$7D` on the immediately preceding tile row. The wrapper lives in existing decompressed-title-code padding at CPU `$BCED`; the credit-only CGRAM HDMA tables are adjusted in place to cover both rows. This introduces no new ROM/WRAM allocation, and the prologue accent tiles `$7D-$7F` remain unchanged.
 
 GAME FILE also keeps its translation-JSON-backed stock label fields synchronized in place at `C7:7340-C7:73BB`, because runtime validation showed that one menu path still reads them even after the two table pointers are redirected to `C7:4D40`. The four-cell stock FILE field contains the `Fich` prefix; the relocated resource contains full `Fichier`. Additional in-place edits at ROM `0x0753C9` / `$C7:53C9` and `0x075AF1` / `$C7:5AF1` change the dynamic level prefix from `L` to `N` (`$A6 -> $A8`), and ROM `0x077585` / `$C7:7585` changes the FILE-frame descriptor from `$03` (6 text cells) to `$04` (8 text cells). These are not new allocations.
 

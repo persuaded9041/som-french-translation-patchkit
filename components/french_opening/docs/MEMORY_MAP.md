@@ -20,7 +20,13 @@ new ROM allocations:
 - decompressed offset `$2D8D`: arrangement-loader fragment changed from source
   `$C7:B480` to `$EE:A000`, while preserving the stock `$C1:0014` call;
 - the startup-credit list pointer and dwell constant are located by unique
-  signatures and patched in the same decompressed title-code resource.
+  signatures and patched in the same decompressed title-code resource;
+- decompressed offset `$3CED` / CPU `$BCED` is existing zero padding reused by
+  the 20-byte two-row credit wrapper; it renders the overlay row at `Y-$0040`
+  and then the normal row at `Y`;
+- arrangement offsets `$0D63`, `$0D6C`, `$0D79`, `$0D86` retain their existing
+  credit-only CGRAM HDMA tables but use the validated `7/16` scanline split so
+  the fade covers both credit tile rows.
 
 The recompressed title code remains in its original fixed-capacity stock block
 at ROM `0x077C00`; the opening font remains in its original fixed-capacity block
@@ -29,9 +35,10 @@ untouched.
 
 ## Font / WRAM conventions
 
-Opening-font tile `$7A` (former `Z`) is authored in `assets/opening_font.png` as
-a one-cell startup-credit `É`. Accent tiles `$7D-$7F` remain the scrolling-text
-overlays. No additional ROM allocation is involved.
+Opening-font tile `$7A` remains the stock `Z`. Startup-credit `É` uses stock
+`E` plus acute tile `$7D` on the row above. Accent tiles `$7D-$7F` remain the
+prologue overlay artwork as well; only `$7D` is reused by the credit-specific
+two-row path. No additional ROM allocation is involved.
 
 The component allocates no private persistent WRAM. `$7E:5000` is the stock
 title-arrangement decompression destination.

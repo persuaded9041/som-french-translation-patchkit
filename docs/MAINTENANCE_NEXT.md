@@ -71,14 +71,14 @@ Measured mass `--check` runs in the checkpoint environment: **5.72 / 5.78 / 5.86
 
 The title arrangement no longer uses optimal LZ compression. It is emitted as a literal-only stock-format stream at `$EE:A000` and still loaded through `$C1:0014`. This architecture is runtime-validated standalone, with `mana_tree_original`, and in the complete combined build. Do not reintroduce the raw `MVN` loader or allocate opening data in `$EF`; the failed raw-copy experiment demonstrated a runtime interaction with the Mana Tree resource-loader hook.
 
-## Next step
+## Current opening follow-up status
 
 Treat Round 85.10 as the serial dialogue-performance reference and Round 85.13
-as the validated opening-storage reference. The next **functional** opening task
-is not compression optimization: it is the startup-credit accent research in
-`OPENING_CREDIT_ACCENT_RESEARCH.md`.
+as the validated opening-storage reference. The later 2026-09-15 startup-credit
+accent work is now also promoted: `$7A` is stock `Z`, `CHAUVIRÉ` uses base `E` +
+`$7D` on the row above, and the credit-only CGRAM HDMA band has the
+runtime-validated `7/16` split that makes both rows share the stock fade.
 
-The current one-cell startup-credit `É` in former `Z` tile `$7A` remains the
-promoted baseline until the credit fade path is fully reverse engineered. Do not
-replace it with a two-row accent implementation until the accent row can be
-proved to share the credit's fade-in/fade-out state.
+There is no pending functional opening-credit task in this checkpoint. Do not
+reopen the fade implementation or restore the one-cell `$7A = É` workaround
+without a concrete new defect and fresh runtime validation.

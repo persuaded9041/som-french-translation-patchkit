@@ -1,4 +1,4 @@
-# HANDOFF — Secret of Mana FR — intro_skip promoted / opening credit accent research next
+# HANDOFF — Secret of Mana FR — opening credit accent fade promoted
 
 Date: 2026-09-15
 
@@ -26,7 +26,7 @@ Final SHA-256:
 
 - `translations/dialogues_french.json`: `3e4cacd926e31d6dfe9f9021d1026c4f71dc68ccd88ce4481749e47764d2b7d9`
 - `patches/french_dialogues.ips`: `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31`
-- `patches/all.ips`: `253ffde42f6977e714e9d27351089a2fbf0400bf46293ca8ed8967e38aad6b6d`
+- current `patches/all.ips`: `74e66682ede9226cf5d14cbe681b8f917f4a4cbf87055403a888485889280079`
 
 ## Post-freeze targeted runtime correction — dialogue VWF
 
@@ -112,7 +112,7 @@ the validated scope.
 Promoted patch SHA-256:
 
 - `patches/intro_skip.ips`: `b37d529eb25eae572212d6f7179461785e463dfef9055fd840e00f5754136c16`
-- `patches/all.ips`: `253ffde42f6977e714e9d27351089a2fbf0400bf46293ca8ed8967e38aad6b6d`
+- current `patches/all.ips`: `74e66682ede9226cf5d14cbe681b8f917f4a4cbf87055403a888485889280079`
 - validated autonomous FR+VWF+skip 120: `f9f21e070d898f8ef8f05709a6ce8796dbc70a2b2faf2979e56f6c2517ed5997`
 
 A key regression lesson is now documented: the early global attempts that glitched
@@ -124,63 +124,70 @@ the owned `$ED:7400-$74FF` reserve, with size guards in the builder.
 configuration actually used for runtime validation.
 The standalone intro path is runtime-validated. The `$ED:73C0` aggregate
 dispatcher was added only to compose that path with the pre-existing
-`vwf_dialogues` mode-2 `$C0:16EA` hook; the resulting full `all.ips` has now also
-been runtime-validated by the user. The standalone component patch and the
-autonomous FR+VWF+skip test stack are likewise runtime-validated.
+`vwf_dialogues` mode-2 `$C0:16EA` hook; that composed full-build baseline was
+runtime-validated by the user before the later opening-credit promotion. The
+current `all.ips` changes only `french_opening` relative to that baseline; all
+other standalone component IPS files remain byte-identical. The standalone
+`intro_skip` component patch and the autonomous FR+VWF+skip test stack remain
+runtime-validated.
 
-## Current `french_opening` state and next research target
+## Promoted `french_opening` startup-credit accent
 
-The current `french_opening` implementation is a validated baseline and must be
-preserved while the next opening-credit experiment is studied.
+The final startup-credit treatment is now **runtime-validated and promoted**.
+The authoritative implementation is the one in this archive.
 
-Current startup-credit behavior:
+Promoted patch SHA-256:
 
-- five startup credits are sourced from `translations/opening_text_french.json`;
-- the French-only fifth credit is `Traduction : E.CHAUVIRÉ`;
-- credits use the stock fixed-width startup-credit renderer and the validated
-  180-frame dwell;
-- the current `É` in startup credits is a dedicated one-cell glyph in opening-font
-  tile `$7A`, which replaces the original `Z` tile;
-- because of that reservation, the builder currently rejects literal `Z` in the
-  opening text/credits;
-- the scrolling prologue already has a separate accent-overlay convention using
-  `$7D` acute, `$7E` grave and `$7F` circumflex on the row above the base letters.
+- `patches/french_opening.ips`: `c7b0b0e8b821a6f9dbbfc6b4591c5ebada18c0df1a4320fb3b1dbd15010b2d27`
+- `patches/all.ips`: `74e66682ede9226cf5d14cbe681b8f917f4a4cbf87055403a888485889280079`
 
-The **next project target** is to remove the startup-credit `$7A = É` compromise:
-restore a normal `Z`, render the final `É` of `CHAUVIRÉ` as a base `E` on the
-credit row plus an acute accent on the tile row immediately above, and make that
-accent participate in the **same fade-in and fade-out** as the credit itself.
 
-Important historical runtime evidence supplied by the user: an earlier
-implementation had already succeeded in displaying the accent on the row above
-the credit, but the accent row did **not** follow the credit line's fade-in /
-fade-out. That is the key failure to explain before implementing a new solution.
-Do not merely recreate the old overlay.
+Current behavior:
 
-The dedicated research brief is `docs/OPENING_CREDIT_ACCENT_RESEARCH.md` and the
-next-chat prompt is `docs/NEXT_CHAT_PROMPT.md`.
+- five startup credits remain sourced from `translations/opening_text_french.json`;
+- the French-only fifth credit remains `Traduction : E.CHAUVIRÉ`;
+- the visible dwell remains 180 frames;
+- opening-font tile `$7A` is restored to the stock `Z`;
+- startup-credit `É` is rendered as ordinary `E` on the normal row plus acute
+  tile `$7D` on the tile row immediately above;
+- a wrapper in existing decompressed-title-code padding at CPU `$BCED` renders
+  an overlay record and then the normal credit record through stock `$8820`;
+- a final blank overlay record clears the upper row after the fifth credit;
+- the credit-only CGRAM HDMA segmentation is changed from `120+15+8+1` to
+  `120+7+16+1`, preserving the same 144-scanline extent while extending the
+  animated band upward by exactly one tile row;
+- `$8B5D`, the 31-step fade-in/fade-out loops and their timing remain stock.
+
+The critical reverse-engineering result is that the historical overlay did not
+miss the fade because of tile geometry or a second timer. The stock HDMA fade
+band covered only the 8 scanlines of the normal credit row, so an accent one
+tile above sat outside the animated CGRAM region. Extending that same band to 16
+scanlines makes both rows share exactly the same per-frame fade state.
+
+Validation was intentionally split:
+
+1. Stage A restored stock `Z` and the historical two-row geometry. Runtime test
+   reproduced the known behavior: accent correct, fade absent. **Validated.**
+2. Stage B changed only the credit-specific HDMA scanline boundary (`15/8` ->
+   `7/16`). Runtime test: accent placement remained correct and fade became
+   synchronized. The user reported the result as **perfect**.
+
+Preserved architecture:
+
+- arrangement literal stream remains `$EE:A000-$BFFF`;
+- loader remains stock `$C1:0014`;
+- helper reserve remains `$EE:9000-$9FFF`;
+- `$EF` remains unused by `french_opening`;
+- no dialogue data was reopened;
+- `intro_skip` was not modified by this work.
+
+Detailed research and the corrected historical explanation are in
+`docs/OPENING_CREDIT_ACCENT_RESEARCH.md`. Component implementation notes are in
+`components/french_opening/README.md` and its memory map.
 
 ## Next work
 
-The next discussion must focus on **`french_opening` startup-credit rendering**,
-not on dialogues and not on further `intro_skip` development.
-
-First perform a deep reverse-engineering study of the startup-credit renderer and
-fade path. The first deliverable should be an evidence-based map of:
-
-- the five-credit loop and record decoder;
-- where the visible credit row is written in tilemap/WRAM/VRAM;
-- what row exists immediately above it and how it is updated;
-- how fade-in and fade-out are actually implemented (palette, tile attributes,
-  buffer selection, brightness, or another mechanism);
-- why an independently written accent row can remain visible or otherwise fail
-  to track the credit fade;
-- which existing prologue accent machinery can be reused and which cannot.
-
-Only after the fade mechanism is proved should a new implementation be proposed.
-The target design must restore the normal opening-font `Z`, keep `CHAUVIRÉ`, and
-render the acute accent above its base `E` while following the credit line's
-fade frame-for-frame.
-
-The dialogue corpus remains frozen. `intro_skip` is promoted and should not be
-modified as part of this opening-credit work.
+No new functional task is prescribed by this checkpoint. Treat the dialogue
+corpus, `intro_skip`, and the startup-credit accent/fade as promoted baselines.
+The next discussion should read the archive first and follow the user's next
+explicit target rather than reopening any of those validated areas.

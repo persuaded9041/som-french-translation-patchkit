@@ -1,4 +1,9 @@
 # Versioning checkpoint — 2026-09-15
+> **Superseded note (later 2026-09-15):** this is a historical checkpoint from
+> before the startup-credit accent work was completed. The current promoted state
+> is documented in `VERSIONING_CHECKPOINT_2026-09-15_OPENING_CREDIT_ACCENT.md`
+> and `HANDOFF.md`.
+
 
 ## Promoted state
 

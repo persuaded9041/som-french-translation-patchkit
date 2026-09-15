@@ -1,172 +1,197 @@
 # Opening startup-credit accent research — `CHAUVIRÉ`
 
-Date: 2026-09-15
-Status: **next investigation; no implementation promoted yet**
+Date: 2026-09-15  
+Status: **runtime-validated and promoted**
 
 ## Objective
 
-Replace the current startup-credit one-cell `É` workaround with a true two-row
-rendering for the final letter of:
+Render the final `É` of:
 
 `Traduction : E.CHAUVIRÉ`
 
-Target result:
+without sacrificing the opening-font `Z` tile:
 
-- base row contains ordinary `E`;
-- the acute accent is rendered in the tile row immediately above that `E`;
-- the opening-font `Z` slot is restored to `Z`;
-- the accent follows the startup-credit line's fade-in and fade-out exactly,
-  frame-for-frame, without lingering, popping early/late, or using a separate
-  visual intensity.
+- the base credit row contains an ordinary `E`;
+- the acute accent uses tile `$7D` on the tile row immediately above;
+- opening-font tile `$7A` remains the stock `Z`;
+- accent and base row follow the same fade-in/fade-out frame-for-frame;
+- no stale accent remains after the fifth credit.
 
-## Validated baseline to preserve
+This is now the promoted implementation.
 
-`french_opening` currently:
+## Preserved opening architecture
 
-- keeps the stock fixed-width startup/title renderer;
-- keeps the stock `$C1:0014` resource-loader/decompressor path;
-- relocates the literal-only arrangement stream to `$EE:A000-$BFFF`;
-- uses the helper reserve `$EE:9000-$9FFF` (active helper currently starts at
-  `$EE:9000`);
-- keeps `$EF` unused because the previous raw-copy experiment conflicted with
-  `mana_tree_original` in the full build;
-- appends five startup credits and uses a 180-frame visible dwell;
-- encodes startup-credit `É` as opening-font tile `$7A`, replacing stock `Z`.
+The validated storage/loader architecture is unchanged:
 
-The scrolling prologue is a **different rendering case**: it already represents
-`é/É`, `è/È`, and `ê/Ê` as a base E plus `$7D/$7E/$7F` accent tiles on the row
-above. That proves the opening font has usable accent artwork, but it does not
-prove the startup-credit fade path can use the same overlay mechanism.
+- stock title resource loader/decompressor `$C1:0014`;
+- literal-only arrangement stream at `$EE:A000-$BFFF`;
+- opening renderer helper reserve `$EE:9000-$9FFF`;
+- no allocation in `$EF`;
+- five startup credits;
+- 180-frame visible dwell;
+- stock credit fade timing/state.
 
-## Historical runtime evidence
+`intro_skip` and the dialogue corpus were not modified by this work.
 
-An earlier experimental implementation (not present as promoted code in this
-checkpoint) successfully displayed the startup-credit acute accent on the row
-above the credit. The unresolved defect was that this accent row did **not**
-follow the credit line's fade-in/fade-out.
+## Renderer map
 
-Treat this as important negative evidence:
+The startup-credit loop lives in the decompressed title-code resource around
+CPU `$8DCD-$8E64` (logical title-code address space beginning at `$8000`).
+The important sequence is:
 
-- placement of a second-row accent is feasible;
-- fade synchronization is the unsolved problem;
-- merely writing the accent tile to the row above is insufficient.
+- `$8E0A`: load current credit-list X offset;
+- `$8E0F`: prepare the destination row;
+- stock `$8820`: decode one 32-cell credit record into the tilemap buffer;
+- `$C870`: submit the containing tilemap buffer for video transfer;
+- `$8B5D`: update the fade color state once per fade step;
+- 31-step fade-in;
+- 180-frame dwell (French patch; stock was 240);
+- 31-step fade-out;
+- next credit.
 
-Do not claim the old experiment's exact hook/address unless rediscovered from
-code/history or independently re-derived.
+The stock decoder writes one full tilemap row: 32 cells × 2 bytes = `$40`
+bytes. It writes the tile-number byte while preserving the existing attribute
+byte.
 
-## Current code surfaces
+The tilemap base is kept in `$02`. The visible credit row is addressed as:
 
-Primary implementation files:
+`tilemap_base + $0440`
 
-- `components/french_opening/build_patch.py`
-- `components/french_opening/src/opening_hook.asm`
-- `components/french_opening/assets/opening_font.png`
-- `translations/opening_text_french.json`
+The immediately preceding tile row is therefore:
 
-Current credit-specific builder functions/constants include:
+`tilemap_base + $0400`
 
-- `CREDIT_E_ACUTE_TILE_CODE = 0x7A`;
-- `encode_credit_text()`;
-- `append_startup_credit_list()`;
-- `patch_startup_credit_sequence()`;
-- credit-list and dwell signatures in the decompressed title-code resource.
+or exactly `$40` bytes earlier.
 
-Current prologue accent machinery to study for comparison:
+## Validated two-row rendering
 
-- `accents()`;
-- `build_prologue()`;
-- `$7D` acute / `$7E` grave / `$7F` circumflex convention.
+The promoted credit list stores each logical credit as two records:
 
-## Required reverse engineering before implementation
+1. an overlay record for the row above, containing blanks except `$7D` over any
+   accented `E`;
+2. the normal text record, where accented `E` is encoded as ordinary `E`.
 
-The next investigation should produce an address-backed map for the startup
-credits, not merely a high-level guess.
+The title-code call site that previously invoked `$8820` directly is redirected
+to a small wrapper in existing zero padding at decompressed title-code offset
+`$3CED` / CPU `$BCED`.
 
-### 1. Credit loop
+The wrapper:
 
-Recover the complete routine around the current credit-loop signature (described
-in the builder as the CPU `$8DD0` area):
+1. computes `main_row - $0040`;
+2. calls stock `$8820` for the overlay record;
+3. restores the normal row;
+4. calls stock `$8820` for the text record;
+5. returns to the unmodified credit loop.
 
-- record pointer/indexing;
-- line centering/indent handling;
-- text decoding;
-- tilemap write location;
-- per-credit state transitions;
-- fade-in loop;
-- 180-frame dwell;
-- fade-out loop;
-- row clearing / transition to the next credit.
+A final blank overlay record followed by the normal `$00` list sentinel clears
+the accent row after the fifth credit without creating a sixth visible credit.
 
-Record both decompressed-title-code offsets and effective CPU addresses wherever
-possible.
+No additional ROM bank or persistent WRAM allocation is required.
 
-### 2. Tilemap/buffer ownership
+## Fade reverse engineering
 
-Determine exactly:
+The historical two-row experiment had already proved that the accent could be
+drawn in the correct position, but the accent remained visually outside the
+credit fade.
 
-- which WRAM buffer/tilemap row receives the credit text;
-- which VRAM tilemap it ultimately updates;
-- the row immediately above the credit;
-- whether the renderer rewrites only the main row on every fade frame;
-- whether a second row must be copied/marked dirty separately;
-- whether attributes/palette bits differ by row or tile.
+The decisive discovery is that the startup-credit fade is spatially restricted
+by HDMA tables in the decompressed title arrangement. These tables drive CGRAM
+registers `$2121/$2122` during the credit sequence.
 
-### 3. Fade mechanism
+Relevant arrangement offsets:
 
-Prove what actually fades the credit. Possibilities to test rather than assume:
+- `$0D63`: CGADD HDMA table;
+- `$0D6C`, `$0D79`, `$0D86`: color/CGRAM HDMA tables.
 
-- palette/CGRAM mutation;
-- palette-number or priority bits in tilemap entries;
-- global screen brightness (`INIDISP`);
-- a precomputed sequence of tile attributes/colors;
-- selective buffer/VRAM updates;
-- some combination of the above.
+In the stock/current pre-fix form, the vertical segmentation is:
 
-Identify the exact state variable(s) or subroutine(s) controlling fade intensity
-and the exact frame at which they are applied.
+`120 + 15 + 8 + 1 = 144 scanlines`
 
-### 4. Explain the historical failure
+The fade-controlled segment is only the 8-scanline third segment. That is
+exactly one tile row: the normal startup-credit row.
 
-Once the fade path is mapped, provide the most likely concrete explanation for
-why a separately written accent row could be visible yet fail to fade with the
-credit. The explanation must point to observed code/data behavior, for example:
+The overlay accent is one tile row (8 scanlines) above it, so it belonged to the
+preceding segment and therefore did not share the animated CGRAM state. This
+explains the historical runtime symptom even when the accent tile itself was
+correctly positioned.
 
-- accent used another palette/attribute;
-- accent row was not rewritten during fade steps;
-- accent bypassed the staging buffer that receives changing attributes;
-- fade cleanup only touched the main row;
-- or another proven mechanism.
+The promoted fix changes only the segment counts:
 
-### 5. Candidate architectures
+`120 + 7 + 16 + 1 = 144 scanlines`
 
-Only after the above evidence, rank minimal implementations. Prefer designs that
-reuse the stock fade state and update the accent in the same rendering phase as
-the main credit. Avoid a parallel timer/fade implementation unless the stock
-path cannot be shared.
+Thus:
 
-A good design should ideally:
+- the total vertical coverage remains exactly 144 scanlines;
+- the lower boundary of the fade band does not move;
+- the fade band simply starts 8 scanlines earlier;
+- the normal credit row and the overlay row are now inside the same fade band;
+- `$8B5D`, the fade timing, and the per-frame fade state remain unchanged.
 
-- restore tile `$7A` to the original `Z` artwork;
-- encode startup-credit `É` as ordinary `E` plus metadata/marker rather than a
-  replacement glyph;
-- generate the accent tile entry using the **same palette/attribute/fade state**
-  as the corresponding base-row tile;
-- clear/update both rows together;
-- keep all other credits byte/visually unchanged;
-- preserve the validated five-credit duration and arrangement architecture.
+This is why the accent now follows the credit fade frame-for-frame without a
+parallel timer or a second fade implementation.
 
-## Validation plan for a future patch
+## Historical false lead corrected
 
-When an implementation is eventually approved, validate incrementally:
+During research, an intermediate hypothesis blamed the old candidate's
+`STA $FFF9,Y` indexed write for leaving the accent in another bank. That
+hypothesis was incorrect and is **not** part of the promoted explanation.
 
-1. `Z` restored and ordinary credits unchanged;
-2. accent appears at the correct horizontal tile above the final `E`;
-3. static full-bright credit looks correct;
-4. accent and base row appear on the same fade-in frame/intensity;
-5. accent and base row disappear on the same fade-out frame/intensity;
-6. no stale accent remains for the next credit;
-7. standalone `french_opening` works;
-8. `french_opening + mana_tree_original` works;
-9. full `all.ips` works.
+The final, runtime-confirmed cause is the HDMA scanline coverage described
+above. The old accent was geometrically correct but lived outside the 8-line
+CGRAM fade band.
 
-Do not alter dialogue data or `intro_skip` as part of this investigation.
+## Font behavior
+
+Opening-font tile `$7A` is restored to the stock `Z` artwork.
+
+The prologue accent artwork remains unchanged:
+
+- `$7D`: acute;
+- `$7E`: grave;
+- `$7F`: circumflex.
+
+The startup credit reuses `$7D` only as artwork; it does not reuse the prologue's
+record format or rendering helper. Credit rendering remains its own two-record
+path around stock `$8820`.
+
+## Runtime validation
+
+Validation proceeded in two explicit stages.
+
+### Stage A — geometry only
+
+Promoted baseline was changed only enough to restore the historical two-row
+rendering:
+
+- stock `Z` restored in `$7A`;
+- base `E` on the credit row;
+- `$7D` acute on the row above;
+- final overlay cleanup.
+
+Runtime result: **validated**. Accent position and appearance were correct; fade
+remained absent, reproducing the historical symptom.
+
+### Stage B — fade band only
+
+Relative to validated Stage A, only the four credit-specific HDMA tables were
+changed from `15/8` to `7/16` scanline segmentation. Title-code, font geometry,
+credit timing and other components were otherwise unchanged.
+
+Runtime result: **validated by the user**. The accent now follows the fade-in and
+fade-out correctly and the visual result is considered perfect.
+
+## Regression constraints
+
+Future changes must preserve all of the following unless independently
+revalidated:
+
+- `$7A` remains stock `Z`;
+- credit `É` remains base `E` + `$7D` overlay;
+- wrapper remains in existing decompressed-title-code padding at `$BCED`;
+- fade band remains 16 scanlines with unchanged lower boundary;
+- `$8B5D` and the 31-step fade loops remain stock;
+- 180-frame French credit dwell remains unchanged;
+- arrangement remains at `$EE:A000` through stock `$C1:0014`;
+- helper remains in `$EE:9000-$9FFF`;
+- `$EF` remains unused by `french_opening`;
+- no dialogue or `intro_skip` behavior is coupled to this implementation.

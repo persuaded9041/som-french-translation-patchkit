@@ -10,7 +10,7 @@ Main changes:
 - original accent-overlay system: $7D acute, $7E grave, $7F circumflex;
 - compact $02 markers, each rendered as "e " (two cells), chosen as needed to preserve the stock prologue block size;
 - literal three-period sequence for "Masamune...";
-- French startup credits sourced from root translation JSON, including a dedicated one-cell É at $7A;
+- French startup credits sourced from root translation JSON, with base-E + $7D two-row accent rendering;
 - original copyright-year tile workaround;
 - title arrangement stored as a fast literal-only stock-format stream in expanded ROM;
 - 3 MiB ROM expansion.
@@ -48,7 +48,6 @@ GRAVE_TILE_CODE = 0x7E
 CIRC_TILE_CODE = 0x7F
 BLANK_TILE_CODE = 0x60
 COMPACT_E_SPACE_MARKER = 0x02
-CREDIT_E_ACUTE_TILE_CODE = 0x7A  # former Z slot, reserved for startup-credit É
 
 COMPRESSION_TYPES = {
     0: 0x1F, 1: 0x0F, 2: 0x07,
@@ -417,7 +416,9 @@ def encode_credit_text(text):
 
     for ch in text:
         if ch in "éÉ":
-            out.append(CREDIT_E_ACUTE_TILE_CODE)
+            # Credit accents are rendered on the tile row above; the base
+            # character remains the stock E tile so $7A can remain Z.
+            out.append(ord("e"))
         elif ch == " ":
             out.append(0x20)
         elif ch == ".":
@@ -442,22 +443,70 @@ CREDIT_DWELL_SIGNATURE = bytes.fromhex("a2 f0 00 20 00 8b")
 CREDIT_DWELL_FRAMES = 180
 
 
+
+
+# Startup-credit CGRAM HDMA tables in the decompressed title arrangement.
+# The stock tables use 120 + 15 + 8 + 1 scanlines.  $8B5D animates the
+# third segment (8 scanlines), which covers only the normal credit tile row.
+# The validated implementation moves that boundary up by exactly one tile row
+# while preserving the 144-line total: 120 + 7 + 16 + 1.
+CREDIT_CGADD_HDMA_OFFSET = 0x0D63
+CREDIT_COLOR_HDMA_OFFSETS = (0x0D6C, 0x0D79, 0x0D86)
+
+
+def extend_credit_fade_band_up_one_row(arrangement):
+    """Extend the stock credit CGRAM-fade band from 8 to 16 scanlines.
+
+    $8AB5 copies these four HDMA tables only for the startup-credit sequence.
+    $8B5D updates the color word in the third segment every fade frame.
+    Keeping the segment end fixed while changing 15/8 -> 7/16 makes the same
+    stock fade state cover the overlay row immediately above the credit.
+    """
+    out = bytearray(arrangement)
+
+    expected_addr = bytes.fromhex("78 04 0f 04 08 04 01 04 00")
+    replacement_addr = bytes.fromhex("78 04 07 04 10 04 01 04 00")
+    off = CREDIT_CGADD_HDMA_OFFSET
+    if out[off:off+len(expected_addr)] != expected_addr:
+        raise ValueError("Unexpected startup-credit CGADD HDMA table")
+    out[off:off+len(expected_addr)] = replacement_addr
+
+    for off in CREDIT_COLOR_HDMA_OFFSETS:
+        # Structure: count,color16 / count,color16 / count,color16 /
+        # count,color16 / terminator.  Preserve every color word.
+        if not (out[off] == 0x78 and out[off+3] == 0x0F and
+                out[off+6] == 0x08 and out[off+9] == 0x01 and
+                out[off+12] == 0x00):
+            raise ValueError(
+                f"Unexpected startup-credit color HDMA table at +${off:04X}"
+            )
+        out[off+3] = 0x07
+        out[off+6] = 0x10
+
+    return bytes(out)
+
 def append_startup_credit_list(arrangement, credits):
-    """Append a private 5-credit list without moving any stock arrangement data.
+    """Append five logical credits as overlay+text record pairs.
 
-    The title text renderer addresses records as X offsets relative to
-    $7E:59F8 (arrangement offset $09F8).  Appending the list preserves every
-    existing arrangement offset and gives us a safe new X value.
-
-    Each record is: indent byte $06, encoded text, $00 terminator.
-    A final standalone $00 is the list sentinel used by the stock loop.
+    The overlay record occupies the tile row immediately above the normal
+    credit row and contains only accent tiles.  The text record keeps a normal
+    E for accented E characters.  A final blank-overlay record plus $00
+    sentinel clears the overlay after the fifth fade-out without creating a
+    sixth visible credit.
     """
     blob = bytearray()
     for text in credits:
+        overlay = bytearray([0x06])
+        for ch in text:
+            overlay.append(ACUTE_TILE_CODE if ch in "éÉ" else 0x20)
+        overlay.append(0x00)
+        blob.extend(overlay)
+
         blob.append(0x06)
         blob.extend(encode_credit_text(text))
         blob.append(0x00)
-    blob.append(0x00)
+
+    blob.extend((0x01, 0x00, 0x00))
 
     start_offset = len(arrangement)
     relative_x = start_offset - TEXT_TABLE_BASE_OFFSET
@@ -465,6 +514,48 @@ def append_startup_credit_list(arrangement, credits):
         raise ValueError("Appended startup-credit list is outside renderer range")
 
     return arrangement + bytes(blob), relative_x, bytes(blob)
+
+
+CREDIT_RENDER_CALL_SIGNATURE = bytes.fromhex("a4 04 20 20 88 e0 00 00")
+CREDIT_DUAL_ROW_WRAPPER_OFFSET = 0x3CED
+CREDIT_DUAL_ROW_WRAPPER_CPU = 0x8000 + CREDIT_DUAL_ROW_WRAPPER_OFFSET
+
+
+def patch_credit_dual_row_renderer(code):
+    """Render the overlay row at main-row-$40, then the normal credit row.
+
+    This wrapper is the runtime-validated two-row geometry.  Fade
+    synchronization is handled separately by extending the credit-only CGRAM
+    HDMA band upward by one tile row; no per-tile fade logic is needed here.
+    """
+    out = bytearray(code)
+    pos = out.find(CREDIT_RENDER_CALL_SIGNATURE)
+    if pos < 0 or out.find(CREDIT_RENDER_CALL_SIGNATURE, pos + 1) >= 0:
+        raise ValueError("Credit renderer call signature missing/ambiguous")
+
+    # Replace LDY $04 / JSR $8820 with JSR wrapper + two NOPs, preserving CPX.
+    out[pos:pos+5] = bytes((
+        0x20, CREDIT_DUAL_ROW_WRAPPER_CPU & 0xFF,
+        CREDIT_DUAL_ROW_WRAPPER_CPU >> 8, 0xEA, 0xEA
+    ))
+
+    # M=8-bit, X/Y=16-bit on entry.
+    #   REP #$20 ; LDA $04 ; SEC ; SBC #$0040 ; TAY ; SEP #$20
+    #   JSR $8820       ; overlay row
+    #   LDY $04
+    #   JSR $8820       ; normal text row (or sentinel)
+    #   RTS
+    wrapper = bytes.fromhex(
+        "c2 20 a5 04 38 e9 40 00 a8 e2 20 20 20 88 "
+        "a4 04 20 20 88 60"
+    )
+    off = CREDIT_DUAL_ROW_WRAPPER_OFFSET
+    if len(wrapper) > 28:
+        raise AssertionError("Dual-row wrapper exceeds validated padding")
+    if out[off:off+28] != b"\x00" * 28:
+        raise ValueError("Expected 28-byte zero padding for credit wrapper")
+    out[off:off+len(wrapper)] = wrapper
+    return bytes(out)
 
 
 def patch_startup_credit_sequence(code, relative_x):
@@ -492,7 +583,7 @@ def patch_startup_credit_sequence(code, relative_x):
         raise ValueError("Startup-credit dwell signature missing/ambiguous")
     out[dwell:dwell+3] = bytes((0xA2, CREDIT_DWELL_FRAMES & 0xFF, CREDIT_DWELL_FRAMES >> 8))
 
-    return bytes(out)
+    return patch_credit_dual_row_renderer(bytes(out))
 
 
 def encode_4bpp_tile(px):
@@ -547,8 +638,8 @@ def load_font_png(path, original_font):
         raise AssertionError("Unexpected encoded font size")
 
     # A-Y must remain byte-identical to the original US opening font.
-    # Z ($7A) is intentionally replaced by the one-cell startup-credit É
-    # directly in opening_font.png.
+    # Z ($7A) is checked separately below: startup-credit É is rendered as
+    # stock E + $7D on the row above, so the former Z-slot workaround is gone.
     for idx in range(1, 26):
         if (
             result[idx*32:(idx+1)*32]
@@ -668,9 +759,6 @@ def main():
         credits = read_credits(source_document, translations)
     except ValueError as exc:
         raise SystemExit(str(exc)) from exc
-    if any("z" in text.lower() for text in lines + credits):
-        raise ValueError("Opening tile $7A is reserved for startup-credit É; literal Z is unavailable")
-
     code, code_capacity, code_key = decompress_block(
         original, TITLE_CODE_ROM
     )
@@ -691,6 +779,11 @@ def main():
 
     new_arr = new_arr.replace(US_YEAR, FR_STYLE_1993)
 
+    # The stock credit fade animates CGRAM only across the normal 8-pixel
+    # credit row.  Extend that same HDMA segment upward by one tile row so the
+    # validated accent overlay participates in the exact same per-frame fade.
+    new_arr = extend_credit_fade_band_up_one_row(new_arr)
+
     # Append the five-credit list only after all fixed-offset arrangement
     # edits. No existing byte is inserted/moved.
     new_arr, credit_relative_x, credit_blob = append_startup_credit_list(
@@ -702,9 +795,9 @@ def main():
     helper = renderer_helper
 
     new_font = load_font_png(font_path, font)
-    if new_font[26*32:27*32] == font[26*32:27*32]:
+    if new_font[26*32:27*32] != font[26*32:27*32]:
         raise ValueError(
-            "opening_font.png tile $7A must contain the dedicated startup-credit É"
+            "opening_font.png tile $7A must remain the stock Z for two-row credit accents"
         )
 
     code_cmp = compress_block(new_code, code_key)

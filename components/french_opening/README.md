@@ -29,8 +29,13 @@ regenerates the French data from the canonical inputs, then:
   `$EE:9000` while preserving the original instruction footprint;
 - patches decompressed title-code offset `$2D8D` so the stock `$C1:0014`
   loader reads the relocated arrangement from `$EE:A000` instead of `$C7:B480`;
-- redirects the startup-credit loop to an appended five-credit list and changes
-  its visible dwell from 240 to 180 frames;
+- redirects the startup-credit loop to an appended five-credit two-row list,
+  changes its visible dwell from 240 to 180 frames, and uses a tiny wrapper in
+  existing title-code padding to render the accent overlay row before the normal
+  row;
+- extends the credit-only CGRAM HDMA fade band upward by exactly one tile row
+  (`15/8` scanline split -> `7/16`) without changing total coverage or the stock
+  fade state/timing;
 - recompresses title code and font into their original fixed-capacity blocks;
 - serializes the rebuilt arrangement as a deterministic literal-only stock
   compression stream at `$EE:A000`.
@@ -50,21 +55,25 @@ plus an accent tile on the row above. `$02` is a component-local compact marker
 expanded by the helper to `e` + blank so the 13-record prologue remains exactly
 332 bytes.
 
-Startup credits use a dedicated one-cell `É` in opening-font tile `$7A` (the
-former `Z` slot), because the scrolling overlay is unsuitable for the credit
-fade. Literal `Z` is therefore rejected by the builder. This reservation is
-local to the opening font and does not affect the shared French charset.
+Startup credits now use the same `$7D` acute artwork but a separate,
+runtime-validated two-record renderer path. Each logical credit has an overlay
+record for the row immediately above and a normal text record below it. The
+final `É` of `CHAUVIRÉ` is therefore ordinary `E` on the base row plus `$7D`
+above it; opening-font tile `$7A` is restored to the stock `Z`.
 
-
-This is the **current validated baseline**, not the desired final treatment for
-`CHAUVIRÉ`. The next research target is to restore tile `$7A` to `Z` and render
-the acute accent for the credit on the row above the base `E`, synchronized with
-the stock credit fade. See `../../docs/OPENING_CREDIT_ACCENT_RESEARCH.md`.
+The historical overlay prototype failed to fade because the stock credit CGRAM
+HDMA band covered only the 8 scanlines of the normal credit row. The promoted
+implementation expands that same band to 16 scanlines by changing its internal
+split from `15/8` to `7/16`, preserving the total 144-scanline coverage and
+leaving `$8B5D` and the 31-step fade loops unchanged. The user runtime-validated
+that the accent now fades correctly frame-for-frame. See
+`../../docs/OPENING_CREDIT_ACCENT_RESEARCH.md`.
 
 ## Memory
 
-- `$EE:9000-$9FFF`: reserved helper region; current helper is 37 bytes at
-  `$EE:9000-$9024`.
+- `$EE:9000-$9FFF`: reserved helper region; current prologue helper is 37 bytes at
+  `$EE:9000-$9024`. The startup-credit wrapper lives in existing decompressed
+  title-code padding at CPU `$BCED`, so it consumes no new expanded-ROM range.
 - `$EE:A000-$BFFF`: relocated literal-only arrangement stream.
 - WRAM `$7E:5000`: stock decompression destination; not private persistent state.
 - `$EF`: deliberately unused by this component.

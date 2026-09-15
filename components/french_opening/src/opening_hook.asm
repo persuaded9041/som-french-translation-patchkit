@@ -1,9 +1,9 @@
 ; Secret of Mana (USA) - French opening renderer helper
 ;
 ; This file documents the helper emitted byte-for-byte by build_patch.py.
-; The startup-credit É does not require helper code: the root French
-; translation JSON maps it to tile $7A, whose artwork lives in assets/opening_font.png.
-; $7A was the opening font's Z slot and is reserved by this component.
+; Startup-credit É is rendered separately by builder-generated title-code:
+; stock E on the normal row plus acute tile $7D on the row above.
+; Opening-font tile $7A therefore remains the stock Z.
 
 hirom
 
@@ -39,3 +39,9 @@ opening_char:
 
 ; build_patch.py also relocates the title arrangement stream to $EE:A000
 ; and patches the title renderer to call this helper.
+
+; Runtime-validated startup-credit overlay (builder-generated title-code/arrangement patch):
+; stock credit call site -> JSR $BCED
+; $BCED renders one overlay record at Y-$0040, then one normal record at Y.
+; The credit-only CGRAM HDMA fade band is extended upward by one 8-pixel row
+; (15/8 scanline split -> 7/16) while keeping the stock $8B5D fade state.
