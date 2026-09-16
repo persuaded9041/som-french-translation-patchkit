@@ -37,8 +37,9 @@ glyph (`Choix des fenêtres deeeee...`).
 The production isolation is now explicit at the shared submit site:
 
 - `$1847 == 0` -> one-shot tag `$7E:93C1=$A8` (top-level Ring Menu title);
+- `$1847 == 1/2` -> one-shot tag `$7E:93C1=$AA` (shop merchandise row);
 - `$1847 == 3` -> one-shot tag `$7E:93C1=$A7` (Forge);
-- `$1847 == 1/2` or any unexpected value -> no UI tag, stock fallback.
+- any unexpected value -> no UI tag, stock fallback.
 
 The Ring renderer copies the stock decoded row unchanged and enters the shared
 VWF backend without any Forge compaction. Its capacity is raised by exactly
@@ -52,15 +53,81 @@ characters). The corruption fix, the dedicated Ring/Forge tag isolation and the 
 +4 boundary restoring the last `e` are all runtime-validated. Shorter Ring labels
 continue through the same narrow mode-0 gate.
 
+
+## Runtime-validated Shop / Forge response backend
+
+The nine `$D9:FE20-$FEF3` shop/forge response mini-events now have a third
+strict UI identity, independent from Ring and Forge geometry. The two proven
+stock submit sites `$C0:7EA6` and `$C0:7FB9` arm one-shot tag
+`$7E:93C1=$A9` only when `X` points inside that exact D9 pool, then replay the
+stock `$D9` event-engine submit. The renderer additionally requires the normal
+event-engine caller and `$1D03 == $D9`.
+
+This Shop path is intentionally **render-only VWF**:
+
+- the stock event parser and stock `$7E:A1A4-$A1C4` decoded buffer remain in use;
+- no private parser mode is enabled and no parser capacity is extended;
+- the decoded row is copied to the shared private render buffer only after parsing;
+- no Forge suffix compaction is applied;
+- `french_shop_text` therefore keeps its validated maximum of 28 visible
+  characters even though the final glyphs are rendered proportionally.
+
+A later experiment that tried to exceed the stock parser capacity was rejected
+after runtime failures (`'objet !` only for the long inventory message and an
+empty sphere message). That experiment is fully reverted; do not reintroduce a
+Shop private-parser mode without new evidence.
+
+
+## Runtime-validated shop merchandise backend
+
+The shop buy/sell merchandise row shares `$00:19D0` with Ring and Forge, but
+`$1847 == 1/2` has its own one-shot identity `$AA`. Runtime validation on
+`Noix magique ... 500 PO` proved that item names can use the same render-only
+VWF without inheriting Forge suffix compaction. The stock parser and decoded
+buffer remain unchanged.
+
+Currency **content is source-owned**. `vwf_ui` never tests for `GP`, never
+writes `PO`, and never changes the source string. On clean USA standalone it
+therefore renders `GP`; with `french_resources` it renders `PO`. The component
+owns only presentation geometry: the merchandise price resync is 164 px and a
+4-pixel separator is inserted before the final two currency glyphs.
+
+## Runtime-validated type-2 MONEY presentation
+
+The total-money row is recognized structurally as bank `$7E`, window type 2,
+and source pointer in `$A1E0-$A1EB`, then receives UI tag `$AB`. The live money
+buffer remains stock-sized; `vwf_ui` does not rewrite any glyph. Its only
+changes are VWF rendering, a 3-pixel separator before the final two currency
+glyphs, and widening the type-2 window from 9 to 11 cells. The final 11-cell
+geometry and 3-pixel separator are runtime-validated.
+
+## Standalone dependency fix
+
+The Sell-menu reset was traced to a real shared-runtime dependency. The shared
+chunk-commit helper called the dialogue-only continuation helper at `$ED:7990`
+for every active VWF render. `vwf_ui` standalone does not install `$ED:7990`, so
+a merchandise/MONEY chunk that took the conversion path jumped into empty
+expanded-ROM bytes and reset the game. Adding `vwf_dialogues` masked the bug by
+providing that helper, exactly matching the runtime diagnostic.
+
+The fix gives low-level renderer state explicit identities: `$9385=$01` for
+`vwf_dialogues`, `$9385=$02` for `vwf_ui`; intro scratch values remain 3..8.
+Shared row/font/outline hooks accept only identities 1/2, while the `$ED:7990`
+continuation call is now restricted to identity 1. Thus `vwf_ui` remains truly
+standalone without duplicating or depending on dialogue continuation code.
+
 ## State and fallbacks
 
-The shared dispatcher at `$C0:167D` recognizes only the two explicit UI magic
-values when the ROM config marker `$C7:4C87=$09` is installed. The renderer
-consumes the tag immediately. All unowned calls replay stock behavior and clear
-the shared low-level VWF-active state so unrelated UI callers cannot inherit it.
+The shared dispatcher at `$C0:167D` recognizes the explicit UI families Forge
+`$A7`, Ring `$A8`, D9 Shop response `$A9`, shop merchandise `$AA`, and the
+structurally identified type-2 money window `$AB` when the ROM config marker
+`$C7:4C87=$09` is installed. The renderer consumes the tag immediately. All
+unowned calls replay stock behavior and clear the shared low-level VWF-active
+state so unrelated UI callers cannot inherit it.
 
-`vwf_ui` owns no translated prose. Ring label translations remain in
-`french_resources`.
+`vwf_ui` owns no translated prose. Ring/item translations and the two shop
+currency literals remain in `french_resources`; `vwf_ui` consumes only the
+resulting source bytes and owns presentation geometry.
 
 For the extension procedure and regression checklist, read `docs/UI_VWF.md`.
 

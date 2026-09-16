@@ -73,8 +73,8 @@ Forge through `C0:6943 -> D0:D397`, but represents a continuous title row rather
 explained the observed corruption of long French labels.
 
 Production isolation now classifies the exact shared submit by the already-existing Ring subsystem
-mode byte: `$1847==0` arms a distinct Ring one-shot tag (`$A8`), `$1847==3` arms the Forge tag
-(`$A7`), and modes 1/2 arm no UI tag. Ring titles keep the stock parser/buffer, render their decoded
+mode byte: `$1847==0` arms a distinct Ring one-shot tag (`$A8`), `$1847==1/2` arms the shop
+merchandise tag (`$AA`), and `$1847==3` arms the Forge tag (`$A7`). Ring titles keep the stock parser/buffer, render their decoded
 row unchanged under VWF, and receive exactly +4 logical units: 29 stock fresh-line units +4 = the
 33-byte stock buffer, allowing 32 visible characters plus the following control. The private
 dialogue parser is not used.
@@ -86,19 +86,80 @@ and the exact +4 boundary restores the final `e` of the 32-character
 retains its validated suffix compaction. Future UI families must use another narrow identity and
 must not broaden mode 0 or 3.
 
-## Next candidates
+## Third backend: shop merchandise row
 
-### 1. Item-acquisition / pickup UI
+Modes `$1847==1/2` use the same `$00:19D0` submit for the buy/sell merchandise
+row. The dedicated `$AA` tag keeps the stock parser/decoded buffer and applies
+VWF without Forge suffix compaction. Runtime validation proves the item name
+path and the right-aligned price path in the aggregate build.
 
-Find the path used when item/resource names are shown after pickup. Record whether quantities,
-icons, punctuation, or status text are placed with absolute cell anchors. Prove the builder with
-a local resource-ID or glyph probe before attempting VWF.
+Currency content is **not** owned by `vwf_ui`. The real shop sources are:
 
-### Later candidates
+- `$C7:7B6A` — total-money unit;
+- `$D0:D894` — two-byte merchandise-price unit literal.
 
-Equipment/status/shop rows may be considered after the first two families are understood. Do not
-create a generic "all non-dialogue text" switch. Each family should remain independently gated
-and independently disableable inside `vwf_ui`.
+`french_resources` translates those fixed two-glyph literals from `GP` to `PO`
+using `translations/french_resources_reviewed_literals.json`. `vwf_ui` only
+consumes whatever two glyphs are already present: a standalone USA build shows
+`GP`, while `all.ips` shows `PO`.
+
+Validated merchandise presentation is geometric only:
+
+- resync the price from 168 px to **164 px**;
+- insert a **4 px** separator before the final two unit glyphs;
+- do not grow or rewrite the source buffer.
+
+## Fourth backend: type-2 MONEY total
+
+The total-money window is structurally recognized as bank `$7E`, type 2, source
+pointer in `$A1E0-$A1EB`, plus exact event-renderer return `$1152`, then receives
+one-shot UI tag `$AB`. The live source remains the stock `$A1E0-$A1E9` buffer and
+`$A1EA` is never written.
+
+Validated presentation:
+
+- VWF rendering only; no glyph translation;
+- **3 px** separator before the final two unit glyphs;
+- type-2 frame width `$C7:714C` widened from **9 to 11 cells**.
+
+## Standalone dependency fix
+
+Runtime isolation proved a hidden dependency in the shared chunk-commit helper:
+converted chunks unconditionally called dialogue continuation `$ED:7990`.
+`vwf_ui` standalone does not install that routine, so opening shop rows could
+reset the game. `vwf_ui + vwf_dialogues` worked only because `vwf_dialogues`
+provided the missing code.
+
+The shared low-level active byte now has explicit identities:
+
+- `$9385=$01` for `vwf_dialogues`;
+- `$9385=$02` for `vwf_ui`.
+
+Shared UI/dialogue hooks accept identities 1/2, but `$ED:7990` is called only
+for identity 1. Intro values 3..8 remain excluded. Stock fallbacks clear the
+identity. The fallback-scope helper must branch to its own `CLC/RTL`; the
+validated offsets are `BEQ +6` and `BCS +2`. The incorrect `+8/+4` offsets
+caused a black GAME SELECT while music continued.
+
+This dependency fix and GAME SELECT correction are runtime-validated. Do not
+make `vwf_ui` depend on `vwf_dialogues`, and do not put `GP -> PO` translation
+logic back into the renderer.
+
+## Current next defect: `Haubert magique`
+
+Resource `$CA:9F8E` / ID `$09C` (`armor_name`, stock `Magical Armor`) translates
+to `Haubert magique`. In the shop merchandise `$AA` path, runtime testing shows
+its leftmost `H` missing while other items are correct. Treat this as a narrow
+item-specific rendering defect. First compare the decoded row, private VWF copy,
+starting X/slot and clipping behavior with a known-good item such as
+`Noix magique`; do not broaden the backend or alter the validated currency
+geometry as a first response.
+
+## Later candidates
+
+Item-acquisition/pickup UI or other equipment/status rows may be considered only
+after the current shop defect is resolved. Do not create a generic "all
+non-dialogue text" switch. Each family must remain independently gated.
 
 ## Known rejected patterns
 
@@ -109,4 +170,6 @@ Do not reuse these unchanged:
 - renderer-time matching against stale initial event pointers;
 - private-38 buffer substitution for arbitrary UI mini-events;
 - low-level VWF hooks left active after a tagged UI invocation;
-- tags armed at generic `WEAPON_NAME` helpers when a more exact submit exists.
+- tags armed at generic `WEAPON_NAME` helpers when a more exact submit exists;
+- renderer-side `GP -> PO` substitution;
+- unconditional calls from shared UI chunk commit into dialogue-only `$ED:7990`.

@@ -1,8 +1,8 @@
-# french_resources — French `$CA` resources
+# french_resources — French resources
 
 Rebuilds the reviewed French resource subset in the stock 513-entry non-event
-`$CA` text-resource table: the established name families plus the validated top-level
-Ring Menu title labels.
+`$CA` text-resource table and owns a tiny reviewed set of fixed UI literals that
+belong to translated resource content rather than renderer geometry.
 
 ## Ownership
 
@@ -15,11 +15,14 @@ This component currently translates only these reviewed families:
 - item/special names already present in the reviewed Android mapping;
 - enemy names;
 - location names;
-- the nine validated top-level Ring Menu title labels (`$0C6-$0CE`).
+- the nine validated top-level Ring Menu title labels (`$0C6-$0CE`);
+- the two shop currency-unit literals (`C7:7B6A` total money and `D0:D894`
+  merchandise price), translated `GP -> PO`.
 
-It does **not** own dialogue events, descriptions, other menu/status labels or UI VWF
-rendering. No new object/item translation should be added during component
-maintenance audits.
+It does **not** own dialogue events, descriptions or UI VWF rendering. Currency
+spacing/window geometry remains entirely in `vwf_ui`; this component changes
+only the two source glyphs. No new object/item translation should be added
+during component maintenance audits.
 
 ## Canonical inputs and local generated cache
 
@@ -50,8 +53,12 @@ them from canonical inputs.
 `translations/text_resources_reviewed_overrides.json` is different: it is a small
 **canonical reviewed adaptation layer** consumed directly by `french_resources`. It
 stores SNES-specific wording validated for mapped `$CA` resources without hard-coding
-French prose in Python. The current entries are the nine Ring Menu titles; their
-resource IDs/category are checked against the clean-ROM inventory before insertion.
+French prose in Python.
+
+`translations/french_resources_reviewed_literals.json` is the corresponding
+canonical layer for fixed non-$CA literals. It currently contains only the two
+shop currency units. Their clean-USA source bytes and fixed length are verified
+before insertion; `PO` is never hard-coded in Python.
 
 ## Storage/runtime architecture
 

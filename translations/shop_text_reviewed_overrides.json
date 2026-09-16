@@ -1,0 +1,23 @@
+{
+  "format_version": 1,
+  "language": "fr",
+  "source_asset": "shop_text.json",
+  "description": "User-validated SNES-specific shop/forge wording. These entries are kept separate from direct Android-FR payloads because they shorten a longer Android line or cover a source string with no exact Android equivalent.",
+  "entries": [
+    {
+      "id": "D9:FE4B",
+      "text": "Vous n'avez plus de place !",
+      "reason": "Android FR is too long for the 28-character stock fixed-width response line."
+    },
+    {
+      "id": "D9:FEB7",
+      "text": "Il faut une sphère de plus !",
+      "reason": "Android FR is too long for the 28-character stock fixed-width response line."
+    },
+    {
+      "id": "D9:FED3",
+      "text": "Cette arme est au maximum !",
+      "reason": "No exact canonical Android equivalent was found; wording was explicitly reviewed and validated for SNES."
+    }
+  ]
+}

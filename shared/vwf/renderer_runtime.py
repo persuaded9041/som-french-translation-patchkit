@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from shared.core.asm import lo24
 from shared.vwf.row_renderer import ROW_RENDERER_CALL
+from shared.vwf.ui import SHOP_SUFFIX_GAP_HELPER_CPU
 
 CHAR_START_FILE = 0x001686
 FONT_ROW_FILE = 0x0016A4
@@ -22,6 +23,8 @@ OUTLINE_POST_HELPER_FILE = 0x2D7280
 CHUNK_COMMIT_HELPER_FILE = 0x2D7340
 CHUNK_CELLS_SNAPSHOT_FILE = 0x2D7380
 EVENT_RENDER_SCOPE_HELPER_FILE = 0x2D73B0
+MONEY_KERN_HELPER_FILE = 0x2D73D0
+MONEY_KERN_HELPER_CPU = 0xED73D0
 CHOICE_VISUAL_HELPER_FILE = 0x2D7880
 CHOICE_VISUAL_HELPER_CPU = 0xED7880
 CHOICE_TRACKER_HELPER_FILE = 0x2D7910
@@ -50,17 +53,22 @@ def _resolve_rel8(
 
 
 def make_event_render_scope_helper() -> bytes:
-    """Return carry set only for the renderer invocation tagged as event text.
+    """Return carry set only for the shared dialogue/UI VWF renderer scope.
 
-    The renderer at $C0:1664 is shared by the event engine, GAME SELECT and a
-    third non-event caller.  The entry helper tags only the exact event-engine
-    caller ($C0:1150, whose JSR return address on the stack is $1152) and only
-    for stock event banks $C9/$CA and `french_dialogues` relocated banks $E8-$EC.
-    Internal hooks then consume this private
-    flag instead of guessing from shared global state.
+    ``$7E:9385`` now has two explicit low-level renderer identities:
+
+    - ``$01`` = ordinary dialogue VWF (owned by ``vwf_dialogues``);
+    - ``$02`` = UI VWF (owned by ``vwf_ui``).
+
+    ``vwf_intro`` reuses the same scratch byte for glyph advances 3..8, so the
+    old generic ``non-zero`` test was too broad.  Accepting only 1/2 keeps the
+    shared row/font hooks byte-identical between standalone components while
+    excluding intro scratch values.
     """
     return bytes.fromhex(
-        "AD 85 93 F0 02 38 6B 18 6B"  # LDA $9385 / BEQ no / SEC RTL / CLC RTL
+        "AD 85 93 F0 06 C9 03 B0 02 38 6B 18 6B"
+        # LDA $9385 / BEQ no / CMP #3 / BCS no / SEC RTL / CLC RTL
+        # BEQ/BCS target the local CLC/RTL pair, never fall through past the helper.
     )
 
 
@@ -85,9 +93,39 @@ def make_char_start_helper() -> bytes:
         emit(op, 0)
         branches.append((len(code) - 1, target))
 
-    emit(0x22, 0xB0, 0x73, 0xED)       # exact `vwf_dialogues` event-render scope
+    emit(0x22, 0xB0, 0x73, 0xED)       # exact active VWF render scope
     br(0x90, "replay")
     emit(0x22, 0x80, 0x73, 0xED)       # snapshot useful chunk cells
+
+    # Shop merchandise rows (Ring subsystem modes 1/2) are built as
+    # `resource name + TEXT_X $15 + price`.  VWF must apply to the name while
+    # preserving the stock right edge of the price field.  The localized
+    # currency suffix is ` PO`: under the shared VWF metrics it is exactly 4 px
+    # wider than stock `GP` (18 px vs 14 px).  The runtime-complete merchandise
+    # price anchor is therefore 164 px (stock 168 px).  A 165-px follow-up was
+    # tested and clipped the final `O`, so it is deliberately rejected. Only an
+    # already-tagged bank-$00 UI render can reach this branch; ordinary
+    # dialogue/Ring/Forge/D9 text is unaffected.
+    emit(0xAF, 0x03, 0x1D, 0x00)       # live event bank
+    emit(0xC9, 0x00)
+    br(0xD0, "shop_anchor_done")
+    emit(0xAF, 0x47, 0x18, 0x7E)       # Ring subsystem mode
+    emit(0xC9, 0x01)
+    br(0xF0, "shop_anchor_mode")
+    emit(0xC9, 0x02)
+    br(0xD0, "shop_anchor_done")
+    label("shop_anchor_mode")
+    emit(0xE0, 0x15, 0x00)             # CPX #$0015: stock TEXT_X price slot
+    br(0xD0, "shop_anchor_done")
+    emit(0xA9, 0xA4)                   # 164 px: runtime-complete shop price anchor
+    emit(0x8F, 0x82, 0x93, 0x7E)       # pixel cursor = localized price anchor
+    label("shop_anchor_done")
+
+    # The type-2 MONEY presentation keeps a real separator before the currency
+    # unit, but tightens that separator by exactly one pixel.  The helper is
+    # structurally gated to the stock MONEY row and therefore leaves shop-row
+    # prices, Ring, Forge and dialogue rendering untouched.
+    emit(0x22, *lo24(MONEY_KERN_HELPER_CPU))
 
     # While a stock choice is active, find the exact option/terminal boundary
     # matching the current decoded slot.  X becomes the boundary index 0..N.
@@ -180,6 +218,64 @@ def make_char_end_helper() -> bytes:
     emit(0x5C, 0x86, 0x16, 0xC0)
     emit(0x5C, 0x40, 0x73, 0xED)       # final slot -> generic chunk commit
 
+    return _resolve_rel8(code, labels, branches)
+
+
+def make_money_kern_helper() -> bytes:
+    """Apply currency *geometry* without translating currency bytes.
+
+    This helper is shared byte-for-byte with ``vwf_dialogues``, so it must be
+    safe when ``vwf_ui`` is absent. It first requires the exact UI renderer
+    identity value 2. For the accepted type-2 MONEY render (bank $7E),
+    decoded slot 7 is the first two-glyph currency unit; add a 3-pixel visual
+    separator before that unit.
+
+    For bank $00 UI rows, delegate to the vwf_ui-owned helper at $ED:7C40.
+    ``vwf_dialogues`` can never take that branch standalone: its active marker
+    is set only for dialogue banks $C9/$CA/$E8-$EC.  Ring/Forge may reach the
+    helper with bank $00, but the UI-owned helper itself narrows to shop modes
+    1/2 and the final two decoded glyphs.
+
+    No glyph value is inspected and no source/private text byte is rewritten.
+    Thus clean-USA standalone renders ``GP`` while an aggregate build naturally
+    renders the ``PO`` supplied by ``french_resources``.
+    """
+    code = bytearray()
+    labels: dict[str, int] = {}
+    branches: list[tuple[int, str]] = []
+
+    def emit(*vals: int) -> None:
+        code.extend(vals)
+
+    def label(name: str) -> None:
+        labels[name] = len(code)
+
+    def br(op: int, target: str) -> None:
+        emit(op, 0)
+        branches.append((len(code) - 1, target))
+
+    emit(0xAD, 0x85, 0x93)             # exact UI renderer-active marker
+    emit(0xC9, 0x02)
+    br(0xD0, "return")
+
+    emit(0xAF, 0x03, 0x1D, 0x00)       # live event bank
+    emit(0xC9, 0x7E)
+    br(0xF0, "money")
+    emit(0xC9, 0x00)
+    br(0xD0, "return")
+    emit(0x22, *lo24(SHOP_SUFFIX_GAP_HELPER_CPU))
+    br(0x80, "return")
+
+    label("money")
+    emit(0xE0, 0x07, 0x00)             # first currency glyph after 7 amount cells
+    br(0xD0, "return")
+    emit(0xAD, 0x82, 0x93)             # pixel cursor += 3
+    emit(0x18)
+    emit(0x69, 0x03)
+    emit(0x8D, 0x82, 0x93)
+
+    label("return")
+    emit(0x6B)
     return _resolve_rel8(code, labels, branches)
 
 
@@ -338,11 +434,11 @@ def make_chunk_commit_helper() -> bytes:
     stock behavior and invalidate any interrupted same-line continuation. A
     newly possible 33..38-character line-break chunk must be converted too.
 
-    For tagged event-dialogue chunks that are converted, capture the exact
-    sub-cell remainder through the dialogue continuation helper at `$ED:7990`.
-    `vwf_ui` installs this shared helper byte-identically, but its non-dialogue
-    renderer never passes the event-render scope gate, so the dialogue-only call
-    is unreachable in standalone UI use.
+    For converted dialogue chunks only, capture the exact sub-cell remainder
+    through the dialogue-owned continuation helper at `$ED:7990`. UI VWF uses
+    renderer identity `$02`, so standalone `vwf_ui` skips that call entirely;
+    this is required because `$ED:7990` is intentionally absent without
+    `vwf_dialogues`.
     """
     code = bytearray()
     labels: dict[str, int] = {}
@@ -379,7 +475,14 @@ def make_chunk_commit_helper() -> bytes:
     label("convert")
     # A full 38-character chunk has no first padded slot; snapshot once here.
     emit(0x22, 0x80, 0x73, 0xED)       # JSL $ED7380
-    emit(0x22, 0x90, 0x79, 0xED)       # JSL $ED7990 exact continuation capture
+    # $ED:7990 is owned only by vwf_dialogues.  Standalone vwf_ui deliberately
+    # leaves that region empty, so call it only for the explicit dialogue
+    # renderer identity ($9385 == $01). UI identity $02 must skip it.
+    emit(0xAD, 0x85, 0x93)
+    emit(0xC9, 0x01)
+    br(0xD0, "skip_continuation_capture")
+    emit(0x22, 0x90, 0x79, 0xED)       # dialogue-only continuation capture
+    label("skip_continuation_capture")
 
     emit(0xAD, 0xCE, 0xA1)
     emit(0x29, 0x80)                    # preserve line-end bit
@@ -433,11 +536,9 @@ def make_outline_post_helper() -> bytes:
     This runtime-validated helper is entered at $C0:1168, after the stock
     JSR $162C has returned; that call must remain intact for the stock outline.
 
-    The repair itself is bank-neutral. Runtime-validated scope gating requires
-    the exact `vwf_dialogues` renderer-active tag value ($7E:9385 == $01), so
-    ordinary tagged $C9/$CA or relocated $E8-$EC dialogue is eligible while `vwf_intro`'s intro
-    intro remains excluded: under that mutually-exclusive scope $9385 holds a
-    validated glyph advance in the range 3..8, never the tag value 1.
+    The repair itself is bank-neutral. Runtime-validated scope gating requires the shared low-level renderer identity: dialogue `$01` or UI `$02`.
+    `vwf_intro` remains excluded because it reuses $9385 only for glyph advances
+    in the range 3..8.
 
     Scan the already rendered $9000-$917F bitmap. If ink touches the left/right
     edge of a source cell, add the corresponding one-pixel outline contribution
@@ -457,9 +558,8 @@ def make_outline_post_helper() -> bytes:
         emit(op, 0)
         branches.append((len(code) - 1, target))
 
-    emit(0xAF, 0x85, 0x93, 0x7E)       # LDA.l $7E9385: `vwf_dialogues` tag / intro advance
-    emit(0xC9, 0x01)                   # exact dialogue-active tag only
-    br(0xD0, "replay")              # intro (3..8), inactive (0), other -> stock tail
+    emit(0x22, 0xB0, 0x73, 0xED)       # shared renderer scope: dialogue $01 / UI $02
+    br(0x90, "replay")                 # intro (3..8) and inactive -> stock tail
 
     emit(0x9C, 0x8C, 0x93)             # STZ OUTLINE_TILE
     emit(0xA2, 0x00, 0x00)             # LDX #$0000 source offset
@@ -514,6 +614,7 @@ def make_outline_post_helper() -> bytes:
     return _resolve_rel8(code, labels, branches)
 
 EVENT_RENDER_SCOPE_HELPER = make_event_render_scope_helper()
+MONEY_KERN_HELPER = make_money_kern_helper()
 CHAR_START_HELPER = make_char_start_helper()
 CHAR_END_HELPER = make_char_end_helper()
 CHOICE_VISUAL_HELPER = make_choice_visual_helper()
@@ -532,7 +633,8 @@ def _validate_layout() -> None:
         ("outline-post helper", OUTLINE_POST_HELPER_FILE, OUTLINE_POST_HELPER, CHUNK_COMMIT_HELPER_FILE),
         ("chunk-commit helper", CHUNK_COMMIT_HELPER_FILE, CHUNK_COMMIT_HELPER, CHUNK_CELLS_SNAPSHOT_FILE),
         ("chunk snapshot helper", CHUNK_CELLS_SNAPSHOT_FILE, CHUNK_CELLS_SNAPSHOT_HELPER, EVENT_RENDER_SCOPE_HELPER_FILE),
-        ("event-render scope helper", EVENT_RENDER_SCOPE_HELPER_FILE, EVENT_RENDER_SCOPE_HELPER, 0x2D7400),
+        ("event-render scope helper", EVENT_RENDER_SCOPE_HELPER_FILE, EVENT_RENDER_SCOPE_HELPER, MONEY_KERN_HELPER_FILE),
+        ("money kern helper", MONEY_KERN_HELPER_FILE, MONEY_KERN_HELPER, 0x2D7400),
         ("choice visual helper", CHOICE_VISUAL_HELPER_FILE, CHOICE_VISUAL_HELPER, CHOICE_TRACKER_HELPER_FILE),
         ("choice tracker helper", CHOICE_TRACKER_HELPER_FILE, CHOICE_TRACKER_HELPER, 0x2D7A00),
     )
@@ -576,6 +678,7 @@ def install(rom: bytearray, width_table: bytes) -> None:
         (CHUNK_COMMIT_HELPER_FILE, CHUNK_COMMIT_HELPER),
         (CHUNK_CELLS_SNAPSHOT_FILE, CHUNK_CELLS_SNAPSHOT_HELPER),
         (EVENT_RENDER_SCOPE_HELPER_FILE, EVENT_RENDER_SCOPE_HELPER),
+        (MONEY_KERN_HELPER_FILE, MONEY_KERN_HELPER),
         (CHOICE_VISUAL_HELPER_FILE, CHOICE_VISUAL_HELPER),
         (CHOICE_TRACKER_HELPER_FILE, CHOICE_TRACKER_HELPER),
     ):

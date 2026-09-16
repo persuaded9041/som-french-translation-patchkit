@@ -1,8 +1,8 @@
-# Prompt de reprise — Secret of Mana FR — baseline validée
+# Prompt de reprise — Secret of Mana FR — bug `Haubert magique` en boutique
 
 Je poursuis le projet **Secret of Mana FR** à partir de l'archive propre fournie.
-L'archive fournie est **prioritaire sur GitHub**. Le ROM de référence reste
-**Secret of Mana (USA), non headeré** et ne doit jamais être redistribué.
+L'archive est **prioritaire sur GitHub**. La ROM de référence reste **Secret of
+Mana (USA), non headerée** et ne doit jamais être redistribuée.
 
 Commence par lire intégralement :
 
@@ -10,18 +10,52 @@ Commence par lire intégralement :
 - `docs/HANDOFF.md`
 - `docs/COMPATIBILITY.md`
 - `docs/MEMORY_MAP.md`
-- les README / memory maps du ou des composants concernés par ma prochaine demande.
+- `docs/UI_VWF.md`
+- `components/vwf_ui/README.md`
+- `components/vwf_ui/docs/MEMORY_MAP.md`
+- `components/french_resources/README.md`
 
-Baselines à ne pas rouvrir sans défaut concret :
+Le corpus de dialogues est gelé : ne modifie aucun dialogue, mapping Android FR
+ou segmentation.
 
-- corpus de dialogues jouables validé ;
-- `intro_skip` hold-R 120 validé ;
-- `french_opening` avec le `Z` stock restauré et `CHAUVIRÉ` rendu par `E` +
-  accent `$7D` sur la ligne supérieure ;
-- fade de cet accent synchronisé avec la ligne de crédit par la bande CGRAM
-  HDMA validée `7/16` scanlines ;
-- arrangement opening à `$EE:A000`, loader stock `$C1:0014`, helper `$EE:9000`,
-  aucune allocation `$EF` pour `french_opening`.
+## Baseline validée à préserver
 
-Lis d'abord le dépôt et **n'engage aucun nouveau chantier de ta propre initiative**.
-Attends ensuite ma prochaine demande et limite les modifications à son périmètre.
+La boutique est maintenant runtime-validée :
+
+- VWF des noms d'objets achat/vente via le tag dédié `$AA` ;
+- VWF des messages Shop D9 via `$A9` ;
+- `PO` appartient à `french_resources`, jamais à `vwf_ui` :
+  `$C7:7B6A` et `$D0:D894` sont traduits `GP -> PO` depuis
+  `translations/french_resources_reviewed_literals.json` ;
+- `vwf_ui` ne fait que le rendu/géométrie : prix à 164 px + séparateur 4 px,
+  MONEY type 2 à 11 cellules + séparateur 3 px ;
+- `vwf_ui` est standalone et ne dépend plus de `vwf_dialogues` ;
+- GAME SELECT fonctionne ; Ring `$A8`, Forge `$A7`, Shop D9 `$A9`, merchandise
+  `$AA` et MONEY `$AB` restent isolés.
+
+Ne refactore pas cette architecture sans nécessité directe.
+
+## Bug à corriger
+
+Chez le vendeur, l'armure **`Haubert magique`** apparaît comme **`aubert magique`** :
+le caractère le plus à gauche (`H`) n'est pas visible. Les autres objets testés
+s'affichent correctement.
+
+Ressource déjà identifiée :
+
+- ROM/resource : **`CA:9F8E`**
+- resource ID : **`$09C`**
+- catégorie : **`armor_name`**
+- USA : **`Magical Armor`**
+- FR généré : **`Haubert magique`**
+- renderer concerné : boutique merchandise VWF **tag `$AA`**.
+
+Commence par reproduire et expliquer précisément pourquoi **cet item seulement**
+perd son premier caractère. Compare-le à un item connu bon, par exemple
+`Noix magique` : source `$CA`, flux de décodage, contenu/indices du buffer stock,
+copie privée VWF, position de départ, éventuel shift/clipping et commit de cellules.
+
+Procède par petites preuves. Ne change pas le texte `Haubert magique` pour
+contourner le bug. N'implémente un correctif qu'une fois la cause attribuée, puis
+fournis un **`all.ips` complet applicable à la ROM USA propre** et, si le
+correctif touche `vwf_ui`, un test standalone `vwf_ui.ips` sur ROM propre.

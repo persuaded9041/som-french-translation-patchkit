@@ -1,0 +1,61 @@
+{
+  "format_version": 1,
+  "source_asset": "shop_text.json",
+  "description": "Reviewed Android identity/provenance for the nine D9 shop/forge mini-event strings. Direct records must match Android FR exactly after edge-whitespace normalization; adaptation_basis records provide source evidence but take their final SNES wording from the reviewed override JSON.",
+  "records": [
+    {
+      "snes_id": "D9:FE22",
+      "status": "direct",
+      "android_namespace": "systxt",
+      "android_ids": [100179]
+    },
+    {
+      "snes_id": "D9:FE2F",
+      "status": "direct",
+      "android_namespace": "systxt",
+      "android_ids": [100180]
+    },
+    {
+      "snes_id": "D9:FE4B",
+      "status": "adaptation_basis",
+      "android_namespace": "systxt",
+      "android_ids": [100181]
+    },
+    {
+      "snes_id": "D9:FE67",
+      "status": "direct",
+      "android_namespace": "systxt",
+      "android_ids": [100182]
+    },
+    {
+      "snes_id": "D9:FE80",
+      "status": "direct",
+      "android_namespace": "systxt",
+      "android_ids": [100184]
+    },
+    {
+      "snes_id": "D9:FE98",
+      "status": "direct",
+      "android_namespace": "scrtxt",
+      "android_ids": [571, 586]
+    },
+    {
+      "snes_id": "D9:FEB7",
+      "status": "adaptation_basis",
+      "android_namespace": "systxt",
+      "android_ids": [100183]
+    },
+    {
+      "snes_id": "D9:FED3",
+      "status": "reviewed_without_android_equivalent",
+      "android_namespace": null,
+      "android_ids": []
+    },
+    {
+      "snes_id": "D9:FEEE",
+      "status": "direct",
+      "android_namespace": "systxt",
+      "android_ids": [100178]
+    }
+  ]
+}

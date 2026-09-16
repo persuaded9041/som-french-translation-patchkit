@@ -97,6 +97,7 @@ from shared.vwf.renderer_runtime import (  # noqa: E402
     CHUNK_COMMIT_HELPER_FILE,
     CHUNK_CELLS_SNAPSHOT_FILE,
     EVENT_RENDER_SCOPE_HELPER_FILE,
+    MONEY_KERN_HELPER_FILE,
     CHOICE_VISUAL_HELPER_FILE,
     CHOICE_VISUAL_HELPER_CPU,
     CHOICE_TRACKER_HELPER_FILE,
@@ -116,6 +117,7 @@ from shared.vwf.renderer_runtime import (  # noqa: E402
     CHUNK_COMMIT_HELPER,
     CHUNK_CELLS_SNAPSHOT_HELPER,
     EVENT_RENDER_SCOPE_HELPER,
+    MONEY_KERN_HELPER,
     CHOICE_VISUAL_HELPER,
     CHOICE_TRACKER_HELPER,
 )
@@ -656,39 +658,14 @@ def make_continuation_save_helper() -> bytes:
     return a.resolve()
 
 
-def make_dialogue_chunk_commit_helper() -> bytes:
-    """Stock validated cell conversion plus exact continuation capture."""
-    a = MiniAssembler(0xED7340)
-    a.emit(0x22, 0xB0, 0x73, 0xED)
-    a.rel8(0x90, "return")
-    a.emit(0xAD, 0x8E, 0x93)
-    a.emit(0xC9, 0x27)
-    a.rel8(0xB0, "return")
-    a.emit(0xAD, 0xCE, 0xA1)
-    a.rel8(0x10, "convert")
-    a.emit(0xAD, 0x8E, 0x93)
-    a.emit(0xC9, 0x21)
-    a.rel8(0x90, "linebreak_clear")
-    a.rel8(0x80, "convert")
-    a.label("linebreak_clear")
-    a.emit(0x9C, 0xD0, 0x93)
-    a.rel8(0x80, "return")
-    a.label("convert")
-    a.emit(0x22, 0x80, 0x73, 0xED)
-    a.emit(0x22, *lo24(CONTINUATION_SAVE_HELPER_CPU))
-    a.emit(0xAD, 0xCE, 0xA1)
-    a.emit(0x29, 0x80)
-    a.emit(0x0D, 0x8F, 0x93)
-    a.emit(0x8D, 0xCE, 0xA1)
-    a.label("return")
-    a.emit(0xA9, 0x00)
-    a.emit(0x5C, 0xB7, 0x16, 0xC0)
-    return a.resolve()
+# Chunk commit is shared byte-for-byte with vwf_ui. The shared helper now
+# distinguishes renderer identity $01 (dialogue) from $02 (UI), and therefore
+# calls the dialogue-owned continuation saver only for $01.
+DIALOGUE_CHUNK_COMMIT_HELPER = CHUNK_COMMIT_HELPER
 
 
 CONTINUATION_PREP_HELPER = make_continuation_prep_helper()
 CONTINUATION_SAVE_HELPER = make_continuation_save_helper()
-DIALOGUE_CHUNK_COMMIT_HELPER = make_dialogue_chunk_commit_helper()
 
 
 def make_entry_helper() -> bytes:
@@ -852,7 +829,8 @@ def validate_helper_layout() -> None:
         ("outline helper", OUTLINE_POST_HELPER_FILE, len(OUTLINE_POST_HELPER), CHUNK_COMMIT_HELPER_FILE),
         ("chunk commit helper", CHUNK_COMMIT_HELPER_FILE, len(DIALOGUE_CHUNK_COMMIT_HELPER), CHUNK_CELLS_SNAPSHOT_FILE),
         ("chunk snapshot helper", CHUNK_CELLS_SNAPSHOT_FILE, len(CHUNK_CELLS_SNAPSHOT_HELPER), EVENT_RENDER_SCOPE_HELPER_FILE),
-        ("event-render scope helper", EVENT_RENDER_SCOPE_HELPER_FILE, len(EVENT_RENDER_SCOPE_HELPER), PARSER_FETCH_HELPER_FILE),
+        ("event-render scope helper", EVENT_RENDER_SCOPE_HELPER_FILE, len(EVENT_RENDER_SCOPE_HELPER), MONEY_KERN_HELPER_FILE),
+        ("money kern helper", MONEY_KERN_HELPER_FILE, len(MONEY_KERN_HELPER), 0x2D7400),
         ("parser-fetch helper", PARSER_FETCH_HELPER_FILE, len(PARSER_FETCH_HELPER), WRAP_GLYPH_HELPER_FILE),
         ("wrap-glyph helper", WRAP_GLYPH_HELPER_FILE, len(WRAP_GLYPH_HELPER), RIGHT_EDGE_TABLE_FILE),
         ("right-edge table", RIGHT_EDGE_TABLE_FILE, 128, CHOICE_GEOMETRY_HELPER_FILE),
@@ -1116,6 +1094,7 @@ def build(base: bytes) -> bytes:
         (CHUNK_COMMIT_HELPER_FILE, DIALOGUE_CHUNK_COMMIT_HELPER),
         (CHUNK_CELLS_SNAPSHOT_FILE, CHUNK_CELLS_SNAPSHOT_HELPER),
         (EVENT_RENDER_SCOPE_HELPER_FILE, EVENT_RENDER_SCOPE_HELPER),
+        (MONEY_KERN_HELPER_FILE, MONEY_KERN_HELPER),
         (CONTINUATION_PREP_HELPER_FILE, CONTINUATION_PREP_HELPER),
         (CONTINUATION_SAVE_HELPER_FILE, CONTINUATION_SAVE_HELPER),
         (PARSER_FETCH_HELPER_FILE, PARSER_FETCH_HELPER),

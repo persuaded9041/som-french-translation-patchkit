@@ -1,4 +1,4 @@
-# HANDOFF — Secret of Mana FR — opening credit accent fade promoted
+# HANDOFF — Secret of Mana FR — Ring Menu + shop/forge text promoted
 ## dialogue_background — promoted standalone v1 (2026-09-15)
 
 The hardware semi-transparent dialogue-window experiment is now promoted under semantic component ID `dialogue_background`. Runtime validation covers a normal animated dialogue frame and the inn reservation sequence with asynchronous ordinary + GP/type-2 frames (`1 opens -> 2 opens -> 1 closes -> 2 closes`). The successful model tracks explicit ownership of global live bounds `$A165-$A168`; `$A162` context restoration must never be treated as geometry ownership.
@@ -6,7 +6,7 @@ The hardware semi-transparent dialogue-window experiment is now promoted under s
 The component remains `aggregate_enabled: false`: it preserves the exact validated Stage-11 allocation (`$7E:93D0-$93F1`, HDMA ch6), which conflicts with `vwf_dialogues` continuation scratch and has not yet been composed with existing map color-math/HDMA effects. `all.ips` remains unchanged. See `docs/DIALOGUE_TRANSPARENCY_RESEARCH.md`.
 
 
-Date: 2026-09-15
+Date: 2026-09-16
 
 This archive is authoritative over GitHub. The reference ROM is **Secret of Mana (USA), unheadered** and must never be redistributed.
 
@@ -242,9 +242,133 @@ Current promoted patch SHA-256 values:
 `french_resources` now translates 358 resources; its rebuilt `$CA` blob is 7,103 / 7,315 bytes
 and remains fully inside the stock allocation (`$CA:98E1-$B49F`, maximum `$CA:B573`).
 
-## Next work
+## French shop / forge mini-event responses (2026-09-16)
 
-No new functional task is prescribed by this checkpoint. Treat the dialogue
-corpus, `intro_skip`, and the startup-credit accent/fade as promoted baselines.
-The next discussion should read the archive first and follow the user's next
-explicit target rather than reopening any of those validated areas.
+The nine short shop/forge response strings in the stock `$D9:FE20-$FEF3`
+mini-event pool are now translated by the dedicated `french_shop_text`
+component. The dialogue corpus, dialogue segmentation and Android dialogue
+mapping remain frozen and unchanged.
+
+Provenance is split explicitly:
+
+- six direct Android-FR payloads live in `translations/shop_text_french.json`
+  and are checked against the original Android binary tables through
+  `recipes/android/shop_text_mapping.json`;
+- three user-validated SNES adaptations live only in
+  `translations/shop_text_reviewed_overrides.json`: `$D9:FE4B`
+  `Vous n'avez plus de place !`, `$D9:FEB7` `Il faut une sphère de plus !`,
+  and `$D9:FED3` `Cette arme est au maximum !`.
+
+Runtime/storage architecture remains deliberately narrow: these D9 scripts keep
+the **stock event parser and stock parser capacity**. `french_shop_text` installs
+the shared event-context `$E8` DTE/direct-glyph router and French glyph span so
+accents decode correctly, while `vwf_dialogues` continues to reject bank D9.
+
+The VWF display extension is now separately **runtime-validated** in `vwf_ui`:
+
+- exact stock submit sites `$C0:7EA6` and `$C0:7FB9` arm Shop tag `$A9` only
+  when `X` points inside `$D9:FE20-$FEF3`;
+- the renderer additionally requires the normal event-engine caller and bank D9;
+- Shop uses the same post-parse stock-buffer -> private-render-buffer copy as
+  Ring/Forge, but never executes Forge suffix compaction;
+- parser capacity is **not** increased. The text component therefore continues
+  to enforce the validated maximum of 28 visible characters.
+
+A follow-up experiment tried to use a private 38-character Shop parser in order
+to restore longer wording. It failed at runtime: `Plus de place pour ce type
+d'objet !` displayed only `'objet !`, and `Pas de sphère pour cette arme !`
+displayed an empty row. The user explicitly chose not to pursue extra Shop
+characters. That experiment has been fully reverted. Keep the shorter validated
+wording and the stock parser limit unless new runtime evidence justifies reopening it.
+
+The translated pool compresses to **179 / 212 bytes**, so the nine scripts are
+rebuilt contiguously inside the original D9 allocation and the nine stock C0
+`LDX` operands are retargeted. No relocation or new WRAM allocation is used.
+
+A deterministic review sheet can be regenerated with
+`tools/text/generate_shop_text_preview.py`.
+
+Promoted patch SHA-256:
+
+- `patches/french_shop_text.ips`: `b4530dfb6f9c25e7b28229448ef90f435858a351d27de843ea54507cd04b8271`
+- `patches/vwf_ui.ips`: `2bc579280c4aa04755d76e91dedb9d87586cd86d85268bc9b7e685d118772173`
+- `patches/vwf_dialogues.ips`: `b42ef5c96b1b6897945739004786a1d878f54924a4ad9321dd1c37b5dc765ab5` (shared dispatcher only; dialogue logic/data unchanged)
+- `patches/all.ips`: `6c797f9a5aea73d1526c6aac4eee947fdbd040c69a1461cc5be693204cc779d5`
+
+This final `all.ips` is byte-for-byte identical to the previously runtime-validated
+Shop-VWF candidate from before the failed long-parser experiment. The frozen
+dialogue corpus remains unchanged.
+
+## 2026-09-16 — Shop merchandise VWF + `PO` + standalone fix — promoted
+
+The buy/sell merchandise row is now runtime-validated under dedicated `vwf_ui`
+tag `$AA` at the shared `$00:19D0` submit for Ring subsystem modes `$1847==1/2`.
+Item names render proportionally while the stock parser and decoded buffer remain
+unchanged; Forge `$A7`, Ring `$A8`, and D9 response `$A9` remain isolated.
+
+Currency ownership is deliberately split between translation and rendering:
+
+- `french_resources` is the **only** owner of `GP -> PO` content. It patches the
+  real shop currency sources `$C7:7B6A` (total money) and `$D0:D894`
+  (merchandise-price immediate payload), with the reviewed French bytes loaded
+  from `translations/french_resources_reviewed_literals.json`;
+- `vwf_ui` never tests for `GP`, never writes `PO`, and never translates any
+  glyph. On a clean USA ROM standalone it therefore renders `GP`; in `all.ips`
+  it renders the already-translated `PO` supplied by `french_resources`.
+
+Validated presentation geometry:
+
+- merchandise row `$AA`: price resync **168 -> 164 px** and a **4 px** separator
+  before the final two unit glyphs;
+- total-money type-2 window `$AB`: structural gate on bank `$7E`, window type 2,
+  source pointer `$A1E0-$A1EB`, and exact renderer return `$1152`; visual
+  separator **3 px** before the final two unit glyphs; frame width
+  `$C7:714C` **9 -> 11 cells**;
+- the live total-money source remains stock-sized at `$A1E0-$A1E9`; `$A1EA`
+  is never written.
+
+The standalone Sell-menu reset was traced exactly. The shared chunk-commit
+helper called dialogue-only continuation `$ED:7990` for every active VWF
+conversion. `vwf_ui` standalone does not install that helper, while
+`vwf_dialogues` does; this matched runtime diagnostics (`vwf_ui + vwf_intro`
+reset, `vwf_ui + vwf_dialogues` OK). The fix gives shared low-level renderer
+state explicit ownership:
+
+- `$7E:9385=$01` — `vwf_dialogues`;
+- `$7E:9385=$02` — `vwf_ui`;
+- intro scratch values 3..8 remain excluded from the shared UI/dialogue scope.
+
+Shared row/font/outline helpers accept only identities 1/2, but the
+`$ED:7990` continuation call is now restricted to identity 1. A later branch
+fix corrected the stock-fallback scope helper (`BEQ +6`, `BCS +2`) so
+`$9385==0` correctly returns through `CLC/RTL`; the previous offsets jumped
+past the helper and caused a black GAME SELECT with music still running.
+
+The final candidate was runtime-validated by the user: GAME SELECT works,
+shop buy/sell works, merchandise names use VWF, the top price shows `PO`, and
+the widened bottom money frame shows `PO` with the accepted spacing. This is
+the promoted baseline; do not reintroduce renderer-side currency translation or
+a hidden dependency from `vwf_ui` to `vwf_dialogues`.
+
+Promoted patch SHA-256 values after final recombination:
+
+- `patches/vwf_ui.ips`: `37b840462d39e9653f1c11fe85d5a6db97df17daa75a13c636bff6c88da0c896`
+- `patches/french_resources.ips`: `718af6e165e7892c7be69ec809195fc864dd41e2ebbb847dca7949a09d98c8b2`
+- `patches/vwf_dialogues.ips`: `dc6f02debf93b2c79a74235a4e889f1b372fe047149d7ba525a0fb7c82ea4d50`
+- `patches/all.ips`: `f4e37892d3946b54493c0c93c2b9d35571dfd51670970e31f0925aaccd52e61e`
+
+The dialogue corpus remains frozen and untouched.
+
+## Next work — specific runtime defect
+
+Investigate the shop merchandise row for armor resource **`$CA:9F8E` / resource
+ID `$09C` / category `armor_name`**. Stock USA source is `Magical Armor`; the
+current generated French resource is **`Haubert magique`**. In the validated
+shop `$AA` VWF path, only this item has been observed with its **leftmost `H`
+missing**, while other sold items render correctly.
+
+Start from the promoted archive and reproduce/trace this item-specific defect.
+Before modifying code, compare the decoded stock row/private VWF copy and any
+left-shift/clip/anchor behavior for `$CA:9F8E` against a known-good shop item
+such as `Noix magique`. Preserve the validated `PO` ownership split, MONEY
+geometry, Ring/Forge/D9 tags, GAME SELECT fallback, and frozen dialogues.

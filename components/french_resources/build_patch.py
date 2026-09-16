@@ -14,7 +14,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from shared.core.ips import make_ips
 from shared.core.rom import update_checksum, validate_base_rom
 from shared.text.resource_translation import normalize_for_snes
-from shared.text.stock import encode_text_with_stock_dte
+from shared.text.stock import decode_text_bytes, encode_text, encode_text_with_stock_dte
 from shared.text.resources import (
     CA_BASE,
     FIRST_RESOURCE_POINTER,
@@ -40,6 +40,15 @@ from shared.extracted.assets import load_or_extract_resources  # noqa: E402
 ASSET = PROJECT_ROOT / "assets" / "text_resources.json"
 STOCK_BLOB_BYTES = 7315
 REVIEWED_OVERRIDES = PROJECT_ROOT / "translations" / "text_resources_reviewed_overrides.json"
+REVIEWED_LITERAL_OVERRIDES = PROJECT_ROOT / "translations" / "french_resources_reviewed_literals.json"
+
+# Non-$CA fixed literals deliberately owned by french_resources. Their French
+# payload comes only from REVIEWED_LITERAL_OVERRIDES; Python stores addresses
+# and expected source identity, never localized prose.
+REVIEWED_LITERAL_SITES = {
+    "C7:7B6A": 0x077B6A,  # stock MONEY total unit
+    "D0:D894": 0x10D894,  # shop merchandise price unit immediate payload
+}
 FONT_BASE = 0x12DC00
 GLYPH_FIRST = min(CHAR_TO_CODE[ch] for ch in DIALOGUE_FRENCH_CHARS)
 DEFAULT_CATEGORIES = (
@@ -102,6 +111,45 @@ def load_reviewed_overrides(source: dict) -> dict[str, tuple[str, str]]:
     return result
 
 
+
+def load_reviewed_literal_overrides(base: bytes) -> dict[int, bytes]:
+    """Load exact reviewed currency literals outside the $CA resource table."""
+    doc = json.loads(REVIEWED_LITERAL_OVERRIDES.read_text(encoding="utf-8"))
+    if doc.get("format_version") != 1 or doc.get("language") != "fr":
+        raise ValueError("Unsupported reviewed french_resources literal override format")
+    result: dict[int, bytes] = {}
+    seen: set[str] = set()
+    for entry in doc.get("entries", []):
+        literal_id = entry.get("id")
+        if literal_id in seen:
+            raise ValueError(f"Duplicate french_resources literal override {literal_id}")
+        seen.add(literal_id)
+        if literal_id not in REVIEWED_LITERAL_SITES:
+            raise ValueError(f"Unknown french_resources literal override {literal_id}")
+        source = entry.get("source")
+        text = entry.get("text")
+        if not isinstance(source, str) or not isinstance(text, str):
+            raise ValueError(f"{literal_id}: source/text must be strings")
+        encoded_source = encode_text(source)
+        encoded_text = encode_text(text)
+        if len(encoded_source) != len(encoded_text):
+            raise ValueError(f"{literal_id}: fixed literal translation must preserve byte length")
+        offset = REVIEWED_LITERAL_SITES[literal_id]
+        actual = base[offset:offset + len(encoded_source)]
+        if actual != encoded_source:
+            try:
+                decoded = decode_text_bytes(base, actual)
+            except Exception:
+                decoded = actual.hex(" ")
+            raise ValueError(
+                f"{literal_id}: clean-ROM source mismatch: expected {source!r}, found {decoded!r}"
+            )
+        result[offset] = encoded_text
+    missing = set(REVIEWED_LITERAL_SITES) - seen
+    if missing:
+        raise ValueError(f"Missing reviewed french_resources literal override(s): {sorted(missing)}")
+    return result
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("rom", type=Path, help="clean unheadered Secret of Mana (USA) ROM")
@@ -159,6 +207,14 @@ def main() -> None:
     rom[table_start:table_end] = table
     rom[blob_start:blob_end] = blob
 
+    # Currency text ownership: keep translation in french_resources and leave
+    # vwf_ui responsible only for spacing/window geometry. Both shop sites are
+    # fixed two-glyph literals, so standalone french_resources can safely
+    # replace GP -> PO without touching renderer logic.
+    literal_overrides = load_reviewed_literal_overrides(base)
+    for offset, payload in literal_overrides.items():
+        rom[offset:offset + len(payload)] = payload
+
     update_checksum(rom)
     patch = make_ips(base, bytes(rom))
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -168,6 +224,7 @@ def main() -> None:
     print(f"Translated resources: {len(translations)}")
     print(f"Skipped for current profile: {len(skipped)}")
     print(f"Blob: {len(blob)} / {STOCK_BLOB_BYTES} bytes")
+    print(f"Reviewed fixed literals: {len(literal_overrides)}")
     print(f"IPS: {args.output}")
 
 

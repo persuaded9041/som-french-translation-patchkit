@@ -5,9 +5,10 @@ them through the normal event engine after setting the live script bank to D9.
 Each target is a tiny script of the form ``$7F $52 <stock text> $00``.  The
 records are physically contiguous at D9:FE20-D9:FEF3.
 
-This asset is source-only for now.  Keeping the script wrapper out of the JSON
-makes the text readable while the clean USA ROM remains the structural source
-for pointers/opcodes/terminators.
+The clean-USA asset remains source-only.  French payloads are owned separately
+by ``french_shop_text``; keeping the script wrapper out of the source JSON makes
+the text readable while the clean ROM remains authoritative for pointers,
+opcodes and terminators.
 """
 from __future__ import annotations
 
@@ -15,8 +16,9 @@ import json
 from pathlib import Path
 
 from shared.core.rom import BASE_SHA256, validate_base_rom
-from shared.text.stock import decode_text_bytes
+from shared.text.stock import decode_text_bytes, encode_text_with_stock_dte
 from shared.text.ids import rom_text_id
+from shared.charset import DIALOGUE_DTE_THRESHOLD
 
 FORMAT_VERSION = 3
 D9_BASE = 0x190000
@@ -165,3 +167,78 @@ def verify_against_rom(rom: bytes, document: dict) -> tuple[int, int, int]:
     if reconstructed != source:
         raise ValueError("Shop/forge mini-event blob round-trip mismatch")
     return len(records), len(REFERENCE_SITES), len(source)
+
+
+def serialize_translated_pool(
+    rom: bytes,
+    document: dict,
+    translations: dict[str, str],
+    *,
+    max_visible_chars: int = 28,
+) -> tuple[bytes, dict[int, int], dict[str, dict[str, int]]]:
+    """Rebuild the nine D9 mini-event scripts inside their stock allocation.
+
+    The clean-ROM scripts remain the structural source: wrappers, record order and
+    all bank-C0 reference sites are validated before any translated payload is
+    serialized.  Text is compressed with runtime-safe stock DTE pairs using the
+    event-dialogue ``$E8`` threshold installed by the French shop component.
+
+    Returns ``(blob, reference_pointers, stats)`` where ``reference_pointers``
+    maps each C0 ``LDX`` site to its rebuilt D9 script pointer.
+    """
+    verify_against_rom(rom, document)
+    canonical = {record["id"]: record for record in document["records"]}
+    unknown = sorted(set(translations) - set(canonical))
+    if unknown:
+        raise ValueError("Unknown shop/forge translation ID(s): " + ", ".join(unknown))
+
+    physical = _physical_records(rom)
+    new_pointer_by_old: dict[int, int] = {}
+    stats: dict[str, dict[str, int]] = {}
+    blob = bytearray()
+    cursor = EXPECTED_BLOB_START
+
+    for old_pointer, source_payload, _end in physical:
+        text_id = rom_text_id(D9_BASE + old_pointer + len(SCRIPT_PREFIX))
+        if text_id in translations:
+            text = translations[text_id]
+            if "\n" in text or "\r" in text:
+                raise ValueError(f"{text_id}: shop/forge response must stay on one line")
+            visible = len(text)
+            if visible > max_visible_chars:
+                raise ValueError(
+                    f"{text_id}: {visible} visible characters exceed stock line capacity "
+                    f"{max_visible_chars}"
+                )
+            payload = encode_text_with_stock_dte(
+                rom, text, upper_dte_threshold=DIALOGUE_DTE_THRESHOLD
+            )
+        else:
+            # Sparse translation support remains available even though the promoted
+            # French component currently translates all nine responses.
+            text = canonical[text_id]["source"]
+            visible = len(text)
+            payload = source_payload
+
+        new_pointer_by_old[old_pointer] = cursor
+        record = SCRIPT_PREFIX + payload + b"\x00"
+        blob.extend(record)
+        stats[text_id] = {
+            "visible_chars": visible,
+            "encoded_bytes": len(payload),
+            "script_bytes": len(record),
+            "script_pointer": cursor,
+        }
+        cursor += len(record)
+
+    capacity = EXPECTED_BLOB_END - EXPECTED_BLOB_START
+    if len(blob) > capacity:
+        raise ValueError(
+            f"Translated shop/forge pool is {len(blob)} bytes, exceeding stock allocation {capacity}"
+        )
+
+    reference_pointers = {
+        site: new_pointer_by_old[old_pointer]
+        for site, old_pointer in REFERENCE_SITES
+    }
+    return bytes(blob), reference_pointers, stats

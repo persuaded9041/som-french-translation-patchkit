@@ -283,34 +283,66 @@ the overlap is byte-identical. The dispatcher selects `vwf_ui` only when its
 ROM config marker `$C7:4C87=$09` and exact one-shot UI tag are both present.
 Otherwise it delegates to `vwf_dialogues` when `$C7:4C84=$06`, or replays the stock
 32-cell renderer entry when neither owner is active.
+ For the structurally detected type-2 MONEY family, `$AB` is synthesized only
+after also proving the exact event-engine renderer return address `$1152`; this
+keeps non-event users of the same `$A1E0-$A1EB` WRAM span out of the UI backend
+and prevents recursive reclassification after a renderer rejection.
 
 The shared text-buffer capacity helper is likewise installed byte-identically by
 `vwf_intro` / `vwf_dialogues` / `vwf_ui`. `vwf_ui` does **not** enter private parser mode.
 At the exact shared `$00:19D0` submit, mode `$1847==3` arms the Forge one-shot tag
-(+3 logical units) and mode `$1847==0` arms the distinct top-level Ring Menu tag
+(+3 logical units), mode `$1847==0` arms the distinct top-level Ring Menu tag
 (+4 logical units = the full 33-byte stock buffer, allowing 32 visible characters
-plus the following control). Modes 1/2 and unexpected values arm no UI tag and
-therefore remain stock.
+plus the following control), and modes `$1847==1/2` arm the merchandise-row tag
+`$AA` while retaining stock parser capacity. Unexpected values arm no UI tag.
+Separately, the exact D9 shop submit sites `$C0:7EA6/$7FB9` arm Shop tag `$A9`
+only for pointers inside `$D9:FE20-$FEF3`; that path keeps stock parser capacity.
 
 The accepted Forge backend still patches only the proven suffix geometry and compacts
 slots 20..31 at render time. The Ring backend renders its decoded title row unchanged;
 it never executes Forge suffix compaction. The earlier `WEAPON_NAME` helper remains
 stock. The dispatcher clears `$7E:9385` on stock fallback, which is required for
-GAME SELECT compatibility.
+GAME SELECT compatibility. Low-level renderer identity is explicit: `$01` is
+owned by `vwf_dialogues`, `$02` by `vwf_ui`; intro scratch values 3..8 are not
+accepted by the shared row/font scope. The shared chunk-commit helper calls the
+dialogue-only continuation routine at `$ED:7990` only for identity `$01`, so
+standalone `vwf_ui` has no hidden dependency on `vwf_dialogues`.
 
 The Ring title isolation was runtime-proven after tracing the shared submit chain and
 reproducing the former corruption caused by applying Forge's overlapping suffix move to
 long Ring labels. Future UI families must follow `docs/UI_VWF.md` and receive their own
-narrow identity instead of reusing either existing tag value.
+narrow identity instead of reusing an existing tag value.
 
 ## french_resources — French CA resources
 
 `french_resources` owns the rebuilt `$CA` pointer table/blob for the reviewed name families
-plus the nine top-level Ring Menu titles `$0C6-$0CE`. It does not depend on `vwf_ui` and
-does not own any dialogue event. Android-FR mapping remains generated from canonical inputs;
-SNES-specific reviewed Ring wording is loaded from
-`translations/text_resources_reviewed_overrides.json`. For standalone clean-USA use it
-installs the same shared French glyph span and context-sensitive DTE router as
-`vwf_dialogues` / `french_dialogues`; those overlaps are byte-identical in aggregate builds.
-The component never relocates the resource blob beyond its original stock allocation.
+plus the nine top-level Ring Menu titles `$0C6-$0CE`. It also owns the two fixed shop currency
+literals `$C7:7B6A` and `$D0:D894`; their reviewed `GP -> PO` payload comes from
+`translations/french_resources_reviewed_literals.json`, never from `vwf_ui`. It does not depend
+on `vwf_ui` and does not own any dialogue event. Android-FR mapping remains generated from
+canonical inputs; SNES-specific reviewed Ring wording is loaded from
+`translations/text_resources_reviewed_overrides.json`. For standalone clean-USA use it installs
+the same shared French glyph span and context-sensitive DTE router as `vwf_dialogues` /
+`french_dialogues`; those overlaps are byte-identical in aggregate builds. The component never
+relocates the resource blob beyond its original stock allocation.
 
+
+## french_shop_text — D9 shop/forge response compatibility
+
+`french_shop_text` owns only the nine existing `$D9:FE20-$FEF3` mini-event
+records and their nine bank-C0 `LDX` pointer operands. No other aggregate
+component writes those shop/forge data locations.
+
+For standalone French accented text it installs the same byte-identical
+`dialogue_french` glyph span and context-sensitive DTE router used by
+`vwf_dialogues`, `french_dialogues` and `french_resources`. The D9 scripts are
+real event-engine parser calls, so the extended `$E8` event threshold applies;
+`vwf_dialogues` still rejects bank D9 at renderer entry. When `vwf_ui` is absent,
+these messages therefore remain on the stock fixed-width path. When `vwf_ui` is
+present, its separately gated Shop tag `$A9` owns only this exact D9 pool and
+renders the already-decoded stock row proportionally. The stock parser capacity
+remains unchanged, so `french_shop_text` still enforces 28 visible characters.
+
+The rebuilt French pool is 179 bytes inside the original 212-byte allocation,
+so the component requires no relocation and introduces no new ROM or WRAM
+reservation.

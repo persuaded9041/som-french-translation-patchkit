@@ -1,0 +1,37 @@
+{
+  "format_version": 1,
+  "language": "fr",
+  "source_asset": "shop_text.json",
+  "description": "Direct Android-FR shop/forge translations. The french_shop_text builder verifies these entries against the reviewed Android mapping recipe and the original Android binaries before insertion.",
+  "groups": [
+    {
+      "group": "shop_forge.android_direct",
+      "entries": [
+        {
+          "id": "D9:FE22",
+          "text": "Merci !"
+        },
+        {
+          "id": "D9:FE2F",
+          "text": "Pas assez d'argent !"
+        },
+        {
+          "id": "D9:FE67",
+          "text": "Désolé, je n'achète pas ça !"
+        },
+        {
+          "id": "D9:FE80",
+          "text": "Allez, c'est parti !"
+        },
+        {
+          "id": "D9:FE98",
+          "text": "Tu n'as pas assez d'argent !"
+        },
+        {
+          "id": "D9:FEEE",
+          "text": "Confirmer ?"
+        }
+      ]
+    }
+  ]
+}

@@ -22,6 +22,10 @@ DISPATCH_RESERVED_SIZE = 0x80
 
 UI_RENDER_CPU = 0xED7B00
 DIALOGUE_RENDER_CPU = 0xED7040
+# vwf_ui-owned helper inside its $ED:7B00-$7CFF reservation. The shared
+# char-start runtime reaches it only behind exact UI-active + bank-$00 gates.
+SHOP_SUFFIX_GAP_HELPER_CPU = 0xED7C40
+SHOP_SUFFIX_GAP_HELPER_FILE = 0x2D7C40
 
 # Shared C7 config gap immediately after existing intro/dialogue/name-DTE bytes.
 UI_CONFIG_CPU = 0xC74C87
@@ -32,6 +36,9 @@ UI_MARKER = 0x09
 UI_TAG = 0x93C1
 FORGE_UI_MAGIC = 0xA7
 RING_UI_MAGIC = 0xA8
+SHOP_UI_MAGIC = 0xA9
+SHOP_ROW_UI_MAGIC = 0xAA
+MONEY_UI_MAGIC = 0xAB
 # Backward-compatible alias for code that still refers to the validated Forge tag.
 UI_MAGIC = FORGE_UI_MAGIC
 
@@ -52,6 +59,52 @@ def _assemble_dispatcher() -> bytes:
     a.rel8(0xF0, "ui")
     a.emit(0xC9, RING_UI_MAGIC)
     a.rel8(0xF0, "ui")
+    a.emit(0xC9, SHOP_UI_MAGIC)
+    a.rel8(0xF0, "ui")
+    a.emit(0xC9, SHOP_ROW_UI_MAGIC)
+    a.rel8(0xF0, "ui")
+
+    # The stock MONEY_PRINT path builds a transient event string in
+    # $7E:A1E0 and renders it as window type 2.  Unlike the explicit one-shot
+    # UI tags above, MONEY is recognized structurally at renderer entry, so it
+    # must also prove the exact event-engine caller before synthesizing $AB.
+    # Without this gate a non-event type-2 invocation reusing the same transient
+    # WRAM span can be captured, rejected by the UI renderer's continuity gate,
+    # then immediately re-captured by this dispatcher forever.  This is the
+    # narrow candidate fix for the observed standalone-only Sell-menu crash;
+    # runtime confirmation is still required.
+    #
+    # $C0:1150 JSR $1664 leaves return address $1152 at 1,S; no renderer-local
+    # push has happened yet at $C0:167D.  The accepted MONEY path already proves
+    # this same caller again in the UI renderer, so this is a strict narrowing
+    # with no change to the validated event-engine MONEY row.
+    a.emit(0xC2, 0x20)
+    a.emit(0xA3, 0x01)
+    a.emit(0xC9, 0x52, 0x11)
+    a.emit(0xE2, 0x20)
+    a.rel8(0xD0, "dialogue")
+
+    # Then recognize only the exact MONEY family: bank $7E, type 2, source
+    # pointer still inside the fixed $A1E0-$A1EB money-string span.  This lets
+    # the UI backend add presentation-only spacing without growing the live
+    # source buffer.
+    a.emit(0xAF, *lo24(0x001D03))
+    a.emit(0xC9, 0x7E)
+    a.rel8(0xD0, "dialogue")
+    a.emit(0xAF, *lo24(0x7EA162))
+    a.emit(0xC9, 0x02)
+    a.rel8(0xD0, "dialogue")
+    a.emit(0xAF, *lo24(0x001D02))
+    a.emit(0xC9, 0xA1)
+    a.rel8(0xD0, "dialogue")
+    a.emit(0xAF, *lo24(0x001D01))
+    a.emit(0xC9, 0xE0)
+    a.rel8(0x90, "dialogue")
+    a.emit(0xC9, 0xEC)
+    a.rel8(0xB0, "dialogue")
+    a.emit(0xA9, MONEY_UI_MAGIC)
+    a.emit(0x8F, *lo24(0x7E0000 | UI_TAG))
+    a.rel8(0x80, "ui")
 
     a.label("dialogue")
     # `vwf_dialogues` sets its existing shared parser config marker. If present,

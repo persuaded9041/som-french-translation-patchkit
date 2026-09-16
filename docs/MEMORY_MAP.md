@@ -17,6 +17,7 @@ for the owning component even when the current generated payload is shorter.
 | GAME FILE | `0x2D8400-0x2DFFFF` | `$ED:8400-$FFFF` | relocated GAME FILE save-help text / reserved component text space |
 | French opening helper | `0x2E9000-0x2E9FFF` | `$EE:9000-$9FFF` | reserved helper region; current 37-byte renderer helper is `$EE:9000-$9024` |
 | French opening arrangement | `0x2EA000-0x2EBFFF` | `$EE:A000-$BFFF` | literal-only stock-format stream, loaded through `$C1:0014` |
+| French shop/forge text | `0x19FE20-0x19FEF3` | `$D9:FE20-$FEF3` | rebuilt nine-record mini-event pool inside the original 212-byte allocation; current French payload uses 179 bytes and rewrites the nine stock bank-C0 `LDX` operands |
 | Mana Tree | `0x2FC000-0x2FF5FF` | `$EF:C000-$F5FF` | 0x3600-byte Japanese Mana Tree resource (`$D2A9`) |
 | Mana Tree | `0x2FF800-0x2FF89F` | `$EF:F800-$F89F` | 160-byte resource-loader helper; `$D2A9` only, otherwise stock fall-through |
 | intro VWF | `0x074285-0x07437C` | `$C7:4285-$437C` | intro VWF renderer using the runtime-validated shared compositor |
@@ -109,20 +110,35 @@ intentionally avoids duplicating renderer status and calibration details.
 ## vwf_ui — non-dialogue UI VWF
 
 `vwf_ui` reuses shared framing/compositor/stock-row helpers but owns its own
-renderer. `$7E:93C1` is its only UI-private one-shot family tag: `$A7` identifies
-the Forge row and `$A8` identifies the top-level Ring Menu title row. The backend has
+renderer. `$7E:93C1` is its only UI-private family tag: `$A7` identifies the Forge
+row, `$A8` the top-level Ring Menu title row, `$A9` the exact D9 shop/forge
+response family, `$AA` the buy/sell merchandise row, and `$AB` the exact
+type-2 money window. The backend has
 no additional `$93C3-$93C9` scratch. It reuses shared runtime scratch
 `$7E:9382/$9385/$938E-$938F` and may reuse `$7E:9390-$93BB` only after stock parsing
 has completed, so it does not enable the private parser mode used by `vwf_intro` / `vwf_dialogues`.
 Forge keeps its validated +3 logical margin and suffix compaction. Ring Menu mode 0
 gets an exact +4 margin (33 stock units total) and renders the decoded title unchanged.
-Modes 1/2 do not arm `vwf_ui` and remain stock.
+The Shop `$A9` path is armed only at `$C0:7EA6/$7FB9` for pointers inside
+`$D9:FE20-$FEF3`; it keeps the stock parser/capacity and applies VWF only after
+parsing. Ring modes 1/2 arm dedicated merchandise tag `$AA`; that backend is
+runtime-validated. Currency content is not rewritten by `vwf_ui`: standalone
+renders the source `GP`, while `french_resources` supplies `PO`. `vwf_ui` owns
+presentation only: merchandise price resync 168 -> 164 px plus a 4-px separator
+before the final two unit glyphs; type-2 MONEY `$AB` gets a 3-px separator and
+window width `$C7:714C` 9 -> 11 cells. The live money source buffer remains
+`$A1E0-$A1E9`; `$A1EA` is not written. Shared renderer scratch `$9385` now uses
+explicit identity `$01` for dialogue and `$02` for UI; the shared chunk commit
+calls dialogue-only continuation `$ED:7990` only for `$01`, removing the former
+standalone Sell-menu reset.
 
 ## french_resources — CA resource table/blob
 
 `french_resources` rewrites the canonical 513-entry `$CA` resource pointer table and the translated
 reviewed payload (name families + nine Ring Menu titles) within the original stock allocation
-beginning at `$CA:98E1`. The current translated blob is 7103 bytes versus the 7315-byte stock
-allocation; no relocation or new ROM allocation is used. Its French glyph/DTE infrastructure is
-shared byte-identically with `vwf_dialogues` / `french_dialogues`.
+beginning at `$CA:98E1`. It also owns the two reviewed shop currency literals
+`$C7:7B6A` and `$D0:D894` (`GP -> PO`) from
+`translations/french_resources_reviewed_literals.json`. The current translated blob is 7103 bytes
+versus the 7315-byte stock allocation; no relocation or new ROM allocation is used. Its French
+glyph/DTE infrastructure is shared byte-identically with `vwf_dialogues` / `french_dialogues`.
 

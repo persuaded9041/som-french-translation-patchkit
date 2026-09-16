@@ -1,7 +1,7 @@
 {
   "id": "french_resources",
   "short_name": "french-resources",
-  "name": "French CA resource names",
+  "name": "French resources",
   "shared_charset_profile": "dialogue_french",
   "dialogue_dte_router": true,
   "build_order": 100
