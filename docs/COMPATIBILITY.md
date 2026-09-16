@@ -139,11 +139,9 @@ The validated runtime window ends before `$CA:0E82 = 1D 7F`; the final Mode-7 /
 flyover engine is deliberately outside scope. The C1 timed-WAIT handler remains
 untouched.
 
-Earlier compound `safe-global`, `buffered-input`, and `immediate-R` experiments
-remain rejected historical evidence. Two later boot-glitching generalizations were
-traced to code-size overflow into shared VWF code at `$C7:43D0-$43E7`; the final
-helpers are therefore kept inside the owned `$ED:7400-$74FF` reserve with explicit
-builder size guards. See `docs/INTRO_SKIP_VALIDATION.md`.
+The final helpers are kept inside the owned `$ED:7400-$74FF` reserve with explicit
+builder size guards so intro-skip code cannot overflow into shared VWF code at
+`$C7:43D0-$43E7`. See `docs/INTRO_SKIP_VALIDATION.md`.
 
 
 ## Header/checksum writes

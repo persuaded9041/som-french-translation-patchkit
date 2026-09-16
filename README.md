@@ -93,17 +93,19 @@ files. The validated translations formerly stored in component CSV/BIN inputs fo
 
 Dialogue recipe data is consolidated by responsibility under `recipes/android/`: `dialogues_reviewed_alignment.json`, `dialogues_redistribution.json`, `dialogues_formatting.json`, and `dialogues_review.json`. The formatting/review files store source-backed structural operations, semantic fingerprints and layout separators, not localized French prose. See `recipes/android/README.md`.
 
-## Dialogue checkpoint
+## Dialogue baseline
 
-**The second exhaustive dialogue pass is the promoted canonical dialogue state.** It covers all **701 accepted playable events** in 12 lots and was followed by a full cleanup/non-regression validation.
+The dialogue corpus is frozen at the current promoted state: **701 accepted playable events / 1959 translated carriers**, **701 complete + 0 PARTIEL**, semantic Android alignment **1798 / 1838 (97.8%)**, and **0 errors / 0 warnings / 0 implicit runtime wraps** in the independent simulator. The only exclusions remain the routing-audited unused/orphan events `$0269`, `$02DE`, and `$0603`.
 
-The exact second-pass starting and final JSONs both contain **1959 carriers**. Exactly **46 explicitly reviewed carriers changed**; the other **1913 carriers are byte-for-byte unchanged**. No carriers were added or removed. The dialogue corpus is now frozen; historical audit details remain in the dedicated dialogue documentation.
+A fresh cold regeneration reproduces `translations/dialogues_french.json` with SHA-256 `3e4cacd926e31d6dfe9f9021d1026c4f71dc68ccd88ce4481749e47764d2b7d9`. The promoted `french_dialogues.ips` SHA-256 is `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31`.
 
-A fresh cold regeneration reproduces `translations/dialogues_french.json` with SHA-256 `3e4cacd926e31d6dfe9f9021d1026c4f71dc68ccd88ce4481749e47764d2b7d9`. Promoted dialogue-data hash remains `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31` for `french_dialogues.ips`. At the runtime-validated 120-tick `intro_skip` promotion checkpoint, the combined `all.ips` SHA-256 was `253ffde42f6977e714e9d27351089a2fbf0400bf46293ca8ed8967e38aad6b6d`. A forced double rebuild/recombine is byte-identical to the promoted patches.
+The current post-resource/UI baseline is:
 
-After the 2026-09-16 `Haubert magique` fix, validated +1 px UI left inset, shop-text ownership merge, and the type-2 MONEY close-geometry fix, the current `patches/all.ips` SHA-256 is `47744d9f094882e8b2a8c3916b9a675ecdd122330839ebbaa90e0279843c3bb4`; `vwf_ui.ips` is `b32ae20b1b3836facafae5f3a32a6a799c12bbcfc7814e5a0b404c491ac0c834`, and the merged `french_resources.ips` is `82908a8e0fd594d50fd9bdb5acc43965baf6b2dadc2079f349ba4f3ab3659d2d`. No `french_shop_text.ips` is generated anymore. The MONEY frame remains 11 cells wide, and its independent type-2 close seed is `$C7:7140=$09`, matching the extra left cell opened by the widened frame.
+- `patches/all.ips`: `47744d9f094882e8b2a8c3916b9a675ecdd122330839ebbaa90e0279843c3bb4`
+- `patches/vwf_ui.ips`: `b32ae20b1b3836facafae5f3a32a6a799c12bbcfc7814e5a0b404c491ac0c834`
+- `patches/french_resources.ips`: `82908a8e0fd594d50fd9bdb5acc43965baf6b2dadc2079f349ba4f3ab3659d2d`
 
-See `docs/HANDOFF.md` for the current handoff. Historical validation notes remain under `docs/`.
+No `french_shop_text.ips` is generated. The validated MONEY frame remains 11 cells wide and its independent type-2 close seed remains `$C7:7140=$09`. See `docs/HANDOFF.md` for the active handoff.
 
 ## Shared library
 

@@ -744,7 +744,7 @@ Rejected variants:
 - **buffered-input candidate**: changed only the early sampler from raw `$4218` to the game's synchronized `$7E:0042` pad buffer; pressing/holding R still produced no visible effect.
 - **immediate-R diagnostic**: removed the timer entirely and latched a skip request on a single observed R frame; pressing R still produced no visible effect.
 
-These failures meant the project could not treat that earlier input chain, request latch, or multi-engine skip-commit design as proven. The subsequent isolated proof ladder in `docs/INTRO_SKIP_RESTART_PLAN.md` was therefore executed to completion; the results are recorded in `docs/INTRO_SKIP_VALIDATION.md`.
+These failures meant the project could not treat that earlier input chain, request latch, or multi-engine skip-commit design as proven. The subsequent isolated proof ladder was executed to completion; the retained results are recorded in `docs/INTRO_SKIP_VALIDATION.md`.
 
 The promoted implementation does **not** revive those rejected compound designs. It uses the independently proven `$7E:0042` R source, live parser-Y commit, external normal-loop/WAIT observation, and the validated waterfall tail described below.
 
