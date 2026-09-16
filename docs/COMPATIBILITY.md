@@ -285,25 +285,32 @@ Otherwise it delegates to `vwf_dialogues` when `$C7:4C84=$06`, or replays the st
 32-cell renderer entry when neither owner is active.
 
 The shared text-buffer capacity helper is likewise installed byte-identically by
-`vwf_intro` / `vwf_dialogues` / `vwf_ui`. `vwf_ui` does **not** enter private parser mode; its +3 Forge margin
-is dormant unless both the `vwf_ui` marker and exact builder tag are active.
-This preserves the stock parser/buffer for UI text and keeps dialogue behavior
-owned by `vwf_dialogues`.
+`vwf_intro` / `vwf_dialogues` / `vwf_ui`. `vwf_ui` does **not** enter private parser mode.
+At the exact shared `$00:19D0` submit, mode `$1847==3` arms the Forge one-shot tag
+(+3 logical units) and mode `$1847==0` arms the distinct top-level Ring Menu tag
+(+4 logical units = the full 33-byte stock buffer, allowing 32 visible characters
+plus the following control). Modes 1/2 and unexpected values arm no UI tag and
+therefore remain stock.
 
-The accepted Forge backend arms its tag only at the exact submit of mini-event
-`$00:19D0`, patches the proven suffix geometry, and uses `vwf_ui` runtime space.
-The earlier `WEAPON_NAME` helper remains stock. The dispatcher clears `$7E:9385` on
-stock fallback, which is required for GAME SELECT compatibility. Future Ring Menu/
-item-acquisition VWF work must add equally narrow gates rather than broadening the
-current tag.
+The accepted Forge backend still patches only the proven suffix geometry and compacts
+slots 20..31 at render time. The Ring backend renders its decoded title row unchanged;
+it never executes Forge suffix compaction. The earlier `WEAPON_NAME` helper remains
+stock. The dispatcher clears `$7E:9385` on stock fallback, which is required for
+GAME SELECT compatibility.
 
-Round-75 handoff status: this standalone targeting is runtime-validated. The Forge row is locked; new UI families must follow `docs/UI_VWF.md` and must not reuse the Forge tag.
+The Ring title isolation was runtime-proven after tracing the shared submit chain and
+reproducing the former corruption caused by applying Forge's overlapping suffix move to
+long Ring labels. Future UI families must follow `docs/UI_VWF.md` and receive their own
+narrow identity instead of reusing either existing tag value.
 
-## french_resources — French CA resource names
+## french_resources — French CA resources
 
-`french_resources` owns only the rebuilt `$CA` pointer table/blob for the reviewed name
-families. It does not depend on `vwf_ui` and does not own any dialogue event. For standalone
-clean-USA use it installs the same shared French glyph span and context-sensitive DTE router as
-`vwf_dialogues` / `french_dialogues`; those overlaps are byte-identical in aggregate builds. The component never relocates the
-resource blob beyond its original stock allocation.
+`french_resources` owns the rebuilt `$CA` pointer table/blob for the reviewed name families
+plus the nine top-level Ring Menu titles `$0C6-$0CE`. It does not depend on `vwf_ui` and
+does not own any dialogue event. Android-FR mapping remains generated from canonical inputs;
+SNES-specific reviewed Ring wording is loaded from
+`translations/text_resources_reviewed_overrides.json`. For standalone clean-USA use it
+installs the same shared French glyph span and context-sensitive DTE router as
+`vwf_dialogues` / `french_dialogues`; those overlaps are byte-identical in aggregate builds.
+The component never relocates the resource blob beyond its original stock allocation.
 

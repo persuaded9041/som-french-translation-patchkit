@@ -1,7 +1,8 @@
-# french_resources — French `$CA` resource names
+# french_resources — French `$CA` resources
 
-Rebuilds the reviewed French **name-family** resources in the stock 513-entry
-non-event `$CA` text-resource table.
+Rebuilds the reviewed French resource subset in the stock 513-entry non-event
+`$CA` text-resource table: the established name families plus the validated top-level
+Ring Menu title labels.
 
 ## Ownership
 
@@ -13,9 +14,10 @@ This component currently translates only these reviewed families:
 - helmets, armor and accessories;
 - item/special names already present in the reviewed Android mapping;
 - enemy names;
-- location names.
+- location names;
+- the nine validated top-level Ring Menu title labels (`$0C6-$0CE`).
 
-It does **not** own dialogue events, descriptions, menu/status labels or UI VWF
+It does **not** own dialogue events, descriptions, other menu/status labels or UI VWF
 rendering. No new object/item translation should be added during component
 maintenance audits.
 
@@ -45,6 +47,12 @@ Deleting `translations/text_resources_french.json` or
 `build/cache/text_resources_french.meta.json` is always safe; the next build recreates
 them from canonical inputs.
 
+`translations/text_resources_reviewed_overrides.json` is different: it is a small
+**canonical reviewed adaptation layer** consumed directly by `french_resources`. It
+stores SNES-specific wording validated for mapped `$CA` resources without hard-coding
+French prose in Python. The current entries are the nine Ring Menu titles; their
+resource IDs/category are checked against the clean-ROM inventory before insertion.
+
 ## Storage/runtime architecture
 
 The complete 513-entry pointer table at `$CA:0800-$0C01` is rebuilt in resource-ID
@@ -56,9 +64,10 @@ component also installs the byte-identical shared `dialogue_french` glyph span a
 context-sensitive DTE router used by the dialogue components. Those writes are
 intentional compatible overlaps in aggregate builds.
 
-The current reviewed name-family build translates 349 resources, leaves three
-`n°` enemy names stock because `°` conflicts with the ordinary `$CA` `$E6` DTE
-boundary, and produces a 7,056-byte blob ending at `$CA:B470`.
+The current reviewed build translates 358 resources (349 established name-family
+entries + 9 Ring Menu labels), leaves three `n°` enemy names stock because `°` conflicts
+with the ordinary `$CA` `$E6` DTE boundary, and produces a 7,103-byte blob ending at
+`$CA:B49F`.
 
 See `docs/MEMORY_MAP.md` for exact writes and root `docs/TEXT_RESOURCES.md` for the
 resource-family format/provenance.

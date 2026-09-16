@@ -32,7 +32,8 @@ from shared.vwf.ui import (  # noqa: E402
     enable_ui,
     UI_RENDER_CPU,
     UI_TAG,
-    UI_MAGIC,
+    FORGE_UI_MAGIC,
+    RING_UI_MAGIC,
     DISPATCH_CPU,
 )
 
@@ -80,22 +81,45 @@ def make_width_table(base: bytes) -> bytes:
 
 
 def make_submit_wrapper() -> bytes:
-    """Arm UI VWF only when the proven Forge row $00:19D0 is submitted.
+    """Classify the exact $00:19D0 submit into narrow UI families.
 
-    The stock caller has already loaded X=$19D0.  This wrapper replaces the
-    stock ``LDA #$0000 / JSR $D5D7`` pair, sets the one-shot UI tag, and then
-    reproduces $D0:D5D7 exactly enough to submit bank $00 / pointer $19D0.
-    Arming here is later and more precise than tagging the WEAPON_NAME helper:
-    subsequent Watts dialogue cannot inherit a tag merely because forge mode
-    remains active.
+    The caller at $D0:D3D2 is shared by the Ring Menu engine and Watts' Forge.
+    Do not arm VWF merely because this submit site was reached.  `$1847` is the
+    already-proven Ring subsystem mode byte at this exact call site:
+
+    - mode 0: top-level Ring Menu title row -> Ring one-shot tag;
+    - mode 3: Watts Forge row -> Forge one-shot tag;
+    - modes 1/2 (and any unexpected value): no UI tag, stock fallback.
+
+    This wrapper then reproduces $D0:D5D7 exactly enough to submit bank $00 /
+    pointer $19D0.  Classification happens before parser initialization so the
+    shared capacity helper can grant the family-specific local margin.
     """
     a = MiniAssembler(SUBMIT_WRAPPER_CPU)
 
-    # Exact caller reaches us in 16-bit A/X mode with X=$19D0.
+    # Exact caller reaches us in 16-bit A/X mode with X=$19D0.  Clear the tag
+    # first so modes 1/2 can never inherit a previous one-shot UI invocation.
     a.emit(0xE2, 0x20)                                # SEP #$20
-    a.emit(0xA9, UI_MAGIC)
+    a.emit(0xA9, 0x00)
     a.emit(0x8F, *lo24(0x7E0000 | UI_TAG))
 
+    a.emit(0xAF, *lo24(0x7E1847))                     # Ring subsystem mode
+    a.emit(0xC9, 0x00)
+    a.rel8(0xF0, "ring")
+    a.emit(0xC9, 0x03)
+    a.rel8(0xF0, "forge")
+    a.rel8(0x80, "classified")
+
+    a.label("ring")
+    a.emit(0xA9, RING_UI_MAGIC)
+    a.emit(0x8F, *lo24(0x7E0000 | UI_TAG))
+    a.rel8(0x80, "classified")
+
+    a.label("forge")
+    a.emit(0xA9, FORGE_UI_MAGIC)
+    a.emit(0x8F, *lo24(0x7E0000 | UI_TAG))
+
+    a.label("classified")
     # Reproduce $D0:D5D7 with event bank forced to the original #$00.
     a.emit(0xC2, 0x10)                                # REP #$10
     a.emit(0xA9, 0x00)                                # event bank $00
@@ -104,7 +128,7 @@ def make_submit_wrapper() -> bytes:
     a.emit(0xA9, 0x01)
     a.emit(0x2C, 0x04, 0x1D)                          # BIT $1D04
     a.rel8(0xF0, "no_cancel")
-    a.emit(0x22, *lo24(FORGE_SUBMIT_HELPER))           # JSL $C0:0095
+    a.emit(0x22, *lo24(FORGE_SUBMIT_HELPER))          # JSL $C0:0095
     a.label("no_cancel")
     a.emit(0xFA)                                      # PLX
     a.emit(0x68)                                      # PLA => $00
@@ -117,13 +141,12 @@ def make_submit_wrapper() -> bytes:
 
 
 def make_ui_renderer() -> bytes:
-    """Bridge the proven Forge row into the shared low-level VWF renderer.
+    """Render only an explicitly tagged Forge or top-level Ring invocation.
 
-    This deliberately mirrors the runtime-validated Round-73 probe: the parser
-    and stock decoded buffer remain untouched; only the already-decoded row is
-    copied to the private render buffer, compacted, and then passed through the
-    generic VWF character hooks.  This path works on a clean USA ROM and does
-    not require `vwf_dialogues` or translated resource names.
+    Both backends keep the stock parser and decoded buffer. The Ring backend
+    copies the decoded row unchanged. The Forge backend additionally performs
+    its already runtime-validated suffix compaction before entering the shared
+    low-level VWF renderer.
     """
     a = MiniAssembler(UI_RENDER_CPU)
 
@@ -144,8 +167,22 @@ def make_ui_renderer() -> bytes:
     a.emit(0x5C, *lo24(DISPATCH_CPU))
 
     a.label("accepted")
+    # Capture the one-shot family before consuming it. Dispatcher reaches this
+    # routine only for one of the two recognized magic values. X is made 16-bit
+    # below anyway, so use it as an ephemeral backend selector: 0=Ring, 1=Forge.
+    a.emit(0xAF, *lo24(0x7E0000 | UI_TAG))
+    a.emit(0xC9, FORGE_UI_MAGIC)
+    a.rel8(0xF0, "accepted_forge")
+    a.emit(0xC2, 0x10)
+    a.emit(0xA2, 0x00, 0x00)                         # Ring selector
+    a.rel8(0x80, "accepted_kind")
+    a.label("accepted_forge")
+    a.emit(0xC2, 0x10)
+    a.emit(0xA2, 0x01, 0x00)                         # Forge selector
+    a.label("accepted_kind")
     a.emit(0xA9, 0x00)
     a.emit(0x8F, *lo24(0x7E0000 | UI_TAG))
+    a.emit(0xDA)                                      # preserve selector
     # Shared low-level renderer scope.  Value 1 is the already validated active
     # marker used by the generic row/outline helpers.
     a.emit(0xA9, 0x01)
@@ -175,7 +212,14 @@ def make_ui_renderer() -> bytes:
     a.emit(0xE0, 0x20, 0x00)
     a.rel8(0xD0, "copy_stock")
 
-    # Find the true end of the current weapon name before safe logical slot 20.
+    # Restore the explicit backend selector captured from UI_TAG. Ring rows
+    # already contain their complete decoded title and must never run through
+    # the Forge suffix mover.
+    a.emit(0xFA)                                      # PLX: 0=Ring, 1=Forge
+    a.emit(0xE0, 0x01, 0x00)
+    a.rel8(0xD0, "render_common")
+
+    # Forge only: find the true end of the current weapon name before safe logical slot 20.
     a.emit(0xA2, 0x13, 0x00)
     a.label("scan_name_end")
     a.emit(0xBD, PRIVATE_BUFFER & 0xFF, (PRIVATE_BUFFER >> 8) & 0xFF)
@@ -208,6 +252,7 @@ def make_ui_renderer() -> bytes:
     a.emit(0xC0, 0x26, 0x00)
     a.rel8(0xD0, "clear_tail")
 
+    a.label("render_common")
     # Clear 32-cell bitmap, then enter the generic VWF renderer at the stock
     # character loop.  38 private slots are safe; unused tail bytes are spaces.
     a.emit(0xA2, 0x00, 0x00)

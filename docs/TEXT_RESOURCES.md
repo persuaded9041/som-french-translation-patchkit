@@ -82,21 +82,27 @@ from the clean USA ROM, so fallback serialization remains byte-identical.
 
 ## Current production insertion
 
-`french_resources` is the production component for the reviewed **name families** only:
-magic, Mana spirits, weapons, helmets, armor, accessories, reviewed item/special names,
-enemies and locations. It rebuilds the full pointer table/blob in place and is included
-in the aggregate patch. Descriptions and menu/status labels are not currently inserted
-by this component even when Android identities exist.
+`french_resources` is the production component for the reviewed name families
+(magic, Mana spirits, weapons, helmets, armor, accessories, reviewed item/special names,
+enemies and locations) plus the nine runtime-validated top-level Ring Menu labels
+`$0C6-$0CE`. It rebuilds the full pointer table/blob in place and is included in the
+aggregate patch. Other descriptions and menu/status labels remain outside this component
+until separately reviewed.
 
-The current production build translates **349 resources**. Three mapped enemy names
+Android-FR-derived text comes from the generated mapping/cache described above.
+SNES-specific wording adaptations are stored canonically in
+`translations/text_resources_reviewed_overrides.json` and are loaded by the builder;
+French UI prose is not hard-coded in `build_patch.py`. Each override is validated against
+the clean-ROM resource ID/category before it can replace the generated Android wording.
+
+The current production build translates **358 resources**. Three mapped enemy names
 (`Double n°1`, `Double n°2`, `Double n°3`) deliberately remain stock because `°` uses
 direct code `$E6` while ordinary non-event `$CA` resources still treat `$E6` as the
 start of their upper DTE range. No substitution is guessed.
 
-Stock-DTE compression keeps the selected name-family build at **7,056 bytes** versus
-the original **7,315-byte** allocation. The rebuilt blob therefore remains entirely
-in place at `$CA:98E1-$B470`; the allocation ends at `$CA:B573`. No resource relocation
-is used.
+Stock-DTE compression keeps the selected build at **7,103 bytes** versus the original
+**7,315-byte** allocation. The rebuilt blob therefore remains entirely in place at
+`$CA:98E1-$B49F`; the allocation ends at `$CA:B573`. No resource relocation is used.
 
 Do not add new object/item wording during component-maintenance audits. New families or
 wording changes first require the normal identity/provenance and display-geometry review.

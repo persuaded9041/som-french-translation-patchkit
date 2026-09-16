@@ -9,14 +9,15 @@ that can route selected event-engine invocations to the already validated
 `vwf_intro` enables mode 1 for the intro runtime window containing event $0400. `vwf_dialogues`
 enables mode 2 for ordinary event-engine text in stock banks $C9/$CA and
 for `french_dialogues` relocated event banks $E8-$EC. `vwf_ui` keeps parser mode
-stock but reuses the common capacity hook for an exact builder-tagged +3 UI margin. GAME SELECT
+stock but reuses the common capacity hook for exact one-shot UI-family margins
+(Forge +3; top-level Ring Menu +4). GAME SELECT
 also calls the stock parser initializer, so activation is structurally gated by
 the caller return address ($114B from JSR $C0:16B8 at $C0:1149).
 """
 from __future__ import annotations
 
 from shared.core.asm import MiniAssembler, lo16, lo24
-from .ui import UI_CONFIG_CPU, UI_MARKER, UI_TAG, UI_MAGIC
+from .ui import UI_CONFIG_CPU, UI_MARKER, UI_TAG, FORGE_UI_MAGIC, RING_UI_MAGIC
 
 # Stock hooks shared by `vwf_intro` and `vwf_dialogues`.
 BUFFER_INIT_FILE = 0x0016B8
@@ -202,17 +203,29 @@ def _assemble_capacity() -> bytes:
     a.emit(0x38)
     a.emit(0xED, *lo16(0xA181))
 
-    # `vwf_ui` UI-VWF: the runtime-proven Forge row needs three extra
-    # logical parser units. The exact builder arms UI_TAG before parser init;
-    # the ROM config marker prevents stale/random WRAM from affecting builds
-    # that do not include `vwf_ui`. Stock buffer and parser stay unchanged.
+    # `vwf_ui` keeps the stock parser/buffer and grants only the exact local
+    # margin required by the one-shot UI family tag. Forge keeps its runtime-
+    # validated +3 budget. The top-level Ring Menu gets +4: the stock fresh
+    # remainder is 29 units, so 33 units exactly fill the stock 33-byte buffer
+    # and allow 32 visible characters plus the following control. No UI path
+    # is permitted to exceed the stock buffer.
     a.emit(0x48)                              # PHA stock remaining count
     a.emit(0xAF, *lo24(UI_CONFIG_CPU))
     a.emit(0xC9, UI_MARKER)
     a.rel8(0xD0, "stock_no_ui")
     a.emit(0xAF, *lo24(0x7E0000 | UI_TAG))
-    a.emit(0xC9, UI_MAGIC)
+    a.emit(0xC9, FORGE_UI_MAGIC)
+    a.rel8(0xF0, "forge_ui")
+    a.emit(0xC9, RING_UI_MAGIC)
     a.rel8(0xD0, "stock_no_ui")
+    a.emit(0x68)                              # PLA count
+    a.emit(0x18)                              # CLC
+    a.emit(0x69, 0x04)                        # +4 exact Ring Menu margin
+    a.emit(0xC9, 0x22)                        # >= 34 would exceed stock buffer
+    a.rel8(0x90, "store")
+    a.emit(0xA9, 0x21)                        # cap at 33 stock bytes
+    a.rel8(0x80, "store")
+    a.label("forge_ui")
     a.emit(0x68)                              # PLA count
     a.emit(0x18)                              # CLC
     a.emit(0x69, 0x03)                        # +3 validated Forge margin

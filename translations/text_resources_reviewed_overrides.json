@@ -1,0 +1,61 @@
+{
+  "format_version": 1,
+  "language": "fr",
+  "description": "Reviewed SNES UI adaptations layered over the canonical Android-FR text-resource mapping. These entries are intentionally concise enough for the in-game Ring Menu title banner while preserving the mapped Android semantics.",
+  "entries": [
+    {
+      "id": "CA:A168",
+      "resource_id": "0C6",
+      "category": "menu_label",
+      "text": "Équipement"
+    },
+    {
+      "id": "CA:A174",
+      "resource_id": "0C7",
+      "category": "menu_label",
+      "text": "Désigner la cible à attaquer"
+    },
+    {
+      "id": "CA:A17E",
+      "resource_id": "0C8",
+      "category": "menu_label",
+      "text": "Caractéristiques des personnages"
+    },
+    {
+      "id": "CA:A185",
+      "resource_id": "0C9",
+      "category": "menu_label",
+      "text": "Niveaux des armes et de la magie"
+    },
+    {
+      "id": "CA:A198",
+      "resource_id": "0CA",
+      "category": "menu_label",
+      "text": "Actions des personnages"
+    },
+    {
+      "id": "CA:A1A4",
+      "resource_id": "0CB",
+      "category": "menu_label",
+      "text": "Réglages manette"
+    },
+    {
+      "id": "CA:A1B4",
+      "resource_id": "0CC",
+      "category": "menu_label",
+      "text": "Choix des fenêtres de dialogue"
+    },
+    {
+      "id": "CA:A1C0",
+      "resource_id": "0CD",
+      "category": "menu_label",
+      "text": "Jeter"
+    },
+    {
+      "id": "CA:A1C6",
+      "resource_id": "0CE",
+      "category": "menu_label",
+      "text": "Tous"
+    }
+  ]
+}

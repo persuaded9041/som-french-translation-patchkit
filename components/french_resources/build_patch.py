@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 import sys
 
@@ -38,6 +39,7 @@ from shared.charset import (
 from shared.extracted.assets import load_or_extract_resources  # noqa: E402
 ASSET = PROJECT_ROOT / "assets" / "text_resources.json"
 STOCK_BLOB_BYTES = 7315
+REVIEWED_OVERRIDES = PROJECT_ROOT / "translations" / "text_resources_reviewed_overrides.json"
 FONT_BASE = 0x12DC00
 GLYPH_FIRST = min(CHAR_TO_CODE[ch] for ch in DIALOGUE_FRENCH_CHARS)
 DEFAULT_CATEGORIES = (
@@ -48,6 +50,7 @@ DEFAULT_CATEGORIES = (
     "armor_name",
     "accessory_name",
     "item_name",
+    "menu_label",
     "enemy_name",
     "location_name",
 )
@@ -76,6 +79,29 @@ def load_translation_entries(base: bytes, source: dict) -> tuple[dict[str, tuple
     return _translation_entries_from_document(doc), False
 
 
+def load_reviewed_overrides(source: dict) -> dict[str, tuple[str, str]]:
+    """Load small, explicitly reviewed SNES UI adaptations layered over Android FR."""
+    doc = json.loads(REVIEWED_OVERRIDES.read_text(encoding="utf-8"))
+    if doc.get("format_version") != 1 or doc.get("language") != "fr":
+        raise ValueError("Unsupported reviewed text-resource override format")
+    by_id = {entry["id"]: entry for entry in source["resources"]}
+    result: dict[str, tuple[str, str]] = {}
+    for entry in doc.get("entries", []):
+        snes_id = entry["id"]
+        canonical = by_id.get(snes_id)
+        if canonical is None:
+            raise ValueError(f"Reviewed resource override has unknown source ID {snes_id}")
+        if entry.get("resource_id") != canonical["resource_id"]:
+            raise ValueError(f"{snes_id}: reviewed override resource_id mismatch")
+        if entry.get("category") != canonical["category"]:
+            raise ValueError(f"{snes_id}: reviewed override category mismatch")
+        text = entry.get("text")
+        if not isinstance(text, str):
+            raise ValueError(f"{snes_id}: reviewed override text must be a string")
+        result[snes_id] = (canonical["category"], text)
+    return result
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("rom", type=Path, help="clean unheadered Secret of Mana (USA) ROM")
@@ -86,6 +112,7 @@ def main() -> None:
     validate_base_rom(base)
     document = load_or_extract_resources(base, ASSET)
     entries, cache_hit = load_translation_entries(base, document)
+    entries.update(load_reviewed_overrides(document))
 
     translations: dict[str, str] = {}
     skipped: list[tuple[str, str]] = []

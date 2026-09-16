@@ -65,19 +65,30 @@ After each new backend, verify at minimum:
 - resource-name translation from `french_resources` is still present in `all.ips`;
 - any menu family sharing the same submit/renderer helpers is spot-checked.
 
+## Second backend: top-level Ring Menu title
+
+The Ring Menu investigation proved that its title banner reaches the same `$00:19D0` submit as
+Forge through `C0:6943 -> D0:D397`, but represents a continuous title row rather than the Forge
+`name + suffix` layout. Applying Forge's overlapping slot-20..31 compaction to these titles exactly
+explained the observed corruption of long French labels.
+
+Production isolation now classifies the exact shared submit by the already-existing Ring subsystem
+mode byte: `$1847==0` arms a distinct Ring one-shot tag (`$A8`), `$1847==3` arms the Forge tag
+(`$A7`), and modes 1/2 arm no UI tag. Ring titles keep the stock parser/buffer, render their decoded
+row unchanged under VWF, and receive exactly +4 logical units: 29 stock fresh-line units +4 = the
+33-byte stock buffer, allowing 32 visible characters plus the following control. The private
+dialogue parser is not used.
+
+Runtime validation proves the dedicated Ring backend end-to-end: `Caractéristiques des personnages`
+and `Choix des fenêtres de dialogue` render completely without the former repeated-glyph corruption,
+and the exact +4 boundary restores the final `e` of the 32-character
+`Niveaux des armes et de la magie`. The Forge backend remains isolated behind its own tag and
+retains its validated suffix compaction. Future UI families must use another narrow identity and
+must not broaden mode 0 or 3.
+
 ## Next candidates
 
-### 1. Ring Menu
-
-Runtime observation after the Round-75 Forge work: Ring Menu text already renders with VWF. This
-is likely an effect of a shared path, but the exact ownership/submit chain has not yet been proven.
-Do **not** add another gate merely to "enable" Ring Menu VWF. First inventory which labels/names are
-built dynamically versus read directly from `$CA` resources, trace the exact builder/submit path,
-and explain why the current narrow `vwf_ui` infrastructure already reaches it. Only add a new
-one-shot gate if a specific Ring Menu field is proven to need one. Long equipment/item names remain
-useful stress cases.
-
-### 2. Item-acquisition / pickup UI
+### 1. Item-acquisition / pickup UI
 
 Find the path used when item/resource names are shown after pickup. Record whether quantities,
 icons, punctuation, or status text are placed with absolute cell anchors. Prove the builder with

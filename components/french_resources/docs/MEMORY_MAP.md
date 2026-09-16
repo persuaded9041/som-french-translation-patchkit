@@ -8,7 +8,7 @@ All addresses are SNES CPU addresses unless noted otherwise.
 | `$C7:4570-$45EE` | shared context-sensitive DTE router (127 bytes active in `$4570-$45EF` reserve) |
 | `$C7:4C85` | shared dialogue/resource `$E8` DTE-profile marker |
 | `$CA:0800-$0C01` | complete 513-entry resource pointer table (`513 * 2 = 1026` bytes) |
-| `$CA:98E1-$B470` | current rebuilt resource blob (7,056 bytes) |
+| `$CA:98E1-$B49F` | current rebuilt resource blob (7,103 bytes) |
 | `$CA:98E1-$B573` | maximum permitted stock resource allocation (7,315 bytes) |
 | `$D2:DFE4-$E0DF` | shared `dialogue_french` direct-glyph span `$D3-$E7` |
 

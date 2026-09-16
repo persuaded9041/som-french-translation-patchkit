@@ -30,7 +30,10 @@ UI_MARKER = 0x09
 
 # One-shot WRAM identity tag set only by a proven UI builder.
 UI_TAG = 0x93C1
-UI_MAGIC = 0xA7
+FORGE_UI_MAGIC = 0xA7
+RING_UI_MAGIC = 0xA8
+# Backward-compatible alias for code that still refers to the validated Forge tag.
+UI_MAGIC = FORGE_UI_MAGIC
 
 DIALOGUE_CONFIG_CPU = 0xC74C84
 DIALOGUE_MARKER = 0x06
@@ -45,7 +48,9 @@ def _assemble_dispatcher() -> bytes:
     a.emit(0xC9, UI_MARKER)
     a.rel8(0xD0, "dialogue")
     a.emit(0xAF, *lo24(0x7E0000 | UI_TAG))
-    a.emit(0xC9, UI_MAGIC)
+    a.emit(0xC9, FORGE_UI_MAGIC)
+    a.rel8(0xF0, "ui")
+    a.emit(0xC9, RING_UI_MAGIC)
     a.rel8(0xF0, "ui")
 
     a.label("dialogue")

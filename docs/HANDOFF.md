@@ -191,6 +191,57 @@ Detailed research and the corrected historical explanation are in
 `docs/OPENING_CREDIT_ACCENT_RESEARCH.md`. Component implementation notes are in
 `components/french_opening/README.md` and its memory map.
 
+## Promoted Ring Menu title translation + dedicated VWF backend (2026-09-16)
+
+The top-level in-game Ring Menu title work is now **runtime-validated and promoted**.
+The dialogue corpus and Android dialogue mapping were not modified.
+
+Validated French labels (`$CA` resources `$0C6-$0CE`):
+
+- `$0C6` `Équipement`
+- `$0C7` `Désigner la cible à attaquer`
+- `$0C8` `Caractéristiques des personnages`
+- `$0C9` `Niveaux des armes et de la magie`
+- `$0CA` `Actions des personnages`
+- `$0CB` `Réglages manette`
+- `$0CC` `Choix des fenêtres de dialogue`
+- `$0CD` `Jeter`
+- `$0CE` `Tous`
+
+Text ownership is intentionally data-driven. Android identity/French remains generated through the
+existing `$CA` resource pipeline; the reviewed SNES wording above lives canonically in
+`translations/text_resources_reviewed_overrides.json` and is loaded/validated by
+`french_resources`. No Ring French prose is hard-coded in Python.
+
+Runtime tracing established the title path:
+
+`Ring Menu -> C0:6943 -> D0:D397 -> $00:19D0 -> stock parser -> C0:167D -> vwf_ui`
+
+The root cause of the former long-title corruption was not a 20-character hard limit: the
+Forge-specific overlapping slot-20..31 suffix compaction was being applied to a continuous Ring
+title because both families share the same `$00:19D0` submit. The production fix gives each
+family its own one-shot tag at the exact shared submit:
+
+- `$1847 == 0` -> Ring tag `$A8`, unchanged decoded-row VWF rendering, exact **+4** logical
+  capacity = full 33-byte stock buffer (32 visible characters + following control);
+- `$1847 == 3` -> Forge tag `$A7`, previously validated **+3** capacity and suffix compaction;
+- modes 1/2 or unexpected values -> no UI tag, stock fallback.
+
+The +4 boundary is runtime-validated by the complete 32-character
+`Niveaux des armes et de la magie`, including its final `e`. The other long titles no longer lose
+words or repeat glyphs. The user explicitly validated this architecture before the final wording
+change `$0CA: Définir les actions des PNJ -> Actions des personnages`; that wording-only change
+is shorter and does not alter the VWF runtime.
+
+Current promoted patch SHA-256 values:
+
+- `patches/vwf_ui.ips`: `e0abffa45d64aaf9b42dededf2923a43d9f6bc9a94020756ddfc8e9a1b849189`
+- `patches/french_resources.ips`: `a809910e815ee312556de313800386d8904661c7b364cf366afbc3aec0a72a6d`
+- `patches/all.ips`: `273d8268c9925e858ad631357953c38f50134e0bfabee01fa323ebcdea69f69a`
+
+`french_resources` now translates 358 resources; its rebuilt `$CA` blob is 7,103 / 7,315 bytes
+and remains fully inside the stock allocation (`$CA:98E1-$B49F`, maximum `$CA:B573`).
+
 ## Next work
 
 No new functional task is prescribed by this checkpoint. Treat the dialogue

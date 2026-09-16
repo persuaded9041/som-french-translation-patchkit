@@ -109,17 +109,20 @@ intentionally avoids duplicating renderer status and calibration details.
 ## vwf_ui — non-dialogue UI VWF
 
 `vwf_ui` reuses shared framing/compositor/stock-row helpers but owns its own
-renderer. `$7E:93C1` is its only UI-private one-shot exact-builder tag; the current
-backend has no additional `$93C3-$93C9` scratch. It reuses shared runtime scratch
+renderer. `$7E:93C1` is its only UI-private one-shot family tag: `$A7` identifies
+the Forge row and `$A8` identifies the top-level Ring Menu title row. The backend has
+no additional `$93C3-$93C9` scratch. It reuses shared runtime scratch
 `$7E:9382/$9385/$938E-$938F` and may reuse `$7E:9390-$93BB` only after stock parsing
 has completed, so it does not enable the private parser mode used by `vwf_intro` / `vwf_dialogues`.
-The accepted Forge path keeps the stock parser/buffer, grants +3 logical units
-only under the exact tag, then compacts the suffix visually under VWF.
+Forge keeps its validated +3 logical margin and suffix compaction. Ring Menu mode 0
+gets an exact +4 margin (33 stock units total) and renders the decoded title unchanged.
+Modes 1/2 do not arm `vwf_ui` and remain stock.
 
 ## french_resources — CA resource table/blob
 
 `french_resources` rewrites the canonical 513-entry `$CA` resource pointer table and the translated
-name-family payload within the original stock allocation beginning at `$CA:98E1`. The current
-translated blob is 7056 bytes versus the 7315-byte stock allocation; no relocation or new ROM
-allocation is used. Its French glyph/DTE infrastructure is shared byte-identically with `vwf_dialogues` / `french_dialogues`.
+reviewed payload (name families + nine Ring Menu titles) within the original stock allocation
+beginning at `$CA:98E1`. The current translated blob is 7103 bytes versus the 7315-byte stock
+allocation; no relocation or new ROM allocation is used. Its French glyph/DTE infrastructure is
+shared byte-identically with `vwf_dialogues` / `french_dialogues`.
 
