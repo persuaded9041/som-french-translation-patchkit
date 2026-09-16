@@ -5,7 +5,8 @@ Entries `$0400-$0600` form a second family of **513 null-terminated text
 resources**. They are not NPC/story event scripts and therefore stay separate
 from `assets/dialogues.json`.
 
-The canonical source extraction is `assets/text_resources.json` and is
+The reproducible local source cache is `assets/text_resources.json`. It is not
+canonical provenance and is regenerated from the clean USA ROM when absent. It is
 generated together with the dialogue asset by:
 
 ```bash
@@ -104,8 +105,10 @@ Stock-DTE compression keeps the selected build at **7,103 bytes** versus the ori
 **7,315-byte** allocation. The rebuilt blob therefore remains entirely in place at
 `$CA:98E1-$B49F`; the allocation ends at `$CA:B573`. No resource relocation is used.
 
-Do not add new object/item wording during component-maintenance audits. New families or
-wording changes first require the normal identity/provenance and display-geometry review.
+The next planned translation work is to add further resource IDs/families. Promote them
+only after the normal identity/provenance, codec/size and display-geometry review. Do not
+activate an entire category merely because Android FR text exists: first confirm where the
+resource is rendered and whether its target UI has sufficient capacity.
 
 ## Validation
 
@@ -131,8 +134,11 @@ python3 tools/text/import_android_resources.py --check
 ```
 
 The current mapping contains 475 mapped resources, 34 deliberately excluded resources
-and 4 unresolved locations. The component filters that mapping to its reviewed name
-families and applies the current encoding profile.
+and 4 unresolved locations. The mapped-but-not-promoted set notably includes all
+**72 `weapon_description`** and **42 `magic_description`** resources. The component
+currently filters the mapping to its reviewed promoted families and applies the current
+encoding profile; those description families therefore remain source/review candidates
+until their actual display geometry is validated. The current conservative layout audit classifies weapon descriptions as **38 inside stock envelope / 34 geometry review**, and magic descriptions as **2 inside / 40 geometry review**. Across all 475 mapped resources the totals are **302 inside / 170 geometry review / 3 encoding-blocked**.
 
 ## Layout/encoding review tool
 

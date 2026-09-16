@@ -31,7 +31,7 @@ framing/compositor/row helpers, capacity helper, outline support and the
 | Condition at `$D0:D3D2` | Tag | Capacity | Renderer behavior |
 |---|---:|---:|---|
 | `$1847 == 0` | `$A8` Ring | stock remainder +4, max 33 stock units | copy continuous Ring title unchanged, then VWF |
-| `$1847 == 1/2` | `$AA` merchandise | stock | copy stock row unchanged, then VWF; runtime-validated |
+| `$1847 == 1/2` | `$AA` merchandise | stock | copy stock row unchanged, then VWF only through the real decoded count (`$938E`); avoids synthetic-tail cursor wrap back onto bitmap cell 0 |
 | `$1847 == 3` | `$A7` Forge | stock remainder +3 | validated suffix compaction, then VWF |
 | `$1847 == 1/2` or other | none | stock | stock fallback |
 
@@ -71,9 +71,12 @@ those exact two-glyph literals to `PO` from
 `vwf_ui` owns geometry only:
 
 - merchandise `$AA`: 164-px price resync plus a 4-px separator before the final
-  two source glyphs;
-- MONEY `$AB`: 3-px separator before the final two source glyphs and type-2
-  window width `$C7:714C` 9 -> 11 cells;
+  two source glyphs; render-loop bound = actual decoded count, not all 38 private
+  slots, so trailing `$80` padding cannot wrap the 8-bit pixel cursor to x=0 and
+  erase the first item glyph;
+- MONEY `$AB`: 3-px separator before the final two source glyphs, type-2
+  window width `$C7:714C` 9 -> 11 cells, and independent close X seed
+  `$C7:7140` `$0A -> $09` so the extra left cell is erased on close;
 - no source/private-buffer glyph rewrite and no buffer growth.
 
 ## Shared low-level renderer identity

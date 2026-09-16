@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import ast
 import json
 import re
 import sys
@@ -213,6 +214,64 @@ def check_dialogue_pipeline(problems: list[str]) -> None:
                 problems.append(f"layout-search ${event_id}: recipe may not change semantic payload")
 
 
+
+def check_component_hardcoded_prose(problems: list[str]) -> None:
+    """Reject localized prose copied into component Python/ASM source.
+
+    Translation payloads belong in JSON/data sources.  This deliberately scans
+    only human prose values (multi-word `text` fields) so structural tokens,
+    glyph repertoires and short fixed identifiers do not create false positives.
+    Python comments are ignored by the AST; ASM comments are stripped before
+    matching.
+    """
+    prose: set[str] = set()
+    for path in sorted((ROOT / "translations").glob("*.json")):
+        try:
+            document = json.loads(path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            problems.append(f"cannot parse translation JSON {path.relative_to(ROOT)}: {exc}")
+            continue
+
+        def visit(value: object) -> None:
+            if isinstance(value, dict):
+                text = value.get("text")
+                if isinstance(text, str):
+                    candidate = text.strip()
+                    if len(candidate) >= 8 and any(ch.isspace() for ch in candidate):
+                        prose.add(candidate)
+                for child in value.values():
+                    visit(child)
+            elif isinstance(value, list):
+                for child in value:
+                    visit(child)
+
+        visit(document)
+
+    for path in sorted(COMPONENTS.rglob("*.py")):
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        except SyntaxError as exc:
+            problems.append(f"cannot parse component Python {rel(path)}: {exc}")
+            continue
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Constant) or not isinstance(node.value, str):
+                continue
+            for payload in prose:
+                if payload in node.value:
+                    problems.append(
+                        f"localized prose hard-coded in {rel(path)}:{getattr(node, 'lineno', '?')}: {payload!r}"
+                    )
+                    break
+
+    for path in sorted(COMPONENTS.rglob("*.asm")):
+        executable = "\n".join(
+            line.split(";", 1)[0] for line in path.read_text(encoding="utf-8").splitlines()
+        )
+        for payload in prose:
+            if payload in executable:
+                problems.append(f"localized prose hard-coded in ASM {rel(path)}: {payload!r}")
+
+
 def main() -> None:
     problems: list[str] = []
 
@@ -275,6 +334,8 @@ def main() -> None:
 
     check_dialogue_pipeline(problems)
 
+    check_component_hardcoded_prose(problems)
+
     # Regression/audit consumers must regenerate dialogue alignment/format data
     # from canonical inputs rather than read ignored generated snapshots.
     generated_dialogue_consumers = {
@@ -310,6 +371,7 @@ def main() -> None:
     print("  - french_dialogues reuses a valid dialogues_french.json cache or regenerates and persists it automatically")
     print("  - french_resources reuses a valid text_resources_french.json cache or regenerates and persists it automatically; mapping reports remain optional")
     print("  - dialogue alignment/layout recipes contain structural references only, never translated prose payloads")
+    print("  - component Python/ASM contains no multi-word localized prose copied from translation JSON payloads")
     return 0
 
 

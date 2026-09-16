@@ -2,7 +2,7 @@
   "format_version": 1,
   "language": "fr",
   "source_asset": "shop_text.json",
-  "description": "Direct Android-FR shop/forge translations. The french_shop_text builder verifies these entries against the reviewed Android mapping recipe and the original Android binaries before insertion.",
+  "description": "Direct Android-FR shop/forge translations. The french_resources builder verifies these entries against the reviewed Android mapping recipe and the original Android binaries before insertion.",
   "groups": [
     {
       "group": "shop_forge.android_direct",

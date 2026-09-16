@@ -1,7 +1,9 @@
 ; Secret of Mana (USA) - shared VWF decoded-text buffer bridge
 ; ============================================================
 ; Readable reference for shared/vwf/text_buffer.py, which is the executable
-; canonical source. `vwf_intro` and `vwf_dialogues` install these hooks/helpers byte-for-byte.
+; canonical source. `vwf_intro`, `vwf_dialogues` and `vwf_ui` install these
+; hooks/helpers byte-for-byte. `vwf_ui` does not enable a private parser mode, so
+; these hooks remain stock-behavior infrastructure in its standalone build.
 ;
 ; Stock parser buffer:   $7E:A1A4-$A1C4 (33 initialized bytes)
 ; Private VWF buffer:    $7E:9390-$93BB (44 bytes)

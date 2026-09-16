@@ -313,36 +313,15 @@ reproducing the former corruption caused by applying Forge's overlapping suffix 
 long Ring labels. Future UI families must follow `docs/UI_VWF.md` and receive their own
 narrow identity instead of reusing an existing tag value.
 
-## french_resources — French CA resources
+The type-2 MONEY frame is also symmetric again after widening: `$C7:714C=$0B`
+opens an 11-cell frame, while the independent close seed `$C7:7140=$09` starts
+the close one cell farther left than stock. This exact pair is runtime-validated;
+do not change one without re-checking the other.
 
-`french_resources` owns the rebuilt `$CA` pointer table/blob for the reviewed name families
-plus the nine top-level Ring Menu titles `$0C6-$0CE`. It also owns the two fixed shop currency
-literals `$C7:7B6A` and `$D0:D894`; their reviewed `GP -> PO` payload comes from
-`translations/french_resources_reviewed_literals.json`, never from `vwf_ui`. It does not depend
-on `vwf_ui` and does not own any dialogue event. Android-FR mapping remains generated from
-canonical inputs; SNES-specific reviewed Ring wording is loaded from
-`translations/text_resources_reviewed_overrides.json`. For standalone clean-USA use it installs
-the same shared French glyph span and context-sensitive DTE router as `vwf_dialogues` /
-`french_dialogues`; those overlaps are byte-identical in aggregate builds. The component never
-relocates the resource blob beyond its original stock allocation.
+## french_resources — French resources + D9 shop/forge responses
 
+`french_resources` owns the rebuilt `$CA` pointer table/blob for the reviewed name families and nine top-level Ring Menu titles `$0C6-$0CE`, the two fixed shop currency literals `$C7:7B6A` / `$D0:D894`, and the nine existing `$D9:FE20-$FEF3` shop/forge mini-event records plus their nine bank-C0 `LDX` pointer operands. No separate `french_shop_text` component is generated.
 
-## french_shop_text — D9 shop/forge response compatibility
+The former two standalone write maps were merged without changing runtime bytes. The component installs one shared `dialogue_french` glyph span and context-sensitive DTE router, which serves both `$CA` resources and D9 scripts. `vwf_dialogues` still rejects bank D9 at renderer entry. Without `vwf_ui`, D9 responses use the stock fixed-width renderer; with `vwf_ui`, exact Shop tag `$A9` renders the already-decoded stock row proportionally. Parser capacity remains stock, so the D9 family still enforces 28 visible characters.
 
-`french_shop_text` owns only the nine existing `$D9:FE20-$FEF3` mini-event
-records and their nine bank-C0 `LDX` pointer operands. No other aggregate
-component writes those shop/forge data locations.
-
-For standalone French accented text it installs the same byte-identical
-`dialogue_french` glyph span and context-sensitive DTE router used by
-`vwf_dialogues`, `french_dialogues` and `french_resources`. The D9 scripts are
-real event-engine parser calls, so the extended `$E8` event threshold applies;
-`vwf_dialogues` still rejects bank D9 at renderer entry. When `vwf_ui` is absent,
-these messages therefore remain on the stock fixed-width path. When `vwf_ui` is
-present, its separately gated Shop tag `$A9` owns only this exact D9 pool and
-renders the already-decoded stock row proportionally. The stock parser capacity
-remains unchanged, so `french_shop_text` still enforces 28 visible characters.
-
-The rebuilt French pool is 179 bytes inside the original 212-byte allocation,
-so the component requires no relocation and introduces no new ROM or WRAM
-reservation.
+The rebuilt `$CA` blob remains 7,103 / 7,315 bytes. The rebuilt D9 pool remains 179 / 212 bytes. Neither family relocates or allocates new WRAM. The `GP -> PO` payload remains sourced only from `translations/french_resources_reviewed_literals.json`; `vwf_ui` owns geometry only.

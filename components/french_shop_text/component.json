@@ -1,8 +1,0 @@
-{
-  "id": "french_shop_text",
-  "short_name": "french-shop",
-  "name": "French shop / forge response text",
-  "shared_charset_profile": "dialogue_french",
-  "dialogue_dte_router": true,
-  "build_order": 110
-}

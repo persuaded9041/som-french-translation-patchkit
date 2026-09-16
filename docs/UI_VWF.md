@@ -107,7 +107,19 @@ Validated merchandise presentation is geometric only:
 
 - resync the price from 168 px to **164 px**;
 - insert a **4 px** separator before the final two unit glyphs;
+- render only the stock parser's real decoded count (`$938E`) for `$AA`, rather
+  than traversing the synthetic `$80` tail of the 38-byte private buffer;
 - do not grow or rewrite the source buffer.
+
+The decoded-count bound fixes the item-specific `Haubert magique` defect.  Its
+text and private copy were already correct (`H` was present at slot 0).  With its
+five-digit price, useful rendering ended at about 220 px; continuing across the
+ten artificial tail spaces advanced the 8-bit pixel cursor through 252 -> 0.
+The final aligned padding space then committed zero rows into bitmap cell 0,
+erasing the already-rendered `H`.  `Noix magique` did not reach the wrap point,
+which is why it appeared correct.  Since the bitmap is cleared before the VWF
+pass, those synthetic spaces have no visual purpose and can be skipped safely
+for merchandise without changing Ring / Forge / D9 / MONEY behavior.
 
 ## Fourth backend: type-2 MONEY total
 
@@ -120,7 +132,8 @@ Validated presentation:
 
 - VWF rendering only; no glyph translation;
 - **3 px** separator before the final two unit glyphs;
-- type-2 frame width `$C7:714C` widened from **9 to 11 cells**.
+- type-2 frame width `$C7:714C` widened from **9 to 11 cells**;
+- independent type-2 close X seed `$C7:7140` shifted from **`$0A` to `$09`** so closing erases the extra left frame cell opened by the wider window.
 
 ## Standalone dependency fix
 
@@ -145,20 +158,10 @@ This dependency fix and GAME SELECT correction are runtime-validated. Do not
 make `vwf_ui` depend on `vwf_dialogues`, and do not put `GP -> PO` translation
 logic back into the renderer.
 
-## Current next defect: `Haubert magique`
-
-Resource `$CA:9F8E` / ID `$09C` (`armor_name`, stock `Magical Armor`) translates
-to `Haubert magique`. In the shop merchandise `$AA` path, runtime testing shows
-its leftmost `H` missing while other items are correct. Treat this as a narrow
-item-specific rendering defect. First compare the decoded row, private VWF copy,
-starting X/slot and clipping behavior with a known-good item such as
-`Noix magique`; do not broaden the backend or alter the validated currency
-geometry as a first response.
-
 ## Later candidates
 
 Item-acquisition/pickup UI or other equipment/status rows may be considered only
-after the current shop defect is resolved. Do not create a generic "all
+after their exact submit/render path is identified. Do not create a generic "all
 non-dialogue text" switch. Each family must remain independently gated.
 
 ## Known rejected patterns

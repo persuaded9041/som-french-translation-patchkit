@@ -5,8 +5,8 @@ them through the normal event engine after setting the live script bank to D9.
 Each target is a tiny script of the form ``$7F $52 <stock text> $00``.  The
 records are physically contiguous at D9:FE20-D9:FEF3.
 
-The clean-USA asset remains source-only.  French payloads are owned separately
-by ``french_shop_text``; keeping the script wrapper out of the source JSON makes
+The clean-USA asset remains source-only.  French payloads are owned by ``french_resources``; keeping the script wrapper
+out of the source JSON makes
 the text readable while the clean ROM remains authoritative for pointers,
 opcodes and terminators.
 """
@@ -181,7 +181,7 @@ def serialize_translated_pool(
     The clean-ROM scripts remain the structural source: wrappers, record order and
     all bank-C0 reference sites are validated before any translated payload is
     serialized.  Text is compressed with runtime-safe stock DTE pairs using the
-    event-dialogue ``$E8`` threshold installed by the French shop component.
+    event-dialogue ``$E8`` threshold installed by ``french_resources``.
 
     Returns ``(blob, reference_pointers, stats)`` where ``reference_pointers``
     maps each C0 ``LDX`` site to its rebuilt D9 script pointer.

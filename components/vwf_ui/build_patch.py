@@ -83,6 +83,17 @@ MONEY_WINDOW_WIDTH_FILE = 0x07714C
 EXPECTED_MONEY_WINDOW_WIDTH = 0x09
 FRENCH_MONEY_WINDOW_WIDTH = 0x0B
 
+# MONEY close geometry is seeded independently from the opening geometry by
+# C0:0D8B when $A170 == $51.  The type-2 horizontal close seed is the low byte
+# at C7:7140.  Stock width 9 expands around the fixed opening centre to a final
+# left bound of cell 10, matching the stock close seed $0A.  Width 11 expands
+# one cell farther left (cell 9), so retaining $0A leaves that new left frame
+# column on screen after MONEY_CLOSE.  Shift only the type-2 close seed left by
+# one cell; all other window types and the opening centre remain stock.
+MONEY_CLOSE_X_FILE = 0x077140
+EXPECTED_MONEY_CLOSE_X = 0x0A
+FRENCH_MONEY_CLOSE_X = 0x09
+
 PRIVATE_BUFFER = 0x9390
 STOCK_BUFFER = 0xA1A4
 PIXEL_CURSOR = 0x9382
@@ -357,6 +368,20 @@ def make_ui_renderer() -> bytes:
     # untouched for every family. Currency bytes are deliberately never
     # inspected or rewritten here; `french_resources` owns `GP` -> `PO`.
     a.emit(0xFA)                                      # PLX selector
+
+    # The one-line UI banner shares the same left-edge outline geometry as
+    # ordinary dialogue.  Start Ring / Forge / D9 shop-response / merchandise
+    # VWF one pixel inside the bitmap so the stock outline has a real column
+    # on the left of the first glyph.  MONEY keeps its separately validated
+    # centered-window geometry at x=0.  Merchandise price geometry is also
+    # unchanged because its later TEXT_X resync still sets the exact 164-px
+    # price anchor.
+    a.emit(0xE0, 0x04, 0x00)                         # CPX #4: MONEY selector
+    a.rel8(0xF0, "left_inset_done")
+    a.emit(0xA9, 0x01)
+    a.emit(0x8F, *lo24(0x7E0000 | PIXEL_CURSOR))     # fresh UI line starts at +1 px
+    a.label("left_inset_done")
+
     a.emit(0xE0, 0x01, 0x00)
     a.rel8(0xF0, "forge_only")
     a.rel16(0x82, "render_common")
@@ -400,8 +425,26 @@ def make_ui_renderer() -> bytes:
     # supplied; shared geometry adds only visual spacing.
 
     a.label("render_common")
+    # Merchandise rows are different from the other UI families here: their
+    # decoded row can end close enough to the 8-bit pixel-cursor wrap that
+    # rendering the artificial $80 padding out to all 38 private slots wraps
+    # back to x=0.  An aligned trailing space then commits zeroes over cell 0,
+    # erasing the first glyph (observed on `Haubert magique`).  The bitmap is
+    # already cleared below, so merchandise needs to render only the glyphs the
+    # stock parser actually decoded.  Keep the validated 38-slot behavior for
+    # Ring / Forge / D9 / MONEY.
+    a.emit(0xE0, 0x03, 0x00)                         # CPX #3: merchandise selector
+    a.rel8(0xD0, "render_full_private")
+    a.emit(0xAD, SAVED_COUNT & 0xFF, (SAVED_COUNT >> 8) & 0xFF)
+    a.emit(0x8D, 0x76, 0xA1)                         # render true decoded count only
+    a.rel8(0x80, "render_count_ready")
+    a.label("render_full_private")
+    a.emit(0xA9, 0x26)
+    a.emit(0x8D, 0x76, 0xA1)                         # 38 private slots
+    a.label("render_count_ready")
+
     # Clear 32-cell bitmap, then enter the generic VWF renderer at the stock
-    # character loop.  38 private slots are safe; unused tail bytes are spaces.
+    # character loop.  Merchandise no longer renders its synthetic tail spaces.
     a.emit(0xA2, 0x00, 0x00)
     a.emit(0xA9, 0x00)
     a.label("clear_bitmap")
@@ -409,8 +452,6 @@ def make_ui_renderer() -> bytes:
     a.emit(0xE8)
     a.emit(0xE0, 0x80, 0x01)
     a.rel8(0xD0, "clear_bitmap")
-    a.emit(0xA9, 0x26)
-    a.emit(0x8D, 0x76, 0xA1)
     a.emit(0x5C, *lo24(0xC01682))
     return a.resolve()
 
@@ -434,6 +475,11 @@ def build(base: bytes) -> bytes:
         raise SystemExit(
             f"Unexpected clean-US type-2 money-window width: "
             f"${base[MONEY_WINDOW_WIDTH_FILE]:02X}"
+        )
+    if base[MONEY_CLOSE_X_FILE] != EXPECTED_MONEY_CLOSE_X:
+        raise SystemExit(
+            f"Unexpected clean-US type-2 money close X: "
+            f"${base[MONEY_CLOSE_X_FILE]:02X}"
         )
     for site in SHOP_DISPATCH_SITES:
         if base[site:site + len(SHOP_DISPATCH_SIGNATURE)] != SHOP_DISPATCH_SIGNATURE:
@@ -476,8 +522,11 @@ def build(base: bytes) -> bytes:
     rom[ARROW_TEXT_X_ARG_FILE] = SAFE_ARROW_SLOT
     rom[PRICE_TEXT_X_ARG_FILE] = SAFE_PRICE_SLOT
     # Currency presentation geometry: type-2 MONEY gains right breathing room.
+    # Width 11 expands one cell farther left than stock, so move the independent
+    # MONEY_CLOSE seed left by the same one cell to erase the full opened frame.
     # The source string remains stock-sized and is never translated by vwf_ui.
     rom[MONEY_WINDOW_WIDTH_FILE] = FRENCH_MONEY_WINDOW_WIDTH
+    rom[MONEY_CLOSE_X_FILE] = FRENCH_MONEY_CLOSE_X
     rom[UI_RENDER_FILE:UI_RENDER_FILE + len(renderer)] = renderer
     rom[SHOP_SUFFIX_GAP_HELPER_FILE:SHOP_SUFFIX_GAP_HELPER_FILE + len(shop_suffix_gap_helper)] = shop_suffix_gap_helper
     rom[WIDTH_TABLE_FILE:WIDTH_TABLE_FILE + len(width_table)] = width_table

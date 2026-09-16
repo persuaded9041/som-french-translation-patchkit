@@ -1,374 +1,115 @@
-# HANDOFF — Secret of Mana FR — Ring Menu + shop/forge text promoted
-## dialogue_background — promoted standalone v1 (2026-09-15)
+# HANDOFF — Secret of Mana FR — extension des ressources françaises
 
-The hardware semi-transparent dialogue-window experiment is now promoted under semantic component ID `dialogue_background`. Runtime validation covers a normal animated dialogue frame and the inn reservation sequence with asynchronous ordinary + GP/type-2 frames (`1 opens -> 2 opens -> 1 closes -> 2 closes`). The successful model tracks explicit ownership of global live bounds `$A165-$A168`; `$A162` context restoration must never be treated as geometry ownership.
+Date : 2026-09-16
 
-The component remains `aggregate_enabled: false`: it preserves the exact validated Stage-11 allocation (`$7E:93D0-$93F1`, HDMA ch6), which conflicts with `vwf_dialogues` continuation scratch and has not yet been composed with existing map color-math/HDMA effects. `all.ips` remains unchanged. See `docs/DIALOGUE_TRANSPARENCY_RESEARCH.md`.
+Cette archive est la **source de vérité** et prévaut sur GitHub. La ROM de référence est **Secret of Mana (USA), non headerée**, taille `0x200000`, SHA-256 `4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f`. Elle ne doit jamais être redistribuée.
 
+## Prochaine tâche
 
-Date: 2026-09-16
+La prochaine discussion doit travailler sur **l'ajout de traductions de ressources non-dialogue supplémentaires**. Elle ne doit pas relancer un audit des dialogues ni refactorer les backends VWF validés sans nécessité directe.
 
-This archive is authoritative over GitHub. The reference ROM is **Secret of Mana (USA), unheadered** and must never be redistributed.
+Avant toute modification, lire intégralement :
 
-## Current promoted dialogue state
+- `README.md`
+- `docs/HANDOFF.md`
+- `docs/TEXT_RESOURCES.md`
+- `docs/TRANSLATIONS.md`
+- `docs/COMPATIBILITY.md`
+- `docs/MEMORY_MAP.md`
+- `docs/UI_VWF.md`
+- `components/french_resources/README.md`
+- `components/vwf_ui/README.md`
 
-The second independent exhaustive playable-dialogue pass is complete. It reviewed all **701 accepted playable events** event-by-event in 12 lots and was followed by a dedicated cleanup/non-regression validation.
+Le corpus de dialogues est gelé : **701/701 événements jouables**, **1959 carriers traduits**, **0 erreur / 0 warning / 0 wrap implicite**, alignement Android **1798/1838**. Ne modifier aucun dialogue, mapping Android dialogue ou segmentation pendant le travail sur les ressources.
 
-Final verified state:
+## Architecture `french_resources` à préserver
 
-- **701/701** accepted playable events simulator-clean;
-- **1959 translated carriers**;
-- Android alignment identity **1798/1838**;
-- **0 errors / 0 warnings / 0 implicit wraps**;
-- speaker-label guardrail: **0** hard-newline findings after `Nom :` / `%S(...) :`;
-- rolling-scroll discovery guardrail: **0 new candidates**;
-- redistribution: **302 active carriers**, 0 simulator-filtered;
-- manual supplement schema v3: **17 carriers = 15 translations + 2 suppressions**;
-- source round-trip: **713 events / 87,487 bytes**;
-- all **2048 stock event scripts** parse successfully;
-- source hygiene clean.
+`french_resources` est l'unique composant de contenu pour les ressources françaises concernées. Il possède actuellement :
 
-Final SHA-256:
+- la table de 513 pointeurs `$CA` et son blob de ressources ;
+- les 9 mini-events shop/forge `$D9:FE20-$FEF3` et leurs 9 opérandes `LDX` en banque C0 ;
+- les deux littéraux monnaie `$C7:7B6A` et `$D0:D894`, traduits `GP -> PO` depuis `translations/french_resources_reviewed_literals.json`.
 
-- `translations/dialogues_french.json`: `3e4cacd926e31d6dfe9f9021d1026c4f71dc68ccd88ce4481749e47764d2b7d9`
-- `patches/french_dialogues.ips`: `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31`
-- current `patches/all.ips`: `74e66682ede9226cf5d14cbe681b8f917f4a4cbf87055403a888485889280079`
+Il n'existe plus de composant `french_shop_text` et aucun `french_shop_text.ips` ne doit être généré.
 
-## Post-freeze targeted runtime correction — dialogue VWF
+Les textes doivent rester **data-driven** :
 
-After the exhaustive dialogue corpus was frozen, a concrete runtime rendering defect was corrected in `vwf_dialogues` without changing dialogue text data:
+- source USA : extraction propre dans `assets/*.json` (cache reproductible, non canonique) ;
+- Android EN/FR : `sources/android/*` ;
+- identité/layout : `recipes/android/*` ;
+- adaptations SNES explicitement validées : JSON sous `translations/` ;
+- aucun texte français de gameplay ne doit être codé en dur dans Python ou ASM.
 
-- ordinary dialogue chunks start 1 px to the right so the left outline of the first glyph is not clipped by the window edge;
-- interrupted same-line chunks preserve and restore the exact VWF sub-cell phase instead of resuming only at the next 8 px stock cell boundary;
-- the opening falling-hero split cry was used as the runtime validation case: its first fragment ends at 54 px with the validated left inset, while whole-cell stock progression would resume at 56 px; the exact-continuation path therefore removes the measured 2 px artificial gap while preserving the final punctuation;
-- the exact-continuation helpers live at `$ED:7930-$79F9`, outside `intro_skip`'s `$ED:7400-$74FF` reservation;
-- because `$ED:7340` is a shared renderer helper, `vwf_ui` installs the same updated bytes; its non-dialogue path cannot reach the dialogue-only continuation helper.
+`tools/text/check_source_hygiene.py` vérifie désormais explicitement l'absence de prose localisée copiée dans les sources Python/ASM des composants.
 
-The frozen dialogue corpus remains byte-identical: `translations/dialogues_french.json` and `patches/french_dialogues.ips` retain the hashes above. `vwf_dialogues.ips`, `vwf_ui.ips` and the combined `all.ips` were rebuilt twice and were byte-identical across both builds.
+### État actuel des ressources
 
-## Post-pass non-regression proof
+Le build promu traduit **358 ressources `$CA`**. Le blob fait **7103 / 7315 octets** et reste intégralement dans l'allocation stock `$CA:98E1-$B573`. Trois ressources mappées restent volontairement non insérées avec le profil actuel car `°` entre en conflit avec la frontière DTE des ressources non-event.
 
-The exact pre-second-pass baseline was recovered and compared carrier-by-carrier with the final cold-regenerated JSON.
+Les catégories actuellement activées dans `components/french_resources/build_patch.py` sont :
 
-- baseline carriers: **1959**;
-- final carriers: **1959**;
-- explicitly reviewed/validated carrier changes: **46**;
-- non-target carriers byte-for-byte unchanged: **1913/1913**;
-- carriers added: **0**;
-- carriers removed: **0**.
+`magic_name`, `mana_spirit_name`, `weapon_name`, `helmet_name`, `armor_name`, `accessory_name`, `item_name`, `menu_label`, `enemy_name`, `location_name`.
 
-The 46 changed carriers are **exactly** the validated target set from lots 1-12. There are no extra carrier differences outside that set.
+Les deux grandes familles déjà mappées mais **non promues** sont `weapon_description` (**72**) et `magic_description` (**42**). Elles sont des candidates naturelles pour la prochaine passe, mais ne doivent pas être activées en bloc sans revue préalable de leur provenance, encodage, taille et géométrie d'affichage. Les 4 `location_name` non résolus restent non forcés.
 
-Structural metadata differs only in the reviewed events:
+Le dernier audit global des 475 ressources Android mappées classe **302** entrées dans l'enveloppe stock, **170** en `geometry_review` et **3** en `encoding_blocked` (le caractère `°`). Pour les candidates suivantes : `weapon_description` = **38 inside / 34 review** ; `magic_description` = **2 inside / 40 review**. Le dry-run des 472 entrées encodables fait 7304 octets, mais ce résultat de taille ne vaut pas validation de rendu : la géométrie reste le critère bloquant principal.
 
-- command overrides: `$0108`, `$0112`, `$0212`;
-- command insertions: `$0022`, `$028A`, `$04B6`, `$04E1`, `$04EA`.
+## Baseline UI/boutique runtime-validée à préserver
 
-No other top-level semantic/source metadata changed between the second-pass starting checkpoint and the final state.
+`vwf_ui` est **présentation uniquement** et reste standalone, sans dépendance à `vwf_dialogues` :
 
-A fresh cold regeneration after cleanup reproduces the promoted JSON hash. A forced rebuild of `french_dialogues.ips` was run twice and both outputs are byte-identical to each other **and** to the promoted patch; `all.ips` was likewise recombined twice and matches the promoted patch byte-for-byte.
+- Forge `$A7` ;
+- Ring title `$A8` ;
+- réponses D9 shop/forge `$A9` ;
+- lignes merchandise achat/vente `$AA` ;
+- total MONEY type 2 `$AB`.
 
-## Core invariants
+Corrections promues :
 
-- Android FR remains the primary prose source.
-- No localized French prose is hard-coded in formatter/layout recipes.
-- `WAIT != NEWLINE`.
-- Maximum 3 live lines, <=216 px, <=38 decoded characters.
-- Dynamic names must remain valid for the 9-character worst case.
-- `$0360` remains neutralized.
-- `$035F / C9:D1B8` remains `Dryade fera réagir l'orbe !`.
-- Android `%S(...)` vocatives remain real `PLAYER_NAME` commands.
-- `$066D / CA:8D4B` is explicitly validated as a WAIT-only controlled-scroll case; controlled scrolling remains a manual layout decision, not a global rewrite rule.
-- Existing choice/highlight geometry and timed event commands must be preserved unless a concrete runtime defect is demonstrated.
+- Ring/Forge/D9/merchandise commencent les lignes fraîches à **+1 px** pour préserver le contour noir gauche ; MONEY reste à x=0 ;
+- merchandise `$AA` rend uniquement le vrai `SAVED_COUNT`, correction runtime-validée du `H` de `Haubert magique` ;
+- prix merchandise : ancre **164 px** + séparateur monnaie **4 px** ;
+- MONEY : séparateur monnaie **3 px**, largeur `$C7:714C` **9 -> 11 cellules** ;
+- la fermeture MONEY utilise désormais le seed X indépendant `$C7:7140` **`$0A -> $09`**, runtime-validé, afin d'effacer la cellule supplémentaire ouverte à gauche ;
+- `PO` reste la responsabilité exclusive de `french_resources`, jamais de `vwf_ui` ;
+- GAME SELECT et les fallbacks stock restent validés.
 
-## Canonical dialogue inputs
+Ne généraliser aucun de ces backends à une nouvelle famille de ressources sans tracer son chemin exact.
 
-`translations/dialogues_french.json` is a generated, fingerprint-validated cache/review artifact, not canonical prose provenance. Canonical dialogue generation uses the Android EN/FR sources, clean-USA extraction, reviewed alignment/redistribution metadata, manual supplements and structural/layout recipes.
+## Procédure recommandée pour les nouvelles ressources
 
-The active dialogue recipe surface under `recipes/android/` remains:
+Pour chaque lot :
 
-- `dialogues_reviewed_alignment.json`
-- `dialogues_redistribution.json`
-- `dialogues_formatting.json`
-- `dialogues_review.json`
+1. identifier les IDs `$CA`, catégories et texte USA dans `assets/text_resources.json` ;
+2. vérifier l'identité Android EN et le texte Android FR via le pipeline existant ;
+3. conserver Android FR lorsque l'identité est solide ; utiliser `translations/text_resources_reviewed_overrides.json` uniquement pour une adaptation SNES explicitement revue ;
+4. ne jamais mettre la traduction dans `build_patch.py` ou un ASM ;
+5. auditer encodage, taille et contexte d'affichage avec `tools/text/audit_resource_layout.py` et/ou une inspection ciblée du renderer ;
+6. promouvoir seulement les IDs/familles prouvés sûrs ; éviter d'ajouter aveuglément une catégorie entière à `DEFAULT_CATEGORIES` ;
+7. reconstruire `french_resources.ips`, puis `all.ips`, et vérifier que les patches non ciblés restent byte-identiques ;
+8. faire valider visuellement les textes concernés en jeu avant de poursuivre le lot suivant.
 
-## Intro `$0400` / validated `intro_skip`
+## Commandes de validation
 
-The static introduction map remains in `docs/INTRO_EVENT_ARCHITECTURE.md`. The
-isolated proof ladder in `docs/INTRO_SKIP_RESTART_PLAN.md` is now **complete**;
-its detailed runtime record is `docs/INTRO_SKIP_VALIDATION.md`.
+```bash
+python3 tools/text/check_source_hygiene.py
+python3 tools/text/check_roundtrip.py "Secret of Mana (USA).sfc" --scan-all-events
+python3 tools/text/import_android_resources.py "Secret of Mana (USA).sfc"
+python3 tools/text/import_android_resources.py "Secret of Mana (USA).sfc" --check
+python3 tools/text/audit_resource_layout.py "Secret of Mana (USA).sfc" --json /tmp/resource_layout.json --html /tmp/resource_layout.html
+python3 tools/text/audit_resource_layout.py "Secret of Mana (USA).sfc" --json /tmp/resource_layout.json --html /tmp/resource_layout.html --check
+python3 build.py "Secret of Mana (USA).sfc" french-resources --combine
+```
 
-The former legacy/NMI component has been replaced by the validated implementation:
-
-- input source: synchronized pad 1 `$7E:0042`, R bit `$10`;
-- required hold: **120 continuous normal-loop ticks**;
-- release before expiry cancels completely; short presses do not accumulate;
-- state: 16-bit `$7E:938A-$938B` (`$FFFF` inactive, `$0000` completed);
-- active-text observation: `$C0:012C -> $ED:7488`;
-- standalone live mid-carrier commit: `$C0:16EA -> $CA:FFC8`;
-- aggregate with `vwf_dialogues`: shared `$C0:16EA -> $ED:73C0`, mode 2 -> `$ED:7500`, other modes -> `$CA:FFC8`;
-- normal-loop / timed-WAIT handling: `$C2:C786 -> $ED:7400`;
-- validated private tail: `$CA:FFC0-$FFC7` = `51 18 00 2A F8 11 06 00`;
-- C1 timed-WAIT handler itself remains stock; there is no NMI hook.
-
-The implementation covers all eight normal narrative text/WAIT phases before
-`$CA:0E82 = 1D 7F`. The final Mode-7/flyover engine remains deliberately outside
-the validated scope.
-
-Promoted patch SHA-256:
-
-- `patches/intro_skip.ips`: `b37d529eb25eae572212d6f7179461785e463dfef9055fd840e00f5754136c16`
-- current `patches/all.ips`: `74e66682ede9226cf5d14cbe681b8f917f4a4cbf87055403a888485889280079`
-- validated autonomous FR+VWF+skip 120: `f9f21e070d898f8ef8f05709a6ce8796dbc70a2b2faf2979e56f6c2517ed5997`
-
-A key regression lesson is now documented: the early global attempts that glitched
-at boot had grown a helper past its C7 free-space slot and overwritten the shared
-VWF helper at `$C7:43D0-$43E7`. The final design keeps all extensible helpers in
-the owned `$ED:7400-$74FF` reserve, with size guards in the builder.
-
-`intro_skip` now explicitly requires `french_intro` and `vwf_intro`, matching the
-configuration actually used for runtime validation.
-The standalone intro path is runtime-validated. The `$ED:73C0` aggregate
-dispatcher was added only to compose that path with the pre-existing
-`vwf_dialogues` mode-2 `$C0:16EA` hook; that composed full-build baseline was
-runtime-validated by the user before the later opening-credit promotion. The
-current `all.ips` changes only `french_opening` relative to that baseline; all
-other standalone component IPS files remain byte-identical. The standalone
-`intro_skip` component patch and the autonomous FR+VWF+skip test stack remain
-runtime-validated.
-
-## Promoted `french_opening` startup-credit accent
-
-The final startup-credit treatment is now **runtime-validated and promoted**.
-The authoritative implementation is the one in this archive.
-
-Promoted patch SHA-256:
-
-- `patches/french_opening.ips`: `c7b0b0e8b821a6f9dbbfc6b4591c5ebada18c0df1a4320fb3b1dbd15010b2d27`
-- `patches/all.ips`: `74e66682ede9226cf5d14cbe681b8f917f4a4cbf87055403a888485889280079`
-
-
-Current behavior:
-
-- five startup credits remain sourced from `translations/opening_text_french.json`;
-- the French-only fifth credit remains `Traduction : E.CHAUVIRÉ`;
-- the visible dwell remains 180 frames;
-- opening-font tile `$7A` is restored to the stock `Z`;
-- startup-credit `É` is rendered as ordinary `E` on the normal row plus acute
-  tile `$7D` on the tile row immediately above;
-- a wrapper in existing decompressed-title-code padding at CPU `$BCED` renders
-  an overlay record and then the normal credit record through stock `$8820`;
-- a final blank overlay record clears the upper row after the fifth credit;
-- the credit-only CGRAM HDMA segmentation is changed from `120+15+8+1` to
-  `120+7+16+1`, preserving the same 144-scanline extent while extending the
-  animated band upward by exactly one tile row;
-- `$8B5D`, the 31-step fade-in/fade-out loops and their timing remain stock.
-
-The critical reverse-engineering result is that the historical overlay did not
-miss the fade because of tile geometry or a second timer. The stock HDMA fade
-band covered only the 8 scanlines of the normal credit row, so an accent one
-tile above sat outside the animated CGRAM region. Extending that same band to 16
-scanlines makes both rows share exactly the same per-frame fade state.
-
-Validation was intentionally split:
-
-1. Stage A restored stock `Z` and the historical two-row geometry. Runtime test
-   reproduced the known behavior: accent correct, fade absent. **Validated.**
-2. Stage B changed only the credit-specific HDMA scanline boundary (`15/8` ->
-   `7/16`). Runtime test: accent placement remained correct and fade became
-   synchronized. The user reported the result as **perfect**.
-
-Preserved architecture:
-
-- arrangement literal stream remains `$EE:A000-$BFFF`;
-- loader remains stock `$C1:0014`;
-- helper reserve remains `$EE:9000-$9FFF`;
-- `$EF` remains unused by `french_opening`;
-- no dialogue data was reopened;
-- `intro_skip` was not modified by this work.
-
-Detailed research and the corrected historical explanation are in
-`docs/OPENING_CREDIT_ACCENT_RESEARCH.md`. Component implementation notes are in
-`components/french_opening/README.md` and its memory map.
-
-## Promoted Ring Menu title translation + dedicated VWF backend (2026-09-16)
-
-The top-level in-game Ring Menu title work is now **runtime-validated and promoted**.
-The dialogue corpus and Android dialogue mapping were not modified.
-
-Validated French labels (`$CA` resources `$0C6-$0CE`):
-
-- `$0C6` `Équipement`
-- `$0C7` `Désigner la cible à attaquer`
-- `$0C8` `Caractéristiques des personnages`
-- `$0C9` `Niveaux des armes et de la magie`
-- `$0CA` `Actions des personnages`
-- `$0CB` `Réglages manette`
-- `$0CC` `Choix des fenêtres de dialogue`
-- `$0CD` `Jeter`
-- `$0CE` `Tous`
-
-Text ownership is intentionally data-driven. Android identity/French remains generated through the
-existing `$CA` resource pipeline; the reviewed SNES wording above lives canonically in
-`translations/text_resources_reviewed_overrides.json` and is loaded/validated by
-`french_resources`. No Ring French prose is hard-coded in Python.
-
-Runtime tracing established the title path:
-
-`Ring Menu -> C0:6943 -> D0:D397 -> $00:19D0 -> stock parser -> C0:167D -> vwf_ui`
-
-The root cause of the former long-title corruption was not a 20-character hard limit: the
-Forge-specific overlapping slot-20..31 suffix compaction was being applied to a continuous Ring
-title because both families share the same `$00:19D0` submit. The production fix gives each
-family its own one-shot tag at the exact shared submit:
-
-- `$1847 == 0` -> Ring tag `$A8`, unchanged decoded-row VWF rendering, exact **+4** logical
-  capacity = full 33-byte stock buffer (32 visible characters + following control);
-- `$1847 == 3` -> Forge tag `$A7`, previously validated **+3** capacity and suffix compaction;
-- modes 1/2 or unexpected values -> no UI tag, stock fallback.
-
-The +4 boundary is runtime-validated by the complete 32-character
-`Niveaux des armes et de la magie`, including its final `e`. The other long titles no longer lose
-words or repeat glyphs. The user explicitly validated this architecture before the final wording
-change `$0CA: Définir les actions des PNJ -> Actions des personnages`; that wording-only change
-is shorter and does not alter the VWF runtime.
-
-Current promoted patch SHA-256 values:
-
-- `patches/vwf_ui.ips`: `e0abffa45d64aaf9b42dededf2923a43d9f6bc9a94020756ddfc8e9a1b849189`
-- `patches/french_resources.ips`: `a809910e815ee312556de313800386d8904661c7b364cf366afbc3aec0a72a6d`
-- `patches/all.ips`: `273d8268c9925e858ad631357953c38f50134e0bfabee01fa323ebcdea69f69a`
-
-`french_resources` now translates 358 resources; its rebuilt `$CA` blob is 7,103 / 7,315 bytes
-and remains fully inside the stock allocation (`$CA:98E1-$B49F`, maximum `$CA:B573`).
-
-## French shop / forge mini-event responses (2026-09-16)
-
-The nine short shop/forge response strings in the stock `$D9:FE20-$FEF3`
-mini-event pool are now translated by the dedicated `french_shop_text`
-component. The dialogue corpus, dialogue segmentation and Android dialogue
-mapping remain frozen and unchanged.
-
-Provenance is split explicitly:
-
-- six direct Android-FR payloads live in `translations/shop_text_french.json`
-  and are checked against the original Android binary tables through
-  `recipes/android/shop_text_mapping.json`;
-- three user-validated SNES adaptations live only in
-  `translations/shop_text_reviewed_overrides.json`: `$D9:FE4B`
-  `Vous n'avez plus de place !`, `$D9:FEB7` `Il faut une sphère de plus !`,
-  and `$D9:FED3` `Cette arme est au maximum !`.
-
-Runtime/storage architecture remains deliberately narrow: these D9 scripts keep
-the **stock event parser and stock parser capacity**. `french_shop_text` installs
-the shared event-context `$E8` DTE/direct-glyph router and French glyph span so
-accents decode correctly, while `vwf_dialogues` continues to reject bank D9.
-
-The VWF display extension is now separately **runtime-validated** in `vwf_ui`:
-
-- exact stock submit sites `$C0:7EA6` and `$C0:7FB9` arm Shop tag `$A9` only
-  when `X` points inside `$D9:FE20-$FEF3`;
-- the renderer additionally requires the normal event-engine caller and bank D9;
-- Shop uses the same post-parse stock-buffer -> private-render-buffer copy as
-  Ring/Forge, but never executes Forge suffix compaction;
-- parser capacity is **not** increased. The text component therefore continues
-  to enforce the validated maximum of 28 visible characters.
-
-A follow-up experiment tried to use a private 38-character Shop parser in order
-to restore longer wording. It failed at runtime: `Plus de place pour ce type
-d'objet !` displayed only `'objet !`, and `Pas de sphère pour cette arme !`
-displayed an empty row. The user explicitly chose not to pursue extra Shop
-characters. That experiment has been fully reverted. Keep the shorter validated
-wording and the stock parser limit unless new runtime evidence justifies reopening it.
-
-The translated pool compresses to **179 / 212 bytes**, so the nine scripts are
-rebuilt contiguously inside the original D9 allocation and the nine stock C0
-`LDX` operands are retargeted. No relocation or new WRAM allocation is used.
-
-A deterministic review sheet can be regenerated with
-`tools/text/generate_shop_text_preview.py`.
-
-Promoted patch SHA-256:
-
-- `patches/french_shop_text.ips`: `b4530dfb6f9c25e7b28229448ef90f435858a351d27de843ea54507cd04b8271`
-- `patches/vwf_ui.ips`: `2bc579280c4aa04755d76e91dedb9d87586cd86d85268bc9b7e685d118772173`
-- `patches/vwf_dialogues.ips`: `b42ef5c96b1b6897945739004786a1d878f54924a4ad9321dd1c37b5dc765ab5` (shared dispatcher only; dialogue logic/data unchanged)
-- `patches/all.ips`: `6c797f9a5aea73d1526c6aac4eee947fdbd040c69a1461cc5be693204cc779d5`
-
-This final `all.ips` is byte-for-byte identical to the previously runtime-validated
-Shop-VWF candidate from before the failed long-parser experiment. The frozen
-dialogue corpus remains unchanged.
-
-## 2026-09-16 — Shop merchandise VWF + `PO` + standalone fix — promoted
-
-The buy/sell merchandise row is now runtime-validated under dedicated `vwf_ui`
-tag `$AA` at the shared `$00:19D0` submit for Ring subsystem modes `$1847==1/2`.
-Item names render proportionally while the stock parser and decoded buffer remain
-unchanged; Forge `$A7`, Ring `$A8`, and D9 response `$A9` remain isolated.
-
-Currency ownership is deliberately split between translation and rendering:
-
-- `french_resources` is the **only** owner of `GP -> PO` content. It patches the
-  real shop currency sources `$C7:7B6A` (total money) and `$D0:D894`
-  (merchandise-price immediate payload), with the reviewed French bytes loaded
-  from `translations/french_resources_reviewed_literals.json`;
-- `vwf_ui` never tests for `GP`, never writes `PO`, and never translates any
-  glyph. On a clean USA ROM standalone it therefore renders `GP`; in `all.ips`
-  it renders the already-translated `PO` supplied by `french_resources`.
-
-Validated presentation geometry:
-
-- merchandise row `$AA`: price resync **168 -> 164 px** and a **4 px** separator
-  before the final two unit glyphs;
-- total-money type-2 window `$AB`: structural gate on bank `$7E`, window type 2,
-  source pointer `$A1E0-$A1EB`, and exact renderer return `$1152`; visual
-  separator **3 px** before the final two unit glyphs; frame width
-  `$C7:714C` **9 -> 11 cells**;
-- the live total-money source remains stock-sized at `$A1E0-$A1E9`; `$A1EA`
-  is never written.
-
-The standalone Sell-menu reset was traced exactly. The shared chunk-commit
-helper called dialogue-only continuation `$ED:7990` for every active VWF
-conversion. `vwf_ui` standalone does not install that helper, while
-`vwf_dialogues` does; this matched runtime diagnostics (`vwf_ui + vwf_intro`
-reset, `vwf_ui + vwf_dialogues` OK). The fix gives shared low-level renderer
-state explicit ownership:
-
-- `$7E:9385=$01` — `vwf_dialogues`;
-- `$7E:9385=$02` — `vwf_ui`;
-- intro scratch values 3..8 remain excluded from the shared UI/dialogue scope.
-
-Shared row/font/outline helpers accept only identities 1/2, but the
-`$ED:7990` continuation call is now restricted to identity 1. A later branch
-fix corrected the stock-fallback scope helper (`BEQ +6`, `BCS +2`) so
-`$9385==0` correctly returns through `CLC/RTL`; the previous offsets jumped
-past the helper and caused a black GAME SELECT with music still running.
-
-The final candidate was runtime-validated by the user: GAME SELECT works,
-shop buy/sell works, merchandise names use VWF, the top price shows `PO`, and
-the widened bottom money frame shows `PO` with the accepted spacing. This is
-the promoted baseline; do not reintroduce renderer-side currency translation or
-a hidden dependency from `vwf_ui` to `vwf_dialogues`.
-
-Promoted patch SHA-256 values after final recombination:
-
-- `patches/vwf_ui.ips`: `37b840462d39e9653f1c11fe85d5a6db97df17daa75a13c636bff6c88da0c896`
-- `patches/french_resources.ips`: `718af6e165e7892c7be69ec809195fc864dd41e2ebbb847dca7949a09d98c8b2`
-- `patches/vwf_dialogues.ips`: `dc6f02debf93b2c79a74235a4e889f1b372fe047149d7ba525a0fb7c82ea4d50`
-- `patches/all.ips`: `f4e37892d3946b54493c0c93c2b9d35571dfd51670970e31f0925aaccd52e61e`
-
-The dialogue corpus remains frozen and untouched.
-
-## Next work — specific runtime defect
-
-Investigate the shop merchandise row for armor resource **`$CA:9F8E` / resource
-ID `$09C` / category `armor_name`**. Stock USA source is `Magical Armor`; the
-current generated French resource is **`Haubert magique`**. In the validated
-shop `$AA` VWF path, only this item has been observed with its **leftmost `H`
-missing**, while other sold items render correctly.
-
-Start from the promoted archive and reproduce/trace this item-specific defect.
-Before modifying code, compare the decoded stock row/private VWF copy and any
-left-shift/clip/anchor behavior for `$CA:9F8E` against a known-good shop item
-such as `Noix magique`. Preserve the validated `PO` ownership split, MONEY
-geometry, Ring/Forge/D9 tags, GAME SELECT fallback, and frozen dialogues.
+Pour une validation de versionnement, faire également un rebuild complet dans un dossier de patches neuf et comparer les hashes aux patches promus.
+
+## Baseline promue après cleanup
+
+- `patches/french_resources.ips` SHA-256 : `82908a8e0fd594d50fd9bdb5acc43965baf6b2dadc2079f349ba4f3ab3659d2d`
+- `patches/vwf_ui.ips` SHA-256 : `b32ae20b1b3836facafae5f3a32a6a799c12bbcfc7814e5a0b404c491ac0c834`
+- `patches/french_dialogues.ips` SHA-256 : `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31`
+- `patches/all.ips` SHA-256 : `47744d9f094882e8b2a8c3916b9a675ecdd122330839ebbaa90e0279843c3bb4`
+- ROM finale reconstruite SHA-256 : `a9e22f7dedffceb23ebc8d8093f14b57520cd35e3110904169a86a7eca76f9ff`
+- checksum SNES final : `$C107`.
+
+Le prochain travail doit modifier ces hashes uniquement si de nouvelles ressources sont effectivement promues.

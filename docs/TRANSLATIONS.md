@@ -1,30 +1,24 @@
 # Translation sources
 
-The repository separates **clean-ROM source extraction** from **language data**.
+The repository separates **clean-ROM extraction**, **upstream localization sources**, **review/provenance recipes**, and **French payload data**.
 
-## Layout
-
-```text
-assets/          canonical text extracted from the clean USA ROM
-translations/    sparse language files written by translators
-```
-
-The source files never contain translated text. French files are named after the
-source asset with the `_french` suffix, for example:
+## Layout and ownership
 
 ```text
-assets/interface_text.json
-translations/interface_text_french.json
+assets/          optional reproducible caches extracted from the clean USA ROM
+sources/         immutable upstream sources (currently Android EN/FR binaries)
+recipes/         identity, provenance and structural/layout decisions
+translations/    French payload JSON and fingerprint-validated generated caches
+components/      code/layout only; no localized gameplay prose in Python/ASM
 ```
 
-Translation JSONs are sparse: only entries that are actually translated need to
-be present. This avoids copying thousands of unchanged English strings merely to
-create a new language file.
+`assets/*.json` are convenient local caches, not canonical inputs: if absent, the relevant builder/check extracts them deterministically from the clean USA ROM. They never contain translated text.
+
+French gameplay prose belongs in JSON/data sources, never in component code. `tools/text/check_source_hygiene.py` enforces the architecture and also scans component Python/ASM for multi-word localized prose copied from translation payloads.
 
 ## Stable text IDs
 
-Every source element has a globally unique ID derived from its stock position.
-For ordinary uncompressed data the ID is its canonical SNES HiROM address:
+Every source element uses a position-derived identity. Ordinary uncompressed data uses a SNES HiROM address, for example:
 
 ```text
 C0:33F0
@@ -32,214 +26,66 @@ CA:98E1
 D9:FE22
 ```
 
-No secondary semantic key is stored in canonical assets: the position-derived
-`id` is the single identity used to bind translations. Human-readable grouping
-is provided only by the surrounding `group`/`category` structure where useful.
+Compressed opening strings use the compressed container address plus deterministic decompressed offset, for example `C7:B480+09F9`. Target-language-only additions use the explicit exceptional `new:` namespace, currently `new:opening.credit.translation`.
 
-The startup/title arrangement is compressed, so an individual string has no
-stable byte address in the physical compressed stream. Its ID therefore uses the
-compressed block address plus its offset in the deterministic decompressed
-arrangement:
+## French payload families
+
+The main data files are:
+
+- `translations/interface_text_french.json` — Name Entry and GAME SELECT/GAME FILE help;
+- `translations/menu_text_french.json` — GAME SELECT/GAME FILE labels;
+- `translations/opening_text_french.json` — opening prologue and startup credits;
+- `translations/intro_event_french.json` — new-game intro paragraphs;
+- `translations/text_resources_reviewed_overrides.json` — sparse, explicitly reviewed SNES-specific `$CA` resource wording layered over Android FR;
+- `translations/french_resources_reviewed_literals.json` — reviewed fixed literals owned by `french_resources` (`GP -> PO`);
+- `translations/shop_text_french.json` — six direct Android-FR D9 shop/forge responses;
+- `translations/shop_text_reviewed_overrides.json` — three reviewed SNES-specific D9 adaptations;
+- `translations/dialogues_manual_supplements.json` — small explicit manual dialogue exceptions/suppressions;
+- `translations/dialogues_french.json` — fingerprint-validated generated local cache/review artifact for the frozen dialogue corpus;
+- `translations/text_resources_french.json` — fingerprint-validated generated local cache/review artifact for the Android-derived `$CA` resource mapping.
+
+The two generated cache files above are not canonical prose provenance. A normal build may reuse them only when their fingerprints match the canonical source/provenance inputs; otherwise they are regenerated and persisted automatically.
+
+## Current dialogue state
+
+Dialogue work is frozen while resource translation continues:
+
+- 701/701 accepted playable events simulator-clean;
+- 1959 translated carriers;
+- Android identity 1798/1838 (97.8%); 40 deliberately unresolved semantic IDs;
+- 0 errors / 0 warnings / 0 implicit runtime wraps;
+- only the routing-audited unused/orphan events `$0269`, `$02DE`, `$0603` remain excluded.
+
+Do not edit dialogue payloads or Android dialogue mapping as part of resource work.
+
+## `$CA` resource localization
+
+`french_resources` generates Android-backed resource translations from:
 
 ```text
-C7:B480+09F9
+assets/text_resources.json                 clean-USA identity/source cache
+recipes/android/text_resources_layout.json reviewed identity/layout recipe
+sources/android/systxt_en.bin              Android identity bridge
+sources/android/systxt_fr.bin              Android French source
+translations/text_resources_reviewed_overrides.json
 ```
 
-This is the only current source-ID form that is not a direct address.
+`translations/text_resources_french.json` is the generated cache/review view of that process. Reviewed SNES wording belongs only in `text_resources_reviewed_overrides.json`; do not edit the generated cache as canonical input.
 
-A target-language-only addition has no clean-ROM position. Such entries use the
-explicit `new:` namespace. The current example is:
+The current promoted component inserts 358 `$CA` resources and keeps the rebuilt resource blob inside the original 7315-byte allocation. Additional families require explicit provenance, encoding, size and renderer/layout review before promotion. See `docs/TEXT_RESOURCES.md`.
 
-```text
-new:opening.credit.translation
-```
+## D9 shop/forge localization
 
-`new:` IDs are additions, not source strings, and are deliberately exceptional.
-
-## French JSON format
-
-A translation file identifies its source asset and groups the translated subset:
-
-```json
-{
-  "format_version": 1,
-  "language": "fr",
-  "source_asset": "interface_text.json",
-  "groups": [
-    {
-      "group": "name_entry.help",
-      "entries": [
-        {
-          "id": "C0:3584",
-          "text": "Choisissez une lettre avec la Croix Directionnelle."
-        }
-      ]
-    }
-  ]
-}
-```
-
-The clean English `source` remains only in `assets/`. Builders verify that every
-translation ID exists in the declared source asset before using it.
-
-## Existing migrated translations
-
-The validated translations that previously lived in component CSV/BIN files are
-now centralized as:
-
-- `translations/interface_text_french.json`: `french_name_entry_extended` Name Entry help and
-  `french_menus` GAME SELECT/GAME FILE help;
-- `translations/menu_text_french.json`: `french_menus` GAME SELECT/GAME FILE labels,
-  including the two direct `L -> N` level-prefix writes;
-- `translations/opening_text_french.json`: `french_opening` prologue and five-credit
-  presentation (four translated stock credits plus the French-only translation
-  credit);
-- `translations/intro_event_french.json`: the eight validated `french_intro` intro
-  paragraphs;
-- `translations/text_resources_reviewed_overrides.json`: canonical, sparse SNES-specific
-  wording adaptations layered over the generated Android-FR `$CA` resource mapping; currently
-  the nine runtime-validated top-level Ring Menu titles. `french_resources` loads and validates
-  these entries directly, so reviewed UI prose is never hard-coded in Python;
-- `translations/shop_text_french.json`: six direct Android-FR translations for the `$D9` shop/forge mini-events; `french_shop_text` verifies them against the original Android binary tables through `recipes/android/shop_text_mapping.json`;
-- `translations/shop_text_reviewed_overrides.json`: three user-validated SNES-specific shop/forge adaptations kept separate from the direct Android payloads;
-- `translations/dialogues_french.json`: generated by the conservative
-  simulator-filtered Android dialogue pass. The current Round-69 corpus contains
-  **701 simulator-clean events / 1810 accepted semantic source IDs / 1946 JSON entries**:
-  **701 complete + 0 PARTIEL**. Semantic Android identity remains **1798/1838 (97.8%)**;
-  manual supplements and explicit SNES-JP-based suppressions do not inflate that counter.
-  Fifteen former PARTIEL events were promoted after scene-level semantic review; their
-  provenance remains explicit in `user_validated_visually_complete_events`. Only three
-  routing-audited unused/orphan stock events remain excluded. Round 58 changed the supplement file to a
-  review-oriented v2 schema and was ROM-identical to Round 57. Round 59 activated ten
-  explicitly approved manual translations and reopened `$035F`; Round 60 validates the final
-  minimal `$035F` manual surcharge `Dryade`. Round 63 adds one validated suppression, and
-  Manual JP/USA/official-FR supplements are now fully reviewed: **16 translated + 2 validated suppressions + 0 pending**.
-  Round 67 additionally suppresses the Western-only `$013A/C9:40D7`, resolves the remaining `$04E1` Thanatos
-  monologue and validates the `$04E2` speaker redistribution around `CA:32C5/CA:32D7`. These decisions remain
-  outside Android identity. Choice rows use `vwf_dialogues`'s ordinary
-  VWF path; the established option-start/terminal-boundary and measured-end geometry rules
-  remain unchanged. The full 695-event corpus still requires playthrough.
-
-The remaining source-only extracted families (notably battle text) intentionally have no French file yet unless a later translation component explicitly claims them.
+All nine D9 response mini-events are now owned by `french_resources`; there is no `french_shop_text` component. Direct Android-FR payloads and reviewed SNES adaptations remain separate JSON inputs, with identity checks in `recipes/android/shop_text_mapping.json`.
 
 ## Validation
 
-`tools/text/check_roundtrip.py` verifies both the clean-ROM extraction and the
-translation bindings. It also checks that source IDs are globally unique across
-all canonical assets.
-
-
-## Legacy source formats
-
-The component audit found no remaining CSV or component-local translated-prose
-BIN input. Original upstream translation resources may live under
-`sources/<platform>/` (currently `sources/android/scrtxt_fr.bin`). The remaining
-component-local `.bin`/`.txt` files are non-prose resources (Mana Tree graphics
-and the naming-screen character repertoire). Run
-`python3 tools/text/check_source_hygiene.py` to enforce this separation.
-
-## Android upstream sources
-
-Where an original French Android resource is available, it lives under
-`sources/android/` and is treated as an **upstream translation source**, not as a
-component-local build asset.
-
-The intended flow is:
-
-```text
-sources/android/*
-        ↓  tools/dialogue/import_android.py
-translations/*_french.json
-        ↓  component builders
-SNES IPS patches
-```
-
-The first implemented translation import is the new-game intro. Android
-`sources/android/scrtxt_fr.bin` IDs 3445-3452 map, in order, to the eight
-position-derived IDs in `assets/intro_event.json`. Android line breaks and
-incidental leading/trailing whitespace are normalized because SNES page/line
-layout is owned separately by
-`components/french_intro/assets/text/intro_layout.json`.
-
-Regenerate it with:
+Run at minimum:
 
 ```bash
-python3 tools/dialogue/import_android.py --only intro
+python3 tools/text/check_source_hygiene.py
+python3 tools/text/check_roundtrip.py "Secret of Mana (USA).sfc" --scan-all-events
+python3 tools/text/import_android_resources.py --check
 ```
 
-or verify synchronization with:
-
-```bash
-python3 tools/dialogue/import_android.py --only intro --check
-```
-
-Dialogue work adds `sources/android/scrtxt_en.bin` as the matching bridge.
-Reviewed SNES <-> Android correspondence is kept separately under
-`recipes/android/`; clean-USA `assets/` and original Android binaries remain
-unchanged. The original dialogue-alignment pilot checkpoint contained only seven
-very-high-confidence English anchors and explicit ambiguous examples. It is kept
-as research/regression evidence and does not directly feed `french_dialogues`.
-
-French localization can use IDs that are empty in the English container as
-continuation slots. The implemented aligner therefore binds SNES text to Android
-**English anchor intervals** before collecting localized French slots; it never
-assumes that the French string at the matched English ID is the complete unit.
-See `docs/ANDROID_TEXT_ALIGNMENT.md`.
-
-The old research pilot/review commands have been retired. Their accepted identities
-are part of the current structural alignment data; only the canonical whole-dialogue
-aligner remains exposed:
-
-```bash
-python3 tools/dialogue/import_android.py --only dialogue-auto \
-  --output /tmp/dialogues_auto.json \
-  --unmapped-csv /tmp/dialogues_unmapped.csv
-```
-
-The alignment is normally regenerated in memory by regression/audit tools; this command is only needed to materialize a review snapshot.
-
-The manual supplement manifest is now deliberately minimal (`format_version: 3`).
-Each approved translation stores only `id` + `text`; each validated deletion stores
-only `id` + `suppress: true`. Event ownership, canonical USA source text, policy
-reason and active status are derived from `assets/dialogues.json` and the exact
-manual allow-lists at load time, so redundant provenance cannot drift. There are
-currently **15 translated carriers + 2 validated suppressions** and no pending
-manual proposals. Historical JP/FR comparison evidence belongs in the project
-history/documentation rather than in the active build manifest.
-
-`reports/android/dialogues_manual_supplements.html` is an optional generated review
-sheet and is intentionally ignored by Git. It reconstructs the event and canonical
-USA text from `assets/dialogues.json` and shows only the final manual decision.
-Generate it on demand with `tools/dialogue/generate_manual_supplements_html.py`;
-`--check` only verifies a locally materialized copy.
-`tools/dialogue/check_manual_supplements.py` validates the exact carrier set, the
-minimal schema, codec encodability and the two allow-listed suppressions. The `$035F` follow-up was revisited after the full dialogue audit. Runtime tracing shows that stock `$035F` concatenates the `Dryad` carrier with the shared `$0360` suffix (`'s magic will work!`). Because French `$0360` is intentionally neutralized for the seven Android-aligned elemental branches, the active validated manual payload is now the full message `Dryade fera réagir l'orbe !`. This remains a manual localization exception and does not create Android identity evidence.
-
-On request it can materialize `reports/android/dialogues_auto.json` plus
-`reports/android/dialogues_unmapped.csv`; normal checks regenerate the same alignment in memory. After the reviewed rounds, semantic Android
-alignment is **1798 / 1838 (97.8%)**, leaving **40 deliberately classified unresolved carriers**
-rather than forcing weak matches. Whole-game matching remains separate from SNES layout.
-The former focused formatter modes have been retired; their validated runtime
-invariants are covered by the current simulator and regression checks.
-`translations/dialogues_french.json` is an automatically persisted, fingerprint-validated local cache. `--only dialogue-format-mass` may also materialize/refresh it explicitly; it is never canonical provenance and can be deleted safely: **701 simulator-clean events / 1815 accepted
-semantic source IDs / 1947 JSON entries**, comprising **701 complete + 0 PARTIEL**.
-Exclusions are exactly **3 alignment-incomplete routing-audited unused/orphan events**.
-The former PARTIEL provenance remains preserved in the generated completion metadata. `$0278` is special because accepted Android text is preserved,
-its two SNES-specific controller lines come from `translations/dialogues_manual_supplements.json`,
-and Android 1349 is inserted before 1350/1351 to retain the mobile-localization sequence.
-The shared inn prompt is instead complete through a parameterized Android-ID-110 template,
-with the stock numeric price carriers retained as dynamic values. All candidates still
-require clean independent simulation. The formatter may use
-the full three-line physical page. Ordinary four-to-six-line mappings may add one
-generated extra page; a second is allowed only when two complete-sentence boundaries
-produce three independently safe pages. The pipeline then independently serializes
-and simulates each event. Any simulator error,
-warning, implicit wrap or unsupported geometry excludes that whole event. The
-layout pass additionally starts new speaker labels and dash attributions on fresh
-lines, prevents punctuation-only orphan lines, and converts source leading blank
-scroll lines immediately after an existing WAIT into a clear-only `TEXT_CLEAR`.
-Fresh-line `TEXT_X` padding reduces the formatter's first-line capacity exactly as
-modeled by the independent simulator. If compact fallback still leaves only an
-`UNPAUSED_SCROLL`, one sentence-boundary extra page may be tried and is accepted
-only after clean whole-event resimulation. The reviewable exclusions can be materialized on demand as
-`reports/android/dialogues_format_mass_excluded.csv`; the regression checker validates the same exclusion set directly in memory.
+For new `$CA` resource families, also run `tools/text/audit_resource_layout.py` and perform runtime review of the actual UI/context that displays each newly promoted family.

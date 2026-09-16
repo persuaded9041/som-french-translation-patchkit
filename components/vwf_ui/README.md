@@ -54,6 +54,10 @@ characters). The corruption fix, the dedicated Ring/Forge tag isolation and the 
 continue through the same narrow mode-0 gate.
 
 
+## Validated one-line left inset
+
+Fresh Ring `$A8`, Forge `$A7`, Shop `$A9` and merchandise `$AA` rows start at **x=1 px** instead of x=0. This preserves the first glyph's left black outline at the window edge. MONEY `$AB` deliberately remains at x=0 because its small centered window has separate validated geometry. Merchandise price placement is unchanged because its later `TEXT_X` command resynchronizes exactly to the 164-px price anchor.
+
 ## Runtime-validated Shop / Forge response backend
 
 The nine `$D9:FE20-$FEF3` shop/forge response mini-events now have a third
@@ -69,7 +73,7 @@ This Shop path is intentionally **render-only VWF**:
 - no private parser mode is enabled and no parser capacity is extended;
 - the decoded row is copied to the shared private render buffer only after parsing;
 - no Forge suffix compaction is applied;
-- `french_shop_text` therefore keeps its validated maximum of 28 visible
+- `french_resources` therefore keeps the D9 family's validated maximum of 28 visible
   characters even though the final glyphs are rendered proportionally.
 
 A later experiment that tried to exceed the stock parser capacity was rejected
@@ -92,14 +96,28 @@ therefore renders `GP`; with `french_resources` it renders `PO`. The component
 owns only presentation geometry: the merchandise price resync is 164 px and a
 4-pixel separator is inserted before the final two currency glyphs.
 
+Merchandise `$AA` bounds its final VWF character loop to the stock parser's
+actual decoded count (`$938E`) rather than consuming the synthetic `$80` tail
+of the 38-byte private render buffer. This is deliberately merchandise-only.
+For `Haubert magique` plus its five-digit price, the old padding pass advanced
+the 8-bit pixel cursor through 252 px back to 0; the final aligned padding space
+then wrote zero rows over bitmap cell 0 and erased the initial `H`. The bitmap
+is already cleared before rendering, so skipping this artificial tail is
+lossless and leaves Ring, Forge, D9 and MONEY behavior unchanged.
+
 ## Runtime-validated type-2 MONEY presentation
 
 The total-money row is recognized structurally as bank `$7E`, window type 2,
 and source pointer in `$A1E0-$A1EB`, then receives UI tag `$AB`. The live money
-buffer remains stock-sized; `vwf_ui` does not rewrite any glyph. Its only
+buffer remains stock-sized; `vwf_ui` does not rewrite any glyph. Its presentation
 changes are VWF rendering, a 3-pixel separator before the final two currency
-glyphs, and widening the type-2 window from 9 to 11 cells. The final 11-cell
-geometry and 3-pixel separator are runtime-validated.
+glyphs, and widening the type-2 window from 9 to 11 cells.
+
+Opening and closing geometry are stored separately by the stock game. Width 11
+opens one cell farther left than stock, so the independent type-2 close X seed at
+`$C7:7140` is changed from `$0A` to `$09`. Without that matching close seed, the
+new left frame column remained on screen after closing. The 11-cell width,
+3-pixel separator, and `$09` close seed are all runtime-validated.
 
 ## Standalone dependency fix
 

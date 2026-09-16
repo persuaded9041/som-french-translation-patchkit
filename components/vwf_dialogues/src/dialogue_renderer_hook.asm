@@ -134,8 +134,9 @@ dialogue_chunk_cells_snapshot:
 
 org $ED73B0
 dialogue_event_render_scope:
-    ; Return C=1 iff $9385 is non-zero; internal hooks use this private
-    ; tag instead of re-testing shared global state.
+    ; Return C=1 only for shared low-level renderer identities $9385=$01
+    ; (`vwf_dialogues`) or $02 (`vwf_ui`). Intro scratch values 3..8 and zero
+    ; return carry clear. Executable bytes come from shared/vwf/renderer_runtime.py.
 
 org $ED7500
 dialogue_parser_fetch:

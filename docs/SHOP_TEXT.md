@@ -1,8 +1,10 @@
 # Shop / forge text
 
+Current ownership: all French D9 response insertion is part of `french_resources`. No separate `french_shop_text.ips` is generated.
+
 `assets/shop_text.json` contains nine stock response strings used by the
 shop/forge code. They are not part of the normal `$C9/$CA` event tables.
-The French implementation is owned by `french_shop_text`.
+The French implementation is owned by `french_resources`; there is no separate shop-text component or IPS.
 
 ## Storage and execution
 
@@ -52,8 +54,9 @@ EN/FR string tables. The three reviewed adaptations are deliberately separate:
 ## Renderer and capacity
 
 These mini-events execute through the stock event parser but are outside the
-`vwf_dialogues` bank gate, so their renderer remains the stock fixed-width
-8-pixel path. `french_shop_text` installs the same byte-identical
+`vwf_dialogues` bank gate. Without `vwf_ui`, their renderer remains the stock
+fixed-width 8-pixel path; with `vwf_ui`, the separately gated `$A9` backend
+renders the already-decoded row proportionally. `french_resources` installs the same byte-identical
 `dialogue_french` glyph span and event-context DTE router used by the dialogue
 components so direct French glyphs decode correctly in bank D9 without turning
 this UI family into VWF.
@@ -74,7 +77,7 @@ starts.
 - all nine mini-event records;
 - the complete 212-byte stock `$D9:FE20-$FEF3` script pool byte-for-byte.
 
-`french_shop_text` adds build-time validation of Android provenance, fixed-width
+`french_resources` adds build-time validation of Android provenance, fixed-width
 capacity, DTE encodability, pool size and reference rewriting.
 
 Generate the review sheet with:

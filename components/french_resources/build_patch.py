@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build standalone French $CA resource-name component."""
+"""Build standalone French resources, shop/forge responses, and fixed literals."""
 from __future__ import annotations
 
 import argparse
@@ -30,17 +30,30 @@ from shared.dialogue.dte import (
 )
 from shared.text.android_resources import build_mapping, build_translation, load_inputs as load_android_inputs
 from shared.text.resource_cache import load as load_translation_cache, store as store_translation_cache
+from shared.text.android_strings import read_string_table
+from shared.text.shop import (
+    D9_BASE,
+    EXPECTED_BLOB_END as SHOP_EXPECTED_BLOB_END,
+    EXPECTED_BLOB_START as SHOP_EXPECTED_BLOB_START,
+    serialize_translated_pool,
+)
+from shared.text.translation_json import load_translation
 from shared.charset import (
     CHAR_TO_CODE,
     DIALOGUE_FRENCH_CHARS,
     glyph_bytes,
 )
 
-from shared.extracted.assets import load_or_extract_resources  # noqa: E402
+from shared.extracted.assets import load_or_extract_resources, load_or_extract_shop  # noqa: E402
 ASSET = PROJECT_ROOT / "assets" / "text_resources.json"
 STOCK_BLOB_BYTES = 7315
 REVIEWED_OVERRIDES = PROJECT_ROOT / "translations" / "text_resources_reviewed_overrides.json"
 REVIEWED_LITERAL_OVERRIDES = PROJECT_ROOT / "translations" / "french_resources_reviewed_literals.json"
+SHOP_ASSET = PROJECT_ROOT / "assets" / "shop_text.json"
+SHOP_DIRECT_TRANSLATION = PROJECT_ROOT / "translations" / "shop_text_french.json"
+SHOP_REVIEWED_OVERRIDES = PROJECT_ROOT / "translations" / "shop_text_reviewed_overrides.json"
+SHOP_ANDROID_RECIPE = PROJECT_ROOT / "recipes" / "android" / "shop_text_mapping.json"
+SHOP_MAX_VISIBLE_CHARS = 28
 
 # Non-$CA fixed literals deliberately owned by french_resources. Their French
 # payload comes only from REVIEWED_LITERAL_OVERRIDES; Python stores addresses
@@ -150,6 +163,144 @@ def load_reviewed_literal_overrides(base: bytes) -> dict[int, bytes]:
         raise ValueError(f"Missing reviewed french_resources literal override(s): {sorted(missing)}")
     return result
 
+
+
+def load_reviewed_shop_overrides(source: dict) -> dict[str, str]:
+    """Load the three explicitly reviewed SNES-specific D9 adaptations."""
+    doc = json.loads(SHOP_REVIEWED_OVERRIDES.read_text(encoding="utf-8"))
+    if doc.get("format_version") != 1 or doc.get("language") != "fr":
+        raise ValueError("Unsupported reviewed shop-text override format")
+    if doc.get("source_asset") != "shop_text.json":
+        raise ValueError("shop_text_reviewed_overrides.json source_asset mismatch")
+
+    canonical = {entry["id"] for entry in source["records"]}
+    out: dict[str, str] = {}
+    for entry in doc.get("entries", []):
+        text_id = entry.get("id")
+        text = entry.get("text")
+        if not isinstance(text_id, str) or text_id not in canonical:
+            raise ValueError(f"Reviewed shop override has unknown source ID {text_id!r}")
+        if not isinstance(text, str):
+            raise ValueError(f"{text_id}: reviewed shop override text must be a string")
+        if text_id in out:
+            raise ValueError(f"Duplicate reviewed shop override {text_id}")
+        out[text_id] = text
+    return out
+
+
+def _android_shop_tables(namespace: str) -> tuple[dict[int, str], dict[int, str]]:
+    if namespace not in {"systxt", "scrtxt"}:
+        raise ValueError(f"Unsupported Android shop namespace {namespace!r}")
+    en = read_string_table(PROJECT_ROOT / "sources" / "android" / f"{namespace}_en.bin")
+    fr = read_string_table(PROJECT_ROOT / "sources" / "android" / f"{namespace}_fr.bin")
+    if set(en) != set(fr):
+        raise ValueError(f"Android {namespace} EN/FR ID sets differ")
+    return en, fr
+
+
+def validate_shop_provenance(
+    source: dict,
+    direct: dict[str, str],
+    overrides: dict[str, str],
+) -> None:
+    """Keep the former french_shop_text provenance checks byte-for-byte equivalent."""
+    recipe = json.loads(SHOP_ANDROID_RECIPE.read_text(encoding="utf-8"))
+    if recipe.get("format_version") != 1 or recipe.get("source_asset") != "shop_text.json":
+        raise ValueError("Unsupported shop-text Android mapping recipe")
+
+    canonical = {entry["id"]: entry["source"] for entry in source["records"]}
+    records = recipe.get("records")
+    if not isinstance(records, list):
+        raise ValueError("shop_text_mapping.json has no records list")
+    by_id: dict[str, dict] = {}
+    tables: dict[str, tuple[dict[int, str], dict[int, str]]] = {}
+
+    for record in records:
+        text_id = record.get("snes_id")
+        status = record.get("status")
+        if text_id not in canonical or text_id in by_id:
+            raise ValueError(f"Invalid/duplicate shop mapping source ID {text_id!r}")
+        if status not in {"direct", "adaptation_basis", "reviewed_without_android_equivalent"}:
+            raise ValueError(f"{text_id}: unsupported shop mapping status {status!r}")
+
+        namespace = record.get("android_namespace")
+        ids = record.get("android_ids")
+        if not isinstance(ids, list) or any(not isinstance(value, int) for value in ids):
+            raise ValueError(f"{text_id}: android_ids must be an integer list")
+
+        if status == "reviewed_without_android_equivalent":
+            if namespace is not None or ids:
+                raise ValueError(f"{text_id}: no-equivalent record must not bind Android IDs")
+            if text_id not in overrides or text_id in direct:
+                raise ValueError(f"{text_id}: no-equivalent record must come from reviewed overrides only")
+        else:
+            if not isinstance(namespace, str) or not ids:
+                raise ValueError(f"{text_id}: mapped record needs Android namespace/IDs")
+            if namespace not in tables:
+                tables[namespace] = _android_shop_tables(namespace)
+            en, fr = tables[namespace]
+            try:
+                en_values = [en[value].strip() for value in ids]
+                fr_values = [fr[value].strip() for value in ids]
+            except KeyError as exc:
+                raise ValueError(f"{text_id}: Android ID {exc.args[0]} missing in {namespace}") from exc
+            if len(set(en_values)) != 1 or len(set(fr_values)) != 1:
+                raise ValueError(f"{text_id}: reviewed duplicate Android IDs no longer agree")
+
+            if status == "direct":
+                if en_values[0] != canonical[text_id]:
+                    raise ValueError(
+                        f"{text_id}: direct Android EN identity changed: "
+                        f"{en_values[0]!r} != {canonical[text_id]!r}"
+                    )
+                if text_id not in direct or text_id in overrides:
+                    raise ValueError(f"{text_id}: direct record must come from shop_text_french.json only")
+                if direct[text_id] != fr_values[0]:
+                    raise ValueError(
+                        f"{text_id}: direct French payload differs from Android FR: "
+                        f"{direct[text_id]!r} != {fr_values[0]!r}"
+                    )
+            else:
+                if text_id not in overrides or text_id in direct:
+                    raise ValueError(f"{text_id}: adaptation record must come from reviewed overrides only")
+
+        by_id[text_id] = record
+
+    if set(by_id) != set(canonical):
+        missing = sorted(set(canonical) - set(by_id))
+        extra = sorted(set(by_id) - set(canonical))
+        raise ValueError(f"shop mapping recipe/source mismatch: missing={missing}, extra={extra}")
+
+
+def build_shop_payload(base: bytes) -> tuple[bytes, dict[int, int], dict[str, dict[str, int]], int, int]:
+    """Build the promoted D9 shop/forge text now owned by french_resources."""
+    source = load_or_extract_shop(base, SHOP_ASSET)
+    direct = load_translation(SHOP_DIRECT_TRANSLATION, source, source_asset="shop_text.json")
+    overrides = load_reviewed_shop_overrides(source)
+    validate_shop_provenance(source, direct, overrides)
+
+    translations = dict(direct)
+    overlap = sorted(set(translations) & set(overrides))
+    if overlap:
+        raise ValueError("Direct/reviewed shop translation overlap: " + ", ".join(overlap))
+    translations.update(overrides)
+
+    canonical_ids = {entry["id"] for entry in source["records"]}
+    if set(translations) != canonical_ids:
+        missing = sorted(canonical_ids - set(translations))
+        raise ValueError(
+            "French resources component requires all nine reviewed shop records; missing: "
+            + ", ".join(missing)
+        )
+
+    blob, references, stats = serialize_translated_pool(
+        base,
+        source,
+        translations,
+        max_visible_chars=SHOP_MAX_VISIBLE_CHARS,
+    )
+    return blob, references, stats, len(direct), len(overrides)
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("rom", type=Path, help="clean unheadered Secret of Mana (USA) ROM")
@@ -215,6 +366,18 @@ def main() -> None:
     for offset, payload in literal_overrides.items():
         rom[offset:offset + len(payload)] = payload
 
+    # Shop/forge response ownership was merged into french_resources. Preserve
+    # the former standalone component's exact source/provenance/capacity checks
+    # and write map, but do not install a second copy of the shared glyph/DTE
+    # infrastructure: it is already installed above by this component.
+    shop_blob, shop_references, shop_stats, shop_direct_count, shop_override_count = build_shop_payload(base)
+    shop_pool_start = D9_BASE + SHOP_EXPECTED_BLOB_START
+    rom[shop_pool_start:shop_pool_start + len(shop_blob)] = shop_blob
+    for site, pointer in shop_references.items():
+        if rom[site] != 0xA2:
+            raise ValueError(f"Expected clean-ROM LDX at C0:${site:04X}")
+        rom[site + 1:site + 3] = pointer.to_bytes(2, "little")
+
     update_checksum(rom)
     patch = make_ips(base, bytes(rom))
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -225,6 +388,19 @@ def main() -> None:
     print(f"Skipped for current profile: {len(skipped)}")
     print(f"Blob: {len(blob)} / {STOCK_BLOB_BYTES} bytes")
     print(f"Reviewed fixed literals: {len(literal_overrides)}")
+    shop_capacity = SHOP_EXPECTED_BLOB_END - SHOP_EXPECTED_BLOB_START
+    shop_max_chars = max(item["visible_chars"] for item in shop_stats.values())
+    print(f"Translated shop/forge responses: {len(shop_stats)}")
+    print(f"Shop direct Android FR: {shop_direct_count}")
+    print(f"Shop reviewed SNES adaptations: {shop_override_count}")
+    print(
+        f"Shop fixed-width maximum used: {shop_max_chars} / "
+        f"{SHOP_MAX_VISIBLE_CHARS} visible characters"
+    )
+    print(
+        f"D9 mini-event pool: {len(shop_blob)} / {shop_capacity} bytes "
+        f"({shop_capacity - len(shop_blob)} bytes free)"
+    )
     print(f"IPS: {args.output}")
 
 

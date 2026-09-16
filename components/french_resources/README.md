@@ -1,80 +1,73 @@
 # french_resources — French resources
 
-Rebuilds the reviewed French resource subset in the stock 513-entry non-event
-`$CA` text-resource table and owns a tiny reviewed set of fixed UI literals that
-belong to translated resource content rather than renderer geometry.
+Owns the reviewed French non-dialogue text resources that belong to game content rather than renderer geometry. This now includes the `$CA` resource table/blob, the nine `$D9` shop/forge response mini-events, and the two fixed shop currency literals.
 
 ## Ownership
 
-This component currently translates only these reviewed families:
+This component translates:
 
-- magic names;
-- Mana spirit names;
-- weapon names;
-- helmets, armor and accessories;
-- item/special names already present in the reviewed Android mapping;
-- enemy names;
-- location names;
-- the nine validated top-level Ring Menu title labels (`$0C6-$0CE`);
-- the two shop currency-unit literals (`C7:7B6A` total money and `D0:D894`
-  merchandise price), translated `GP -> PO`.
+- magic names and Mana spirit names;
+- weapon, helmet, armor, accessory and item/special names;
+- enemy and location names;
+- the nine validated top-level Ring Menu labels (`$0C6-$0CE`);
+- the nine shop/forge response mini-events in `$D9:FE20-$FEF3`;
+- the two shop currency literals (`C7:7B6A` total money and `D0:D894` merchandise price), translated `GP -> PO`.
 
-It does **not** own dialogue events, descriptions or UI VWF rendering. Currency
-spacing/window geometry remains entirely in `vwf_ui`; this component changes
-only the two source glyphs. No new object/item translation should be added
-during component maintenance audits.
+It does **not** own dialogue events or UI VWF rendering. `vwf_ui` owns presentation only. The D9 responses retain the stock event parser and the validated 28-visible-character capacity even when `vwf_ui` renders them proportionally through tag `$A9`.
 
-## Canonical inputs and local generated cache
+## Canonical inputs and provenance
 
-The normal standalone build derives the Android mapping and French payload from:
+### `$CA` resources
 
-- `assets/text_resources.json` — optional materialized cache of the clean-USA 513-resource inventory;
+- `assets/text_resources.json` — optional clean-USA extraction cache;
 - `recipes/android/text_resources_layout.json` — reviewed identity/layout recipe;
-- `sources/android/systxt_en.bin` — Android identity layer;
-- `sources/android/systxt_fr.bin` — Android French prose.
+- `sources/android/systxt_en.bin` / `systxt_fr.bin` — Android identity/French source;
+- `translations/text_resources_reviewed_overrides.json` — reviewed SNES-specific `$CA` adaptations;
+- `translations/text_resources_french.json` — fingerprint-validated generated cache, never canonical provenance.
 
-`translations/text_resources_french.json` is a deterministic **local performance
-cache/review artifact**, never canonical provenance. Its validity is tied to a
-fingerprint of the clean ROM, extracted source inventory, reviewed layout recipe,
-Android `systxt` inputs and generator code. A missing, stale or edited cache is
-regenerated automatically and persisted for later builds.
+### D9 shop/forge responses
 
-`reports/android/text_resources_android.json` remains an optional review report and is
-never consumed by the build. To materialize/refresh both review outputs explicitly:
+- `assets/shop_text.json` — clean-USA source extraction and stable IDs;
+- `recipes/android/shop_text_mapping.json` — reviewed Android identity/provenance;
+- `translations/shop_text_french.json` — six direct Android-FR payloads;
+- `translations/shop_text_reviewed_overrides.json` — three reviewed SNES adaptations.
 
-```bash
-python3 tools/text/import_android_resources.py "Secret of Mana (USA).sfc"
-```
+Every direct shop translation is rechecked against the original Android EN/FR binary tables. The three reviewed adaptations remain separate JSON data; no localized French shop prose is hard-coded in Python.
 
-Deleting `translations/text_resources_french.json` or
-`build/cache/text_resources_french.meta.json` is always safe; the next build recreates
-them from canonical inputs.
+### Fixed literals
 
-`translations/text_resources_reviewed_overrides.json` is different: it is a small
-**canonical reviewed adaptation layer** consumed directly by `french_resources`. It
-stores SNES-specific wording validated for mapped `$CA` resources without hard-coding
-French prose in Python.
-
-`translations/french_resources_reviewed_literals.json` is the corresponding
-canonical layer for fixed non-$CA literals. It currently contains only the two
-shop currency units. Their clean-USA source bytes and fixed length are verified
-before insertion; `PO` is never hard-coded in Python.
+`translations/french_resources_reviewed_literals.json` contains the two reviewed `GP -> PO` replacements. Their clean-USA source bytes and fixed length are validated before insertion.
 
 ## Storage/runtime architecture
 
-The complete 513-entry pointer table at `$CA:0800-$0C01` is rebuilt in resource-ID
-order. The text blob begins at `$CA:98E1` and must remain inside the original
-7,315-byte stock allocation through `$CA:B573`; no relocation is used.
+The complete 513-entry pointer table at `$CA:0800-$0C01` is rebuilt in resource-ID order. The text blob begins at `$CA:98E1` and must remain inside the original 7,315-byte allocation through `$CA:B573`; no relocation is used. The current reviewed blob is 7,103 bytes and ends at `$CA:B49F`.
 
-Translations reuse stock DTE pairs where safe. For standalone clean-USA use the
-component also installs the byte-identical shared `dialogue_french` glyph span and
-context-sensitive DTE router used by the dialogue components. Those writes are
-intentional compatible overlaps in aggregate builds.
+The nine D9 response scripts remain tiny stock event scripts of the form `$7F $52 <text> $00`. They are rebuilt contiguously from `$D9:FE20`; the nine stock bank-C0 `LDX #pointer` operands are updated to the rebuilt starts. The translated pool is 179 / 212 bytes, leaving 33 bytes free, so no relocation is used.
 
-The current reviewed build translates 358 resources (349 established name-family
-entries + 9 Ring Menu labels), leaves three `n°` enemy names stock because `°` conflicts
-with the ordinary `$CA` `$E6` DTE boundary, and produces a 7,103-byte blob ending at
-`$CA:B49F`.
+Standalone French use installs the same byte-identical `dialogue_french` glyph span and event-context DTE router used by the dialogue components. This single installation now serves both the `$CA` resources and D9 shop text.
 
-See `docs/MEMORY_MAP.md` for exact writes and root `docs/TEXT_RESOURCES.md` for the
-resource-family format/provenance.
+## Extending translated resource families
+
+The Android mapping already contains 72 `weapon_description` and 42
+`magic_description` resources, but these families are not yet promoted by the
+component. Additions must be reviewed in the actual target UI before extending
+`DEFAULT_CATEGORIES` or otherwise selecting new IDs. The conservative current
+layout audit classifies weapon descriptions as 38 inside the stock envelope / 34
+geometry review and magic descriptions as 2 inside / 40 geometry review. Size
+alone is therefore not sufficient evidence.
+
+Keep new wording data-driven: Android-backed text remains generated from the
+existing mapping inputs, while deliberate SNES-specific adaptations belong in
+`translations/text_resources_reviewed_overrides.json`. Never add localized prose
+to `build_patch.py` or ASM. `tools/text/check_source_hygiene.py` enforces that
+constraint.
+
+## Build
+
+```bash
+python3 build.py "Secret of Mana (USA).sfc" french-resources --combine
+```
+
+No separate `french_shop_text` component exists and no `french_shop_text.ips` is generated. `tools/text/generate_shop_text_preview.py` remains the review-sheet generator for the D9 family.
+
+See `docs/MEMORY_MAP.md`, root `docs/TEXT_RESOURCES.md`, and root `docs/SHOP_TEXT.md` for exact write maps and provenance.

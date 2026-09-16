@@ -119,20 +119,23 @@ no additional `$93C3-$93C9` scratch. It reuses shared runtime scratch
 has completed, so it does not enable the private parser mode used by `vwf_intro` / `vwf_dialogues`.
 Forge keeps its validated +3 logical margin and suffix compaction. Ring Menu mode 0
 gets an exact +4 margin (33 stock units total) and renders the decoded title unchanged.
+Fresh Ring `$A8`, Forge `$A7`, Shop `$A9` and merchandise `$AA` one-line rows start at
+**+1 px** to preserve the first glyph's left outline; MONEY `$AB` keeps x=0.
 The Shop `$A9` path is armed only at `$C0:7EA6/$7FB9` for pointers inside
 `$D9:FE20-$FEF3`; it keeps the stock parser/capacity and applies VWF only after
 parsing. Ring modes 1/2 arm dedicated merchandise tag `$AA`; that backend is
 runtime-validated. Currency content is not rewritten by `vwf_ui`: standalone
 renders the source `GP`, while `french_resources` supplies `PO`. `vwf_ui` owns
 presentation only: merchandise price resync 168 -> 164 px plus a 4-px separator
-before the final two unit glyphs; type-2 MONEY `$AB` gets a 3-px separator and
-window width `$C7:714C` 9 -> 11 cells. The live money source buffer remains
+before the final two unit glyphs; type-2 MONEY `$AB` gets a 3-px separator,
+window width `$C7:714C` 9 -> 11 cells, and matching close X seed `$C7:7140`
+`$0A -> $09` so the widened left frame cell is restored on close. The live money source buffer remains
 `$A1E0-$A1E9`; `$A1EA` is not written. Shared renderer scratch `$9385` now uses
 explicit identity `$01` for dialogue and `$02` for UI; the shared chunk commit
 calls dialogue-only continuation `$ED:7990` only for `$01`, removing the former
 standalone Sell-menu reset.
 
-## french_resources — CA resource table/blob
+## french_resources — CA resources + D9 shop text + fixed literals
 
 `french_resources` rewrites the canonical 513-entry `$CA` resource pointer table and the translated
 reviewed payload (name families + nine Ring Menu titles) within the original stock allocation

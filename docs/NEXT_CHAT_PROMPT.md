@@ -1,61 +1,29 @@
-# Prompt de reprise — Secret of Mana FR — bug `Haubert magique` en boutique
+# Prompt de reprise — Secret of Mana FR — nouvelles traductions de ressources
 
-Je poursuis le projet **Secret of Mana FR** à partir de l'archive propre fournie.
-L'archive est **prioritaire sur GitHub**. La ROM de référence reste **Secret of
-Mana (USA), non headerée** et ne doit jamais être redistribuée.
+Je poursuis le projet **Secret of Mana FR** à partir de l'archive propre fournie. L'archive est **prioritaire sur GitHub**. La ROM de référence reste **Secret of Mana (USA), non headerée** et ne doit jamais être redistribuée.
 
 Commence par lire intégralement :
 
 - `README.md`
 - `docs/HANDOFF.md`
+- `docs/TEXT_RESOURCES.md`
+- `docs/TRANSLATIONS.md`
 - `docs/COMPATIBILITY.md`
 - `docs/MEMORY_MAP.md`
-- `docs/UI_VWF.md`
-- `components/vwf_ui/README.md`
-- `components/vwf_ui/docs/MEMORY_MAP.md`
 - `components/french_resources/README.md`
 
-Le corpus de dialogues est gelé : ne modifie aucun dialogue, mapping Android FR
-ou segmentation.
+La prochaine tâche est d'**ajouter progressivement de nouvelles traductions de ressources non-dialogue**.
 
-## Baseline validée à préserver
+Le corpus de dialogues est gelé : ne modifie aucun dialogue, mapping Android dialogue ou segmentation.
 
-La boutique est maintenant runtime-validée :
+Préserve l'architecture actuelle :
 
-- VWF des noms d'objets achat/vente via le tag dédié `$AA` ;
-- VWF des messages Shop D9 via `$A9` ;
-- `PO` appartient à `french_resources`, jamais à `vwf_ui` :
-  `$C7:7B6A` et `$D0:D894` sont traduits `GP -> PO` depuis
-  `translations/french_resources_reviewed_literals.json` ;
-- `vwf_ui` ne fait que le rendu/géométrie : prix à 164 px + séparateur 4 px,
-  MONEY type 2 à 11 cellules + séparateur 3 px ;
-- `vwf_ui` est standalone et ne dépend plus de `vwf_dialogues` ;
-- GAME SELECT fonctionne ; Ring `$A8`, Forge `$A7`, Shop D9 `$A9`, merchandise
-  `$AA` et MONEY `$AB` restent isolés.
+- `french_resources` possède les ressources `$CA`, les 9 réponses shop/forge D9 et les deux littéraux `GP -> PO` ;
+- aucun `french_shop_text.ips` ne doit réapparaître ;
+- `vwf_ui` ne possède aucun texte français et ne doit être modifié que si une nouvelle ressource révèle un problème de rendu concret ;
+- aucune prose française ne doit être codée en dur dans Python/ASM : traductions et adaptations validées restent dans les JSON de `translations/` ;
+- les correctifs runtime validés (`Haubert magique`, +1 px gauche, MONEY 11 cellules + close seed `$09`) sont à préserver.
 
-Ne refactore pas cette architecture sans nécessité directe.
+Pour chaque nouveau lot, identifie d'abord les IDs/catégories et leur provenance Android EN/FR, propose les traductions à valider, puis seulement après validation insère-les via le pipeline `french_resources`. Les familles `weapon_description` (72) et `magic_description` (42) sont déjà mappées mais non promues et peuvent servir de point de départ si elles correspondent aux ressources que je veux traiter. N'active pas une catégorie entière sans vérifier son encodage, sa taille et son contexte d'affichage.
 
-## Bug à corriger
-
-Chez le vendeur, l'armure **`Haubert magique`** apparaît comme **`aubert magique`** :
-le caractère le plus à gauche (`H`) n'est pas visible. Les autres objets testés
-s'affichent correctement.
-
-Ressource déjà identifiée :
-
-- ROM/resource : **`CA:9F8E`**
-- resource ID : **`$09C`**
-- catégorie : **`armor_name`**
-- USA : **`Magical Armor`**
-- FR généré : **`Haubert magique`**
-- renderer concerné : boutique merchandise VWF **tag `$AA`**.
-
-Commence par reproduire et expliquer précisément pourquoi **cet item seulement**
-perd son premier caractère. Compare-le à un item connu bon, par exemple
-`Noix magique` : source `$CA`, flux de décodage, contenu/indices du buffer stock,
-copie privée VWF, position de départ, éventuel shift/clipping et commit de cellules.
-
-Procède par petites preuves. Ne change pas le texte `Haubert magique` pour
-contourner le bug. N'implémente un correctif qu'une fois la cause attribuée, puis
-fournis un **`all.ips` complet applicable à la ROM USA propre** et, si le
-correctif touche `vwf_ui`, un test standalone `vwf_ui.ips` sur ROM propre.
+Procède par petits lots et fournis à chaque checkpoint un `all.ips` complet applicable à la ROM USA propre, ainsi qu'un `french_resources.ips` standalone si le lot touche ce composant.
