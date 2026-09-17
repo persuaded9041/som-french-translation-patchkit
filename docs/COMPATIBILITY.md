@@ -96,6 +96,22 @@ The principal ROM/WRAM allocations are documented in `docs/MEMORY_MAP.md` and
 in each component's technical documentation. New code/data must be placed only
 after checking those ranges against all existing components.
 
+## Native Action Settings fixed-font localization
+
+`french_menus` keeps the Action Settings page on the stock fixed-width renderer.
+The final runtime-validated solution relocates only the four label cells and
+their placement list, preserves the stock checkerboard/window geometry, and
+applies the same three `+$04` source-tile compensations used by the official
+French Rev 1 ROM.
+
+Do not add this page to `vwf_ui`: a dedicated VWF probe was rejected because
+the page reuses tile indices across the upper help line and right-hand gauge
+panel. The promoted solution instead keeps a 34-cell fixed-font resource, moves
+`Défendre` 8 px left, and adjusts `$C7:6C77`, `$C7:6D57`, `$C7:6D5C`.
+
+The next help-text translation pass must preserve those offsets and prove any
+additional relocation/layout change independently.
+
 ## dialogue_background standalone status
 
 `dialogue_background` is a promoted runtime-validated standalone component, but its manifest deliberately sets `aggregate_enabled: false`. The root builder therefore allows targeted reconstruction while excluding it from `all` / `--combine`.

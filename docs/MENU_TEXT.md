@@ -25,6 +25,35 @@ The nine extracted resources cover:
 `Empty` is a separate five-glyph fixed field immediately before the descriptor
 table at `$C7:7805`; it is not null-terminated and is extracted explicitly.
 
+## Action Settings — promoted fixed-font localization
+
+The `menu.action_settings` entries are runtime-valid and promoted through
+`french_menus`:
+
+- `$C7:73E0` `ATTACK` -> `Attaquer`
+- `$C7:73E7` `KEEP AWAY` -> `S'éloigner`
+- `$C7:73F1` `APPROACH` -> `S'approcher`
+- `$C7:73F9` `GUARD` -> `Défendre`
+
+The page remains on the stock fixed-width renderer. The final solution repacks
+the labels into a proven-safe 34-cell resource and adjusts the three dependent
+tile bases exactly as the official French Rev 1 ROM does. A VWF attempt for
+this screen is rejected and must not be restored.
+
+See `components/french_menus/README.md` and `docs/MEMORY_MAP.md` for the exact
+allocation/offsets.
+
+## GAME FILE promoted labels
+
+The GAME FILE fields promoted through `french_menus` include `Fichier`, `Argent`,
+`PO`, and `Graines Mana`. `Graines Mana` is the runtime-validated shortened form
+used in menus so the dynamic count no longer touches the label.
+
+The GAME FILE total-money renderer is hybrid: stock code writes the first currency
+glyph separately and then consumes the resource-backed suffix. The validated
+French baseline displays `PO` **without an added gap**. Attempts to add a gap are
+not promoted; see `docs/HANDOFF.md`.
+
 ## Status strings
 
 The same asset also extracts:
@@ -38,4 +67,14 @@ An eight-entry pointer table at `$C7:7BB7` is validated against the eight weapon
 names. Status-template parameters such as `$5C $12` and `$5C $16` are preserved
 as `{5C12}` / `{5C16}` instead of being mis-decoded as text.
 
-The source JSON exposes logical translatable fragments with ROM-position IDs rather than copying the complete padding-heavy menu blobs. Layout spaces, dashes, dynamic placeholders and button glyphs remain structural ROM data. The two direct GAME FILE level-prefix bytes at `$C7:53C9` and `$C7:5AF1` are also inventoried because `french_menus` proves they are rendered text. Existing `french_menus` French labels live in `translations/menu_text_french.json`.
+The reviewed French translations are already recorded in
+`translations/menu_text_french.json`, including the 16 condition names, status
+templates, weapon types and `Type` / `Sphères`. They remain **translation-only**
+until the corresponding Status renderer is explicitly promoted and runtime
+validated.
+
+The source JSON exposes logical translatable fragments with ROM-position IDs
+rather than copying complete padding-heavy menu blobs. Layout spaces, dashes,
+dynamic placeholders and button glyphs remain structural ROM data. The two
+direct GAME FILE level-prefix bytes at `$C7:53C9` and `$C7:5AF1` are also
+inventoried because `french_menus` proves they are rendered text.

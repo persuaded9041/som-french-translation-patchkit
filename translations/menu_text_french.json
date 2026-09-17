@@ -53,7 +53,7 @@
         },
         {
           "id": "C7:73AA",
-          "text": "Pouvoir Mana"
+          "text": "Graines Mana"
         },
         {
           "id": "C7:7805",
@@ -66,6 +66,179 @@
         {
           "id": "C7:5AF1",
           "text": "N"
+        }
+      ]
+    },
+    {
+      "group": "menu.action_settings",
+      "entries": [
+        {
+          "id": "C7:73E0",
+          "text": "Attaquer"
+        },
+        {
+          "id": "C7:73E7",
+          "text": "S'éloigner"
+        },
+        {
+          "id": "C7:73F1",
+          "text": "S'approcher"
+        },
+        {
+          "id": "C7:73F9",
+          "text": "Défendre"
+        }
+      ]
+    },
+    {
+      "group": "status.conditions",
+      "entries": [
+        {
+          "id": "C7:7A8E",
+          "text": "Inconscient"
+        },
+        {
+          "id": "C7:7A9A",
+          "text": "Embrasé"
+        },
+        {
+          "id": "C7:7AA3",
+          "text": "Empoisonné"
+        },
+        {
+          "id": "C7:7AAC",
+          "text": "Mog"
+        },
+        {
+          "id": "C7:7AB5",
+          "text": "Transformé"
+        },
+        {
+          "id": "C7:7AC1",
+          "text": "Tonneau"
+        },
+        {
+          "id": "C7:7ACB",
+          "text": "Rétréci"
+        },
+        {
+          "id": "C7:7AD2",
+          "text": "Ballon"
+        },
+        {
+          "id": "C7:7ADC",
+          "text": "Confusion"
+        },
+        {
+          "id": "C7:7AE2",
+          "text": "Pétrifié"
+        },
+        {
+          "id": "C7:7AEC",
+          "text": "Glacé"
+        },
+        {
+          "id": "C7:7AF3",
+          "text": "Endormi"
+        },
+        {
+          "id": "C7:7AFC",
+          "text": "Enchevêtré"
+        },
+        {
+          "id": "C7:7B07",
+          "text": "Ralenti"
+        },
+        {
+          "id": "C7:7B13",
+          "text": "Endommagé"
+        },
+        {
+          "id": "C7:7B1B",
+          "text": "Endommagé !"
+        }
+      ]
+    },
+    {
+      "group": "status.templates",
+      "entries": [
+        {
+          "id": "C7:7B24",
+          "text": "Niveau{5C16} "
+        },
+        {
+          "id": "C7:7B2D",
+          "text": "PV {5C12}"
+        },
+        {
+          "id": "C7:7B33",
+          "text": "PM{5C12} "
+        },
+        {
+          "id": "C7:7B39",
+          "text": "Exp. {5C12}"
+        },
+        {
+          "id": "C7:7B41",
+          "text": "Niv. suivant {5C12}"
+        },
+        {
+          "id": "C7:7B53",
+          "text": "Graines Mana{5C16} "
+        },
+        {
+          "id": "C7:7B61",
+          "text": "Argent {5C12}"
+        }
+      ]
+    },
+    {
+      "group": "status.weapon_types",
+      "entries": [
+        {
+          "id": "C7:7B6D",
+          "text": "Poing"
+        },
+        {
+          "id": "C7:7B74",
+          "text": "Épée"
+        },
+        {
+          "id": "C7:7B7A",
+          "text": "Hache"
+        },
+        {
+          "id": "C7:7B7E",
+          "text": "Lance"
+        },
+        {
+          "id": "C7:7B84",
+          "text": "Fouet"
+        },
+        {
+          "id": "C7:7B89",
+          "text": "Arc"
+        },
+        {
+          "id": "C7:7B93",
+          "text": "Boomerang"
+        },
+        {
+          "id": "C7:7B9D",
+          "text": "Javelot"
+        }
+      ]
+    },
+    {
+      "group": "status.misc",
+      "entries": [
+        {
+          "id": "C7:7BA5",
+          "text": "Type"
+        },
+        {
+          "id": "C7:7BAA",
+          "text": "Sphères"
         }
       ]
     }

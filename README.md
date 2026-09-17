@@ -25,7 +25,7 @@ The ROM itself is deliberately not included.
 - `french_name_entry_extended` - French overlay for the extended Name Entry: expands the generic keyboard to four rows, adds the accented/extended row, French help text, glyphs and name-specific DTE routing.
 - `name_entry_prefill` - editable default-name prefill driven by a component-local JSON (`Randi`, `Primm`, `Popoi`); requires `name_entry_extended` for lowercase/grid support.
 - `french_name_entry_prefill` - French default-name overlay (`Randy`, `Prim`, `Popoï`), with its own JSON and fourth-row token support; requires `name_entry_prefill` + `french_name_entry_extended`.
-- `french_menus` - French GAME SELECT and GAME FILE text pipeline, dynamic frame widths and French accented glyphs.
+- `french_menus` - French native-menu pipeline for GAME SELECT/GAME FILE plus the runtime-validated fixed-font Action Settings labels (`Attaquer`, `Défendre`, `S'approcher`, `S'éloigner`). The Action page deliberately stays out of `vwf_ui`; its 34-cell packing and dependent tile-base adjustments mirror the official French Rev 1 architecture.
 - `french_opening` - French startup credits/opening text, including the runtime-validated two-row `É` credit overlay with stock `Z` restored and synchronized CGRAM fade.
 - `french_intro` - validated French new-game event `$0400` payload, private intro DTE and accented glyphs.
 - `vwf_intro` - new-game intro VWF renderer/runtime, private parser buffer and validated intro window; owns no translation.
@@ -99,9 +99,10 @@ The dialogue corpus is frozen at the current promoted state: **701 accepted play
 
 A fresh cold regeneration reproduces `translations/dialogues_french.json` with SHA-256 `3e4cacd926e31d6dfe9f9021d1026c4f71dc68ccd88ce4481749e47764d2b7d9`. The promoted `french_dialogues.ips` SHA-256 is `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31`.
 
-The current post-battle-resource/UI baseline is:
+The current post-Action-Settings baseline is:
 
-- `patches/all.ips`: `1961a7b4a1ad18c787f8bb6f2e06db339508c2f7c57591269955b286614433ef`
+- `patches/all.ips`: `22cfb8c188d2a9e0ac832f70df5164d294dc2f5520d0e6b265d5f5cd89fc1a7c`
+- `patches/french_menus.ips`: `41b729e06c89d4e094769c69443a88c63e05c7a26a01e17813cc3c01770cc24d`
 - `patches/vwf_ui.ips`: `69bfbc246fffddd6a05e6421c51cf824b64269bb159de0acaa5fd297834a7ba9`
 - `patches/french_resources.ips`: `c9483c0a42ca85d2f9051f4d7f0355e09ce76279d3311f43bd574864fd492216`
 

@@ -33,7 +33,7 @@
         },
         {
           "id": "C0:34BE",
-          "text": "Appuyez sur B pour sauvegarder, ou sur Y pour annuler."
+          "text": "Pressez “Attaque” pour sauver, “Retour” pour annuler."
         }
       ]
     },
@@ -42,7 +42,7 @@
       "entries": [
         {
           "id": "C0:3584",
-          "text": "Choisissez une lettre avec la Croix Directionnelle."
+          "text": "Choisissez un caractère avec la croix directionnelle."
         },
         {
           "id": "C0:35BF",
@@ -51,6 +51,64 @@
         {
           "id": "C0:35FB",
           "text": "9 lettres maximum. Appuyez sur Start pour continuer."
+        }
+      ]
+    },
+    {
+      "group": "action_settings.help",
+      "entries": [
+        {
+          "id": "C0:3620",
+          "text": "Choisissez le type d'action. Validez avec “Attaque”."
+        },
+        {
+          "id": "C0:3654",
+          "text": "Jusqu'où charger la jauge ? Validez avec “Attaque”."
+        }
+      ]
+    },
+    {
+      "group": "status.labels",
+      "entries": [
+        {
+          "id": "new:status.label.strength",
+          "text": "Force"
+        },
+        {
+          "id": "new:status.label.agility",
+          "text": "Agilité"
+        },
+        {
+          "id": "new:status.label.constitution",
+          "text": "Endurance"
+        },
+        {
+          "id": "new:status.label.intelligence",
+          "text": "Intelligence"
+        },
+        {
+          "id": "new:status.label.wisdom",
+          "text": "Sagesse"
+        },
+        {
+          "id": "new:status.label.attack",
+          "text": "Attaque"
+        },
+        {
+          "id": "new:status.label.hit_percent",
+          "text": "% précision"
+        },
+        {
+          "id": "new:status.label.defense",
+          "text": "Défense"
+        },
+        {
+          "id": "new:status.label.evade_percent",
+          "text": "% esquive"
+        },
+        {
+          "id": "new:status.label.magic_defense",
+          "text": "Déf. mag."
         }
       ]
     }

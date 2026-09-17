@@ -43,7 +43,7 @@ WELCOME_RELOC_LIMIT = 0x2D8400          # stop before GAME FILE save help
 
 # GAME FILE / save-menu text uses two stock runtime paths.  The full resource
 # is relocated so FILE_LABEL can grow from the 4-cell stock "FILE" to the
-# 7-cell French "Fichier", but several labels are still consumed directly
+# the translated 7-cell FILE label, but several labels are still consumed directly
 # from C7:7340 by another path.  Keep both copies synchronized.
 GAME_FILE_STOCK_RESOURCE_OFFSET = 0x077340
 GAME_FILE_STOCK_RESOURCE_END = 0x0773BC      # next resource begins at C7:73BC
@@ -51,7 +51,7 @@ GAME_FILE_STOCK_RESOURCE_PTR = 0x7340
 GAME_FILE_RELOC_OFFSET = 0x074D40             # C7:4D40, stock $FF free space
 GAME_FILE_RELOC_PTR = 0x4D40
 GAME_FILE_POINTER_OFFSETS = (0x077810, 0x077816)
-# FILE label frame descriptor: stock width $03 = 6 cells.  Fichier needs
+# FILE label frame descriptor: stock width $03 = 6 cells. The translated label needs
 # 7 visible cells plus the native margin; use the runtime-validated $04 = 8 cells.
 GAME_FILE_FILE_FRAME_WIDTH_OFFSET = 0x077585
 GAME_FILE_FILE_FRAME_STOCK_WIDTH = 0x03
@@ -65,6 +65,15 @@ GAME_FILE_FILE_SEGMENT_END = 0x07734F         # FILE + one blank + $00
 GAME_FILE_LEVEL_LABEL_OFFSETS = (0x0753C9, 0x075AF1)
 GAME_FILE_LEVEL_LABEL_STOCK = 0xA6  # L
 
+# GAME FILE money total has a hybrid stock path: after formatting the digits,
+# C7:54A9 executes LDA #$A1 ("G") and writes that first currency glyph
+# directly to the text buffer. Only the second glyph is subsequently sourced
+# from the GP field. Runtime probes (PO -> GO, XO -> GO, XX -> GX) prove this
+# split. Derive the immediate from the first encoded cell of the translation-
+# backed C7:7394 currency field; do not hard-code localized prose here.
+GAME_FILE_MONEY_PREFIX_GLYPH_OFFSET = 0x0754AA  # operand of LDA #$A1 at C7:54A9
+GAME_FILE_MONEY_PREFIX_GLYPH_STOCK = 0xA1       # G
+
 # Field offsets inside C7:7340.  These capacities include adjacent stock
 # padding cells that were runtime-validated for the French labels.  The same
 # fields are written both into the relocated resource and back into the stock
@@ -75,7 +84,7 @@ GAME_FILE_RESOURCE_FIELDS = {
     "MONEY":       (0x077374, 6),
     "GP":          (0x077394, 2),
     "COUNTER":     (0x077398, 8),
-    "MANA_POWER":  (0x0773AA, 12),
+    "MANA_POWER":  (0x0773AA, 15),
 }
 # FILE_LABEL is special: the stock path has only four cells, so it receives
 # the first four encoded cells ("Fich" for the current translation), while the
@@ -87,7 +96,65 @@ GAME_FILE_EXTERNAL_FIELDS = {
 SAVE_HELP_POINTER_OFFSET = 0x0033B8     # stock pointer = C0:348D
 SAVE_HELP_RELOC_OFFSET = 0x2D8400        # SNES ED:8400
 SAVE_HELP_RELOC_SNES = 0xED8400
-SAVE_HELP_RELOC_LIMIT = 0x2E0000         # end of component reserved bank
+SAVE_HELP_RELOC_LIMIT = 0x2D8500         # stop before Action Settings help
+
+# Action Settings top-help block. Keep it on the stock fixed renderer and
+# relocate the complete three-row block so translated row lengths may change
+# without shifting unrelated C0 resources. The third row (0..8 gauge scale)
+# remains the canonical USA source text.
+ACTION_HELP_POINTER_OFFSET = 0x0033C1      # stock pointer = C0:3620
+ACTION_HELP_POINTER_STOCK = 0xC03620
+ACTION_HELP_RELOC_OFFSET = 0x2D8500        # SNES ED:8500
+ACTION_HELP_RELOC_SNES = 0xED8500
+ACTION_HELP_RELOC_LIMIT = 0x2D8600
+
+# Action Settings uses a compact four-slot C7 text resource.  The official
+# French SNES localization proves that these slots may be repacked and their
+# placement descriptors resized independently.  Our longer labels need 39
+# bytes including the terminator, so relocate them into the remaining clean
+# $FF gap immediately after the GAME FILE allocation.
+ACTION_RESOURCE_RELOC_OFFSET = 0x074DC0       # C7:4DC0
+ACTION_RESOURCE_RELOC_PTR = 0x4DC0
+ACTION_RESOURCE_RELOC_LIMIT = 0x074E00        # before Name Entry private layout
+# The compact Action Settings resource and its placement list are relocated
+# together in C7:4DC0-4DFF.  The shared-fragment layout below is 35 bytes
+# including the terminator and its six-span placement list is 26 bytes.
+ACTION_PLACEMENT_RELOC_OFFSET = 0x074DE3
+ACTION_PLACEMENT_RELOC_PTR = 0x4DE3
+ACTION_DESCRIPTOR_TEXT_PTR_OFFSET = 0x077822  # menu descriptor #4, stock $73DF
+ACTION_DESCRIPTOR_PLACEMENT_PTR_OFFSET = 0x077826
+ACTION_DESCRIPTOR_PLACEMENT_PTR_STOCK = 0x7538
+ACTION_DESCRIPTOR_TEXT_PTR_STOCK = 0x73DF
+ACTION_PLACEMENT_OFFSET = 0x077538            # four 4-byte text spans + $03,$00
+ACTION_PLACEMENT_STOCK = bytes.fromhex(
+    "00 04 50 82 03 05 60 D6 05 04 74 56 01 03 84 AC 03 00"
+)
+# First frame record in C7:7606. Keep its stock width exactly: the official
+# French Rev 1 ROM uses the same $18 geometry, and widening it to $19 was
+# runtime-observed to pollute the adjacent right-hand window.
+ACTION_LEFT_FRAME_WIDTH_OFFSET = 0x07760A
+ACTION_LEFT_FRAME_WIDTH_STOCK = 0x18
+# The 34-cell localized Action Settings resource consumes one additional
+# fixed-font source unit compared with the 32-cell USA resource.  The dynamic
+# gauge value shown between the blue brackets consequently moves by one tile
+# unit (+$04).  The official French Rev 1 ROM makes the same compensation in
+# the corresponding routine ($2180 -> $2184).
+ACTION_GAUGE_TILE_BASE_OFFSET = 0x076C78  # low byte of LDA #$2180 at C7:6C77
+ACTION_GAUGE_TILE_BASE_STOCK = bytes.fromhex("80 21")
+ACTION_GAUGE_TILE_BASE_FRENCH = bytes.fromhex("84 21")
+# The same extra fixed-font unit also shifts the two source-tile bases used
+# when the top Action Settings help line is redrawn.  The official French
+# Rev 1 ROM applies the exact same +$04 compensation:
+#   C7:6D57  LDX #$2090 -> #$2094
+#   C7:6D5C  LDX #$2108 -> #$210C
+# Without it, runtime tests show a one-tile displacement on the KEEP GAUGE
+# prompt and a trailing translated GUARD fragment prefixed to the stock prompt...
+ACTION_HELP_TILE_BASE_1_OFFSET = 0x076D58  # immediate word after LDX at C7:6D57
+ACTION_HELP_TILE_BASE_1_STOCK = bytes.fromhex("90 20")
+ACTION_HELP_TILE_BASE_1_FRENCH = bytes.fromhex("94 20")
+ACTION_HELP_TILE_BASE_2_OFFSET = 0x076D5D  # immediate word after LDX at C7:6D5C
+ACTION_HELP_TILE_BASE_2_STOCK = bytes.fromhex("08 21")
+ACTION_HELP_TILE_BASE_2_FRENCH = bytes.fromhex("0C 21")
 
 
 ASCII_TO_SOM = {" ": 0x80}
@@ -99,6 +166,7 @@ from shared.core.ips import make_ips
 from shared.text.interface import (
     load_document as load_interface_text,
     verify_against_rom as verify_interface_text,
+    group_entries as interface_group_entries,
 )
 from shared.text.menu import (
     load_document as load_menu_text,
@@ -153,6 +221,18 @@ def encode_text(text: str, context: str) -> bytes:
             out.append(0xC3 if quote_open else 0xC4)
             quote_open = not quote_open
             continue
+        if ch == "“":
+            if not quote_open:
+                raise SystemExit(f"Unexpected opening quote in {context} at position {pos}")
+            out.append(0xC3)
+            quote_open = False
+            continue
+        if ch == "”":
+            if quote_open:
+                raise SystemExit(f"Unexpected closing quote in {context} at position {pos}")
+            out.append(0xC4)
+            quote_open = True
+            continue
         if ch not in ASCII_TO_SOM:
             raise SystemExit(
                 f"Unsupported character {ch!r} in {context} at position {pos}. "
@@ -193,9 +273,20 @@ SAVE_HELP_IDS = {
     "SAVE_HELP_1": "C0:348D",
     "SAVE_HELP_2": "C0:34BE",
 }
+ACTION_SETTINGS_IDS = {
+    "ATTACK": "C7:73E0",
+    "KEEP_AWAY": "C7:73E7",
+    "APPROACH": "C7:73F1",
+    "GUARD": "C7:73F9",
+}
+ACTION_HELP_IDS = {
+    "HELP_1": "C0:3620",
+    "HELP_2": "C0:3654",
+    "GAUGE_SCALE": "C0:368F",
+}
 
 
-def load_french_rows(base: bytes) -> tuple[dict[str, str], dict[str, str]]:
+def load_french_rows(base: bytes) -> tuple[dict[str, str], dict[str, str], dict[str, str]]:
     interface = load_or_extract_interface(base, PROJECT_ROOT / "assets" / "interface_text.json")
     menu = load_or_extract_menu(base, PROJECT_ROOT / "assets" / "menu_text.json")
     try:
@@ -228,9 +319,22 @@ def load_french_rows(base: bytes) -> tuple[dict[str, str], dict[str, str]]:
             name: require(interface_fr, [text_id], context="GAME FILE save help")[0]
             for name, text_id in SAVE_HELP_IDS.items()
         })
+        action_rows = {
+            name: require(menu_fr, [text_id], context="Action Settings")[0]
+            for name, text_id in ACTION_SETTINGS_IDS.items()
+        }
+        action_help_rows = {
+            "HELP_1": require(interface_fr, [ACTION_HELP_IDS["HELP_1"]], context="Action Settings help")[0],
+            "HELP_2": require(interface_fr, [ACTION_HELP_IDS["HELP_2"]], context="Action Settings help")[0],
+        }
+        canonical_action_help = {
+            entry["id"]: entry["source"]
+            for entry in interface_group_entries(interface, "action_settings.help")
+        }
+        action_help_rows["GAUGE_SCALE"] = canonical_action_help[ACTION_HELP_IDS["GAUGE_SCALE"]]
     except ValueError as exc:
         raise SystemExit(str(exc)) from exc
-    return rows, game_file_rows
+    return rows, game_file_rows, action_rows, action_help_rows
 
 
 def _min_even_width(text: str, context: str) -> tuple[bytes, int]:
@@ -376,6 +480,21 @@ def apply_game_file_sources(base: bytes, rom: bytearray, rows: dict[str, str]) -
         )
     rom[GAME_FILE_FILE_FRAME_WIDTH_OFFSET] = GAME_FILE_FILE_FRAME_NEW_WIDTH
 
+    # The GAME FILE total-money renderer hard-codes the first glyph of the
+    # stock "GP" suffix as an immediate "G" at C7:54A9. The second glyph
+    # still comes from the GP resource field. Keep this mixed path synchronized
+    # by deriving the immediate from the first encoded cell of the same JSON
+    # translation used for C7:7394.
+    if base[GAME_FILE_MONEY_PREFIX_GLYPH_OFFSET] != GAME_FILE_MONEY_PREFIX_GLYPH_STOCK:
+        raise SystemExit(
+            f"Unexpected stock GAME FILE money-prefix glyph at ${GAME_FILE_MONEY_PREFIX_GLYPH_OFFSET:06X}: "
+            f"${base[GAME_FILE_MONEY_PREFIX_GLYPH_OFFSET]:02X}"
+        )
+    money_unit = encode_text(rows["GP"], "GP")
+    if len(money_unit) != 2:
+        raise SystemExit("GP/currency translation must remain exactly two encoded cells")
+    rom[GAME_FILE_MONEY_PREFIX_GLYPH_OFFSET] = money_unit[0]
+
     # Translate the dynamic level prefix in both direct-rendering paths.
     for key, offset in zip(("LEVEL_PREFIX_A", "LEVEL_PREFIX_B"), GAME_FILE_LEVEL_LABEL_OFFSETS, strict=True):
         if base[offset] != GAME_FILE_LEVEL_LABEL_STOCK:
@@ -427,7 +546,183 @@ def apply_game_file_sources(base: bytes, rom: bytearray, rows: dict[str, str]) -
     rom[SAVE_HELP_POINTER_OFFSET:SAVE_HELP_POINTER_OFFSET + 3] = SAVE_HELP_RELOC_SNES.to_bytes(3, "little")
 
 
-def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, str]) -> tuple[bytearray, int]:
+def build_action_settings_resource(rows: dict[str, str]) -> tuple[bytes, bytes]:
+    """Build the native fixed-font Action Settings resource in 34 cells.
+
+    The official French Rev 1 ROM proves that this screen safely supports a
+    34-cell C7 text resource.  The four approved labels need 38 cells if packed
+    independently, which shifts the following help-text tile allocation and
+    exposes stale glyphs in the adjacent right-hand panel.
+
+    Keep the resource at the proven 34-cell size by reusing two 2-cell overlaps
+    already present in the translation data.  The overlap requirements are
+    checked from the JSON payload at build time rather than hard-coding French
+    prose in this executable source:
+
+    * the last two cells of KEEP_AWAY must equal the last two cells of ATTACK;
+    * the first two cells of APPROACH must equal the first two cells of KEEP_AWAY.
+
+    Resource layout (34 cells, plus terminator):
+      ATTACK | KEEP_AWAY[:-2] | APPROACH[2:] + pad | GUARD
+
+    Placement format, as proven directly by C0:23CF-$2434, is:
+      $00 prefix,
+      repeated [width_units, source_tile, destination_lo, destination_hi],
+      $00 terminator.
+
+    One width unit represents two fixed-font source cells.  Source tiles
+    advance by four per unit; destinations advance by two bytes per unit.
+    """
+    encoded = {key: encode_text(rows[key], f"ACTION_{key}") for key in (
+        "ATTACK", "KEEP_AWAY", "APPROACH", "GUARD"
+    )}
+    expected_lengths = {"ATTACK": 8, "KEEP_AWAY": 10, "APPROACH": 11, "GUARD": 8}
+    for key, expected_length in expected_lengths.items():
+        if len(encoded[key]) != expected_length:
+            raise SystemExit(
+                f"Action Settings 34-cell layout expects {key} to encode to "
+                f"{expected_length} cells; got {len(encoded[key])}"
+            )
+
+    shared_suffix = encoded["ATTACK"][-2:]
+    if encoded["KEEP_AWAY"][-2:] != shared_suffix:
+        raise SystemExit(
+            "Action Settings 34-cell layout requires KEEP_AWAY[-2:] == ATTACK[-2:]"
+        )
+    shared_prefix = encoded["KEEP_AWAY"][:2]
+    if encoded["APPROACH"][:2] != shared_prefix:
+        raise SystemExit(
+            "Action Settings 34-cell layout requires APPROACH[:2] == KEEP_AWAY[:2]"
+        )
+
+    attack = encoded["ATTACK"]
+    keep_stem = encoded["KEEP_AWAY"][:-2]
+    approach_tail = encoded["APPROACH"][2:]
+    if len(approach_tail) & 1:
+        approach_tail += bytes((ASCII_TO_SOM[" "],))
+    guard = encoded["GUARD"]
+
+    fragments = (attack, keep_stem, approach_tail, guard)
+    if any(len(fragment) & 1 for fragment in fragments):
+        raise SystemExit("Action Settings packed fragments must have even cell counts")
+    resource = b"".join(fragments)
+    if len(resource) != 34:
+        raise SystemExit(f"Action Settings resource must be 34 cells, got {len(resource)}")
+    resource += b"\x00"
+
+    attack_start = 0
+    keep_start = len(attack)
+    approach_start = keep_start + len(keep_stem)
+    guard_start = approach_start + len(approach_tail)
+
+    def source_tile(source_cell: int) -> int:
+        if source_cell & 1:
+            raise SystemExit("Action Settings source fragments must start on even cells")
+        return 0x50 + (source_cell // 2) * 4
+
+    # Native destinations from the clean-USA placement table:
+    #   ATTACK    $0382
+    #   KEEP AWAY $05D6
+    #   APPROACH  $0156
+    #   GUARD     $03AC
+    # Appended fragments advance one tilemap entry (2 bytes) for every
+    # two-character source unit.  GUARD is intentionally one fixed-font cell
+    # (8 px) left of stock so its 8-cell translation fits without widening the
+    # left frame.
+    spans = (
+        (len(attack) // 2, attack_start, 0x0382),
+        (len(keep_stem) // 2, keep_start, 0x05D6),
+        (1, len(attack) - 2, 0x05DE),
+        (1, keep_start, 0x0156),
+        (len(approach_tail) // 2, approach_start, 0x0158),
+        (len(guard) // 2, guard_start, 0x03AA),
+    )
+    placement = bytearray((0x00,))
+    for width_units, source_cell, destination in spans:
+        placement.extend((
+            width_units,
+            source_tile(source_cell),
+            destination & 0xFF,
+            (destination >> 8) & 0xFF,
+        ))
+    placement.append(0x00)
+    return resource, bytes(placement)
+
+
+def build_action_help(rows: dict[str, str]) -> bytes:
+    encoded: list[bytes] = []
+    for key in ("HELP_1", "HELP_2"):
+        payload = encode_text(rows[key], f"Action Settings {key}")
+        if len(payload) > 58:
+            raise SystemExit(
+                f"Action Settings {key} encodes to {len(payload)} cells; fixed help renderer supports at most 58"
+            )
+        encoded.append(payload)
+    gauge = encode_text(rows["GAUGE_SCALE"], "Action Settings GAUGE_SCALE")
+    encoded.append(gauge)
+    return b"\x7f".join(encoded) + b"\x00"
+
+
+def apply_action_help(base: bytes, rom: bytearray, rows: dict[str, str]) -> None:
+    if int.from_bytes(base[ACTION_HELP_POINTER_OFFSET:ACTION_HELP_POINTER_OFFSET + 3], "little") != ACTION_HELP_POINTER_STOCK:
+        raise SystemExit("Unexpected clean-USA Action Settings help pointer")
+    payload = build_action_help(rows)
+    end = ACTION_HELP_RELOC_OFFSET + len(payload)
+    if end > ACTION_HELP_RELOC_LIMIT:
+        raise SystemExit("Action Settings help exceeded reserved ED:8500-ED:85FF region")
+    if any(b != 0x00 for b in rom[ACTION_HELP_RELOC_OFFSET:end]):
+        raise SystemExit("Action Settings help relocation target ED:8500-ED:85FF is not clean expanded-ROM space")
+    rom[ACTION_HELP_RELOC_OFFSET:end] = payload
+    rom[ACTION_HELP_POINTER_OFFSET:ACTION_HELP_POINTER_OFFSET + 3] = ACTION_HELP_RELOC_SNES.to_bytes(3, "little")
+
+
+def apply_action_settings(base: bytes, rom: bytearray, rows: dict[str, str]) -> None:
+    if int.from_bytes(base[ACTION_DESCRIPTOR_TEXT_PTR_OFFSET:ACTION_DESCRIPTOR_TEXT_PTR_OFFSET + 2], "little") != ACTION_DESCRIPTOR_TEXT_PTR_STOCK:
+        raise SystemExit("Unexpected clean-USA Action Settings text pointer")
+    if base[ACTION_PLACEMENT_OFFSET:ACTION_PLACEMENT_OFFSET + len(ACTION_PLACEMENT_STOCK)] != ACTION_PLACEMENT_STOCK:
+        raise SystemExit("Unexpected clean-USA Action Settings placement table")
+    if int.from_bytes(base[ACTION_DESCRIPTOR_PLACEMENT_PTR_OFFSET:ACTION_DESCRIPTOR_PLACEMENT_PTR_OFFSET + 2], "little") != ACTION_DESCRIPTOR_PLACEMENT_PTR_STOCK:
+        raise SystemExit("Unexpected clean-USA Action Settings placement pointer")
+    if base[ACTION_LEFT_FRAME_WIDTH_OFFSET] != ACTION_LEFT_FRAME_WIDTH_STOCK:
+        raise SystemExit("Unexpected clean-USA Action Settings left-frame width")
+    if base[ACTION_GAUGE_TILE_BASE_OFFSET:ACTION_GAUGE_TILE_BASE_OFFSET + 2] != ACTION_GAUGE_TILE_BASE_STOCK:
+        raise SystemExit("Unexpected clean-USA Action Settings gauge tile base")
+    if base[ACTION_HELP_TILE_BASE_1_OFFSET:ACTION_HELP_TILE_BASE_1_OFFSET + 2] != ACTION_HELP_TILE_BASE_1_STOCK:
+        raise SystemExit("Unexpected clean-USA Action Settings help tile base #1")
+    if base[ACTION_HELP_TILE_BASE_2_OFFSET:ACTION_HELP_TILE_BASE_2_OFFSET + 2] != ACTION_HELP_TILE_BASE_2_STOCK:
+        raise SystemExit("Unexpected clean-USA Action Settings help tile base #2")
+
+    resource, placement = build_action_settings_resource(rows)
+    resource_end = ACTION_RESOURCE_RELOC_OFFSET + len(resource)
+    placement_end = ACTION_PLACEMENT_RELOC_OFFSET + len(placement)
+    if resource_end > ACTION_PLACEMENT_RELOC_OFFSET or placement_end > ACTION_RESOURCE_RELOC_LIMIT:
+        raise SystemExit("Action Settings resource/placement exceeded C7:4DC0-C7:4DFF")
+    if any(b != 0xFF for b in base[ACTION_RESOURCE_RELOC_OFFSET:placement_end]):
+        raise SystemExit("Action Settings relocation target C7:4DC0-C7:4DFF is not stock $FF free space")
+
+    rom[ACTION_RESOURCE_RELOC_OFFSET:resource_end] = resource
+    rom[ACTION_PLACEMENT_RELOC_OFFSET:placement_end] = placement
+    rom[ACTION_DESCRIPTOR_TEXT_PTR_OFFSET:ACTION_DESCRIPTOR_TEXT_PTR_OFFSET + 2] = ACTION_RESOURCE_RELOC_PTR.to_bytes(2, "little")
+    rom[ACTION_DESCRIPTOR_PLACEMENT_PTR_OFFSET:ACTION_DESCRIPTOR_PLACEMENT_PTR_OFFSET + 2] = ACTION_PLACEMENT_RELOC_PTR.to_bytes(2, "little")
+    # Keep the stock left-frame width. Runtime tests showed that widening this
+    # frame disturbs the dynamic value displayed in the adjacent right panel.
+    # The GUARD label instead starts one fixed-font cell (8 px) farther left in
+    # the placement table, which provides the missing room without touching either
+    # window's geometry.
+    rom[ACTION_LEFT_FRAME_WIDTH_OFFSET] = ACTION_LEFT_FRAME_WIDTH_STOCK
+    # Keep the dynamic gauge value aligned with the extra fixed-font unit in
+    # the 34-cell localized resource.  This mirrors the official French Rev 1
+    # localization and prevents the blue brackets from selecting the leading
+    # blank tile instead of the digit.
+    rom[ACTION_GAUGE_TILE_BASE_OFFSET:ACTION_GAUGE_TILE_BASE_OFFSET + 2] = ACTION_GAUGE_TILE_BASE_FRENCH
+    # Keep both top-help redraw paths on the same shifted source-tile base.
+    # This mirrors French Rev 1 and prevents stale/blank tiles from preceding
+    # either Action Settings prompt after selecting the grid or cancelling Y.
+    rom[ACTION_HELP_TILE_BASE_1_OFFSET:ACTION_HELP_TILE_BASE_1_OFFSET + 2] = ACTION_HELP_TILE_BASE_1_FRENCH
+    rom[ACTION_HELP_TILE_BASE_2_OFFSET:ACTION_HELP_TILE_BASE_2_OFFSET + 2] = ACTION_HELP_TILE_BASE_2_FRENCH
+
+
+def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, str], action_rows: dict[str, str], action_help_rows: dict[str, str]) -> tuple[bytearray, int]:
     rom = expand_rom(base)
 
     # Turn $D4-$E0 into normal character codes for the stock text
@@ -461,9 +756,14 @@ def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, s
         rom[offset] = frame_widths[key]
 
     # GAME FILE/save-menu strings share this decoder/font.  The full resource
-    # is relocated for Fichier, while the stock label fields are mirrored in
+    # is relocated for the expanded FILE label, while the stock label fields are mirrored in
     # place for the second runtime path.  Save help is relocated separately.
     apply_game_file_sources(base, rom, game_file_rows)
+
+    # Action Settings: keep every frame and the 4x4 grid byte-for-byte stock.
+    # Only repack/relocate the four translated fixed-width labels.
+    apply_action_settings(base, rom, action_rows)
+    apply_action_help(base, rom, action_help_rows)
 
     # Relocate the long help text now, so its translation will no longer be
     # constrained by the 156-byte stock allocation at C0:33F0.
@@ -489,8 +789,8 @@ def main() -> None:
     base = args.rom.read_bytes()
     validate_base_rom(base)
 
-    rows, game_file_rows = load_french_rows(base)
-    patched, checksum = apply_sources(base, rows, game_file_rows)
+    rows, game_file_rows, action_rows, action_help_rows = load_french_rows(base)
+    patched, checksum = apply_sources(base, rows, game_file_rows, action_rows, action_help_rows)
     patch = make_ips(base, bytes(patched))
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -508,6 +808,10 @@ def main() -> None:
     print(f"GAME FILE resource: {len(build_game_file_resource(base, game_file_rows))} bytes at ROM ${GAME_FILE_RELOC_OFFSET:06X}")
     print(f"GAME FILE save-help pointer: ${int.from_bytes(patched[SAVE_HELP_POINTER_OFFSET:SAVE_HELP_POINTER_OFFSET+3], 'little'):06X}")
     print(f"GAME FILE save-help payload: {len(build_save_help(game_file_rows))} bytes at ROM ${SAVE_HELP_RELOC_OFFSET:06X}")
+    action_resource, action_placement = build_action_settings_resource(action_rows)
+    print(f"ACTION SETTINGS resource: {len(action_resource)} bytes at C7:${ACTION_RESOURCE_RELOC_PTR:04X}")
+    print(f"ACTION SETTINGS placement: {len(action_placement)} bytes at C7:${ACTION_PLACEMENT_RELOC_PTR:04X}; stock frame width $18, GUARD -8 px")
+    print(f"ACTION SETTINGS help: {len(build_action_help(action_help_rows))} bytes at SNES ${ACTION_HELP_RELOC_SNES:06X}")
     menu_resource, widths = build_menu_resource(rows)
     print(f"GAME SELECT resource: {len(menu_resource)} bytes at C7:${MENU_RESOURCE_RELOC_PTR:04X}")
     print("GAME SELECT layout: native 45-byte resource; no additional DTE compression")

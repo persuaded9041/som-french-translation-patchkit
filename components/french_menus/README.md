@@ -1,12 +1,24 @@
-# French GAME SELECT / GAME FILE
+# French native menus
 
-Translates GAME SELECT and GAME FILE/save-menu text while keeping the stock
-fixed-width menu renderer.
+Translates selected native `$C7` menus while preserving their stock rendering
+model unless a change has been runtime-proven necessary.
 
-## Current scope
+## Current promoted scope
 
-- GAME SELECT labels use source IDs from root `assets/menu_text.json`.
-- GAME SELECT welcome/help and GAME FILE save help use source IDs from root
+### GAME SELECT / GAME FILE
+
+### GAME FILE currency suffix
+
+The save/load GAME FILE money total uses a hybrid stock renderer: the first glyph
+of `GP` is hard-coded as `G` by `LDA #$A1` at `$C7:54A9`, while the second glyph
+comes from the `C7:7394` resource field. Runtime probes proved this (`PO` -> `GO`,
+`XO` -> `GO`, `XX` -> `GX`). The builder therefore derives the hard-coded first
+glyph from the same JSON-backed two-cell currency translation, so `PO` is rendered
+consistently without embedding French text in Python.
+
+
+- GAME SELECT labels use IDs from root `assets/menu_text.json`.
+- GAME SELECT welcome/help and GAME FILE save help use IDs from root
   `assets/interface_text.json`.
 - French text is stored sparsely in root `translations/menu_text_french.json`
   and `translations/interface_text_french.json`.
@@ -15,32 +27,88 @@ fixed-width menu renderer.
   fields still read through the stock path are mirrored in place.
 - The FILE frame descriptor at `$C7:7585` uses the runtime-validated width `$04`
   (8 text cells).
-- GAME SELECT welcome/help is relocated to `$ED:8000-$83FF`; the two-line GAME FILE save help uses the following `$ED:8400+` region. The builder keeps those allocations disjoint.
+- GAME SELECT welcome/help is relocated to `$ED:8000-$83FF`; the two-line GAME
+  FILE save help uses `$ED:8400+`. The builder keeps those allocations disjoint.
 - The dynamic slot level prefix is translated from `L` to `N` without changing
-  the slot layout; both stock source positions have their own stable IDs.
+  the slot layout; both stock source positions have stable IDs.
+- `MANA POWER` is translation-backed as `Graines Mana`; the shortened wording
+  is runtime-validated and leaves the dynamic seed count visually separated.
 
-Dynamic location names, player names, levels, HP and numeric values are supplied
-by game data and are not translation entries owned by this component.
+### Action Settings / Actions des personnages
+
+The four fixed-font grid labels are runtime-validated in French:
+
+- `ATTACK` -> `Attaquer`
+- `KEEP AWAY` -> `S'éloigner`
+- `APPROACH` -> `S'approcher`
+- `GUARD` -> `Défendre`
+
+This screen deliberately **does not use `vwf_ui`**. A VWF experiment was
+rejected after it disturbed the pixel/tile-indexed layout of the help line and
+right-hand gauge panel.
+
+The validated fixed-font solution mirrors the stock/French-SNES architecture:
+
+- the left frame keeps its USA stock width `$18`;
+- the checkerboard and right-hand window remain stock;
+- `Défendre` starts one fixed-font cell (8 px) farther left;
+- the four labels are repacked into a **34-cell** relocated resource at
+  `$C7:4DC0`, with a relocated placement list at `$C7:4DE3`;
+- two 2-cell overlaps already present in the translation payload are reused so
+  the resource stays at the 34-cell size proven safe by the official French
+  Rev 1 ROM;
+- the dynamic gauge source base is adjusted `$2180 -> $2184` at `$C7:6C77`;
+- the two top-help redraw bases are adjusted `$2090 -> $2094` and
+  `$2108 -> $210C` at `$C7:6D57/$6D5C`.
+
+Those three `+$04` tile-base compensations are also present in the official
+French Rev 1 ROM. Runtime validation covered the full sequence: initial grid,
+selecting a grid position / gauge level, and cancelling with `Y` back to the
+initial prompt.
+
+The two fixed-font help sentences are now translated and runtime-validated:
+
+- `C0:3620` -> `Choisissez le type d'action. Validez avec “Attaque”.`
+- `C0:3654` -> `Jusqu'où charger la jauge ? Validez avec “Attaque”.`
+
+They are stored in `translations/interface_text_french.json`, relocated as one
+three-row block to `$ED:8500+`, and remain on the stock 29-column fixed renderer.
+The third row `C0:368F` (`0 1 2 3 4 5 6 7 8`) is structural and stays unchanged.
+
+## Other runtime-validated menu/help changes
+
+- GAME FILE save help now uses `Pressez “Attaque” pour sauver, “Retour” pour annuler.`; this avoids hard-coding physical B/Y mappings after controls may have been rebound.
+- Name Entry keeps physical `B` and `Start` deliberately because it is reached before control remapping is available. Its first line is now `Choisissez un caractère avec la croix directionnelle.`
+- GAME FILE total money now renders `PO` correctly. Stock code hard-codes the first `G` separately; the builder derives that immediate glyph from translation ID `C7:7394`, while the second glyph remains resource-backed. Runtime probes `PO -> GO`, `XO -> GO`, `XX -> GX` proved the split.
+- **Do not promote any spacing experiment before `PO` yet.** Several probes that tried to create `1234567 PO` by shifting the formatted number produced a black screen, `PPO`, or `P O`. The validated baseline remains `1234567PO`. See `docs/HANDOFF.md` for the rejected probes.
+
+## Translation-only backlog already reviewed
+
+`translations/menu_text_french.json` also contains reviewed French text for the
+native Status screen (conditions, templates, weapon types, misc labels), and
+`translations/interface_text_french.json` contains the ten reviewed
+characteristic labels. These rows are **translation-only** until their native
+renderer/placement paths are promoted explicitly; do not assume their presence
+in JSON means they are already emitted by `french_menus.ips`.
 
 ## Sources
 
-- root `assets/menu_text.json`: canonical clean-USA menu/status source.
-- root `assets/interface_text.json`: canonical clean-USA help source.
-- root `translations/menu_text_french.json`: validated GAME SELECT/GAME FILE labels.
-- root `translations/interface_text_french.json`: validated welcome/save-help text.
-- `docs/MEMORY_MAP.md`: allocations, hooks and stock GAME FILE text locations.
+- root `assets/menu_text.json`: canonical clean-USA menu/status source cache;
+- root `assets/interface_text.json`: canonical clean-USA help source cache;
+- root `translations/menu_text_french.json`: reviewed native-menu labels;
+- root `translations/interface_text_french.json`: reviewed help/status labels;
+- `docs/MEMORY_MAP.md`: allocations, hooks and fixed-address adjustments.
 
-The root extractor regenerates the source JSONs from a clean USA ROM:
+The root extractor regenerates source JSONs from a clean USA ROM:
 
 ```bash
 python3 tools/text/extract.py "Secret of Mana (USA).sfc" --only menu
 python3 tools/text/extract.py "Secret of Mana (USA).sfc" --only interface
 ```
 
-`build_patch.py` verifies both source assets against the ROM and binds every
-French string by its position-based source ID. The component uses the shared
-`basic_french` charset profile; cross-component charset/threshold resolution is
-documented at repository level.
+`build_patch.py` verifies both source assets against the ROM and binds French
+strings by position-based source ID. It uses the shared `basic_french` charset
+profile.
 
 ## Build and validation
 
@@ -50,6 +118,6 @@ python3 build.py "Secret of Mana (USA).sfc" french-menus --combine
 ```
 
 The builder is the executable source of the patch. There is no parallel ASM
-source to keep synchronized: fixed addresses and ownership are documented in
-`docs/MEMORY_MAP.md`, while translated prose remains in the root translation
-JSON files.
+patch source to synchronize: fixed addresses and assembly-level adjustments are
+documented here and in `docs/MEMORY_MAP.md`, while translated prose remains in
+root translation JSON files.

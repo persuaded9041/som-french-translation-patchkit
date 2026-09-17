@@ -13,6 +13,7 @@ for the owning component even when the current generated payload is shorter.
 | name prefill | `0x075039-0x07503C` | `$C7:5039-$503C` | Name Entry init-tail hook |
 | GAME SELECT | `0x074400-0x07442C` | `$C7:4400-$442C` | 45-byte relocated label resource |
 | GAME FILE | `0x074D40-0x074DBE` | `$C7:4D40-$4DBE` | relocated save/load-menu resource for expanded `Fichier` label |
+| Action Settings | `0x074DC0-0x074DFC` | `$C7:4DC0-$4DFC` | runtime-validated fixed-font French label resource (35 bytes) + six-span placement list (26 bytes); remains below Name Entry private layout |
 | GAME SELECT | `0x2D8000-0x2D83FF` | `$ED:8000-$83FF` | relocated GAME SELECT welcome/help text |
 | GAME FILE | `0x2D8400-0x2DFFFF` | `$ED:8400-$FFFF` | relocated GAME FILE save-help text / reserved component text space |
 | French battle/status text | `0x2E6000-0x2E6FFF` | `$EE:6000-$6FFF` | reserved relocated battle/status text pool owned by `french_resources`; current payload 1573 bytes including four runtime template prefixes |
@@ -90,6 +91,8 @@ maps produced by all components.
 
 GAME FILE also keeps its translation-JSON-backed stock label fields synchronized in place at `C7:7340-C7:73BB`, because runtime validation showed that one menu path still reads them even after the two table pointers are redirected to `C7:4D40`. The four-cell stock FILE field contains the `Fich` prefix; the relocated resource contains full `Fichier`. Additional in-place edits at ROM `0x0753C9` / `$C7:53C9` and `0x075AF1` / `$C7:5AF1` change the dynamic level prefix from `L` to `N` (`$A6 -> $A8`), and ROM `0x077585` / `$C7:7585` changes the FILE-frame descriptor from `$03` (6 text cells) to `$04` (8 text cells). These are not new allocations.
 
+Action Settings keeps the stock left frame width `$18` and stock checkerboard/right-panel geometry. Its four translated fixed-font labels are repacked into the 34-cell resource at `$C7:4DC0`; the six-span placement list at `$C7:4DE3` reuses two 2-cell overlaps and moves `Défendre` one fixed-font cell (8 px) left. Three source-tile bases are adjusted in place, matching the official French Rev 1 ROM: `$C7:6C77` `$2180->$2184` for the right-hand gauge value, `$C7:6D57` `$2090->$2094` and `$C7:6D5C` `$2108->$210C` for the two top-help redraw paths. This screen deliberately remains fixed-font; the VWF experiment is rejected.
+
 ## vwf_dialogues — global allocation view
 
 `vwf_intro`, `vwf_dialogues`, and `vwf_ui` install byte-identical shared parser/capacity hooks/helpers in
@@ -154,3 +157,12 @@ beginning at `$CA:98E1`. It also owns the two reviewed shop currency literals
 versus the 7315-byte stock allocation; no relocation or new ROM allocation is used. Its French
 glyph/DTE infrastructure is shared byte-identically with `vwf_dialogues` / `french_dialogues`.
 
+
+### GAME FILE total-money first glyph
+
+`french_menus` patches ROM `0x0754AA` / `$C7:54AA`, the immediate operand of
+`LDA #$A1` at `$C7:54A9`. Stock hard-codes the first `G` of `GP`; the builder
+derives the replacement from JSON translation ID `C7:7394`, yielding `P` for
+`PO`. Runtime probes `PO -> GO`, `XO -> GO`, `XX -> GX` proved this hybrid path.
+The current validated layout is contiguous `...PO`; experimental gap patches are
+rejected and absent from the baseline.

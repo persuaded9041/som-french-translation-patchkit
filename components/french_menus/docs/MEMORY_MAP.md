@@ -3,7 +3,9 @@
 ## Allocations / shared writes
 
 - ROM `0x074400-0x07442C` / `$C7:4400-$442C`: 45-byte relocated GAME SELECT label resource.
-- ROM `0x074D40-0x074DBE` / `$C7:4D40-$4DBE`: relocated GAME FILE/save-menu resource (127 bytes with current `Fichier` translation).
+- ROM `0x074D40-0x074DBE` / `$C7:4D40-$4DBE`: relocated GAME FILE/save-menu resource (127 bytes with current translation).
+- ROM `0x074DC0-0x074DE2` / `$C7:4DC0-$4DE2`: Action Settings fixed-font label resource, 34 cells + `$00` terminator = 35 bytes.
+- ROM `0x074DE3-0x074DFC` / `$C7:4DE3-$4DFC`: Action Settings six-span placement list, 26 bytes.
 - ROM `0x2D8000-0x2D83FF` / `$ED:8000-$83FF`: GAME SELECT welcome/help allocation. Current payload is 181 bytes.
 - ROM `0x2D8400-0x2DFFFF` / `$ED:8400-$FFFF`: GAME FILE save-help allocation. Current payload is 110 bytes; remaining space is reserved to this component.
 - ROM `0x12DFF0-0x12E08B`: 13 shared French glyphs.
@@ -11,7 +13,11 @@
 
 ## GAME FILE/save-menu stock text locations
 
-These locations are both extraction sources and active runtime mirrors. The full `C7:7340-C7:73BB` resource is also relocated to `C7:4D40` so `FILE_LABEL` can expand safely, but runtime testing proved that another GAME FILE path still reads the stock fields. The builder therefore keeps both paths synchronized without shifting any stock boundary.
+These locations are both extraction sources and active runtime mirrors. The full
+`C7:7340-C7:73BB` resource is also relocated to `C7:4D40` so `FILE_LABEL` can
+expand safely, but runtime testing proved that another GAME FILE path still
+reads the stock fields. The builder therefore keeps both paths synchronized
+without shifting any stock boundary.
 
 | ROM offset | Purpose | Current capacity |
 |---:|---|---:|
@@ -21,26 +27,64 @@ These locations are both extraction sources and active runtime mirrors. The full
 | `0x077374` | `MONEY` | 6 cells in the relocated build (5 stock + adjacent padding) |
 | `0x077394` | `GP` | 2 cells |
 | `0x077398` | `COUNTER` | 8 cells in the relocated build (7 stock + adjacent padding) |
-| `0x0773AA` | `MANA POWER` | 12 cells in the relocated build (10 stock + adjacent padding) |
+| `0x0773AA` | `MANA POWER` | **15 cells**, used by the runtime-validated `Graines Mana` label |
 | `0x077805` | `Empty` | 5 cells |
 | `0x0033B8` | pointer to save-help text (`$C0:348D`) | 3 bytes |
 | `0x00348D-0x0034F8` | two-line save help block | 108 bytes |
 
-The builder preserves every validated stock field boundary above and mirrors the translation-JSON-backed values there. `FILE_LABEL` is the exception only in content length: the stock field receives its first four encoded cells (`Fich` currently), while its segment is expanded inside the relocated resource to full `Fichier`. The save-help payload is separately relocated to `ED:8400` and is no longer limited by the 108-byte stock block.
+The builder preserves every validated stock field boundary above and mirrors
+the translation-JSON-backed values there. `FILE_LABEL` is the exception only in
+content length: the stock field receives its first four encoded cells, while
+its segment is expanded inside the relocated resource to full `Fichier`. The
+save-help payload is separately relocated to `ED:8400` and is no longer limited
+by the 108-byte stock block.
 
 ## GAME FILE relocation hooks
 
 - ROM `0x0753C9` / `$C7:53C9`: dynamic GAME FILE level prefix glyph `$A6` (`L`) -> `$A8` (`N`).
+- ROM `0x0754AA` / `$C7:54AA`: operand of `LDA #$A1` at `$C7:54A9`; stock GAME FILE total-money path hard-codes the first `G` of `GP`. The builder now derives this byte from the first glyph of translation ID `C7:7394` (`PO` -> `P`). Runtime probes proved the split path: changing only the resource to `PO` rendered `GO`, `XO` rendered `GO`, and `XX` rendered `GX`.
 - ROM `0x075AF1` / `$C7:5AF1`: second GAME FILE rendering path level prefix glyph `$A6` (`L`) -> `$A8` (`N`).
+- The validated currency layout is contiguous `...PO`. Rejected spacing probes attempted to shift only the number formatter left while preserving the unit anchor; results included a black screen (`JSR` hook misaligned by one byte), then `PPO` / `P O` after corrected hooks. None of those helper/probe writes are part of the promoted source or patch.
+
 - ROM `0x077585` / `$C7:7585`: FILE/Fichier frame width `$03 -> $04` (6 -> 8 text cells).
 - ROM `0x077810-0x077811` / `$C7:7810-$7811`: resource pointer `$7340 -> $4D40`.
 - ROM `0x077816-0x077817` / `$C7:7816-$7817`: second state/resource pointer `$7340 -> $4D40`.
-- Stock resource source: ROM `0x077340-0x0773BB` (`$C7:7340-$73BB`). `FILE_SELECT`, `FILE_LABEL` prefix, `SAVE_POINT`, `MONEY`, `GP`, `COUNTER`, and `MANA_POWER` are mirrored in place because a runtime path still reads them there.
+- Stock resource source: ROM `0x077340-0x0773BB` (`$C7:7340-$73BB`).
+
+## Action Settings — runtime-validated fixed-font path
+
+This page deliberately keeps the stock fixed-width renderer. The VWF experiment
+is rejected and is not part of the component.
+
+### Relocated data
+
+- text descriptor pointer at ROM `0x077822-0x077823` / `$C7:7822-$7823`:
+  `$73DF -> $4DC0`;
+- placement descriptor pointer at ROM `0x077826-0x077827` / `$C7:7826-$7827`:
+  `$7538 -> $4DE3`;
+- relocated resource: `$C7:4DC0-$4DE2`, 34 cells + terminator;
+- relocated placement list: `$C7:4DE3-$4DFC`, six spans + terminator.
+
+The 34-cell layout reuses two 2-cell overlaps through the placement table. The
+builder derives and validates those overlaps from `translations/menu_text_french.json`;
+localized prose is not hard-coded in Python/ASM.
+
+### Geometry / tile-base fixes
+
+- ROM `0x07760A` / `$C7:760A`: left frame stays at stock width `$18`;
+- the GUARD label destination is one fixed-font cell (8 px) left of stock;
+- ROM `0x076C77-0x076C79` / `$C7:6C77-$6C79`: `LDA #$2180 -> #$2184`;
+- ROM `0x076D57-0x076D59` / `$C7:6D57-$6D59`: `LDX #$2090 -> #$2094`;
+- ROM `0x076D5C-0x076D5E` / `$C7:6D5C-$6D5E`: `LDX #$2108 -> #$210C`.
+
+The three `+$04` source-tile compensations match the official French Rev 1 ROM.
+They were runtime-validated across the initial grid, gauge-selection state and
+`Y` cancellation/redraw path.
 
 ## Other fixed writes
 
-- ROM `0x07780A-0x07780B` / `$C7:780A-$780B`: GAME SELECT text pointer `$7313 -> $4400` (builder validates/replaces the stock pointer through the generated IPS).
-- ROM `0x07756D`, `0x077572`, `0x077577`: GAME SELECT frame widths derived from the translated encoded cell counts; current validated values remain `$07/$05/$06`.
+- ROM `0x07780A-0x07780B` / `$C7:780A-$780B`: GAME SELECT text pointer `$7313 -> $4400`.
+- ROM `0x07756D`, `0x077572`, `0x077577`: GAME SELECT frame widths derived from translated encoded cell counts; current validated values remain `$07/$05/$06`.
 - ROM `0x0033B5-0x0033B7`: GAME SELECT welcome/help pointer redirected to `$ED:8000`.
 - ROM `0x0016F6`: standalone direct/DTE threshold `$D3 -> $E1` for the `basic_french` glyph profile. Aggregate builds may supersede this legacy immediate with the shared context router documented in `docs/COMPATIBILITY.md`.
 

@@ -32,8 +32,8 @@ Compressed opening strings use the compressed container address plus determinist
 
 The main data files are:
 
-- `translations/interface_text_french.json` — Name Entry and GAME SELECT/GAME FILE help;
-- `translations/menu_text_french.json` — GAME SELECT/GAME FILE labels;
+- `translations/interface_text_french.json` — Name Entry and GAME SELECT/GAME FILE help plus reviewed translation-only Status characteristic labels;
+- `translations/menu_text_french.json` — GAME SELECT/GAME FILE labels, runtime-validated Action Settings labels, and reviewed translation-only Status labels;
 - `translations/opening_text_french.json` — opening prologue and startup credits;
 - `translations/intro_event_french.json` — new-game intro paragraphs;
 - `translations/text_resources_reviewed_overrides.json` — sparse, explicitly reviewed SNES-specific `$CA` resource wording layered over Android FR;
@@ -81,9 +81,10 @@ The current promoted component inserts 360 `$CA` resources and keeps the rebuilt
 Identity and runtime strategy are reviewed in `recipes/android/battle_text_mapping.json`;
 French mapped payload comes directly from Android `systxt_fr.bin`. The sparse
 `translations/battle_text_reviewed_overrides.json` file contains only deliberate
-SNES adaptations and pending rows. `needs_manual_translation` entries keep
-`text: null` until a translation is explicitly reviewed. The previously layout-pending
-`C0:62F3` now has a reviewed compact SNES adaptation in this surcharge file.
+SNES/JP adaptations. The eight formerly manual rows are now translated and
+reviewed; there are no remaining `needs_manual_translation` payloads. The formerly
+layout-pending `C0:62F3` also has its reviewed compact SNES adaptation in this
+surcharge file.
 
 ## D9 shop/forge localization
 

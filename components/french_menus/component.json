@@ -1,7 +1,7 @@
 {
   "id": "french_menus",
   "short_name": "french-menus",
-  "name": "French GAME SELECT / GAME FILE",
+  "name": "French native menus (GAME SELECT / GAME FILE / Action Settings)",
   "shared_charset_profile": "basic_french",
   "build_order": 30
 }
