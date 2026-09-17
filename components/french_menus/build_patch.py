@@ -65,14 +65,23 @@ GAME_FILE_FILE_SEGMENT_END = 0x07734F         # FILE + one blank + $00
 GAME_FILE_LEVEL_LABEL_OFFSETS = (0x0753C9, 0x075AF1)
 GAME_FILE_LEVEL_LABEL_STOCK = 0xA6  # L
 
-# GAME FILE money total has a hybrid stock path: after formatting the digits,
-# C7:54A9 executes LDA #$A1 ("G") and writes that first currency glyph
-# directly to the text buffer. Only the second glyph is subsequently sourced
-# from the GP field. Runtime probes (PO -> GO, XO -> GO, XX -> GX) prove this
-# split. Derive the immediate from the first encoded cell of the translation-
-# backed C7:7394 currency field; do not hard-code localized prose here.
-GAME_FILE_MONEY_PREFIX_GLYPH_OFFSET = 0x0754AA  # operand of LDA #$A1 at C7:54A9
-GAME_FILE_MONEY_PREFIX_GLYPH_STOCK = 0xA1       # G
+# GAME FILE money total uses a hybrid 16-cell dynamic/static layout. The
+# dynamic renderer always uploads columns 0..15; column 16 remains the second
+# glyph from the C7:7394 resource template. Stock lays out 8 leading blanks +
+# 7 amount cells + the first currency glyph. French keeps the currency anchor
+# unchanged but needs one separator cell, so it uses 7 leading blanks + 7
+# amount cells + an explicit blank + the first currency glyph. The tiny helper
+# below preserves the mandatory 16-cell dynamic span.
+GAME_FILE_MONEY_LEADING_BLANKS_OFFSET = 0x07549A  # LDY #$0008 at C7:549A
+GAME_FILE_MONEY_LEADING_BLANKS_STOCK = bytes.fromhex("a0 08 00")
+GAME_FILE_MONEY_LEADING_BLANKS_FRENCH = bytes.fromhex("a0 07 00")
+GAME_FILE_MONEY_FORMAT_CALL_OFFSET = 0x0754A6     # JSR $54B0
+GAME_FILE_MONEY_FORMAT_CALL_STOCK = bytes.fromhex("20 b0 54")
+GAME_FILE_MONEY_SPACING_HELPER_OFFSET = 0x074D32  # C7:4D32
+GAME_FILE_MONEY_SPACING_HELPER_PTR = 0x4D32
+GAME_FILE_MONEY_SPACING_HELPER_LIMIT = 0x074D3C   # 10-byte helper; 4D3C-4D3F stay free
+GAME_FILE_MONEY_PREFIX_GLYPH_OFFSET = 0x0754AA     # operand of LDA #$A1 at C7:54A9
+GAME_FILE_MONEY_PREFIX_GLYPH_STOCK = 0xA1          # G
 
 # Field offsets inside C7:7340.  These capacities include adjacent stock
 # padding cells that were runtime-validated for the French labels.  The same
@@ -461,6 +470,23 @@ def build_game_file_resource(base: bytes, rows: dict[str, str]) -> bytes:
     return bytes(resource)
 
 
+def build_game_file_money_spacing_helper() -> bytes:
+    """Return the runtime-validated GAME FILE money-spacing helper.
+
+    65C816 at $C7:4D32:
+      JSR $54B0       ; write the seven formatted amount cells
+      LDA #$80        ; fixed-font blank
+      STA $9C00,X     ; separator in dynamic column 14
+      INX             ; preserve 16-cell dynamic span; caller writes currency[0]
+      RTS
+
+    The following stock code at $C7:54A9 still writes currency[0] from the
+    JSON-backed C7:7394 field, and column 16 remains currency[1] from the
+    static template. No localized prose is embedded here.
+    """
+    return bytes.fromhex("20 b0 54 a9 80 9d 00 9c e8 60")
+
+
 def apply_game_file_sources(base: bytes, rom: bytearray, rows: dict[str, str]) -> None:
     resource = build_game_file_resource(base, rows)
     reloc_end = GAME_FILE_RELOC_OFFSET + len(resource)
@@ -470,6 +496,25 @@ def apply_game_file_sources(base: bytes, rom: bytearray, rows: dict[str, str]) -
     if any(b != 0xFF for b in base[GAME_FILE_RELOC_OFFSET:reloc_end]):
         raise SystemExit("GAME FILE relocation target C7:4D40 is not stock $FF free space")
     rom[GAME_FILE_RELOC_OFFSET:reloc_end] = resource
+
+    # Runtime-validated money spacing. The native renderer DMA always rewrites
+    # exactly 16 dynamic character cells (columns 0..15). Merely reducing the
+    # leading blank count makes the dynamic string 15 cells long and the
+    # renderer clears column 15, producing `P O`. Keep the 16-cell span by
+    # moving the amount left one cell and inserting an explicit separator at
+    # dynamic column 14 before the existing JSON-derived currency[0] write.
+    helper = build_game_file_money_spacing_helper()
+    if GAME_FILE_MONEY_SPACING_HELPER_OFFSET + len(helper) > GAME_FILE_MONEY_SPACING_HELPER_LIMIT:
+        raise SystemExit("GAME FILE money-spacing helper exceeds C7:4D32-C7:4D3B")
+    if any(b != 0xFF for b in base[GAME_FILE_MONEY_SPACING_HELPER_OFFSET:GAME_FILE_MONEY_SPACING_HELPER_OFFSET + len(helper)]):
+        raise SystemExit("Expected free space for GAME FILE money-spacing helper is not empty")
+    if base[GAME_FILE_MONEY_LEADING_BLANKS_OFFSET:GAME_FILE_MONEY_LEADING_BLANKS_OFFSET + 3] != GAME_FILE_MONEY_LEADING_BLANKS_STOCK:
+        raise SystemExit("Unexpected stock GAME FILE money leading-blank setup at C7:549A")
+    if base[GAME_FILE_MONEY_FORMAT_CALL_OFFSET:GAME_FILE_MONEY_FORMAT_CALL_OFFSET + 3] != GAME_FILE_MONEY_FORMAT_CALL_STOCK:
+        raise SystemExit("Unexpected stock GAME FILE money formatter call at C7:54A6")
+    rom[GAME_FILE_MONEY_SPACING_HELPER_OFFSET:GAME_FILE_MONEY_SPACING_HELPER_OFFSET + len(helper)] = helper
+    rom[GAME_FILE_MONEY_LEADING_BLANKS_OFFSET:GAME_FILE_MONEY_LEADING_BLANKS_OFFSET + 3] = GAME_FILE_MONEY_LEADING_BLANKS_FRENCH
+    rom[GAME_FILE_MONEY_FORMAT_CALL_OFFSET:GAME_FILE_MONEY_FORMAT_CALL_OFFSET + 3] = bytes((0x20, GAME_FILE_MONEY_SPACING_HELPER_PTR & 0xFF, GAME_FILE_MONEY_SPACING_HELPER_PTR >> 8))
 
     # Expand the small FILE frame from 6 to 8 text cells. The menu descriptor
     # uses the same two-cells-per-width-unit convention as GAME SELECT.
@@ -482,9 +527,9 @@ def apply_game_file_sources(base: bytes, rom: bytearray, rows: dict[str, str]) -
 
     # The GAME FILE total-money renderer hard-codes the first glyph of the
     # stock "GP" suffix as an immediate "G" at C7:54A9. The second glyph
-    # still comes from the GP resource field. Keep this mixed path synchronized
-    # by deriving the immediate from the first encoded cell of the same JSON
-    # translation used for C7:7394.
+    # remains the static template cell at column 16. Keep this stock hybrid path
+    # synchronized by deriving the immediate from the first encoded cell of the
+    # same JSON translation used for C7:7394.
     if base[GAME_FILE_MONEY_PREFIX_GLYPH_OFFSET] != GAME_FILE_MONEY_PREFIX_GLYPH_STOCK:
         raise SystemExit(
             f"Unexpected stock GAME FILE money-prefix glyph at ${GAME_FILE_MONEY_PREFIX_GLYPH_OFFSET:06X}: "
@@ -806,6 +851,7 @@ def main() -> None:
     print(f"WELCOME payload: {len(build_welcome(rows))} bytes at ROM ${WELCOME_RELOC_OFFSET:06X}")
     print(f"GAME FILE resource pointer: C7:${GAME_FILE_RELOC_PTR:04X}")
     print(f"GAME FILE resource: {len(build_game_file_resource(base, game_file_rows))} bytes at ROM ${GAME_FILE_RELOC_OFFSET:06X}")
+    print(f"GAME FILE money spacing: {len(build_game_file_money_spacing_helper())}-byte helper at C7:${GAME_FILE_MONEY_SPACING_HELPER_PTR:04X}; 7 amount-prefix blanks + separator")
     print(f"GAME FILE save-help pointer: ${int.from_bytes(patched[SAVE_HELP_POINTER_OFFSET:SAVE_HELP_POINTER_OFFSET+3], 'little'):06X}")
     print(f"GAME FILE save-help payload: {len(build_save_help(game_file_rows))} bytes at ROM ${SAVE_HELP_RELOC_OFFSET:06X}")
     action_resource, action_placement = build_action_settings_resource(action_rows)

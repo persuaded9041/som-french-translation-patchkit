@@ -50,9 +50,12 @@ The GAME FILE fields promoted through `french_menus` include `Fichier`, `Argent`
 used in menus so the dynamic count no longer touches the label.
 
 The GAME FILE total-money renderer is hybrid: stock code writes the first currency
-glyph separately and then consumes the resource-backed suffix. The validated
-French baseline displays `PO` **without an added gap**. Attempts to add a gap are
-not promoted; see `docs/HANDOFF.md`.
+glyph inside a fixed 16-cell dynamic upload, while the second glyph remains in
+the resource-backed template column immediately to its right. The runtime-validated
+French layout preserves that architecture but inserts one explicit blank before
+the first currency glyph, yielding `1234567 PO` without moving the `PO` anchor.
+The first glyph is still derived from JSON ID `C7:7394`; no localized unit text is
+hard-coded in renderer logic. See `docs/HANDOFF.md` and the component memory map.
 
 ## Status strings
 

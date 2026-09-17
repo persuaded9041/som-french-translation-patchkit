@@ -9,12 +9,21 @@ model unless a change has been runtime-proven necessary.
 
 ### GAME FILE currency suffix
 
-The save/load GAME FILE money total uses a hybrid stock renderer: the first glyph
-of `GP` is hard-coded as `G` by `LDA #$A1` at `$C7:54A9`, while the second glyph
-comes from the `C7:7394` resource field. Runtime probes proved this (`PO` -> `GO`,
-`XO` -> `GO`, `XX` -> `GX`). The builder therefore derives the hard-coded first
-glyph from the same JSON-backed two-cell currency translation, so `PO` is rendered
-consistently without embedding French text in Python.
+The save/load GAME FILE money total uses a hybrid stock renderer. Its dynamic
+font upload always rewrites exactly 16 cells (columns 0..15): stock uses eight
+leading blanks, seven amount cells, then the first glyph of `GP`, hard-coded as
+`G` by `LDA #$A1` at `$C7:54A9`. Column 16 is not part of that upload and keeps
+the second glyph from the `C7:7394` resource template. Runtime probes proved the
+split (`PO` -> `GO`, `XO` -> `GO`, `XX` -> `GX`).
+
+The runtime-validated French layout keeps the stock currency anchor but changes
+the dynamic 16-cell payload to seven leading blanks + seven amount cells + one
+explicit blank + currency glyph 0. A 10-byte helper at `$C7:4D32` wraps the stock
+`$C7:54B0` formatter, inserts the separator at dynamic column 14, then returns to
+the existing `$C7:54A9` write. That first currency glyph is still derived from
+the same JSON-backed two-cell `C7:7394` translation; column 16 remains the second
+JSON/template glyph. The result is `1234567 PO` with `PO` at its original anchor
+and no localized text embedded in Python/ASM.
 
 
 - GAME SELECT labels use IDs from root `assets/menu_text.json`.
@@ -79,8 +88,8 @@ The third row `C0:368F` (`0 1 2 3 4 5 6 7 8`) is structural and stays unchanged.
 
 - GAME FILE save help now uses `Pressez “Attaque” pour sauver, “Retour” pour annuler.`; this avoids hard-coding physical B/Y mappings after controls may have been rebound.
 - Name Entry keeps physical `B` and `Start` deliberately because it is reached before control remapping is available. Its first line is now `Choisissez un caractère avec la croix directionnelle.`
-- GAME FILE total money now renders `PO` correctly. Stock code hard-codes the first `G` separately; the builder derives that immediate glyph from translation ID `C7:7394`, while the second glyph remains resource-backed. Runtime probes `PO -> GO`, `XO -> GO`, `XX -> GX` proved the split.
-- **Do not promote any spacing experiment before `PO` yet.** Several probes that tried to create `1234567 PO` by shifting the formatted number produced a black screen, `PPO`, or `P O`. The validated baseline remains `1234567PO`. See `docs/HANDOFF.md` for the rejected probes.
+- GAME FILE total money now renders `1234567 PO` with the currency suffix anchored exactly where stock placed `GP`. The first glyph remains JSON-derived at `$C7:54A9`; the second remains the `C7:7394` template glyph in column 16. The 10-byte `$C7:4D32` helper inserts only the separator while preserving the renderer's mandatory 16-cell dynamic upload.
+- Rejected probes (`PPO`, `P O`, and the misaligned-hook black screen) are historical only and are not part of the promoted patch. Their failure established the fixed 16-cell dynamic window documented in `docs/HANDOFF.md` and the component memory map.
 
 ## Translation-only backlog already reviewed
 

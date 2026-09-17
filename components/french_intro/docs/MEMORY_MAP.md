@@ -20,7 +20,7 @@ functional map.
 | ROM file offset | CPU address | Purpose |
 | --- | --- | --- |
 | `0x074C40-0x074C6B` | `$C7:4C40-$4C6B` | 44-byte intro-private DTE loader; reserved window ends before `$C7:4C80` shared VWF config |
-| `0x074D00-0x074D31` | `$C7:4D00-$4D31` | 25-pair (50-byte) private intro DTE table; reserved window ends before `$C7:4D40` GAME FILE allocation |
+| `0x074D00-0x074D31` | `$C7:4D00-$4D31` | 25-pair (50-byte) private intro DTE table; exact allocation ends before the `$C7:4D32` GAME FILE money-spacing helper |
 | `0x0A0C02-0x0A0E8A` | `$CA:0C02-$0E8A` | rebuilt French event `$0400`; exclusive validated end `$0E8B` |
 | `0x0AFF70-0x0AFFB7` | `$CA:FF70-$FFB7` | unchanged stock events `$0401-$040F`, relocated; reserve stops before `$CA:FFC0` `intro_skip` helper |
 

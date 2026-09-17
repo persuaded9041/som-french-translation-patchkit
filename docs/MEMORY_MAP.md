@@ -12,6 +12,7 @@ for the owning component even when the current generated payload is shorter.
 | name prefill | `0x0746D0-0x0746E7` | `$C7:46D0-$46E7` | three 8-byte default-name records (length + up to 7 tokens); French overlay replaces them |
 | name prefill | `0x075039-0x07503C` | `$C7:5039-$503C` | Name Entry init-tail hook |
 | GAME SELECT | `0x074400-0x07442C` | `$C7:4400-$442C` | 45-byte relocated label resource |
+| GAME FILE money spacing | `0x074D32-0x074D3B` | `$C7:4D32-$4D3B` | 10-byte helper preserving the fixed 16-cell money upload while inserting one separator before the currency suffix |
 | GAME FILE | `0x074D40-0x074DBE` | `$C7:4D40-$4DBE` | relocated save/load-menu resource for expanded `Fichier` label |
 | Action Settings | `0x074DC0-0x074DFC` | `$C7:4DC0-$4DFC` | runtime-validated fixed-font French label resource (35 bytes) + six-span placement list (26 bytes); remains below Name Entry private layout |
 | GAME SELECT | `0x2D8000-0x2D83FF` | `$ED:8000-$83FF` | relocated GAME SELECT welcome/help text |
@@ -89,7 +90,7 @@ maps produced by all components.
 
 `french_opening` keeps opening-font tile `$7A` as the stock `Z`. Startup-credit `É` is rendered as stock `E` plus acute tile `$7D` on the immediately preceding tile row. The wrapper lives in existing decompressed-title-code padding at CPU `$BCED`; the credit-only CGRAM HDMA tables are adjusted in place to cover both rows. This introduces no new ROM/WRAM allocation, and the prologue accent tiles `$7D-$7F` remain unchanged.
 
-GAME FILE also keeps its translation-JSON-backed stock label fields synchronized in place at `C7:7340-C7:73BB`, because runtime validation showed that one menu path still reads them even after the two table pointers are redirected to `C7:4D40`. The four-cell stock FILE field contains the `Fich` prefix; the relocated resource contains full `Fichier`. Additional in-place edits at ROM `0x0753C9` / `$C7:53C9` and `0x075AF1` / `$C7:5AF1` change the dynamic level prefix from `L` to `N` (`$A6 -> $A8`), and ROM `0x077585` / `$C7:7585` changes the FILE-frame descriptor from `$03` (6 text cells) to `$04` (8 text cells). These are not new allocations.
+GAME FILE also keeps its translation-JSON-backed stock label fields synchronized in place at `C7:7340-C7:73BB`, because runtime validation showed that one menu path still reads them even after the two table pointers are redirected to `C7:4D40`. The four-cell stock FILE field contains the `Fich` prefix; the relocated resource contains full `Fichier`. Additional in-place edits at ROM `0x0753C9` / `$C7:53C9` and `0x075AF1` / `$C7:5AF1` change the dynamic level prefix from `L` to `N` (`$A6 -> $A8`), and ROM `0x077585` / `$C7:7585` changes the FILE-frame descriptor from `$03` (6 text cells) to `$04` (8 text cells). The runtime-validated money layout also uses the 10-byte helper at `$C7:4D32-$4D3B`; this is the only newly allocated GAME FILE code in that gap.
 
 Action Settings keeps the stock left frame width `$18` and stock checkerboard/right-panel geometry. Its four translated fixed-font labels are repacked into the 34-cell resource at `$C7:4DC0`; the six-span placement list at `$C7:4DE3` reuses two 2-cell overlaps and moves `Défendre` one fixed-font cell (8 px) left. Three source-tile bases are adjusted in place, matching the official French Rev 1 ROM: `$C7:6C77` `$2180->$2184` for the right-hand gauge value, `$C7:6D57` `$2090->$2094` and `$C7:6D5C` `$2108->$210C` for the two top-help redraw paths. This screen deliberately remains fixed-font; the VWF experiment is rejected.
 
@@ -158,11 +159,19 @@ versus the 7315-byte stock allocation; no relocation or new ROM allocation is us
 glyph/DTE infrastructure is shared byte-identically with `vwf_dialogues` / `french_dialogues`.
 
 
-### GAME FILE total-money first glyph
+### GAME FILE total-money layout
 
-`french_menus` patches ROM `0x0754AA` / `$C7:54AA`, the immediate operand of
-`LDA #$A1` at `$C7:54A9`. Stock hard-codes the first `G` of `GP`; the builder
-derives the replacement from JSON translation ID `C7:7394`, yielding `P` for
-`PO`. Runtime probes `PO -> GO`, `XO -> GO`, `XX -> GX` proved this hybrid path.
-The current validated layout is contiguous `...PO`; experimental gap patches are
-rejected and absent from the baseline.
+`french_menus` preserves the stock hybrid currency path but adds a runtime-validated
+separator before the unit. The dynamic text renderer always uploads `$0200` bytes,
+which is 16 fixed-font characters, so columns 0..15 are rewritten regardless of
+the temporary string terminator. Column 16 remains the second glyph from the
+`C7:7394` template.
+
+Promoted writes:
+
+- ROM `0x07549A-0x07549C` / `$C7:549A-$549C`: `LDY #$0008 -> #$0007`;
+- ROM `0x0754A6-0x0754A8` / `$C7:54A6-$54A8`: `JSR $54B0 -> JSR $4D32`;
+- ROM `0x074D32-0x074D3B` / `$C7:4D32-$4D3B`: helper `JSR $54B0; LDA #$80; STA $9C00,X; INX; RTS`;
+- ROM `0x0754AA` / `$C7:54AA`: the first currency glyph remains derived from JSON translation ID `C7:7394` (`PO` -> `P`).
+
+The resulting 16 dynamic cells are `7 blanks + 7 amount cells + separator + currency[0]`; static column 16 supplies `currency[1]`. Runtime validation confirms `1234567 PO` with the unit anchor unchanged. Earlier `PPO` / `P O` probes are rejected and absent from the baseline.

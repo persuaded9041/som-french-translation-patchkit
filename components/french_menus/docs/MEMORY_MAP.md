@@ -3,11 +3,12 @@
 ## Allocations / shared writes
 
 - ROM `0x074400-0x07442C` / `$C7:4400-$442C`: 45-byte relocated GAME SELECT label resource.
+- ROM `0x074D32-0x074D3B` / `$C7:4D32-$4D3B`: 10-byte runtime-validated GAME FILE money-spacing helper (`JSR $54B0; LDA #$80; STA $9C00,X; INX; RTS`).
 - ROM `0x074D40-0x074DBE` / `$C7:4D40-$4DBE`: relocated GAME FILE/save-menu resource (127 bytes with current translation).
 - ROM `0x074DC0-0x074DE2` / `$C7:4DC0-$4DE2`: Action Settings fixed-font label resource, 34 cells + `$00` terminator = 35 bytes.
 - ROM `0x074DE3-0x074DFC` / `$C7:4DE3-$4DFC`: Action Settings six-span placement list, 26 bytes.
 - ROM `0x2D8000-0x2D83FF` / `$ED:8000-$83FF`: GAME SELECT welcome/help allocation. Current payload is 181 bytes.
-- ROM `0x2D8400-0x2DFFFF` / `$ED:8400-$FFFF`: GAME FILE save-help allocation. Current payload is 110 bytes; remaining space is reserved to this component.
+- ROM `0x2D8400-0x2DFFFF` / `$ED:8400-$FFFF`: GAME FILE save-help allocation. Current payload is 109 bytes; remaining space is reserved to this component.
 - ROM `0x12DFF0-0x12E08B`: 13 shared French glyphs.
 - ROM `0x0016F6`: standalone direct/DTE threshold `$E1`.
 
@@ -42,9 +43,12 @@ by the 108-byte stock block.
 ## GAME FILE relocation hooks
 
 - ROM `0x0753C9` / `$C7:53C9`: dynamic GAME FILE level prefix glyph `$A6` (`L`) -> `$A8` (`N`).
-- ROM `0x0754AA` / `$C7:54AA`: operand of `LDA #$A1` at `$C7:54A9`; stock GAME FILE total-money path hard-codes the first `G` of `GP`. The builder now derives this byte from the first glyph of translation ID `C7:7394` (`PO` -> `P`). Runtime probes proved the split path: changing only the resource to `PO` rendered `GO`, `XO` rendered `GO`, and `XX` rendered `GX`.
+- ROM `0x07549A-0x07549C` / `$C7:549A-$549C`: `LDY #$0008 -> #$0007`, moving the seven amount cells one dynamic column left.
+- ROM `0x0754A6-0x0754A8` / `$C7:54A6-$54A8`: stock `JSR $54B0` redirected to the helper at `$C7:4D32`. The helper calls `$54B0`, writes one fixed-font blank (`$80`) at dynamic column 14, increments `X`, and returns; the stock continuation then writes currency glyph 0 at column 15.
+- ROM `0x0754AA` / `$C7:54AA`: operand of `LDA #$A1` at `$C7:54A9`; stock GAME FILE total-money path hard-codes the first `G` of `GP`. The builder derives this byte from the first glyph of translation ID `C7:7394` (`PO` -> `P`). Runtime probes proved the split path: changing only the resource to `PO` rendered `GO`, `XO` rendered `GO`, and `XX` rendered `GX`.
 - ROM `0x075AF1` / `$C7:5AF1`: second GAME FILE rendering path level prefix glyph `$A6` (`L`) -> `$A8` (`N`).
-- The validated currency layout is contiguous `...PO`. Rejected spacing probes attempted to shift only the number formatter left while preserving the unit anchor; results included a black screen (`JSR` hook misaligned by one byte), then `PPO` / `P O` after corrected hooks. None of those helper/probe writes are part of the promoted source or patch.
+- The money renderer's DMA is fixed at `$0200` bytes = 16 fixed-font characters, so dynamic columns 0..15 are always overwritten. The validated layout is therefore `7 blanks + 7 amount cells + separator + currency[0]`; static column 16 remains `currency[1]` from the JSON-backed template. This yields `1234567 PO` without moving the currency anchor.
+- Historical rejected probes are not present in the source: an off-by-one hook caused a black screen; shortening the dynamic string to 15 cells produced `P O`; leaving a stale cell exposed produced `PPO`. These failures established why the promoted helper must preserve all 16 dynamic cells.
 
 - ROM `0x077585` / `$C7:7585`: FILE/Fichier frame width `$03 -> $04` (6 -> 8 text cells).
 - ROM `0x077810-0x077811` / `$C7:7810-$7811`: resource pointer `$7340 -> $4D40`.

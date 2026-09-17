@@ -65,7 +65,7 @@ DTE_LOADER_FILE = 0x074C40
 DTE_LOADER_LIMIT = 0x074C80  # shared VWF config begins here
 CUSTOM_DTE_CPU = 0xC74D00
 CUSTOM_DTE_FILE = 0x074D00
-CUSTOM_DTE_LIMIT = 0x074D40  # relocated GAME FILE begins here
+CUSTOM_DTE_LIMIT = 0x074D32  # exact 50-byte table; C7:4D32+ is available to french_menus
 STOCK_DTE_CPU = 0xC77299
 
 LINE_CHAR_LIMIT = 38
@@ -345,7 +345,7 @@ def main(source_rom: Path, output_path: Path, patched_rom: Path | None = None) -
     if DTE_LOADER_FILE + len(dte_loader) > DTE_LOADER_LIMIT:
         raise SystemExit("Intro DTE loader exceeds its reserved $C7:4C40-$4C7F window")
     if CUSTOM_DTE_FILE + len(custom_dte) > CUSTOM_DTE_LIMIT:
-        raise SystemExit("Private intro DTE table exceeds its reserved $C7:4D00-$4D3F window")
+        raise SystemExit("Private intro DTE table exceeds its reserved $C7:4D00-$4D31 window")
     if any(value != 0xFF for value in rom[DTE_LOADER_FILE : DTE_LOADER_FILE + len(dte_loader)]):
         raise SystemExit("Expected free space for intro DTE loader is not empty")
     if any(value != 0xFF for value in rom[CUSTOM_DTE_FILE : CUSTOM_DTE_FILE + len(custom_dte)]):

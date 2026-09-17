@@ -13,9 +13,8 @@ nouveau point de départ.
 
 **Priorité immédiate de la prochaine discussion : après lecture complète de
 l'archive, NE RIEN MODIFIER et attendre explicitement le feu vert de l'utilisateur.
-Une fois autorisé, reprendre en premier le problème d'espacement devant `PO` dans
-le total d'argent GAME FILE, en repartant de la baseline validée `...PO` collée.
-Ensuite seulement, reprendre les ressources et menus encore non traduits par petits lots.**
+Une fois autorisé, reprendre la traduction des ressources et menus encore non
+traduits par petits lots cohérents avec validation humaine entre les lots.**
 
 Ne pas relancer un audit global des dialogues sans raison spécifique : leur
 corpus reste gelé et validé.
@@ -100,18 +99,26 @@ conserver (`Étourdi` si ce terme est utilisé ailleurs, `Épée`, etc.).
   Les actions logiques sont utilisées ici plutôt que B/Y, car les contrôles peuvent déjà avoir été reconfigurés.
 - Name Entry : `Choisissez un caractère avec la croix directionnelle.` ; les mentions physiques `B` et `Start` sont volontairement conservées car la création de partie précède le remapping des contrôles.
 - GAME FILE : `Graines Mana` est runtime-validé.
-- GAME FILE argent : le bug `GO` est corrigé. Le renderer stock écrit le premier `G` séparément (`$C7:54A9`, opérande à `$C7:54AA`) et prend l'autre caractère depuis le champ `C7:7394`. Probes déterminants : `PO -> GO`, `XO -> GO`, `XX -> GX`. Le builder dérive maintenant ce premier glyphe depuis le JSON `C7:7394`, donc `PO` s'affiche correctement sans texte français codé en dur.
+- GAME FILE argent : le bug `GO` est corrigé. Le renderer stock écrit le premier `G` séparément (`$C7:54A9`, opérande à `$C7:54AA`) et prend le second glyphe depuis le template `C7:7394`. Probes déterminants : `PO -> GO`, `XO -> GO`, `XX -> GX`. Le builder dérive le premier glyphe depuis le JSON `C7:7394`, donc aucune prose française n'est codée en dur.
 
-### Espacement devant `PO` — **à reprendre, non résolu**
+### Espacement devant `PO` — **runtime-validé et promu**
 
-La baseline validée reste **sans espace**, par exemple `1254536PO`. Plusieurs probes ont été essayés puis rejetés ; **aucun ne doit être repris comme code promu** :
+Le rendu final validé est `1254536 PO`, avec `PO` conservé à son ancre droite stock. L'analyse ASM a établi le mécanisme exact :
 
-1. tentative de décaler uniquement les chiffres d'une cellule vers la gauche avec un helper `DEX / JSR $54B0 / INX / RTS` ; premier hook posé par erreur à `$C7:54A7` au lieu de `$C7:54A6` -> écran noir ;
-2. hook corrigé sur le `JSR $54B0` complet à `$C7:54A6`, helper expérimental en zone libre `$C7:4D34` -> affichage `PPO` ;
-3. neutralisation supposée du `P` forcé -> `P O`, montrant que l'interprétation de l'ordre/superposition des écritures était encore incorrecte ;
-4. essais de neutralisation de la première cellule ressource stock/relocalisée (`$C7:7394`, calculs `$C7:4E03` puis `$C7:4D97`) -> toujours `PPO` ; l'adresse/chemin runtime réel de la copie superposée n'est donc pas encore correctement établi.
+- la ligne Argent du template GAME FILE fait 18 cellules ; `PO` occupe les colonnes 15-16 ;
+- le moteur dynamique prépare `$7E:9C00`, puis le chemin `$C7:5D9A` envoie toujours `$0200` octets de graphismes, soit **16 caractères fixes** de 32 octets chacun ;
+- les colonnes dynamiques `0..15` sont donc toujours réécrites, même si la chaîne temporaire se termine avant ; la colonne 16 reste statique et fournit le second glyphe de la monnaie ;
+- le stock produit `8 espaces + 7 cellules montant + currency[0]` dans ces 16 colonnes ; simplement passer `8 -> 7` raccourcit la chaîne à 15 cellules et le moteur remplit la colonne 15 avec un espace, donnant `P O` ;
+- la solution validée conserve **16 cellules dynamiques** : `7 espaces + 7 cellules montant + 1 espace + currency[0]`, puis la colonne 16 statique fournit `currency[1]`.
 
-Pour la reprise : **repartir de cette archive propre et du rendu `...PO` validé**. Ne pas réutiliser les IPS probes. Tracer précisément les écritures/buffers runtime du GAME FILE autour de `$C7:54A6-$54B0` avant tout nouveau patch. Le but est d'obtenir un espace avant `PO` **sans déplacer l'ancre droite de `PO`**, si cela peut être prouvé sûr. Procéder par micro-étapes runtime.
+Implémentation promue dans `french_menus` :
+
+- `$C7:549A : LDY #$0008 -> #$0007` ;
+- `$C7:54A6 : JSR $54B0 -> JSR $4D32` ;
+- helper 10 octets `$C7:4D32-$4D3B` : `JSR $54B0 / LDA #$80 / STA $9C00,X / INX / RTS` ;
+- le code existant `$C7:54A9` écrit ensuite `currency[0]` en colonne 15, dérivé du premier caractère du JSON `C7:7394` ; `currency[1]` reste le caractère du template en colonne 16.
+
+Les anciens probes écran noir / `PPO` / `P O` sont rejetés et absents du code final. Ils ne doivent pas être réintroduits. Le helper validé n'encode aucun texte français : il ajoute uniquement la cellule d'espacement `$80` et préserve l'architecture hybride stock.
 
 ## Architecture `french_resources` à préserver
 
@@ -247,15 +254,15 @@ Pour une validation de versionnement, faire également un rebuild complet dans u
 
 Rebuild complet depuis la ROM USA propre, après les validations décrites ci-dessus :
 
-- `patches/french_menus.ips` SHA-256 : `401b40cfa4c6fa68a1180d6619a2c73f10b623e8d7ebaae6c6f6de05c54b1293`
+- `patches/french_menus.ips` SHA-256 : `b727192980284214f5f6ecd7fafe40ecb3fdc5942f23b8aa0b01892f660bf03b`
 - `patches/french_name_entry_extended.ips` SHA-256 : `6a488bc7cd6afe1ee98176c5bed3b4670bf12c789b5f58622d6aab23217ea6da`
 - `patches/french_resources.ips` SHA-256 : `c9483c0a42ca85d2f9051f4d7f0355e09ce76279d3311f43bd574864fd492216`
 - `patches/vwf_ui.ips` SHA-256 : `69bfbc246fffddd6a05e6421c51cf824b64269bb159de0acaa5fd297834a7ba9`
 - `patches/vwf_intro.ips` SHA-256 : `a5917976c7bf139e8f0ba69ee46f2ab0e23ab3db91453bf18bae6ba420d4110a`
 - `patches/vwf_dialogues.ips` SHA-256 : `1bff8d5f21ad9f372e2bedc8f1bf0515df51cfa825fc09c5a4ee680693b9258e`
 - `patches/french_dialogues.ips` SHA-256 : `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31`
-- `patches/all.ips` SHA-256 : `69a2b2b7b87855bcc75f80577240172d87506cedc3f86690d6a72fb57b389ab4`
-- ROM finale reconstruite SHA-256 : `5ec6db99cbfbd0ca6e2dab77f493a55bf65279153c0d31ac0ab5510d40cd1aa6`
-- checksum SNES final : `$47F4`.
+- `patches/all.ips` SHA-256 : `302ee39d7a4c8e665c7b61e013dfb0f3f22f3b75cce3500c2e1479cc33001c6a`
+- ROM finale reconstruite SHA-256 : `fdb8afd0f743563ee1a18118fcace5559cde36096a2767b287a47e67d2b8cef5`
+- checksum SNES final : `$4246`.
 
-Le rebuild complet dans un dossier de patches neuf est byte-identique aux patches livrés dans `patches/`. La ROM de référence n'est pas incluse dans l'archive.
+Le rebuild complet dans un dossier de patches neuf est byte-identique aux patches livrés dans `patches/`. Le `patches/all.ips` promu est également byte-identique au probe v3 de l'espacement GAME FILE validé en runtime par l'utilisateur. La ROM de référence n'est pas incluse dans l'archive.
