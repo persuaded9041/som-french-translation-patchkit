@@ -24,8 +24,8 @@ UI_RENDER_CPU = 0xED7B00
 DIALOGUE_RENDER_CPU = 0xED7040
 # vwf_ui-owned helper inside its $ED:7B00-$7CFF reservation. The shared
 # char-start runtime reaches it only behind exact UI-active + bank-$00 gates.
-SHOP_SUFFIX_GAP_HELPER_CPU = 0xED7C40
-SHOP_SUFFIX_GAP_HELPER_FILE = 0x2D7C40
+SHOP_SUFFIX_GAP_HELPER_CPU = 0xED7CC0
+SHOP_SUFFIX_GAP_HELPER_FILE = 0x2D7CC0
 
 # Shared C7 config gap immediately after existing intro/dialogue/name-DTE bytes.
 UI_CONFIG_CPU = 0xC74C87
@@ -39,6 +39,7 @@ RING_UI_MAGIC = 0xA8
 SHOP_UI_MAGIC = 0xA9
 SHOP_ROW_UI_MAGIC = 0xAA
 MONEY_UI_MAGIC = 0xAB
+BATTLE_UI_MAGIC = 0xAC
 # Backward-compatible alias for code that still refers to the validated Forge tag.
 UI_MAGIC = FORGE_UI_MAGIC
 
@@ -63,6 +64,8 @@ def _assemble_dispatcher() -> bytes:
     a.rel8(0xF0, "ui")
     a.emit(0xC9, SHOP_ROW_UI_MAGIC)
     a.rel8(0xF0, "ui")
+    a.emit(0xC9, BATTLE_UI_MAGIC)
+    a.rel8(0xF0, "ui")
 
     # The stock MONEY_PRINT path builds a transient event string in
     # $7E:A1E0 and renders it as window type 2.  Unlike the explicit one-shot
@@ -70,9 +73,8 @@ def _assemble_dispatcher() -> bytes:
     # must also prove the exact event-engine caller before synthesizing $AB.
     # Without this gate a non-event type-2 invocation reusing the same transient
     # WRAM span can be captured, rejected by the UI renderer's continuity gate,
-    # then immediately re-captured by this dispatcher forever.  This is the
-    # narrow candidate fix for the observed standalone-only Sell-menu crash;
-    # runtime confirmation is still required.
+    # then immediately re-captured by this dispatcher forever.  This exact
+    # caller gate is runtime-validated as part of the standalone Sell-menu fix.
     #
     # $C0:1150 JSR $1664 leaves return address $1152 at 1,S; no renderer-local
     # push has happened yet at $C0:167D.  The accepted MONEY path already proves

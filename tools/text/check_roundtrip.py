@@ -18,6 +18,7 @@ from shared.dialogue.codec import (  # noqa: E402
     verify_unedited_reinsertion as verify_dialogue_noop,
 )
 from shared.text.battle import load_document as load_battle, verify_against_rom as verify_battle  # noqa: E402
+from shared.text.battle_translation import build_translation_plan as build_battle_translation_plan  # noqa: E402
 from shared.text.interface import load_document as load_interface, verify_against_rom as verify_interface  # noqa: E402
 from shared.text.intro_event import load_document as load_intro, make_document as extract_intro  # noqa: E402
 from shared.text.menu import load_document as load_menu, verify_against_rom as verify_menu  # noqa: E402
@@ -91,6 +92,16 @@ def main() -> None:
     print(
         f"Battle-text extraction OK: {record_count} record(s), "
         f"{table_bytes} pointer-table bytes, {blob_bytes} string-pool bytes"
+    )
+    battle_plan = build_battle_translation_plan(battle)
+    stats = battle_plan["stats"]
+    print(
+        "Battle-text translation plan OK: "
+        f"{stats['mapped_android']} Android mapped + "
+        f"{stats['reviewed_overrides']} reviewed override, "
+        f"{stats['pending_manual']} pending manual, "
+        f"{stats['pending_layout']} pending layout, "
+        f"{stats['stock_control']} stock control/empty"
     )
 
     shop = load_or_extract_shop(rom, args.shop.resolve())

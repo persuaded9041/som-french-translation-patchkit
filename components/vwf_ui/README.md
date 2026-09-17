@@ -119,6 +119,29 @@ opens one cell farther left than stock, so the independent type-2 close X seed a
 new left frame column remained on screen after closing. The 11-cell width,
 3-pixel separator, and `$09` close seed are all runtime-validated.
 
+## Runtime-validated battle/status banner backend
+
+The stock battle/status banner is submitted only through two tiny helpers at
+`$C0:5BEA` and `$C0:5BF8`, which launch event scripts `$C0:637D={50}` and
+`$C0:637F={51}`. `vwf_ui` patches only those two exact submits and arms the new
+one-shot tag `$7E:93C1=$AC`; it does not enable a generic battle or bank-C0 VWF path.
+
+Unlike the other UI families, translated battle strings can exceed the 33-byte
+stock parser buffer. The shared parser therefore has a battle-only mode 3 that
+uses `$7E:9390-$93C0` (49 bytes: 48 visible decoded bytes plus the following
+control). Ring/Forge/D9/merchandise/MONEY retain their previous parser behavior.
+At render time selector 5 preserves that already-decoded private buffer and uses
+its true decoded count. `french_resources` owns all battle text and relocation;
+`vwf_ui` contains no localized prose.
+
+The actual message is copied by the battle engine to `$7E:FF69`, so parser mode
+3 runs with `$1D03=$7E`. The original candidate renderer incorrectly required
+`$1D03=$C0`; it therefore rejected the private parse and fell back to stock
+`$A1A4`, producing name-only remnants such as `IDGET` and `LINA`. The validated
+fix changes only the battle selector continuity check to `$1D03=$7E`
+(`$ED:7B83`, immediate byte `$C0 -> $7E`). Both standalone `vwf_ui` and the
+combined `french_resources + vwf_ui` path are runtime-validated.
+
 ## Standalone dependency fix
 
 The Sell-menu reset was traced to a real shared-runtime dependency. The shared
@@ -137,8 +160,8 @@ standalone without duplicating or depending on dialogue continuation code.
 ## State and fallbacks
 
 The shared dispatcher at `$C0:167D` recognizes the explicit UI families Forge
-`$A7`, Ring `$A8`, D9 Shop response `$A9`, shop merchandise `$AA`, and the
-structurally identified type-2 money window `$AB` when the ROM config marker
+`$A7`, Ring `$A8`, D9 Shop response `$A9`, shop merchandise `$AA`, the
+structurally identified type-2 money window `$AB`, and exact battle banner `$AC` when the ROM config marker
 `$C7:4C87=$09` is installed. The renderer consumes the tag immediately. All
 unowned calls replay stock behavior and clear the shared low-level VWF-active
 state so unrelated UI callers cannot inherit it.

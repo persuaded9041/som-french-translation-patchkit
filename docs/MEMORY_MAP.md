@@ -15,6 +15,7 @@ for the owning component even when the current generated payload is shorter.
 | GAME FILE | `0x074D40-0x074DBE` | `$C7:4D40-$4DBE` | relocated save/load-menu resource for expanded `Fichier` label |
 | GAME SELECT | `0x2D8000-0x2D83FF` | `$ED:8000-$83FF` | relocated GAME SELECT welcome/help text |
 | GAME FILE | `0x2D8400-0x2DFFFF` | `$ED:8400-$FFFF` | relocated GAME FILE save-help text / reserved component text space |
+| French battle/status text | `0x2E6000-0x2E6FFF` | `$EE:6000-$6FFF` | reserved relocated battle/status text pool owned by `french_resources`; current payload 1573 bytes including four runtime template prefixes |
 | French opening helper | `0x2E9000-0x2E9FFF` | `$EE:9000-$9FFF` | reserved helper region; current 37-byte renderer helper is `$EE:9000-$9024` |
 | French opening arrangement | `0x2EA000-0x2EBFFF` | `$EE:A000-$BFFF` | literal-only stock-format stream, loaded through `$C1:0014` |
 | French shop/forge text | `0x19FE20-0x19FEF3` | `$D9:FE20-$FEF3` | rebuilt nine-record mini-event pool inside the original 212-byte allocation; current French payload uses 179 bytes and rewrites the nine stock bank-C0 `LDX` operands |
@@ -22,6 +23,7 @@ for the owning component even when the current generated payload is shorter.
 | Mana Tree | `0x2FF800-0x2FF89F` | `$EF:F800-$F89F` | 160-byte resource-loader helper; `$D2A9` only, otherwise stock fall-through |
 | intro VWF | `0x074285-0x07437C` | `$C7:4285-$437C` | intro VWF renderer using the runtime-validated shared compositor |
 | shared VWF parser | `0x0743D0-0x0743E7` | `$C7:43D0-$43E7` | byte-identical private/stock parser-write helper installed by `vwf_intro` / `vwf_dialogues` |
+| shared VWF parser classifier | `0x074900-0x07493F` | `$C7:4900-$493F` | shared 64-byte reserve for dialogue/battle private-parser mode classification; battle mode is dormant without exact UI tag `$AC` |
 | intro VWF | `0x074440-0x0744BF` | `$C7:4440-$44BF` | 128-byte width table |
 | shared VWF framing | `0x0744C0-0x074557` | `$C7:44C0-$4557` | 152-byte runtime framing selector bundle shared by `vwf_intro` / `vwf_dialogues` |
 | shared VWF row renderer | `0x074560-0x07456C` | `$C7:4560-$456C` | 13-byte stock-font row load + framing + compositor helper installed byte-identically by `vwf_intro` / `vwf_dialogues` |
@@ -41,6 +43,7 @@ for the owning component even when the current generated payload is shorter.
 | French intro + intro VWF | `0x0AFF70-0x0AFFB7` | `$CA:FF70-$FFB7` | byte-identical relocation of unchanged stock events `$0401-$040F` |
 | intro VWF | WRAM | `$7E:9380-$9389` | intro-only VWF scratch state |
 | shared VWF parser | WRAM | `$7E:9390-$93BB` | 44-byte decoded-text private buffer shared by intro/dialogue modes |
+| battle banner parser | WRAM | `$7E:9390-$93C0` | exact `$AC` battle mode extends the same private buffer by five mutually-exclusive scratch bytes, for 49 parser bytes total; `$93C1` remains UI tag |
 | intro skip | `0x00012C-0x00012F` | `$C0:012C-$012F` | runtime-validated active-text observer hook to `$ED:7488` |
 | intro skip | `0x0016EA-0x0016ED` | `$C0:16EA-$16ED` | runtime-validated live-parser commit hook to `$CA:FFC8` |
 | intro skip | `0x02C786-0x02C789` | `$C2:C786-$C789` | runtime-validated normal-loop hold/WAIT hook to `$ED:7400` |
@@ -62,6 +65,8 @@ for the owning component even when the current generated payload is shorter.
 | UI VWF renderer | `0x2D7B00-0x2D7CFF` | `$ED:7B00-$7CFF` | `vwf_ui` standalone non-dialogue UI renderer reserve (Forge backend first) |
 | UI VWF metrics | `0x2D7D00-0x2D7D7F` | `$ED:7D00-$7D7F` | `vwf_ui` validated 128-entry advance table |
 | UI VWF Forge wrapper | `0x2D7E00-0x2D7E7F` | `$ED:7E00-$7E7F` | exact Forge-row submit wrapper (`$00:19D0`) |
+| UI VWF shop wrapper | `0x2D7E80-0x2D7EFF` | `$ED:7E80-$7EFF` | exact D9 shop/forge response submit wrapper |
+| UI VWF battle wrappers | `0x2D7F00-0x2D7F3F` | `$ED:7F00-$7F3F` | two exact `$C0:637D/$637F` battle-banner submit wrappers; runtime-validated `$AC` path |
 
 
 `french_dialogues` keeps in-place reinsertion for rebuilt events that still fit
@@ -112,11 +117,12 @@ intentionally avoids duplicating renderer status and calibration details.
 `vwf_ui` reuses shared framing/compositor/stock-row helpers but owns its own
 renderer. `$7E:93C1` is its only UI-private family tag: `$A7` identifies the Forge
 row, `$A8` the top-level Ring Menu title row, `$A9` the exact D9 shop/forge
-response family, `$AA` the buy/sell merchandise row, and `$AB` the exact
-type-2 money window. The backend has
-no additional `$93C3-$93C9` scratch. It reuses shared runtime scratch
-`$7E:9382/$9385/$938E-$938F` and may reuse `$7E:9390-$93BB` only after stock parsing
-has completed, so it does not enable the private parser mode used by `vwf_intro` / `vwf_dialogues`.
+response family, `$AA` the buy/sell merchandise row, `$AB` the exact type-2
+money window, and `$AC` the exact battle/status banner. The backend has no
+additional `$93C3-$93C9` scratch. It reuses shared runtime scratch
+`$7E:9382/$9385/$938E-$938F`. Ordinary UI families reuse `$7E:9390-$93BB` only
+after stock parsing; battle `$AC` is the narrow exception and selects parser
+mode 3, decoding directly into `$7E:9390-$93C0`.
 Forge keeps its validated +3 logical margin and suffix compaction. Ring Menu mode 0
 gets an exact +4 margin (33 stock units total) and renders the decoded title unchanged.
 Fresh Ring `$A8`, Forge `$A7`, Shop `$A9` and merchandise `$AA` one-line rows start at
@@ -124,7 +130,10 @@ Fresh Ring `$A8`, Forge `$A7`, Shop `$A9` and merchandise `$AA` one-line rows st
 The Shop `$A9` path is armed only at `$C0:7EA6/$7FB9` for pointers inside
 `$D9:FE20-$FEF3`; it keeps the stock parser/capacity and applies VWF only after
 parsing. Ring modes 1/2 arm dedicated merchandise tag `$AA`; that backend is
-runtime-validated. Currency content is not rewritten by `vwf_ui`: standalone
+runtime-validated. Battle `$AC` is armed only by `$C0:5BEA/$5BF8`; the actual
+message is copied to `$7E:FF69`, so parser mode 3 and renderer selector 5 both
+operate with `$1D03=$7E`. The validated renderer fix is the one-byte continuity
+check `$ED:7B83: C0 -> 7E`. Currency content is not rewritten by `vwf_ui`: standalone
 renders the source `GP`, while `french_resources` supplies `PO`. `vwf_ui` owns
 presentation only: merchandise price resync 168 -> 164 px plus a 4-px separator
 before the final two unit glyphs; type-2 MONEY `$AB` gets a 3-px separator,

@@ -37,6 +37,7 @@ from shared.vwf.ui import (  # noqa: E402
     SHOP_UI_MAGIC,
     SHOP_ROW_UI_MAGIC,
     MONEY_UI_MAGIC,
+    BATTLE_UI_MAGIC,
     SHOP_SUFFIX_GAP_HELPER_CPU,
     SHOP_SUFFIX_GAP_HELPER_FILE,
     DISPATCH_CPU,
@@ -71,6 +72,16 @@ SHOP_DISPATCH_WRAPPER_FILE = 0x2D7E80
 SHOP_DISPATCH_WRAPPER_RESERVED_SIZE = 0x80
 SHOP_POOL_START = 0xFE20
 SHOP_POOL_END = 0xFEF4
+
+BATTLE_SUBMIT_50_FILE = 0x005BEA
+BATTLE_SUBMIT_51_FILE = 0x005BF8
+BATTLE_SUBMIT_50_SIGNATURE = bytes.fromhex("A0 7D 63 8C 01 1D A9 C0 8D 03 1D 64 A3 60")
+BATTLE_SUBMIT_51_SIGNATURE = bytes.fromhex("A0 7F 63 8C 01 1D A9 C0 8D 03 1D 64 9F 60")
+BATTLE_SUBMIT_50_WRAPPER_CPU = 0xED7F00
+BATTLE_SUBMIT_50_WRAPPER_FILE = 0x2D7F00
+BATTLE_SUBMIT_51_WRAPPER_CPU = 0xED7F20
+BATTLE_SUBMIT_51_WRAPPER_FILE = 0x2D7F20
+BATTLE_SUBMIT_WRAPPER_RESERVED_SIZE = 0x20
 
 # C7:7147 is the stock per-window-type geometry table consumed by C0:0D8B.
 # Each type owns a two-byte (height, width) pair.  Type 2 (MONEY) is stock
@@ -215,6 +226,24 @@ def make_shop_dispatch_wrapper() -> bytes:
     return a.resolve()
 
 
+def make_battle_submit_wrapper(origin: int, event_pointer: int, clear_addr: int) -> bytes:
+    """Arm battle-banner VWF, then replay one exact stock C0 event submit.
+
+    The two stock helpers differ only by event script ($637D/$637F) and the
+    transient status byte they clear.  Keeping two tiny wrappers avoids any
+    broad classifier or caller inference.
+    """
+    a = MiniAssembler(origin)
+    a.emit(0xA9, BATTLE_UI_MAGIC)
+    a.emit(0x8F, *lo24(0x7E0000 | UI_TAG))
+    a.emit(0xA0, event_pointer & 0xFF, (event_pointer >> 8) & 0xFF)
+    a.emit(0x8C, 0x01, 0x1D)
+    a.emit(0xA9, 0xC0)
+    a.emit(0x8D, 0x03, 0x1D)
+    a.emit(0x64, clear_addr & 0xFF)
+    a.emit(0x6B)
+    return a.resolve()
+
 def make_shop_suffix_gap_helper() -> bytes:
     """Add a 4-pixel visual separator before the shop row's final 2-glyph unit.
 
@@ -249,8 +278,9 @@ def make_ui_renderer() -> bytes:
     """Render only an explicitly tagged Forge or top-level Ring invocation.
 
     Ring, Forge, shop merchandise rows, the exact D9 shop/forge-response
-    backend and the stock type-2 money window all keep the stock parser/decoded
-    buffer. Currency text is never translated here: standalone `vwf_ui` renders
+    backend and the stock type-2 money window keep the stock parser/decoded
+    buffer. The exact battle/status banner submits use parser mode 3 and retain
+    their already-decoded 49-byte private buffer. Currency text is never translated here: standalone `vwf_ui` renders
     whatever two-glyph currency unit the source component provides (`GP` on a
     clean USA ROM, `PO` when `french_resources` is present). Presentation-only gaps
     are handled by the shared VWF geometry helpers. Forge keeps its separately
@@ -269,7 +299,7 @@ def make_ui_renderer() -> bytes:
 
     # Capture the family before consuming it. X is an ephemeral backend
     # selector: 0=Ring, 1=Forge, 2=D9 shop/forge response,
-    # 3=shop merchandise row, 4=type-2 money window.
+    # 3=shop merchandise row, 4=type-2 money window, 5=battle/status banner.
     a.emit(0xAF, *lo24(0x7E0000 | UI_TAG))
     a.emit(0xC9, FORGE_UI_MAGIC)
     a.rel8(0xF0, "kind_forge")
@@ -281,6 +311,8 @@ def make_ui_renderer() -> bytes:
     a.rel8(0xF0, "kind_shop")
     a.emit(0xC9, MONEY_UI_MAGIC)
     a.rel8(0xF0, "kind_money")
+    a.emit(0xC9, BATTLE_UI_MAGIC)
+    a.rel8(0xF0, "kind_battle")
     a.rel8(0x80, "reject")
 
     a.label("kind_ring")
@@ -302,12 +334,18 @@ def make_ui_renderer() -> bytes:
     a.label("kind_money")
     a.emit(0xC2, 0x10)
     a.emit(0xA2, 0x04, 0x00)
+    a.rel8(0x80, "kind_bank")
+    a.label("kind_battle")
+    a.emit(0xC2, 0x10)
+    a.emit(0xA2, 0x05, 0x00)
 
     a.label("kind_bank")
     a.emit(0xE0, 0x02, 0x00)
     a.rel8(0xF0, "bank_shop")
     a.emit(0xE0, 0x04, 0x00)
     a.rel8(0xF0, "bank_money")
+    a.emit(0xE0, 0x05, 0x00)
+    a.rel8(0xF0, "bank_battle")
     a.emit(0xAF, *lo24(0x001D03))
     a.emit(0xC9, 0x00)
     a.rel8(0xD0, "reject")
@@ -318,6 +356,14 @@ def make_ui_renderer() -> bytes:
     a.rel8(0xD0, "reject")
     a.rel8(0x80, "accepted")
     a.label("bank_money")
+    a.emit(0xAF, *lo24(0x001D03))
+    a.emit(0xC9, 0x7E)
+    a.rel8(0xD0, "reject")
+    a.rel8(0x80, "accepted")
+    a.label("bank_battle")
+    # The $C0:637D/$637F helpers only open/close the banner.  The actual
+    # battle/status message is copied to $7E:FF69 and parsed/rendered from
+    # WRAM, so continuity must require the live source bank $7E here.
     a.emit(0xAF, *lo24(0x001D03))
     a.emit(0xC9, 0x7E)
     a.rel8(0xD0, "reject")
@@ -344,9 +390,14 @@ def make_ui_renderer() -> bytes:
     a.emit(0x8F, *lo24(0x7E0000 | PHYSICAL_CELLS))
     a.emit(0x8F, *lo24(0x7E0000 | PIXEL_CURSOR))
 
-    # Render-time private copy only. Parser stays on the stock $A1A4 buffer for
-    # all three UI families. Keep the selector across the copy loops so only
-    # Forge runs through suffix compaction afterwards.
+    # Ring/Forge/shop/MONEY are decoded by the stock parser and need the usual
+    # render-time copy. Battle selector 5 was already decoded directly into the
+    # extended private buffer by shared parser mode 3, so preserve it verbatim.
+    a.emit(0xFA)                                      # PLX selector
+    a.emit(0xE0, 0x05, 0x00)                         # CPX #5: battle banner
+    a.rel8(0xF0, "private_ready")
+    a.emit(0xDA)                                      # keep selector across copy loops
+
     a.emit(0xC2, 0x10)
     a.emit(0xA2, 0x00, 0x00)
     a.emit(0xA9, 0x80)
@@ -363,11 +414,11 @@ def make_ui_renderer() -> bytes:
     a.emit(0xE8)
     a.emit(0xE0, 0x20, 0x00)
     a.rel8(0xD0, "copy_stock")
-
-    # Select post-parse presentation only. The stock parser/source remains
-    # untouched for every family. Currency bytes are deliberately never
-    # inspected or rewritten here; `french_resources` owns `GP` -> `PO`.
     a.emit(0xFA)                                      # PLX selector
+
+    a.label("private_ready")
+    # Select post-parse presentation only. Currency bytes are deliberately never
+    # inspected or rewritten here; french_resources owns source content.
 
     # The one-line UI banner shares the same left-edge outline geometry as
     # ordinary dialogue.  Start Ring / Forge / D9 shop-response / merchandise
@@ -434,7 +485,10 @@ def make_ui_renderer() -> bytes:
     # stock parser actually decoded.  Keep the validated 38-slot behavior for
     # Ring / Forge / D9 / MONEY.
     a.emit(0xE0, 0x03, 0x00)                         # CPX #3: merchandise selector
+    a.rel8(0xF0, "render_true_count")
+    a.emit(0xE0, 0x05, 0x00)                         # CPX #5: battle banner
     a.rel8(0xD0, "render_full_private")
+    a.label("render_true_count")
     a.emit(0xAD, SAVED_COUNT & 0xFF, (SAVED_COUNT >> 8) & 0xFF)
     a.emit(0x8D, 0x76, 0xA1)                         # render true decoded count only
     a.rel8(0x80, "render_count_ready")
@@ -484,11 +538,17 @@ def build(base: bytes) -> bytes:
     for site in SHOP_DISPATCH_SITES:
         if base[site:site + len(SHOP_DISPATCH_SIGNATURE)] != SHOP_DISPATCH_SIGNATURE:
             raise SystemExit(f"Unexpected clean-US shop/forge D9 dispatch at C0:${site:04X}")
+    if base[BATTLE_SUBMIT_50_FILE:BATTLE_SUBMIT_50_FILE + len(BATTLE_SUBMIT_50_SIGNATURE)] != BATTLE_SUBMIT_50_SIGNATURE:
+        raise SystemExit("Unexpected clean-US battle banner $50 submit helper")
+    if base[BATTLE_SUBMIT_51_FILE:BATTLE_SUBMIT_51_FILE + len(BATTLE_SUBMIT_51_SIGNATURE)] != BATTLE_SUBMIT_51_SIGNATURE:
+        raise SystemExit("Unexpected clean-US battle banner $51 submit helper")
 
     width_table = make_width_table(base)
     submit_wrapper = make_submit_wrapper()
     shop_dispatch_wrapper = make_shop_dispatch_wrapper()
     shop_suffix_gap_helper = make_shop_suffix_gap_helper()
+    battle_submit_50 = make_battle_submit_wrapper(BATTLE_SUBMIT_50_WRAPPER_CPU, 0x637D, 0xA3)
+    battle_submit_51 = make_battle_submit_wrapper(BATTLE_SUBMIT_51_WRAPPER_CPU, 0x637F, 0x9F)
     renderer = make_ui_renderer()
     if len(submit_wrapper) > SUBMIT_WRAPPER_RESERVED_SIZE:
         raise SystemExit("UI VWF submit wrapper too large")
@@ -496,6 +556,8 @@ def build(base: bytes) -> bytes:
         raise SystemExit(f"UI VWF renderer too large: {len(renderer):#x}")
     if len(shop_dispatch_wrapper) > SHOP_DISPATCH_WRAPPER_RESERVED_SIZE:
         raise SystemExit("UI VWF shop dispatch wrapper too large")
+    if len(battle_submit_50) > BATTLE_SUBMIT_WRAPPER_RESERVED_SIZE or len(battle_submit_51) > BATTLE_SUBMIT_WRAPPER_RESERVED_SIZE:
+        raise SystemExit("UI VWF battle submit wrapper too large")
     if UI_RENDER_FILE + len(renderer) > SHOP_SUFFIX_GAP_HELPER_FILE:
         raise SystemExit("UI VWF renderer overlaps shop suffix-gap helper")
     if SHOP_SUFFIX_GAP_HELPER_FILE + len(shop_suffix_gap_helper) > WIDTH_TABLE_FILE:
@@ -536,6 +598,16 @@ def build(base: bytes) -> bytes:
         rom[site:site + len(SHOP_DISPATCH_SIGNATURE)] = shop_hook
     rom[SHOP_DISPATCH_WRAPPER_FILE:SHOP_DISPATCH_WRAPPER_FILE + len(shop_dispatch_wrapper)] = shop_dispatch_wrapper
 
+    for site, signature, wrapper_cpu in (
+        (BATTLE_SUBMIT_50_FILE, BATTLE_SUBMIT_50_SIGNATURE, BATTLE_SUBMIT_50_WRAPPER_CPU),
+        (BATTLE_SUBMIT_51_FILE, BATTLE_SUBMIT_51_SIGNATURE, BATTLE_SUBMIT_51_WRAPPER_CPU),
+    ):
+        hook = bytes([0x22, *lo24(wrapper_cpu), 0x60])
+        hook += bytes([0xEA]) * (len(signature) - len(hook))
+        rom[site:site + len(signature)] = hook
+    rom[BATTLE_SUBMIT_50_WRAPPER_FILE:BATTLE_SUBMIT_50_WRAPPER_FILE + len(battle_submit_50)] = battle_submit_50
+    rom[BATTLE_SUBMIT_51_WRAPPER_FILE:BATTLE_SUBMIT_51_WRAPPER_FILE + len(battle_submit_51)] = battle_submit_51
+
     rom[ROM_SIZE_OFFSET] = 0x0C
     update_checksum(rom)
     return make_ips(base, bytes(rom))
@@ -551,7 +623,7 @@ def main() -> None:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(patch)
     print(f"IPS: {args.output}")
-    print("Standalone UI VWF; currency bytes stay source-owned (GP standalone / PO with french_resources); no translation dependency")
+    print("Standalone UI VWF; includes exact C0:637D/637F battle-banner backend; all localized content remains source-owned")
 
 
 if __name__ == "__main__":

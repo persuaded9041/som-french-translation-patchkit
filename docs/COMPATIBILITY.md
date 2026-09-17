@@ -287,7 +287,7 @@ keeps non-event users of the same `$A1E0-$A1EB` WRAM span out of the UI backend
 and prevents recursive reclassification after a renderer rejection.
 
 The shared text-buffer capacity helper is likewise installed byte-identically by
-`vwf_intro` / `vwf_dialogues` / `vwf_ui`. `vwf_ui` does **not** enter private parser mode.
+`vwf_intro` / `vwf_dialogues` / `vwf_ui`. Existing Ring/Forge/D9/merchandise/MONEY UI paths do not enter private parser mode. The exact battle-banner `$AC` path is the sole UI exception: parser mode 3 uses a 49-byte private span for those two proven submits only.
 At the exact shared `$00:19D0` submit, mode `$1847==3` arms the Forge one-shot tag
 (+3 logical units), mode `$1847==0` arms the distinct top-level Ring Menu tag
 (+4 logical units = the full 33-byte stock buffer, allowing 32 visible characters
@@ -295,6 +295,11 @@ plus the following control), and modes `$1847==1/2` arm the merchandise-row tag
 `$AA` while retaining stock parser capacity. Unexpected values arm no UI tag.
 Separately, the exact D9 shop submit sites `$C0:7EA6/$7FB9` arm Shop tag `$A9`
 only for pointers inside `$D9:FE20-$FEF3`; that path keeps stock parser capacity.
+The exact battle helpers `$C0:5BEA/$5BF8` arm `$AC` only for event scripts
+`$C0:637D/$637F`. The battle engine then copies the actual message to `$7E:FF69`;
+battle-only parser mode 3 decodes from bank `$7E` into `$9390-$93C0`, and the
+renderer continuity gate also requires `$1D03=$7E`. The corrected `$AC` backend
+is runtime-validated standalone and with `french_resources`.
 
 The accepted Forge backend still patches only the proven suffix geometry and compacts
 slots 20..31 at render time. The Ring backend renders its decoded title row unchanged;
@@ -318,8 +323,8 @@ do not change one without re-checking the other.
 
 ## french_resources — French resources + D9 shop/forge responses
 
-`french_resources` owns the rebuilt `$CA` pointer table/blob for the reviewed name families and nine top-level Ring Menu titles `$0C6-$0CE`, the two fixed shop currency literals `$C7:7B6A` / `$D0:D894`, and the nine existing `$D9:FE20-$FEF3` shop/forge mini-event records plus their nine bank-C0 `LDX` pointer operands. No separate `french_shop_text` component is generated.
+`french_resources` owns the rebuilt `$CA` pointer table/blob for the reviewed name families, nine top-level Ring Menu titles `$0C6-$0CE` and the two reviewed system messages `$1FF-$200`; the two fixed shop currency literals `$C7:7B6A` / `$D0:D894`; the nine `$D9:FE20-$FEF3` shop/forge mini-event records; and the localized content of the `$C0` battle/status pool. No separate `french_shop_text` component is generated.
 
-The former two standalone write maps were merged without changing runtime bytes. The component installs one shared `dialogue_french` glyph span and context-sensitive DTE router, which serves both `$CA` resources and D9 scripts. `vwf_dialogues` still rejects bank D9 at renderer entry. Without `vwf_ui`, D9 responses use the stock fixed-width renderer; with `vwf_ui`, exact Shop tag `$A9` renders the already-decoded stock row proportionally. Parser capacity remains stock, so the D9 family still enforces 28 visible characters.
+The component installs the shared `dialogue_french` glyph span and context-sensitive DTE router. D9 responses retain their validated stock parser/capacity. Battle/status text is rebuilt from reviewed Android provenance and relocated to `$EE:6000+`; `$C0:62E2` now uses the reviewed JP-derived `Rétablissement échoué !`; the 8 formerly unresolved records are now reviewed JP-derived French surcharges. `$C0:62F3` now uses the reviewed compact suffix ` s'est rétabli !` after the stock dynamic subject. The stock `$C0:637D/$637F` display scripts remain in place.
 
-The rebuilt `$CA` blob remains 7,103 / 7,315 bytes. The rebuilt D9 pool remains 179 / 212 bytes. Neither family relocates or allocates new WRAM. The `GP -> PO` payload remains sourced only from `translations/french_resources_reviewed_literals.json`; `vwf_ui` owns geometry only.
+The rebuilt `$CA` blob remains 7,103 / 7,315 bytes and now contains 360 translated resources. The rebuilt D9 pool remains 179 / 212 bytes. The current relocated battle pool is 1,573 bytes. `GP -> PO` remains sourced only from `translations/french_resources_reviewed_literals.json`; `vwf_ui` owns presentation only. The exact battle-banner `$AC` rendering path is runtime-validated, including the WRAM source-bank continuity fix `$ED:7B83: C0 -> 7E`.

@@ -20,7 +20,8 @@ The active recipe surface is intentionally small. Dialogue recipes are grouped b
 - `dialogues_redistribution.json` — prose-free whole-scene Android-FR resegmentation;
 - `dialogues_formatting.json` — intermediate formatting recipes, with sections `mapping_layout`, `layout_search`, `choice_layout`, and `coverage_repair`;
 - `dialogues_review.json` — late validated replay, with sections `final_layout`, `final_structure`, `post_structure_layout`, and `review_delta`;
-- `text_resources_layout.json` — prose-free non-dialogue text-resource layout recipes.
+- `text_resources_layout.json` — prose-free non-dialogue text-resource layout recipes;
+- `battle_text_mapping.json` — reviewed battle/status SNES↔Android identity plus runtime composition strategy; French payload remains in Android binaries or explicit reviewed surcharges.
 
 The consolidated files preserve the former section schemas and application order. They contain no localized prose; Android-FR words are still read from `sources/android/scrtxt_fr.bin` during generation. Historical per-stage recipe files belong in Git history, not the working tree.
 

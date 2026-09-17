@@ -56,6 +56,20 @@
       "resource_id": "0CE",
       "category": "menu_label",
       "text": "Tous"
+    },
+    {
+      "id": "CA:B53E",
+      "resource_id": "1FF",
+      "category": "system_message",
+      "text": "Corde magique (inutilisable ici)",
+      "note": "Android 101264 binds the localized item name to the reviewed '$0s (inutilisable ici)' system template."
+    },
+    {
+      "id": "CA:B55A",
+      "resource_id": "200",
+      "category": "system_message",
+      "text": "Tambour du vent (inutilisable ici)",
+      "note": "Android 101263 binds the localized Flammie item name to the reviewed '$0s (inutilisable ici)' system template."
     }
   ]
 }

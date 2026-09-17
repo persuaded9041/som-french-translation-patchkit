@@ -8,18 +8,21 @@
 | Range | Purpose |
 |---|---|
 | `$C7:4C87` | UI-VWF config marker `$09` |
-| `$ED:7A00-$7A6E` | shared UI/dialogue renderer dispatcher; recognizes Forge `$A7`, Ring `$A8`, D9 Shop `$A9`, merchandise `$AA`, and type-2 money `$AB`; MONEY additionally requires exact event-engine caller return `$1152`; installed byte-identically by `vwf_dialogues` / `vwf_ui` |
+| `$ED:7A00-$7A6E` | shared UI/dialogue renderer dispatcher; recognizes Forge `$A7`, Ring `$A8`, D9 Shop `$A9`, merchandise `$AA`, type-2 money `$AB`, and exact battle/status `$AC`; MONEY additionally requires exact event-engine caller return `$1152`; installed byte-identically by `vwf_dialogues` / `vwf_ui` |
 | `$ED:7B00-$7C5E` | current `vwf_ui` renderer; `$7B00-$7CFF` remains reserved for UI renderer growth |
 | `$ED:7D00-$7D7F` | 128-byte validated VWF advance table |
 | `$ED:7E00-$7E52` | exact shared `$00:19D0` Ring/Forge/shop-row submit wrapper; `$7E00-$7E7F` remains reserved |
 | `$ED:7E80-$7EA4` | exact `$D9` shop/forge response submit wrapper; `$7E80-$7EFF` remains reserved |
-| `$7E:93C1` | UI family tag: `$A7` Forge, `$A8` top-level Ring Menu, `$A9` D9 shop/forge response, `$AA` merchandise row, `$AB` exact type-2 money window |
+| `$ED:7F00-$7F3F` | two exact battle/status submit wrappers for `$C0:637D={50}` / `$C0:637F={51}` |
+| `$7E:9390-$93C0` | battle parser mode 3 private decoded buffer, 49 bytes; the five bytes above the ordinary 44-byte span are borrowed only during `$AC` |
+| `$7E:93C1` | UI family tag: `$A7` Forge, `$A8` top-level Ring Menu, `$A9` D9 shop/forge response, `$AA` merchandise row, `$AB` exact type-2 money window, `$AC` exact battle/status banner |
 
 The renderer has **no additional private `$93C3-$93C9` state**. It reuses the
-shared VWF runtime scratch (`$7E:9382`, `$9385`, `$938E-$938F`) and the shared
-private render buffer `$7E:9390-$93BB` only after stock parsing has completed.
-This remains true for the Shop `$A9` path: it does not enable the private parser
-mode used by `vwf_intro` / `vwf_dialogues`.
+shared VWF runtime scratch (`$7E:9382`, `$9385`, `$938E-$938F`). Ring, Forge,
+Shop, merchandise and MONEY reuse `$7E:9390-$93BB` only after stock parsing has
+completed. Battle `$AC` is the narrow exception: shared parser mode 3 decodes
+directly into `$7E:9390-$93C0` before rendering. The five extra bytes are
+mutually exclusive with dialogue-choice scratch and `$93C1` remains the UI tag.
 
 The component also installs the standard byte-identical shared VWF hooks/helpers
 listed in root `docs/MEMORY_MAP.md`, including the renderer-entry dispatcher,
@@ -33,7 +36,7 @@ framing/compositor/row helpers, capacity helper, outline support and the
 | `$1847 == 0` | `$A8` Ring | stock remainder +4, max 33 stock units | copy continuous Ring title unchanged, then VWF |
 | `$1847 == 1/2` | `$AA` merchandise | stock | copy stock row unchanged, then VWF only through the real decoded count (`$938E`); avoids synthetic-tail cursor wrap back onto bitmap cell 0 |
 | `$1847 == 3` | `$A7` Forge | stock remainder +3 | validated suffix compaction, then VWF |
-| `$1847 == 1/2` or other | none | stock | stock fallback |
+| other | none | stock | stock fallback |
 
 The wrapper clears `$93C1` before classification, preventing stale one-shot state.
 The Ring +4 budget exactly fills the stock 33-byte decoded buffer and does not
@@ -47,7 +50,7 @@ extend it.
 | `$D0:D83A` | Forge arrow `TEXT_X`: logical slot 16 -> safe slot 20 |
 | `$D0:D878` | Forge price `TEXT_X`: logical slot 21 -> safe slot 25 |
 
-The arrow/price changes matter only when mode 3 selects the Forge backend. Ring
+The arrow/price changes matter only when `$1847 == 3` selects the Forge backend. Ring
 mode 0 never executes the suffix mover.
 
 ## Shop / Forge response classification
@@ -60,6 +63,21 @@ The renderer then additionally requires `$1D03 == $D9`.
 The Shop backend uses the stock parser capacity unchanged and performs only the
 post-parse stock-buffer -> private-render-buffer copy before VWF rendering. The
 validated text-data contract therefore remains 28 visible characters maximum.
+
+
+## Battle/status classification and WRAM continuity
+
+The exact helpers `$C0:5BEA` / `$C0:5BF8` arm `$AC` while launching the tiny
+`$C0:637D={50}` / `$C0:637F={51}` banner scripts. The prose itself is not read
+from bank `$C0`: the battle engine copies the built message to `$7E:FF69`, sets
+`$1D03=$7E`, then invokes the normal event parser. `$AC` therefore selects parser
+mode 3 and fills `$7E:9390-$93C0` directly.
+
+Renderer selector 5 must preserve that private buffer and require the live source
+bank `$7E`. The former `$C0` comparison at `$ED:7B83` rejected the valid parse
+and fell back to stock `$A1A4`, causing dynamic-subject messages to display only
+the residual name. The production byte is `$7E`; this fix is runtime-validated
+in standalone `vwf_ui` and combined `french_resources + vwf_ui`.
 
 ## Currency / type-2 MONEY presentation
 

@@ -27,6 +27,8 @@ elements**. The ID uniqueness is checked automatically.
 translated payload. `intro_event.json` inventories its eight source text parts without
 changing component ownership.
 
+`battle_text.json` is now a production input to `french_resources`: reviewed text records are relocated to `$EE:6000+`, while the two stock display scripts `$C0:637D/$637F` remain in place and presentation is isolated in `vwf_ui`.
+
 ## Source versus translation
 
 Everything under `assets/` is a deterministic extraction of the clean USA ROM.

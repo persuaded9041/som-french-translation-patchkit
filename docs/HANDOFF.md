@@ -1,12 +1,19 @@
 # HANDOFF — Secret of Mana FR — extension des ressources françaises
 
-Date : 2026-09-16
+Date : 2026-09-17
 
 Cette archive est la **source de vérité** et prévaut sur GitHub. La ROM de référence est **Secret of Mana (USA), non headerée**, taille `0x200000`, SHA-256 `4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f`. Elle ne doit jamais être redistribuée.
 
-## Prochaine tâche
+## État de reprise
 
-La prochaine discussion doit travailler sur **l'ajout de traductions de ressources non-dialogue supplémentaires**. Elle ne doit pas relancer un audit des dialogues ni refactorer les backends VWF validés sans nécessité directe.
+Le backend battle/status `$AC` de `vwf_ui` est désormais **runtime-validé**. Le
+bug de suffixe après nom dynamique est corrigé dans la baseline propre ; il ne
+reste aucune correction battle bloquante à reprendre avant la suite. Cette
+archive est le nouveau point de départ pour les prochains travaux de ressources
+ou d'UI, selon la priorité choisie dans la discussion suivante.
+
+Ne pas relancer un audit global des dialogues sans raison spécifique : leur
+corpus reste gelé et validé.
 
 Avant toute modification, lire intégralement :
 
@@ -28,7 +35,8 @@ Le corpus de dialogues est gelé : **701/701 événements jouables**, **1959 car
 
 - la table de 513 pointeurs `$CA` et son blob de ressources ;
 - les 9 mini-events shop/forge `$D9:FE20-$FEF3` et leurs 9 opérandes `LDX` en banque C0 ;
-- les deux littéraux monnaie `$C7:7B6A` et `$D0:D894`, traduits `GP -> PO` depuis `translations/french_resources_reviewed_literals.json`.
+- les deux littéraux monnaie `$C7:7B6A` et `$D0:D894`, traduits `GP -> PO` depuis `translations/french_resources_reviewed_literals.json`;
+- le contenu battle/status `$C0`, relocalisé en `$EE:6000+`, avec mapping Android dans `recipes/android/battle_text_mapping.json` et surcharges revues dans `translations/battle_text_reviewed_overrides.json`.
 
 Il n'existe plus de composant `french_shop_text` et aucun `french_shop_text.ips` ne doit être généré.
 
@@ -44,15 +52,60 @@ Les textes doivent rester **data-driven** :
 
 ### État actuel des ressources
 
-Le build promu traduit **358 ressources `$CA`**. Le blob fait **7103 / 7315 octets** et reste intégralement dans l'allocation stock `$CA:98E1-$B573`. Trois ressources mappées restent volontairement non insérées avec le profil actuel car `°` entre en conflit avec la frontière DTE des ressources non-event.
+Le build promu traduit **360 ressources `$CA`** (358 précédentes + les deux system messages `$1FF-$200`). Le blob fait **7103 / 7315 octets** et reste intégralement dans l'allocation stock `$CA:98E1-$B573`. Trois ressources mappées restent volontairement non insérées avec le profil actuel car `°` entre en conflit avec la frontière DTE des ressources non-event.
 
 Les catégories actuellement activées dans `components/french_resources/build_patch.py` sont :
 
-`magic_name`, `mana_spirit_name`, `weapon_name`, `helmet_name`, `armor_name`, `accessory_name`, `item_name`, `menu_label`, `enemy_name`, `location_name`.
+`magic_name`, `mana_spirit_name`, `weapon_name`, `helmet_name`, `armor_name`, `accessory_name`, `item_name`, `menu_label`, `enemy_name`, `location_name`, `system_message`.
+
+Les deux `system_message` restent exclus du mapping Android positionnel automatique : leur liaison placeholder est explicitement revue dans `translations/text_resources_reviewed_overrides.json`.
 
 Les deux grandes familles déjà mappées mais **non promues** sont `weapon_description` (**72**) et `magic_description` (**42**). Elles sont des candidates naturelles pour la prochaine passe, mais ne doivent pas être activées en bloc sans revue préalable de leur provenance, encodage, taille et géométrie d'affichage. Les 4 `location_name` non résolus restent non forcés.
 
 Le dernier audit global des 475 ressources Android mappées classe **302** entrées dans l'enveloppe stock, **170** en `geometry_review` et **3** en `encoding_blocked` (le caractère `°`). Pour les candidates suivantes : `weapon_description` = **38 inside / 34 review** ; `magic_description` = **2 inside / 40 review**. Le dry-run des 472 entrées encodables fait 7304 octets, mais ce résultat de taille ne vaut pas validation de rendu : la géométrie reste le critère bloquant principal.
+
+## Nouveau corpus battle/status — état à préserver
+
+`french_resources` possède désormais le contenu du pool `assets/battle_text.json` :
+
+- 109 records physiques source ; 107 records texte relocalisés en `$EE:6000+` ;
+- 92 payloads Android-FR directs/templatisés + 11 adaptations SNES/JP validées ;
+- les 8 anciennes entrées `needs_manual_translation` sont désormais traduites et validées depuis le japonais original ;
+- `$C0:62F3` est maintenant validé en surcharge compacte : le sujet dynamique stock est conservé et le suffixe devient ` s'est rétabli !` ;
+- 6 records vides/contrôle ;
+- pool relocalisé actuel : 1573 octets, réserve `$EE:6000-$6FFF`.
+
+Les huit anciennes traductions manquantes sont désormais validées dans `translations/battle_text_reviewed_overrides.json`, avec leur provenance JP conservée en note.
+
+`vwf_ui` ajoute le backend `$AC` uniquement sur les submits exacts `$C0:5BEA/$5BF8 -> $C0:637D/$637F`. Il utilise le parser privé mode 3 (`$9390-$93C0`, 49 octets), conserve le vrai decoded count et est maintenant runtime-validé.
+
+## Correction battle/status `$AC` — runtime-validée
+
+Le défaut reproduit auparavant sur `IDGET se change en mog !` et `LINA rétrécit !`
+était entièrement dans `vwf_ui`; `french_resources` seul affichait déjà les
+phrases complètes. La comparaison stock/VWF a établi que le suffixe survivait
+bien au `PLAYER_NAME` et atteignait le buffer privé.
+
+Le point exact de divergence était le contrôle de continuité du renderer :
+
+- `$C0:637D/$637F` ne sont que les mini-scripts `{50}/{51}` d'ouverture/fermeture ;
+- le moteur battle copie ensuite le message réel vers `$7E:FF69` et pose `$1D03=$7E` ;
+- parser mode 3 décode correctement le message complet dans `$7E:9390-$93C0` ;
+- le selector battle 5 exigeait à tort `$1D03=$C0`, rejetait ce parse privé et
+  retombait sur le renderer stock `$A1A4`, d'où les sorties résiduelles `IDGET` / `LINA`.
+
+Correctif promu : **`$ED:7B83 : C0 -> 7E`** dans le contrôle de banque du
+selector battle `$AC`. Aucun contenu, pointeur ou code de composition dynamique
+de `french_resources` n'est modifié.
+
+Validation runtime utilisateur :
+
+- patch `vwf_ui` standalone validé ;
+- patch combiné `french_resources + vwf_ui` validé.
+
+Deux probes antérieurs restent explicitement rejetés et ne font pas partie de la
+baseline : conserver `$AC` pendant `$1D00 & $08`, ou le conserver sur plusieurs
+renders successifs.
 
 ## Baseline UI/boutique runtime-validée à préserver
 
@@ -62,7 +115,8 @@ Le dernier audit global des 475 ressources Android mappées classe **302** entr�
 - Ring title `$A8` ;
 - réponses D9 shop/forge `$A9` ;
 - lignes merchandise achat/vente `$AA` ;
-- total MONEY type 2 `$AB`.
+- total MONEY type 2 `$AB`;
+- battle/status banner `$AC` **runtime-validé**.
 
 Corrections promues :
 
@@ -72,6 +126,7 @@ Corrections promues :
 - MONEY : séparateur monnaie **3 px**, largeur `$C7:714C` **9 -> 11 cellules** ;
 - la fermeture MONEY utilise désormais le seed X indépendant `$C7:7140` **`$0A -> $09`**, runtime-validé, afin d'effacer la cellule supplémentaire ouverte à gauche ;
 - `PO` reste la responsabilité exclusive de `french_resources`, jamais de `vwf_ui` ;
+- battle `$AC` : source réelle `$7E:FF69`, continuity gate `$ED:7B83=$7E`, runtime-validé ;
 - GAME SELECT et les fallbacks stock restent validés.
 
 Ne généraliser aucun de ces backends à une nouvelle famille de ressources sans tracer son chemin exact.
@@ -103,13 +158,17 @@ python3 build.py "Secret of Mana (USA).sfc" french-resources --combine
 
 Pour une validation de versionnement, faire également un rebuild complet dans un dossier de patches neuf et comparer les hashes aux patches promus.
 
-## Baseline promue après cleanup
+## Baseline propre après correction battle/status `$AC`
 
-- `patches/french_resources.ips` SHA-256 : `82908a8e0fd594d50fd9bdb5acc43965baf6b2dadc2079f349ba4f3ab3659d2d`
-- `patches/vwf_ui.ips` SHA-256 : `b32ae20b1b3836facafae5f3a32a6a799c12bbcfc7814e5a0b404c491ac0c834`
-- `patches/french_dialogues.ips` SHA-256 : `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31`
-- `patches/all.ips` SHA-256 : `47744d9f094882e8b2a8c3916b9a675ecdd122330839ebbaa90e0279843c3bb4`
-- ROM finale reconstruite SHA-256 : `a9e22f7dedffceb23ebc8d8093f14b57520cd35e3110904169a86a7eca76f9ff`
-- checksum SNES final : `$C107`.
+Rebuild propre complet reproductible :
 
-Le prochain travail doit modifier ces hashes uniquement si de nouvelles ressources sont effectivement promues.
+- `patches/french_resources.ips` SHA-256 : `c9483c0a42ca85d2f9051f4d7f0355e09ce76279d3311f43bd574864fd492216`
+- `patches/vwf_ui.ips` SHA-256 : `69bfbc246fffddd6a05e6421c51cf824b64269bb159de0acaa5fd297834a7ba9`
+- `patches/vwf_intro.ips` SHA-256 : `a5917976c7bf139e8f0ba69ee46f2ab0e23ab3db91453bf18bae6ba420d4110a`
+- `patches/vwf_dialogues.ips` SHA-256 : `1bff8d5f21ad9f372e2bedc8f1bf0515df51cfa825fc09c5a4ee680693b9258e`
+- `patches/french_dialogues.ips` SHA-256 : `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31` (inchangé)
+- `patches/all.ips` SHA-256 : `1961a7b4a1ad18c787f8bb6f2e06db339508c2f7c57591269955b286614433ef`
+- ROM finale reconstruite SHA-256 : `06cabc356ae82946cf6f01cf7fe43fb5ca61d92893231841c4e0a590b3b39f3e`
+- checksum SNES final : `$22AD`.
+
+Cette correction `$AC` ne modifie ni `vwf_intro.ips` ni `vwf_dialogues.ips`. Leur infrastructure partagée inclut déjà le classifier/parser battle mode 3 byte-identique requis par `vwf_ui`; leurs comportements intro/dialogue restent inchangés.

@@ -1,6 +1,6 @@
 # french_resources — French resources
 
-Owns the reviewed French non-dialogue text resources that belong to game content rather than renderer geometry. This now includes the `$CA` resource table/blob, the nine `$D9` shop/forge response mini-events, and the two fixed shop currency literals.
+Owns the reviewed French non-dialogue text resources that belong to game content rather than renderer geometry. This now includes the `$CA` resource table/blob, the nine `$D9` shop/forge response mini-events, the two fixed shop currency literals, and the reviewed `$C0` battle/status text content.
 
 ## Ownership
 
@@ -10,10 +10,12 @@ This component translates:
 - weapon, helmet, armor, accessory and item/special names;
 - enemy and location names;
 - the nine validated top-level Ring Menu labels (`$0C6-$0CE`);
+- the two reviewed system messages (`$1FF-$200`);
+- reviewed battle/status text from `assets/battle_text.json` (0 pending manual translations / 0 pending layout adaptations);
 - the nine shop/forge response mini-events in `$D9:FE20-$FEF3`;
 - the two shop currency literals (`C7:7B6A` total money and `D0:D894` merchandise price), translated `GP -> PO`.
 
-It does **not** own dialogue events or UI VWF rendering. `vwf_ui` owns presentation only. The D9 responses retain the stock event parser and the validated 28-visible-character capacity even when `vwf_ui` renders them proportionally through tag `$A9`.
+It does **not** own dialogue events or UI VWF rendering. `vwf_ui` owns presentation only. The D9 responses retain the stock event parser and the validated 28-visible-character capacity even when `vwf_ui` renders them proportionally through tag `$A9`. Battle/status content is displayed through the separate exact `$AC` battle-banner backend in `vwf_ui`.
 
 ## Canonical inputs and provenance
 
@@ -34,6 +36,19 @@ It does **not** own dialogue events or UI VWF rendering. `vwf_ui` owns presentat
 
 Every direct shop translation is rechecked against the original Android EN/FR binary tables. The three reviewed adaptations remain separate JSON data; no localized French shop prose is hard-coded in Python.
 
+### Battle/status text
+
+- `assets/battle_text.json` — clean-USA 109-record physical pool;
+- `recipes/android/battle_text_mapping.json` — reviewed SNES/Android identity and runtime strategy;
+- `sources/android/systxt_en.bin` / `systxt_fr.bin` — Android identity/French payload;
+- `translations/battle_text_reviewed_overrides.json` — eleven reviewed SNES/JP adaptations.
+
+The 8 records that lacked an Android equivalent now have reviewed JP-derived French translations in the surcharge file.
+`C0:62E2` is now the reviewed JP-derived `Rétablissement échoué !`. `C0:62F3`
+is a reviewed compact adaptation: the stock runtime still supplies the dynamic
+subject and the stored suffix is ` s'est rétabli !`. The dormant vanilla calls
+for both records remain intentionally unfixed; see `docs/BATTLE_TEXT.md`.
+
 ### Fixed literals
 
 `translations/french_resources_reviewed_literals.json` contains the two reviewed `GP -> PO` replacements. Their clean-USA source bytes and fixed length are validated before insertion.
@@ -43,6 +58,12 @@ Every direct shop translation is rechecked against the original Android EN/FR bi
 The complete 513-entry pointer table at `$CA:0800-$0C01` is rebuilt in resource-ID order. The text blob begins at `$CA:98E1` and must remain inside the original 7,315-byte allocation through `$CA:B573`; no relocation is used. The current reviewed blob is 7,103 bytes and ends at `$CA:B49F`.
 
 The nine D9 response scripts remain tiny stock event scripts of the form `$7F $52 <text> $00`. They are rebuilt contiguously from `$D9:FE20`; the nine stock bank-C0 `LDX #pointer` operands are updated to the rebuilt starts. The translated pool is 179 / 212 bytes, leaving 33 bytes free, so no relocation is used.
+
+Battle/status prose does require relocation. The 107 text records are rebuilt in
+expanded bank `$EE` from `$EE:6000`, with a reserved ceiling at `$EE:6FFF`; the
+current relocated pool is 1573 bytes. The stock `$C0:637D/$637F` event scripts stay
+in place. All pointer-table and direct code references are rewritten to the relocated
+offsets, while `vwf_ui` remains responsible only for the exact banner presentation path.
 
 Standalone French use installs the same byte-identical `dialogue_french` glyph span and event-context DTE router used by the dialogue components. This single installation now serves both the `$CA` resources and D9 shop text.
 

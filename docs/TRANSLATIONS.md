@@ -40,6 +40,7 @@ The main data files are:
 - `translations/french_resources_reviewed_literals.json` — reviewed fixed literals owned by `french_resources` (`GP -> PO`);
 - `translations/shop_text_french.json` — six direct Android-FR D9 shop/forge responses;
 - `translations/shop_text_reviewed_overrides.json` — three reviewed SNES-specific D9 adaptations;
+- `translations/battle_text_reviewed_overrides.json` — reviewed battle/status SNES/JP adaptations, including the eight manually translated records without a solid Android equivalent;
 - `translations/dialogues_manual_supplements.json` — small explicit manual dialogue exceptions/suppressions;
 - `translations/dialogues_french.json` — fingerprint-validated generated local cache/review artifact for the frozen dialogue corpus;
 - `translations/text_resources_french.json` — fingerprint-validated generated local cache/review artifact for the Android-derived `$CA` resource mapping.
@@ -72,7 +73,17 @@ translations/text_resources_reviewed_overrides.json
 
 `translations/text_resources_french.json` is the generated cache/review view of that process. Reviewed SNES wording belongs only in `text_resources_reviewed_overrides.json`; do not edit the generated cache as canonical input.
 
-The current promoted component inserts 358 `$CA` resources and keeps the rebuilt resource blob inside the original 7315-byte allocation. Additional families require explicit provenance, encoding, size and renderer/layout review before promotion. See `docs/TEXT_RESOURCES.md`.
+The current promoted component inserts 360 `$CA` resources and keeps the rebuilt resource blob inside the original 7315-byte allocation. Additional families require explicit provenance, encoding, size and renderer/layout review before promotion. See `docs/TEXT_RESOURCES.md`.
+
+## Battle/status localization
+
+`french_resources` also owns the localized content of `assets/battle_text.json`.
+Identity and runtime strategy are reviewed in `recipes/android/battle_text_mapping.json`;
+French mapped payload comes directly from Android `systxt_fr.bin`. The sparse
+`translations/battle_text_reviewed_overrides.json` file contains only deliberate
+SNES adaptations and pending rows. `needs_manual_translation` entries keep
+`text: null` until a translation is explicitly reviewed. The previously layout-pending
+`C0:62F3` now has a reviewed compact SNES adaptation in this surcharge file.
 
 ## D9 shop/forge localization
 

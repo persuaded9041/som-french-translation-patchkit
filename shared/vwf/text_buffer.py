@@ -4,20 +4,30 @@ The stock text engine owns only 33 bytes at $7E:A1A4-$A1C4. Bytes $A1C5+
 are live engine state, so a 38-character parser cannot safely extend that
 buffer in place.  This module installs one byte-identical set of parser hooks
 that can route selected event-engine invocations to the already validated
-44-byte private buffer at $7E:9390-$93BB.
+44-byte private buffer at $7E:9390-$93BB; exact battle mode 3 extends that same
+contiguous span through $93C0 for 49 parser bytes.
 
 `vwf_intro` enables mode 1 for the intro runtime window containing event $0400. `vwf_dialogues`
 enables mode 2 for ordinary event-engine text in stock banks $C9/$CA and
 for `french_dialogues` relocated event banks $E8-$EC. `vwf_ui` keeps parser mode
-stock but reuses the common capacity hook for exact one-shot UI-family margins
-(Forge +3; top-level Ring Menu +4). GAME SELECT
+stock for its ordinary UI families, but its exact battle/status tag `$AC` selects
+private parser mode 3 and the 49-byte span `$7E:9390-$93C0`. The common capacity
+hook also provides exact one-shot UI-family margins (Forge +3; top-level Ring
+Menu +4). GAME SELECT
 also calls the stock parser initializer, so activation is structurally gated by
 the caller return address ($114B from JSR $C0:16B8 at $C0:1149).
 """
 from __future__ import annotations
 
 from shared.core.asm import MiniAssembler, lo16, lo24
-from .ui import UI_CONFIG_CPU, UI_MARKER, UI_TAG, FORGE_UI_MAGIC, RING_UI_MAGIC
+from .ui import (
+    UI_CONFIG_CPU,
+    UI_MARKER,
+    UI_TAG,
+    FORGE_UI_MAGIC,
+    RING_UI_MAGIC,
+    BATTLE_UI_MAGIC,
+)
 
 # Stock hooks shared by `vwf_intro` and `vwf_dialogues`.
 BUFFER_INIT_FILE = 0x0016B8
@@ -40,6 +50,9 @@ PREV_CHAR_CPU = 0xC74B40
 PREV_CHAR_FILE_HELPER = 0x074B40
 CAPACITY_CPU = 0xC74BC0
 CAPACITY_FILE_HELPER = 0x074BC0
+MODE_CLASSIFIER_CPU = 0xC74900
+MODE_CLASSIFIER_FILE = 0x074900
+MODE_CLASSIFIER_RESERVED_SIZE = 0x40
 
 # Runtime configuration lives in a small stock-$FF gap between the intro runtime helper ranges and the intro-private DTE table owned by `french_intro`.
 INTRO_CONFIG_CPU = 0xC74C80
@@ -54,12 +67,55 @@ INTRO_START = 0x0C02
 # later reuses $9380 as its rendered-character count after parsing has ended.
 PARSER_MODE = 0x9380
 PRIVATE_BUFFER = 0x9390
-PRIVATE_BUFFER_SIZE = 0x002C  # 44 bytes
+PRIVATE_BUFFER_SIZE = 0x002C  # 44 bytes: intro/dialogue validated path
+BATTLE_PRIVATE_BUFFER_SIZE = 0x0031  # 49 bytes: 48 visible + following control
+BATTLE_PARSER_MODE = 0x03
 STOCK_BUFFER = 0xA1A4
 
 # C0:1149 JSR $16B8 leaves $114B on the stack. GAME SELECT's JSR at $2359
 # leaves $235B instead and must never enter the private parser path.
 EVENT_PARSER_RETURN = 0x114B
+
+
+def _assemble_mode_classifier() -> bytes:
+    """Return parser mode 0/2/3 after the exact event-parser caller gate.
+
+    Battle mode is armed only by vwf_ui's one-shot battle tag.  Dialogue mode
+    preserves the existing C9/CA/E8-EC classification. Intro mode is resolved
+    by the caller before entering this helper so it keeps priority unchanged.
+    """
+    a = MiniAssembler(MODE_CLASSIFIER_CPU)
+
+    a.emit(0xAF, *lo24(UI_CONFIG_CPU))
+    a.emit(0xC9, UI_MARKER)
+    a.rel8(0xD0, "dialogue")
+    a.emit(0xAF, *lo24(0x7E0000 | UI_TAG))
+    a.emit(0xC9, BATTLE_UI_MAGIC)
+    a.rel8(0xD0, "dialogue")
+    a.emit(0xA9, BATTLE_PARSER_MODE)
+    a.emit(0x6B)
+
+    a.label("dialogue")
+    a.emit(0xAF, *lo24(DIALOGUE_CONFIG_CPU))
+    a.emit(0xC9, DIALOGUE_MARKER)
+    a.rel8(0xD0, "stock")
+    a.emit(0xAF, *lo24(0x001D03))
+    a.emit(0xC9, 0xC9)
+    a.rel8(0xF0, "dialogue_active")
+    a.emit(0xC9, 0xCA)
+    a.rel8(0xF0, "dialogue_active")
+    a.emit(0xC9, 0xE8)
+    a.rel8(0x90, "stock")
+    a.emit(0xC9, 0xED)
+    a.rel8(0xB0, "stock")
+
+    a.label("dialogue_active")
+    a.emit(0xA9, 0x02)
+    a.emit(0x6B)
+    a.label("stock")
+    a.emit(0xA9, 0x00)
+    a.emit(0x6B)
+    return a.resolve()
 
 
 def _assemble_buffer_init() -> bytes:
@@ -75,41 +131,27 @@ def _assemble_buffer_init() -> bytes:
     a.rel8(0xD0, "stock_init")
 
     # `vwf_intro` intro mode has priority when its config marker is present.
-    a.emit(0xAF, *lo24(INTRO_CONFIG_CPU))   # LDA.l intro marker
+    a.emit(0xAF, *lo24(INTRO_CONFIG_CPU))
     a.emit(0xC9, INTRO_MARKER)
-    a.rel8(0xD0, "dialogue_check")
-    a.emit(0xAF, *lo24(0x001D03))           # event text bank
+    a.rel8(0xD0, "generic_check")
+    a.emit(0xAF, *lo24(0x001D03))
     a.emit(0xC9, 0xCA)
-    a.rel8(0xD0, "dialogue_check")
+    a.rel8(0xD0, "generic_check")
     a.emit(0xC2, 0x20)
-    a.emit(0xAF, *lo24(0x001D01))           # event text pointer
+    a.emit(0xAF, *lo24(0x001D01))
     a.emit(0xC9, *lo16(INTRO_START))
-    a.rel8(0x90, "dialogue_check_16")
-    a.emit(0xCF, *lo24(INTRO_CONFIG_CPU + 1))  # CMP.l configured intro end
+    a.rel8(0x90, "generic_check_16")
+    a.emit(0xCF, *lo24(INTRO_CONFIG_CPU + 1))
     a.rel8(0x90, "intro_active")
 
-    a.label("dialogue_check_16")
+    a.label("generic_check_16")
     a.emit(0xE2, 0x20)
-    a.label("dialogue_check")
-
-    # `vwf_dialogues` generic dialogue mode: exact event parser + stock C9/CA or
-    # `french_dialogues` relocated E8-EC bank.
-    a.emit(0xAF, *lo24(DIALOGUE_CONFIG_CPU))
-    a.emit(0xC9, DIALOGUE_MARKER)
-    a.rel8(0xD0, "stock_init")
-    a.emit(0xAF, *lo24(0x001D03))
-    a.emit(0xC9, 0xC9)
-    a.rel8(0xF0, "dialogue_active")
-    a.emit(0xC9, 0xCA)
-    a.rel8(0xF0, "dialogue_active")
-    a.emit(0xC9, 0xE8)
-    a.rel8(0x90, "stock_init")
-    a.emit(0xC9, 0xED)
-    a.rel8(0xB0, "stock_init")
-
-    a.label("dialogue_active")
-    a.emit(0xA9, 0x02)                     # mode 2 = dialogue 38-char path
-    a.rel8(0x80, "private_init")
+    a.label("generic_check")
+    # Shared external classifier keeps this already-tight helper below 128 bytes
+    # while adding the exact battle one-shot mode.
+    a.emit(0x22, *lo24(MODE_CLASSIFIER_CPU))
+    a.rel8(0xF0, "stock_init")             # A=0 -> stock
+    a.rel8(0x80, "private_init")           # A=2/3 -> selected private mode
 
     a.label("intro_active")
     a.emit(0xE2, 0x20)                     # pointer comparison was 16-bit
@@ -124,6 +166,21 @@ def _assemble_buffer_init() -> bytes:
     a.emit(0xE8)
     a.emit(0xE0, *lo16(PRIVATE_BUFFER_SIZE))
     a.rel8(0xD0, "private_loop")
+
+    # Battle banner may borrow the five contiguous bytes immediately before
+    # UI_TAG.  Dialogue choice scratch uses them only in mutually exclusive
+    # dialogue mode, so intro/dialogue retain their byte-identical 44-byte span.
+    a.emit(0xAD, *lo16(PARSER_MODE))
+    a.emit(0xC9, BATTLE_PARSER_MODE)
+    a.rel8(0xD0, "private_done")
+    a.emit(0xA9, 0x80)
+    a.label("battle_tail_loop")
+    a.emit(0x9D, *lo16(PRIVATE_BUFFER))
+    a.emit(0xE8)
+    a.emit(0xE0, *lo16(BATTLE_PRIVATE_BUFFER_SIZE))
+    a.rel8(0xD0, "battle_tail_loop")
+
+    a.label("private_done")
     a.emit(0x5C, *lo24(0xC016C6))
 
     a.label("stock_init")
@@ -132,11 +189,10 @@ def _assemble_buffer_init() -> bytes:
     a.label("stock_loop")
     a.emit(0x9D, *lo16(STOCK_BUFFER))
     a.emit(0xE8)
-    a.emit(0xE0, *lo16(0x0021))             # stock 33-byte initialization
+    a.emit(0xE0, *lo16(0x0021))
     a.rel8(0xD0, "stock_loop")
     a.emit(0x5C, *lo24(0xC016C6))
     return a.resolve()
-
 
 def _assemble_parser_write() -> bytes:
     a = MiniAssembler(PARSER_WRITE_CPU)
@@ -177,6 +233,8 @@ def _assemble_capacity() -> bytes:
     a.rel8(0xF0, "stock")
     a.emit(0xC9, 0x01)
     a.rel8(0xF0, "intro")
+    a.emit(0xC9, BATTLE_PARSER_MODE)
+    a.rel8(0xF0, "battle")
 
     # Dialogue mode keeps the stock remaining-line calculation but grants ten
     # extra parser units. Runtime calibration on $0107 proved that the stock
@@ -196,6 +254,11 @@ def _assemble_capacity() -> bytes:
     a.label("intro")
     # Preserve `vwf_intro`'s runtime-validated fixed intro capacity exactly.
     a.emit(0xA9, 0x27)
+    a.rel8(0x80, "store")
+
+    a.label("battle")
+    # 49 parser units = 48 decoded visible bytes plus the following control.
+    a.emit(0xA9, BATTLE_PRIVATE_BUFFER_SIZE)
     a.rel8(0x80, "store")
 
     a.label("stock")
@@ -239,6 +302,7 @@ def _assemble_capacity() -> bytes:
     return a.resolve()
 
 
+MODE_CLASSIFIER_HELPER = _assemble_mode_classifier()
 BUFFER_INIT_HELPER = _assemble_buffer_init()
 PARSER_WRITE_HELPER = _assemble_parser_write()
 PREV_CHAR_HELPER = _assemble_prev_char()
@@ -261,6 +325,7 @@ def validate_stock(base: bytes) -> None:
             raise SystemExit(f"Unexpected clean-US shared VWF {label} signature")
 
     for start, size, label in (
+        (MODE_CLASSIFIER_FILE, MODE_CLASSIFIER_RESERVED_SIZE, "parser-mode classifier"),
         (PARSER_WRITE_FILE_HELPER, 0x30, "parser-write helper"),
         (BUFFER_INIT_FILE_HELPER, 0x80, "buffer-init helper"),
         (PREV_CHAR_FILE_HELPER, 0x40, "previous-char helper"),
@@ -271,6 +336,7 @@ def validate_stock(base: bytes) -> None:
             raise SystemExit(f"Expected stock-$FF space for shared VWF {label}")
 
     limits = (
+        (len(MODE_CLASSIFIER_HELPER), MODE_CLASSIFIER_RESERVED_SIZE, "parser-mode classifier"),
         (len(PARSER_WRITE_HELPER), 0x30, "parser-write helper"),
         (len(BUFFER_INIT_HELPER), 0x80, "buffer-init helper"),
         (len(PREV_CHAR_HELPER), 0x40, "previous-char helper"),
@@ -288,6 +354,7 @@ def install_common(rom: bytearray) -> None:
     rom[PREV_CHAR_FILE:PREV_CHAR_FILE + len(PREV_CHAR_HOOK)] = PREV_CHAR_HOOK
 
     for offset, payload in (
+        (MODE_CLASSIFIER_FILE, MODE_CLASSIFIER_HELPER),
         (PARSER_WRITE_FILE_HELPER, PARSER_WRITE_HELPER),
         (BUFFER_INIT_FILE_HELPER, BUFFER_INIT_HELPER),
         (PREV_CHAR_FILE_HELPER, PREV_CHAR_HELPER),

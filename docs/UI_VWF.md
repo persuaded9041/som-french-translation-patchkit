@@ -135,6 +135,32 @@ Validated presentation:
 - type-2 frame width `$C7:714C` widened from **9 to 11 cells**;
 - independent type-2 close X seed `$C7:7140` shifted from **`$0A` to `$09`** so closing erases the extra left frame cell opened by the wider window.
 
+## Fifth backend: battle/status banner — runtime-validated
+
+The battle/status banner has an exact submit identity: `$C0:5BEA` launches
+`$C0:637D={50}` and `$C0:5BF8` launches `$C0:637F={51}`. Only those two helpers
+arm tag `$AC`; there is no broad bank-C0 or battle-state classifier.
+
+This family is the deliberate exception to the stock-parser default because its
+reviewed Android-FR strings can exceed the 33-byte stock decoded buffer. Shared
+parser mode 3 borrows `$7E:9390-$93C0` for 49 bytes (48 visible decoded bytes +
+following control). The actual battle/status message is copied to `$7E:FF69`
+and parsed with `$1D03=$7E`; the `{50}/{51}` scripts only open/close the banner.
+The UI renderer therefore preserves the already-decoded private buffer and
+renders its true decoded count. The ordinary 44-byte intro/dialogue span remains
+unchanged.
+
+The first runtime candidate incorrectly checked `$1D03 == $C0` in battle
+selector 5. That rejected the valid WRAM parse and fell back to the stock
+renderer, which reads `$A1A4`; dynamic-name messages consequently appeared as
+only `IDGET` or `LINA` even though their suffixes had been decoded into `$9390`.
+The validated correction changes only this continuity test to `$1D03 == $7E`
+(`$ED:7B83`, immediate `$C0 -> $7E`). Both standalone `vwf_ui` and
+`french_resources + vwf_ui` are runtime-validated with this fix.
+
+Content and relocation remain entirely owned by `french_resources`; see
+`docs/BATTLE_TEXT.md`.
+
 ## Standalone dependency fix
 
 Runtime isolation proved a hidden dependency in the shared chunk-commit helper:
@@ -171,7 +197,7 @@ Do not reuse these unchanged:
 - broad Forge/menu-mode gates;
 - global parser hooks for UI discovery;
 - renderer-time matching against stale initial event pointers;
-- private-38 buffer substitution for arbitrary UI mini-events;
+- private-38 buffer substitution for arbitrary UI mini-events (the `$AC` battle mode is an exact-submit, separately-sized exception);
 - low-level VWF hooks left active after a tagged UI invocation;
 - tags armed at generic `WEAPON_NAME` helpers when a more exact submit exists;
 - renderer-side `GP -> PO` substitution;

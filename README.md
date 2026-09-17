@@ -34,8 +34,8 @@ The ROM itself is deliberately not included.
 - `intro_skip` - runtime-validated hold-R intro skip for translated event `$0400`: continuous R for 120 normal-loop ticks, release-to-cancel, safe mid-text/WAIT commit to the waterfall. The eight normal narrative phases are covered; the final Mode-7/flyover phase remains deliberately outside scope.
   Validation history: `docs/INTRO_SKIP_VALIDATION.md`; assembly/event-engine map: `docs/INTRO_EVENT_ARCHITECTURE.md`.
 - `french_dialogues` - deterministic source/translation reinsertion for all stock text-bearing event scripts except intro `$0400`, with in-place rebuilds and deterministic expanded-ROM relocation for growth.
-- `vwf_ui` - standalone VWF extensions for proven non-dialogue UI paths: Watts' Forge, the top-level Ring Menu title, the nine `$D9` shop/forge responses, buy/sell merchandise rows and the type-2 total-money window. Currency content remains source-owned by `french_resources`; `vwf_ui` owns only VWF/layout geometry and is standalone-safe without `vwf_dialogues`.
-- `french_resources` - deterministic reinsertion of reviewed French `$CA` resources, the nine `$D9` shop/forge response mini-events, and the two reviewed shop currency literals (`GP -> PO`). The D9 family keeps its stock parser and validated 28-character limit; six lines remain direct Android-FR payloads and three remain reviewed SNES adaptations. Android-derived text uses validated provenance/cache inputs and no French shop prose is hard-coded in Python.
+- `vwf_ui` - standalone VWF extensions for proven non-dialogue UI paths: Watts' Forge, the top-level Ring Menu title, the nine `$D9` shop/forge responses, buy/sell merchandise rows, the type-2 total-money window, and the exact battle/status banner `$AC`. The battle path uses its isolated 49-byte private parser span and is runtime-validated. Currency/content remain source-owned by `french_resources`; `vwf_ui` owns presentation only and is standalone-safe without `vwf_dialogues`.
+- `french_resources` - deterministic reinsertion of reviewed French `$CA` resources, the nine `$D9` shop/forge response mini-events, the two reviewed shop currency literals (`GP -> PO`), and the reviewed `$C0` battle/status text pool. Battle prose is relocated to `$EE:6000+`; the current battle plan has 0 pending manual translations and 0 pending layout adaptations. Android-derived text uses validated provenance inputs and no French gameplay prose is hard-coded in Python.
 
 Component metadata lives in `components/*/component.json`. Public component IDs are semantic and intentionally unnumbered. The aggregate builder discovers components from these manifests and applies their explicit `build_order`; folder names therefore do not control patch precedence. Adding a component does not require a hard-coded component list in the root scripts.
 A component may temporarily declare `"aggregate_enabled": false` while it is runtime-valid standalone but not yet proven safe for `all.ips`. Such components remain discoverable/buildable by ID or short name, but `all` and `--combine` deliberately exclude them until that flag is promoted.
@@ -99,11 +99,11 @@ The dialogue corpus is frozen at the current promoted state: **701 accepted play
 
 A fresh cold regeneration reproduces `translations/dialogues_french.json` with SHA-256 `3e4cacd926e31d6dfe9f9021d1026c4f71dc68ccd88ce4481749e47764d2b7d9`. The promoted `french_dialogues.ips` SHA-256 is `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31`.
 
-The current post-resource/UI baseline is:
+The current post-battle-resource/UI baseline is:
 
-- `patches/all.ips`: `47744d9f094882e8b2a8c3916b9a675ecdd122330839ebbaa90e0279843c3bb4`
-- `patches/vwf_ui.ips`: `b32ae20b1b3836facafae5f3a32a6a799c12bbcfc7814e5a0b404c491ac0c834`
-- `patches/french_resources.ips`: `82908a8e0fd594d50fd9bdb5acc43965baf6b2dadc2079f349ba4f3ab3659d2d`
+- `patches/all.ips`: `1961a7b4a1ad18c787f8bb6f2e06db339508c2f7c57591269955b286614433ef`
+- `patches/vwf_ui.ips`: `69bfbc246fffddd6a05e6421c51cf824b64269bb159de0acaa5fd297834a7ba9`
+- `patches/french_resources.ips`: `c9483c0a42ca85d2f9051f4d7f0355e09ce76279d3311f43bd574864fd492216`
 
 No `french_shop_text.ips` is generated. The validated MONEY frame remains 11 cells wide and its independent type-2 close seed remains `$C7:7140=$09`. See `docs/HANDOFF.md` for the active handoff.
 

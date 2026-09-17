@@ -1,0 +1,999 @@
+{
+  "format_version": 1,
+  "source_asset": "battle_text.json",
+  "android_namespace": "systxt",
+  "description": "Reviewed SNES C0 battle/status to Android identity map. French payload stays in Android binaries except explicit reviewed overrides/pending manual entries.",
+  "records": [
+    {
+      "snes_id": "C0:5E6B",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100127
+      ]
+    },
+    {
+      "snes_id": "C0:5E85",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100128
+      ]
+    },
+    {
+      "snes_id": "C0:5E93",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100129
+      ]
+    },
+    {
+      "snes_id": "C0:5E9F",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100130
+      ]
+    },
+    {
+      "snes_id": "C0:5EB1",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100131
+      ]
+    },
+    {
+      "snes_id": "C0:5EC1",
+      "identity": "reviewed_equivalent",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100132
+      ]
+    },
+    {
+      "snes_id": "C0:5ED2",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100135
+      ]
+    },
+    {
+      "snes_id": "C0:5EE3",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100133
+      ]
+    },
+    {
+      "snes_id": "C0:5EF6",
+      "identity": "template_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100134
+      ]
+    },
+    {
+      "snes_id": "C0:5F04",
+      "identity": "template_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100121
+      ]
+    },
+    {
+      "snes_id": "C0:5F13",
+      "identity": "reviewed_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100123
+      ]
+    },
+    {
+      "snes_id": "C0:5F23",
+      "identity": "reviewed_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100120
+      ]
+    },
+    {
+      "snes_id": "C0:5F30",
+      "identity": "reviewed_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100125
+      ]
+    },
+    {
+      "snes_id": "C0:5F3F",
+      "identity": "reviewed_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100119
+      ]
+    },
+    {
+      "snes_id": "C0:5F4A",
+      "identity": "reviewed_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100126
+      ]
+    },
+    {
+      "snes_id": "C0:5F57",
+      "identity": "template_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100122
+      ]
+    },
+    {
+      "snes_id": "C0:5F65",
+      "identity": "reviewed_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100124
+      ]
+    },
+    {
+      "snes_id": "C0:5F74",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100140
+      ]
+    },
+    {
+      "snes_id": "C0:5F80",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100153
+      ]
+    },
+    {
+      "snes_id": "C0:5F8E",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100154
+      ]
+    },
+    {
+      "snes_id": "C0:5F9B",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100056
+      ]
+    },
+    {
+      "snes_id": "C0:5FA7",
+      "identity": "jp_reviewed_manual",
+      "strategy": "reviewed_override",
+      "status": "mapped"
+    },
+    {
+      "snes_id": "C0:5FB6",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100141
+      ]
+    },
+    {
+      "snes_id": "C0:5FC3",
+      "identity": "jp_reviewed_manual",
+      "strategy": "reviewed_override",
+      "status": "mapped"
+    },
+    {
+      "snes_id": "C0:5FD2",
+      "identity": "reviewed_equivalent",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100151
+      ]
+    },
+    {
+      "snes_id": "C0:5FDE",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100150
+      ]
+    },
+    {
+      "snes_id": "C0:5FE8",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100147
+      ]
+    },
+    {
+      "snes_id": "C0:5FF3",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100144
+      ]
+    },
+    {
+      "snes_id": "C0:5FFE",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100055
+      ]
+    },
+    {
+      "snes_id": "C0:6008",
+      "identity": "jp_reviewed_manual",
+      "strategy": "reviewed_override",
+      "status": "mapped"
+    },
+    {
+      "snes_id": "C0:6015",
+      "identity": "jp_reviewed_manual",
+      "strategy": "reviewed_override",
+      "status": "mapped"
+    },
+    {
+      "snes_id": "C0:601F",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100161
+      ]
+    },
+    {
+      "snes_id": "C0:602B",
+      "identity": "reviewed_equivalent",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100160
+      ]
+    },
+    {
+      "snes_id": "C0:6038",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100145
+      ]
+    },
+    {
+      "snes_id": "C0:6046",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100149
+      ]
+    },
+    {
+      "snes_id": "C0:6052",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100152
+      ]
+    },
+    {
+      "snes_id": "C0:605F",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100157
+      ]
+    },
+    {
+      "snes_id": "C0:606A",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100157
+      ]
+    },
+    {
+      "snes_id": "C0:6075",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100142
+      ]
+    },
+    {
+      "snes_id": "C0:6082",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100158
+      ]
+    },
+    {
+      "snes_id": "C0:608F",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100143
+      ]
+    },
+    {
+      "snes_id": "C0:609C",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100142
+      ]
+    },
+    {
+      "snes_id": "C0:60A9",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100155
+      ]
+    },
+    {
+      "snes_id": "C0:60B5",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100156
+      ]
+    },
+    {
+      "snes_id": "C0:60C5",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100148
+      ]
+    },
+    {
+      "snes_id": "C0:60CD",
+      "identity": "control_or_empty",
+      "strategy": "stock",
+      "status": "stock_control"
+    },
+    {
+      "snes_id": "C0:60CE",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100159
+      ]
+    },
+    {
+      "snes_id": "C0:60DA",
+      "identity": "reviewed_equivalent",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100146
+      ]
+    },
+    {
+      "snes_id": "C0:60E2",
+      "identity": "ordered_family",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100165
+      ]
+    },
+    {
+      "snes_id": "C0:60E9",
+      "identity": "ordered_family",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100166
+      ]
+    },
+    {
+      "snes_id": "C0:60EF",
+      "identity": "ordered_family",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100167
+      ]
+    },
+    {
+      "snes_id": "C0:60F3",
+      "identity": "ordered_family",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100168
+      ]
+    },
+    {
+      "snes_id": "C0:60F9",
+      "identity": "ordered_family",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100169
+      ]
+    },
+    {
+      "snes_id": "C0:60FE",
+      "identity": "reviewed_equivalent",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100170
+      ]
+    },
+    {
+      "snes_id": "C0:6104",
+      "identity": "ordered_family",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100171
+      ]
+    },
+    {
+      "snes_id": "C0:610E",
+      "identity": "ordered_family",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100172
+      ]
+    },
+    {
+      "snes_id": "C0:6116",
+      "identity": "control_or_empty",
+      "strategy": "stock",
+      "status": "stock_control"
+    },
+    {
+      "snes_id": "C0:6117",
+      "identity": "control_or_empty",
+      "strategy": "stock",
+      "status": "stock_control"
+    },
+    {
+      "snes_id": "C0:6118",
+      "identity": "duplicate_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100017,
+        100038
+      ]
+    },
+    {
+      "snes_id": "C0:6124",
+      "identity": "jp_reviewed_manual",
+      "strategy": "reviewed_override",
+      "status": "mapped"
+    },
+    {
+      "snes_id": "C0:6131",
+      "identity": "duplicate_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100019,
+        100039
+      ]
+    },
+    {
+      "snes_id": "C0:6141",
+      "identity": "duplicate_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100020,
+        100040
+      ]
+    },
+    {
+      "snes_id": "C0:614E",
+      "identity": "duplicate_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100021,
+        100041
+      ]
+    },
+    {
+      "snes_id": "C0:615C",
+      "identity": "duplicate_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100018,
+        100042
+      ]
+    },
+    {
+      "snes_id": "C0:6169",
+      "identity": "duplicate_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100022,
+        100043
+      ]
+    },
+    {
+      "snes_id": "C0:6178",
+      "identity": "duplicate_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100023,
+        100138
+      ]
+    },
+    {
+      "snes_id": "C0:6185",
+      "identity": "jp_reviewed_manual",
+      "strategy": "reviewed_override",
+      "status": "mapped"
+    },
+    {
+      "snes_id": "C0:6192",
+      "identity": "template_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100044
+      ]
+    },
+    {
+      "snes_id": "C0:61A2",
+      "identity": "duplicate_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100024,
+        100137
+      ]
+    },
+    {
+      "snes_id": "C0:61AE",
+      "identity": "duplicate_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100025,
+        100045
+      ]
+    },
+    {
+      "snes_id": "C0:61BB",
+      "identity": "duplicate_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100026,
+        100046
+      ]
+    },
+    {
+      "snes_id": "C0:61C8",
+      "identity": "template_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100037
+      ]
+    },
+    {
+      "snes_id": "C0:61DA",
+      "identity": "template_equivalent",
+      "strategy": "no_name",
+      "status": "mapped",
+      "android_ids": [
+        100187
+      ]
+    },
+    {
+      "snes_id": "C0:61E8",
+      "identity": "template_equivalent",
+      "strategy": "no_name",
+      "status": "mapped",
+      "android_ids": [
+        100186
+      ]
+    },
+    {
+      "snes_id": "C0:61F8",
+      "identity": "template_equivalent",
+      "strategy": "no_name",
+      "status": "mapped",
+      "android_ids": [
+        100189
+      ]
+    },
+    {
+      "snes_id": "C0:6207",
+      "identity": "template_equivalent",
+      "strategy": "no_name",
+      "status": "mapped",
+      "android_ids": [
+        100188
+      ]
+    },
+    {
+      "snes_id": "C0:6219",
+      "identity": "template_equivalent",
+      "strategy": "no_name",
+      "status": "mapped",
+      "android_ids": [
+        100191
+      ]
+    },
+    {
+      "snes_id": "C0:6227",
+      "identity": "template_equivalent",
+      "strategy": "no_name",
+      "status": "mapped",
+      "android_ids": [
+        100190
+      ]
+    },
+    {
+      "snes_id": "C0:6236",
+      "identity": "jp_reviewed_manual",
+      "strategy": "reviewed_override",
+      "status": "mapped"
+    },
+    {
+      "snes_id": "C0:6243",
+      "identity": "jp_reviewed_manual",
+      "strategy": "reviewed_override",
+      "status": "mapped"
+    },
+    {
+      "snes_id": "C0:6251",
+      "identity": "template_family",
+      "strategy": "reviewed_override",
+      "status": "mapped",
+      "android_ids": [
+        100075,
+        100076,
+        100077,
+        100078,
+        100079,
+        100080,
+        100081,
+        100082,
+        100083,
+        100084,
+        100085,
+        100086,
+        100087,
+        100088,
+        100089,
+        100090,
+        100091,
+        100092,
+        100093,
+        100094,
+        100095,
+        100096,
+        100097,
+        100098,
+        100099,
+        100100,
+        100101,
+        100102,
+        100103,
+        100104,
+        100105,
+        100106,
+        100107,
+        100108,
+        100109,
+        100110,
+        100111,
+        100112,
+        100113,
+        100114,
+        100115,
+        100116,
+        100117
+      ]
+    },
+    {
+      "snes_id": "C0:6256",
+      "identity": "template_equivalent",
+      "strategy": "between_subject_and_number",
+      "status": "mapped",
+      "android_ids": [
+        100174
+      ]
+    },
+    {
+      "snes_id": "C0:6263",
+      "identity": "template_equivalent",
+      "strategy": "after_number",
+      "status": "mapped",
+      "android_ids": [
+        100174
+      ]
+    },
+    {
+      "snes_id": "C0:6265",
+      "identity": "template_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100173
+      ]
+    },
+    {
+      "snes_id": "C0:6279",
+      "identity": "template_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100066
+      ]
+    },
+    {
+      "snes_id": "C0:628C",
+      "identity": "duplicate_equivalent",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        101014,
+        101241
+      ]
+    },
+    {
+      "snes_id": "C0:6290",
+      "identity": "duplicate_equivalent",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        101015,
+        101242
+      ]
+    },
+    {
+      "snes_id": "C0:6294",
+      "identity": "template_equivalent",
+      "strategy": "template_reorder",
+      "status": "mapped",
+      "android_ids": [
+        101254
+      ]
+    },
+    {
+      "snes_id": "C0:62A0",
+      "identity": "template_equivalent",
+      "strategy": "template_reorder",
+      "status": "mapped",
+      "android_ids": [
+        100193
+      ]
+    },
+    {
+      "snes_id": "C0:62A2",
+      "identity": "control_or_empty",
+      "strategy": "stock",
+      "status": "stock_control"
+    },
+    {
+      "snes_id": "C0:62A3",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100118
+      ]
+    },
+    {
+      "snes_id": "C0:62B7",
+      "identity": "duplicate_equivalent",
+      "strategy": "suffix",
+      "status": "mapped",
+      "android_ids": [
+        100036,
+        100139
+      ]
+    },
+    {
+      "snes_id": "C0:62C6",
+      "identity": "template_equivalent",
+      "strategy": "template_reorder",
+      "status": "mapped",
+      "android_ids": [
+        100198
+      ]
+    },
+    {
+      "snes_id": "C0:62D2",
+      "identity": "reviewed_equivalent",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        101016
+      ]
+    },
+    {
+      "snes_id": "C0:62D7",
+      "identity": "template_equivalent",
+      "strategy": "template_reorder",
+      "status": "mapped",
+      "android_ids": [
+        100185
+      ]
+    },
+    {
+      "snes_id": "C0:62E2",
+      "identity": "jp_reviewed",
+      "strategy": "reviewed_override",
+      "status": "mapped"
+    },
+    {
+      "snes_id": "C0:62F3",
+      "identity": "template_equivalent",
+      "strategy": "reviewed_override",
+      "status": "mapped",
+      "android_ids": [
+        100162
+      ]
+    },
+    {
+      "snes_id": "C0:6303",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100207
+      ]
+    },
+    {
+      "snes_id": "C0:6310",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100136
+      ]
+    },
+    {
+      "snes_id": "C0:6321",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100205
+      ]
+    },
+    {
+      "snes_id": "C0:632E",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100201
+      ]
+    },
+    {
+      "snes_id": "C0:6338",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100200
+      ]
+    },
+    {
+      "snes_id": "C0:6345",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100199
+      ]
+    },
+    {
+      "snes_id": "C0:6355",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100202
+      ]
+    },
+    {
+      "snes_id": "C0:635B",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100204
+      ]
+    },
+    {
+      "snes_id": "C0:6367",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100203
+      ]
+    },
+    {
+      "snes_id": "C0:6372",
+      "identity": "direct_exact",
+      "strategy": "direct",
+      "status": "mapped",
+      "android_ids": [
+        100206
+      ]
+    },
+    {
+      "snes_id": "C0:637D",
+      "identity": "control_or_empty",
+      "strategy": "stock",
+      "status": "stock_control"
+    },
+    {
+      "snes_id": "C0:637F",
+      "identity": "control_or_empty",
+      "strategy": "stock",
+      "status": "stock_control"
+    }
+  ]
+}

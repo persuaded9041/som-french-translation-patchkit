@@ -1,0 +1,89 @@
+{
+  "format_version": 1,
+  "language": "fr",
+  "source_asset": "battle_text.json",
+  "description": "Reviewed SNES-specific battle-text overrides and explicit pending translations. Null text is intentional and keeps the clean-USA source until review.",
+  "entries": [
+    {
+      "id": "C0:6251",
+      "source": " Lv.",
+      "status": "translated",
+      "text": " niv. ",
+      "note": "Reviewed common SNES fragment extracted from Android spell-level family 100075-100117."
+    },
+    {
+      "id": "C0:5FA7",
+      "source": "Poison Bubbles",
+      "status": "translated",
+      "text": "Bulles empoisonnées",
+      "note": "Reviewed manual translation from JP original 毒バブル."
+    },
+    {
+      "id": "C0:5FC3",
+      "source": "Moogle Bubbles",
+      "status": "translated",
+      "text": "Bulles mog",
+      "note": "Reviewed manual translation from JP original モーグリバブル."
+    },
+    {
+      "id": "C0:6008",
+      "source": "Thunder Beam",
+      "status": "translated",
+      "text": "Rayon foudroyant",
+      "note": "Reviewed manual translation from JP original サンダービーム."
+    },
+    {
+      "id": "C0:6015",
+      "source": "Doom Beam",
+      "status": "translated",
+      "text": "Rayon mortel",
+      "note": "Reviewed manual translation from JP original デスビーム."
+    },
+    {
+      "id": "C0:6124",
+      "source": " can't move!",
+      "status": "translated",
+      "text": " ne peut plus bouger !",
+      "note": "Reviewed manual translation from JP original はうごけない！."
+    },
+    {
+      "id": "C0:6185",
+      "source": "'s barreled!",
+      "status": "translated",
+      "text": " est dans un tonneau !",
+      "note": "Reviewed manual translation from JP original はたるをかぶった."
+    },
+    {
+      "id": "C0:6236",
+      "source": " fears Luna!",
+      "status": "translated",
+      "text": "Point faible : la lune",
+      "note": "Reviewed manual translation from JP original は月の力に弱い."
+    },
+    {
+      "id": "C0:6243",
+      "source": " fears Dryad!",
+      "status": "translated",
+      "text": "Point faible : le bois",
+      "note": "Reviewed manual translation from JP original は木の力に弱い."
+    },
+    {
+      "id": "C0:62E2",
+      "source": "Recovery failed!",
+      "status": "translated",
+      "text": "Rétablissement échoué !",
+      "note": "Reviewed from JP original 回復しきれなかった. Translation only: the stock runtime call appears to be off by one byte (JSL $C0:58AF returns immediately; message routine starts at $C0:58B0). Runtime bug intentionally left unfixed; see docs/BATTLE_TEXT.md."
+    },
+    {
+      "id": "C0:62F3",
+      "source": "'s magic faded.",
+      "status": "translated",
+      "text": " s'est rétabli !",
+      "android_ids": [
+        100162
+      ],
+      "android_fr": "$0s n'est plus sous l'effet du changement d'état.",
+      "note": "Reviewed compact SNES adaptation of Android FR '$0s n'est plus sous l'effet du changement d'état.'. The stock runtime prepends the dynamic subject, so this override stores only the suffix."
+    }
+  ]
+}
