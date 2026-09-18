@@ -13,30 +13,32 @@ Commence par **étudier l'archive seulement**. Lis intégralement :
 - `docs/MENU_TEXT.md`
 - `docs/INTERFACE_TEXT.md`
 - `docs/TRANSLATIONS.md`
+- `components/french_gfx/README.md`
+- `components/french_gfx/docs/MEMORY_MAP.md`
 - `components/french_menus/README.md`
-- `components/french_menus/docs/MEMORY_MAP.md`
 - `components/french_resources/README.md`
 - `components/vwf_ui/README.md`
 
-Après cette étude, **ne lance aucune recherche supplémentaire, aucun patch, aucun build expérimental et aucune traduction**. Fais uniquement un bref compte rendu de ce que tu as compris et **attends mon feu vert explicite**.
+Après cette étude, fais uniquement un bref compte rendu et attends mon feu vert explicite avant toute nouvelle modification.
 
-## Nouvelle priorité après discussion : futur composant `french_gfx`
+## Priorité actuelle : `french_gfx`
 
-La traduction des menus et ressources est **mise en pause**. Elle reste dans le backlog et sera reprise plus tard ; ne relance pas automatiquement les lots de traduction.
+La traduction des menus et ressources est **mise en pause** et reste dans le backlog. Ne relance pas automatiquement les lots de traduction.
 
-Je souhaite discuter d'un nouveau composant **`french_gfx`** destiné à remplacer certains éléments graphiques du jeu par des versions spécifiques à la traduction française. **Ne commence pas l'implémentation avant qu'on en ait discuté après l'étude de l'archive.** En particulier, avant mon accord explicite :
+Le composant `french_gfx` existe maintenant. Sa première fonctionnalité est **runtime-validée et promue** : elle remplace globalement les icônes graphiques de boutons A/B/X/Y USA par la forme et les couleurs de la VF SNES Rev 1 :
 
-- ne crée pas `components/french_gfx/` ;
-- ne réserve aucune zone ROM ;
-- n'extrais, ne redessine et ne réinjecte aucun graphisme ;
-- ne produis aucun IPS/probe ;
-- n'invente pas encore le format des assets ni l'architecture du composant.
+- PNG source indexé 16×16 : `components/french_gfx/assets/controller_button.png` ;
+- conversion au build vers les quatre tiles 2bpp `$D2:D8F0-$D2:D92F` ;
+- palettes françaises exactes X/A/Y/B à `$D2:DBCC-$D2:DBE3` ;
+- neutralisation de l'override USA à `$C0:2116` (`JSR $212F` -> `NOP NOP NOP`) ;
+- aucune allocation ROM libre / WRAM ;
+- `patches/french_gfx.ips` et `patches/all.ips` sont reconstruits ; validation binaire et validation visuelle runtime OK.
 
-La première étape sera de discuter des éléments graphiques que je veux remplacer, puis d'étudier leur stockage/rendu stock et de choisir une architecture propre. Les assets français devront appartenir à `french_gfx`; éviter de mettre des données localisées dans un composant générique.
+La prochaine étape est de **demander à l'utilisateur quel nouvel élément graphique il souhaite traiter**. Ne commence pas d'implémentation avant cette discussion : étudier ensuite le stockage et le rendu stock de la cible, puis proposer une architecture propre. Les lettres A/B/X/Y rendues comme texte ne sont pas concernées par la fonctionnalité déjà validée.
 
 ## État runtime à préserver
 
-- **Choix de fenêtre** : renderer fixe stock, sans VWF ; titre `Choix de fenêtre`; `Fond` gauche/droite; `Bordure` haut/bas; aides `Choisissez le fond : gauche/droite, bordure : haut/bas.`, `Réglez la couleur : maintenez A, Y ou X et gauche/droite.`, `Appuyez sur B pour valider, Select pour annuler.`. Ressource `$C7:4700`, placement `$C7:4730`, frame `$C7:75CA=$09`. Ne réintroduire aucun des probes VWF/glitchés.
+- **Choix de fenêtre** : renderer fixe stock, sans VWF ; titre `Choix de fenêtre`; `Fond` gauche/droite; `Bordure` haut/bas; aides `Choisissez le fond : gauche/droite, bordure : haut/bas.`, `Réglez la couleur : maintenez A, Y ou X et gauche/droite.`, `Appuyez sur B pour valider, Select pour annuler.`. Ressource `$C7:4700`, placement `$C7:4730`, frame `$C7:75CA=$09`.
 - aide sauvegarde : `Appuyez sur “Attaque” pour sauver, “Retour” pour annuler.`
 - GAME FILE argent : `1254536 PO`, architecture hybride 16 cellules, helper `$C7:4D32-$4D3B`.
 - GAME FILE : `Sauvegardes` fixe et `Graines de Mana` via la VWF ultra-localisée `$AD`, valeur dynamique stock.

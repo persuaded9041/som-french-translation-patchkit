@@ -50,7 +50,7 @@ The two generated cache files above are not canonical prose provenance. A normal
 
 ## Current dialogue state
 
-Dialogue work remains frozen. **Menu/resource translation is also intentionally paused at this handoff** while the next task explores a separate `french_gfx` component. The untranslated menu/resource backlog remains future work and must not be silently resumed during `french_gfx` design:
+Dialogue work remains frozen. **Menu/resource translation is also intentionally paused at this handoff** while work proceeds on the separate `french_gfx` component. Its first controller-button asset is runtime-validated and promoted. The untranslated menu/resource backlog remains future work and must not be silently resumed while `french_gfx` work continues:
 
 - native menu/status translation-only rows still require explicit renderer promotion;
 - `weapon_description` / `magic_description` remain unpromoted review families;

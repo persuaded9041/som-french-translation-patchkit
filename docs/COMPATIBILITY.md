@@ -90,6 +90,21 @@ real fourth-row `ï` insertion path. The diagnostic is not part of canonical dat
 
 The relocated opening arrangement lives entirely in bank `$EE` and keeps the stock `$C1:0014` resource-loader/decompressor path. This is deliberate compatibility with `mana_tree_original`, whose runtime resource hook owns extended-bank `$EF` resources. The combined architecture was runtime-validated.
 
+## french_gfx — shared controller-button resource
+
+`french_gfx` is aggregate-enabled and currently has no byte overlap with any
+other component outside the standard checksum fields. It modifies only the
+clean-USA controller-button resource `$D2:D8F0-$D2:D92F`, the four associated
+palette ramps `$D2:DBCC-$D2:DBE3`, and the USA-only `JSR $212F` at `$C0:2116`.
+No free-space ROM or WRAM is allocated.
+
+The component intentionally patches the shared stock asset rather than any one
+menu, so screens that use the common graphical controller icon inherit the
+French shape/colors without additional hooks. Font-rendered literal A/B/X/Y text
+is unaffected. The shared-resource replacement is runtime-validated and promoted.
+Coverage remains intentionally defined as every screen that uses this common
+graphical controller-button resource; text-rendered letters are outside scope.
+
 ## Allocations
 
 The principal ROM/WRAM allocations are documented in `docs/MEMORY_MAP.md` and

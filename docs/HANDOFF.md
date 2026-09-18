@@ -1,4 +1,4 @@
-# HANDOFF — Secret of Mana FR — menus natifs et ressources françaises
+# HANDOFF — Secret of Mana FR — `french_gfx` / boutons de manette
 
 Date : 2026-09-18
 
@@ -11,14 +11,13 @@ Depuis cette baseline, l'écran natif **Actions des personnages** a également �
 traduit et runtime-validé avec son renderer fixe stock. Cette archive est le
 nouveau point de départ.
 
-**Priorité immédiate de la prochaine discussion : mettre la traduction des menus /
-ressources en pause. Après lecture complète de l'archive, NE RIEN MODIFIER et
-attendre explicitement le feu vert de l'utilisateur. La nouvelle piste sera la
-conception d'un composant `french_gfx`, destiné à remplacer certains éléments
-graphiques par des variantes spécifiques à la traduction française. Ne créer
-aucun composant, n'allouer aucune adresse et ne produire aucun probe avant
-d'avoir discuté avec l'utilisateur du périmètre, des assets visés, du format des
-graphismes et de l'architecture souhaitée.**
+**Priorité immédiate : la traduction des menus / ressources reste en pause. Le
+composant `french_gfx` existe désormais et son premier asset — le bouton de
+manette 16×16 partagé — est runtime-validé et promu. Ne pas reprendre
+automatiquement les lots de traduction. La prochaine étape `french_gfx` doit
+être choisie avec l'utilisateur : discuter d'abord du prochain élément
+graphique à remplacer, puis étudier son stockage/rendu stock avant toute
+implémentation.**
 
 Ne pas relancer un audit global des dialogues sans raison spécifique : leur
 corpus reste gelé et validé.
@@ -34,6 +33,8 @@ Avant toute modification, lire intégralement :
 - `docs/COMPATIBILITY.md`
 - `docs/MEMORY_MAP.md`
 - `docs/UI_VWF.md`
+- `components/french_gfx/README.md`
+- `components/french_gfx/docs/MEMORY_MAP.md`
 - `components/french_resources/README.md`
 - `components/french_menus/README.md`
 - `components/vwf_ui/README.md`
@@ -177,24 +178,37 @@ Le fallback compact `$C7:73D1` reste `Réglage` et `C7:73C9` contient `Choisir`;
 ces textes sont eux aussi dans `translations/menu_text_french.json`, jamais en
 dur dans Python/ASM.
 
-### Tâche suivante : `french_gfx` — **discussion d'abord**
+### `french_gfx` — boutons de manette — **runtime-validé / promu**
 
-La prochaine discussion ne doit **pas** poursuivre immédiatement les traductions
-menus/ressources. Ce backlog reste une tâche future. Après étude de l'archive,
-il faudra discuter avec l'utilisateur d'un nouveau composant `french_gfx` pour
-des substitutions graphiques spécifiques à la VF. Avant accord explicite :
+Le premier périmètre a été choisi avec l'utilisateur : remplacer globalement les
+icônes graphiques A/B/X/Y de la version USA par la forme et les couleurs de la
+VF SNES Rev 1, en utilisant un PNG éditable comme source.
 
-- ne pas créer `components/french_gfx/` ;
-- ne pas choisir d'adresse libre ;
-- ne pas extraire/modifier/réinjecter de GFX ;
-- ne pas construire de patch expérimental ;
-- commencer par identifier avec l'utilisateur les éléments graphiques visés et
-  décider si le composant doit contenir des assets binaires/images, des outils de
-  conversion, des hooks ou de simples remplacements de ressources stock.
+Architecture implémentée :
 
-Le principe de séparation à préserver : `french_gfx` doit posséder les **assets
-français graphiques**, tandis que les éventuels hooks génériques ou outils
-partagés ne doivent pas embarquer de prose/graphisme localisé ailleurs.
+- `components/french_gfx/assets/controller_button.png` : PNG indexé 16×16,
+  indices 0..3 directement convertis en quatre tiles SNES 2bpp ;
+- `$D2:D8F0-$D2:D92F` : ressource graphique commune remplacée par la forme VF ;
+- `controller_button_palettes.json` : quatre rampes BGR15 exactes VF, ordre
+  runtime `X/A/Y/B`, écrites à `$D2:DBCC-$D2:DBE3` ;
+- `$C0:2116-$2118` : l'appel USA `JSR $212F` est remplacé par `NOP NOP NOP`,
+  ce qui laisse le moteur employer les quatre palettes distinctes au lieu de les
+  rabattre sur violet/lavande ;
+- aucune allocation ROM libre, aucune WRAM et aucun hook par écran ;
+- le PNG fourni se réencode bit-exactement aux 64 octets de la VF officielle,
+  et le JSON reproduit bit-exactement les 24 octets de palettes VF.
+
+Le builder protège les trois régions USA attendues avant écriture. Le standalone
+`patches/french_gfx.ips` et `patches/all.ips` ont été reconstruits sans collision.
+La validation binaire et la validation visuelle runtime sont terminées.
+L'utilisateur a validé le résultat en jeu ; cette première fonctionnalité est
+promue. Toute utilisation du graphisme UI commun profite automatiquement du
+changement ; les lettres A/B/X/Y rendues comme du texte ne sont évidemment pas
+concernées.
+
+Le principe de séparation reste : `french_gfx` possède les **assets français
+graphiques** ; aucun graphisme localisé ne doit être déplacé dans `vwf_ui` ou un
+autre composant générique.
 
 ## Architecture `french_resources` à préserver
 
@@ -338,8 +352,9 @@ Rebuild complet depuis la ROM USA propre, après validation runtime de `Sauvegar
 - `patches/vwf_intro.ips` SHA-256 : `a5917976c7bf139e8f0ba69ee46f2ab0e23ab3db91453bf18bae6ba420d4110a`
 - `patches/vwf_dialogues.ips` SHA-256 : `f9628f1c43ba2917a081fd2cf31b48ce90c9138980e720276602796f7b593dad`
 - `patches/french_dialogues.ips` SHA-256 : `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31`
-- `patches/all.ips` SHA-256 : `966405871639cee83ac69475ef85ee516c4d95a54a3b58e5b5278eb36c372056`
-- ROM finale reconstruite SHA-256 : `4a6500e5757e3e0d53f14a5a0a7e551f8d5c79ce7b2de5ee37f36591dfbf74b8`
-- checksum SNES final : `$AB52`.
+- `patches/french_gfx.ips` SHA-256 : `5753358d9603e6422a8ce03223e362900671e403fe83b9f57988400e3f1ffdd2`
+- `patches/all.ips` SHA-256 : `8be55d2b25053bd71231c96047368b38f1fc07220f0db563293a29e96dac28df`
+- ROM validée reconstruite SHA-256 : `c5207420053916b1b2f45061d28cbcb939ce709b58e5bf502f72f84a46ca7d99`
+- checksum SNES validé : `$AC27`.
 
-Le rebuild complet dans un dossier de patches neuf est byte-identique aux patches promus. Le rebuild complet reproduit tous les composants non ciblés byte-identiquement. La ROM reconstruite est identique au probe final `Fond/Bordure v2` sur tous les octets écrits par ce probe; le rebuild propre complète seulement l'expansion ROM jusqu'à `0x300000`. La ROM de référence n'est pas incluse dans l'archive.
+Les composants non ciblés restent byte-identiques à la baseline précédente. Le nouveau patch `french_gfx` n'écrit, hors checksum, que dans `$C0:2116-$2118`, `$D2:D8F0-$D2:D92F` et `$D2:DBCC-$D2:DBE3`. L'aggregate conserve exactement ces données après composition. La ROM de référence n'est pas incluse dans l'archive.

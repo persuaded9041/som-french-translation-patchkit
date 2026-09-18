@@ -1,0 +1,10 @@
+{
+  "format": "SNES BGR15, three visible colors per 2bpp palette; color 0 remains transparent/shared",
+  "order": ["X", "A", "Y", "B"],
+  "palettes": {
+    "X": ["0x1800", "0x6000", "0x718C"],
+    "A": ["0x0006", "0x0018", "0x319C"],
+    "Y": ["0x0060", "0x0240", "0x338C"],
+    "B": ["0x0042", "0x039F", "0x73FF"]
+  }
+}

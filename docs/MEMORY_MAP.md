@@ -12,6 +12,9 @@ for the owning component even when the current generated payload is shorter.
 | name prefill | `0x0746D0-0x0746E7` | `$C7:46D0-$46E7` | three 8-byte default-name records (length + up to 7 tokens); French overlay replaces them |
 | name prefill | `0x075039-0x07503C` | `$C7:5039-$503C` | Name Entry init-tail hook |
 | GAME SELECT | `0x074400-0x07442C` | `$C7:4400-$442C` | 45-byte relocated label resource |
+| French controller buttons | `0x002116-0x002118` | `$C0:2116-$2118` | `french_gfx`: skip USA-only palette override (`JSR $212F` -> three NOPs) |
+| French controller buttons | `0x12D8F0-0x12D92F` | `$D2:D8F0-$D2:D92F` | `french_gfx`: shared 16×16 controller-button graphic generated from indexed PNG |
+| French controller buttons | `0x12DBCC-0x12DBE3` | `$D2:DBCC-$DBE3` | `french_gfx`: exact French X/A/Y/B 2bpp palette ramps |
 | Window Settings | `0x074700-0x07472E` | `$C7:4700-$472E` | runtime-validated 46-cell fixed-font source + terminator |
 | Window Settings | `0x074730-0x074759` | `$C7:4730-$4759` | ten-span fixed-font placement list |
 | GAME FILE money spacing | `0x074D32-0x074D3B` | `$C7:4D32-$4D3B` | 10-byte helper preserving the fixed 16-cell money upload while inserting one separator before the currency suffix |
@@ -100,6 +103,15 @@ GAME FILE also keeps its translation-JSON-backed stock label fields synchronized
 Window Settings is fixed-font-only. Its runtime-validated source resource lives at `$C7:4700-$472E`, with the ten-span placement list at `$C7:4730-$4759`. Descriptor text/placement pointers at `$C7:7828/$782C` are redirected to `$4700/$4730`, and `$C7:75CA` changes `$07->$09` so `Choix de fenêtre` fits in an 18-cell frame. The placement order is structural: horizontal `Fond` spans are emitted before vertical `Bordure` spans so the native source cursor ends at the title start. The help pointer `$C0:33BB` is redirected to `$ED:8600`. The earlier VWF experiment and unsynchronized frame/resource probes are rejected.
 
 Action Settings keeps the stock left frame width `$18` and stock checkerboard/right-panel geometry. Its four translated fixed-font labels are repacked into the 34-cell resource at `$C7:4DC0`; the six-span placement list at `$C7:4DE3` reuses two 2-cell overlaps and moves `Défendre` one fixed-font cell (8 px) left. Three source-tile bases are adjusted in place, matching the official French Rev 1 ROM: `$C7:6C77` `$2180->$2184` for the right-hand gauge value, `$C7:6D57` `$2090->$2094` and `$C7:6D5C` `$2108->$210C` for the two top-help redraw paths. This screen deliberately remains fixed-font; the VWF experiment is rejected.
+
+## french_gfx — shared controller-button localization
+
+`french_gfx` uses only existing stock regions and reserves no free space. The
+16×16 indexed PNG is converted at build time to four 8×8 2bpp tiles in stock
+TL/TR/BL/BR order. The four palette ramps are exact French Rev 1 BGR15 data.
+The only code edit skips the USA-only palette-collapsing subroutine call at
+`$C0:2116`; no screen-specific renderer or WRAM state is added. The feature is
+binary-validated, runtime-validated and promoted.
 
 ## vwf_dialogues — global allocation view
 

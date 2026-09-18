@@ -26,6 +26,7 @@ The ROM itself is deliberately not included.
 - `name_entry_prefill` - editable default-name prefill driven by a component-local JSON (`Randi`, `Primm`, `Popoi`); requires `name_entry_extended` for lowercase/grid support.
 - `french_name_entry_prefill` - French default-name overlay (`Randy`, `Prim`, `Popoï`), with its own JSON and fourth-row token support; requires `name_entry_prefill` + `french_name_entry_extended`.
 - `french_menus` - French native-menu pipeline for GAME SELECT/GAME FILE, Window Settings and the runtime-validated fixed-font Action Settings labels. Window Settings is fixed-font-only (`Choix de fenêtre`, `Fond` left/right, `Bordure` top/bottom) with synchronized frame/resource/placement relocation; GAME FILE uses `Sauvegardes`, the validated `1234567 PO` hybrid layout, and the 15-cell JSON-backed `Graines de Mana` source consumed by the narrow GAME FILE VWF backend.
+- `french_gfx` - French-specific graphical assets. Its first runtime-validated feature converts `assets/controller_button.png` into the shared 16×16 SNES 2bpp controller icon, installs the exact French X/A/Y/B palette ramps, and skips the USA-only purple-controller palette override. The replacement is global for screens using the shared graphical button resource and uses no free-space allocation.
 - `french_opening` - French startup credits/opening text, including the runtime-validated two-row `É` credit overlay with stock `Z` restored and synchronized CGRAM fade.
 - `french_intro` - validated French new-game event `$0400` payload, private intro DTE and accented glyphs.
 - `vwf_intro` - new-game intro VWF renderer/runtime, private parser buffer and validated intro window; owns no translation.
@@ -99,14 +100,15 @@ The dialogue corpus is frozen at the current promoted state: **701 accepted play
 
 A fresh cold regeneration reproduces `translations/dialogues_french.json` with SHA-256 `3e4cacd926e31d6dfe9f9021d1026c4f71dc68ccd88ce4481749e47764d2b7d9`. The promoted `french_dialogues.ips` SHA-256 is `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31`.
 
-The current post-Window-Settings baseline is:
+The current runtime-validated `french_gfx` controller-button baseline is:
 
-- `patches/all.ips`: `966405871639cee83ac69475ef85ee516c4d95a54a3b58e5b5278eb36c372056`
+- `patches/all.ips`: `8be55d2b25053bd71231c96047368b38f1fc07220f0db563293a29e96dac28df`
+- `patches/french_gfx.ips`: `5753358d9603e6422a8ce03223e362900671e403fe83b9f57988400e3f1ffdd2`
 - `patches/french_menus.ips`: `28806e4baaded29e749738243db547b6668f3c3567deefa52e622280ccc8c85a`
 - `patches/vwf_ui.ips`: `a031a40d9c3122a0b5b8bb02fdb4bcff92da3ddc5b924f71e30e1df42cceddcd`
 - `patches/vwf_dialogues.ips`: `f9628f1c43ba2917a081fd2cf31b48ce90c9138980e720276602796f7b593dad`
 - `patches/french_resources.ips`: `c9483c0a42ca85d2f9051f4d7f0355e09ce76279d3311f43bd574864fd492216`
-- Final rebuilt ROM SHA-256: `4a6500e5757e3e0d53f14a5a0a7e551f8d5c79ce7b2de5ee37f36591dfbf74b8`; SNES checksum `$AB52`.
+- Final rebuilt validated ROM SHA-256: `c5207420053916b1b2f45061d28cbcb939ce709b58e5bf502f72f84a46ca7d99`; SNES checksum `$AC27`. The ROM itself is not distributed.
 
 No `french_shop_text.ips` is generated. The validated MONEY frame remains 11 cells wide and its independent type-2 close seed remains `$C7:7140=$09`. See `docs/HANDOFF.md` for the active handoff.
 
