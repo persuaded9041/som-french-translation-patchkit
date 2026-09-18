@@ -12,11 +12,15 @@ for the owning component even when the current generated payload is shorter.
 | name prefill | `0x0746D0-0x0746E7` | `$C7:46D0-$46E7` | three 8-byte default-name records (length + up to 7 tokens); French overlay replaces them |
 | name prefill | `0x075039-0x07503C` | `$C7:5039-$503C` | Name Entry init-tail hook |
 | GAME SELECT | `0x074400-0x07442C` | `$C7:4400-$442C` | 45-byte relocated label resource |
+| Window Settings | `0x074700-0x07472E` | `$C7:4700-$472E` | runtime-validated 46-cell fixed-font source + terminator |
+| Window Settings | `0x074730-0x074759` | `$C7:4730-$4759` | ten-span fixed-font placement list |
 | GAME FILE money spacing | `0x074D32-0x074D3B` | `$C7:4D32-$4D3B` | 10-byte helper preserving the fixed 16-cell money upload while inserting one separator before the currency suffix |
 | GAME FILE | `0x074D40-0x074DBE` | `$C7:4D40-$4DBE` | relocated save/load-menu resource for expanded `Fichier` label |
 | Action Settings | `0x074DC0-0x074DFC` | `$C7:4DC0-$4DFC` | runtime-validated fixed-font French label resource (35 bytes) + six-span placement list (26 bytes); remains below Name Entry private layout |
 | GAME SELECT | `0x2D8000-0x2D83FF` | `$ED:8000-$83FF` | relocated GAME SELECT welcome/help text |
-| GAME FILE | `0x2D8400-0x2DFFFF` | `$ED:8400-$FFFF` | relocated GAME FILE save-help text / reserved component text space |
+| GAME FILE | `0x2D8400-0x2D8470` | `$ED:8400-$8470` | relocated GAME FILE save-help text |
+| Action Settings | `0x2D8500-0x2D857B` | `$ED:8500-$857B` | relocated fixed-font help block |
+| Window Settings | `0x2D8600-0x2D86A2` | `$ED:8600-$86A2` | relocated three-line fixed-font help block |
 | French battle/status text | `0x2E6000-0x2E6FFF` | `$EE:6000-$6FFF` | reserved relocated battle/status text pool owned by `french_resources`; current payload 1573 bytes including four runtime template prefixes |
 | French opening helper | `0x2E9000-0x2E9FFF` | `$EE:9000-$9FFF` | reserved helper region; current 37-byte renderer helper is `$EE:9000-$9024` |
 | French opening arrangement | `0x2EA000-0x2EBFFF` | `$EE:A000-$BFFF` | literal-only stock-format stream, loaded through `$C1:0014` |
@@ -92,6 +96,8 @@ maps produced by all components.
 `french_opening` keeps opening-font tile `$7A` as the stock `Z`. Startup-credit `É` is rendered as stock `E` plus acute tile `$7D` on the immediately preceding tile row. The wrapper lives in existing decompressed-title-code padding at CPU `$BCED`; the credit-only CGRAM HDMA tables are adjusted in place to cover both rows. This introduces no new ROM/WRAM allocation, and the prologue accent tiles `$7D-$7F` remain unchanged.
 
 GAME FILE also keeps its translation-JSON-backed stock label fields synchronized in place at `C7:7340-C7:73BB`, because runtime validation showed that one menu path still reads them even after the two table pointers are redirected to `C7:4D40`. The four-cell stock FILE field contains the `Fich` prefix; the relocated resource contains full `Fichier`. Additional in-place edits at ROM `0x0753C9` / `$C7:53C9` and `0x075AF1` / `$C7:5AF1` change the dynamic level prefix from `L` to `N` (`$A6 -> $A8`), and ROM `0x077585` / `$C7:7585` changes the FILE-frame descriptor from `$03` (6 text cells) to `$04` (8 text cells). The runtime-validated money layout also uses the 10-byte helper at `$C7:4D32-$4D3B`; this is the only newly allocated GAME FILE code in that gap.
+
+Window Settings is fixed-font-only. Its runtime-validated source resource lives at `$C7:4700-$472E`, with the ten-span placement list at `$C7:4730-$4759`. Descriptor text/placement pointers at `$C7:7828/$782C` are redirected to `$4700/$4730`, and `$C7:75CA` changes `$07->$09` so `Choix de fenêtre` fits in an 18-cell frame. The placement order is structural: horizontal `Fond` spans are emitted before vertical `Bordure` spans so the native source cursor ends at the title start. The help pointer `$C0:33BB` is redirected to `$ED:8600`. The earlier VWF experiment and unsynchronized frame/resource probes are rejected.
 
 Action Settings keeps the stock left frame width `$18` and stock checkerboard/right-panel geometry. Its four translated fixed-font labels are repacked into the 34-cell resource at `$C7:4DC0`; the six-span placement list at `$C7:4DE3` reuses two 2-cell overlaps and moves `Défendre` one fixed-font cell (8 px) left. Three source-tile bases are adjusted in place, matching the official French Rev 1 ROM: `$C7:6C77` `$2180->$2184` for the right-hand gauge value, `$C7:6D57` `$2090->$2094` and `$C7:6D5C` `$2108->$210C` for the two top-help redraw paths. This screen deliberately remains fixed-font; the VWF experiment is rejected.
 

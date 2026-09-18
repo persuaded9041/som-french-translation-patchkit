@@ -43,6 +43,38 @@ and no localized text embedded in Python/ASM.
 - `COUNTER` is translation-backed as `Sauvegardes`; the row has 15 safe label cells and the 11-character wording is runtime-validated.
 - `MANA POWER` is translation-backed as the full 15-cell `Graines de Mana`. `french_menus` owns only the source payload; the exact GAME FILE VWF presentation is owned by `vwf_ui`, which leaves the dynamic seed count stock.
 
+### Window Settings / Choix de fenêtre
+
+The native Window Edit screen is now runtime-validated entirely on the **stock
+fixed-font renderer**. The rejected VWF experiment is not part of the promoted
+component. The final translated layout is:
+
+- title: `Choix de fenêtre`;
+- horizontal D-pad legend: `Fond` on the left and right;
+- vertical D-pad legend: `Bordure` above and below;
+- help:
+  - `Choisissez le fond : gauche/droite, bordure : haut/bas.`
+  - `Réglez la couleur : maintenez A, Y ou X et gauche/droite.`
+  - `Appuyez sur B pour valider, Select pour annuler.`
+
+The stock text/placement cursor is sensitive to resource length. Runtime probes
+showed that widening the frame alone shifts later text by two cells, and adding
+new label spans after the title makes the source cursor consume those labels as
+title/help data. The promoted architecture therefore advances **frame width,
+resource and placement list together**:
+
+- relocated source resource: `$C7:4700-$472E`;
+- relocated placement list: `$C7:4730-$4759`;
+- title frame width: `$C7:75CA`, `$07 -> $09` (18 fixed cells);
+- text pointer: `$C7:7828`, `$73BC -> $4700`;
+- placement pointer: `$C7:782C`, `$7506 -> $4730`;
+- help block relocated to `$ED:8600+`.
+
+`Fond`, `Bordure`, the full title and the compact stock fallback are all stored
+in `translations/menu_text_french.json`; no localized prose is embedded in the
+builder. The final source ordering deliberately ends placement parsing on the
+`Bordure` span so the stock source cursor lands exactly on the title source.
+
 ### Action Settings / Actions des personnages
 
 The four fixed-font grid labels are runtime-validated in French:
@@ -86,7 +118,7 @@ The third row `C0:368F` (`0 1 2 3 4 5 6 7 8`) is structural and stays unchanged.
 
 ## Other runtime-validated menu/help changes
 
-- GAME FILE save help now uses `Pressez “Attaque” pour sauver, “Retour” pour annuler.`; this avoids hard-coding physical B/Y mappings after controls may have been rebound.
+- GAME FILE save help now uses `Appuyez sur “Attaque” pour sauver, “Retour” pour annuler.`; this avoids hard-coding physical B/Y mappings after controls may have been rebound.
 - Name Entry keeps physical `B` and `Start` deliberately because it is reached before control remapping is available. Its first line is now `Choisissez un caractère avec la croix directionnelle.`
 - GAME FILE total money now renders `1234567 PO` with the currency suffix anchored exactly where stock placed `GP`. The first glyph remains JSON-derived at `$C7:54A9`; the second remains the `C7:7394` template glyph in column 16. The 10-byte `$C7:4D32` helper inserts only the separator while preserving the renderer's mandatory 16-cell dynamic upload.
 - GAME FILE `COUNTER -> Sauvegardes` and `MANA POWER -> Graines de Mana` are runtime-validated. The latter remains a 15-cell JSON source field; only `vwf_ui` changes its presentation.

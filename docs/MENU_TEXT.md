@@ -25,6 +25,19 @@ The nine extracted resources cover:
 `Empty` is a separate five-glyph fixed field immediately before the descriptor
 table at `$C7:7805`; it is not null-terminated and is extracted explicitly.
 
+## Window Settings — promoted fixed-font localization
+
+`menu.window_edit` is now promoted through `french_menus` with no VWF:
+
+- `SELECT` -> `Choisir` (compact stock mirror);
+- `WINDOW EDIT` -> `Choix de fenêtre`;
+- synthetic JSON labels `Fond` / `Bordure` provide the four D-pad legends.
+
+The translated source and placement list are relocated to `$C7:4700` /
+`$C7:4730`; the title frame width is `$09` = 18 fixed cells. The final layout
+shows `Fond` left/right and `Bordure` top/bottom. Resource length and placement
+order are structural: the native source cursor must finish at the title start.
+
 ## Action Settings — promoted fixed-font localization
 
 The `menu.action_settings` entries are runtime-valid and promoted through

@@ -33,7 +33,24 @@
         },
         {
           "id": "C0:34BE",
-          "text": "Pressez “Attaque” pour sauver, “Retour” pour annuler."
+          "text": "Appuyez sur “Attaque” pour sauver, “Retour” pour annuler."
+        }
+      ]
+    },
+    {
+      "group": "window_settings.help",
+      "entries": [
+        {
+          "id": "C0:34F9",
+          "text": "Choisissez le fond : gauche/droite, bordure : haut/bas."
+        },
+        {
+          "id": "C0:3521",
+          "text": "Réglez la couleur : maintenez A, Y ou X et gauche/droite."
+        },
+        {
+          "id": "C0:3550",
+          "text": "Appuyez sur B pour valider, Select pour annuler."
         }
       ]
     },

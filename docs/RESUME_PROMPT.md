@@ -8,10 +8,11 @@ Commence par **étudier l'archive seulement**. Lis intégralement :
 
 - `README.md`
 - `docs/HANDOFF.md`
+- `docs/MEMORY_MAP.md`
+- `docs/COMPATIBILITY.md`
 - `docs/MENU_TEXT.md`
 - `docs/INTERFACE_TEXT.md`
 - `docs/TRANSLATIONS.md`
-- `docs/MEMORY_MAP.md`
 - `components/french_menus/README.md`
 - `components/french_menus/docs/MEMORY_MAP.md`
 - `components/french_resources/README.md`
@@ -19,21 +20,31 @@ Commence par **étudier l'archive seulement**. Lis intégralement :
 
 Après cette étude, **ne lance aucune recherche supplémentaire, aucun patch, aucun build expérimental et aucune traduction**. Fais uniquement un bref compte rendu de ce que tu as compris et **attends mon feu vert explicite**.
 
-## État GAME FILE `PO` à préserver
+## Nouvelle priorité après discussion : futur composant `french_gfx`
 
-Le sujet de l'espace devant la monnaie est **terminé et runtime-validé**. Le rendu final est `1254536 PO`, sans déplacement de l'ancre droite de `PO`.
+La traduction des menus et ressources est **mise en pause**. Elle reste dans le backlog et sera reprise plus tard ; ne relance pas automatiquement les lots de traduction.
 
-Le chemin stock est hybride et doit rester ainsi : les 16 premières cellules de la ligne Argent sont toujours réécrites dynamiquement, tandis que la colonne 16 du template conserve le second glyphe de l'unité. La solution promue utilise `7 espaces + 7 cellules montant + 1 espace + currency[0]` dans la fenêtre dynamique ; `currency[0]` reste dérivé du JSON `C7:7394`, et `currency[1]` reste dans le template. Le helper runtime-validé est à `$C7:4D32-$4D3B`. Ne pas réintroduire les anciens probes `PPO` / `P O`.
+Je souhaite discuter d'un nouveau composant **`french_gfx`** destiné à remplacer certains éléments graphiques du jeu par des versions spécifiques à la traduction française. **Ne commence pas l'implémentation avant qu'on en ait discuté après l'étude de l'archive.** En particulier, avant mon accord explicite :
 
-## Priorité après mon feu vert
+- ne crée pas `components/french_gfx/` ;
+- ne réserve aucune zone ROM ;
+- n'extrais, ne redessine et ne réinjecte aucun graphisme ;
+- ne produis aucun IPS/probe ;
+- n'invente pas encore le format des assets ni l'architecture du composant.
 
-Reprendre la traduction des **ressources et menus encore manquants**, par petits lots cohérents avec validation humaine entre les lots. Comparer US / Android FR / VF SNES officielle / japonais lorsque c'est utile. Tout texte français doit rester sous `translations/*.json`, jamais codé en dur dans Python ou ASM.
+La première étape sera de discuter des éléments graphiques que je veux remplacer, puis d'étudier leur stockage/rendu stock et de choisir une architecture propre. Les assets français devront appartenir à `french_gfx`; éviter de mettre des données localisées dans un composant générique.
 
-État à préserver :
+## État runtime à préserver
 
-- Actions des personnages : `Attaquer`, `Défendre`, `S'approcher`, `S'éloigner`, renderer fixe stock ; aides runtime-validées `Choisissez le type d'action. Validez avec “Attaque”.` et `Jusqu'où charger la jauge ? Validez avec “Attaque”.` ;
-- aide sauvegarde : `Pressez “Attaque” pour sauver, “Retour” pour annuler.` ;
-- GAME FILE : `Sauvegardes` et `Graines de Mana` runtime-validés ; `Graines de Mana` utilise la VWF `vwf_ui` ultra-localisée `$AD`, uniquement sur ce champ, avec valeur Mana dynamique stock ;
-- Name Entry : `Choisissez un caractère avec la croix directionnelle.` ; conserver `B` et `Start` physiques, intentionnels avant remapping ;
-- écran Statut : traductions déjà revues dans les JSON mais encore largement **translation-only** tant que leur renderer n'est pas promu ;
-- dialogues : corpus gelé et validé, ne pas relancer d'audit global et ne pas modifier mapping/segmentation.
+- **Choix de fenêtre** : renderer fixe stock, sans VWF ; titre `Choix de fenêtre`; `Fond` gauche/droite; `Bordure` haut/bas; aides `Choisissez le fond : gauche/droite, bordure : haut/bas.`, `Réglez la couleur : maintenez A, Y ou X et gauche/droite.`, `Appuyez sur B pour valider, Select pour annuler.`. Ressource `$C7:4700`, placement `$C7:4730`, frame `$C7:75CA=$09`. Ne réintroduire aucun des probes VWF/glitchés.
+- aide sauvegarde : `Appuyez sur “Attaque” pour sauver, “Retour” pour annuler.`
+- GAME FILE argent : `1254536 PO`, architecture hybride 16 cellules, helper `$C7:4D32-$4D3B`.
+- GAME FILE : `Sauvegardes` fixe et `Graines de Mana` via la VWF ultra-localisée `$AD`, valeur dynamique stock.
+- Actions des personnages : `Attaquer`, `Défendre`, `S'approcher`, `S'éloigner`, renderer fixe stock ; aides runtime-validées.
+- Name Entry : `Choisissez un caractère avec la croix directionnelle.` ; conserver `B` et `Start` physiques.
+- écran Statut : traductions déjà revues dans les JSON mais encore largement **translation-only**.
+- dialogues : corpus gelé et validé ; ne pas relancer d'audit global, ne pas modifier mapping/segmentation.
+
+## Backlog menus / ressources — à garder pour plus tard
+
+Ne pas le supprimer du handoff, mais ne pas le reprendre pendant la phase `french_gfx`. Les familles importantes encore à traiter incluent les menus natifs restant à promouvoir, l'écran Statut, ainsi que les descriptions d'armes/magie `$CA` qui nécessitent revue de géométrie.

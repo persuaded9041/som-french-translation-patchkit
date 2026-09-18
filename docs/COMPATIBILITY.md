@@ -104,6 +104,18 @@ after checking those ranges against all existing components.
 
 `vwf_ui` owns the exact free-space trampoline `$C7:4C88-$4C8E` immediately after its config byte `$C7:4C87`; `$C7:4C8F` remains `$FF` before the shared compositor at `$C7:4C90`. The trampoline is reached only by redirecting the fourth GAME FILE generator table pointer at `$C7:5F95-$5F96`, calls the private wrapper `$ED:7F40-$7FA4`, then jumps back to stock `$C7:5464`. The wrapper copies only the 15-cell source field `C7:73AA`, submits a pair-aligned 16-cell graphics span, and leaves the dynamic value untouched. `vwf_dialogues` and `vwf_ui` both rebuild the shared dispatcher so their overlap remains byte-identical with the new `$AD` tag.
 
+## Native Window Settings fixed-font localization
+
+`french_menus` owns the runtime-validated Window Settings relocation at
+`$C7:4700-$4759` and help block `$ED:8600-$86A2`. It deliberately does **not**
+use `vwf_ui`. The frame-width byte `$C7:75CA` is coupled to the relocated source
+length: widening it alone was runtime-proven to shift the native source cursor
+and corrupt the following help. The final `$09` frame, 46-cell resource and
+ten-span placement list must therefore be treated as one layout unit.
+
+The rejected VWF Window Settings hook is absent from the baseline; `vwf_ui.ips`
+remains unchanged by this feature.
+
 ## Native Action Settings fixed-font localization
 
 `french_menus` keeps the Action Settings page on the stock fixed-width renderer.

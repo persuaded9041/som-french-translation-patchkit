@@ -32,13 +32,20 @@ The following interface/help rows are now promoted and runtime-validated:
 
 - GAME FILE save help:
   - `$C0:348D` -> `Sauvegarder sur un fichier utilisé efface ses données.`
-  - second row -> `Pressez “Attaque” pour sauver, “Retour” pour annuler.`
+  - second row -> `Appuyez sur “Attaque” pour sauver, “Retour” pour annuler.`
 - Name Entry:
   - `Choisissez un caractère avec la croix directionnelle.`
   - `Appuyez sur B pour valider. Le nom peut faire`
   - `9 lettres maximum. Appuyez sur Start pour continuer.`
   Physical `B`/`Start` are intentional here: this screen is used while creating a
   new game, before the player can remap controls.
+
+- Window Settings help (`$C0:34F9/$3521/$3550`) is runtime-validated on the stock fixed renderer after relocation to `$ED:8600`:
+  - `Choisissez le fond : gauche/droite, bordure : haut/bas.`
+  - `Réglez la couleur : maintenez A, Y ou X et gauche/droite.`
+  - `Appuyez sur B pour valider, Select pour annuler.`
+  The Japanese source only says to select with the four directions; the French wording intentionally clarifies the observed axis behavior.
+
 - Action Settings fixed-font help:
   - `$C0:3620` -> `Choisissez le type d'action. Validez avec “Attaque”.`
   - `$C0:3654` -> `Jusqu'où charger la jauge ? Validez avec “Attaque”.`

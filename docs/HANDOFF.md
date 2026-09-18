@@ -1,6 +1,6 @@
 # HANDOFF — Secret of Mana FR — menus natifs et ressources françaises
 
-Date : 2026-09-17
+Date : 2026-09-18
 
 Cette archive est la **source de vérité** et prévaut sur GitHub. La ROM de référence est **Secret of Mana (USA), non headerée**, taille `0x200000`, SHA-256 `4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f`. Elle ne doit jamais être redistribuée.
 
@@ -11,10 +11,14 @@ Depuis cette baseline, l'écran natif **Actions des personnages** a également �
 traduit et runtime-validé avec son renderer fixe stock. Cette archive est le
 nouveau point de départ.
 
-**Priorité immédiate de la prochaine discussion : après lecture complète de
-l'archive, NE RIEN MODIFIER et attendre explicitement le feu vert de l'utilisateur.
-Une fois autorisé, reprendre la traduction des ressources et menus encore non
-traduits par petits lots cohérents avec validation humaine entre les lots.**
+**Priorité immédiate de la prochaine discussion : mettre la traduction des menus /
+ressources en pause. Après lecture complète de l'archive, NE RIEN MODIFIER et
+attendre explicitement le feu vert de l'utilisateur. La nouvelle piste sera la
+conception d'un composant `french_gfx`, destiné à remplacer certains éléments
+graphiques par des variantes spécifiques à la traduction française. Ne créer
+aucun composant, n'allouer aucune adresse et ne produire aucun probe avant
+d'avoir discuté avec l'utilisateur du périmètre, des assets visés, du format des
+graphismes et de l'architecture souhaitée.**
 
 Ne pas relancer un audit global des dialogues sans raison spécifique : leur
 corpus reste gelé et validé.
@@ -98,7 +102,7 @@ ce terme est utilisé ailleurs, `Épée`, etc.).
 
 - Aide sauvegarde GAME FILE :
   - `Sauvegarder sur un fichier utilisé efface ses données.`
-  - `Pressez “Attaque” pour sauver, “Retour” pour annuler.`
+  - `Appuyez sur “Attaque” pour sauver, “Retour” pour annuler.`
   Les actions logiques sont utilisées ici plutôt que B/Y, car les contrôles peuvent déjà avoir été reconfigurés.
 - Name Entry : `Choisissez un caractère avec la croix directionnelle.` ; les mentions physiques `B` et `Start` sont volontairement conservées car la création de partie précède le remapping des contrôles.
 - GAME FILE : `Sauvegardes` est runtime-validé en renderer fixe stock.
@@ -141,6 +145,56 @@ Architecture du backend Mana :
 - la valeur Mana dynamique commence à `$6920` et reste entièrement stock.
 
 Le premier probe VWF, démarré directement sur la cellule 91 / `$6830`, est rejeté : il séparait les moitiés haut/bas des glyphes et laissait un demi-`G` résiduel. Le v2 a validé le renderer pair-aligné ; le v3 a ensuite corrigé uniquement le payload source complet `Graines de Mana`. Le `patches/all.ips` promu doit rester byte-identique à ce probe v3 runtime-validé. `vwf_ui` ne contient aucune prose française : il copie le champ source appartenant à `french_menus`.
+
+## Choix de fenêtre — runtime-validé et promu
+
+L'écran natif Window Settings est maintenant entièrement traduit **sans VWF**.
+Le probe VWF a cassé l'écran et est rejeté. La solution finale conserve le
+renderer fixe stock et synchronise largeur de cadre, ressource et placement :
+
+- titre : `Choix de fenêtre` ;
+- croix directionnelle : `Fond` à gauche/droite, `Bordure` en haut/bas ;
+- aide :
+  - `Choisissez le fond : gauche/droite, bordure : haut/bas.`
+  - `Réglez la couleur : maintenez A, Y ou X et gauche/droite.`
+  - `Appuyez sur B pour valider, Select pour annuler.`
+- ressource fixe relocalisée : `$C7:4700-$472E` ;
+- placement dix spans : `$C7:4730-$4759` ;
+- frame titre `$C7:75CA : $07 -> $09` (18 cellules) ;
+- pointeur texte `$C7:7828 : $73BC -> $4700` ;
+- pointeur placement `$C7:782C : $7506 -> $4730` ;
+- aide relocalisée en `$ED:8600+`.
+
+Points de recherche importants : le parseur de placement laisse un curseur de
+tuiles source utilisé ensuite par le frame script. Élargir seulement le cadre
+produit un `Ch` parasite et décale l'aide de deux caractères. Ajouter `Fond` /
+`Bordure` après le titre fait consommer ces nouveaux spans comme début du titre
+et corrompt le cadre du bas. L'ordre final des données est donc structurel :
+contrôles -> span `Fond` -> span `Bordure` -> `Choix de fenêtre`; le placement
+termine sur `Bordure`, ce qui laisse le curseur exactement au début du titre.
+
+Le fallback compact `$C7:73D1` reste `Réglage` et `C7:73C9` contient `Choisir`;
+ces textes sont eux aussi dans `translations/menu_text_french.json`, jamais en
+dur dans Python/ASM.
+
+### Tâche suivante : `french_gfx` — **discussion d'abord**
+
+La prochaine discussion ne doit **pas** poursuivre immédiatement les traductions
+menus/ressources. Ce backlog reste une tâche future. Après étude de l'archive,
+il faudra discuter avec l'utilisateur d'un nouveau composant `french_gfx` pour
+des substitutions graphiques spécifiques à la VF. Avant accord explicite :
+
+- ne pas créer `components/french_gfx/` ;
+- ne pas choisir d'adresse libre ;
+- ne pas extraire/modifier/réinjecter de GFX ;
+- ne pas construire de patch expérimental ;
+- commencer par identifier avec l'utilisateur les éléments graphiques visés et
+  décider si le composant doit contenir des assets binaires/images, des outils de
+  conversion, des hooks ou de simples remplacements de ressources stock.
+
+Le principe de séparation à préserver : `french_gfx` doit posséder les **assets
+français graphiques**, tandis que les éventuels hooks génériques ou outils
+partagés ne doivent pas embarquer de prose/graphisme localisé ailleurs.
 
 ## Architecture `french_resources` à préserver
 
@@ -277,15 +331,15 @@ Pour une validation de versionnement, faire également un rebuild complet dans u
 
 Rebuild complet depuis la ROM USA propre, après validation runtime de `Sauvegardes` et du backend VWF GAME FILE `Graines de Mana` :
 
-- `patches/french_menus.ips` SHA-256 : `9234a73b7b4116e6eab0dcb9135aab3141fa9d44c255e4ffe62a1056ab8c264b`
+- `patches/french_menus.ips` SHA-256 : `28806e4baaded29e749738243db547b6668f3c3567deefa52e622280ccc8c85a`
 - `patches/french_name_entry_extended.ips` SHA-256 : `6a488bc7cd6afe1ee98176c5bed3b4670bf12c789b5f58622d6aab23217ea6da`
 - `patches/french_resources.ips` SHA-256 : `c9483c0a42ca85d2f9051f4d7f0355e09ce76279d3311f43bd574864fd492216`
 - `patches/vwf_ui.ips` SHA-256 : `a031a40d9c3122a0b5b8bb02fdb4bcff92da3ddc5b924f71e30e1df42cceddcd`
 - `patches/vwf_intro.ips` SHA-256 : `a5917976c7bf139e8f0ba69ee46f2ab0e23ab3db91453bf18bae6ba420d4110a`
 - `patches/vwf_dialogues.ips` SHA-256 : `f9628f1c43ba2917a081fd2cf31b48ce90c9138980e720276602796f7b593dad`
 - `patches/french_dialogues.ips` SHA-256 : `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31`
-- `patches/all.ips` SHA-256 : `c5ec6c1396a659740ae462f75c8ad08c2074a0276df0ada04e021a81b9530807`
-- ROM finale reconstruite SHA-256 : `adbf1eba05ee6459ab63d0a4ecd2c1a5cc4e828f1de30429847e2acaf9b3180e`
-- checksum SNES final : `$862D`.
+- `patches/all.ips` SHA-256 : `966405871639cee83ac69475ef85ee516c4d95a54a3b58e5b5278eb36c372056`
+- ROM finale reconstruite SHA-256 : `4a6500e5757e3e0d53f14a5a0a7e551f8d5c79ce7b2de5ee37f36591dfbf74b8`
+- checksum SNES final : `$AB52`.
 
-Le rebuild complet dans un dossier de patches neuf est byte-identique aux patches promus. `patches/all.ips` est **byte-identique** au probe v3 GAME FILE Mana runtime-validé par l'utilisateur, qui inclut également `Sauvegardes`. La ROM de référence n'est pas incluse dans l'archive.
+Le rebuild complet dans un dossier de patches neuf est byte-identique aux patches promus. Le rebuild complet reproduit tous les composants non ciblés byte-identiquement. La ROM reconstruite est identique au probe final `Fond/Bordure v2` sur tous les octets écrits par ce probe; le rebuild propre complète seulement l'expansion ROM jusqu'à `0x300000`. La ROM de référence n'est pas incluse dans l'archive.

@@ -119,6 +119,63 @@ ACTION_HELP_RELOC_OFFSET = 0x2D8500        # SNES ED:8500
 ACTION_HELP_RELOC_SNES = 0xED8500
 ACTION_HELP_RELOC_LIMIT = 0x2D8600
 
+# Window Settings stays entirely on the stock fixed-font renderer.  The
+# translated title and axis legend need a larger pair-aligned source resource,
+# so relocate the native C7 text resource and placement list together.  The
+# frame width, source cursor and resource length are deliberately kept in sync;
+# changing only one of them was runtime-proven to corrupt the following help.
+WINDOW_HELP_POINTER_OFFSET = 0x0033BB      # stock pointer = C0:34F9
+WINDOW_HELP_POINTER_STOCK = 0xC034F9
+WINDOW_HELP_RELOC_OFFSET = 0x2D8600        # SNES ED:8600
+WINDOW_HELP_RELOC_SNES = 0xED8600
+WINDOW_HELP_RELOC_LIMIT = 0x2D8700
+
+WINDOW_RESOURCE_STOCK_OFFSET = 0x0773BC    # starts `X Y A B R G  ...`
+WINDOW_RESOURCE_PREFIX_CELLS = 13          # control legend + two source blanks
+WINDOW_RESOURCE_PREFIX_STOCK = bytes.fromhex(
+    "b2 80 b3 80 9b 80 9c 80 ac 80 a1 80 80"
+)
+WINDOW_RESOURCE_RELOC_OFFSET = 0x074700     # C7:4700, clean-USA $FF gap
+WINDOW_RESOURCE_RELOC_PTR = 0x4700
+WINDOW_RESOURCE_RELOC_LIMIT = 0x07472F      # current resource ends at C7:472E
+WINDOW_PLACEMENT_RELOC_OFFSET = 0x074730    # C7:4730
+WINDOW_PLACEMENT_RELOC_PTR = 0x4730
+WINDOW_PLACEMENT_RELOC_LIMIT = 0x07475A     # current table ends at C7:4759
+WINDOW_DESCRIPTOR_TEXT_PTR_OFFSET = 0x077828
+WINDOW_DESCRIPTOR_TEXT_PTR_STOCK = 0x73BC
+WINDOW_DESCRIPTOR_PLACEMENT_PTR_OFFSET = 0x07782C
+WINDOW_DESCRIPTOR_PLACEMENT_PTR_STOCK = 0x7506
+WINDOW_FRAME_WIDTH_OFFSET = 0x0775CA
+WINDOW_FRAME_WIDTH_STOCK = 0x07              # 14 cells
+WINDOW_FRAME_WIDTH_FRENCH = 0x09             # 18 cells
+
+# Keep the original C7:73C9/C7:73D1 shadow fields French as well.  The primary
+# rendered title is the relocated JSON-backed title; the compact fallback is
+# intentionally separate JSON data so no localized prose lives in Python.
+WINDOW_SELECT_OFFSET = 0x0773C9
+WINDOW_SELECT_CAPACITY = 7
+WINDOW_SELECT_STOCK = bytes.fromhex("ad 9f a6 9f 9d ae 80")  # `SELECT `
+WINDOW_TITLE_FIXED_OFFSET = 0x0773D1
+WINDOW_TITLE_FIXED_CAPACITY = 13
+WINDOW_TITLE_FIXED_STOCK = bytes.fromhex(
+    "b1 a3 a8 9e a9 b1 80 80 9f 9e a3 ae 80"  # `WINDOW  EDIT `
+)
+
+# Native six one-unit colour-button placements, converted to the span format
+# already used by GAME SELECT.  Added axis labels reuse the same native format.
+WINDOW_CONTROL_PLACEMENTS = (
+    (1, 0x58, 0x00E2),
+    (1, 0x60, 0x00E8),
+    (1, 0x54, 0x0162),
+    (1, 0x64, 0x0168),
+    (1, 0x50, 0x01E2),
+    (1, 0x5C, 0x01E8),
+)
+WINDOW_HORIZONTAL_DESTINATIONS = (0x0348, 0x0358)
+WINDOW_VERTICAL_DESTINATIONS = (0x0290, 0x0410)
+WINDOW_AXIS_SLOT_CELLS = 8
+WINDOW_TITLE_SLOT_CELLS = 17                 # 16-char title + one trailing cell
+
 # Action Settings uses a compact four-slot C7 text resource.  The official
 # French SNES localization proves that these slots may be repacked and their
 # placement descriptors resized independently.  Our longer labels need 39
@@ -194,7 +251,7 @@ ASCII_TO_SOM.update({str(i): 0xB5 + i for i in range(10)})
 ASCII_TO_SOM.update({
     ".": 0xBF, ",": 0xC0, "/": 0xC1, "'": 0xC2,
     '"': 0xC3,  # handled specially below to alternate opening/closing quote
-    "-": 0xC6, "%": 0xC7, "!": 0xC8, "&": 0xC9,
+    ":": 0xC5, "-": 0xC6, "%": 0xC7, "!": 0xC8, "&": 0xC9,
     "?": 0xCA, "(": 0xCB, ")": 0xCC, "#": 0xCD,
 })
 
@@ -284,6 +341,18 @@ SAVE_HELP_IDS = {
     "SAVE_HELP_1": "C0:348D",
     "SAVE_HELP_2": "C0:34BE",
 }
+WINDOW_EDIT_IDS = {
+    "SELECT": "C7:73C9",
+    "TITLE": "C7:73D1",
+    "HORIZONTAL": "new:window_edit.axis.horizontal",
+    "VERTICAL": "new:window_edit.axis.vertical",
+    "FALLBACK": "new:window_edit.compact_fallback",
+}
+WINDOW_HELP_IDS = {
+    "HELP_1": "C0:34F9",
+    "HELP_2": "C0:3521",
+    "HELP_3": "C0:3550",
+}
 ACTION_SETTINGS_IDS = {
     "ATTACK": "C7:73E0",
     "KEEP_AWAY": "C7:73E7",
@@ -297,7 +366,7 @@ ACTION_HELP_IDS = {
 }
 
 
-def load_french_rows(base: bytes) -> tuple[dict[str, str], dict[str, str], dict[str, str]]:
+def load_french_rows(base: bytes) -> tuple[dict[str, str], dict[str, str], dict[str, str], dict[str, str], dict[str, str], dict[str, str]]:
     interface = load_or_extract_interface(base, PROJECT_ROOT / "assets" / "interface_text.json")
     menu = load_or_extract_menu(base, PROJECT_ROOT / "assets" / "menu_text.json")
     try:
@@ -330,6 +399,14 @@ def load_french_rows(base: bytes) -> tuple[dict[str, str], dict[str, str], dict[
             name: require(interface_fr, [text_id], context="GAME FILE save help")[0]
             for name, text_id in SAVE_HELP_IDS.items()
         })
+        window_rows = {
+            name: require(menu_fr, [text_id], context="Window Settings")[0]
+            for name, text_id in WINDOW_EDIT_IDS.items()
+        }
+        window_help_rows = {
+            name: require(interface_fr, [text_id], context="Window Settings help")[0]
+            for name, text_id in WINDOW_HELP_IDS.items()
+        }
         action_rows = {
             name: require(menu_fr, [text_id], context="Action Settings")[0]
             for name, text_id in ACTION_SETTINGS_IDS.items()
@@ -345,7 +422,7 @@ def load_french_rows(base: bytes) -> tuple[dict[str, str], dict[str, str], dict[
         action_help_rows["GAUGE_SCALE"] = canonical_action_help[ACTION_HELP_IDS["GAUGE_SCALE"]]
     except ValueError as exc:
         raise SystemExit(str(exc)) from exc
-    return rows, game_file_rows, action_rows, action_help_rows
+    return rows, game_file_rows, window_rows, window_help_rows, action_rows, action_help_rows
 
 
 def _min_even_width(text: str, context: str) -> tuple[bytes, int]:
@@ -593,6 +670,135 @@ def apply_game_file_sources(base: bytes, rom: bytearray, rows: dict[str, str]) -
     rom[SAVE_HELP_POINTER_OFFSET:SAVE_HELP_POINTER_OFFSET + 3] = SAVE_HELP_RELOC_SNES.to_bytes(3, "little")
 
 
+def build_window_help(rows: dict[str, str]) -> bytes:
+    encoded: list[bytes] = []
+    for key in ("HELP_1", "HELP_2", "HELP_3"):
+        payload = encode_text(rows[key], f"Window Settings {key}")
+        if len(payload) > 58:
+            raise SystemExit(
+                f"Window Settings {key} encodes to {len(payload)} cells; fixed help renderer supports at most 58"
+            )
+        encoded.append(payload)
+    return b"\x7f".join(encoded) + b"\x00"
+
+
+def _source_tile_for_cell(cell: int) -> int:
+    # Native fixed-font source tiles advance by $04 per two source cells.
+    return 0x50 + (cell // 2) * 4
+
+
+def build_window_resource(base: bytes, rows: dict[str, str]) -> tuple[bytes, bytes]:
+    prefix = base[
+        WINDOW_RESOURCE_STOCK_OFFSET:
+        WINDOW_RESOURCE_STOCK_OFFSET + WINDOW_RESOURCE_PREFIX_CELLS
+    ]
+    if prefix != WINDOW_RESOURCE_PREFIX_STOCK:
+        raise SystemExit("Unexpected clean-USA Window Settings resource prefix")
+
+    horizontal = encode_text(rows["HORIZONTAL"], "Window Settings horizontal axis")
+    vertical = encode_text(rows["VERTICAL"], "Window Settings vertical axis")
+    title = encode_text(rows["TITLE"], "Window Settings title")
+    if len(horizontal) > WINDOW_AXIS_SLOT_CELLS:
+        raise SystemExit("Window Settings horizontal label exceeds 8 fixed cells")
+    if len(vertical) > WINDOW_AXIS_SLOT_CELLS:
+        raise SystemExit("Window Settings vertical label exceeds 8 fixed cells")
+    if len(title) > WINDOW_TITLE_SLOT_CELLS - 1:
+        raise SystemExit("Window Settings title exceeds 16 visible fixed cells")
+
+    # Runtime-validated visual slots preserve the proven source anchors: one
+    # leading cell before the horizontal label, no leading cell before the
+    # vertical label, then right-padding to the native 8-cell source spans.
+    horizontal_lead = 1
+    if horizontal_lead + len(horizontal) > WINDOW_AXIS_SLOT_CELLS:
+        raise SystemExit("Window Settings horizontal label no longer fits its validated source anchor")
+    horizontal_slot = (
+        b"\x80" * horizontal_lead
+        + horizontal
+        + b"\x80" * (WINDOW_AXIS_SLOT_CELLS - horizontal_lead - len(horizontal))
+    )
+    vertical_slot = vertical + b"\x80" * (WINDOW_AXIS_SLOT_CELLS - len(vertical))
+    title_slot = title + b"\x80" * (WINDOW_TITLE_SLOT_CELLS - len(title))
+
+    horizontal_start = WINDOW_RESOURCE_PREFIX_CELLS
+    vertical_start = horizontal_start + WINDOW_AXIS_SLOT_CELLS
+    title_start = vertical_start + WINDOW_AXIS_SLOT_CELLS
+    resource = prefix + horizontal_slot + vertical_slot + title_slot + b"\x00"
+
+    horizontal_tile = _source_tile_for_cell(horizontal_start)
+    vertical_tile = _source_tile_for_cell(vertical_start)
+    expected_title_tile = _source_tile_for_cell(title_start)
+    if (horizontal_tile, vertical_tile, expected_title_tile) != (0x68, 0x78, 0x88):
+        raise SystemExit("Unexpected Window Settings source-tile layout")
+
+    records = list(WINDOW_CONTROL_PLACEMENTS)
+    # End the placement list on the vertical span.  C0:23CF leaves the native
+    # source cursor after that span, at $88, exactly where the frame script
+    # expects the relocated title to begin.
+    for destination in WINDOW_HORIZONTAL_DESTINATIONS:
+        records.append((4, horizontal_tile, destination))
+    for destination in WINDOW_VERTICAL_DESTINATIONS:
+        records.append((4, vertical_tile, destination))
+
+    placement = bytearray((0x00,))
+    for width_units, source_tile, destination in records:
+        placement.extend((
+            width_units,
+            source_tile,
+            destination & 0xFF,
+            (destination >> 8) & 0xFF,
+        ))
+    placement.append(0x00)
+    return resource, bytes(placement)
+
+
+def apply_window_settings(base: bytes, rom: bytearray, rows: dict[str, str], help_rows: dict[str, str]) -> None:
+    if base[WINDOW_SELECT_OFFSET:WINDOW_SELECT_OFFSET + WINDOW_SELECT_CAPACITY] != WINDOW_SELECT_STOCK:
+        raise SystemExit("Unexpected clean-USA Window Settings SELECT slot")
+    if base[WINDOW_TITLE_FIXED_OFFSET:WINDOW_TITLE_FIXED_OFFSET + WINDOW_TITLE_FIXED_CAPACITY] != WINDOW_TITLE_FIXED_STOCK:
+        raise SystemExit("Unexpected clean-USA Window Settings compact title slot")
+    if int.from_bytes(base[WINDOW_HELP_POINTER_OFFSET:WINDOW_HELP_POINTER_OFFSET + 3], "little") != WINDOW_HELP_POINTER_STOCK:
+        raise SystemExit("Unexpected clean-USA Window Settings help pointer")
+    if int.from_bytes(base[WINDOW_DESCRIPTOR_TEXT_PTR_OFFSET:WINDOW_DESCRIPTOR_TEXT_PTR_OFFSET + 2], "little") != WINDOW_DESCRIPTOR_TEXT_PTR_STOCK:
+        raise SystemExit("Unexpected clean-USA Window Settings text pointer")
+    if int.from_bytes(base[WINDOW_DESCRIPTOR_PLACEMENT_PTR_OFFSET:WINDOW_DESCRIPTOR_PLACEMENT_PTR_OFFSET + 2], "little") != WINDOW_DESCRIPTOR_PLACEMENT_PTR_STOCK:
+        raise SystemExit("Unexpected clean-USA Window Settings placement pointer")
+    if base[WINDOW_FRAME_WIDTH_OFFSET] != WINDOW_FRAME_WIDTH_STOCK:
+        raise SystemExit("Unexpected clean-USA Window Settings frame width")
+    if any(value != 0xFF for value in base[WINDOW_RESOURCE_RELOC_OFFSET:WINDOW_PLACEMENT_RELOC_LIMIT]):
+        raise SystemExit("Expected clean-USA $FF Window Settings relocation gap at C7:4700-4759")
+
+    # Runtime-validated compact shadow fields.
+    select_payload = encode_text(rows["SELECT"], "Window Settings SELECT")
+    if len(select_payload) > WINDOW_SELECT_CAPACITY:
+        raise SystemExit("Window Settings SELECT exceeds compact stock slot")
+    rom[WINDOW_SELECT_OFFSET:WINDOW_SELECT_OFFSET + WINDOW_SELECT_CAPACITY] = (
+        select_payload + b"\x80" * (WINDOW_SELECT_CAPACITY - len(select_payload))
+    )
+    fallback_payload = encode_text(rows["FALLBACK"], "Window Settings compact fallback")
+    if len(fallback_payload) > WINDOW_TITLE_FIXED_CAPACITY:
+        raise SystemExit("Window Settings compact fallback exceeds stock title slot")
+    rom[WINDOW_TITLE_FIXED_OFFSET:WINDOW_TITLE_FIXED_OFFSET + WINDOW_TITLE_FIXED_CAPACITY] = (
+        fallback_payload + b"\x80" * (WINDOW_TITLE_FIXED_CAPACITY - len(fallback_payload))
+    )
+
+    resource, placement = build_window_resource(base, rows)
+    if WINDOW_RESOURCE_RELOC_OFFSET + len(resource) > WINDOW_RESOURCE_RELOC_LIMIT:
+        raise SystemExit("Window Settings resource exceeded C7:4700-472E")
+    if WINDOW_PLACEMENT_RELOC_OFFSET + len(placement) > WINDOW_PLACEMENT_RELOC_LIMIT:
+        raise SystemExit("Window Settings placement exceeded C7:4730-4759")
+    rom[WINDOW_RESOURCE_RELOC_OFFSET:WINDOW_RESOURCE_RELOC_OFFSET + len(resource)] = resource
+    rom[WINDOW_PLACEMENT_RELOC_OFFSET:WINDOW_PLACEMENT_RELOC_OFFSET + len(placement)] = placement
+    rom[WINDOW_DESCRIPTOR_TEXT_PTR_OFFSET:WINDOW_DESCRIPTOR_TEXT_PTR_OFFSET + 2] = WINDOW_RESOURCE_RELOC_PTR.to_bytes(2, "little")
+    rom[WINDOW_DESCRIPTOR_PLACEMENT_PTR_OFFSET:WINDOW_DESCRIPTOR_PLACEMENT_PTR_OFFSET + 2] = WINDOW_PLACEMENT_RELOC_PTR.to_bytes(2, "little")
+    rom[WINDOW_FRAME_WIDTH_OFFSET] = WINDOW_FRAME_WIDTH_FRENCH
+
+    help_payload = build_window_help(help_rows)
+    if WINDOW_HELP_RELOC_OFFSET + len(help_payload) > WINDOW_HELP_RELOC_LIMIT:
+        raise SystemExit("Window Settings help exceeded reserved ED:8600-ED:86FF region")
+    rom[WINDOW_HELP_RELOC_OFFSET:WINDOW_HELP_RELOC_OFFSET + len(help_payload)] = help_payload
+    rom[WINDOW_HELP_POINTER_OFFSET:WINDOW_HELP_POINTER_OFFSET + 3] = WINDOW_HELP_RELOC_SNES.to_bytes(3, "little")
+
+
 def build_action_settings_resource(rows: dict[str, str]) -> tuple[bytes, bytes]:
     """Build the native fixed-font Action Settings resource in 34 cells.
 
@@ -769,7 +975,7 @@ def apply_action_settings(base: bytes, rom: bytearray, rows: dict[str, str]) -> 
     rom[ACTION_HELP_TILE_BASE_2_OFFSET:ACTION_HELP_TILE_BASE_2_OFFSET + 2] = ACTION_HELP_TILE_BASE_2_FRENCH
 
 
-def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, str], action_rows: dict[str, str], action_help_rows: dict[str, str]) -> tuple[bytearray, int]:
+def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, str], window_rows: dict[str, str], window_help_rows: dict[str, str], action_rows: dict[str, str], action_help_rows: dict[str, str]) -> tuple[bytearray, int]:
     rom = expand_rom(base)
 
     # Turn $D4-$E0 into normal character codes for the stock text
@@ -807,6 +1013,10 @@ def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, s
     # place for the second runtime path.  Save help is relocated separately.
     apply_game_file_sources(base, rom, game_file_rows)
 
+    # Window Settings: fixed-font-only relocated source/placement architecture.
+    # Frame width and source length are advanced together to preserve the stock cursor.
+    apply_window_settings(base, rom, window_rows, window_help_rows)
+
     # Action Settings: keep every frame and the 4x4 grid byte-for-byte stock.
     # Only repack/relocate the four translated fixed-width labels.
     apply_action_settings(base, rom, action_rows)
@@ -836,8 +1046,8 @@ def main() -> None:
     base = args.rom.read_bytes()
     validate_base_rom(base)
 
-    rows, game_file_rows, action_rows, action_help_rows = load_french_rows(base)
-    patched, checksum = apply_sources(base, rows, game_file_rows, action_rows, action_help_rows)
+    rows, game_file_rows, window_rows, window_help_rows, action_rows, action_help_rows = load_french_rows(base)
+    patched, checksum = apply_sources(base, rows, game_file_rows, window_rows, window_help_rows, action_rows, action_help_rows)
     patch = make_ips(base, bytes(patched))
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -856,6 +1066,11 @@ def main() -> None:
     print(f"GAME FILE money spacing: {len(build_game_file_money_spacing_helper())}-byte helper at C7:${GAME_FILE_MONEY_SPACING_HELPER_PTR:04X}; 7 amount-prefix blanks + separator")
     print(f"GAME FILE save-help pointer: ${int.from_bytes(patched[SAVE_HELP_POINTER_OFFSET:SAVE_HELP_POINTER_OFFSET+3], 'little'):06X}")
     print(f"GAME FILE save-help payload: {len(build_save_help(game_file_rows))} bytes at ROM ${SAVE_HELP_RELOC_OFFSET:06X}")
+    window_resource, window_placement = build_window_resource(base, window_rows)
+    print(f"WINDOW SETTINGS title: {window_rows['TITLE']!r}; fixed-font frame width ${WINDOW_FRAME_WIDTH_FRENCH:02X}")
+    print(f"WINDOW SETTINGS resource: {len(window_resource)} bytes at C7:${WINDOW_RESOURCE_RELOC_PTR:04X}")
+    print(f"WINDOW SETTINGS placement: {len(window_placement)} bytes at C7:${WINDOW_PLACEMENT_RELOC_PTR:04X}; Fond left/right, Bordure top/bottom")
+    print(f"WINDOW SETTINGS help: {len(build_window_help(window_help_rows))} bytes at SNES ${WINDOW_HELP_RELOC_SNES:06X}")
     action_resource, action_placement = build_action_settings_resource(action_rows)
     print(f"ACTION SETTINGS resource: {len(action_resource)} bytes at C7:${ACTION_RESOURCE_RELOC_PTR:04X}")
     print(f"ACTION SETTINGS placement: {len(action_placement)} bytes at C7:${ACTION_PLACEMENT_RELOC_PTR:04X}; stock frame width $18, GUARD -8 px")

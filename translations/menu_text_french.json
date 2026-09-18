@@ -70,6 +70,31 @@
       ]
     },
     {
+      "group": "menu.window_edit",
+      "entries": [
+        {
+          "id": "C7:73C9",
+          "text": "Choisir"
+        },
+        {
+          "id": "C7:73D1",
+          "text": "Choix de fenêtre"
+        },
+        {
+          "id": "new:window_edit.axis.horizontal",
+          "text": "Fond"
+        },
+        {
+          "id": "new:window_edit.axis.vertical",
+          "text": "Bordure"
+        },
+        {
+          "id": "new:window_edit.compact_fallback",
+          "text": "Réglage"
+        }
+      ]
+    },
+    {
       "group": "menu.action_settings",
       "entries": [
         {

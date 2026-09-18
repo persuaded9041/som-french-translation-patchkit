@@ -32,8 +32,8 @@ Compressed opening strings use the compressed container address plus determinist
 
 The main data files are:
 
-- `translations/interface_text_french.json` — Name Entry and GAME SELECT/GAME FILE help plus reviewed translation-only Status characteristic labels;
-- `translations/menu_text_french.json` — GAME SELECT/GAME FILE labels, runtime-validated Action Settings labels, and reviewed translation-only Status labels;
+- `translations/interface_text_french.json` — Name Entry, GAME SELECT/GAME FILE and Window Settings help plus reviewed translation-only Status characteristic labels;
+- `translations/menu_text_french.json` — GAME SELECT/GAME FILE labels, runtime-validated Window Settings + Action Settings labels, and reviewed translation-only Status labels;
   GAME FILE IDs `C7:7398` / `C7:73AA` are the promoted `Sauvegardes` / `Graines de Mana`. Currency ID `C7:7394` remains the single text source for `PO`: `french_menus` derives dynamic currency glyph 0 from that JSON value while template glyph 1 remains resource-backed; the promoted spacing helper and `vwf_ui` GAME FILE backend contain geometry/routing only.
 - `translations/opening_text_french.json` — opening prologue and startup credits;
 - `translations/intro_event_french.json` — new-game intro paragraphs;
@@ -50,7 +50,13 @@ The two generated cache files above are not canonical prose provenance. A normal
 
 ## Current dialogue state
 
-Dialogue work is frozen while resource translation continues:
+Dialogue work remains frozen. **Menu/resource translation is also intentionally paused at this handoff** while the next task explores a separate `french_gfx` component. The untranslated menu/resource backlog remains future work and must not be silently resumed during `french_gfx` design:
+
+- native menu/status translation-only rows still require explicit renderer promotion;
+- `weapon_description` / `magic_description` remain unpromoted review families;
+- no global dialogue audit should be restarted.
+
+Previous dialogue baseline:
 
 - 701/701 accepted playable events simulator-clean;
 - 1959 translated carriers;
