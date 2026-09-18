@@ -46,8 +46,10 @@ allocation/offsets.
 ## GAME FILE promoted labels
 
 The GAME FILE fields promoted through `french_menus` include `Fichier`, `Argent`,
-`PO`, and `Graines Mana`. `Graines Mana` is the runtime-validated shortened form
-used in menus so the dynamic count no longer touches the label.
+`PO`, `Sauvegardes`, and `Graines de Mana`. `Sauvegardes` occupies 11 of the 15
+fixed cells available before its dynamic value. `Graines de Mana` occupies all 15
+source cells at `C7:73AA`; its display is runtime-validated through the exact,
+pair-aligned GAME FILE backend in `vwf_ui`, while the dynamic Mana value remains stock.
 
 The GAME FILE total-money renderer is hybrid: stock code writes the first currency
 glyph inside a fixed 16-cell dynamic upload, while the second glyph remains in

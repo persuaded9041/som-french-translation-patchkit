@@ -40,8 +40,8 @@ and no localized text embedded in Python/ASM.
   FILE save help uses `$ED:8400+`. The builder keeps those allocations disjoint.
 - The dynamic slot level prefix is translated from `L` to `N` without changing
   the slot layout; both stock source positions have stable IDs.
-- `MANA POWER` is translation-backed as `Graines Mana`; the shortened wording
-  is runtime-validated and leaves the dynamic seed count visually separated.
+- `COUNTER` is translation-backed as `Sauvegardes`; the row has 15 safe label cells and the 11-character wording is runtime-validated.
+- `MANA POWER` is translation-backed as the full 15-cell `Graines de Mana`. `french_menus` owns only the source payload; the exact GAME FILE VWF presentation is owned by `vwf_ui`, which leaves the dynamic seed count stock.
 
 ### Action Settings / Actions des personnages
 
@@ -89,7 +89,8 @@ The third row `C0:368F` (`0 1 2 3 4 5 6 7 8`) is structural and stays unchanged.
 - GAME FILE save help now uses `Pressez “Attaque” pour sauver, “Retour” pour annuler.`; this avoids hard-coding physical B/Y mappings after controls may have been rebound.
 - Name Entry keeps physical `B` and `Start` deliberately because it is reached before control remapping is available. Its first line is now `Choisissez un caractère avec la croix directionnelle.`
 - GAME FILE total money now renders `1234567 PO` with the currency suffix anchored exactly where stock placed `GP`. The first glyph remains JSON-derived at `$C7:54A9`; the second remains the `C7:7394` template glyph in column 16. The 10-byte `$C7:4D32` helper inserts only the separator while preserving the renderer's mandatory 16-cell dynamic upload.
-- Rejected probes (`PPO`, `P O`, and the misaligned-hook black screen) are historical only and are not part of the promoted patch. Their failure established the fixed 16-cell dynamic window documented in `docs/HANDOFF.md` and the component memory map.
+- GAME FILE `COUNTER -> Sauvegardes` and `MANA POWER -> Graines de Mana` are runtime-validated. The latter remains a 15-cell JSON source field; only `vwf_ui` changes its presentation.
+- Rejected money probes (`PPO`, `P O`, and the misaligned-hook black screen) are historical only and are not part of the promoted patch. Their failure established the fixed 16-cell dynamic window documented in `docs/HANDOFF.md` and the component memory map.
 
 ## Translation-only backlog already reviewed
 

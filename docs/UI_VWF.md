@@ -161,6 +161,14 @@ The validated correction changes only this continuity test to `$1D03 == $7E`
 Content and relocation remain entirely owned by `french_resources`; see
 `docs/BATTLE_TEXT.md`.
 
+## Sixth backend: GAME FILE Mana label — runtime-validated
+
+The GAME FILE Mana label uses an exact menu-generator identity rather than the event-engine UI path. The fourth pointer in the `$C7:5F8F` generator table is changed from `$5464` to the free-space trampoline `$C7:4C88`; that trampoline `JSL`s the private wrapper at `$ED:7F40` and then jumps back to stock `$C7:5464`. No other GAME FILE field is tagged.
+
+The source stays entirely data-driven: the wrapper copies exactly 15 cells from `$C7:73AA`. With `french_menus` this is `Graines de Mana`; standalone `vwf_ui` therefore consumes whatever clean-ROM source occupies the same field and contains no French prose.
+
+The stock menu graphics are packed by pairs. The visible field begins on global cell 91, the right half of pair 90/91. The rejected first probe started its DMA at the odd half and produced vertically split glyphs plus a residual half-`G`. The validated backend starts one cell earlier, uploads exactly 16 cells to the pair-aligned span `$6820-$691F`, and starts the VWF cursor at 9 px (8-px blank cell + 1-px outline inset). The dynamic Mana value starts at `$6920` and remains completely stock. Renderer selector 6 uses the true decoded count, so synthetic padding is not rendered.
+
 ## Standalone dependency fix
 
 Runtime isolation proved a hidden dependency in the shared chunk-commit helper:

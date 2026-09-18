@@ -27,8 +27,8 @@ without shifting any stock boundary.
 | `0x077350` | `SAVE  POINT` | 11 cells |
 | `0x077374` | `MONEY` | 6 cells in the relocated build (5 stock + adjacent padding) |
 | `0x077394` | `GP` | 2 cells |
-| `0x077398` | `COUNTER` | 8 cells in the relocated build (7 stock + adjacent padding) |
-| `0x0773AA` | `MANA POWER` | **15 cells**, used by the runtime-validated `Graines Mana` label |
+| `0x077398` | `COUNTER` | **15 cells** before the dynamic value; runtime-validated `Sauvegardes` uses 11 |
+| `0x0773AA` | `MANA POWER` | **15 cells**, source-owned `Graines de Mana`; presentation is runtime-validated by the exact `vwf_ui` GAME FILE backend |
 | `0x077805` | `Empty` | 5 cells |
 | `0x0033B8` | pointer to save-help text (`$C0:348D`) | 3 bytes |
 | `0x00348D-0x0034F8` | two-line save help block | 108 bytes |

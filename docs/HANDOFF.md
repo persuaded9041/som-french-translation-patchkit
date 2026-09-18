@@ -87,9 +87,12 @@ validées (`Force`, `Agilité`, `Endurance`, `Intelligence`, `% précision`, etc
 Ces familles sont **translation-only** tant que leurs renderers natifs n'ont pas
 été explicitement branchés et runtime-validés.
 
-Le vocabulaire validé inclut notamment `MANA POWER -> Graines Mana` ; cette
-forme courte est runtime-validée dans GAME FILE et évite de coller le compteur au libellé. Les accents sur majuscules sont à
-conserver (`Étourdi` si ce terme est utilisé ailleurs, `Épée`, etc.).
+Le vocabulaire GAME FILE validé inclut désormais `COUNTER -> Sauvegardes` et
+`MANA POWER -> Graines de Mana`. `Sauvegardes` tient dans les 15 cellules fixes
+disponibles avant sa valeur. `Graines de Mana` remplit les 15 cellules source et
+est rendu par un backend `vwf_ui` ultra-localisé, pair-aligné, sans déplacer la
+valeur Mana dynamique. Les accents sur majuscules sont à conserver (`Étourdi` si
+ce terme est utilisé ailleurs, `Épée`, etc.).
 
 ## Corrections menus/interface validées depuis la baseline précédente
 
@@ -98,7 +101,8 @@ conserver (`Étourdi` si ce terme est utilisé ailleurs, `Épée`, etc.).
   - `Pressez “Attaque” pour sauver, “Retour” pour annuler.`
   Les actions logiques sont utilisées ici plutôt que B/Y, car les contrôles peuvent déjà avoir été reconfigurés.
 - Name Entry : `Choisissez un caractère avec la croix directionnelle.` ; les mentions physiques `B` et `Start` sont volontairement conservées car la création de partie précède le remapping des contrôles.
-- GAME FILE : `Graines Mana` est runtime-validé.
+- GAME FILE : `Sauvegardes` est runtime-validé en renderer fixe stock.
+- GAME FILE : `Graines de Mana` est runtime-validé via le backend VWF exact `$AD`; le texte reste dans `translations/menu_text_french.json` (`C7:73AA`) et la valeur à droite reste stock.
 - GAME FILE argent : le bug `GO` est corrigé. Le renderer stock écrit le premier `G` séparément (`$C7:54A9`, opérande à `$C7:54AA`) et prend le second glyphe depuis le template `C7:7394`. Probes déterminants : `PO -> GO`, `XO -> GO`, `XX -> GX`. Le builder dérive le premier glyphe depuis le JSON `C7:7394`, donc aucune prose française n'est codée en dur.
 
 ### Espacement devant `PO` — **runtime-validé et promu**
@@ -119,6 +123,24 @@ Implémentation promue dans `french_menus` :
 - le code existant `$C7:54A9` écrit ensuite `currency[0]` en colonne 15, dérivé du premier caractère du JSON `C7:7394` ; `currency[1]` reste le caractère du template en colonne 16.
 
 Les anciens probes écran noir / `PPO` / `P O` sont rejetés et absents du code final. Ils ne doivent pas être réintroduits. Le helper validé n'encode aucun texte français : il ajoute uniquement la cellule d'espacement `$80` et préserve l'architecture hybride stock.
+
+### `Sauvegardes` + VWF ultra-localisée `Graines de Mana` — **runtime-validés et promus**
+
+Deux autres champs GAME FILE sont maintenant validés :
+
+- `COUNTER` (`C7:7398`) -> `Sauvegardes`. La ligne fixe offre 15 cellules entre la colonne 1 et la valeur dynamique en colonne 16 ; le libellé en utilise 11. Aucun renderer n'est modifié pour ce champ.
+- `MANA POWER` (`C7:73AA`) -> `Graines de Mana`. Le payload remplit exactement les 15 cellules source, et seul ce champ passe par un backend `vwf_ui` dédié `$AD`.
+
+Architecture du backend Mana :
+
+- table générateur GAME FILE `$C7:5F95-$5F96` : pointeur `$5464 -> $4C88` ;
+- trampoline libre `$C7:4C88-$4C8E` : `JSL $ED:7F40 / JMP $C7:5464` ;
+- wrapper `$ED:7F40-$7FA4` : copie exactement les 15 cellules de `$C7:73AA` dans `$7E:9C00`, prépare la soumission menu stock, arme `$7E:93C1=$AD`, puis appelle `$C0:2ADB/$2AEA/$2ADF` ;
+- le renderer `$AD` exige le caller exact `$235E`, la banque source `$7E`, utilise le vrai decoded count, et démarre à **9 px** ;
+- le champ visible commence sur la cellule globale impaire 91. Le DMA validé est donc pair-aligné une cellule plus tôt, sur `$6820-$691F` : cellule 90 vide + libellé VWF à partir de la cellule 91 ;
+- la valeur Mana dynamique commence à `$6920` et reste entièrement stock.
+
+Le premier probe VWF, démarré directement sur la cellule 91 / `$6830`, est rejeté : il séparait les moitiés haut/bas des glyphes et laissait un demi-`G` résiduel. Le v2 a validé le renderer pair-aligné ; le v3 a ensuite corrigé uniquement le payload source complet `Graines de Mana`. Le `patches/all.ips` promu doit rester byte-identique à ce probe v3 runtime-validé. `vwf_ui` ne contient aucune prose française : il copie le champ source appartenant à `french_menus`.
 
 ## Architecture `french_resources` à préserver
 
@@ -207,7 +229,8 @@ renders successifs.
 - réponses D9 shop/forge `$A9` ;
 - lignes merchandise achat/vente `$AA` ;
 - total MONEY type 2 `$AB`;
-- battle/status banner `$AC` **runtime-validé**.
+- battle/status banner `$AC` **runtime-validé** ;
+- GAME FILE Mana label `$AD` **runtime-validé**, pair-aligné, source `C7:73AA`, valeur dynamique stock.
 
 Corrections promues :
 
@@ -216,7 +239,7 @@ Corrections promues :
 - prix merchandise : ancre **164 px** + séparateur monnaie **4 px** ;
 - MONEY : séparateur monnaie **3 px**, largeur `$C7:714C` **9 -> 11 cellules** ;
 - la fermeture MONEY utilise désormais le seed X indépendant `$C7:7140` **`$0A -> $09`**, runtime-validé, afin d'effacer la cellule supplémentaire ouverte à gauche ;
-- `PO` reste la responsabilité exclusive de `french_resources`, jamais de `vwf_ui` ;
+- le contenu monnaie reste source-owned, jamais codé dans `vwf_ui` : shop/MONEY `PO` vient de `french_resources`, GAME FILE `C7:7394` vient de `french_menus` ;
 - battle `$AC` : source réelle `$7E:FF69`, continuity gate `$ED:7B83=$7E`, runtime-validé ;
 - GAME SELECT et les fallbacks stock restent validés.
 
@@ -250,19 +273,19 @@ python3 build.py "Secret of Mana (USA).sfc" french-resources --combine
 
 Pour une validation de versionnement, faire également un rebuild complet dans un dossier de patches neuf et comparer les hashes aux patches promus.
 
-## Baseline propre actuelle — 2026-09-17
+## Baseline propre actuelle — 2026-09-18
 
-Rebuild complet depuis la ROM USA propre, après les validations décrites ci-dessus :
+Rebuild complet depuis la ROM USA propre, après validation runtime de `Sauvegardes` et du backend VWF GAME FILE `Graines de Mana` :
 
-- `patches/french_menus.ips` SHA-256 : `b727192980284214f5f6ecd7fafe40ecb3fdc5942f23b8aa0b01892f660bf03b`
+- `patches/french_menus.ips` SHA-256 : `9234a73b7b4116e6eab0dcb9135aab3141fa9d44c255e4ffe62a1056ab8c264b`
 - `patches/french_name_entry_extended.ips` SHA-256 : `6a488bc7cd6afe1ee98176c5bed3b4670bf12c789b5f58622d6aab23217ea6da`
 - `patches/french_resources.ips` SHA-256 : `c9483c0a42ca85d2f9051f4d7f0355e09ce76279d3311f43bd574864fd492216`
-- `patches/vwf_ui.ips` SHA-256 : `69bfbc246fffddd6a05e6421c51cf824b64269bb159de0acaa5fd297834a7ba9`
+- `patches/vwf_ui.ips` SHA-256 : `a031a40d9c3122a0b5b8bb02fdb4bcff92da3ddc5b924f71e30e1df42cceddcd`
 - `patches/vwf_intro.ips` SHA-256 : `a5917976c7bf139e8f0ba69ee46f2ab0e23ab3db91453bf18bae6ba420d4110a`
-- `patches/vwf_dialogues.ips` SHA-256 : `1bff8d5f21ad9f372e2bedc8f1bf0515df51cfa825fc09c5a4ee680693b9258e`
+- `patches/vwf_dialogues.ips` SHA-256 : `f9628f1c43ba2917a081fd2cf31b48ce90c9138980e720276602796f7b593dad`
 - `patches/french_dialogues.ips` SHA-256 : `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31`
-- `patches/all.ips` SHA-256 : `302ee39d7a4c8e665c7b61e013dfb0f3f22f3b75cce3500c2e1479cc33001c6a`
-- ROM finale reconstruite SHA-256 : `fdb8afd0f743563ee1a18118fcace5559cde36096a2767b287a47e67d2b8cef5`
-- checksum SNES final : `$4246`.
+- `patches/all.ips` SHA-256 : `c5ec6c1396a659740ae462f75c8ad08c2074a0276df0ada04e021a81b9530807`
+- ROM finale reconstruite SHA-256 : `adbf1eba05ee6459ab63d0a4ecd2c1a5cc4e828f1de30429847e2acaf9b3180e`
+- checksum SNES final : `$862D`.
 
-Le rebuild complet dans un dossier de patches neuf est byte-identique aux patches livrés dans `patches/`. Le `patches/all.ips` promu est également byte-identique au probe v3 de l'espacement GAME FILE validé en runtime par l'utilisateur. La ROM de référence n'est pas incluse dans l'archive.
+Le rebuild complet dans un dossier de patches neuf est byte-identique aux patches promus. `patches/all.ips` est **byte-identique** au probe v3 GAME FILE Mana runtime-validé par l'utilisateur, qui inclut également `Sauvegardes`. La ROM de référence n'est pas incluse dans l'archive.

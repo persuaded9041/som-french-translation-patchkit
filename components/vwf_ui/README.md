@@ -142,6 +142,14 @@ fix changes only the battle selector continuity check to `$1D03=$7E`
 (`$ED:7B83`, immediate byte `$C0 -> $7E`). Both standalone `vwf_ui` and the
 combined `french_resources + vwf_ui` path are runtime-validated.
 
+## Runtime-validated GAME FILE Mana backend
+
+The GAME FILE Mana label is an exact, non-generic backend with one-shot tag `$AD`. The fourth generator entry at `$C7:5F95` is redirected from stock `$5464` to a 7-byte trampoline at `$C7:4C88`; it calls the private wrapper `$ED:7F40-$7FA4` and then jumps back to the stock generator.
+
+The wrapper copies exactly 15 source cells from `$C7:73AA` into the stock menu scratch buffer, so `vwf_ui` owns no localized text. With `french_menus` the JSON-backed field is `Graines de Mana`. Because this field starts on the odd half of stock graphics pair 90/91, the validated renderer begins the DMA one cell earlier at `$6820`, leaves that first cell blank, starts the VWF cursor at 9 px, and uploads the pair-aligned 16-cell span through `$691F`. The dynamic Mana value begins at `$6920` and remains stock.
+
+The first misaligned probe that started on cell 91 is explicitly rejected: it produced swapped top/bottom half-tiles and a residual half-`G`. No other GAME FILE row is routed through VWF.
+
 ## Standalone dependency fix
 
 The Sell-menu reset was traced to a real shared-runtime dependency. The shared
@@ -161,14 +169,16 @@ standalone without duplicating or depending on dialogue continuation code.
 
 The shared dispatcher at `$C0:167D` recognizes the explicit UI families Forge
 `$A7`, Ring `$A8`, D9 Shop response `$A9`, shop merchandise `$AA`, the
-structurally identified type-2 money window `$AB`, and exact battle banner `$AC` when the ROM config marker
+structurally identified type-2 money window `$AB`, exact battle banner `$AC`, and
+exact GAME FILE Mana label `$AD` when the ROM config marker
 `$C7:4C87=$09` is installed. The renderer consumes the tag immediately. All
 unowned calls replay stock behavior and clear the shared low-level VWF-active
 state so unrelated UI callers cannot inherit it.
 
 `vwf_ui` owns no translated prose. Ring/item translations and the two shop
-currency literals remain in `french_resources`; `vwf_ui` consumes only the
-resulting source bytes and owns presentation geometry.
+currency literals remain in `french_resources`; the GAME FILE Mana source field
+remains in `french_menus`. `vwf_ui` consumes only the resulting source bytes and
+owns presentation geometry/routing.
 
 For the extension procedure and regression checklist, read `docs/UI_VWF.md`.
 

@@ -8,14 +8,16 @@
 | Range | Purpose |
 |---|---|
 | `$C7:4C87` | UI-VWF config marker `$09` |
-| `$ED:7A00-$7A6E` | shared UI/dialogue renderer dispatcher; recognizes Forge `$A7`, Ring `$A8`, D9 Shop `$A9`, merchandise `$AA`, type-2 money `$AB`, and exact battle/status `$AC`; MONEY additionally requires exact event-engine caller return `$1152`; installed byte-identically by `vwf_dialogues` / `vwf_ui` |
-| `$ED:7B00-$7C5E` | current `vwf_ui` renderer; `$7B00-$7CFF` remains reserved for UI renderer growth |
+| `$C7:4C88-$4C8E` | exact GAME FILE Mana trampoline `JSL $ED:7F40 / JMP $C7:5464`; reached only via generator pointer `$C7:5F95` |
+| `$ED:7A00-$7A76` | shared UI/dialogue renderer dispatcher; recognizes Forge `$A7`, Ring `$A8`, D9 Shop `$A9`, merchandise `$AA`, type-2 money `$AB`, exact battle/status `$AC`, and exact GAME FILE Mana `$AD`; MONEY additionally requires exact event-engine caller return `$1152`; installed byte-identically by `vwf_dialogues` / `vwf_ui` |
+| `$ED:7B00-$7C89` | current `vwf_ui` renderer; `$7B00-$7CFF` remains reserved for UI renderer growth |
 | `$ED:7D00-$7D7F` | 128-byte validated VWF advance table |
 | `$ED:7E00-$7E52` | exact shared `$00:19D0` Ring/Forge/shop-row submit wrapper; `$7E00-$7E7F` remains reserved |
 | `$ED:7E80-$7EA4` | exact `$D9` shop/forge response submit wrapper; `$7E80-$7EFF` remains reserved |
 | `$ED:7F00-$7F3F` | two exact battle/status submit wrappers for `$C0:637D={50}` / `$C0:637F={51}` |
+| `$ED:7F40-$7FA4` | exact GAME FILE Mana pair-aligned submit wrapper; `$7F40-$7FFF` reserved for this backend/future exact UI helpers |
 | `$7E:9390-$93C0` | battle parser mode 3 private decoded buffer, 49 bytes; the five bytes above the ordinary 44-byte span are borrowed only during `$AC` |
-| `$7E:93C1` | UI family tag: `$A7` Forge, `$A8` top-level Ring Menu, `$A9` D9 shop/forge response, `$AA` merchandise row, `$AB` exact type-2 money window, `$AC` exact battle/status banner |
+| `$7E:93C1` | UI family tag: `$A7` Forge, `$A8` top-level Ring Menu, `$A9` D9 shop/forge response, `$AA` merchandise row, `$AB` exact type-2 money window, `$AC` exact battle/status banner, `$AD` exact GAME FILE Mana label |
 
 The renderer has **no additional private `$93C3-$93C9` state**. It reuses the
 shared VWF runtime scratch (`$7E:9382`, `$9385`, `$938E-$938F`). Ring, Forge,
@@ -78,6 +80,16 @@ bank `$7E`. The former `$C0` comparison at `$ED:7B83` rejected the valid parse
 and fell back to stock `$A1A4`, causing dynamic-subject messages to display only
 the residual name. The production byte is `$7E`; this fix is runtime-validated
 in standalone `vwf_ui` and combined `french_resources + vwf_ui`.
+
+## GAME FILE Mana classification / pair alignment
+
+- `$C7:5F95-$5F96`: fourth generator pointer `$5464 -> $4C88`.
+- `$C7:4C88-$4C8E`: `JSL $ED:7F40 / JMP $C7:5464`.
+- `$ED:7F40-$7FA4`: copy exactly 15 cells from `$C7:73AA` to `$7E:9C00`, terminate at `$9C0F`, prepare destination `$6820` / DMA `$0200`, arm `$AD`, and call the stock `$C0:2ADB/$2AEA/$2ADF` menu-text pipeline.
+- Renderer selector 6 requires source bank `$7E`, exact caller return `$235E`, starts at pixel 9, and renders the true decoded count.
+- `$6820-$691F` is the pair-aligned 16-cell label graphics span; `$6920` begins the stock dynamic Mana value and is never touched by this backend.
+
+The first probe started at the odd cell 91 / `$6830` and is rejected because it split top/bottom tile halves and left a residual half-glyph.
 
 ## Currency / type-2 MONEY presentation
 

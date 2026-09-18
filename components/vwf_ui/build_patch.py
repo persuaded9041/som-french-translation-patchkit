@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Build standalone UI VWF extensions.
+"""Build standalone exact-scope UI VWF extensions.
 
-Current runtime-validated backend: Watts Forge current-weapon row.
-The component is independent of `vwf_dialogues`; only byte-identical shared VWF
-infrastructure is reused.
+Runtime-validated families are independently gated (Forge, Ring, shop, MONEY,
+battle/status and the exact GAME FILE Mana label). The component is independent
+of `vwf_dialogues`; only byte-identical shared VWF infrastructure is reused.
 """
 from __future__ import annotations
 
@@ -38,6 +38,7 @@ from shared.vwf.ui import (  # noqa: E402
     SHOP_ROW_UI_MAGIC,
     MONEY_UI_MAGIC,
     BATTLE_UI_MAGIC,
+    GAME_FILE_MANA_UI_MAGIC,
     SHOP_SUFFIX_GAP_HELPER_CPU,
     SHOP_SUFFIX_GAP_HELPER_FILE,
     DISPATCH_CPU,
@@ -82,6 +83,24 @@ BATTLE_SUBMIT_50_WRAPPER_FILE = 0x2D7F00
 BATTLE_SUBMIT_51_WRAPPER_CPU = 0xED7F20
 BATTLE_SUBMIT_51_WRAPPER_FILE = 0x2D7F20
 BATTLE_SUBMIT_WRAPPER_RESERVED_SIZE = 0x20
+
+# GAME FILE Mana-power row. The fourth generator entry in C7:5F8F points to
+# C7:5464 on a clean USA ROM. Route only that one generator through a tiny C7
+# trampoline, then through a private ED wrapper which replays the stock builder
+# after submitting a pair-aligned 16-cell VWF tile upload for the 15-cell label.
+GAME_FILE_MANA_GENERATOR_PTR_FILE = 0x075F95
+GAME_FILE_MANA_GENERATOR_PTR_STOCK = bytes.fromhex("64 54")
+GAME_FILE_MANA_TRAMPOLINE_CPU = 0xC74C88
+GAME_FILE_MANA_TRAMPOLINE_FILE = 0x074C88
+GAME_FILE_MANA_TRAMPOLINE_SIZE = 7
+GAME_FILE_MANA_WRAPPER_CPU = 0xED7F40
+GAME_FILE_MANA_WRAPPER_FILE = 0x2D7F40
+GAME_FILE_MANA_WRAPPER_RESERVED_SIZE = 0xC0
+GAME_FILE_MANA_SOURCE_CPU = 0xC773AA
+GAME_FILE_MANA_SOURCE_CELLS = 15
+GAME_FILE_MANA_PRIVATE_BUFFER = 0x9C00
+GAME_FILE_MANA_VRAM_DEST = 0x6820
+GAME_FILE_MANA_DMA_SIZE = 0x0200
 
 # C7:7147 is the stock per-window-type geometry table consumed by C0:0D8B.
 # Each type owns a two-byte (height, width) pair.  Type 2 (MONEY) is stock
@@ -274,13 +293,74 @@ def make_shop_suffix_gap_helper() -> bytes:
     a.emit(0x6B)
     return a.resolve()
 
+def make_game_file_mana_wrapper() -> bytes:
+    """VWF-render only the 15-cell GAME FILE Mana label.
+
+    The stock resource starts the visible label on global cell 91, i.e. the
+    right half of the 90/91 packed graphics pair. Start the upload one cell
+    earlier at VRAM $6820 and use a 9-pixel cursor inset (8 px blank cell +
+    the validated 1-pixel outline margin). This preserves stock pair ordering
+    and leaves the dynamic Mana value, which begins at $6920, untouched.
+
+    Content remains source-owned: copy exactly 15 cells from C7:73AA, so a
+    clean USA standalone build renders the stock source while french_menus
+    naturally supplies its reviewed 15-cell translation payload.
+    """
+    a = MiniAssembler(GAME_FILE_MANA_WRAPPER_CPU)
+    a.emit(0x08)                                      # PHP
+    a.emit(0x8B)                                      # PHB
+    a.emit(0xE2, 0x20)                                # SEP #$20
+    a.emit(0xC2, 0x10)                                # REP #$10
+    a.emit(0xA2, 0x00, 0x00)                          # LDX #0
+    a.label("copy_source")
+    a.emit(0xBF, *lo24(GAME_FILE_MANA_SOURCE_CPU))
+    a.emit(0x9F, *lo24(0x7E0000 | GAME_FILE_MANA_PRIVATE_BUFFER))
+    a.emit(0xE8)                                      # INX
+    a.emit(0xE0, GAME_FILE_MANA_SOURCE_CELLS, 0x00)   # CPX #15
+    a.rel8(0xD0, "copy_source")
+    a.emit(0xA9, 0x00)
+    a.emit(0x8F, *lo24(0x7E0000 | (GAME_FILE_MANA_PRIVATE_BUFFER + GAME_FILE_MANA_SOURCE_CELLS)))
+
+    # Reproduce the stock menu-text submit state for one 16-cell pair-aligned
+    # tile span. The 16th graphical cell is the leading blank; only 15 source
+    # characters are decoded/rendered.
+    a.emit(0xC2, 0x20)                                # REP #$20
+    a.emit(0xA9, GAME_FILE_MANA_VRAM_DEST & 0xFF, GAME_FILE_MANA_VRAM_DEST >> 8)
+    a.emit(0x8F, *lo24(0x7EA18C))
+    a.emit(0xA9, GAME_FILE_MANA_DMA_SIZE & 0xFF, GAME_FILE_MANA_DMA_SIZE >> 8)
+    a.emit(0x8F, *lo24(0x7EA191))
+    a.emit(0xA9, GAME_FILE_MANA_PRIVATE_BUFFER & 0xFF, GAME_FILE_MANA_PRIVATE_BUFFER >> 8)
+    a.emit(0x8F, *lo24(0x001D01))
+    a.emit(0xE2, 0x20)                                # SEP #$20
+    a.emit(0xA9, 0x7E)
+    a.emit(0x8F, *lo24(0x001D03))
+    a.emit(0xA9, 0x00)
+    a.emit(0x8F, *lo24(0x001D00))
+    a.emit(0x8F, *lo24(0x7EA1C5))
+    a.emit(0xAF, *lo24(0x7EA212))
+    a.emit(0x09, 0x01)                                # ORA #$01
+    a.emit(0x8F, *lo24(0x7EA212))
+
+    a.emit(0xA9, GAME_FILE_MANA_UI_MAGIC)
+    a.emit(0x8F, *lo24(0x7E0000 | UI_TAG))
+    a.emit(0x22, *lo24(0xC02ADB))
+    a.emit(0x22, *lo24(0xC02AEA))
+    a.emit(0x22, *lo24(0xC02ADF))
+    a.emit(0xAB)                                      # PLB
+    a.emit(0x28)                                      # PLP
+    a.emit(0x6B)                                      # RTL
+    return a.resolve()
+
+
 def make_ui_renderer() -> bytes:
-    """Render only an explicitly tagged Forge or top-level Ring invocation.
+    """Render only an explicitly tagged, runtime-proven UI invocation.
 
     Ring, Forge, shop merchandise rows, the exact D9 shop/forge-response
     backend and the stock type-2 money window keep the stock parser/decoded
     buffer. The exact battle/status banner submits use parser mode 3 and retain
-    their already-decoded 49-byte private buffer. Currency text is never translated here: standalone `vwf_ui` renders
+    their already-decoded 49-byte private buffer. GAME FILE Mana is prepared by
+    its exact generator wrapper and uses selector 6 with true decoded count.
+    Currency text is never translated here: standalone `vwf_ui` renders
     whatever two-glyph currency unit the source component provides (`GP` on a
     clean USA ROM, `PO` when `french_resources` is present). Presentation-only gaps
     are handled by the shared VWF geometry helpers. Forge keeps its separately
@@ -288,18 +368,34 @@ def make_ui_renderer() -> bytes:
     """
     a = MiniAssembler(UI_RENDER_CPU)
 
-    # Exact continuity gate: all UI families must come from the event-engine
-    # renderer caller. Ring/Forge then require bank $00; the shop response family
-    # requires the separately tagged bank $D9 path.
+    # GAME FILE Mana is submitted through the exact C0:2ADB/2AEA/2ADF menu-text
+    # pipeline and reaches this renderer from a different stock caller than the
+    # event-engine UI families. Prove that one-shot tag first, then require its
+    # exact caller return address. Every other UI family keeps the validated
+    # event-engine return-address gate.
+    a.emit(0xAF, *lo24(0x7E0000 | UI_TAG))
+    a.emit(0xC9, GAME_FILE_MANA_UI_MAGIC)
+    a.rel8(0xF0, "game_file_caller")
     a.emit(0xC2, 0x20)
     a.emit(0xA3, 0x01)
     a.emit(0xC9, 0x52, 0x11)
     a.emit(0xE2, 0x20)
-    a.rel8(0xD0, "reject")
+    a.rel8(0xF0, "identity_ready")
+    a.rel16(0x82, "reject")
 
+    a.label("game_file_caller")
+    a.emit(0xC2, 0x20)
+    a.emit(0xA3, 0x01)
+    a.emit(0xC9, 0x5E, 0x23)
+    a.emit(0xE2, 0x20)
+    a.rel8(0xF0, "identity_ready")
+    a.rel16(0x82, "reject")
+
+    a.label("identity_ready")
     # Capture the family before consuming it. X is an ephemeral backend
     # selector: 0=Ring, 1=Forge, 2=D9 shop/forge response,
-    # 3=shop merchandise row, 4=type-2 money window, 5=battle/status banner.
+    # 3=shop merchandise row, 4=type-2 money window, 5=battle/status banner,
+    # 6=GAME FILE Mana label.
     a.emit(0xAF, *lo24(0x7E0000 | UI_TAG))
     a.emit(0xC9, FORGE_UI_MAGIC)
     a.rel8(0xF0, "kind_forge")
@@ -313,6 +409,8 @@ def make_ui_renderer() -> bytes:
     a.rel8(0xF0, "kind_money")
     a.emit(0xC9, BATTLE_UI_MAGIC)
     a.rel8(0xF0, "kind_battle")
+    a.emit(0xC9, GAME_FILE_MANA_UI_MAGIC)
+    a.rel8(0xF0, "kind_game_file")
     a.rel8(0x80, "reject")
 
     a.label("kind_ring")
@@ -338,6 +436,10 @@ def make_ui_renderer() -> bytes:
     a.label("kind_battle")
     a.emit(0xC2, 0x10)
     a.emit(0xA2, 0x05, 0x00)
+    a.rel8(0x80, "kind_bank")
+    a.label("kind_game_file")
+    a.emit(0xC2, 0x10)
+    a.emit(0xA2, 0x06, 0x00)
 
     a.label("kind_bank")
     a.emit(0xE0, 0x02, 0x00)
@@ -346,6 +448,8 @@ def make_ui_renderer() -> bytes:
     a.rel8(0xF0, "bank_money")
     a.emit(0xE0, 0x05, 0x00)
     a.rel8(0xF0, "bank_battle")
+    a.emit(0xE0, 0x06, 0x00)
+    a.rel8(0xF0, "bank_money")
     a.emit(0xAF, *lo24(0x001D03))
     a.emit(0xC9, 0x00)
     a.rel8(0xD0, "reject")
@@ -429,6 +533,12 @@ def make_ui_renderer() -> bytes:
     # price anchor.
     a.emit(0xE0, 0x04, 0x00)                         # CPX #4: MONEY selector
     a.rel8(0xF0, "left_inset_done")
+    a.emit(0xE0, 0x06, 0x00)                         # CPX #6: GAME FILE Mana
+    a.rel8(0xD0, "normal_left_inset")
+    a.emit(0xA9, 0x09)                               # one blank 8px cell + 1px outline inset
+    a.emit(0x8F, *lo24(0x7E0000 | PIXEL_CURSOR))
+    a.rel8(0x80, "left_inset_done")
+    a.label("normal_left_inset")
     a.emit(0xA9, 0x01)
     a.emit(0x8F, *lo24(0x7E0000 | PIXEL_CURSOR))     # fresh UI line starts at +1 px
     a.label("left_inset_done")
@@ -487,6 +597,8 @@ def make_ui_renderer() -> bytes:
     a.emit(0xE0, 0x03, 0x00)                         # CPX #3: merchandise selector
     a.rel8(0xF0, "render_true_count")
     a.emit(0xE0, 0x05, 0x00)                         # CPX #5: battle banner
+    a.rel8(0xF0, "render_true_count")
+    a.emit(0xE0, 0x06, 0x00)                         # CPX #6: GAME FILE Mana
     a.rel8(0xD0, "render_full_private")
     a.label("render_true_count")
     a.emit(0xAD, SAVED_COUNT & 0xFF, (SAVED_COUNT >> 8) & 0xFF)
@@ -542,6 +654,10 @@ def build(base: bytes) -> bytes:
         raise SystemExit("Unexpected clean-US battle banner $50 submit helper")
     if base[BATTLE_SUBMIT_51_FILE:BATTLE_SUBMIT_51_FILE + len(BATTLE_SUBMIT_51_SIGNATURE)] != BATTLE_SUBMIT_51_SIGNATURE:
         raise SystemExit("Unexpected clean-US battle banner $51 submit helper")
+    if base[GAME_FILE_MANA_GENERATOR_PTR_FILE:GAME_FILE_MANA_GENERATOR_PTR_FILE + 2] != GAME_FILE_MANA_GENERATOR_PTR_STOCK:
+        raise SystemExit("Unexpected clean-US GAME FILE Mana generator pointer")
+    if any(b != 0xFF for b in base[GAME_FILE_MANA_TRAMPOLINE_FILE:GAME_FILE_MANA_TRAMPOLINE_FILE + GAME_FILE_MANA_TRAMPOLINE_SIZE]):
+        raise SystemExit("Expected stock-$FF GAME FILE Mana VWF trampoline space")
 
     width_table = make_width_table(base)
     submit_wrapper = make_submit_wrapper()
@@ -549,6 +665,7 @@ def build(base: bytes) -> bytes:
     shop_suffix_gap_helper = make_shop_suffix_gap_helper()
     battle_submit_50 = make_battle_submit_wrapper(BATTLE_SUBMIT_50_WRAPPER_CPU, 0x637D, 0xA3)
     battle_submit_51 = make_battle_submit_wrapper(BATTLE_SUBMIT_51_WRAPPER_CPU, 0x637F, 0x9F)
+    game_file_mana_wrapper = make_game_file_mana_wrapper()
     renderer = make_ui_renderer()
     if len(submit_wrapper) > SUBMIT_WRAPPER_RESERVED_SIZE:
         raise SystemExit("UI VWF submit wrapper too large")
@@ -558,6 +675,8 @@ def build(base: bytes) -> bytes:
         raise SystemExit("UI VWF shop dispatch wrapper too large")
     if len(battle_submit_50) > BATTLE_SUBMIT_WRAPPER_RESERVED_SIZE or len(battle_submit_51) > BATTLE_SUBMIT_WRAPPER_RESERVED_SIZE:
         raise SystemExit("UI VWF battle submit wrapper too large")
+    if len(game_file_mana_wrapper) > GAME_FILE_MANA_WRAPPER_RESERVED_SIZE:
+        raise SystemExit("UI VWF GAME FILE Mana wrapper too large")
     if UI_RENDER_FILE + len(renderer) > SHOP_SUFFIX_GAP_HELPER_FILE:
         raise SystemExit("UI VWF renderer overlaps shop suffix-gap helper")
     if SHOP_SUFFIX_GAP_HELPER_FILE + len(shop_suffix_gap_helper) > WIDTH_TABLE_FILE:
@@ -578,6 +697,15 @@ def build(base: bytes) -> bytes:
     french = glyph_bytes(DIALOGUE_CHARS)
     glyph_start = FONT_BASE + (GLYPH_FIRST - 0x80) * 12
     rom[glyph_start:glyph_start + len(french)] = french
+
+    # GAME FILE Mana exact identity. Redirect only the fourth generator entry
+    # through a free C7 trampoline; the trampoline calls the private VWF submit
+    # wrapper and then jumps back to the stock C7:5464 generator.
+    game_file_mana_trampoline = bytes([0x22, *lo24(GAME_FILE_MANA_WRAPPER_CPU), 0x4C, 0x64, 0x54])
+    if len(game_file_mana_trampoline) != GAME_FILE_MANA_TRAMPOLINE_SIZE:
+        raise SystemExit("Unexpected GAME FILE Mana trampoline size")
+    rom[GAME_FILE_MANA_TRAMPOLINE_FILE:GAME_FILE_MANA_TRAMPOLINE_FILE + len(game_file_mana_trampoline)] = game_file_mana_trampoline
+    rom[GAME_FILE_MANA_GENERATOR_PTR_FILE:GAME_FILE_MANA_GENERATOR_PTR_FILE + 2] = (GAME_FILE_MANA_TRAMPOLINE_CPU & 0xFFFF).to_bytes(2, "little")
 
     # Forge-specific exact identity/layout.
     rom[FORGE_SUBMIT_FILE:FORGE_SUBMIT_FILE + len(FORGE_SUBMIT_SIGNATURE)] = bytes([0x22, *lo24(SUBMIT_WRAPPER_CPU), 0xEA, 0xEA])
@@ -607,6 +735,7 @@ def build(base: bytes) -> bytes:
         rom[site:site + len(signature)] = hook
     rom[BATTLE_SUBMIT_50_WRAPPER_FILE:BATTLE_SUBMIT_50_WRAPPER_FILE + len(battle_submit_50)] = battle_submit_50
     rom[BATTLE_SUBMIT_51_WRAPPER_FILE:BATTLE_SUBMIT_51_WRAPPER_FILE + len(battle_submit_51)] = battle_submit_51
+    rom[GAME_FILE_MANA_WRAPPER_FILE:GAME_FILE_MANA_WRAPPER_FILE + len(game_file_mana_wrapper)] = game_file_mana_wrapper
 
     rom[ROM_SIZE_OFFSET] = 0x0C
     update_checksum(rom)
@@ -623,7 +752,7 @@ def main() -> None:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(patch)
     print(f"IPS: {args.output}")
-    print("Standalone UI VWF; includes exact C0:637D/637F battle-banner backend; all localized content remains source-owned")
+    print("Standalone UI VWF; includes exact GAME FILE Mana, battle-banner and existing UI backends; all localized content remains source-owned")
 
 
 if __name__ == "__main__":

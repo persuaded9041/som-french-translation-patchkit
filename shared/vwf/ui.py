@@ -40,6 +40,7 @@ SHOP_UI_MAGIC = 0xA9
 SHOP_ROW_UI_MAGIC = 0xAA
 MONEY_UI_MAGIC = 0xAB
 BATTLE_UI_MAGIC = 0xAC
+GAME_FILE_MANA_UI_MAGIC = 0xAD
 # Backward-compatible alias for code that still refers to the validated Forge tag.
 UI_MAGIC = FORGE_UI_MAGIC
 
@@ -65,6 +66,8 @@ def _assemble_dispatcher() -> bytes:
     a.emit(0xC9, SHOP_ROW_UI_MAGIC)
     a.rel8(0xF0, "ui")
     a.emit(0xC9, BATTLE_UI_MAGIC)
+    a.rel8(0xF0, "ui")
+    a.emit(0xC9, GAME_FILE_MANA_UI_MAGIC)
     a.rel8(0xF0, "ui")
 
     # The stock MONEY_PRINT path builds a transient event string in

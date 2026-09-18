@@ -33,7 +33,7 @@ Reprendre la traduction des **ressources et menus encore manquants**, par petits
 
 - Actions des personnages : `Attaquer`, `Défendre`, `S'approcher`, `S'éloigner`, renderer fixe stock ; aides runtime-validées `Choisissez le type d'action. Validez avec “Attaque”.` et `Jusqu'où charger la jauge ? Validez avec “Attaque”.` ;
 - aide sauvegarde : `Pressez “Attaque” pour sauver, “Retour” pour annuler.` ;
-- GAME FILE : `Graines Mana` runtime-validé ;
+- GAME FILE : `Sauvegardes` et `Graines de Mana` runtime-validés ; `Graines de Mana` utilise la VWF `vwf_ui` ultra-localisée `$AD`, uniquement sur ce champ, avec valeur Mana dynamique stock ;
 - Name Entry : `Choisissez un caractère avec la croix directionnelle.` ; conserver `B` et `Start` physiques, intentionnels avant remapping ;
 - écran Statut : traductions déjà revues dans les JSON mais encore largement **translation-only** tant que leur renderer n'est pas promu ;
 - dialogues : corpus gelé et validé, ne pas relancer d'audit global et ne pas modifier mapping/segmentation.

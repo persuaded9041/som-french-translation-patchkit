@@ -40,6 +40,7 @@ for the owning component even when the current generated payload is shorter.
 | shared VWF/config | `0x074C80-0x074C86` | `$C7:4C80-$4C86` | intro marker/end (`05`), dialogue VWF marker (`06`), dialogue-DTE `$E8` marker, Name Entry base threshold (`02`) |
 | shared VWF compositor | `0x074C90-0x074CCE` | `$C7:4C90-$4CCE` | byte-identical 8×12 shift/merge/spill helper installed by `vwf_intro` / `vwf_dialogues` |
 | shared UI VWF config | `0x074C87` | `$C7:4C87` | `vwf_ui` marker `$09`; shared capacity/renderer infrastructure stays dormant without it |
+| GAME FILE Mana VWF | `0x074C88-0x074C8E` | `$C7:4C88-$4C8E` | exact 7-byte trampoline: `JSL $ED:7F40 / JMP $C7:5464`; only the fourth GAME FILE generator pointer is redirected here |
 | French intro | `0x074D00-0x074D31` | `$C7:4D00-$4D31` | 25-pair private DTE table |
 | French intro | `0x0A0C02-0x0A0E8A` | `$CA:0C02-$0E8A` | rebuilt translated event `$0400` |
 | French intro + intro VWF | `0x0AFF70-0x0AFFB7` | `$CA:FF70-$FFB7` | byte-identical relocation of unchanged stock events `$0401-$040F` |
@@ -122,7 +123,8 @@ intentionally avoids duplicating renderer status and calibration details.
 renderer. `$7E:93C1` is its only UI-private family tag: `$A7` identifies the Forge
 row, `$A8` the top-level Ring Menu title row, `$A9` the exact D9 shop/forge
 response family, `$AA` the buy/sell merchandise row, `$AB` the exact type-2
-money window, and `$AC` the exact battle/status banner. The backend has no
+money window, `$AC` the exact battle/status banner, and `$AD` the exact GAME FILE
+Mana label. The backend has no
 additional `$93C3-$93C9` scratch. It reuses shared runtime scratch
 `$7E:9382/$9385/$938E-$938F`. Ordinary UI families reuse `$7E:9390-$93BB` only
 after stock parsing; battle `$AC` is the narrow exception and selects parser
@@ -131,13 +133,18 @@ Forge keeps its validated +3 logical margin and suffix compaction. Ring Menu mod
 gets an exact +4 margin (33 stock units total) and renders the decoded title unchanged.
 Fresh Ring `$A8`, Forge `$A7`, Shop `$A9` and merchandise `$AA` one-line rows start at
 **+1 px** to preserve the first glyph's left outline; MONEY `$AB` keeps x=0.
+GAME FILE `$AD` starts at **+9 px** inside a 16-cell upload: one blank 8-px cell
+plus the same +1 px outline inset, preserving the stock pair-packed tile order.
 The Shop `$A9` path is armed only at `$C0:7EA6/$7FB9` for pointers inside
 `$D9:FE20-$FEF3`; it keeps the stock parser/capacity and applies VWF only after
 parsing. Ring modes 1/2 arm dedicated merchandise tag `$AA`; that backend is
 runtime-validated. Battle `$AC` is armed only by `$C0:5BEA/$5BF8`; the actual
 message is copied to `$7E:FF69`, so parser mode 3 and renderer selector 5 both
 operate with `$1D03=$7E`. The validated renderer fix is the one-byte continuity
-check `$ED:7B83: C0 -> 7E`. Currency content is not rewritten by `vwf_ui`: standalone
+check `$ED:7B83: C0 -> 7E`. GAME FILE `$AD` is armed only by the fourth
+`$C7:5F8F` generator entry (`$5464 -> $4C88`), copies 15 source cells from
+`$C7:73AA` to `$7E:9C00`, and uploads pair-aligned graphics to `$6820-$691F`;
+the dynamic value begins at `$6920` and remains stock. Currency content is not rewritten by `vwf_ui`: standalone
 renders the source `GP`, while `french_resources` supplies `PO`. `vwf_ui` owns
 presentation only: merchandise price resync 168 -> 164 px plus a 4-px separator
 before the final two unit glyphs; type-2 MONEY `$AB` gets a 3-px separator,

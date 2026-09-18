@@ -92,7 +92,9 @@ GAME_FILE_RESOURCE_FIELDS = {
     "SAVE_POINT":  (0x077350, 11),
     "MONEY":       (0x077374, 6),
     "GP":          (0x077394, 2),
-    "COUNTER":     (0x077398, 8),
+    # COUNTER begins at row column 1 and its dynamic value is at column 16,
+    # leaving 15 safe fixed cells for the translated label.
+    "COUNTER":     (0x077398, 15),
     "MANA_POWER":  (0x0773AA, 15),
 }
 # FILE_LABEL is special: the stock path has only four cells, so it receives

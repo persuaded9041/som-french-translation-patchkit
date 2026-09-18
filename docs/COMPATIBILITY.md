@@ -100,6 +100,10 @@ after checking those ranges against all existing components.
 
 `french_menus` owns the 10-byte `$C7:4D32-$4D3B` helper used by the runtime-validated `1234567 PO` layout. `french_intro` now documents and enforces its private DTE table as the exact preceding `$C7:4D00-$4D31` range, so the two allocations are disjoint. `$C7:4D3C-$4D3F` remains clean `$FF` padding before the relocated GAME FILE resource at `$C7:4D40`.
 
+## GAME FILE Mana VWF allocation
+
+`vwf_ui` owns the exact free-space trampoline `$C7:4C88-$4C8E` immediately after its config byte `$C7:4C87`; `$C7:4C8F` remains `$FF` before the shared compositor at `$C7:4C90`. The trampoline is reached only by redirecting the fourth GAME FILE generator table pointer at `$C7:5F95-$5F96`, calls the private wrapper `$ED:7F40-$7FA4`, then jumps back to stock `$C7:5464`. The wrapper copies only the 15-cell source field `C7:73AA`, submits a pair-aligned 16-cell graphics span, and leaves the dynamic value untouched. `vwf_dialogues` and `vwf_ui` both rebuild the shared dispatcher so their overlap remains byte-identical with the new `$AD` tag.
+
 ## Native Action Settings fixed-font localization
 
 `french_menus` keeps the Action Settings page on the stock fixed-width renderer.

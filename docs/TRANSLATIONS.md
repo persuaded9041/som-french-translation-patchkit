@@ -34,7 +34,7 @@ The main data files are:
 
 - `translations/interface_text_french.json` — Name Entry and GAME SELECT/GAME FILE help plus reviewed translation-only Status characteristic labels;
 - `translations/menu_text_french.json` — GAME SELECT/GAME FILE labels, runtime-validated Action Settings labels, and reviewed translation-only Status labels;
-  GAME FILE currency ID `C7:7394` remains the single text source for `PO`: `french_menus` derives dynamic currency glyph 0 from that JSON value while template glyph 1 remains resource-backed; the promoted spacing helper contains geometry only.
+  GAME FILE IDs `C7:7398` / `C7:73AA` are the promoted `Sauvegardes` / `Graines de Mana`. Currency ID `C7:7394` remains the single text source for `PO`: `french_menus` derives dynamic currency glyph 0 from that JSON value while template glyph 1 remains resource-backed; the promoted spacing helper and `vwf_ui` GAME FILE backend contain geometry/routing only.
 - `translations/opening_text_french.json` — opening prologue and startup credits;
 - `translations/intro_event_french.json` — new-game intro paragraphs;
 - `translations/text_resources_reviewed_overrides.json` — sparse, explicitly reviewed SNES-specific `$CA` resource wording layered over Android FR;
