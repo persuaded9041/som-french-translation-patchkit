@@ -378,4 +378,19 @@ do not change one without re-checking the other.
 
 The component installs the shared `dialogue_french` glyph span and context-sensitive DTE router. D9 responses retain their validated stock parser/capacity. Battle/status text is rebuilt from reviewed Android provenance and relocated to `$EE:6000+`; `$C0:62E2` now uses the reviewed JP-derived `Rétablissement échoué !`; the 8 formerly unresolved records are now reviewed JP-derived French surcharges. `$C0:62F3` now uses the reviewed compact suffix ` s'est rétabli !` after the stock dynamic subject. The stock `$C0:637D/$637F` display scripts remain in place.
 
-The rebuilt `$CA` blob remains 7,103 / 7,315 bytes and now contains 360 translated resources. The rebuilt D9 pool remains 179 / 212 bytes. The current relocated battle pool is 1,573 bytes. `GP -> PO` remains sourced only from `translations/french_resources_reviewed_literals.json`; `vwf_ui` owns presentation only. The exact battle-banner `$AC` rendering path is runtime-validated, including the WRAM source-bank continuity fix `$ED:7B83: C0 -> 7E`.
+The rebuilt `$CA` blob is now 7,171 / 7,315 bytes and contains 420 translated resources (including 60 non-empty weapon descriptions; 12 blank weapon descriptions preserve stock payloads). The 42 complete magic lower-panel rows are stored separately at `$ED:9200-$9F1F` with marker `MFV1` at `$ED:9F20-$9F23`. The rebuilt D9 pool remains 179 / 212 bytes. The current relocated battle pool is 1,573 bytes. `GP -> PO` remains sourced only from `translations/french_resources_reviewed_literals.json`; `vwf_ui` owns presentation only. The exact battle-banner `$AC` rendering path is runtime-validated, including the WRAM source-bank continuity fix `$ED:7B83: C0 -> 7E`.
+
+## Status exact-label VWF compatibility
+
+Status condition/template compression remains compatible across standalone and
+aggregate builds: it uses only lower DTE `$60-$7C` plus upper pairs `$E6-$FF`,
+which are safe under the standalone `$E1` direct/DTE boundary and the
+aggregate non-dialogue `$E6` fallback.
+
+The ten characteristic labels do **not** use DTE in the VWF side table.
+`french_menus` owns direct-glyph records at `$ED:8B00-$8B9F` plus marker
+`$ED:8BA0-$8BA1 = 53 56`; `vwf_ui` only reads them after exact Status identity,
+the runtime-validated blank `ON`/`CE` suffix state, and that marker all match.
+Thus `vwf_ui` standalone remains stock on this screen, while the aggregate path
+can display full `Intelligence` / `% précision` without changing parser chunk
+geometry or any other Status caller.

@@ -125,6 +125,23 @@
         },
         {
           "id": "new:status.label.magic_defense",
+          "text": "Déf. magique"
+        }
+      ]
+    },
+    {
+      "group": "status.labels_fixed_fallback",
+      "entries": [
+        {
+          "id": "new:status.label.intelligence.fixed",
+          "text": "Intell."
+        },
+        {
+          "id": "new:status.label.hit_percent.fixed",
+          "text": "% précis."
+        },
+        {
+          "id": "new:status.label.magic_defense.fixed",
           "text": "Déf. mag."
         }
       ]

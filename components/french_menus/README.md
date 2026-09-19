@@ -120,18 +120,31 @@ The third row `C0:368F` (`0 1 2 3 4 5 6 7 8`) is structural and stays unchanged.
 
 - GAME FILE save help now uses `Appuyez sur “Attaque” pour sauver, “Retour” pour annuler.`; this avoids hard-coding physical B/Y mappings after controls may have been rebound.
 - Name Entry keeps physical `B` and `Start` deliberately because it is reached before control remapping is available. Its first line is now `Choisissez un caractère avec la croix directionnelle.`
+- Status / Caractéristiques money total now prefixes its separately rendered currency unit with the otherwise-free byte `$C7:7B69`, and redirects the local unit pointer `$CE:E9BC` from `$7B6A` to `$7B69`. This yields `1234567 GP` standalone and `1234567 PO` in the aggregate without VWF, relocation, or duplicating the localized unit.
 - GAME FILE total money now renders `1234567 PO` with the currency suffix anchored exactly where stock placed `GP`. The first glyph remains JSON-derived at `$C7:54A9`; the second remains the `C7:7394` template glyph in column 16. The 10-byte `$C7:4D32` helper inserts only the separator while preserving the renderer's mandatory 16-cell dynamic upload.
 - GAME FILE `COUNTER -> Sauvegardes` and `MANA POWER -> Graines de Mana` are runtime-validated. The latter remains a 15-cell JSON source field; only `vwf_ui` changes its presentation.
 - Rejected money probes (`PPO`, `P O`, and the misaligned-hook black screen) are historical only and are not part of the promoted patch. Their failure established the fixed 16-cell dynamic window documented in `docs/HANDOFF.md` and the component memory map.
 
-## Translation-only backlog already reviewed
+## Status / Caractéristiques — fixed fallback + exact VWF source
 
-`translations/menu_text_french.json` also contains reviewed French text for the
-native Status screen (conditions, templates, weapon types, misc labels), and
-`translations/interface_text_french.json` contains the ten reviewed
-characteristic labels. These rows are **translation-only** until their native
-renderer/placement paths are promoted explicitly; do not assume their presence
-in JSON means they are already emitted by `french_menus.ips`.
+The fixed-font Status path is now understood and its safe fallback remains in
+place. `french_menus` still emits the original 60-cell + 40-cell source rows at
+`$C7:7A28-$7A8D`, with `Intell.` and `% précis.` in the two fields that exceed
+the stock 10-cell source slots. The USA-only hard-coded `ON` / `CE` suffixes are
+blanked exactly as in French Rev 1.
+
+For aggregate builds, this component also owns a full-label source table at
+`$ED:8B00-$8B9F`: ten fixed 16-byte records (length + direct glyphs). The
+current full forms include `Intelligence` and `% précision`. Marker
+`$ED:8BA0-$8BA1 = 53 56` identifies that exact table. `vwf_ui` may consume it,
+but no French prose is embedded in the generic VWF component.
+
+The exact VWF probe using the short forms was runtime-validated. The current
+long-form candidate is pending runtime validation. The 16 condition names remain
+repacked inside `$C7:7A8E-$7B23`; templates, weapon types, `Type` and `Sphères`
+keep their stock starts. `$C7:7B6A` (`GP -> PO`) remains owned by
+`french_resources`. `Épée` uses the shared `full_french` direct-glyph profile;
+no VWF is required for that weapon type.
 
 ## Sources
 
@@ -149,8 +162,8 @@ python3 tools/text/extract.py "Secret of Mana (USA).sfc" --only interface
 ```
 
 `build_patch.py` verifies both source assets against the ROM and binds French
-strings by position-based source ID. It uses the shared `basic_french` charset
-profile.
+strings by position-based source ID. It uses the shared `full_french` charset
+profile, including direct `$E2 = É`.
 
 ## Build and validation
 

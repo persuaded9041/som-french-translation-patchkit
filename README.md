@@ -25,7 +25,7 @@ The ROM itself is deliberately not included.
 - `french_name_entry_extended` - French overlay for the extended Name Entry: expands the generic keyboard to four rows, adds the accented/extended row, French help text, glyphs and name-specific DTE routing.
 - `name_entry_prefill` - editable default-name prefill driven by a component-local JSON (`Randi`, `Primm`, `Popoi`); requires `name_entry_extended` for lowercase/grid support.
 - `french_name_entry_prefill` - French default-name overlay (`Randy`, `Prim`, `Popoï`), with its own JSON and fourth-row token support; requires `name_entry_prefill` + `french_name_entry_extended`.
-- `french_menus` - French native-menu pipeline for GAME SELECT/GAME FILE, Window Settings and the runtime-validated fixed-font Action Settings labels. Window Settings is fixed-font-only (`Choix de fenêtre`, `Fond` left/right, `Bordure` top/bottom) with synchronized frame/resource/placement relocation; GAME FILE uses `Sauvegardes`, the validated `1234567 PO` hybrid layout, and the 15-cell JSON-backed `Graines de Mana` source consumed by the narrow GAME FILE VWF backend.
+- `french_menus` - French native-menu pipeline for GAME SELECT/GAME FILE, Window Settings, runtime-validated fixed-font Action Settings, and the current Status/Characteristics path. The fixed 10-cell fallback is preserved, while `french_menus` also owns the full Status-label source table consumed only by the exact `vwf_ui` backend. Window Settings is fixed-font-only (`Choix de fenêtre`, `Fond` left/right, `Bordure` top/bottom); GAME FILE uses `Sauvegardes`, the validated `1234567 PO` hybrid layout, and the 15-cell JSON-backed `Graines de Mana` source consumed by the narrow GAME FILE VWF backend.
 - `french_gfx` - French-specific graphical assets. Its first runtime-validated feature converts `assets/controller_button.png` into the shared 16×16 SNES 2bpp controller icon, installs the exact French X/A/Y/B palette ramps, and skips the USA-only purple-controller palette override. The replacement is global for screens using the shared graphical button resource and uses no free-space allocation.
 - `french_opening` - French startup credits/opening text, including the runtime-validated two-row `É` credit overlay with stock `Z` restored and synchronized CGRAM fade.
 - `french_intro` - validated French new-game event `$0400` payload, private intro DTE and accented glyphs.
@@ -35,7 +35,7 @@ The ROM itself is deliberately not included.
 - `intro_skip` - runtime-validated hold-R intro skip for translated event `$0400`: continuous R for 120 normal-loop ticks, release-to-cancel, safe mid-text/WAIT commit to the waterfall. The eight normal narrative phases are covered; the final Mode-7/flyover phase remains deliberately outside scope.
   Validation history: `docs/INTRO_SKIP_VALIDATION.md`; assembly/event-engine map: `docs/INTRO_EVENT_ARCHITECTURE.md`.
 - `french_dialogues` - deterministic source/translation reinsertion for all stock text-bearing event scripts except intro `$0400`, with in-place rebuilds and deterministic expanded-ROM relocation for growth.
-- `vwf_ui` - standalone VWF extensions for proven non-dialogue UI paths: Watts' Forge, the top-level Ring Menu title, the nine `$D9` shop/forge responses, buy/sell merchandise rows, the type-2 total-money window, the exact battle/status banner `$AC`, and the exact GAME FILE Mana label `$AD`. The GAME FILE backend is pair-aligned and renders only the 15-cell source at `C7:73AA`, leaving the dynamic value stock. Content remains source-owned by the owning text component; `vwf_ui` owns presentation only and is standalone-safe without `vwf_dialogues`.
+- `vwf_ui` - standalone VWF extensions for proven non-dialogue UI paths: Watts' Forge, the top-level Ring Menu title, the nine `$D9` shop/forge responses, buy/sell merchandise rows, the type-2 total-money window, the exact battle/status banner `$AC`, the exact GAME FILE Mana label `$AD`, the exact Status characteristic-label bitmap backend, the runtime-validated name-only VWF path for the `Niv. armes` / `Niv. magies` rows, and the runtime-validated 3x480px lower magic-description panel. The skill-row path preserves the fixed numeric prefix and dynamically discovers the true name boundary. The lower magic panel captures stock-emitted IDs, preserves unlock gating and combines each stock pair of 30-cell halves into one continuous VWF `Nom : description` row. Content remains source-owned by the owning text component; `vwf_ui` owns presentation only and is standalone-safe without `vwf_dialogues`.
 - `french_resources` - deterministic reinsertion of reviewed French `$CA` resources, the nine `$D9` shop/forge response mini-events, the two reviewed shop currency literals (`GP -> PO`), and the reviewed `$C0` battle/status text pool. Battle prose is relocated to `$EE:6000+`; the current battle plan has 0 pending manual translations and 0 pending layout adaptations. Android-derived text uses validated provenance inputs and no French gameplay prose is hard-coded in Python.
 
 Component metadata lives in `components/*/component.json`. Public component IDs are semantic and intentionally unnumbered. The aggregate builder discovers components from these manifests and applies their explicit `build_order`; folder names therefore do not control patch precedence. Adding a component does not require a hard-coded component list in the root scripts.
@@ -100,15 +100,15 @@ The dialogue corpus is frozen at the current promoted state: **701 accepted play
 
 A fresh cold regeneration reproduces `translations/dialogues_french.json` with SHA-256 `3e4cacd926e31d6dfe9f9021d1026c4f71dc68ccd88ce4481749e47764d2b7d9`. The promoted `french_dialogues.ips` SHA-256 is `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31`.
 
-The current runtime-validated `french_gfx` controller-button baseline is:
+The current build promotes the runtime-validated weapon/magic skill-row name VWF path **and** the validated description work. The compact fixed prefix (`5:0 ` / `5:10 `) is preserved while only the dynamic name is rendered proportionally. Weapon descriptions use the proven stock 30-cell segment layout; magic descriptions use three continuous 480px VWF rows built from complete Android-FR `Nom : description` records. `$C7:754A/$7558` and the validated Status backend remain unchanged.
 
-- `patches/all.ips`: `8be55d2b25053bd71231c96047368b38f1fc07220f0db563293a29e96dac28df`
+- `patches/all.ips`: `111138fb4f84fbdf2edd674656040f622fef98227acb988b182fccc103b10636`
 - `patches/french_gfx.ips`: `5753358d9603e6422a8ce03223e362900671e403fe83b9f57988400e3f1ffdd2`
-- `patches/french_menus.ips`: `28806e4baaded29e749738243db547b6668f3c3567deefa52e622280ccc8c85a`
-- `patches/vwf_ui.ips`: `a031a40d9c3122a0b5b8bb02fdb4bcff92da3ddc5b924f71e30e1df42cceddcd`
+- `patches/french_menus.ips`: `8148c43b42ed8d0cf88edf367d48b27f7407e161b9246d0f32bd4c7aff353c36`
+- `patches/vwf_ui.ips`: `d36349c974e99e81d146ca13e6c564690d70cc41600e1e7dd4b5b5343864a1f9`
 - `patches/vwf_dialogues.ips`: `f9628f1c43ba2917a081fd2cf31b48ce90c9138980e720276602796f7b593dad`
-- `patches/french_resources.ips`: `c9483c0a42ca85d2f9051f4d7f0355e09ce76279d3311f43bd574864fd492216`
-- Final rebuilt validated ROM SHA-256: `c5207420053916b1b2f45061d28cbcb939ce709b58e5bf502f72f84a46ca7d99`; SNES checksum `$AC27`. The ROM itself is not distributed.
+- `patches/french_resources.ips`: `692f42a3508b9bf9091b3600193f6051cc272f2eac8963e708554e639fa056ff`
+- Rebuilt ROM SHA-256: `afd147290947a4bae9c2365f0bb1ced6b7f7ec1075ef7e5d317fab70ae585216`; SNES checksum `$59B7`. The ROM itself is not distributed.
 
 No `french_shop_text.ips` is generated. The validated MONEY frame remains 11 cells wide and its independent type-2 close seed remains `$C7:7140=$09`. See `docs/HANDOFF.md` for the active handoff.
 
@@ -210,8 +210,8 @@ Allowed overlaps are:
 - checksum bytes, which are recomputed once on the combined ROM;
 - the legacy direct/DTE-threshold byte when a dialogue DTE router supersedes it.
 
-Name Entry and GAME SELECT keep `basic_french`; the intro keeps the validated
-`full_french` `$E6` boundary. Dialogue VWF/text use `dialogue_french`, which adds
+Name Entry keeps `basic_french`; `french_menus` now uses `full_french` so native
+menus can render direct `$E2 = É`, while the intro keeps the validated `full_french` `$E6` boundary. Dialogue VWF/text use `dialogue_french`, which adds
 `♪`, `°` and `;` and selects `$E8` only for real event-engine dialogue through
 `shared/dialogue/dte.py`. This avoids changing `french_intro`'s private intro DTE table.
 Any other differing functional overlap aborts the build.

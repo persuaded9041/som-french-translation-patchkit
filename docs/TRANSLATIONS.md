@@ -32,8 +32,8 @@ Compressed opening strings use the compressed container address plus determinist
 
 The main data files are:
 
-- `translations/interface_text_french.json` — Name Entry, GAME SELECT/GAME FILE and Window Settings help plus reviewed translation-only Status characteristic labels;
-- `translations/menu_text_french.json` — GAME SELECT/GAME FILE labels, runtime-validated Window Settings + Action Settings labels, and reviewed translation-only Status labels;
+- `translations/interface_text_french.json` — Name Entry, GAME SELECT/GAME FILE and Window Settings help plus the reviewed full Status characteristic labels and the two explicit fixed-font fallbacks (`Intell.`, `% précis.`);
+- `translations/menu_text_french.json` — GAME SELECT/GAME FILE labels, runtime-validated Window Settings + Action Settings labels, and Status strings; current isolated candidate uses `Épée` through the shared `full_french` direct glyph `$E2`;
   GAME FILE IDs `C7:7398` / `C7:73AA` are the promoted `Sauvegardes` / `Graines de Mana`. Currency ID `C7:7394` remains the single text source for `PO`: `french_menus` derives dynamic currency glyph 0 from that JSON value while template glyph 1 remains resource-backed; the promoted spacing helper and `vwf_ui` GAME FILE backend contain geometry/routing only.
 - `translations/opening_text_french.json` — opening prologue and startup credits;
 - `translations/intro_event_french.json` — new-game intro paragraphs;
@@ -50,10 +50,13 @@ The two generated cache files above are not canonical prose provenance. A normal
 
 ## Current dialogue state
 
-Dialogue work remains frozen. **Menu/resource translation is also intentionally paused at this handoff** while work proceeds on the separate `french_gfx` component. Its first controller-button asset is runtime-validated and promoted. The untranslated menu/resource backlog remains future work and must not be silently resumed while `french_gfx` work continues:
+Dialogue work remains frozen. The Status labels/templates and money spacing are
+runtime-validated; the current isolated `french_menus` candidate only validates
+`Épée` through the shared `full_french` profile. The first `french_gfx` controller-button asset remains validated and
+unchanged. Remaining backlog includes:
 
-- native menu/status translation-only rows still require explicit renderer promotion;
-- `weapon_description` / `magic_description` remain unpromoted review families;
+- runtime-validate the isolated `Épée` / `full_french` candidate, then promote it if clean;
+- the default/help text still shown in English in `Niv. armes / Niv. magies`: identify JP source, verify Android EN/FR identity, then review the French adaptation before insertion;
 - no global dialogue audit should be restarted.
 
 Previous dialogue baseline:

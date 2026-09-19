@@ -77,10 +77,66 @@
     {
       "category": "weapon_description",
       "snes_start": "14F",
-      "snes_end": "196",
+      "snes_end": "157",
       "android_start": 100883,
-      "android_end": 100954,
-      "evidence": "ordered_resource_block"
+      "android_end": 100891,
+      "evidence": "ordered_resource_block_with_android_family_separator"
+    },
+    {
+      "category": "weapon_description",
+      "snes_start": "158",
+      "snes_end": "160",
+      "android_start": 100893,
+      "android_end": 100901,
+      "evidence": "ordered_resource_block_with_android_family_separator"
+    },
+    {
+      "category": "weapon_description",
+      "snes_start": "161",
+      "snes_end": "169",
+      "android_start": 100903,
+      "android_end": 100911,
+      "evidence": "ordered_resource_block_with_android_family_separator"
+    },
+    {
+      "category": "weapon_description",
+      "snes_start": "16A",
+      "snes_end": "172",
+      "android_start": 100913,
+      "android_end": 100921,
+      "evidence": "ordered_resource_block_with_android_family_separator"
+    },
+    {
+      "category": "weapon_description",
+      "snes_start": "173",
+      "snes_end": "17B",
+      "android_start": 100923,
+      "android_end": 100931,
+      "evidence": "ordered_resource_block_with_android_family_separator"
+    },
+    {
+      "category": "weapon_description",
+      "snes_start": "17C",
+      "snes_end": "184",
+      "android_start": 100933,
+      "android_end": 100941,
+      "evidence": "ordered_resource_block_with_android_family_separator"
+    },
+    {
+      "category": "weapon_description",
+      "snes_start": "185",
+      "snes_end": "18D",
+      "android_start": 100943,
+      "android_end": 100951,
+      "evidence": "ordered_resource_block_with_android_family_separator"
+    },
+    {
+      "category": "weapon_description",
+      "snes_start": "18E",
+      "snes_end": "196",
+      "android_start": 100953,
+      "android_end": 100961,
+      "evidence": "ordered_resource_block_with_android_family_separator"
     },
     {
       "category": "magic_description",

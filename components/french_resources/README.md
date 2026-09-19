@@ -1,13 +1,15 @@
 # french_resources — French resources
 
-Owns the reviewed French non-dialogue text resources that belong to game content rather than renderer geometry. This now includes the `$CA` resource table/blob, the nine `$D9` shop/forge response mini-events, the two fixed shop currency literals, and the reviewed `$C0` battle/status text content.
+Owns the reviewed French non-dialogue text resources that belong to game content rather than renderer geometry. This now includes the `$CA` resource table/blob, the validated weapon descriptions, the 42 full-width magic lower-panel `Nom : description` rows, the nine `$D9` shop/forge response mini-events, the two fixed shop currency literals, and the reviewed `$C0` battle/status text content.
 
 ## Ownership
 
 This component translates:
 
 - magic names and Mana spirit names;
+- the 42 complete Android-FR magic lower-panel rows consumed by the dedicated `vwf_ui` 3x480px renderer;
 - weapon, helmet, armor, accessory and item/special names;
+- the 72 weapon-description resources, with the Android family separators mapped correctly and the validated SNES 30-cell segment geometry;
 - enemy and location names;
 - the nine validated top-level Ring Menu labels (`$0C6-$0CE`);
 - the two reviewed system messages (`$1FF-$200`);
@@ -55,7 +57,7 @@ for both records remain intentionally unfixed; see `docs/BATTLE_TEXT.md`.
 
 ## Storage/runtime architecture
 
-The complete 513-entry pointer table at `$CA:0800-$0C01` is rebuilt in resource-ID order. The text blob begins at `$CA:98E1` and must remain inside the original 7,315-byte allocation through `$CA:B573`; no relocation is used. The current reviewed blob is 7,103 bytes and ends at `$CA:B49F`.
+The complete 513-entry pointer table at `$CA:0800-$0C01` is rebuilt in resource-ID order. The text blob begins at `$CA:98E1` and must remain inside the original 7,315-byte allocation through `$CA:B573`; no relocation is used. The current reviewed blob is 7,171 bytes, leaving 144 bytes inside the stock allocation.
 
 The nine D9 response scripts remain tiny stock event scripts of the form `$7F $52 <text> $00`. They are rebuilt contiguously from `$D9:FE20`; the nine stock bank-C0 `LDX #pointer` operands are updated to the rebuilt starts. The translated pool is 179 / 212 bytes, leaving 33 bytes free, so no relocation is used.
 
@@ -67,15 +69,32 @@ offsets, while `vwf_ui` remains responsible only for the exact banner presentati
 
 Standalone French use installs the same byte-identical `dialogue_french` glyph span and event-context DTE router used by the dialogue components. This single installation now serves both the `$CA` resources and D9 shop text.
 
-## Extending translated resource families
+## Weapon / magic descriptions — runtime-validated
 
-The Android mapping already contains 72 `weapon_description` and 42
-`magic_description` resources, but these families are not yet promoted by the
-component. Additions must be reviewed in the actual target UI before extending
-`DEFAULT_CATEGORIES` or otherwise selecting new IDs. The conservative current
-layout audit classifies weapon descriptions as 38 inside the stock envelope / 34
-geometry review and magic descriptions as 2 inside / 40 geometry review. Size
-alone is therefore not sufficient evidence.
+### Weapon descriptions
+
+The 72 weapon descriptions are promoted in the ordinary `$CA` resource blob.
+Android inserts one separator after each family of nine weapons; the mapping now
+skips those eight separators instead of treating the Android range as 72
+contiguous IDs. Runtime validation proved the SNES renderer consumes fixed
+30-character segments separated by `$7F`, so non-empty Android prose is collapsed
+to one logical sentence, given the stock one-cell inset, then sliced at exact
+30-character boundaries. The 12 blank descriptions preserve their stock blank
+payload byte-for-byte.
+
+### Magic lower-panel descriptions
+
+The stock `13+24`-cell two-segment layout cannot preserve the complete Android-FR
+wording. The 42 complete `Nom : description` rows therefore live in expanded bank
+`$ED:9200-$9F1F` as fixed 80-byte direct-glyph records. `MFV1` at
+`$ED:9F20-$9F23` is the runtime source marker consumed by `vwf_ui`. The build
+collapses Android layout whitespace only; it does not shorten wording. The widest
+row is currently 445 px and the build enforces a 472 px ceiling for the validated
+480 px renderer.
+
+This component still owns **content only**. `vwf_ui` captures the stock-emitted
+magic IDs, preserves stock unlock gating and renders the 3x480 px panel. When the
+marker is absent, standalone `vwf_ui` falls back to the stock presentation.
 
 Keep new wording data-driven: Android-backed text remains generated from the
 existing mapping inputs, while deliberate SNES-specific adaptations belong in

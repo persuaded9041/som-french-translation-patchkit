@@ -85,11 +85,13 @@ An eight-entry pointer table at `$C7:7BB7` is validated against the eight weapon
 names. Status-template parameters such as `$5C $12` and `$5C $16` are preserved
 as `{5C12}` / `{5C16}` instead of being mis-decoded as text.
 
-The reviewed French translations are already recorded in
+The reviewed French translations are recorded in
 `translations/menu_text_french.json`, including the 16 condition names, status
-templates, weapon types and `Type` / `Sphères`. They remain **translation-only**
-until the corresponding Status renderer is explicitly promoted and runtime
-validated.
+templates, weapon types and `Type` / `Sphères`. They are emitted by the current `french_menus` Status path. The fixed fallback and the exact VWF path are runtime-validated with
+`Intelligence`, `% précision` and `Déf. magique`; full fixed templates including
+`Expérience`, `Niveau suivant`, `Graines de Mana` and Status money spacing are
+also validated. The current isolated candidate changes only `Epée -> Épée` via
+the shared `full_french` direct glyph `$E2`, with no additional VWF.
 
 The source JSON exposes logical translatable fragments with ROM-position IDs
 rather than copying complete padding-heavy menu blobs. Layout spaces, dashes,

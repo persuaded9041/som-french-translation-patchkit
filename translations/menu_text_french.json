@@ -116,6 +116,32 @@
       ]
     },
     {
+      "group": "menu.weapon_skill",
+      "entries": [
+        {
+          "id": "C7:745E",
+          "text": "Niv. armes"
+        },
+        {
+          "id": "C7:7478",
+          "text": "Niv. magies"
+        }
+      ]
+    },
+    {
+      "group": "menu.magic_skill",
+      "entries": [
+        {
+          "id": "C7:7486",
+          "text": "Niv. magies"
+        },
+        {
+          "id": "C7:749F",
+          "text": "Niv. armes"
+        }
+      ]
+    },
+    {
       "group": "status.conditions",
       "entries": [
         {
@@ -201,15 +227,15 @@
         },
         {
           "id": "C7:7B39",
-          "text": "Exp. {5C12}"
+          "text": "Expérience {5C12}"
         },
         {
           "id": "C7:7B41",
-          "text": "Niv. suivant {5C12}"
+          "text": "Niveau suivant {5C12}"
         },
         {
           "id": "C7:7B53",
-          "text": "Graines Mana{5C16} "
+          "text": "Graines de Mana{5C16} "
         },
         {
           "id": "C7:7B61",

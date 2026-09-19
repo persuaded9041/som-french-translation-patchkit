@@ -38,8 +38,8 @@ spacing are runtime-validated.
 
 ### `basic_french`
 
-Direct range `$D4-$E0`; threshold `$E1`. GAME SELECT uses this profile directly.
-`french_name_entry_extended` keeps the same ordinary-text threshold and the same `$D4-$E0` French
+Direct range `$D4-$E0`; threshold `$E1`. `french_name_entry_extended` keeps this
+ordinary-text threshold and the same `$D4-$E0` French
 range, and also installs the disjoint shared glyphs `$D3=♪`, `$E6=°`, `$E7=;`.
 It preserves the stock graphics occupying `$E1-$E5` and switches to `$E8` for
 the relocated bank-`$E4` Name Entry resource and the temporary `PLAYER_NAME`
@@ -48,9 +48,10 @@ source.
 ### `full_french`
 
 Direct range `$D4-$E5`; threshold `$E6`. `french_intro` owns this exact profile
-so the runtime-validated intro compression and 25 private DTE pairs remain
-unchanged. `vwf_intro` consumes the resulting direct glyph codes but does not
-install the charset or DTE threshold.
+for the runtime-validated intro, and `french_menus` now reuses the same shared
+profile so native menu text can encode direct `$E2 = É` (current isolated
+`Épée` candidate). `vwf_intro` consumes the resulting direct glyph codes but
+does not install the charset or DTE threshold.
 
 ### `dialogue_french`
 
@@ -62,8 +63,8 @@ and 08. The threshold is context-sensitive rather than global:
 - French extended Name Entry resource in reserved bank `$E4`: `$E8`.
 
 `shared/dialogue/dte.py` owns that routing. It uses the established event-parser
-caller discriminator and protects event `$0400`; GAME SELECT remains on the
-base `$E6` path. This lets `$E6/$E7` mean `°`/`;` in dialogue while they remain
+caller discriminator and protects event `$0400`; ordinary native-menu contexts
+remain on the base `$E6` path. This lets `$E6/$E7` mean `°`/`;` in dialogue while they remain
 intro DTE codes during event `$0400`.
 
 ## Source files

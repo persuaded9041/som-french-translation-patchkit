@@ -109,11 +109,32 @@ The three `+$04` source-tile compensations match the official French Rev 1 ROM.
 They were runtime-validated across the initial grid, gauge-selection state and
 `Y` cancellation/redraw path.
 
+## Status / Characteristics — fixed fallback + full-label VWF source
+
+`french_menus` keeps the stock fallback geometry and additionally owns the
+localized full-label records consumed by the exact `vwf_ui` Status backend.
+
+- ROM `0x0033CD-0x0033CF` / `$C0:33CD-$33CF`: stock 24-bit label-block pointer remains `$C7:7A28`;
+- ROM `0x077A28-0x077A8D` / `$C7:7A28-$7A8D`: two 60 + 40-cell fallback rows; current long fields fall back to `Intell.` / `% précis.`;
+- ROM `0x0033D0-0x0033EF` / `$C0:33D0-$33EF`: 16 condition pointers updated after in-place repacking;
+- ROM `0x077A8E-0x077B23` / `$C7:7A8E-$7B23`: 150-byte condition pool, 123 bytes currently used;
+- ROM `0x077B24-0x077B69` / `$C7:7B24-$7B69`: translated Status templates keep stock starts/control `$5C`;
+- ROM `0x077B6D-0x077BA4` / `$C7:7B6D-$7BA4`: weapon types keep stock starts; current candidate uses direct-glyph `Épée` (`$E2`);
+- ROM `0x077BA5-0x077BB4` / `$C7:7BA5-$7BB4`: `Type` / `Sphères` remain in stock slots;
+- ROM `0x2D8B00-0x2D8B9F` / `$ED:8B00-$8B9F`: ten 16-byte full-label records (length + up to 15 direct glyphs);
+- ROM `0x2D8BA0-0x2D8BA1` / `$ED:8BA0-$8BA1`: marker `53 56` required by the exact VWF backend.
+
+`$C7:7B6A-$7B6C` remains outside `french_menus` ownership (`GP -> PO` belongs
+to `french_resources`). The full-label table is inert in standalone
+`french_menus`; only `vwf_ui` renders it.
+
 ## Other fixed writes
 
 - ROM `0x07780A-0x07780B` / `$C7:780A-$780B`: GAME SELECT text pointer `$7313 -> $4400`.
 - ROM `0x07756D`, `0x077572`, `0x077577`: GAME SELECT frame widths derived from translated encoded cell counts; current validated values remain `$07/$05/$06`.
 - ROM `0x0033B5-0x0033B7`: GAME SELECT welcome/help pointer redirected to `$ED:8000`.
-- ROM `0x0016F6`: standalone direct/DTE threshold `$D3 -> $E1` for the `basic_french` glyph profile. Aggregate builds may supersede this legacy immediate with the shared context router documented in `docs/COMPATIBILITY.md`.
+- ROM `0x0016F6`: standalone direct/DTE threshold `$D3 -> $E6` for the `full_french` glyph profile. Aggregate builds may supersede this legacy immediate with the shared context router documented in `docs/COMPATIBILITY.md`.
 
 No private WRAM is allocated by this component.
+
+- ROM `0x077B69` / `$C7:7B69`: one fixed-font blank used only as the Status money/unit separator; local code operand at ROM `0x0769BC` / `$CE:E9BC` changes `$7B6A -> $7B69`, so the following `GP/PO` literal remains owned by `french_resources`.

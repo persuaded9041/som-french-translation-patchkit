@@ -14,7 +14,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from shared.core.asm import lo16
 from shared.core.ips import make_ips
 from shared.core.rom import ROM_SIZE_OFFSET, expand_rom, update_checksum, validate_base_rom
-from shared.text.resource_translation import normalize_for_snes
+from shared.text.resource_translation import normalize_for_snes, normalize_weapon_description_for_snes
 from shared.text.stock import decode_text_bytes, encode_text, encode_text_with_stock_dte
 from shared.text.resources import (
     CA_BASE,
@@ -47,6 +47,7 @@ from shared.text.battle import (
     verify_against_rom as verify_battle_against_rom,
 )
 from shared.text.battle_translation import build_translation_plan as build_battle_translation_plan
+from shared.vwf.metrics import validated_advance
 from shared.charset import (
     CHAR_TO_CODE,
     DIALOGUE_FRENCH_CHARS,
@@ -68,6 +69,20 @@ SHOP_DIRECT_TRANSLATION = PROJECT_ROOT / "translations" / "shop_text_french.json
 SHOP_REVIEWED_OVERRIDES = PROJECT_ROOT / "translations" / "shop_text_reviewed_overrides.json"
 SHOP_ANDROID_RECIPE = PROJECT_ROOT / "recipes" / "android" / "shop_text_mapping.json"
 SHOP_MAX_VISIBLE_CHARS = 28
+
+# Full-width VWF magic-description rows consumed by vwf_ui.  Localized content
+# remains owned by french_resources; vwf_ui owns only the exact runtime capture
+# and 3x480px presentation path.  Each record is one direct-glyph
+# `Nom : description` row, prefixed by its encoded length.
+MAGIC_PANEL_RECORD_FILE = 0x2D9200
+MAGIC_PANEL_RECORD_CPU = 0xED9200
+MAGIC_PANEL_RECORD_COUNT = 42
+MAGIC_PANEL_RECORD_SIZE = 80
+MAGIC_PANEL_RECORD_BYTES = MAGIC_PANEL_RECORD_COUNT * MAGIC_PANEL_RECORD_SIZE
+MAGIC_PANEL_MARKER_FILE = MAGIC_PANEL_RECORD_FILE + MAGIC_PANEL_RECORD_BYTES
+MAGIC_PANEL_MARKER_CPU = MAGIC_PANEL_RECORD_CPU + MAGIC_PANEL_RECORD_BYTES
+MAGIC_PANEL_MARKER = b"MFV1"
+MAGIC_PANEL_MAX_WIDTH = 472
 
 # Battle/status text content is non-dialogue resource data and therefore lives
 # in french_resources.  The stock C0 pool is too small for Android-FR, so the
@@ -136,6 +151,7 @@ DEFAULT_CATEGORIES = (
     "magic_name",
     "mana_spirit_name",
     "weapon_name",
+    "weapon_description",
     "helmet_name",
     "armor_name",
     "accessory_name",
@@ -145,6 +161,82 @@ DEFAULT_CATEGORIES = (
     "location_name",
     "system_message",
 )
+
+
+def _make_magic_panel_width_table(base: bytes) -> bytes:
+    """Mirror the validated vwf_ui advance table for build-time width checks."""
+    font = bytearray(base[FONT_BASE:FONT_BASE + 128 * 12])
+    french = glyph_bytes(DIALOGUE_FRENCH_CHARS)
+    french_start = (GLYPH_FIRST - 0x80) * 12
+    font[french_start:french_start + len(french)] = french
+    table = bytearray(128)
+    for code in range(0x80, 0x100):
+        rows = font[(code - 0x80) * 12:(code - 0x80 + 1) * 12]
+        table[code - 0x80] = validated_advance(code, rows)
+    return bytes(table)
+
+
+def build_magic_panel_records(
+    base: bytes,
+    source: dict,
+    entries: dict[str, tuple[str, str]],
+) -> tuple[bytes, int]:
+    """Build 42 complete Android-FR `Nom : description` VWF records.
+
+    The stock CA magic-description records remain untouched by this feature.
+    The lower panel's stock 13+24-cell presentation is too narrow for Android
+    FR, so the complete wording lives in an expanded-bank table owned by this
+    localization component.  vwf_ui indexes this table only from IDs emitted by
+    the stock availability logic.
+    """
+    by_category: dict[str, list[str]] = {}
+    for resource in source["resources"]:
+        by_category.setdefault(resource["category"], []).append(resource["id"])
+    names = by_category.get("magic_name", [])
+    descriptions = by_category.get("magic_description", [])
+    if len(names) != MAGIC_PANEL_RECORD_COUNT or len(descriptions) != MAGIC_PANEL_RECORD_COUNT:
+        raise ValueError(
+            f"Expected {MAGIC_PANEL_RECORD_COUNT} magic names/descriptions, "
+            f"found {len(names)}/{len(descriptions)}"
+        )
+
+    widths = _make_magic_panel_width_table(base)
+    records: list[bytes] = []
+    max_width = 0
+    for index, (name_id, desc_id) in enumerate(zip(names, descriptions)):
+        try:
+            name_entry = entries[name_id]
+            desc_entry = entries[desc_id]
+        except KeyError as exc:
+            raise ValueError(f"Missing Android-FR magic panel resource {exc.args[0]}") from exc
+        if name_entry[0] != "magic_name" or desc_entry[0] != "magic_description":
+            raise ValueError(f"Magic panel category mismatch at index {index}")
+        name, _ = normalize_for_snes(name_entry[1])
+        desc, _ = normalize_for_snes(desc_entry[1])
+        name = " ".join(name.split())
+        desc = " ".join(desc.split())
+        line = f"{name} : {desc}"
+        encoded = encode_text(line)
+        if len(encoded) > MAGIC_PANEL_RECORD_SIZE - 1:
+            raise ValueError(
+                f"Magic panel row {index} exceeds {MAGIC_PANEL_RECORD_SIZE - 1} glyphs: {line!r}"
+            )
+        width = sum(widths[code - 0x80] for code in encoded)
+        if width > MAGIC_PANEL_MAX_WIDTH:
+            raise ValueError(
+                f"Magic panel row {index} exceeds {MAGIC_PANEL_MAX_WIDTH}px: {width}px {line!r}"
+            )
+        max_width = max(max_width, width)
+        records.append(
+            bytes([len(encoded)])
+            + encoded
+            + bytes(MAGIC_PANEL_RECORD_SIZE - 1 - len(encoded))
+        )
+
+    payload = b"".join(records)
+    if len(payload) != MAGIC_PANEL_RECORD_BYTES:
+        raise AssertionError("Unexpected magic panel record-table size")
+    return payload, max_width
 
 
 def _translation_entries_from_document(doc: dict) -> dict[str, tuple[str, str]]:
@@ -519,6 +611,7 @@ def main() -> None:
     document = load_or_extract_resources(base, ASSET)
     entries, cache_hit = load_translation_entries(base, document)
     entries.update(load_reviewed_overrides(document))
+    magic_panel_records, magic_panel_max_width = build_magic_panel_records(base, document, entries)
 
     translations: dict[str, str] = {}
     skipped: list[tuple[str, str]] = []
@@ -526,6 +619,11 @@ def main() -> None:
         if category not in DEFAULT_CATEGORIES:
             continue
         normalized, _notes = normalize_for_snes(text)
+        if category == "weapon_description":
+            normalized, weapon_notes = normalize_weapon_description_for_snes(normalized)
+            _notes.extend(weapon_notes)
+            if normalized is None:
+                continue
         try:
             encode_text_with_stock_dte(base, normalized, upper_dte_threshold=0xE6)
         except ValueError as exc:
@@ -554,6 +652,12 @@ def main() -> None:
     french_glyphs = glyph_bytes(DIALOGUE_FRENCH_CHARS)
     glyph_start = FONT_BASE + (GLYPH_FIRST - 0x80) * 12
     rom[glyph_start:glyph_start + len(french_glyphs)] = french_glyphs
+
+    # Expanded-bank full-width magic panel strings.  Keep a marker directly
+    # after the fixed-size table so vwf_ui standalone can detect whether French
+    # content is actually present and otherwise retain the stock lower panel.
+    rom[MAGIC_PANEL_RECORD_FILE:MAGIC_PANEL_RECORD_FILE + len(magic_panel_records)] = magic_panel_records
+    rom[MAGIC_PANEL_MARKER_FILE:MAGIC_PANEL_MARKER_FILE + len(MAGIC_PANEL_MARKER)] = MAGIC_PANEL_MARKER
 
     table_start = RESOURCE_POINTER_TABLE
     table_end = table_start + RESOURCE_COUNT * 2
@@ -601,6 +705,10 @@ def main() -> None:
     print(f"Translated resources: {len(translations)}")
     print(f"Skipped for current profile: {len(skipped)}")
     print(f"Blob: {len(blob)} / {STOCK_BLOB_BYTES} bytes")
+    print(
+        f"Magic lower-panel full rows: {MAGIC_PANEL_RECORD_COUNT} records, "
+        f"max {magic_panel_max_width} / {MAGIC_PANEL_MAX_WIDTH}px"
+    )
     print(f"Reviewed fixed literals: {len(literal_overrides)}")
     print(f"Battle/status relocated records: {battle_stats['relocated_records']}")
     print(f"Battle/status relocated pool: {battle_stats['relocated_bytes']} bytes")

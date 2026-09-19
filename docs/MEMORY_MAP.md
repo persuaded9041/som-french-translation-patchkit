@@ -24,6 +24,14 @@ for the owning component even when the current generated payload is shorter.
 | GAME FILE | `0x2D8400-0x2D8470` | `$ED:8400-$8470` | relocated GAME FILE save-help text |
 | Action Settings | `0x2D8500-0x2D857B` | `$ED:8500-$857B` | relocated fixed-font help block |
 | Window Settings | `0x2D8600-0x2D86A2` | `$ED:8600-$86A2` | relocated three-line fixed-font help block |
+| Status VWF | `0x2D8700-0x2D8A3F` | `$ED:8700-$8A3F` | exact `vwf_ui` Status converter/slot/copy helpers; only the ten characteristic labels |
+| Status full labels | `0x2D8B00-0x2D8BA1` | `$ED:8B00-$8BA1` | `french_menus` ten 16-byte direct-glyph records plus `53 56` source marker |
+| weapon/magic skill-row format | `0x074F00-0x074F3F` | `$C7:4F00-$4F3F` | `vwf_ui` runtime-validated compact progress formatter + fixed separator (`$4F00-$4F22`) and scoped 8-row submit wrapper (`$4F30-$4F3F`) |
+| weapon/magic skill-row VWF | `0x2D8C00-0x2D8DFF` | `$ED:8C00-$8DFF` | `vwf_ui` runtime-validated scoped name-only VWF overlay; dynamically finds compact prefix in decoded row and falls through to validated Status helper on non-match |
+| magic lower-panel stock-flow helpers | `0x074F40-0x074FDF` | `$C7:4F40-$4FDF` | `vwf_ui`: exact six-pass batch clone `$4F40-$4FB4`, reset stub `$4FC0-$4FC7`, capture stub `$4FD0-$4FD7`; preserves stock wait/DMA/tail lifecycle |
+| magic lower-panel VWF dispatcher | `0x2D8E00-0x2D90FF` | `$ED:8E00-$90FF` | `vwf_ui` reserved exact-caller 3x480px renderer; current payload 642 bytes, non-magic calls fall through to `$ED:8C00` |
+| magic lower-panel ID helpers | `0x2D9140-0x2D91FF` | `$ED:9140-$91FF` | `vwf_ui`: stock-emitted ID capture/Lumina remap helper `$9140-$918E` and reset/invalidate helper `$91C0-$91D4` |
+| French magic lower-panel rows | `0x2D9200-0x2D9F23` | `$ED:9200-$9F23` | `french_resources`: 42 × 80-byte complete Android-FR `Nom : description` records through `$9F1F`, followed by runtime marker `MFV1` at `$9F20-$9F23` |
 | French battle/status text | `0x2E6000-0x2E6FFF` | `$EE:6000-$6FFF` | reserved relocated battle/status text pool owned by `french_resources`; current payload 1573 bytes including four runtime template prefixes |
 | French opening helper | `0x2E9000-0x2E9FFF` | `$EE:9000-$9FFF` | reserved helper region; current 37-byte renderer helper is `$EE:9000-$9024` |
 | French opening arrangement | `0x2EA000-0x2EBFFF` | `$EE:A000-$BFFF` | literal-only stock-format stream, loaded through `$C1:0014` |
@@ -54,6 +62,7 @@ for the owning component even when the current generated payload is shorter.
 | intro VWF | WRAM | `$7E:9380-$9389` | intro-only VWF scratch state |
 | shared VWF parser | WRAM | `$7E:9390-$93BB` | 44-byte decoded-text private buffer shared by intro/dialogue modes |
 | battle banner parser | WRAM | `$7E:9390-$93C0` | exact `$AC` battle mode extends the same private buffer by five mutually-exclusive scratch bytes, for 49 parser bytes total; `$93C1` remains UI tag |
+| magic lower-panel VWF scratch | WRAM | `$7E:93C7-$93C9`, `$7E:93CE-$93CF`, `$7E:93F2-$93F5` | `vwf_ui` exact lower-panel path only: half flag / width temp, 16-bit 480px cursor, three captured stock IDs + capture count; lifetimes are mutually exclusive with Status/skill helpers |
 | intro skip | `0x00012C-0x00012F` | `$C0:012C-$012F` | runtime-validated active-text observer hook to `$ED:7488` |
 | intro skip | `0x0016EA-0x0016ED` | `$C0:16EA-$16ED` | runtime-validated live-parser commit hook to `$CA:FFC8` |
 | intro skip | `0x02C786-0x02C789` | `$C2:C786-$C789` | runtime-validated normal-loop hold/WAIT hook to `$ED:7400` |
@@ -179,8 +188,9 @@ standalone Sell-menu reset.
 reviewed payload (name families + nine Ring Menu titles) within the original stock allocation
 beginning at `$CA:98E1`. It also owns the two reviewed shop currency literals
 `$C7:7B6A` and `$D0:D894` (`GP -> PO`) from
-`translations/french_resources_reviewed_literals.json`. The current translated blob is 7103 bytes
-versus the 7315-byte stock allocation; no relocation or new ROM allocation is used. Its French
+`translations/french_resources_reviewed_literals.json`. The current translated `$CA` blob is 7171 bytes versus the 7315-byte stock allocation;
+weapon descriptions remain in place. Complete magic lower-panel rows use the separately
+reserved expanded-bank table at `$ED:9200-$9F23` described above. Its French
 glyph/DTE infrastructure is shared byte-identically with `vwf_dialogues` / `french_dialogues`.
 
 
@@ -200,3 +210,58 @@ Promoted writes:
 - ROM `0x0754AA` / `$C7:54AA`: the first currency glyph remains derived from JSON translation ID `C7:7394` (`PO` -> `P`).
 
 The resulting 16 dynamic cells are `7 blanks + 7 amount cells + separator + currency[0]`; static column 16 supplies `currency[1]`. Runtime validation confirms `1234567 PO` with the unit anchor unchanged. Earlier `PPO` / `P O` probes are rejected and absent from the baseline.
+
+
+### Status / Characteristics exact-label VWF candidate
+
+The stock fixed-font source remains intact as a standalone fallback, while the
+aggregate `french_menus + vwf_ui` path may render only the ten characteristic
+labels through an exact VWF backend:
+
+- `$C7:7A28-$7A8D`: exact 60 + 40 cell fallback rows (`Intell.` / `% précis.`);
+- `$C0:33D0-$33EF`: 16 condition pointers;
+- `$C7:7A8E-$7B23`: repacked 150-byte condition pool (123 bytes currently used);
+- `$C7:7B24-$7B69`: templates at their original starts;
+- `$C7:7B6D-$7BA4`: weapon types at their original starts; current isolated candidate encodes `Épée` with direct `$E2` from `full_french`;
+- `$C7:7BA5-$7BB4`: `Type` / `Sphères` in their original slots;
+- `$ED:8B00-$8B9F`: ten 16-byte localization-owned VWF label records
+  (length + up to 15 direct glyphs), including full `Intelligence` and
+  `% précision`;
+- `$ED:8BA0-$8BA1`: exact source marker `53 56` required by `vwf_ui`;
+- `$ED:8700-$88FF`, `$ED:8900-$89BF`, `$ED:89C0-$8A3F`: exact Status
+  converter/slot/copy helpers owned by `vwf_ui`;
+- `$C0:2366-$2369`: converter trampoline to the exact-gated helper.
+
+The full VWF forms `Intelligence`, `% précision` and `Déf. magique` are
+runtime-validated. No dynamic values, bars, conditions or other menus are
+routed through this backend. `$C7:7B6A-$7B6C` remains owned by
+`french_resources` for `GP -> PO`.
+
+### Weapon / magic skill-row name VWF — runtime-validated
+
+The fixed headings remain `Niv. armes` / `Niv. magies` and `$C7:754A/$7558`
+remain byte-identical to the validated short-heading baseline. The promoted row
+path changes only compact progress formatting and dynamic weapon/magic names:
+
+- `$C7:664A-$664C`, `$C7:665D-$665F`: redirect the two row-specific progress
+  conversions to `$C7:4F00`;
+- `$C7:4F00-$4F22`: runtime-validated compact progress formatter; omit the
+  stock leading blank for one-digit progress and append exactly one fixed blank
+  before the name (`5:0 Nom`, `5:10 Nom`);
+- `$C7:65B0-$65B2`, `$C7:6615-$6617`: runtime-validated magic/weapon 8-row
+  submit redirects `JSR $5D9A -> JSR $4F30`;
+- `$C7:4F30-$4F3F`: 16-byte wrapper scopes `$7E:93CD=$5A` around the complete
+  synchronous stock `$C7:5D9A` render, then clears the scope;
+- `$C0:2366-$2369`: route first through `$ED:8E00`; every non-magic exact-caller case immediately jumps to `$ED:8C00`;
+- `$ED:8C00-$8DFF`: require the exact `$93CD=$5A` scope, then scan decoded
+  `$7E:A1A4` dynamically (maximum 28 candidate cells) for `d:d ` / `d:dd `.
+  The discovered name-start cell is used for both source offset and bitmap
+  boundary; the fixed prefix is preserved and only the already-decoded dynamic
+  name is VWF-rendered. Every reject jumps to the byte-identical validated
+  Status helper `$ED:8700`.
+
+Runtime probes proved that the compact prefix is **not anchored at cell 0**;
+this was the root cause of the rejected predecessor. No menu-ID 5/6 gate is
+needed in the promoted path. `french_resources` continues to own all localized
+weapon and mana-spirit name content. See
+`docs/WEAPON_MAGIC_SKILL_ROW_VWF_RESEARCH.md` for the proof sequence.

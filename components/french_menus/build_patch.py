@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
@@ -225,10 +226,145 @@ ACTION_HELP_TILE_BASE_2_STOCK = bytes.fromhex("08 21")
 ACTION_HELP_TILE_BASE_2_FRENCH = bytes.fromhex("0C 21")
 
 
+# Weapon / magic skill-menu headings. These are fixed-width native segments
+# inside the two stock C7 resources. Keep every segment at its original length
+# and pad shorter localized labels with stock blank cells so no descriptor,
+# placement or following resource moves.
+SKILL_MENU_RANGES = {
+    "C7:745E": (0x07745E, 12),  # WEAPON SKILL
+    "C7:7478": (0x077478, 11),  # MAGIC SKILL
+    "C7:7486": (0x077486, 12),  # MAGIC  SKILL
+    "C7:749F": (0x07749F, 12),  # WEAPON SKILL
+}
+
+# Status / Characteristics screen. Keep the stock fixed-font renderer and all
+# stock geometry. The two characteristic-label rows remain exactly 60/40
+# decoded cells; the status-condition pool is repacked inside its original C7
+# allocation and only its 16 local pointers are updated. No VWF is involved.
+STATUS_LABELS_POINTER_OFFSET = 0x0033CD          # stock 24-bit pointer C7:7A28
+STATUS_LABELS_POINTER_STOCK = 0xC77A28
+STATUS_LABELS_OFFSET = 0x077A28
+STATUS_LABELS_ROW1_CELLS = 60
+STATUS_LABELS_ROW2_CELLS = 40
+STATUS_LABELS_BLOCK_END = 0x077A8E              # condition pool starts here
+
+# Clean USA completes the two 12-letter labels CONSTITUTION / INTELLIGENCE
+# outside the 10-cell text resource.  The status renderer writes literal
+# pairs "ON" and "CE" into the tilemap when processing slots 2 and 3.
+# French Rev 1 keeps the exact same branches but changes both immediate words
+# to two spaces.  Mirror that localized behavior so translated 10-cell labels
+# do not inherit the USA suffixes.
+STATUS_SUFFIX_CONSTITUTION_OFFSET = 0x076764  # operands of LDA #$A8A9 at C7:6763
+STATUS_SUFFIX_INTELLIGENCE_OFFSET = 0x076771  # operands of LDA #$9F9D at C7:6770
+STATUS_SUFFIX_CONSTITUTION_STOCK = bytes.fromhex("A9 A8")  # "ON" in text-byte order
+STATUS_SUFFIX_INTELLIGENCE_STOCK = bytes.fromhex("9D 9F")  # "CE" in text-byte order
+STATUS_SUFFIX_BLANK = bytes.fromhex("80 80")
+STATUS_LABEL_ROW1_PLACEMENTS = (
+    ("STRENGTH", 0),
+    ("AGILITY", 10),
+    ("CONSTITUTION", 20),
+    ("INTELLIGENCE", 30),
+    ("WISDOM", 40),
+    ("ATTACK", 50),
+)
+STATUS_LABEL_ROW2_PLACEMENTS = (
+    ("HIT_PERCENT", 0),
+    ("DEFENSE", 10),
+    ("EVADE_PERCENT", 20),
+    ("MAGIC_DEFENSE", 30),
+)
+
+STATUS_CONDITION_POINTER_TABLE_OFFSET = 0x0033D0
+STATUS_CONDITION_POOL_OFFSET = 0x077A8E
+STATUS_CONDITION_POOL_END = 0x077B24
+STATUS_CONDITION_IDS = (
+    "C7:7A8E", "C7:7A9A", "C7:7AA3", "C7:7AAC",
+    "C7:7AB5", "C7:7AC1", "C7:7ACB", "C7:7AD2",
+    "C7:7ADC", "C7:7AE2", "C7:7AEC", "C7:7AF3",
+    "C7:7AFC", "C7:7B07", "C7:7B13", "C7:7B1B",
+)
+
+# Most templates keep their stock start addresses. EXP / NEXT LEVEL are the
+# one deliberate exception: their two adjacent stock records C7:7B39-$7B52
+# form one 26-byte region. The reviewed full French strings fit that region
+# exactly when repacked back-to-back, so we keep the stock fixed-font renderer
+# and patch only the local LDY immediate that selects the second record.
+STATUS_TEMPLATE_RANGES = {
+    "C7:7B24": (0x077B24, 0x077B2D),
+    "C7:7B2D": (0x077B2D, 0x077B33),
+    "C7:7B33": (0x077B33, 0x077B39),
+    "C7:7B53": (0x077B53, 0x077B61),
+    "C7:7B61": (0x077B61, 0x077B6A),
+}
+STATUS_EXP_NEXT_REGION_START = 0x077B39
+STATUS_EXP_NEXT_REGION_END = 0x077B53
+STATUS_NEXT_LEVEL_POINTER_OPERAND_OFFSET = 0x076963  # LDY #$7B41 at C7:6962
+STATUS_NEXT_LEVEL_POINTER_STOCK = bytes.fromhex("41 7B")
+
+# Status money line: the translated ``Argent {5C12}`` record compresses to
+# eight bytes including its terminator, leaving the final stock byte at
+# C7:7B69 available as presentation-only padding immediately before the
+# localized unit literal at C7:7B6A. Point the unit submit one byte earlier so
+# the stock parser emits one fixed-font blank, then continues into GP/PO.
+# french_menus owns only this separator/pointer; french_resources remains the
+# sole owner of the actual ``GP -> PO`` content at C7:7B6A.
+STATUS_MONEY_SEPARATOR_OFFSET = 0x077B69
+STATUS_MONEY_SEPARATOR = 0x80
+STATUS_MONEY_UNIT_POINTER_OPERAND_OFFSET = 0x0769BC  # LDY #$7B6A at CE:E9BB
+STATUS_MONEY_UNIT_POINTER_STOCK = bytes.fromhex("6A 7B")
+STATUS_MONEY_UNIT_POINTER_SPACED = bytes.fromhex("69 7B")
+STATUS_WEAPON_RANGES = {
+    "C7:7B6D": (0x077B6D, 0x077B74),
+    "C7:7B74": (0x077B74, 0x077B7A),
+    "C7:7B7A": (0x077B7A, 0x077B7E),
+    "C7:7B7E": (0x077B7E, 0x077B84),
+    "C7:7B84": (0x077B84, 0x077B89),
+    "C7:7B89": (0x077B89, 0x077B93),
+    "C7:7B93": (0x077B93, 0x077B9D),
+    "C7:7B9D": (0x077B9D, 0x077BA5),
+}
+STATUS_MISC_RANGES = {
+    "C7:7BA5": (0x077BA5, 0x077BAA),
+    "C7:7BAA": (0x077BAA, 0x077BB5),
+}
+
+STATUS_LABEL_IDS = {
+    "STRENGTH": "new:status.label.strength",
+    "AGILITY": "new:status.label.agility",
+    "CONSTITUTION": "new:status.label.constitution",
+    "INTELLIGENCE": "new:status.label.intelligence",
+    "WISDOM": "new:status.label.wisdom",
+    "ATTACK": "new:status.label.attack",
+    "HIT_PERCENT": "new:status.label.hit_percent",
+    "DEFENSE": "new:status.label.defense",
+    "EVADE_PERCENT": "new:status.label.evade_percent",
+    "MAGIC_DEFENSE": "new:status.label.magic_defense",
+}
+STATUS_LABEL_FIXED_FALLBACK_IDS = {
+    "INTELLIGENCE": "new:status.label.intelligence.fixed",
+    "HIT_PERCENT": "new:status.label.hit_percent.fixed",
+    "MAGIC_DEFENSE": "new:status.label.magic_defense.fixed",
+}
+
+# Full, localization-owned Status labels for the exact vwf_ui backend.  The
+# fixed-font stock screen continues to consume the safe 10-cell fallback rows
+# at C7:7A28.  Aggregate builds may render these full direct-glyph records
+# instead, without embedding French prose in the generic VWF component.
+STATUS_VWF_LABEL_TABLE_OFFSET = 0x2D8B00       # SNES ED:8B00
+STATUS_VWF_LABEL_RECORD_SIZE = 16              # length byte + up to 15 glyphs
+STATUS_VWF_LABEL_COUNT = 10
+STATUS_VWF_LABEL_MARKER_OFFSET = 0x2D8BA0      # SNES ED:8BA0
+STATUS_VWF_LABEL_MARKER = bytes.fromhex("53 56")  # "SV" / Status VWF source
+STATUS_LABEL_ORDER = (
+    "STRENGTH", "AGILITY", "CONSTITUTION", "INTELLIGENCE", "WISDOM",
+    "ATTACK", "HIT_PERCENT", "DEFENSE", "EVADE_PERCENT", "MAGIC_DEFENSE",
+)
+
+
 ASCII_TO_SOM = {" ": 0x80}
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
-from shared.charset import BASIC_FRENCH_CHARS, glyph_bytes, profile_mapping, profile_threshold
+from shared.charset import FULL_FRENCH_CHARS, glyph_bytes, profile_mapping, profile_threshold
 from shared.core.rom import validate_base_rom, update_checksum, expand_rom, ROM_SIZE_OFFSET
 from shared.core.ips import make_ips
 from shared.text.interface import (
@@ -241,9 +377,10 @@ from shared.text.menu import (
     verify_against_rom as verify_menu_text,
 )
 from shared.text.translation_json import load_translation, require
+from shared.text.stock import encode_text_with_stock_dte
 from shared.extracted.assets import load_or_extract_interface, load_or_extract_menu  # noqa: E402
 
-ACCENT_TO_SOM = profile_mapping("basic_french")
+ACCENT_TO_SOM = profile_mapping("full_french")
 ASCII_TO_SOM.update(ACCENT_TO_SOM)
 ASCII_TO_SOM.update({chr(ord("a") + i): 0x81 + i for i in range(26)})
 ASCII_TO_SOM.update({chr(ord("A") + i): 0x9B + i for i in range(26)})
@@ -260,7 +397,7 @@ ASCII_TO_SOM.update({
 # Stock US 8x12 font. Character $80 begins at ROM $12DC00.
 FONT_BASE = 0x12DC00
 GLYPH_HEIGHT = 12
-ACCENT_FIRST = ACCENT_TO_SOM[BASIC_FRENCH_CHARS[0]]
+ACCENT_FIRST = ACCENT_TO_SOM[FULL_FRENCH_CHARS[0]]
 ROOT = Path(__file__).resolve().parent
 
 # The stock text decoder treats $D3-$FF as DTE dictionary bytes.
@@ -269,12 +406,15 @@ ROOT = Path(__file__).resolve().parent
 # DTE values as text.
 DTE_COMPARE_IMMEDIATE_OFFSET = 0x0016F6
 DTE_STOCK_THRESHOLD = 0xD3
-DTE_NEW_THRESHOLD = profile_threshold("basic_french")
+DTE_NEW_THRESHOLD = profile_threshold("full_french")
+# Status strings deliberately use only DTE codes valid under both the standalone
+# basic-French $E1 boundary and the aggregate full-French $E6 fallback boundary.
+STATUS_DTE_THRESHOLD = profile_threshold("full_french")
 
 def load_accent_glyphs() -> bytes:
     """Load the canonical shared GAME SELECT French glyph profile."""
     try:
-        return glyph_bytes(BASIC_FRENCH_CHARS)
+        return glyph_bytes(FULL_FRENCH_CHARS)
     except RuntimeError as exc:
         raise SystemExit(str(exc)) from exc
 
@@ -304,7 +444,7 @@ def encode_text(text: str, context: str) -> bytes:
         if ch not in ASCII_TO_SOM:
             raise SystemExit(
                 f"Unsupported character {ch!r} in {context} at position {pos}. "
-                "The GAME SELECT builder supports ASCII plus the shared basic_french profile."
+                "The GAME SELECT builder supports ASCII plus the shared full_french profile."
             )
         out.append(ASCII_TO_SOM[ch])
     if not quote_open:
@@ -366,7 +506,7 @@ ACTION_HELP_IDS = {
 }
 
 
-def load_french_rows(base: bytes) -> tuple[dict[str, str], dict[str, str], dict[str, str], dict[str, str], dict[str, str], dict[str, str]]:
+def load_french_rows(base: bytes) -> tuple[dict[str, str], dict[str, str], dict[str, str], dict[str, str], dict[str, str], dict[str, str], dict[str, str], dict[str, object]]:
     interface = load_or_extract_interface(base, PROJECT_ROOT / "assets" / "interface_text.json")
     menu = load_or_extract_menu(base, PROJECT_ROOT / "assets" / "menu_text.json")
     try:
@@ -420,9 +560,42 @@ def load_french_rows(base: bytes) -> tuple[dict[str, str], dict[str, str], dict[
             for entry in interface_group_entries(interface, "action_settings.help")
         }
         action_help_rows["GAUGE_SCALE"] = canonical_action_help[ACTION_HELP_IDS["GAUGE_SCALE"]]
+
+        skill_menu_rows = {
+            text_id: require(menu_fr, [text_id], context="Weapon/Magic skill labels")[0]
+            for text_id in SKILL_MENU_RANGES
+        }
+
+        status_labels = {
+            name: require(interface_fr, [text_id], context="Status labels")[0]
+            for name, text_id in STATUS_LABEL_IDS.items()
+        }
+        status_fixed_labels = dict(status_labels)
+        for name, text_id in STATUS_LABEL_FIXED_FALLBACK_IDS.items():
+            status_fixed_labels[name] = require(
+                interface_fr, [text_id], context="Status fixed-font fallbacks"
+            )[0]
+
+        status_rows: dict[str, object] = {
+            "LABELS": status_labels,
+            "FIXED_LABELS": status_fixed_labels,
+            "CONDITIONS": require(menu_fr, list(STATUS_CONDITION_IDS), context="Status conditions"),
+            "TEMPLATES": {
+                text_id: require(menu_fr, [text_id], context="Status templates")[0]
+                for text_id in (*STATUS_TEMPLATE_RANGES, "C7:7B39", "C7:7B41")
+            },
+            "WEAPONS": {
+                text_id: require(menu_fr, [text_id], context="Status weapon types")[0]
+                for text_id in STATUS_WEAPON_RANGES
+            },
+            "MISC": {
+                text_id: require(menu_fr, [text_id], context="Status misc labels")[0]
+                for text_id in STATUS_MISC_RANGES
+            },
+        }
     except ValueError as exc:
         raise SystemExit(str(exc)) from exc
-    return rows, game_file_rows, window_rows, window_help_rows, action_rows, action_help_rows
+    return rows, game_file_rows, window_rows, window_help_rows, action_rows, action_help_rows, skill_menu_rows, status_rows
 
 
 def _min_even_width(text: str, context: str) -> tuple[bytes, int]:
@@ -975,11 +1148,266 @@ def apply_action_settings(base: bytes, rom: bytearray, rows: dict[str, str]) -> 
     rom[ACTION_HELP_TILE_BASE_2_OFFSET:ACTION_HELP_TILE_BASE_2_OFFSET + 2] = ACTION_HELP_TILE_BASE_2_FRENCH
 
 
-def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, str], window_rows: dict[str, str], window_help_rows: dict[str, str], action_rows: dict[str, str], action_help_rows: dict[str, str]) -> tuple[bytearray, int]:
+
+def _build_status_label_row(
+    labels: dict[str, str], placements: tuple[tuple[str, int], ...], cells: int, context: str
+) -> bytes:
+    row = bytearray([0x80] * cells)
+    occupied = [False] * cells
+    for name, start in placements:
+        payload = encode_text(labels[name], f"{context} {name}")
+        end = start + len(payload)
+        if start < 0 or end > cells:
+            raise SystemExit(f"{context} {name} exceeds its fixed-font row")
+        if any(occupied[start:end]):
+            raise SystemExit(f"{context} {name} overlaps another fixed-font label")
+        row[start:end] = payload
+        occupied[start:end] = [True] * len(payload)
+    return bytes(row)
+
+
+def build_status_labels(rows: dict[str, object]) -> bytes:
+    labels = rows["FIXED_LABELS"]
+    if not isinstance(labels, dict):
+        raise SystemExit("Internal error: malformed Status fixed-label set")
+    row1 = _build_status_label_row(
+        labels, STATUS_LABEL_ROW1_PLACEMENTS, STATUS_LABELS_ROW1_CELLS, "Status row 1"
+    )
+    row2 = _build_status_label_row(
+        labels, STATUS_LABEL_ROW2_PLACEMENTS, STATUS_LABELS_ROW2_CELLS, "Status row 2"
+    )
+    payload = row1 + b"\x7F" + row2 + b"\x00"
+    if len(payload) != STATUS_LABELS_BLOCK_END - STATUS_LABELS_OFFSET:
+        raise SystemExit("Internal error: Status characteristic block changed physical size")
+    return payload
+
+
+def build_status_vwf_label_table(rows: dict[str, object]) -> bytes:
+    """Build ten fixed-size direct-glyph records for the exact Status VWF path."""
+    labels = rows["LABELS"]
+    if not isinstance(labels, dict):
+        raise SystemExit("Internal error: malformed Status VWF label set")
+    out = bytearray()
+    for name in STATUS_LABEL_ORDER:
+        text = labels[name]
+        if not isinstance(text, str):
+            raise SystemExit(f"Internal error: non-string Status label {name}")
+        payload = encode_text(text, f"Status VWF {name}")
+        capacity = STATUS_VWF_LABEL_RECORD_SIZE - 1
+        if len(payload) > capacity:
+            raise SystemExit(
+                f"Status VWF {name} needs {len(payload)} glyphs; record capacity is {capacity}"
+            )
+        out.append(len(payload))
+        out.extend(payload)
+        out.extend([0x80] * (capacity - len(payload)))
+    expected = STATUS_VWF_LABEL_COUNT * STATUS_VWF_LABEL_RECORD_SIZE
+    if len(out) != expected:
+        raise SystemExit("Internal error: Status VWF label table changed physical size")
+    return bytes(out)
+
+
+def _encode_status_text(base: bytes, text: str, context: str) -> bytes:
+    try:
+        return encode_text_with_stock_dte(
+            base, text, upper_dte_threshold=STATUS_DTE_THRESHOLD
+        )
+    except ValueError as exc:
+        raise SystemExit(f"{context}: {exc}") from exc
+
+
+def _encode_status_template(base: bytes, text: str, context: str) -> bytes:
+    out = bytearray()
+    cursor = 0
+    for match in re.finditer(r"\{5C([0-9A-Fa-f]{2})\}", text):
+        if match.start() > cursor:
+            out += _encode_status_text(base, text[cursor:match.start()], context)
+        out += bytes((0x5C, int(match.group(1), 16)))
+        cursor = match.end()
+    if cursor < len(text):
+        tail = text[cursor:]
+        if "{" in tail or "}" in tail:
+            raise SystemExit(f"{context}: unsupported control syntax in {text!r}")
+        out += _encode_status_text(base, tail, context)
+    elif "{" in text[cursor:] or "}" in text[cursor:]:
+        raise SystemExit(f"{context}: unsupported control syntax in {text!r}")
+    # Reject braces that were not consumed by a supported {5Cxx} control.
+    stripped = re.sub(r"\{5C[0-9A-Fa-f]{2}\}", "", text)
+    if "{" in stripped or "}" in stripped:
+        raise SystemExit(f"{context}: unsupported control syntax in {text!r}")
+    return bytes(out)
+
+
+def build_status_condition_pool(base: bytes, rows: dict[str, object]) -> tuple[bytes, bytes]:
+    conditions = rows["CONDITIONS"]
+    if not isinstance(conditions, list) or len(conditions) != len(STATUS_CONDITION_IDS):
+        raise SystemExit("Internal error: malformed Status condition set")
+    pool = bytearray()
+    pointers = bytearray()
+    for index, text in enumerate(conditions):
+        if not isinstance(text, str):
+            raise SystemExit("Internal error: non-string Status condition")
+        pointer = (STATUS_CONDITION_POOL_OFFSET & 0xFFFF) + len(pool)
+        pointers += pointer.to_bytes(2, "little")
+        pool += _encode_status_text(base, text, f"Status condition {index}") + b"\x00"
+    capacity = STATUS_CONDITION_POOL_END - STATUS_CONDITION_POOL_OFFSET
+    if len(pool) > capacity:
+        raise SystemExit(
+            f"Status condition pool needs {len(pool)} bytes; stock allocation is {capacity}"
+        )
+    pool += b"\x00" * (capacity - len(pool))
+    return bytes(pool), bytes(pointers)
+
+
+def _write_status_fixed_records(
+    base: bytes,
+    rom: bytearray,
+    rows: dict[str, object],
+    key: str,
+    ranges: dict[str, tuple[int, int]],
+    *,
+    controls: bool = False,
+) -> None:
+    values = rows[key]
+    if not isinstance(values, dict):
+        raise SystemExit(f"Internal error: malformed Status {key.lower()} set")
+    for text_id, (start, end) in ranges.items():
+        text = values[text_id]
+        if not isinstance(text, str):
+            raise SystemExit(f"Internal error: non-string Status value {text_id}")
+        payload = (
+            _encode_status_template(base, text, f"Status {text_id}")
+            if controls else _encode_status_text(base, text, f"Status {text_id}")
+        ) + b"\x00"
+        capacity = end - start
+        if len(payload) > capacity:
+            raise SystemExit(
+                f"Status {text_id} needs {len(payload)} bytes; stock slot is {capacity}"
+            )
+        rom[start:start + len(payload)] = payload
+
+
+def _write_status_exp_next_pair(
+    base: bytes, rom: bytearray, rows: dict[str, object]
+) -> int:
+    values = rows["TEMPLATES"]
+    if not isinstance(values, dict):
+        raise SystemExit("Internal error: malformed Status templates set")
+
+    exp_text = values["C7:7B39"]
+    next_text = values["C7:7B41"]
+    if not isinstance(exp_text, str) or not isinstance(next_text, str):
+        raise SystemExit("Internal error: malformed Status EXP / NEXT LEVEL text")
+
+    exp_payload = _encode_status_template(base, exp_text, "Status C7:7B39") + b"\x00"
+    next_payload = _encode_status_template(base, next_text, "Status C7:7B41") + b"\x00"
+    capacity = STATUS_EXP_NEXT_REGION_END - STATUS_EXP_NEXT_REGION_START
+    if len(exp_payload) + len(next_payload) > capacity:
+        raise SystemExit(
+            "Status EXP / NEXT LEVEL pair needs "
+            f"{len(exp_payload) + len(next_payload)} bytes; shared stock region is {capacity}"
+        )
+
+    if (
+        base[
+            STATUS_NEXT_LEVEL_POINTER_OPERAND_OFFSET:
+            STATUS_NEXT_LEVEL_POINTER_OPERAND_OFFSET + 2
+        ]
+        != STATUS_NEXT_LEVEL_POINTER_STOCK
+    ):
+        raise SystemExit("Unexpected clean-USA Status NEXT LEVEL pointer immediate")
+
+    next_start = STATUS_EXP_NEXT_REGION_START + len(exp_payload)
+    next_ptr = 0x7B39 + len(exp_payload)
+    rom[STATUS_EXP_NEXT_REGION_START:STATUS_EXP_NEXT_REGION_END] = b"\x00" * capacity
+    rom[STATUS_EXP_NEXT_REGION_START:next_start] = exp_payload
+    rom[next_start:next_start + len(next_payload)] = next_payload
+    rom[
+        STATUS_NEXT_LEVEL_POINTER_OPERAND_OFFSET:
+        STATUS_NEXT_LEVEL_POINTER_OPERAND_OFFSET + 2
+    ] = next_ptr.to_bytes(2, "little")
+    return next_ptr
+
+
+def apply_skill_menu_labels(base: bytes, rom: bytearray, rows: dict[str, str]) -> None:
+    """Translate the four native Weapon/Magic skill-menu heading segments in place."""
+    for text_id, (offset, capacity) in SKILL_MENU_RANGES.items():
+        payload = encode_text(rows[text_id], f"Weapon/Magic skill label {text_id}")
+        if len(payload) > capacity:
+            raise SystemExit(
+                f"{text_id} encodes to {len(payload)} cells; stock fixed slot capacity is {capacity}."
+            )
+        rom[offset:offset + capacity] = payload + b"\x80" * (capacity - len(payload))
+
+
+def apply_status_screen(base: bytes, rom: bytearray, rows: dict[str, object]) -> None:
+    if int.from_bytes(base[STATUS_LABELS_POINTER_OFFSET:STATUS_LABELS_POINTER_OFFSET + 3], "little") != STATUS_LABELS_POINTER_STOCK:
+        raise SystemExit("Unexpected clean-USA Status characteristic-label pointer")
+
+    labels = build_status_labels(rows)
+    rom[STATUS_LABELS_OFFSET:STATUS_LABELS_BLOCK_END] = labels
+
+    # Keep full reviewed labels in a localization-owned expanded-ROM table.
+    # vwf_ui may consume this exact table in aggregate builds; standalone
+    # french_menus continues to display only the safe fixed-font fallbacks.
+    vwf_labels = build_status_vwf_label_table(rows)
+    rom[
+        STATUS_VWF_LABEL_TABLE_OFFSET:
+        STATUS_VWF_LABEL_TABLE_OFFSET + len(vwf_labels)
+    ] = vwf_labels
+    rom[
+        STATUS_VWF_LABEL_MARKER_OFFSET:
+        STATUS_VWF_LABEL_MARKER_OFFSET + len(STATUS_VWF_LABEL_MARKER)
+    ] = STATUS_VWF_LABEL_MARKER
+
+    if base[STATUS_SUFFIX_CONSTITUTION_OFFSET:STATUS_SUFFIX_CONSTITUTION_OFFSET + 2] != STATUS_SUFFIX_CONSTITUTION_STOCK:
+        raise SystemExit("Unexpected clean-USA Status CONSTITUTION hard-coded suffix")
+    if base[STATUS_SUFFIX_INTELLIGENCE_OFFSET:STATUS_SUFFIX_INTELLIGENCE_OFFSET + 2] != STATUS_SUFFIX_INTELLIGENCE_STOCK:
+        raise SystemExit("Unexpected clean-USA Status INTELLIGENCE hard-coded suffix")
+    rom[STATUS_SUFFIX_CONSTITUTION_OFFSET:STATUS_SUFFIX_CONSTITUTION_OFFSET + 2] = STATUS_SUFFIX_BLANK
+    rom[STATUS_SUFFIX_INTELLIGENCE_OFFSET:STATUS_SUFFIX_INTELLIGENCE_OFFSET + 2] = STATUS_SUFFIX_BLANK
+
+    condition_pool, condition_pointers = build_status_condition_pool(base, rows)
+    rom[STATUS_CONDITION_POOL_OFFSET:STATUS_CONDITION_POOL_END] = condition_pool
+    rom[
+        STATUS_CONDITION_POINTER_TABLE_OFFSET:
+        STATUS_CONDITION_POINTER_TABLE_OFFSET + len(condition_pointers)
+    ] = condition_pointers
+
+    _write_status_fixed_records(base, rom, rows, "TEMPLATES", STATUS_TEMPLATE_RANGES, controls=True)
+    _write_status_exp_next_pair(base, rom, rows)
+
+    # Insert one fixed-font separator between the dynamic amount and the
+    # currency unit on this Status screen only.  The translated MONEY/Argent
+    # template must terminate before C7:7B69 so that this byte is unreachable
+    # from the label submit and can safely prefix the separate unit submit.
+    if rom[STATUS_MONEY_SEPARATOR_OFFSET - 1] != 0x00:
+        raise SystemExit(
+            "Status Argent template no longer leaves C7:7B69 free for money spacing"
+        )
+    if (
+        base[
+            STATUS_MONEY_UNIT_POINTER_OPERAND_OFFSET:
+            STATUS_MONEY_UNIT_POINTER_OPERAND_OFFSET + 2
+        ]
+        != STATUS_MONEY_UNIT_POINTER_STOCK
+    ):
+        raise SystemExit("Unexpected clean-USA Status money-unit pointer immediate")
+    rom[STATUS_MONEY_SEPARATOR_OFFSET] = STATUS_MONEY_SEPARATOR
+    rom[
+        STATUS_MONEY_UNIT_POINTER_OPERAND_OFFSET:
+        STATUS_MONEY_UNIT_POINTER_OPERAND_OFFSET + 2
+    ] = STATUS_MONEY_UNIT_POINTER_SPACED
+
+    _write_status_fixed_records(base, rom, rows, "WEAPONS", STATUS_WEAPON_RANGES)
+    _write_status_fixed_records(base, rom, rows, "MISC", STATUS_MISC_RANGES)
+
+
+def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, str], window_rows: dict[str, str], window_help_rows: dict[str, str], action_rows: dict[str, str], action_help_rows: dict[str, str], skill_menu_rows: dict[str, str], status_rows: dict[str, object]) -> tuple[bytearray, int]:
     rom = expand_rom(base)
 
-    # Turn $D4-$E0 into normal character codes for the stock text
-    # decoder, while keeping $E1-$FF on the original DTE path.
+    # Turn $D4-$E5 into normal character codes for the stock text
+    # decoder, while keeping $E6-$FF on the original DTE path.
     if base[DTE_COMPARE_IMMEDIATE_OFFSET] != DTE_STOCK_THRESHOLD:
         raise SystemExit(
             f"Unexpected stock DTE threshold at ${DTE_COMPARE_IMMEDIATE_OFFSET:06X}: "
@@ -987,7 +1415,7 @@ def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, s
         )
     rom[DTE_COMPARE_IMMEDIATE_OFFSET] = DTE_NEW_THRESHOLD
 
-    # Replace the 13 otherwise-unused direct-glyph slots $D4-$E0 with the
+    # Replace the 18 otherwise-unused direct-glyph slots $D4-$E5 with the
     # editable 8x12 glyph atlas in shared/charset/french_glyphs.png.
     glyph_start = FONT_BASE + (ACCENT_FIRST - 0x80) * GLYPH_HEIGHT
     glyph_blob = load_accent_glyphs()
@@ -1022,6 +1450,12 @@ def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, s
     apply_action_settings(base, rom, action_rows)
     apply_action_help(base, rom, action_help_rows)
 
+    # Weapon/Magic skill headings: four short fixed-font segments in their stock slots.
+    apply_skill_menu_labels(base, rom, skill_menu_rows)
+
+    # Status / Characteristics: fixed-font data-only promotion. No VWF hooks.
+    apply_status_screen(base, rom, status_rows)
+
     # Relocate the long help text now, so its translation will no longer be
     # constrained by the 156-byte stock allocation at C0:33F0.
     welcome = build_welcome(rows)
@@ -1046,8 +1480,8 @@ def main() -> None:
     base = args.rom.read_bytes()
     validate_base_rom(base)
 
-    rows, game_file_rows, window_rows, window_help_rows, action_rows, action_help_rows = load_french_rows(base)
-    patched, checksum = apply_sources(base, rows, game_file_rows, window_rows, window_help_rows, action_rows, action_help_rows)
+    rows, game_file_rows, window_rows, window_help_rows, action_rows, action_help_rows, skill_menu_rows, status_rows = load_french_rows(base)
+    patched, checksum = apply_sources(base, rows, game_file_rows, window_rows, window_help_rows, action_rows, action_help_rows, skill_menu_rows, status_rows)
     patch = make_ips(base, bytes(patched))
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -1075,6 +1509,17 @@ def main() -> None:
     print(f"ACTION SETTINGS resource: {len(action_resource)} bytes at C7:${ACTION_RESOURCE_RELOC_PTR:04X}")
     print(f"ACTION SETTINGS placement: {len(action_placement)} bytes at C7:${ACTION_PLACEMENT_RELOC_PTR:04X}; stock frame width $18, GUARD -8 px")
     print(f"ACTION SETTINGS help: {len(build_action_help(action_help_rows))} bytes at SNES ${ACTION_HELP_RELOC_SNES:06X}")
+    print(f"WEAPON/MAGIC skill headings: fixed-font stock slots -> {skill_menu_rows['C7:745E']!r} / {skill_menu_rows['C7:7478']!r}")
+    status_pool, _status_ptrs = build_status_condition_pool(base, status_rows)
+    status_used = sum(
+        len(_encode_status_text(base, text, "Status condition summary")) + 1
+        for text in status_rows["CONDITIONS"]
+    )
+    print("STATUS labels: fixed fallback 60+40 cells at C7:$7A28 + full VWF source at ED:$8B00")
+    print(f"STATUS conditions: repacked in C7:$7A8E-$7B23 ({status_used}/{STATUS_CONDITION_POOL_END-STATUS_CONDITION_POOL_OFFSET} bytes used before zero fill)")
+    next_ptr = 0x7B39 + len(_encode_status_template(base, status_rows["TEMPLATES"]["C7:7B39"], "Status EXP summary")) + 1
+    print(f"STATUS EXP/NEXT LEVEL: full fixed-font labels repacked in C7:$7B39-$7B52; NEXT LEVEL now starts at C7:${next_ptr:04X}")
+    print("STATUS remaining templates/weapon types/misc: stock starts and geometry preserved")
     menu_resource, widths = build_menu_resource(rows)
     print(f"GAME SELECT resource: {len(menu_resource)} bytes at C7:${MENU_RESOURCE_RELOC_PTR:04X}")
     print("GAME SELECT layout: native 45-byte resource; no additional DTE compression")

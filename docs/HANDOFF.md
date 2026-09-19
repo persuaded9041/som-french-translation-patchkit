@@ -1,6 +1,6 @@
-# HANDOFF — Secret of Mana FR — `french_gfx` / boutons de manette
+# HANDOFF — Secret of Mana FR — descriptions armes/magies validées
 
-Date : 2026-09-18
+Date : 2026-09-19
 
 Cette archive est la **source de vérité** et prévaut sur GitHub. La ROM de référence est **Secret of Mana (USA), non headerée**, taille `0x200000`, SHA-256 `4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f`. Elle ne doit jamais être redistribuée.
 
@@ -11,13 +11,15 @@ Depuis cette baseline, l'écran natif **Actions des personnages** a également �
 traduit et runtime-validé avec son renderer fixe stock. Cette archive est le
 nouveau point de départ.
 
-**Priorité immédiate : la traduction des menus / ressources reste en pause. Le
-composant `french_gfx` existe désormais et son premier asset — le bouton de
-manette 16×16 partagé — est runtime-validé et promu. Ne pas reprendre
-automatiquement les lots de traduction. La prochaine étape `french_gfx` doit
-être choisie avec l'utilisateur : discuter d'abord du prochain élément
-graphique à remplacer, puis étudier son stockage/rendu stock avant toute
-implémentation.**
+**État immédiat : le menu `Niv. armes` / `Niv. magies` possède désormais les
+noms VWF runtime-validés, les 72 descriptions d'armes françaises runtime-validées
+et les 42 descriptions de magie Android FR complètes dans un panneau VWF 3×480 px
+runtime-validé. Les conditions stock de déblocage restent autoritaires ; les
+esprits non débloqués n'affichent aucune description et une ligne de magie non
+émise par stock reste vide. Prochaine priorité demandée : traduire le texte
+d'aide/par défaut encore anglais de ce même menu, en repartant du japonais
+d'origine, puis vérifier l'existence d'un équivalent Android FR avant adaptation
+SNES. Ne rien modifier avant cette étude.**
 
 Ne pas relancer un audit global des dialogues sans raison spécifique : leur
 corpus reste gelé et validé.
@@ -32,6 +34,8 @@ Avant toute modification, lire intégralement :
 - `docs/TRANSLATIONS.md`
 - `docs/COMPATIBILITY.md`
 - `docs/MEMORY_MAP.md`
+- `docs/WEAPON_MAGIC_SKILL_ROW_VWF_RESEARCH.md`
+- `docs/WEAPON_MAGIC_DESCRIPTIONS_RESEARCH.md`
 - `docs/UI_VWF.md`
 - `components/french_gfx/README.md`
 - `components/french_gfx/docs/MEMORY_MAP.md`
@@ -83,21 +87,24 @@ Leur renderer fixe traite 29 colonnes / 58 caractères logiques de 4 px. Le bloc
 est relocalisé en `$ED:8500+`. `$C0:368F` (`0 1 2 3 4 5 6 7 8`) reste structurel
 et inchangé. Ne pas généraliser `vwf_ui` à cette page.
 
-## Traductions natives déjà revues mais pas encore toutes promues
+## Écran Statut / Caractéristiques — promotion validée, `Épée` candidate
 
-`translations/menu_text_french.json` contient désormais les traductions validées
-des 16 états, des templates Statut, types d'armes et libellés associés.
-`translations/interface_text_french.json` contient les dix caractéristiques
-validées (`Force`, `Agilité`, `Endurance`, `Intelligence`, `% précision`, etc.).
-Ces familles sont **translation-only** tant que leurs renderers natifs n'ont pas
-été explicitement branchés et runtime-validés.
+Le chemin fixe est compris et runtime-validé : les dix caractéristiques restent
+structurées en slots source de 10 cellules à `$C7:7A28`, et les suffixes USA
+`ON` / `CE` sont neutralisés comme dans la ROM France Rev 1. La VWF est
+ultra-localisée aux **dix libellés de caractéristiques uniquement** ; valeurs
+numériques, barres, états et tous les autres textes de l’écran restent stock.
 
-Le vocabulaire GAME FILE validé inclut désormais `COUNTER -> Sauvegardes` et
-`MANA POWER -> Graines de Mana`. `Sauvegardes` tient dans les 15 cellules fixes
-disponibles avant sa valeur. `Graines de Mana` remplit les 15 cellules source et
-est rendu par un backend `vwf_ui` ultra-localisé, pair-aligné, sans déplacer la
-valeur Mana dynamique. Les accents sur majuscules sont à conserver (`Étourdi` si
-ce terme est utilisé ailleurs, `Épée`, etc.).
+Les formes longues `Intelligence`, `% précision` et `Déf. magique` sont
+runtime-validées via la table localisée `$ED:8B00-$8B9F`. Les templates fixes
+`Expérience`, `Niveau suivant`, `Graines de Mana` et l’espace avant `PO` sont
+aussi runtime-validés sans nouvelle VWF. `french_resources` reste propriétaire
+du littéral `GP -> PO` à `$C7:7B6A`.
+
+Le candidat courant traite uniquement `Epée -> Épée`. `french_menus` passe au
+profil partagé `full_french` (`$D4-$E5`, seuil DTE `$E6`) et encode `É`
+directement en `$E2`; aucun nouveau hook, aucune VWF et aucune allocation ROM
+ne sont ajoutés pour ce mot. Cette dernière étape reste à valider runtime.
 
 ## Corrections menus/interface validées depuis la baseline précédente
 
@@ -233,17 +240,17 @@ Les textes doivent rester **data-driven** :
 
 ### État actuel des ressources
 
-Le build promu traduit **360 ressources `$CA`** (358 précédentes + les deux system messages `$1FF-$200`). Le blob fait **7103 / 7315 octets** et reste intégralement dans l'allocation stock `$CA:98E1-$B573`. Trois ressources mappées restent volontairement non insérées avec le profil actuel car `°` entre en conflit avec la frontière DTE des ressources non-event.
+Le build promu traduit **420 ressources `$CA`** : les familles précédentes plus 60 descriptions d'armes non vides. Les 12 descriptions d'armes vides conservent leur payload stock. Le blob fait **7171 / 7315 octets** et reste intégralement dans l'allocation stock `$CA:98E1-$B573`. Trois ressources mappées restent volontairement non insérées avec le profil actuel car `°` entre en conflit avec la frontière DTE des ressources non-event. Les 42 descriptions de magie complètes vivent séparément à `$ED:9200+`.
 
 Les catégories actuellement activées dans `components/french_resources/build_patch.py` sont :
 
-`magic_name`, `mana_spirit_name`, `weapon_name`, `helmet_name`, `armor_name`, `accessory_name`, `item_name`, `menu_label`, `enemy_name`, `location_name`, `system_message`.
+`magic_name`, `mana_spirit_name`, `weapon_name`, `weapon_description`, `helmet_name`, `armor_name`, `accessory_name`, `item_name`, `menu_label`, `enemy_name`, `location_name`, `system_message`.
 
 Les deux `system_message` restent exclus du mapping Android positionnel automatique : leur liaison placeholder est explicitement revue dans `translations/text_resources_reviewed_overrides.json`.
 
-Les deux grandes familles déjà mappées mais **non promues** sont `weapon_description` (**72**) et `magic_description` (**42**). Elles sont des candidates naturelles pour la prochaine passe, mais ne doivent pas être activées en bloc sans revue préalable de leur provenance, encodage, taille et géométrie d'affichage. Les 4 `location_name` non résolus restent non forcés.
+Les familles `weapon_description` (**72**) et `magic_description` (**42**) sont désormais **promues et runtime-validées**, mais avec deux architectures différentes : les armes restent dans le blob `$CA` avec la géométrie stock en segments fixes de 30 caractères ; les descriptions de magie complètes ne sont pas injectées dans l'étroit format stock et vivent dans une table VWF dédiée à `$ED:9200+`. Les 4 `location_name` non résolus restent non forcés.
 
-Le dernier audit global des 475 ressources Android mappées classe **302** entrées dans l'enveloppe stock, **170** en `geometry_review` et **3** en `encoding_blocked` (le caractère `°`). Pour les candidates suivantes : `weapon_description` = **38 inside / 34 review** ; `magic_description` = **2 inside / 40 review**. Le dry-run des 472 entrées encodables fait 7304 octets, mais ce résultat de taille ne vaut pas validation de rendu : la géométrie reste le critère bloquant principal.
+L'ancien audit `inside / geometry_review` reste utile comme historique, mais ne doit plus servir à décider du rendu de ces deux familles : la géométrie cible a maintenant été prouvée en runtime. Voir `docs/WEAPON_MAGIC_DESCRIPTIONS_RESEARCH.md`.
 
 ## Nouveau corpus battle/status — état à préserver
 
@@ -341,20 +348,138 @@ python3 build.py "Secret of Mana (USA).sfc" french-resources --combine
 
 Pour une validation de versionnement, faire également un rebuild complet dans un dossier de patches neuf et comparer les hashes aux patches promus.
 
-## Baseline propre actuelle — 2026-09-18
+## Baseline propre actuelle — 2026-09-19
 
-Rebuild complet depuis la ROM USA propre, après validation runtime de `Sauvegardes` et du backend VWF GAME FILE `Graines de Mana` :
+Rebuild complet depuis la ROM USA propre après promotion des descriptions
+d'armes et du panneau complet de descriptions de magie :
 
-- `patches/french_menus.ips` SHA-256 : `28806e4baaded29e749738243db547b6668f3c3567deefa52e622280ccc8c85a`
+- `patches/french_menus.ips` SHA-256 : `8148c43b42ed8d0cf88edf367d48b27f7407e161b9246d0f32bd4c7aff353c36`
 - `patches/french_name_entry_extended.ips` SHA-256 : `6a488bc7cd6afe1ee98176c5bed3b4670bf12c789b5f58622d6aab23217ea6da`
-- `patches/french_resources.ips` SHA-256 : `c9483c0a42ca85d2f9051f4d7f0355e09ce76279d3311f43bd574864fd492216`
-- `patches/vwf_ui.ips` SHA-256 : `a031a40d9c3122a0b5b8bb02fdb4bcff92da3ddc5b924f71e30e1df42cceddcd`
+- `patches/french_resources.ips` SHA-256 : `692f42a3508b9bf9091b3600193f6051cc272f2eac8963e708554e639fa056ff`
+- `patches/vwf_ui.ips` SHA-256 : `d36349c974e99e81d146ca13e6c564690d70cc41600e1e7dd4b5b5343864a1f9`
 - `patches/vwf_intro.ips` SHA-256 : `a5917976c7bf139e8f0ba69ee46f2ab0e23ab3db91453bf18bae6ba420d4110a`
 - `patches/vwf_dialogues.ips` SHA-256 : `f9628f1c43ba2917a081fd2cf31b48ce90c9138980e720276602796f7b593dad`
 - `patches/french_dialogues.ips` SHA-256 : `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31`
 - `patches/french_gfx.ips` SHA-256 : `5753358d9603e6422a8ce03223e362900671e403fe83b9f57988400e3f1ffdd2`
-- `patches/all.ips` SHA-256 : `8be55d2b25053bd71231c96047368b38f1fc07220f0db563293a29e96dac28df`
-- ROM validée reconstruite SHA-256 : `c5207420053916b1b2f45061d28cbcb939ce709b58e5bf502f72f84a46ca7d99`
-- checksum SNES validé : `$AC27`.
+- `patches/all.ips` SHA-256 : `111138fb4f84fbdf2edd674656040f622fef98227acb988b182fccc103b10636`
+- ROM reconstruite SHA-256 : `afd147290947a4bae9c2365f0bb1ced6b7f7ec1075ef7e5d317fab70ae585216`
+- checksum SNES : `$59B7`.
 
-Les composants non ciblés restent byte-identiques à la baseline précédente. Le nouveau patch `french_gfx` n'écrit, hors checksum, que dans `$C0:2116-$2118`, `$D2:D8F0-$D2:D92F` et `$D2:DBCC-$D2:DBE3`. L'aggregate conserve exactement ces données après composition. La ROM de référence n'est pas incluse dans l'archive.
+Rebuild complet et audit d'overlaps : **7188 octets identiques partagés**, **710
+octets d'overlaps déclarés**. `check_source_hygiene.py`,
+`check_roundtrip.py --scan-all-events` et `import_android_resources.py --check`
+passent ; les **2048 scripts** sont correctement parsés. Un rebuild complet dans
+un dossier de patches neuf est byte-identique aux patches promus. Par rapport à
+la baseline précédente, les changements fonctionnels de patches sont limités à
+`french_resources.ips`, `vwf_ui.ips` et `all.ips`; les autres composants restent
+byte-identiques. La ROM de référence n'est pas incluse dans l'archive.
+
+## Niveaux armes / magies — VWF des noms runtime-validée
+
+Les titres fixes `Niv. armes` / `Niv. magies` et les placements
+`$C7:754A/$7558` restent inchangés. Le helper de progression
+`$C7:4F00-$4F22` reste runtime-validé et produit les formes `5:0 Nom` /
+`5:10 Nom` avec un seul espace fixe avant le nom.
+
+La VWF des noms est maintenant runtime-validée sur les listes armes **et**
+magies. Architecture promue :
+
+- les deux submits 8-lignes `$C7:65B0/$6615` passent par `$C7:4F30`;
+- ce wrapper maintient `$7E:93CD=$5A` pendant l'appel synchrone stock
+  `$C7:5D9A`, puis remet le scope à zéro ;
+- `$C0:2366` route d'abord vers `$ED:8C00` ;
+- `$ED:8C00` recherche dynamiquement dans `$7E:A1A4` le motif compact
+  `d:d ` / `d:dd ` au lieu de supposer qu'il commence à la cellule 0 ;
+- la cellule trouvée est la frontière réelle : le niveau fixe est préservé,
+  l'ancien bitmap du nom est seul effacé, puis le nom déjà décodé est rendu
+  avec les métriques VWF UI validées ;
+- tout non-match retombe directement sur le backend Statut `$ED:8700` inchangé.
+
+La cause de l'échec du candidat précédent est donc établie : il testait le
+préfixe à `$A1A4+0`, alors que le préfixe est décalé dans le buffer décodé. Le
+gate menu 5/6 n'est plus utilisé ni nécessaire. `french_resources` conserve
+l'entière propriété des noms d'armes et d'esprits de magie.
+
+La séquence de preuve est conservée dans
+`docs/WEAPON_MAGIC_SKILL_ROW_VWF_RESEARCH.md` : probe 01 (batch prouvé), probe
+02 (hypothèse cellule 0 réfutée), probe 03 (frontière dynamique prouvée), probe
+04 (VWF dynamique runtime-validée). Les fichiers de probes eux-mêmes ont été
+retirés de l'archive propre après promotion.
+
+
+## Descriptions d’armes — runtime-validées
+
+Les **72** ressources `weapon_description` sont désormais promues dans
+`french_resources`. Le mapping Android a été corrigé : Android ajoute un
+séparateur après chaque famille de 9 armes, donc il faut parcourir 8 blocs de 9
+et sauter les 8 séparateurs. Après correction, le motif vide/non-vide correspond
+72/72 au SNES.
+
+Le renderer SNES a été prouvé en runtime : il consomme des segments fixes de
+**30 caractères** séparés par `$7F`. Les grands espaces du premier probe venaient
+d'un reflow aux mots; supprimer les séparateurs faisait au contraire déborder et
+perdre des glyphes. La solution validée conserve donc le wording Android FR,
+aplatit uniquement les blancs de mise en page, ajoute l'inset stock, puis coupe
+à 30 caractères exacts. Les **12** descriptions Android vides préservent leur
+payload stock vide byte-identique.
+
+## Descriptions de magie — panneau VWF 3×480 px runtime-validé
+
+Le format stock `13 + 24` par sort est trop étroit pour conserver les phrases
+Android FR complètes. La solution finale ne raccourcit **aucune** des 42
+descriptions.
+
+Architecture validée :
+
+- le panneau stock est six demi-slots de **30 cellules / 240 px**, disposés en
+  trois lignes : `0+1`, `2+3`, `4+5` ;
+- `$A191=$03C0` confirme qu'un passage vaut 30 tuiles SNES 4bpp ; une paire vaut
+  donc **60 cellules / 480 px** ;
+- `$C7:649E`, `$6501`, `$650E` sont enveloppés mais rejouent le comportement
+  stock. `$A1D0` est capturé à `$6501` : aucune reconnaissance du texte affiché
+  n'est utilisée ;
+- Lumina brut `42..47` est remappé comme stock en `36..41` ;
+- les IDs sont invalidés à `$FF` avant chaque rebuild. La condition stock de
+  déblocage reste donc autoritaire : un esprit verrouillé n'émet aucun ID et
+  n'affiche aucune description ;
+- une ligne non émise (cas Dryade/Mana dans l'état testé) est explicitement
+  vide, ce qui évite la duplication d'un ancien bitmap ;
+- `$C7:4F40-$4FB4` clone le six-pass stock. Aucun DMA maison n'est conservé ;
+- `$C0:2366 -> $ED:8E00` exige l'exact stacked return du clone. Ce filtrage a
+  restauré GAME SELECT après le probe qui le faisait glitcher;
+- une ligne complète est rasterisée en VWF dans `$7E:9000-$92FF`, puis coupée
+  **après rasterisation** en cellules 0..29 et 30..59 pour les deux passages
+  stock. Le milieu est donc parfaitement continu ;
+- `french_resources` possède les 42 records de 80 octets à `$ED:9200-$9F1F` et
+  le marker `MFV1` à `$ED:9F20-$9F23`; `vwf_ui` reste présentation uniquement.
+  Sans marker, il retombe sur le renderer stock ;
+- largeur maximale actuelle : **445 px**, plafond de build **472 px**, largeur
+  logique disponible **480 px**.
+
+Aucun diagnostic spécial Ombre n'est conservé dans la version propre. Le slot
+Ombre vide observé sur une sauvegarde était simplement non débloqué. Le détail
+de toute la séquence de probes et des pistes rejetées est dans
+`docs/WEAPON_MAGIC_DESCRIPTIONS_RESEARCH.md`.
+
+## Prochaine reprise demandée — texte d’aide par défaut du menu
+
+**Ne pas commencer automatiquement avant lecture de l'archive et compte rendu.**
+La prochaine tâche est la traduction du texte par défaut encore anglais dans le
+panneau inférieur de `Niv. armes / Niv. magies` (le texte d'instructions affiché
+avant de demander les données d'un esprit/arme).
+
+Méthode demandée :
+
+1. identifier le **texte japonais original** et son chemin/source exact dans la
+   ROM JPN ;
+2. vérifier s'il existe une entrée correspondante dans les ressources **Android
+   EN/FR** et établir l'identité, sans supposer un mapping à partir de l'anglais
+   SNES seul ;
+3. proposer une adaptation française fidèle au japonais/Android FR et compatible
+   avec la géométrie réelle de ce panneau ;
+4. discuter la formulation avec l'utilisateur **avant insertion** ;
+5. seulement après validation linguistique, implémenter et tester sans toucher
+   aux descriptions armes/magies désormais gelées.
+
+Les ROMs JPN/FRA/USA utilisées pendant la session ne doivent évidemment jamais
+être redistribuées.

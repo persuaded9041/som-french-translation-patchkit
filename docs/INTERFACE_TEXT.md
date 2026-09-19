@@ -58,8 +58,11 @@ and byte-identical. Do not reintroduce VWF on this page.
 
 `translations/interface_text_french.json` contains the ten reviewed
 characteristic labels (`Force`, `Agilité`, `Endurance`, `Intelligence`, etc.).
-They have been checked against the available 80 px VWF envelope, but are still
-**translation-only** until their Status rendering path is promoted.
+`french_menus` keeps the stock 60 + 40-cell fallback rows, with explicit
+10-cell fallbacks only for `Intell.` / `% précis.`, and also emits the ten full
+forms to its localization-owned VWF source table at `$ED:8B00`. The exact
+`vwf_ui` backend for these ten labels is runtime-validated with the short forms;
+`Intelligence` / `% précision` are the current runtime-pending source change.
 
 Every visible row has a globally unique ROM-position `id`. Existing
 `french_name_entry_extended` / `french_menus` French rows live in

@@ -25,3 +25,22 @@ def normalize_for_snes(text: str) -> tuple[str, list[str]]:
         text = "".join(chars)
         notes.append('straight quotes→“…”')
     return text, notes
+
+def normalize_weapon_description_for_snes(text: str) -> tuple[str | None, list[str]]:
+    """Normalize Android weapon-description layout to the validated SNES record geometry.
+
+    Runtime validation proved that this panel consumes 30-character segments
+    separated by ``$7F``.  Android line breaks/indentation are presentation-only;
+    collapse them to the exact prose, prepend the stock one-cell inset, then
+    slice at fixed 30-character boundaries.  A whitespace-only Android record
+    returns ``None`` so the stock blank payload (four $7F bytes) is preserved
+    byte-for-byte instead of being replaced with an empty record.
+    """
+    if not text.strip(" \t\r\n\u3000"):
+        return None, ["blank→preserve stock payload"]
+    logical = " " + " ".join(text.replace("\u3000", " ").split())
+    if len(logical) > 150:
+        raise ValueError(f"weapon description exceeds validated 5x30 cells: {len(logical)}")
+    chunks = [logical[i:i + 30] for i in range(0, len(logical), 30)]
+    return "\n".join(chunks), ["Android whitespace→fixed 30-cell SNES segments"]
+

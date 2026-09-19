@@ -119,6 +119,92 @@ opens one cell farther left than stock, so the independent type-2 close X seed a
 new left frame column remained on screen after closing. The 11-cell width,
 3-pixel separator, and `$09` close seed are all runtime-validated.
 
+## Status / Characteristics exact-label backend
+
+The Status characteristic panel has a separate, ultra-localized bitmap path.
+The global hook at `$C0:2366` accepts only menu ID `$08`, source bank `$C7`, a
+post-parse pointer inside the exact `$C7:7A28-$7A8E` characteristic resource,
+the validated French blanking of the USA `ON` / `CE` suffixes, and the
+`french_menus` source marker `$ED:8BA0-$8BA1 = 53 56`. Every other call replays
+the overwritten stock prologue and resumes the untouched converter.
+
+`vwf_ui` owns no Status prose. `french_menus` owns ten 16-byte direct-glyph
+records at `$ED:8B00-$8B9F`; the exact renderer reads the record length and
+composites only that label into the stock 32-cell chunk. Values, red bars,
+condition strings, templates and every other menu text remain on their stock
+paths. The full forms `Intelligence`, `% précision` and `Déf. magique` are
+runtime-validated. The backend remains limited to these ten labels.
+
+## Runtime-validated weapon / magic skill-row name VWF
+
+The weapon/magic level lists keep their validated fixed headings `Niv. armes`
+and `Niv. magies`, with stock placement geometry at `$C7:754A/$7558`. The
+compact progress presentation remains runtime-validated: the two row-only
+formatter calls at `$C7:664A` / `$C7:665D` go through `$C7:4F00-$4F22`, so
+one-digit values omit the stock leading blank and exactly one fixed separator
+blank is appended before the dynamic name. Validated forms include `5:0 Nom`
+and `5:10 Nom`.
+
+The final name-only VWF architecture is runtime-validated. The two exact 8-row
+submits at `$C7:65B0` / `$C7:6615` pass through `$C7:4F30`, which scopes
+`$7E:93CD=$5A` around the synchronous stock `$C7:5D9A` render and clears the
+scope immediately on return. The global `$C0:2366` hook now reaches the
+magic lower-panel dispatcher `$ED:8E00` first; every non-magic caller jumps
+immediately to `$ED:8C00`, which requires that exact skill scope and then dynamically scans the decoded `$7E:A1A4` row for the compact
+`digit : digit [digit] blank` prefix. The prefix is deliberately **not** assumed
+to begin at decoded cell 0.
+
+On a match, the discovered cell is the true name boundary in both the decoded
+row and `$7E:9000` bitmap. The fixed numeric prefix is preserved, only the old
+fixed-font name cells are cleared, and the already-decoded weapon/magic name is
+re-rendered using the ordinary validated UI VWF metrics before returning to the
+stock 4bpp packer. Every non-match jumps directly into the unchanged Status
+classifier at `$ED:8700`. No menu-ID 5/6 gate is required; the exact synchronous
+batch scope plus the dynamically discovered row prefix is the validated identity.
+
+The failed predecessor assumed the prefix began at `$A1A4+0`, which explains why
+the names remained fixed. The proof sequence and root cause are documented in
+`docs/WEAPON_MAGIC_SKILL_ROW_VWF_RESEARCH.md`. `vwf_ui` owns no weapon/magic
+name prose: `french_resources` remains the source of localized weapon and
+mana-spirit names.
+
+## Runtime-validated magic lower-panel full-row VWF
+
+The three spell-description rows in `Niv. magies` use a separate exact path from
+the 8-row skill-name grid above. Stock physically submits **six** 30-cell halves,
+arranged as three visible rows × two side-by-side passes. Runtime probes proved
+one pass is 30 cells / 240 px (`$A191=$03C0`), so a pair is one 60-cell / 480 px
+logical row.
+
+The promoted architecture keeps the complete stock menu lifecycle:
+
+- `$C7:649E` is wrapped only to invalidate three private captured IDs, then calls
+  stock `$C7:6BCF`;
+- `$C7:6501` captures the exact `$A1D0` description ID stock just emitted, then
+  calls stock `$C7:6AB7`;
+- Lumina's raw stock IDs 42..47 are remapped exactly as stock does to 36..41;
+- `$C7:650E` calls a clone at `$C7:4F40` which preserves stock `$C7:6512` / six-pass
+  `$C7:5D9A` wait/DMA/tail behavior;
+- `$C0:2366` reaches `$ED:8E00`, which accepts only the exact stacked return from
+  that clone. This exact-caller gate is runtime-validated to leave GAME SELECT
+  normal;
+- one complete row is VWF-rasterized across up to 60 cells in `$7E:9000-$92FF`,
+  then cells 0..29 and 30..59 are supplied to the two stock passes;
+- stock availability remains authoritative. IDs not emitted by stock remain
+  `$FF`, so locked elementals stay blank and Dryad's unavailable third spell
+  produces an explicit blank row instead of stale bitmap duplication.
+
+Localized content remains source-owned. `french_resources` installs 42 fixed
+80-byte `Nom : description` records at `$ED:9200-$9F1F` plus marker `MFV1` at
+`$ED:9F20`. `vwf_ui` checks that marker at runtime; without it, the exact magic
+caller falls back to the stock converter, keeping standalone `vwf_ui`
+content-neutral.
+
+The complete Android-FR wording is retained. The widest current row is 445 px;
+`french_resources` enforces a 472 px build-time ceiling inside the 480 px logical
+row. The probe history and rejected direct-DMA / weak-gate experiments are
+recorded in `docs/WEAPON_MAGIC_DESCRIPTIONS_RESEARCH.md`.
+
 ## Runtime-validated battle/status banner backend
 
 The stock battle/status banner is submitted only through two tiny helpers at

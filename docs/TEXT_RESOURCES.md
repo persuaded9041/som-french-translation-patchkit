@@ -90,7 +90,9 @@ enemies and locations) plus the nine runtime-validated top-level Ring Menu label
 reviewed SNES placeholder bindings (`Corde magique` / `Tambour du vent` + Android
 `(inutilisable ici)` template) rather than entries in the positional Android mapping.
 The component rebuilds the full pointer table/blob in place and is included in the
-aggregate patch. Description families remain outside this component until separately reviewed.
+aggregate patch. Weapon descriptions are now promoted in that stock blob; complete magic
+lower-panel descriptions are owned by the same component but stored separately in expanded
+bank `$ED:9200+` for the validated full-width VWF panel.
 
 Android-FR-derived text comes from the generated mapping/cache described above.
 SNES-specific wording adaptations are stored canonically in
@@ -98,14 +100,14 @@ SNES-specific wording adaptations are stored canonically in
 French UI prose is not hard-coded in `build_patch.py`. Each override is validated against
 the clean-ROM resource ID/category before it can replace the generated Android wording.
 
-The current production build translates **360 resources** (the previous 358 plus system messages `$1FF-$200`). Three mapped enemy names
+The current production build translates **420 `$CA` resources** (including 60 non-empty weapon descriptions; 12 blank weapon descriptions preserve stock payloads). Three mapped enemy names
 (`Double n°1`, `Double n°2`, `Double n°3`) deliberately remain stock because `°` uses
 direct code `$E6` while ordinary non-event `$CA` resources still treat `$E6` as the
 start of their upper DTE range. No substitution is guessed.
 
-Stock-DTE compression keeps the selected build at **7,103 bytes** versus the original
+Stock-DTE compression keeps the selected build at **7,171 bytes** versus the original
 **7,315-byte** allocation. The rebuilt blob therefore remains entirely in place at
-`$CA:98E1-$B49F`; the allocation ends at `$CA:B573`. No resource relocation is used.
+`$CA:98E1-$B4E3`; the allocation ends at `$CA:B573`. No resource relocation is used.
 
 Further `$CA` work may add additional resource IDs/families. Promote them
 only after the normal identity/provenance, codec/size and display-geometry review. Do not
@@ -136,11 +138,15 @@ python3 tools/text/import_android_resources.py --check
 ```
 
 The current mapping contains 475 mapped resources, 34 deliberately excluded resources
-and 4 unresolved locations. The mapped-but-not-promoted set notably includes all
-**72 `weapon_description`** and **42 `magic_description`** resources. The component
-currently filters the mapping to its reviewed promoted families and applies the current
-encoding profile; those description families therefore remain source/review candidates
-until their actual display geometry is validated. The current conservative layout audit classifies weapon descriptions as **38 inside stock envelope / 34 geometry review**, and magic descriptions as **2 inside / 40 geometry review**. Across all 475 mapped resources the totals are **302 inside / 170 geometry review / 3 encoding-blocked**.
+and 4 unresolved locations. The **72 `weapon_description`** and **42
+`magic_description`** resources are now promoted after runtime geometry research.
+Weapon descriptions remain in the ordinary `$CA` blob using the proven fixed 30-cell
+segment layout. Complete magic descriptions do **not** use the narrow stock description
+layout: `french_resources` builds 42 expanded-bank `Nom : description` VWF records at
+`$ED:9200+`, consumed only by the exact `vwf_ui` lower-panel path. The conservative
+layout audit remains useful historical/review evidence but is no longer the production
+geometry rule for these two families. Across all 475 mapped resources the legacy audit
+totals remain **302 inside / 170 geometry review / 3 encoding-blocked**.
 
 ## Layout/encoding review tool
 

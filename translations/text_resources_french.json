@@ -1427,51 +1427,51 @@
         },
         {
           "id": "CA:A804",
-          "text": "　"
+          "text": "\n"
         },
         {
           "id": "CA:A809",
-          "text": "\n"
-        },
-        {
-          "id": "CA:A826",
           "text": "Augmente l'agilité de 2 points"
         },
         {
-          "id": "CA:A84D",
+          "id": "CA:A826",
           "text": "Inflige plus de dégâts aux gluants et aux\nlézards"
         },
         {
-          "id": "CA:A873",
+          "id": "CA:A84D",
           "text": "Inflige plus de dégâts aux insectes et aux\nmonstres à corps dur"
         },
         {
-          "id": "CA:A89E",
+          "id": "CA:A873",
           "text": "Inflige plus de dégâts aux morts-vivants et\naux démons"
         },
         {
-          "id": "CA:A8BE",
+          "id": "CA:A89E",
           "text": "Augmente le taux de coups critiques"
         },
         {
-          "id": "CA:A8DD",
+          "id": "CA:A8BE",
           "text": "Augmente la force de 2 points"
         },
         {
-          "id": "CA:A8FD",
+          "id": "CA:A8DD",
           "text": "Inflige plus de dégâts aux dragons"
         },
         {
-          "id": "CA:A911",
+          "id": "CA:A8FD",
           "text": "L'épée ultime"
         },
         {
+          "id": "CA:A911",
+          "text": "\n"
+        },
+        {
           "id": "CA:A916",
-          "text": "　"
+          "text": "Inflige plus de dégâts aux végétaux et aux\npoissons"
         },
         {
           "id": "CA:A93A",
-          "text": "\n"
+          "text": "Augmente l'endurance de 2 points"
         },
         {
           "id": "CA:A960",
@@ -1479,167 +1479,167 @@
         },
         {
           "id": "CA:A984",
-          "text": "Augmente l'endurance de 2 points"
+          "text": "Inflige plus de dégâts aux insectes et aux\nmonstres à corps dur"
         },
         {
           "id": "CA:A9AA",
-          "text": "Inflige plus de dégâts aux végétaux et aux\npoissons"
+          "text": "Inflige plus de dégâts aux bêtes, oiseaux\net hommes-bêtes"
         },
         {
           "id": "CA:A9D1",
-          "text": "Inflige plus de dégâts aux insectes et aux\nmonstres à corps dur"
-        },
-        {
-          "id": "CA:A9F5",
-          "text": "Inflige plus de dégâts aux bêtes, oiseaux\net hommes-bêtes"
-        },
-        {
-          "id": "CA:AA15",
           "text": "Inflige plus de dégâts aux végétaux et aux\npoissons"
         },
         {
-          "id": "CA:AA27",
+          "id": "CA:A9F5",
           "text": "Augmente la force de 5 points"
         },
         {
-          "id": "CA:AA2C",
+          "id": "CA:AA15",
           "text": "La hache ultime"
         },
         {
+          "id": "CA:AA27",
+          "text": "\n"
+        },
+        {
+          "id": "CA:AA2C",
+          "text": "\n"
+        },
+        {
           "id": "CA:AA31",
-          "text": "　"
-        },
-        {
-          "id": "CA:AA48",
-          "text": "\n"
-        },
-        {
-          "id": "CA:AA6F",
-          "text": "\n"
-        },
-        {
-          "id": "CA:AA86",
           "text": "Inflige l'état \"ballon\" aux ennemis"
         },
         {
-          "id": "CA:AAA2",
+          "id": "CA:AA48",
           "text": "Inflige plus de dégâts aux gluants et aux\nlézards"
         },
         {
-          "id": "CA:AAC2",
+          "id": "CA:AA6F",
           "text": "Inflige l'état \"confusion\" aux ennemis"
         },
         {
-          "id": "CA:AAE2",
+          "id": "CA:AA86",
           "text": "Endort les ennemis"
         },
         {
-          "id": "CA:AAF6",
+          "id": "CA:AAA2",
           "text": "Augmente la force de 2 points"
         },
         {
-          "id": "CA:AAFB",
+          "id": "CA:AAC2",
           "text": "Inflige plus de dégâts aux dragons"
         },
         {
-          "id": "CA:AB14",
+          "id": "CA:AAE2",
           "text": "La lance ultime"
         },
         {
-          "id": "CA:AB30",
-          "text": "　"
-        },
-        {
-          "id": "CA:AB57",
+          "id": "CA:AAF6",
           "text": "\n"
         },
         {
-          "id": "CA:AB82",
+          "id": "CA:AAFB",
           "text": "Ralentit les ennemis"
         },
         {
-          "id": "CA:ABA8",
+          "id": "CA:AB14",
           "text": "Augmente l'agilité de 2 points"
         },
         {
-          "id": "CA:ABC0",
+          "id": "CA:AB30",
           "text": "Inflige plus de dégâts aux gluants et aux\nlézards"
+        },
+        {
+          "id": "CA:AB57",
+          "text": "Inflige plus de dégâts aux morts-vivants et\naux démons"
+        },
+        {
+          "id": "CA:AB82",
+          "text": "Inflige plus de dégâts aux insectes et aux\nmonstres à corps dur"
+        },
+        {
+          "id": "CA:ABA8",
+          "text": "Ralentit les ennemis"
+        },
+        {
+          "id": "CA:ABC0",
+          "text": "Inflige plus de dégâts aux insectes et aux\nmonstres à corps dur"
         },
         {
           "id": "CA:ABE6",
-          "text": "Inflige plus de dégâts aux morts-vivants et\naux démons"
-        },
-        {
-          "id": "CA:ABF9",
-          "text": "Inflige plus de dégâts aux insectes et aux\nmonstres à corps dur"
-        },
-        {
-          "id": "CA:ABFE",
-          "text": "Ralentit les ennemis"
-        },
-        {
-          "id": "CA:AC03",
-          "text": "Inflige plus de dégâts aux insectes et aux\nmonstres à corps dur"
-        },
-        {
-          "id": "CA:AC2A",
           "text": "Le fouet ultime"
         },
         {
-          "id": "CA:AC41",
-          "text": "　"
-        },
-        {
-          "id": "CA:AC6C",
+          "id": "CA:ABF9",
           "text": "\n"
         },
         {
-          "id": "CA:AC8D",
+          "id": "CA:ABFE",
           "text": "\n"
         },
         {
-          "id": "CA:ACA4",
+          "id": "CA:AC03",
           "text": "Inflige plus de dégâts aux bêtes, oiseaux\net hommes-bêtes"
         },
         {
-          "id": "CA:ACC4",
+          "id": "CA:AC2A",
           "text": "Inflige l'état \"confusion\" aux ennemis"
         },
         {
-          "id": "CA:ACD6",
+          "id": "CA:AC41",
           "text": "Inflige plus de dégâts aux morts-vivants et\naux démons"
         },
         {
-          "id": "CA:ACDB",
+          "id": "CA:AC6C",
           "text": "Augmente l'intelligence et la sagesse de\n2 points"
         },
         {
-          "id": "CA:AD02",
+          "id": "CA:AC8D",
           "text": "Inflige l'état \"confusion\" aux ennemis"
         },
         {
-          "id": "CA:AD1B",
+          "id": "CA:ACA4",
           "text": "Augmente le taux de coups critiques"
         },
         {
-          "id": "CA:AD20",
+          "id": "CA:ACC4",
           "text": "L'arc ultime"
         },
         {
-          "id": "CA:AD46",
-          "text": "　"
-        },
-        {
-          "id": "CA:AD5B",
+          "id": "CA:ACD6",
           "text": "\n"
         },
         {
-          "id": "CA:AD82",
+          "id": "CA:ACDB",
           "text": "Inflige plus de dégâts aux gluants et aux\nlézards"
         },
         {
-          "id": "CA:ADA2",
+          "id": "CA:AD02",
           "text": "Ralentit les ennemis"
+        },
+        {
+          "id": "CA:AD1B",
+          "text": "\n"
+        },
+        {
+          "id": "CA:AD20",
+          "text": "Inflige plus de dégâts aux insectes et aux\nmonstres à corps dur"
+        },
+        {
+          "id": "CA:AD46",
+          "text": "Empoisonne les ennemis"
+        },
+        {
+          "id": "CA:AD5B",
+          "text": "Inflige plus de dégâts aux gluants et aux\nlézards"
+        },
+        {
+          "id": "CA:AD82",
+          "text": "Augmente le taux de coups critiques"
+        },
+        {
+          "id": "CA:ADA2",
+          "text": "Le boomerang ultime"
         },
         {
           "id": "CA:ADBA",
@@ -1647,35 +1647,35 @@
         },
         {
           "id": "CA:ADBF",
-          "text": "Inflige plus de dégâts aux insectes et aux\nmonstres à corps dur"
+          "text": "\n"
         },
         {
           "id": "CA:ADC4",
-          "text": "Empoisonne les ennemis"
+          "text": "Inflige plus de dégâts aux bêtes, oiseaux\net hommes-bêtes"
         },
         {
           "id": "CA:ADEB",
-          "text": "Inflige plus de dégâts aux gluants et aux\nlézards"
+          "text": "Inflige l'état \"ballon\" aux ennemis"
         },
         {
           "id": "CA:AE02",
-          "text": "Augmente le taux de coups critiques"
+          "text": "Inflige plus de dégâts aux morts-vivants et\naux démons"
         },
         {
           "id": "CA:AE2D",
-          "text": "Le boomerang ultime"
+          "text": "Inflige l'état \"ballon\" aux ennemis"
         },
         {
           "id": "CA:AE44",
-          "text": "　"
+          "text": "Augmente l'intelligence et la sagesse de\n2 points"
         },
         {
           "id": "CA:AE66",
-          "text": "\n"
+          "text": "Inflige plus de dégâts aux dragons"
         },
         {
           "id": "CA:AE86",
-          "text": "\n"
+          "text": "Le javelot ultime"
         }
       ]
     },
