@@ -1,6 +1,6 @@
-# HANDOFF — Secret of Mana FR — descriptions armes/magies validées
+# HANDOFF — Secret of Mana FR — VWF performances + descriptions armes/magies validées
 
-Date : 2026-09-19
+Date : 2026-09-20
 
 Cette archive est la **source de vérité** et prévaut sur GitHub. La ROM de référence est **Secret of Mana (USA), non headerée**, taille `0x200000`, SHA-256 `4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f`. Elle ne doit jamais être redistribuée.
 
@@ -21,6 +21,22 @@ d'aide/par défaut encore anglais de ce même menu, en repartant du japonais
 d'origine, puis vérifier l'existence d'un équivalent Android FR avant adaptation
 SNES. Ne rien modifier avant cette étude.**
 
+### Performance VWF — état promu
+
+Les optimisations générales VWF sont runtime-validées jusqu'au **Stage 3A** :
+Ring rendu au vrai nombre de caractères, scope de ligne inline, phase de glyphe
+cachée, compositor compact sûr Stage 2C-R1, puis réparation de contour bornée.
+Le premier Stage 2C utilisant `JMP (addr,X)` est **rejeté** (écran noir / lecture
+du pointeur en bank 0) et ne doit jamais être restauré. Le travail général Ring
+s'arrête volontairement à Stage 3A. Voir `docs/VWF_PERFORMANCE_RESEARCH.md`.
+
+Le panneau inférieur `Niv. magies` est runtime-validé jusqu'au **Magic Stage 2** :
+chaque ligne logique 480 px n'est plus rasterisée/convertie qu'une fois sur la
+passe gauche ; la passe droite réutilise les 960 octets packed conservés dans
+`$7E:97C0-$9B7F`. Les **6 DMA stock**, les IDs capturés, les conditions de
+déblocage et les 42 textes restent inchangés. Magic Stage 1 est supersédé. Voir
+`docs/MAGIC_PANEL_PERFORMANCE_RESEARCH.md`.
+
 Ne pas relancer un audit global des dialogues sans raison spécifique : leur
 corpus reste gelé et validé.
 
@@ -36,6 +52,8 @@ Avant toute modification, lire intégralement :
 - `docs/MEMORY_MAP.md`
 - `docs/WEAPON_MAGIC_SKILL_ROW_VWF_RESEARCH.md`
 - `docs/WEAPON_MAGIC_DESCRIPTIONS_RESEARCH.md`
+- `docs/VWF_PERFORMANCE_RESEARCH.md`
+- `docs/MAGIC_PANEL_PERFORMANCE_RESEARCH.md`
 - `docs/UI_VWF.md`
 - `components/french_gfx/README.md`
 - `components/french_gfx/docs/MEMORY_MAP.md`
@@ -152,7 +170,7 @@ Architecture du backend Mana :
 - le champ visible commence sur la cellule globale impaire 91. Le DMA validé est donc pair-aligné une cellule plus tôt, sur `$6820-$691F` : cellule 90 vide + libellé VWF à partir de la cellule 91 ;
 - la valeur Mana dynamique commence à `$6920` et reste entièrement stock.
 
-Le premier probe VWF, démarré directement sur la cellule 91 / `$6830`, est rejeté : il séparait les moitiés haut/bas des glyphes et laissait un demi-`G` résiduel. Le v2 a validé le renderer pair-aligné ; le v3 a ensuite corrigé uniquement le payload source complet `Graines de Mana`. Le `patches/all.ips` promu doit rester byte-identique à ce probe v3 runtime-validé. `vwf_ui` ne contient aucune prose française : il copie le champ source appartenant à `french_menus`.
+Le premier probe VWF, démarré directement sur la cellule 91 / `$6830`, est rejeté : il séparait les moitiés haut/bas des glyphes et laissait un demi-`G` résiduel. Le v2 a validé le renderer pair-aligné ; le v3 a ensuite corrigé uniquement le payload source complet `Graines de Mana`. Le comportement de ce backend reste inchangé par les optimisations VWF ultérieures ; l'agrégat n'est naturellement plus byte-identique à l'ancien probe puisque `vwf_ui`/`vwf_dialogues` ont été optimisés depuis. `vwf_ui` ne contient aucune prose française : il copie le champ source appartenant à `french_menus`.
 
 ## Choix de fenêtre — runtime-validé et promu
 
@@ -348,31 +366,31 @@ python3 build.py "Secret of Mana (USA).sfc" french-resources --combine
 
 Pour une validation de versionnement, faire également un rebuild complet dans un dossier de patches neuf et comparer les hashes aux patches promus.
 
-## Baseline propre actuelle — 2026-09-19
+## Baseline propre actuelle — 2026-09-20
 
 Rebuild complet depuis la ROM USA propre après promotion des descriptions
-d'armes et du panneau complet de descriptions de magie :
+d'armes, du panneau complet de descriptions de magie, des optimisations VWF
+générales jusqu'au Stage 3A et du panneau magie jusqu'au Magic Stage 2 :
 
 - `patches/french_menus.ips` SHA-256 : `8148c43b42ed8d0cf88edf367d48b27f7407e161b9246d0f32bd4c7aff353c36`
 - `patches/french_name_entry_extended.ips` SHA-256 : `6a488bc7cd6afe1ee98176c5bed3b4670bf12c789b5f58622d6aab23217ea6da`
 - `patches/french_resources.ips` SHA-256 : `692f42a3508b9bf9091b3600193f6051cc272f2eac8963e708554e639fa056ff`
-- `patches/vwf_ui.ips` SHA-256 : `d36349c974e99e81d146ca13e6c564690d70cc41600e1e7dd4b5b5343864a1f9`
+- `patches/vwf_ui.ips` SHA-256 : `f8152b53963d1c29c45c28533c8475cb348fb560228de896dd4659667b9a6c3f`
 - `patches/vwf_intro.ips` SHA-256 : `a5917976c7bf139e8f0ba69ee46f2ab0e23ab3db91453bf18bae6ba420d4110a`
-- `patches/vwf_dialogues.ips` SHA-256 : `f9628f1c43ba2917a081fd2cf31b48ce90c9138980e720276602796f7b593dad`
+- `patches/vwf_dialogues.ips` SHA-256 : `a78baba621265992d737bcf049b85effc34a01955a22e896b2120debef183ce4`
 - `patches/french_dialogues.ips` SHA-256 : `dfc94882e4162052ccd7195839ef7ef7f5a89f1bec51847d905ca6b05ad2de31`
 - `patches/french_gfx.ips` SHA-256 : `5753358d9603e6422a8ce03223e362900671e403fe83b9f57988400e3f1ffdd2`
-- `patches/all.ips` SHA-256 : `111138fb4f84fbdf2edd674656040f622fef98227acb988b182fccc103b10636`
-- ROM reconstruite SHA-256 : `afd147290947a4bae9c2365f0bb1ced6b7f7ec1075ef7e5d317fab70ae585216`
-- checksum SNES : `$59B7`.
+- `patches/all.ips` SHA-256 : `8153dc0fb1f5c06f74b3daaae2fbf0e1c39fd0f48b271dd04097c6b975684e86`
+- ROM reconstruite SHA-256 : `87e278de2112c2c12265f16f790c3a4f0ea14fe61651b6b2e5d8b4f3d926fbb4`
+- checksum SNES : `$7E11`.
 
-Rebuild complet et audit d'overlaps : **7188 octets identiques partagés**, **710
+Rebuild complet et audit d'overlaps : **7272 octets identiques partagés**, **710
 octets d'overlaps déclarés**. `check_source_hygiene.py`,
 `check_roundtrip.py --scan-all-events` et `import_android_resources.py --check`
 passent ; les **2048 scripts** sont correctement parsés. Un rebuild complet dans
-un dossier de patches neuf est byte-identique aux patches promus. Par rapport à
-la baseline précédente, les changements fonctionnels de patches sont limités à
-`french_resources.ips`, `vwf_ui.ips` et `all.ips`; les autres composants restent
-byte-identiques. La ROM de référence n'est pas incluse dans l'archive.
+un dossier de patches neuf est byte-identique aux patches promus. Par rapport à la baseline descriptions précédente, les changements de performance
+touchent `vwf_ui.ips`, `vwf_dialogues.ips` et `all.ips`; les composants de contenu
+comme `french_resources.ips` et `french_menus.ips` restent byte-identiques. La ROM de référence n'est pas incluse dans l'archive.
 
 ## Niveaux armes / magies — VWF des noms runtime-validée
 
@@ -483,3 +501,43 @@ Méthode demandée :
 
 Les ROMs JPN/FRA/USA utilisées pendant la session ne doivent évidemment jamais
 être redistribuées.
+
+
+## VWF performance — état au 2026-09-20
+
+- Stage 1 runtime-validé : Ring limité au nombre réel de caractères.
+- Stage 2A runtime-validé : test de scope de ligne inliné.
+- Stage 2B runtime-validé : phase/Y calculés une fois par caractère et fast path privé.
+- Premier Stage 2C **rejeté** : écran noir à l'ouverture du Ring. Cause prouvée :
+  `JMP (addr,X)` lit son pointeur en bank 0 alors que la table avait été placée
+  en `$ED:7Axx`. Ne jamais restaurer cette variante.
+- Stage 2C-R1 runtime-validé : il repart de Stage 2B et remplace ce dispatch par
+  une lecture longue explicite de table `$ED` + cible synthétique `PHA/RTS`.
+  Helper `$ED:7AB0-$7AF2`, 67/80 octets.
+- Stage 3A runtime-validé : conserver le contour stock `$C0:162C`, mais borner le
+  second passage de réparation VWF à `min(32, $938F + 1)` cellules. Le snapshot
+  `$938F` est désormais garanti avant le contour même sur les renderers
+  true-count (dont Ring), sans changer les décisions de progression `$A1CE`.
+  Le `+1` est une marge conservatrice : l'audit exhaustif du jeu de glyphes
+  réellement installé ne trouve même aucun pixel d'encre au-delà de l'avance.
+- `$C7:44C0/$4560/$4C90` sont inchangés ; intro, Caractéristiques, noms
+  armes/magies et panneau magie restent sur leurs chemins validés.
+
+Le builder `vwf_dialogues` installe aussi les helpers `$ED:7A80+` afin que son
+IPS standalone reste autonome, comme `vwf_ui`.
+
+
+## Performance panneau de magie — état au 2026-09-20
+
+- La base générale VWF inclut désormais Stage 3A runtime-validé.
+- Magic Stage 1 runtime-validé : sur la passe droite, les glyphes avant 224 px
+  n'étaient plus rerasterisés; cette étape a confirmé que le double rendu était
+  une cause majeure du délai.
+- Magic Stage 2 **candidat** : la passe gauche conserve le bitmap logique 60
+  cellules et laisse le convertisseur stock `$C0:2366` produire aussi la moitié
+  droite dans sa zone de sortie non-DMA `$7E:97C0-$9B7F`. La passe droite copie
+  ces 960 octets déjà convertis vers `$9400-$97BF` et saute le second raster +
+  le second convertisseur, tout en gardant les six DMA stock.
+- Aucun texte, ID, condition de déblocage, destination VRAM ou ordre des six
+  passes n'est modifié. Les lignes non émises restent sur le chemin blanc
+  conservateur.

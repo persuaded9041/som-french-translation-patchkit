@@ -34,8 +34,8 @@ cross-component view.
 | ROM `$ED:7100-$710F` | 16 bytes | Dialogue scope wrapper; shared-row call or stock font-row fallback | Runtime-validated shared-row path |
 | ROM `$ED:7180-$71D9` | 90 bytes | Per-character Y helper + chunk-boundary snapshot + stock-choice option/terminal anchor resync + private-buffer load | Runtime-validated on `$0331`; GAME SELECT remains stock |
 | ROM `$ED:7200-$727F` | 128 bytes | Dialogue advance table | Runtime-validated |
-| ROM `$ED:7280-$72E9` | 106 bytes | Cross-cell outline-boundary repair | Runtime-validated exact-tag repair on stock and relocated dialogue |
-| ROM `$ED:7340-$7378` | 57 bytes | Generic physical-cell commit + >32 line-break safety conversion + exact-continuation capture call | Runtime-validated ordinary-dialogue path; byte-identical shared install with `vwf_ui` |
+| ROM `$ED:7280-$72EE` | 111 bytes | Stage-3A bounded cross-cell outline-boundary repair | Candidate: scans `min(32, useful physical cells + 1)`; exact-tag scope retained; stock outline call unchanged |
+| ROM `$ED:7340-$737F` | 64 bytes | Generic physical-cell commit + pre-outline useful-cell snapshot + >32 line-break safety conversion + exact-continuation capture call | Stage-3A candidate; progression semantics unchanged; byte-identical shared install with `vwf_ui` |
 | ROM `$ED:7380-$73AA` | 43 bytes | Useful-width -> physical-cell snapshot helper | Runtime-validated |
 | ROM `$ED:73B0-$73B8` | 9 bytes | Test private renderer-active tag for internal hooks | Runtime-validated |
 | ROM `$ED:7500-$76A8` | 425 bytes | Dialogue parser pixel-budget preflight / safe-space rewind helper | Runtime-validated ordinary-dialogue path; choice commands receive no `vwf_dialogues` parser special case |
@@ -47,6 +47,7 @@ cross-component view.
 | ROM `$ED:7930-$7986` | 87 bytes | Exact interrupted-chunk continuation restore / partial-cell rewind helper | Runtime-validated with the opening falling-hero split cry |
 | ROM `$ED:7990-$79F9` | 106 bytes | Exact useful-phase + partial-bitmap-cell continuation capture helper | Runtime-validated with the opening falling-hero split cry |
 | ROM `$ED:7A00-$7A2B` | 44 bytes | Shared renderer-entry dispatcher installed by `vwf_dialogues` / `vwf_ui` | Current payload inside the shared `$ED:7A00-$7A7F` reservation; choice-helper growth is guarded before this block |
+| ROM `$ED:7A80-$7AF2` | 96 bytes used / 128 reserved | Stage-2B runtime-validated per-character phase/Y prep + Stage-2C-R1 safe packed/unrolled hot compositor | Runtime-validated 2026-09-20; shared byte-identically with `vwf_ui`; direct `$C7:4560/$4C90` callers unchanged |
 | ROM `$D2:DFE4-$E0DF` | 252 bytes | `dialogue_french` glyph span `$D3-$E7` | Canonical shared glyph bytes; overlaps the intro `$D4-$E5` subset byte-identically |
 | WRAM `$7E:9380` | 1 byte | Shared parser mode (`2` during `vwf_dialogues` private dialogue decoding) | Runtime-validated; parser phase only |
 | WRAM `$7E:9381` | 1 byte | Parser-local fresh-left-edge marker (`1` when stock remaining width is 29 cells at parser start) | Historical scratch retained by parser preflight; renderer does **not** read it; `vwf_intro` use is mutually exclusive |

@@ -10,6 +10,7 @@
 | `$C7:4C87` | UI-VWF config marker `$09` |
 | `$C7:4C88-$4C8E` | exact GAME FILE Mana trampoline `JSL $ED:7F40 / JMP $C7:5464`; reached only via generator pointer `$C7:5F95` |
 | `$ED:7A00-$7A76` | shared UI/dialogue renderer dispatcher; recognizes Forge `$A7`, Ring `$A8`, D9 Shop `$A9`, merchandise `$AA`, type-2 money `$AB`, exact battle/status `$AC`, and exact GAME FILE Mana `$AD`; MONEY additionally requires exact event-engine caller return `$1152`; installed byte-identically by `vwf_dialogues` / `vwf_ui` |
+| `$ED:7A80-$7AF2` | Stage-2B phase/Y cache plus runtime-validated Stage-2C-R1 safe packed/unrolled compositor; no bank-0 indirect jump; direct Status/skill/magic-panel callers of `$C7:4560/$4C90` remain unchanged |
 | `$ED:7B00-$7C89` | current `vwf_ui` renderer; `$7B00-$7CFF` remains reserved for UI renderer growth |
 | `$ED:7D00-$7D7F` | 128-byte validated VWF advance table |
 | `$ED:7E00-$7E52` | exact shared `$00:19D0` Ring/Forge/shop-row submit wrapper; `$7E00-$7E7F` remains reserved |
@@ -140,3 +141,12 @@ identity is `$01`. This removes the former standalone Sell-menu reset where
 
 
 - WRAM `$7E:93CD`: runtime-validated skill-list batch scope (`$5A`), set immediately before the exact synchronous `$C7:5D9A` 8-row render and cleared immediately after it returns.
+
+
+### Magic-panel Stage-2 runtime-validated transient cache
+
+`$7E:97C0-$9B7F` is not a new allocation. It is the existing non-DMA portion
+of the stock `$9400-$9BFF` bitmap-converter output. During the paired magic
+lower-panel passes only, the valid left pass leaves converted logical cells
+30..59 there and the immediately following right pass copies those 960 bytes
+down to `$9400-$97BF`.

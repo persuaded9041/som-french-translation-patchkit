@@ -168,6 +168,14 @@ the names remained fixed. The proof sequence and root cause are documented in
 name prose: `french_resources` remains the source of localized weapon and
 mana-spirit names.
 
+## Runtime-validated magic lower-panel performance
+
+Performance work is tracked separately in `docs/MAGIC_PANEL_PERFORMANCE_RESEARCH.md`.
+Magic Stage 2 is promoted: each complete 480px row is rasterized and converted
+once on the left pass; the paired right pass reuses the already-packed 960-byte
+right half from `$7E:97C0-$9B7F`. The six stock DMA submissions, captured IDs,
+unlock gating and localized content are unchanged. Magic Stage 1 is superseded.
+
 ## Runtime-validated magic lower-panel full-row VWF
 
 The three spell-description rows in `Niv. magies` use a separate exact path from
@@ -204,6 +212,12 @@ The complete Android-FR wording is retained. The widest current row is 445 px;
 `french_resources` enforces a 472 px build-time ceiling inside the 480 px logical
 row. The probe history and rejected direct-DMA / weak-gate experiments are
 recorded in `docs/WEAPON_MAGIC_DESCRIPTIONS_RESEARCH.md`.
+
+Performance work is documented separately in
+`docs/MAGIC_PANEL_PERFORMANCE_RESEARCH.md`. Magic Stage 2 is runtime-validated
+and promoted. It keeps the six stock DMA submissions but reuses the left pass's
+non-DMA packed output `$7E:97C0-$9B7F` for the paired right pass, removing the
+duplicate VWF raster and duplicate `$C0:2366` conversion for valid rows.
 
 ## Runtime-validated battle/status banner backend
 

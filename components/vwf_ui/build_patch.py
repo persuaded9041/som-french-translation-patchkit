@@ -269,7 +269,8 @@ MAGIC_PANEL_HALF_FLAG = 0x93C7
 MAGIC_PANEL_WIDTH_TEMP = 0x93C8       # 16-bit ($93C8-$93C9)
 MAGIC_PANEL_BITMAP_BYTES = 64 * 12
 MAGIC_PANEL_HALF_BYTES = 30 * 12
-MAGIC_PANEL_RIGHT_SOURCE = 0x9000 + MAGIC_PANEL_HALF_BYTES
+MAGIC_PANEL_RIGHT_CONVERTED_CACHE = 0x9400 + (30 * 32)  # $97C0: converter output for source cells 30..59
+MAGIC_PANEL_CONVERTED_HALF_BYTES = 30 * 32             # 960 bytes, exactly one stock DMA half
 MAGIC_PANEL_PASS_DESTS = (0x6500, 0x66E0, 0x68C0, 0x6AA0, 0x6C80, 0x6E60)
 
 
@@ -663,6 +664,15 @@ def make_magic_panel_dispatch(expected_return: int) -> bytes:
         a.rel8(0x90, f"id_ok_{idx}")
         a.rel16(0x82, "blank_known_row")
         a.label(f"id_ok_{idx}")
+        # Performance Stage 2: each valid right/even physical half immediately
+        # follows the matching left half in the stock six-pass batch.  The left
+        # pass leaves the complete 64-cell source bitmap intact, so stock
+        # C0:2366 converts the non-DMA cells as well.  Converted source cells
+        # 30..59 therefore survive at $7E:97C0-$9B7F until this right pass.
+        # Reuse that already-packed 4bpp data and bypass both the duplicate VWF
+        # raster and the duplicate stock converter.
+        if half:
+            a.rel16(0x82, "reuse_converted_right")
         # X = id * 80 = id * (16 + 64).
         a.emit(0xC2, 0x20)
         a.emit(0x29, 0xFF, 0x00)
@@ -730,6 +740,10 @@ def make_magic_panel_dispatch(expected_return: int) -> bytes:
     a.emit(0xE8)
     a.emit(0x8E, STATUS_SRC_OFFSET & 0xFF, STATUS_SRC_OFFSET >> 8)
 
+    # Performance Stage 2: valid right passes branch to the converted-cache
+    # fast path before record decoding.  Reaching this loop therefore proves
+    # this is the left pass, so every glyph is rasterized exactly once and no
+    # per-glyph half test is needed.
     # X = (glyph-$80) * 12.
     a.emit(0xC2, 0x20)
     a.emit(0xAD, STATUS_GLYPH & 0xFF, STATUS_GLYPH >> 8)
@@ -759,6 +773,7 @@ def make_magic_panel_dispatch(expected_return: int) -> bytes:
     a.rel8(0xD0, "glyph_rows")
 
     # Zero-extend validated width and add it to the 16-bit logical cursor.
+    a.label("advance_only")
     a.emit(0xAD, STATUS_GLYPH & 0xFF, STATUS_GLYPH >> 8)
     a.emit(0x29, 0x7F)
     a.emit(0xC2, 0x20)
@@ -775,40 +790,38 @@ def make_magic_panel_dispatch(expected_return: int) -> bytes:
     a.emit(0x8D, MAGIC_PANEL_LONG_CURSOR & 0xFF, MAGIC_PANEL_LONG_CURSOR >> 8)
     a.emit(0xE2, 0x20)
     a.emit(0xCE, STATUS_CHAR_COUNT & 0xFF, STATUS_CHAR_COUNT >> 8)
-    a.rel8(0xD0, "chars")
+    a.rel8(0xF0, "chars_done")
+    a.rel16(0x82, "chars")
+    a.label("chars_done")
 
-    # Split the 60-cell logical bitmap into two stock 30-cell DMA passes.
-    a.emit(0xAD, MAGIC_PANEL_HALF_FLAG & 0xFF, MAGIC_PANEL_HALF_FLAG >> 8)
-    a.rel8(0xD0, "right_half")
+    # Left/even physical pass: keep the complete 64-cell logical bitmap.
+    # Stock C0:2366 converts all 64 source cells even though the subsequent DMA
+    # sends only the first 30.  This intentionally creates the converted cache
+    # for logical cells 30..59 at $7E:97C0-$9B7F.
+    a.rel16(0x82, "resume")
 
-    # Left pass: cells 0..29 remain in place; clear cells 30..63.
-    a.emit(0xC2, 0x20)
-    a.emit(0xA9, 0x00, 0x00)
-    a.emit(0xA2, MAGIC_PANEL_HALF_BYTES & 0xFF, MAGIC_PANEL_HALF_BYTES >> 8)
-    a.label("clear_tail_left")
-    a.emit(0x9F, *lo24(0x7E9000))
-    a.emit(0xE8, 0xE8)
-    a.emit(0xE0, MAGIC_PANEL_BITMAP_BYTES & 0xFF, MAGIC_PANEL_BITMAP_BYTES >> 8)
-    a.rel8(0x90, "clear_tail_left")
-    a.rel8(0x80, "resume")
-
-    # Right pass: copy logical cells 30..59 down to stock cells 0..29.
-    a.label("right_half")
-    a.emit(0xC2, 0x20)
+    # Right/odd physical pass fast path.  The matching left pass has already
+    # converted logical cells 30..59.  Copy those 960 packed bytes down to the
+    # normal DMA source and jump to the stock converter's RTS, preserving the
+    # caller stack exactly as if C0:2366 had run normally.
+    a.label("reuse_converted_right")
+    a.emit(0xC2, 0x30)                              # A/X/Y16
     a.emit(0xA2, 0x00, 0x00)
-    a.label("copy_right")
-    a.emit(0xBF, *lo24(0x7E0000 | MAGIC_PANEL_RIGHT_SOURCE))
-    a.emit(0x9F, *lo24(0x7E9000))
+    a.label("copy_converted_right")
+    a.emit(0xBF, *lo24(0x7E0000 | MAGIC_PANEL_RIGHT_CONVERTED_CACHE))
+    a.emit(0x9F, *lo24(0x7E9400))
     a.emit(0xE8, 0xE8)
-    a.emit(0xE0, MAGIC_PANEL_HALF_BYTES & 0xFF, MAGIC_PANEL_HALF_BYTES >> 8)
-    a.rel8(0x90, "copy_right")
-    a.emit(0xA9, 0x00, 0x00)
-    a.emit(0xA2, MAGIC_PANEL_HALF_BYTES & 0xFF, MAGIC_PANEL_HALF_BYTES >> 8)
-    a.label("clear_tail_right")
-    a.emit(0x9F, *lo24(0x7E9000))
-    a.emit(0xE8, 0xE8)
-    a.emit(0xE0, MAGIC_PANEL_BITMAP_BYTES & 0xFF, MAGIC_PANEL_BITMAP_BYTES >> 8)
-    a.rel8(0x90, "clear_tail_right")
+    a.emit(0xE0, MAGIC_PANEL_CONVERTED_HALF_BYTES & 0xFF, MAGIC_PANEL_CONVERTED_HALF_BYTES >> 8)
+    a.rel8(0x90, "copy_converted_right")
+    # Match C0:2366's observable exit state.  Its full 64-cell conversion ends
+    # with X=$0800, Y=$0300, A8=$00 and carry clear; the surrounding stock
+    # batch leaves X live into the following wait/DMA calls and next pass.
+    a.emit(0xA2, 0x00, 0x08)
+    a.emit(0xA0, 0x00, 0x03)
+    a.emit(0xE2, 0x20)                              # A8, X/Y remain 16-bit
+    a.emit(0xA9, 0x00)
+    a.emit(0x18)                                    # CLC
+    a.emit(0x5C, *lo24(STATUS_BITMAP_CONVERT_RTS_CPU))
 
     a.label("resume")
     a.emit(0xE2, 0x20)
@@ -1550,6 +1563,13 @@ def make_ui_renderer() -> bytes:
     # already cleared below, so merchandise needs to render only the glyphs the
     # stock parser actually decoded.  Keep the validated 38-slot behavior for
     # Ring / Forge / D9 / MONEY.
+    # Performance stage 1: Ring title rows do not need the synthetic tail of
+    # the 38-byte private buffer.  The bitmap is cleared immediately below,
+    # and the exact decoded count is already saved in $938E.  Rendering only
+    # those real glyphs avoids up to 34 useless 12-row glyph passes on the
+    # shortest Ring labels while leaving every other UI family unchanged.
+    a.emit(0xE0, 0x00, 0x00)                         # CPX #0: Ring selector
+    a.rel8(0xF0, "render_true_count")
     a.emit(0xE0, 0x03, 0x00)                         # CPX #3: merchandise selector
     a.rel8(0xF0, "render_true_count")
     a.emit(0xE0, 0x05, 0x00)                         # CPX #5: battle banner

@@ -7,8 +7,7 @@ these helpers.
 """
 from __future__ import annotations
 
-from shared.core.asm import lo24
-from shared.vwf.row_renderer import ROW_RENDERER_CALL
+from shared.core.asm import MiniAssembler, lo24
 from shared.vwf.ui import SHOP_SUFFIX_GAP_HELPER_CPU
 
 CHAR_START_FILE = 0x001686
@@ -29,6 +28,17 @@ CHOICE_VISUAL_HELPER_FILE = 0x2D7880
 CHOICE_VISUAL_HELPER_CPU = 0xED7880
 CHOICE_TRACKER_HELPER_FILE = 0x2D7910
 CHOICE_TRACKER_HELPER_CPU = 0xED7910
+
+# Performance Stage 2B: generic dialogue/UI glyph rendering caches the
+# horizontal compositor phase once per character and uses a private hot-row
+# helper. Direct users of the shared C7 row renderer (intro, Status, skill rows,
+# magic panel) remain byte-for-byte on the existing generic compositor path.
+FAST_GLYPH_PREP_FILE = 0x2D7A80
+FAST_GLYPH_PREP_CPU = 0xED7A80
+FAST_GLYPH_PREP_RESERVED_SIZE = 0x30
+FAST_FONT_ROW_FILE = 0x2D7AB0
+FAST_FONT_ROW_CPU = 0xED7AB0
+FAST_FONT_ROW_RESERVED_SIZE = 0x50
 
 CHAR_START_SIGNATURE = bytes.fromhex("BD A4 A1 E8")
 FONT_ROW_SIGNATURE = bytes.fromhex("BF 00 DC D2")
@@ -157,12 +167,10 @@ def make_char_start_helper() -> bytes:
     emit(0xFA)
     label("choice_sync_done")
 
-    emit(0xDA)
-    emit(0xC2, 0x20)
-    emit(0xAD, 0x82, 0x93, 0x29, 0xF8, 0x00)
-    emit(0x8D, 0x86, 0x93)
-    emit(0x4A, 0x18, 0x6D, 0x86, 0x93, 0xA8)
-    emit(0xE2, 0x20, 0xFA)
+    # Stage 2B: destination Y and cursor phase are character-invariant across
+    # all 12 stock-font rows. Compute/cache them once here instead of deriving
+    # pixel_cursor & 7 inside the compositor twelve times.
+    emit(0x22, *lo24(FAST_GLYPH_PREP_CPU))
     emit(0xBD, 0x90, 0x93, 0xE8)
     br(0x80, "loaded")
 
@@ -461,6 +469,15 @@ def make_chunk_commit_helper() -> bytes:
     emit(0xC9, 0x27)                   # at most 38 decoded glyphs
     br(0xB0, "return")                 # unexpected count -> stock behavior
 
+    # Performance stage 3A: make the useful physical-cell count available
+    # before the stock outline + post-outline sequence for every accepted VWF
+    # render.  Full-private 38-slot paths normally captured it already at the
+    # first padded slot, so this final call returns immediately there.  True-
+    # count paths (notably the Stage-1 Ring renderer) reach final X == saved
+    # decoded count and capture ceil(useful_pixel_width / 8) here.  This writes
+    # only $938F; the stock line-break/progression policy below is unchanged.
+    emit(0x22, 0x80, 0x73, 0xED)       # JSL $ED7380
+
     emit(0xAD, 0xCE, 0xA1)             # stock line-end flag
     br(0x10, "convert")                # non-line-break: validated conversion
     emit(0xAD, 0x8E, 0x93)             # line-break chunk
@@ -473,8 +490,6 @@ def make_chunk_commit_helper() -> bytes:
     br(0x80, "return")
 
     label("convert")
-    # A full 38-character chunk has no first padded slot; snapshot once here.
-    emit(0x22, 0x80, 0x73, 0xED)       # JSL $ED7380
     # $ED:7990 is owned only by vwf_dialogues.  Standalone vwf_ui deliberately
     # leaves that region empty, so call it only for the explicit dialogue
     # renderer identity ($9385 == $01). UI identity $02 must skip it.
@@ -494,6 +509,119 @@ def make_chunk_commit_helper() -> bytes:
     emit(0x5C, 0xB7, 0x16, 0xC0)       # JML $C016B7 (RTS)
 
     return _resolve_rel8(code, labels, branches)
+
+
+def make_fast_glyph_prep_helper() -> bytes:
+    """Cache generic-renderer glyph phase and compute destination Y once.
+
+    This is called once at generic dialogue/UI character start, after any
+    shop/MONEY/choice cursor resynchronization. It reproduces the previous
+    floor(pixel_cursor/8)*12 destination calculation exactly and additionally
+    stores pixel_cursor&7 in $9383. X is untouched; A returns in 8-bit mode.
+    """
+    a = MiniAssembler(FAST_GLYPH_PREP_CPU)
+    a.emit(0xC2, 0x20)                       # REP #$20
+    a.emit(0xAD, 0x82, 0x93)                 # LDA pixel cursor
+    a.emit(0x29, 0x07, 0x00)                 # phase = cursor & 7
+    a.emit(0x8D, 0x83, 0x93)                 # 16-bit store: phase + zero shift counter
+    a.emit(0xAD, 0x82, 0x93)                 # reload cursor
+    a.emit(0x29, 0xF8, 0x00)                 # aligned low-byte pixel origin
+    a.emit(0x8D, 0x86, 0x93)                 # multiply scratch
+    a.emit(0x4A)                              # aligned / 2
+    a.emit(0x18)                              # preserve exact old arithmetic
+    a.emit(0x6D, 0x86, 0x93)                 # aligned + aligned/2 = cell*12
+    a.emit(0xA8)                              # TAY
+    a.emit(0xE2, 0x20)                       # SEP #$20
+    a.emit(0x6B)                              # RTL
+    return a.resolve()
+
+
+def make_fast_font_row_helper() -> bytes:
+    """Hot generic row renderer with safe packed 16-bit phase dispatch.
+
+    Stage 2C-R1 starts from the runtime-validated Stage 2B fast path. It
+    replaces the two counted 8-bit shift loops with one packed 16-bit shift,
+    but deliberately avoids JMP (abs,X), whose pointer is fetched from bank 0
+    on the 65816. The source byte is kept in hidden B while the stock row
+    counter is saved; an explicit long read from an $ED low-byte table plus a
+    synthetic two-byte RTS target selects the local unrolled LSR entry.
+    """
+    a = MiniAssembler(FAST_FONT_ROW_CPU)
+    a.emit(0xBF, 0x00, 0xDC, 0xD2)           # LDA.l stock font row
+    a.emit(0x22, 0xC0, 0x44, 0xC7)           # JSL shared framing selector
+
+    # Stock C0 keeps its 12..1 line counter in hidden B. Move source into B and
+    # save the counter before loading the cached phase.
+    a.emit(0xEB)                              # XBA: A=row counter, B=source
+    a.emit(0x48)                              # PHA row counter (M=1)
+    a.emit(0xAD, 0x83, 0x93)                 # cached phase; B remains source
+    a.rel8(0xF0, "aligned")                  # phase 0: no spill
+
+    # Preserve stock font-row X. $9383/$9384 is phase/zero by construction, so
+    # LDX works correctly whether the caller currently has 8- or 16-bit X.
+    a.emit(0xDA)                              # PHX
+    a.emit(0xAE, 0x83, 0x93)                 # LDX $9383 => phase (1..7)
+
+    # Synthesize an RTS target in the current program bank. Push high byte first,
+    # then fetch/push the phase-specific low byte from an explicit long $ED table.
+    a.emit(0xA9, 0x00)                        # LDA #target_hi (patched)
+    target_hi_operand = len(a.data) - 1
+    a.emit(0x48)                              # PHA target high
+    a.emit(0xBF, 0x00, 0x00, 0xED)           # LDA.l (phase_table-1),X
+    table_operand = len(a.data) - 3
+    a.emit(0x48)                              # PHA target low
+
+    # B still contains source. Widen A and clear only the low byte, yielding
+    # source<<8 while the synthetic RTS target stays on the stack.
+    a.emit(0xC2, 0x20)                        # REP #$20
+    a.emit(0x29, 0x00, 0xFF)                 # AND #$FF00 => source<<8
+    a.emit(0x60)                              # RTS => selected local shift
+
+    # RTS leaves A16 untouched, so each entry can immediately execute exactly
+    # p shifts by falling through this chain.
+    a.label("shift7"); a.emit(0x4A)
+    a.label("shift6"); a.emit(0x4A)
+    a.label("shift5"); a.emit(0x4A)
+    a.label("shift4"); a.emit(0x4A)
+    a.label("shift3"); a.emit(0x4A)
+    a.label("shift2"); a.emit(0x4A)
+    a.label("shift1"); a.emit(0x4A)
+
+    a.emit(0xE2, 0x20)                        # SEP #$20: low=spill, B=current
+    a.emit(0xFA)                              # PLX
+    a.emit(0x19, 0x0C, 0x90)                 # spill |= $900C,Y
+    a.emit(0x99, 0x0C, 0x90)                 # store merged spill
+    a.emit(0xEB)                              # current -> low A
+    a.emit(0x19, 0x00, 0x90)                 # current |= $9000,Y
+    a.emit(0xEB)                              # merged current -> hidden B
+    a.emit(0x68)                              # PLA saved row counter
+    a.emit(0xEB)                              # return current low; B=row counter
+    a.emit(0x6B)                              # RTL
+
+    a.label("aligned")
+    # A=0, B=source, stack top=row counter.
+    a.emit(0x68)                              # A=row counter; B=source
+    a.emit(0xEB)                              # A=source; B=row counter
+    a.emit(0x6B)                              # RTL
+
+    a.label("phase_table")
+    table_pos = len(a.data)
+    a.emit(*([0x00] * 7))                     # low bytes for phases 1..7
+
+    payload = bytearray(a.resolve())
+    table_addr = a.labels["phase_table"] - 1 # X=phase, so phase 1 => entry 0
+    payload[table_operand] = table_addr & 0xFF
+    payload[table_operand + 1] = (table_addr >> 8) & 0xFF
+    payload[table_operand + 2] = (table_addr >> 16) & 0xFF
+
+    targets = [(a.labels[f"shift{i}"] - 1) & 0xFFFF for i in range(1, 8)]
+    target_highs = {target >> 8 for target in targets}
+    if len(target_highs) != 1:
+        raise RuntimeError("Stage 2C-R1 RTS targets crossed a 256-byte boundary")
+    payload[target_hi_operand] = target_highs.pop()
+    for i, target in enumerate(targets):
+        payload[table_pos + i] = target & 0xFF
+    return bytes(payload)
 
 
 def make_font_row_helper() -> bytes:
@@ -518,9 +646,15 @@ def make_font_row_helper() -> bytes:
         emit(op, 0)
         branches.append((len(code) - 1, target))
 
-    emit(0x22, 0xB0, 0x73, 0xED)       # tagged event-render scope
-    br(0x90, "stock")                 # BCC stock
-    emit(*ROW_RENDERER_CALL)            # shared stock row + framing + compositor
+    # This hook runs once for every one of the 12 pixel rows of every glyph.
+    # Keep the exact same accepted renderer identities as $ED:73B0, but inline
+    # the tiny test here to avoid a JSL + helper RTL + carry branch on the
+    # hottest path. Values 1/2 are dialogue/UI VWF; 0 and >=3 stay stock.
+    emit(0xAD, 0x85, 0x93)             # LDA $9385 renderer identity
+    br(0xF0, "stock")                  # 0 => inactive
+    emit(0xC9, 0x03)                    # CMP #3
+    br(0xB0, "stock")                  # intro scratch 3..8 (and other) => stock
+    emit(0x22, *lo24(FAST_FONT_ROW_CPU)) # cached-phase stock row + framing + compositor
     emit(0x6B)                          # return current half for stock STA
 
     label("stock")
@@ -540,9 +674,17 @@ def make_outline_post_helper() -> bytes:
     `vwf_intro` remains excluded because it reuses $9385 only for glyph advances
     in the range 3..8.
 
-    Scan the already rendered $9000-$917F bitmap. If ink touches the left/right
-    edge of a source cell, add the corresponding one-pixel outline contribution
-    to the neighboring output tile. Then replay the stock tail.
+    Scan only the useful prefix of the already rendered $9000-$917F bitmap. If
+    ink touches the left/right edge of a source cell, add the corresponding
+    one-pixel outline contribution to the neighboring output tile. Then replay
+    the stock tail.
+
+    `$938F` contains ceil(useful_pixel_width/8) before this helper is reached.
+    Exhaustive inspection of the installed stock + direct-French glyph set
+    shows no framed ink beyond the logical advance. We nevertheless scan one
+    safety cell beyond the physical count and clamp to the stock 32-cell
+    bitmap, keeping the repair conservative if the glyph set evolves while
+    still removing the unconditional 32x12 second pass for short/medium rows.
     """
     code = bytearray()
     labels: dict[str, int] = {}
@@ -561,7 +703,16 @@ def make_outline_post_helper() -> bytes:
     emit(0x22, 0xB0, 0x73, 0xED)       # shared renderer scope: dialogue $01 / UI $02
     br(0x90, "replay")                 # intro (3..8) and inactive -> stock tail
 
-    emit(0x9C, 0x8C, 0x93)             # STZ OUTLINE_TILE
+    emit(0xAD, 0x8F, 0x93)             # useful physical-cell count
+    br(0xF0, "replay")                 # empty row -> nothing to repair
+    emit(0xC9, 0x20)                   # already the full 32-cell bitmap?
+    br(0x90, "add_safety")             # below 32: include one safety cell
+    emit(0xA9, 0x20)                   # clamp expected/unexpected >=32 to 32
+    br(0x80, "store_limit")
+    label("add_safety")
+    emit(0x1A)                          # +1 safety cell for framed-ink overhang
+    label("store_limit")
+    emit(0x8D, 0x8C, 0x93)             # OUTLINE_TILES_REMAINING
     emit(0xA2, 0x00, 0x00)             # LDX #$0000 source offset
     emit(0xA0, 0x00, 0x00)             # LDY #$0000 output offset
 
@@ -573,8 +724,8 @@ def make_outline_post_helper() -> bytes:
     emit(0xBD, 0x00, 0x90)             # LDA $9000,X
     emit(0x89, 0x80)                   # BIT #$80
     br(0xF0, "check_right")
-    emit(0xAD, 0x8C, 0x93)             # tile index
-    br(0xF0, "check_right")         # no previous tile for tile 0
+    emit(0xE0, 0x0C, 0x00)             # tile 0 occupies source offsets 0..11
+    br(0x90, "check_right")            # no previous tile for tile 0
     emit(0xB9, 0xE4, 0x93)             # previous tile: $9404+Y-32
     emit(0x09, 0x01)
     emit(0x99, 0xE4, 0x93)
@@ -583,9 +734,8 @@ def make_outline_post_helper() -> bytes:
     emit(0xBD, 0x00, 0x90)             # reload source row
     emit(0x89, 0x01)                   # BIT #$01
     br(0xF0, "next_row")
-    emit(0xAD, 0x8C, 0x93)
-    emit(0xC9, 0x1F)                   # last of 32 cells?
-    br(0xF0, "next_row")
+    emit(0xE0, 0x74, 0x01)             # cell 31 starts at source offset 31*12
+    br(0xB0, "next_row")               # no next tile beyond stock cell 31
     emit(0xB9, 0x24, 0x94)             # next tile: $9404+Y+32
     emit(0x09, 0x80)
     emit(0x99, 0x24, 0x94)
@@ -597,9 +747,7 @@ def make_outline_post_helper() -> bytes:
     br(0xD0, "row_loop")
 
     emit(*([0xC8] * 8))                # 24 -> 32-byte output tile stride
-    emit(0xEE, 0x8C, 0x93)
-    emit(0xAD, 0x8C, 0x93)
-    emit(0xC9, 0x20)
+    emit(0xCE, 0x8C, 0x93)             # next bounded source tile
     br(0xD0, "tile_loop")
 
     label("replay")
@@ -621,6 +769,8 @@ CHOICE_VISUAL_HELPER = make_choice_visual_helper()
 CHOICE_TRACKER_HELPER = make_choice_tracker_helper()
 CHUNK_CELLS_SNAPSHOT_HELPER = make_chunk_cells_snapshot_helper()
 CHUNK_COMMIT_HELPER = make_chunk_commit_helper()
+FAST_GLYPH_PREP_HELPER = make_fast_glyph_prep_helper()
+FAST_FONT_ROW_HELPER = make_fast_font_row_helper()
 FONT_ROW_HELPER = make_font_row_helper()
 OUTLINE_POST_HELPER = make_outline_post_helper()
 
@@ -646,6 +796,10 @@ def _validate_layout() -> None:
             )
     if WIDTH_TABLE_FILE + 128 > OUTLINE_POST_HELPER_FILE:
         raise RuntimeError("Shared VWF width table overlaps the outline-post helper")
+    if len(FAST_GLYPH_PREP_HELPER) > FAST_GLYPH_PREP_RESERVED_SIZE:
+        raise RuntimeError("Shared VWF fast glyph-prep helper exceeds ED:7A80-7AAF")
+    if len(FAST_FONT_ROW_HELPER) > FAST_FONT_ROW_RESERVED_SIZE:
+        raise RuntimeError("Shared VWF fast font-row helper exceeds ED:7AB0-7AFF")
 
 
 _validate_layout()
@@ -673,6 +827,8 @@ def install(rom: bytearray, width_table: bytes) -> None:
         (CHAR_START_HELPER_FILE, CHAR_START_HELPER),
         (CHAR_END_HELPER_FILE, CHAR_END_HELPER),
         (FONT_ROW_HELPER_FILE, FONT_ROW_HELPER),
+        (FAST_GLYPH_PREP_FILE, FAST_GLYPH_PREP_HELPER),
+        (FAST_FONT_ROW_FILE, FAST_FONT_ROW_HELPER),
         (WIDTH_TABLE_FILE, width_table),
         (OUTLINE_POST_HELPER_FILE, OUTLINE_POST_HELPER),
         (CHUNK_COMMIT_HELPER_FILE, CHUNK_COMMIT_HELPER),

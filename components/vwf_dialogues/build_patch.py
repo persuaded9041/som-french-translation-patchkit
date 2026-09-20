@@ -102,6 +102,10 @@ from shared.vwf.renderer_runtime import (  # noqa: E402
     CHOICE_VISUAL_HELPER_CPU,
     CHOICE_TRACKER_HELPER_FILE,
     CHOICE_TRACKER_HELPER_CPU,
+    FAST_GLYPH_PREP_FILE,
+    FAST_FONT_ROW_FILE,
+    FAST_GLYPH_PREP_HELPER,
+    FAST_FONT_ROW_HELPER,
     CHAR_START_SIGNATURE,
     FONT_ROW_SIGNATURE,
     CHAR_END_SIGNATURE,
@@ -839,6 +843,8 @@ def validate_helper_layout() -> None:
         ("choice tracker helper", CHOICE_TRACKER_HELPER_FILE, len(CHOICE_TRACKER_HELPER), CONTINUATION_PREP_HELPER_FILE),
         ("continuation prep helper", CONTINUATION_PREP_HELPER_FILE, len(CONTINUATION_PREP_HELPER), CONTINUATION_SAVE_HELPER_FILE),
         ("continuation save helper", CONTINUATION_SAVE_HELPER_FILE, len(CONTINUATION_SAVE_HELPER), SHARED_UI_DISPATCH_FILE),
+        ("fast glyph-prep helper", FAST_GLYPH_PREP_FILE, len(FAST_GLYPH_PREP_HELPER), FAST_FONT_ROW_FILE),
+        ("fast font-row helper", FAST_FONT_ROW_FILE, len(FAST_FONT_ROW_HELPER), 0x2D7B00),
     )
     for label, start, size, next_start in blocks:
         if start + size > next_start:
@@ -1089,6 +1095,8 @@ def build(base: bytes) -> bytes:
         (CHAR_START_HELPER_FILE, CHAR_START_HELPER),
         (CHAR_END_HELPER_FILE, CHAR_END_HELPER),
         (FONT_ROW_HELPER_FILE, FONT_ROW_HELPER),
+        (FAST_GLYPH_PREP_FILE, FAST_GLYPH_PREP_HELPER),
+        (FAST_FONT_ROW_FILE, FAST_FONT_ROW_HELPER),
         (WIDTH_TABLE_FILE, width_table),
         (OUTLINE_POST_HELPER_FILE, OUTLINE_POST_HELPER),
         (CHUNK_COMMIT_HELPER_FILE, DIALOGUE_CHUNK_COMMIT_HELPER),

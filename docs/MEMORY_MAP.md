@@ -71,8 +71,8 @@ for the owning component even when the current generated payload is shorter.
 | dialogue text relocation | `0x280000-0x2817FF` | `$E8:0000-$17FF` | sparse 2048-entry 24-bit relocation table |
 | dialogue text relocation | `0x281800-0x281FFF` | `$E8:1800-$1FFF` | reserved event-loader resolver helper; current helper is 83 bytes at `$E8:1800-$1852` |
 | dialogue text relocation | `0x282000-0x2CFFFF` | `$E8:2000-$EC:FFFF` | reserved deterministic relocated-event pool |
-| dialogue VWF | `0x2D7040-0x2D72E9` | `$ED:7040-$72E9` | caller gate, render/advance helpers, width table and post-outline repair (fixed blocks with intentional gaps) |
-| dialogue VWF | `0x2D7340-0x2D73AA` | `$ED:7340-$73AA` | runtime-validated interrupted-chunk physical-cell commit/snapshot helpers; commit also captures exact same-line continuation state |
+| dialogue VWF | `0x2D7040-0x2D72EE` | `$ED:7040-$72EE` | caller gate, render/advance helpers, width table and runtime-validated Stage-3A bounded post-outline repair (fixed blocks with intentional gaps) |
+| dialogue VWF | `0x2D7340-0x2D73AA` | `$ED:7340-$73AA` | physical-cell commit/snapshot helpers; runtime-validated Stage-3A guarantees `$938F` before outline while preserving the validated progression/continuation decisions |
 | dialogue VWF | `0x2D73B0-0x2D73B8` | `$ED:73B0-$73B8` | runtime-validated renderer-active scope helper |
 | intro skip / dialogue parser merge | `0x2D73C0-0x2D73CF` | `$ED:73C0-$73CF` | 16-byte aggregate dispatcher for shared `$C0:16EA`: parser mode 2 -> dialogue preflight `$ED:7500`, otherwise -> intro-skip parser helper `$CA:FFC8` |
 | intro skip | `0x2D7400-0x2D74FF` | `$ED:7400-$74FF` | owned validated reserve: C2 helper `$7400-$7484`, gap `$7485-$7487`, C0 observer `$7488-$74F5`, gap `$74F6-$74FF` |
@@ -81,6 +81,7 @@ for the owning component even when the current generated payload is shorter.
 | dialogue_background (standalone v1) | `0x1FA908+` | `$DF:A908+` | ownership/lifecycle/HDMA helper payload; aggregate-disabled until this temporary allocation is formally reserved |
 | dialogue_background (standalone v1) | WRAM | `$7E:93D0-$93F1` | cached ordinary/type-2 rectangles, active/owner state and WH0/WH1 HDMA table; **known overlap with `vwf_dialogues` `$93D0-$93DF` continuation state**, therefore not aggregate-safe |
 | shared UI/dialogue dispatcher | `0x2D7A00-0x2D7A7F` | `$ED:7A00-$7A7F` | byte-identical renderer-entry dispatcher installed by `vwf_dialogues` / `vwf_ui` |
+| shared VWF generic fast path | `0x2D7A80-0x2D7AFF` | `$ED:7A80-$7AFF` | Stage-2B runtime-validated character-phase/Y prep `$7A80-$7A9C` + Stage-2C-R1 runtime-validated safe packed/unrolled hot font-row compositor `$7AB0-$7AF2`; installed byte-identically by `vwf_dialogues` / `vwf_ui`; direct `$C7:4560/$4C90` callers remain unchanged |
 | UI VWF renderer | `0x2D7B00-0x2D7CFF` | `$ED:7B00-$7CFF` | `vwf_ui` standalone non-dialogue UI renderer reserve (Forge backend first) |
 | UI VWF metrics | `0x2D7D00-0x2D7D7F` | `$ED:7D00-$7D7F` | `vwf_ui` validated 128-entry advance table |
 | UI VWF Forge wrapper | `0x2D7E00-0x2D7E7F` | `$ED:7E00-$7E7F` | exact Forge-row submit wrapper (`$00:19D0`) |
