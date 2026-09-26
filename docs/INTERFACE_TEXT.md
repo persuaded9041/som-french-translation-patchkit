@@ -62,7 +62,8 @@ characteristic labels (`Force`, `Agilité`, `Endurance`, `Intelligence`, etc.).
 10-cell fallbacks only for `Intell.` / `% précis.`, and also emits the ten full
 forms to its localization-owned VWF source table at `$ED:8B00`. The exact
 `vwf_ui` backend for these ten labels is runtime-validated with the short forms;
-`Intelligence` / `% précision` are the current runtime-pending source change.
+`Intelligence` / `% précision` are part of the promoted runtime-validated
+source table.
 
 Every visible row has a globally unique ROM-position `id`. Existing
 `french_name_entry_extended` / `french_menus` French rows live in
@@ -74,12 +75,12 @@ Regenerate only this family with:
 python3 tools/text/extract.py "Secret of Mana (USA).sfc" --only interface
 ```
 
-## Weapon / magic default help — candidate 2026-09-26
+## Weapon / magic default help
 
 The user approved the JP/Android-backed wording. `french_menus` now owns the
 six source-ID-bound rows in `translations/interface_text_french.json`.
 Pointers `$C0:33C4/$33C7` target `$ED:A000/$A100`; each block reserves 256 bytes
 (153/152 used). Stock three-line fixed rendering and all descriptions remain
-unchanged. Runtime validation is pending; promoted IPS files remain untouched.
-Candidate artifacts and full provenance/checks: `docs/SKILL_MENU_HELP_RESEARCH.md`
-and `build/candidates/skill-help-20260926/` at the repository root.
+unchanged. The promoted validation state is recorded in `docs/HANDOFF.md`.
+`docs/SKILL_MENU_HELP_RESEARCH.md` preserves the provenance and static checks;
+its historical candidate artifacts are not included in this archive.

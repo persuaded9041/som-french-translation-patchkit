@@ -2,6 +2,5 @@
   "id": "french_gfx",
   "short_name": "french-gfx",
   "name": "French localized graphics",
-  "french": true,
   "build_order": 35
 }

@@ -4,7 +4,6 @@
   "name": "French extension for player-name entry",
   "shared_charset_profile": "basic_french",
   "name_dte_router": true,
-  "french": true,
   "requires": [
     "default_name_entry_extended"
   ],

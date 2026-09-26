@@ -23,12 +23,7 @@ def _is_dialogue_vwf(component) -> bool:
 
 
 def _is_profile_overlay(left, right) -> bool:
-    if left.metadata.get("patch_base") == right.id or right.metadata.get("patch_base") == left.id:
-        return True
-    return (
-        (left.metadata.get("patch_base") and right.id.startswith("default_vwf_"))
-        or (right.metadata.get("patch_base") and left.id.startswith("default_vwf_"))
-    )
+    return left.metadata.get("patch_base") == right.id or right.metadata.get("patch_base") == left.id
 
 def _mergeable_parser_fetch(left, right, offset: int) -> bool:
     if not (PARSER_FETCH_OFFSET <= offset < PARSER_FETCH_END):
@@ -78,6 +73,19 @@ def _declared_override(left, right, offset: int) -> bool:
     return False
 
 
+def _declared_profile_override(left, right, offset: int) -> bool:
+    """Allow one documented shared runtime table across independent profiles."""
+    for owner, other in ((left, right), (right, left)):
+        for rule in owner.metadata.get("profile_overrides", []):
+            if rule.get("component") != other.id:
+                continue
+            start = int(rule["start"], 0) if isinstance(rule["start"], str) else int(rule["start"])
+            end = int(rule["end"], 0) if isinstance(rule["end"], str) else int(rule["end"])
+            if start <= offset < end:
+                return True
+    return False
+
+
 def audit_overlaps(components, patch_data: dict[str, bytes]) -> tuple[int, int]:
     """Reject differing writes unless metadata declares a mergeable DTE threshold."""
     maps = {component.id: patch_write_map(patch_data[component.id])[0] for component in components}
@@ -99,6 +107,9 @@ def audit_overlaps(components, patch_data: dict[str, bytes]) -> tuple[int, int]:
                     declared += 1
                     continue
                 if _is_profile_overlay(left, right):
+                    declared += 1
+                    continue
+                if _declared_profile_override(left, right, offset):
                     declared += 1
                     continue
                 if _mergeable_parser_fetch(left, right, offset):

@@ -16,6 +16,14 @@ class Component:
     metadata: dict[str, Any]
 
 
+def component_locale(component: Component) -> str | None:
+    """Return the locale encoded by a component ID, or ``None`` for default."""
+    prefix, separator, suffix = component.id.partition("_")
+    if not separator or not prefix or not suffix:
+        raise SystemExit(f"{component.id}: component IDs must use <locale>_<name> form")
+    return None if prefix == "default" else prefix
+
+
 def _as_offset(value: object, *, component_id: str, field: str) -> int:
     try:
         return int(value, 0) if isinstance(value, str) else int(value)
@@ -53,7 +61,20 @@ def _validate_manifest(folder: str, metadata: object, manifest: Path) -> dict[st
         if not isinstance(rule.get("reason"), str) or not rule["reason"]:
             raise SystemExit(f"{folder}: override rule needs a non-empty reason: {rule!r}")
 
-    for flag in ("dialogue_dte_router", "name_dte_router", "aggregate_enabled", "french"):
+    profile_overrides = metadata.get("profile_overrides", [])
+    if not isinstance(profile_overrides, list):
+        raise SystemExit(f"{folder}: profile_overrides must be a list")
+    for rule in profile_overrides:
+        if not isinstance(rule, dict) or not isinstance(rule.get("component"), str):
+            raise SystemExit(f"{folder}: malformed profile override rule: {rule!r}")
+        start = _as_offset(rule.get("start"), component_id=folder, field="profile override start")
+        end = _as_offset(rule.get("end"), component_id=folder, field="profile override end")
+        if not 0 <= start < end:
+            raise SystemExit(f"{folder}: profile override range must satisfy 0 <= start < end: {rule!r}")
+        if not isinstance(rule.get("reason"), str) or not rule["reason"]:
+            raise SystemExit(f"{folder}: profile override rule needs a non-empty reason: {rule!r}")
+
+    for flag in ("dialogue_dte_router", "name_dte_router", "aggregate_enabled"):
         if flag in metadata and not isinstance(metadata[flag], bool):
             raise SystemExit(f"{folder}: {flag} must be boolean")
     if "shared_charset_profile" in metadata and not isinstance(metadata["shared_charset_profile"], str):
@@ -119,6 +140,9 @@ def discover_components(root: Path) -> list[Component]:
                 raise SystemExit(
                     f"{component.id}: override of {overridden_id!r} must also declare it in requires"
                 )
+        for rule in component.metadata.get("profile_overrides", []):
+            if rule["component"] not in by_id:
+                raise SystemExit(f"{component.id}: profile override references unknown component {rule['component']!r}")
         patch_base = component.metadata.get("patch_base")
         if patch_base is not None:
             base_component = by_id.get(patch_base)

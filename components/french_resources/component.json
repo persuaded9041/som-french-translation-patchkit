@@ -4,6 +4,5 @@
   "name": "French resources",
   "shared_charset_profile": "dialogue_french",
   "dialogue_dte_router": true,
-  "french": true,
   "build_order": 100
 }

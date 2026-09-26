@@ -1,7 +1,8 @@
 # Compatibility audit
 
-All selected components are rebuilt from the same clean USA ROM before an
-aggregate build. Their IPS write maps are then compared byte-for-byte.
+Each component IPS is authored from the same clean USA ROM. Aggregate builds
+reuse stored standalone patches unless a component is explicitly rebuilt, then
+compare every selected IPS write map byte-for-byte.
 
 ## Shared French glyph writes
 
@@ -164,9 +165,10 @@ After checksum recomputation, applying `french_intro` and `vwf_intro` together r
 
 ## Intro skip compatibility / validated status
 
-`intro_skip` is now the runtime-validated 120-tick continuous-R hold skip for
-translated event `$0400`. It explicitly requires `french_intro` and `vwf_intro`,
-matching the configuration used during the proof ladder.
+`default_intro_skip` is the runtime-validated 120-tick continuous-R hold skip
+for translated event `$0400`. It requires `default_vwf_intro`; its own runtime
+gate limits activation to the translated normal-intro window, while
+`french_intro` remains the payload owner.
 
 The promoted implementation uses three hooks and no NMI interception:
 

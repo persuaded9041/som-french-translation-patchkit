@@ -2,8 +2,15 @@
   "id": "french_vwf_ui",
   "short_name": "french-vwf-ui",
   "name": "French VWF UI overlay",
-  "french": true,
   "patch_base": "default_vwf_ui",
   "requires": ["default_vwf_ui", "french_menus", "french_resources"],
+  "profile_overrides": [
+    {
+      "component": "default_vwf_dialogues",
+      "start": "0x2D7254",
+      "end": "0x2D7268",
+      "reason": "French UI metrics replace the shared VWF glyph table also emitted by default_vwf_dialogues."
+    }
+  ],
   "build_order": 105
 }

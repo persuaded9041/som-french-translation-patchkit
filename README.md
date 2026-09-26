@@ -9,16 +9,10 @@ Every component targets the same clean, unheadered USA ROM and can be
 rebuilt independently within the repository. `build.py` can rebuild only the components currently being worked
 on, stores their standalone IPS files under `patches/`, and can combine those
 reusable patches into `patches/all.ips` without rebuilding unchanged components.
-By default, `all.ips` is the USA-compatible aggregate; `--french` additionally
-produces the complete French aggregate `all-fr.ips`.
-
-## Active candidate — 2026-09-26
-
-The weapon/magic default help now has user-approved French wording in the
-sources. Runtime validation is pending. Promoted patches below remain unchanged;
-candidate patches and the local test ROM are under
-`build/candidates/skill-help-20260926/`. See
-`docs/SKILL_MENU_HELP_RESEARCH.md` for provenance, hashes and testing instructions.
+By default, `all.ips` is the USA-compatible aggregate. Locale aggregates are
+discovered from component prefixes: `french_*` is selected with
+`--locale french` and produces `all-fr.ips`. `--french` remains a compatibility
+alias for that command.
 
 ## Required base ROM
 
@@ -60,8 +54,14 @@ the repository's canonical root text/translation assets and any component-local
 non-text assets it owns. The aggregate builder
 never needs to rebuild an unchanged component when its stored IPS is available.
 
-The standalone `cheats` component is excluded from the normal aggregate. To
-build and include it explicitly, use:
+The standalone `cheats` component is excluded from the normal aggregate. Build
+its reusable IPS explicitly with:
+
+```bash
+python3 build.py "$ROM" --cheats
+```
+
+Add `--combine` to also create the cheat aggregate:
 
 ```bash
 python3 build.py "$ROM" --combine --cheats
@@ -71,12 +71,16 @@ This writes `patches/all-cheats.ips` and preserves `patches/all.ips` as the
 normal validated aggregate. Without `--cheats`, `--combine` writes the normal
 `all.ips` without the combat and movement test cheats.
 
-With `--french`, the same command also writes `all-fr.ips`; with both flags it
-also writes `all-fr-cheats.ips`:
+With `--locale french`, the same command also writes `all-fr.ips`; with both
+flags it also writes `all-fr-cheats.ips`:
 
 ```bash
-python3 build.py "$ROM" --combine --french --cheats
+python3 build.py "$ROM" --combine --locale french --cheats
 ```
+
+Future locale components follow the same convention. For example,
+`italian_*` components can be aggregated with `--locale italian`, producing
+`all-italian.ips`, without changing the builder.
 
 ## Clean-ROM extraction cache
 
@@ -135,13 +139,12 @@ The current build promotes the runtime-validated weapon/magic skill-row name VWF
 
 The promoted VWF performance baseline is Stage 3A for the generic Ring/UI path and Magic Stage 2 for the lower magic panel. The Ring uses true decoded counts plus the validated shared fast path and bounded post-outline repair. The magic panel rasterizes/converts each 480px sentence once and reuses the packed right half on the paired stock pass while retaining all six stock DMA submissions. See `docs/VWF_PERFORMANCE_RESEARCH.md` and `docs/MAGIC_PANEL_PERFORMANCE_RESEARCH.md`.
 
-- `patches/all.ips`: `8153dc0fb1f5c06f74b3daaae2fbf0e1c39fd0f48b271dd04097c6b975684e86`
+- `patches/all.ips`: `c8e495be11352aaf0f26d9caabab8b905e88d9727e71a2a3c244990ee3810430`
 - `patches/french_gfx.ips`: `5753358d9603e6422a8ce03223e362900671e403fe83b9f57988400e3f1ffdd2`
-- `patches/french_menus.ips`: `8148c43b42ed8d0cf88edf367d48b27f7407e161b9246d0f32bd4c7aff353c36`
-- `patches/default_vwf_ui.ips`: `f8152b53963d1c29c45c28533c8475cb348fb560228de896dd4659667b9a6c3f`
-- `patches/default_vwf_dialogues.ips`: `a78baba621265992d737bcf049b85effc34a01955a22e896b2120debef183ce4`
-- `patches/french_resources.ips`: `692f42a3508b9bf9091b3600193f6051cc272f2eac8963e708554e639fa056ff`
-- Rebuilt ROM SHA-256: `87e278de2112c2c12265f16f790c3a4f0ea14fe61651b6b2e5d8b4f3d926fbb4`; SNES checksum `$7E11`. The ROM itself is not distributed.
+- `patches/french_menus.ips`: `c2958f205a8c47320ce912713049fdf6351da9f6cc86f0967ba48d52829c771f`
+- `patches/default_vwf_ui.ips`: `19e268c8ded2cd32c9edb99a5d0ebab3d8a188f46aa9665ba95712f5193162dc`
+- `patches/default_vwf_dialogues.ips`: `4af04bbc3500fca817b75365e71c221725a932ec6335db5fbe644b356f7b37c8`
+- `patches/french_resources.ips`: `eccb9ac77b8092e5502b937778fe127e409ab35907d1282ccd0059b16dd7ab72`
 
 No `french_shop_text.ips` is generated. The validated MONEY frame remains 11 cells wide and its independent type-2 close seed remains `$C7:7140=$09`. See `docs/HANDOFF.md` for the active handoff.
 
@@ -180,15 +183,24 @@ Rebuild only the components currently being modified:
 python3 build.py "Secret of Mana (USA).sfc" french-intro vwf-intro
 ```
 
-The same command accepts component IDs instead of short names. To rebuild every
-**aggregate-enabled** component patch:
+The same command accepts component IDs instead of short names. With no component
+argument, the default build produces only the USA-compatible `default_*` IPS:
 
 ```bash
-python3 build.py "Secret of Mana (USA).sfc" all
+python3 build.py "Secret of Mana (USA).sfc"
 ```
 
-Once all aggregate-enabled component IPS files exist, combine the stored patches without
-rebuilding any component:
+Add a locale to build its IPS files alongside the default ones:
+
+```bash
+python3 build.py "Secret of Mana (USA).sfc" --locale french
+```
+
+`all` remains available for a deliberate rebuild of every aggregate-enabled
+component, regardless of locale.
+
+Combine the stored patches into `all.ips`. Missing default IPS files are rebuilt
+automatically; existing ones are reused:
 
 ```bash
 python3 build.py "Secret of Mana (USA).sfc" --combine

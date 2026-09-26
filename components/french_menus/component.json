@@ -3,6 +3,5 @@
   "short_name": "french-menus",
   "name": "French native menus (GAME SELECT / GAME FILE / Window / Action / Status)",
   "shared_charset_profile": "full_french",
-  "french": true,
   "build_order": 30
 }

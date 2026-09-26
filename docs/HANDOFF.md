@@ -19,7 +19,7 @@ dans les documents de recherche dédiés.
 Baseline agrégée actuelle :
 
 - `patches/all.ips`
-- SHA-256 : `7fe9ee9e9d96e6beb272cc492e9bfb510392b39957f27eb3b0e5492669facf34`
+- SHA-256 : `c8e495be11352aaf0f26d9caabab8b905e88d9727e71a2a3c244990ee3810430`
 
 ## État global
 
@@ -162,8 +162,15 @@ Le dépôt de reprise ne contient pas de ROM.
 Avec une ROM USA propre non headerée :
 
 ```bash
-python3 build.py "Secret of Mana (USA).sfc" all
+python3 build.py "Secret of Mana (USA).sfc"
 python3 build.py "Secret of Mana (USA).sfc" --combine
+```
+
+The French aggregate is generated with `--locale french` (the legacy
+`--french` alias remains supported):
+
+```bash
+python3 build.py "Secret of Mana (USA).sfc" --combine --locale french
 ```
 
 Ou :

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build reusable component IPS files and combine USA/French aggregates."""
+"""Build reusable component IPS files and optional default/locale aggregates."""
 from __future__ import annotations
 
 import argparse
@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 from shared.build.compatibility import apply_merge_rules, audit_overlaps
-from shared.build.components import discover_components
+from shared.build.components import component_locale, discover_components
 from shared.core.ips import apply_ips, make_ips
 from shared.core.rom import update_checksum, validate_base_rom
 from shared.extracted import materialize_all_assets
@@ -28,7 +28,7 @@ def us_aggregate_components(components):
     selected = {
         component.id: component
         for component in aggregate_components(components)
-        if not component.metadata.get("french", False)
+        if component_locale(component) is None
     }
     changed = True
     while changed:
@@ -40,13 +40,16 @@ def us_aggregate_components(components):
     return [component for component in components if component.id in selected]
 
 
-def french_aggregate_components(components):
-    """Return aggregate-enabled or explicitly French components."""
+def locale_aggregate_components(components, locale: str):
+    """Return the default aggregate plus components for one named locale."""
     return [
         component
         for component in components
-        if component.metadata.get("aggregate_enabled", True)
-        or component.metadata.get("french", False)
+        if (
+            component_locale(component) is None
+            and component.metadata.get("aggregate_enabled", True)
+        )
+        or component_locale(component) == locale
     ]
 
 
@@ -122,15 +125,15 @@ def main() -> None:
     components = discover_components(ROOT)
     parser = argparse.ArgumentParser(
         description=(
-            "Rebuild reusable standalone component IPS files and optionally combine the stored "
-            "USA-compatible component patches into all.ips, with optional French aggregates."
+            "Build default component IPS files, optionally add locale/cheat IPS files, "
+            "and combine stored patches into aggregate IPS files."
         )
     )
     parser.add_argument("rom", nargs="?", type=Path, help="clean unheadered Secret of Mana (USA) ROM")
     parser.add_argument(
         "components",
         nargs="*",
-        help="component short names/IDs to rebuild; default: all aggregate-enabled components (unless --combine is used alone)",
+        help="component short names/IDs to rebuild; default: USA-compatible default components",
     )
     parser.add_argument(
         "--patch-dir",
@@ -141,7 +144,7 @@ def main() -> None:
     parser.add_argument(
         "--combine",
         action="store_true",
-        help="after rebuilding the requested components, combine all stored component IPS files into all.ips",
+        help="also create all.ips, plus one all-<locale>.ips per --locale",
     )
     parser.add_argument(
         "-o",
@@ -153,12 +156,18 @@ def main() -> None:
     parser.add_argument(
         "--cheats",
         action="store_true",
-        help="also create all-cheats.ips from the USA-compatible aggregate",
+        help="also build default_cheats.ips; with --combine create cheat aggregates",
     )
     parser.add_argument(
         "--french",
         action="store_true",
-        help="also create all-fr.ips, and all-fr-cheats.ips when combined with --cheats",
+        help="legacy alias for --locale french (writes all-fr.ips)",
+    )
+    parser.add_argument(
+        "--locale",
+        action="append",
+        metavar="LANGUAGE",
+        help="also build <language>_* IPS files; with --combine create all-<language>.ips; repeatable",
     )
     parser.add_argument("--list", action="store_true", help="list discovered components and exit")
     args = parser.parse_args()
@@ -166,8 +175,8 @@ def main() -> None:
     if args.list:
         for component in components:
             status = "" if component.metadata.get("aggregate_enabled", True) else " [standalone-only]"
-            if component.metadata.get("french", False):
-                status += " [French]"
+            if locale := component_locale(component):
+                status += f" [{locale}]"
             print(f"{component.short_name:20} {component.id:26} {component.name}{status}")
         return
     if args.rom is None:
@@ -176,27 +185,41 @@ def main() -> None:
         parser.error("--output is only meaningful together with --combine")
     if args.patched_rom and not args.combine:
         parser.error("--patched-rom requires --combine")
-    if args.cheats and not args.combine:
-        parser.error("--cheats requires --combine")
-    if args.french and not args.combine:
-        parser.error("--french requires --combine")
-
     args.rom = args.rom.resolve()
     patch_dir = args.patch_dir.resolve()
     base = args.rom.read_bytes()
     validate_base_rom(base)
 
-    # `--combine` with no component arguments is intentionally combine-only:
-    # it reuses every standalone IPS already stored in patch_dir without rebuilding anything.
-    selected = [] if args.combine and not args.components else resolve_selection(args.components, components)
+    # With no explicit components, normal builds produce only the reusable
+    # USA-compatible default patches. Combine builds reuse stored patches but
+    # reconstruct any missing default prerequisite before producing all.ips.
+    selected = (
+        resolve_selection(args.components, components)
+        if args.components
+        else ([] if args.combine else us_aggregate_components(components))
+    )
+    locales = list(dict.fromkeys([*(args.locale or []), *( ["french"] if args.french else [])]))
+    known_locales = {locale for component in components if (locale := component_locale(component))}
+    unknown_locales = sorted(set(locales) - known_locales)
+    if unknown_locales:
+        raise SystemExit(f"Unknown locale component prefix(es): {', '.join(unknown_locales)}")
+    for locale in locales:
+        for locale_component in locale_aggregate_components(components, locale):
+            if locale_component not in selected:
+                selected.append(locale_component)
     if args.cheats:
         cheats_component = next(component for component in components if component.id == "default_cheats")
         if cheats_component not in selected:
             selected.append(cheats_component)
-    if args.french:
-        for french_component in french_aggregate_components(components):
-            if french_component not in selected:
-                selected.append(french_component)
+    if args.combine:
+        for component in us_aggregate_components(components):
+            if not component_patch_path(patch_dir, component).is_file() and component not in selected:
+                selected.append(component)
+
+    # Builders run in manifest build order even when missing patches were
+    # appended after explicit components or locale selections.
+    selected_ids = {component.id for component in selected}
+    selected = [component for component in components if component.id in selected_ids]
 
     if selected:
         # A full rebuild warms the complete deterministic root extraction cache
@@ -266,39 +289,40 @@ def main() -> None:
         print(f"Final checksum: ${cheat_checksum:04X}")
         print(f"IPS: {cheat_output}")
 
-    if args.french:
-        french_components = french_aggregate_components(components)
-        french_patch_data = load_component_patches(french_components, patch_dir)
-        french_patch, french_rom, french_checksum, french_identical, french_declared = combine_patches(
-            base, french_components, french_patch_data
+    for locale in locales:
+        locale_components = locale_aggregate_components(components, locale)
+        locale_patch_data = load_component_patches(locale_components, patch_dir)
+        locale_patch, locale_rom, locale_checksum, locale_identical, locale_declared = combine_patches(
+            base, locale_components, locale_patch_data
         )
-        french_output = patch_dir / "all-fr.ips"
-        french_output.write_bytes(french_patch)
-        print("\nCombined French components:")
-        for component in french_components:
+        output_suffix = "fr" if locale == "french" else locale
+        locale_output = patch_dir / f"all-{output_suffix}.ips"
+        locale_output.write_bytes(locale_patch)
+        print(f"\nCombined {locale} components:")
+        for component in locale_components:
             print(f"  - {component.id}")
-        print(f"Compatible identical overlapping bytes: {french_identical}")
-        print(f"Declared special/header overlapping bytes: {french_declared}")
-        print(f"Final ROM size: 0x{len(french_rom):X}")
-        print(f"Final checksum: ${french_checksum:04X}")
-        print(f"IPS: {french_output}")
+        print(f"Compatible identical overlapping bytes: {locale_identical}")
+        print(f"Declared special/header overlapping bytes: {locale_declared}")
+        print(f"Final ROM size: 0x{len(locale_rom):X}")
+        print(f"Final checksum: ${locale_checksum:04X}")
+        print(f"IPS: {locale_output}")
 
         if args.cheats:
-            french_cheat_components = [*french_components, cheats_component]
-            french_cheat_data = load_component_patches(french_cheat_components, patch_dir)
-            french_cheat_patch, french_cheat_rom, french_cheat_checksum, french_cheat_identical, french_cheat_declared = combine_patches(
-                base, french_cheat_components, french_cheat_data
+            locale_cheat_components = [*locale_components, cheats_component]
+            locale_cheat_data = load_component_patches(locale_cheat_components, patch_dir)
+            locale_cheat_patch, locale_cheat_rom, locale_cheat_checksum, locale_cheat_identical, locale_cheat_declared = combine_patches(
+                base, locale_cheat_components, locale_cheat_data
             )
-            french_cheat_output = patch_dir / "all-fr-cheats.ips"
-            french_cheat_output.write_bytes(french_cheat_patch)
-            print("\nCombined French components with cheats:")
-            for component in french_cheat_components:
+            locale_cheat_output = patch_dir / f"all-{output_suffix}-cheats.ips"
+            locale_cheat_output.write_bytes(locale_cheat_patch)
+            print(f"\nCombined {locale} components with cheats:")
+            for component in locale_cheat_components:
                 print(f"  - {component.id}")
-            print(f"Compatible identical overlapping bytes: {french_cheat_identical}")
-            print(f"Declared special/header overlapping bytes: {french_cheat_declared}")
-            print(f"Final ROM size: 0x{len(french_cheat_rom):X}")
-            print(f"Final checksum: ${french_cheat_checksum:04X}")
-            print(f"IPS: {french_cheat_output}")
+            print(f"Compatible identical overlapping bytes: {locale_cheat_identical}")
+            print(f"Declared special/header overlapping bytes: {locale_cheat_declared}")
+            print(f"Final ROM size: 0x{len(locale_cheat_rom):X}")
+            print(f"Final checksum: ${locale_cheat_checksum:04X}")
+            print(f"IPS: {locale_cheat_output}")
 
 
 if __name__ == "__main__":

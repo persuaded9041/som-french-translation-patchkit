@@ -3,6 +3,5 @@
   "short_name": "french-intro",
   "name": "French new-game intro payload",
   "shared_charset_profile": "full_french",
-  "french": true,
   "build_order": 45
 }

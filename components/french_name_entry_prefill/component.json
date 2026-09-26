@@ -2,7 +2,6 @@
   "id": "french_name_entry_prefill",
   "short_name": "name-prefill-fr",
   "name": "French editable default player-name prefill",
-  "french": true,
   "build_order": 27,
   "requires": [
     "default_name_entry_prefill",

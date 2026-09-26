@@ -85,8 +85,10 @@ intacts. Aucun code 65816 ni état WRAM supplémentaire n'est introduit.
 
 ## Résultats statiques et fichiers
 
-Les patches promus sous patches/ sont conservés. Les sources construisent le
-candidat, disponible sous build/candidates/skill-help-20260926/patches/ :
+Les hashes ci-dessous documentent le candidat historique de 2026-09-26. Ses
+artefacts ne sont pas inclus dans cette archive et ne doivent pas être traités
+comme des patches promus ; l'état actuellement promu est consigné dans
+`docs/HANDOFF.md` :
 
 - french_menus.ips : b2d2c9f4a7fb27b5b63a1b09568fe5c664f489aada5324b695e201310e919a51
 - all.ips : e4b89be1aaf67c53bb815fae09ca030dc201b94a0185816e788399a9cff3ed99

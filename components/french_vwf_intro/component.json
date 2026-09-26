@@ -2,7 +2,6 @@
   "id": "french_vwf_intro",
   "short_name": "french-vwf-intro",
   "name": "French VWF intro overlay",
-  "french": true,
   "patch_base": "default_vwf_intro",
   "requires": ["default_vwf_intro", "french_intro"],
   "build_order": 55

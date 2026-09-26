@@ -2,9 +2,16 @@
   "id": "french_vwf_dialogues",
   "short_name": "french-vwf-dialogues",
   "name": "French VWF dialogue overlay",
-  "french": true,
   "dialogue_dte_router": true,
   "patch_base": "default_vwf_dialogues",
   "requires": ["default_vwf_dialogues", "french_dialogues"],
+  "profile_overrides": [
+    {
+      "component": "default_vwf_ui",
+      "start": "0x2D7254",
+      "end": "0x2D7268",
+      "reason": "French dialogue metrics replace the shared VWF glyph table; french_vwf_ui restores the same French values after default_vwf_ui."
+    }
+  ],
   "build_order": 85
 }
