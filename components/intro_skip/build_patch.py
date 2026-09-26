@@ -11,7 +11,7 @@ PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from shared.core.asm import MiniAssembler, lo24  # noqa: E402
-from shared.core.ips import make_ips  # noqa: E402
+from shared.core.ips import apply_ips, make_ips  # noqa: E402
 from shared.core.rom import ROM_SIZE_OFFSET, expand_rom, update_checksum, validate_base_rom  # noqa: E402
 
 # Runtime-validated final UX: R must remain held for 120 normal-loop ticks.
@@ -324,6 +324,8 @@ def main() -> None:
 
     update_checksum(rom)
     patch = make_ips(base, bytes(rom))
+    if apply_ips(bytearray(base), patch) != rom:
+        raise AssertionError("IPS self-application failed")
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(patch)
 

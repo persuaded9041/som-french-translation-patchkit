@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Build the Japanese Mana Tree restoration patch for Secret of Mana (USA).
+"""Build the Japanese Mana Tree restoration patch for Secret of Mana (USA).
 
 This patch is intentionally separate from any opening-translation patch.
 
@@ -9,37 +8,54 @@ resource to $EF:C000, installs the resource-loader helper at
 $EF:F800, and redirects one existing JML instruction to that helper.
 """
 
-from pathlib import Path
-import hashlib
-import sys
+from __future__ import annotations
+
 import argparse
+import hashlib
+from pathlib import Path
+import sys
 
 EXPECTED_TREE_SHA256 = "9e1baa9cdca30db9bb0cf4ae57a7705b0970ce95dd1ab15090bfe64a6e3ff810"
 
 ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
-from shared.core.rom import validate_base_rom, update_checksum, expand_rom, ROM_SIZE_OFFSET  # noqa: E402
-from shared.core.ips import make_ips  # noqa: E402
+from shared.core.ips import apply_ips, make_ips  # noqa: E402
+from shared.core.rom import (  # noqa: E402
+    EXPANDED_SIZE,
+    ROM_SIZE_OFFSET,
+    expand_rom,
+    update_checksum,
+    validate_base_rom,
+)
 
 TREE_DEST_ROM = 0x2FC000
 TREE_SIZE = 0x3600
+TREE_END_ROM = TREE_DEST_ROM + TREE_SIZE
 
 ROUTINE_ROM = 0x2FF800
+ROUTINE_SIZE = 0xA0
 ROUTINE = bytes.fromhex(
     "08c23048afac967ec9a9d2f00668285c0baf7eda5a0b8be220a97e48aba9ef8dad968dc596c220a900c08daa968dc196e220a90d8d53a08d8abea9408df9bea9808d86be8dc7bea9f48d2398a9f78d1398a93f8d0cd3a9f88d5fd3a9088d94d3c220a97bf88d9bade220a9ef8d9dadc230ab2b7afa68285c0baf7e221400c1488baf2e657ec96060f003ab686bda5aa0a664a20665a9bf01547e7e7afaab686b"
 )
+ROUTINE_END_ROM = ROUTINE_ROM + ROUTINE_SIZE
 
 HOOK_ROM = 0x14CF6
 HOOK_ORIGINAL = bytes.fromhex("5c 0b af 7e")
 HOOK_PATCHED = bytes.fromhex("5c 00 f8 ef")
+EXPANDED_ROM_SIZE_CODE = 0x0C
 
 
-def build(us_rom_path: Path, tree_path: Path, output_path: Path, patched_rom: Path | None = None):
+def build(
+    us_rom_path: Path,
+    tree_path: Path,
+    output_path: Path,
+    patched_rom: Path | None = None,
+) -> None:
     original = bytearray(us_rom_path.read_bytes())
-    tree = tree_path.read_bytes()
-
     validate_base_rom(original)
+
+    tree = tree_path.read_bytes()
 
     if len(tree) != TREE_SIZE:
         raise SystemExit(
@@ -49,26 +65,40 @@ def build(us_rom_path: Path, tree_path: Path, output_path: Path, patched_rom: Pa
     if hashlib.sha256(tree).hexdigest() != EXPECTED_TREE_SHA256:
         raise SystemExit("mana_tree_jp.bin SHA-256 does not match the expected resource")
 
-    if original[HOOK_ROM:HOOK_ROM+4] != HOOK_ORIGINAL:
+    if len(ROUTINE) != ROUTINE_SIZE:
+        raise AssertionError(
+            f"Mana Tree helper size changed: {len(ROUTINE)} != {ROUTINE_SIZE}"
+        )
+
+    actual_hook = original[HOOK_ROM:HOOK_ROM + len(HOOK_ORIGINAL)]
+    if actual_hook != HOOK_ORIGINAL:
         raise SystemExit(
-            "Unexpected resource-loader hook bytes in the source ROM"
+            "Unexpected resource-loader hook bytes in the source ROM: "
+            f"expected {HOOK_ORIGINAL.hex(' ')}, got {actual_hook.hex(' ')}"
         )
 
     rom = expand_rom(original)
+    if len(rom) != EXPANDED_SIZE:
+        raise AssertionError(f"Expanded ROM size changed: {len(rom)} != {EXPANDED_SIZE}")
+    if TREE_END_ROM > len(rom) or ROUTINE_END_ROM > len(rom):
+        raise AssertionError("Mana Tree allocation exceeds the expanded ROM")
 
-    rom[ROM_SIZE_OFFSET] = 0x0C
+    rom[ROM_SIZE_OFFSET] = EXPANDED_ROM_SIZE_CODE
 
-    rom[TREE_DEST_ROM:TREE_DEST_ROM+TREE_SIZE] = tree
+    rom[TREE_DEST_ROM:TREE_END_ROM] = tree
 
     # The validated resource already contains its required trailing $FF bytes.
-    rom[ROUTINE_ROM:ROUTINE_ROM+len(ROUTINE)] = ROUTINE
+    rom[ROUTINE_ROM:ROUTINE_END_ROM] = ROUTINE
 
-    rom[HOOK_ROM:HOOK_ROM+4] = HOOK_PATCHED
+    rom[HOOK_ROM:HOOK_ROM + len(HOOK_PATCHED)] = HOOK_PATCHED
 
     update_checksum(rom)
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)
     patch = make_ips(original, rom)
+    if apply_ips(original, patch) != bytes(rom):
+        raise AssertionError("IPS self-application failed")
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_bytes(patch)
     if patched_rom:
         patched_rom.parent.mkdir(parents=True, exist_ok=True)
@@ -77,7 +107,7 @@ def build(us_rom_path: Path, tree_path: Path, output_path: Path, patched_rom: Pa
     print(f"IPS: {output_path}")
 
 
-def main():
+def main() -> None:
     root = ROOT
     parser = argparse.ArgumentParser(description="Build the standalone Japanese Mana Tree restoration patch.")
     parser.add_argument("rom", type=Path, help="clean unheadered Secret of Mana (USA) ROM")

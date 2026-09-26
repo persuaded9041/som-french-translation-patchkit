@@ -35,12 +35,12 @@ from shared.text.interface import (  # noqa: E402
     load_document as load_interface_text,
     verify_against_rom as verify_interface_text,
 )
-from shared.core.ips import make_ips  # noqa: E402
+from shared.core.ips import apply_ips, make_ips  # noqa: E402
 from shared.name_entry.dte import (  # noqa: E402
     install as install_name_dte_router,
     validate_stock as validate_name_dte_stock,
 )
-from shared.core.rom import expand_rom, update_checksum, validate_base_rom  # noqa: E402
+from shared.core.rom import EXPANDED_SIZE, expand_rom, update_checksum, validate_base_rom  # noqa: E402
 from shared.text.translation_json import load_translation, require  # noqa: E402
 from shared.extracted.assets import load_or_extract_interface  # noqa: E402
 
@@ -67,6 +67,8 @@ RESOURCE_BASE = 0x244000
 ROW_SIZE = 60
 EXTENSION_ROW_OFFSET = ROW_SIZE * 3
 RESOURCE_LIMIT = 0x200
+RESOURCE_END = RESOURCE_BASE + RESOURCE_LIMIT
+LAYOUT_START = 0x074E00
 
 
 
@@ -153,11 +155,20 @@ def build_overlay(base: bytes) -> bytes:
     # IPS generation omits trailing zero bytes that already match clean expanded
     # ROM. The current localized row/help payload itself extends beyond the
     # generic resource payload, so no stale generic help survives composition.
-    return payload + bytes(RESOURCE_LIMIT - EXTENSION_ROW_OFFSET - len(payload))
+    overlay = payload + bytes(RESOURCE_LIMIT - EXTENSION_ROW_OFFSET - len(payload))
+    if len(overlay) != RESOURCE_LIMIT - EXTENSION_ROW_OFFSET:
+        raise AssertionError("French Name Entry overlay size mismatch")
+    return overlay
 
 
 def apply(base: bytes, overlay: bytes) -> bytearray:
     rom = expand_rom(base)
+    if len(rom) != EXPANDED_SIZE:
+        raise AssertionError(f"Expanded ROM size changed: {len(rom)} != {EXPANDED_SIZE}")
+    if len(overlay) != RESOURCE_LIMIT - EXTENSION_ROW_OFFSET:
+        raise AssertionError("French Name Entry overlay does not fill its reserved tail")
+    if RESOURCE_BASE + EXTENSION_ROW_OFFSET + len(overlay) != RESOURCE_END:
+        raise AssertionError("French Name Entry overlay exceeds the reserved resource window")
 
     # Convert the generic three-row Name Entry into the historical validated
     # four-row geometry/navigation used by the French extension.  The IPS is
@@ -177,11 +188,10 @@ def apply(base: bytes, overlay: bytes) -> bytearray:
         raise SystemExit("Unexpected clean-USA initial Name Entry selector at C7:5019")
     rom[0x075019] = 0x50
 
-    layout_start = 0x074E00
-    actual_layout = base[layout_start:layout_start + len(FOUR_ROW_LAYOUT_SCRIPT)]
+    actual_layout = base[LAYOUT_START:LAYOUT_START + len(FOUR_ROW_LAYOUT_SCRIPT)]
     if actual_layout != bytes((0xFF,)) * len(FOUR_ROW_LAYOUT_SCRIPT):
         raise SystemExit("Unexpected clean-USA bytes at C7:4E00 for French four-row layout")
-    rom[layout_start:layout_start + len(FOUR_ROW_LAYOUT_SCRIPT)] = FOUR_ROW_LAYOUT_SCRIPT
+    rom[LAYOUT_START:LAYOUT_START + len(FOUR_ROW_LAYOUT_SCRIPT)] = FOUR_ROW_LAYOUT_SCRIPT
 
     accent_glyphs = glyph_bytes(BASIC_FRENCH_CHARS)
     rom[ACCENT_FONT_OFFSET:ACCENT_FONT_OFFSET + len(accent_glyphs)] = accent_glyphs
@@ -211,6 +221,8 @@ def main() -> None:
     overlay = build_overlay(base)
     patched = apply(base, overlay)
     ips = make_ips(base, patched)
+    if apply_ips(bytearray(base), ips) != patched:
+        raise AssertionError("IPS self-application failed")
 
     output = args.output if args.output.is_absolute() else ROOT / args.output
     output.parent.mkdir(parents=True, exist_ok=True)

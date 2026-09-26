@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from shared.core.ips import make_ips  # noqa: E402
+from shared.core.ips import apply_ips, make_ips  # noqa: E402
 from shared.core.rom import update_checksum, validate_base_rom  # noqa: E402
 
 BUTTON_GFX_ROM = 0x12D8F0       # SNES $D2:D8F0
@@ -133,8 +133,12 @@ def build(
     rom[USA_PALETTE_OVERRIDE_ROM:USA_PALETTE_OVERRIDE_ROM + 3] = SKIP_PALETTE_OVERRIDE
     update_checksum(rom)
 
+    patch = make_ips(original, rom)
+    if apply_ips(original, patch) != rom:
+        raise AssertionError("IPS self-application failed")
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_bytes(make_ips(original, rom))
+    output_path.write_bytes(patch)
     if patched_rom:
         patched_rom.parent.mkdir(parents=True, exist_ok=True)
         patched_rom.write_bytes(rom)

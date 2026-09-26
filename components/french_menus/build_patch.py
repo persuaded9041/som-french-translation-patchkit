@@ -400,8 +400,8 @@ ASCII_TO_SOM = {" ": 0x80}
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 from shared.charset import FULL_FRENCH_CHARS, glyph_bytes, profile_mapping, profile_threshold
-from shared.core.rom import validate_base_rom, update_checksum, expand_rom, ROM_SIZE_OFFSET
-from shared.core.ips import make_ips
+from shared.core.rom import EXPANDED_SIZE, ROM_SIZE_OFFSET, expand_rom, update_checksum, validate_base_rom
+from shared.core.ips import apply_ips, make_ips
 from shared.text.interface import (
     load_document as load_interface_text,
     verify_against_rom as verify_interface_text,
@@ -1568,6 +1568,8 @@ def apply_skill_help(base: bytes, rom: bytearray, rows: dict[str, str]) -> None:
 
 def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, str], window_rows: dict[str, str], window_help_rows: dict[str, str], action_rows: dict[str, str], action_help_rows: dict[str, str], controller_rows: dict[str, str], controller_help_rows: dict[str, str], skill_menu_rows: dict[str, str], status_rows: dict[str, object]) -> tuple[bytearray, int]:
     rom = expand_rom(base)
+    if len(rom) != EXPANDED_SIZE:
+        raise AssertionError(f"Expanded ROM size changed: {len(rom)} != {EXPANDED_SIZE}")
 
     # Turn $D4-$E5 into normal character codes for the stock text
     # decoder, while keeping $E6-$FF on the original DTE path.
@@ -1651,6 +1653,8 @@ def main() -> None:
     rows, game_file_rows, window_rows, window_help_rows, action_rows, action_help_rows, controller_rows, controller_help_rows, skill_menu_rows, status_rows = load_french_rows(base)
     patched, checksum = apply_sources(base, rows, game_file_rows, window_rows, window_help_rows, action_rows, action_help_rows, controller_rows, controller_help_rows, skill_menu_rows, status_rows)
     patch = make_ips(base, bytes(patched))
+    if apply_ips(bytearray(base), patch) != patched:
+        raise AssertionError("IPS self-application failed")
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(patch)

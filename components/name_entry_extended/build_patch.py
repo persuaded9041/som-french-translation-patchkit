@@ -19,13 +19,13 @@ ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from shared.core.ips import make_ips  # noqa: E402
+from shared.core.ips import apply_ips, make_ips  # noqa: E402
 from shared.text.interface import (  # noqa: E402
     NAME_HELP_GROUP,
     group_entries,
     extract_document as extract_interface_text,
 )
-from shared.core.rom import expand_rom, update_checksum, validate_base_rom  # noqa: E402
+from shared.core.rom import EXPANDED_SIZE, expand_rom, update_checksum, validate_base_rom  # noqa: E402
 
 NAMED_CHARACTER_TOKENS = {
     "<QUOTE_OPEN>": 0xC3,
@@ -50,6 +50,10 @@ ASCII_TO_SOM.update({
 ROW_SIZE = 60
 HELP_OFFSET = ROW_SIZE * 3
 MAX_RESOURCE_SIZE = 0x200
+RESOURCE_OFFSET = 0x244000
+RESOURCE_WINDOW_END = RESOURCE_OFFSET + MAX_RESOURCE_SIZE
+EXPANDED_HEADER_OFFSET = 0x00FFD7
+EXPANDED_HEADER = bytes.fromhex("0C0301C300")
 
 
 def parse_sections(path: Path) -> dict[str, str]:
@@ -172,7 +176,22 @@ def build_naming_resource(base: bytes) -> bytes:
 
 def apply_source_edits(base: bytes, resource: bytes) -> bytearray:
     rom = expand_rom(base)
+    if len(rom) != EXPANDED_SIZE:
+        raise AssertionError(f"Expanded ROM size changed: {len(rom)} != {EXPANDED_SIZE}")
+    if RESOURCE_OFFSET + len(resource) > RESOURCE_WINDOW_END:
+        raise SystemExit(
+            f"Naming resource exceeds reserved E4:4000-E4:41FF window: "
+            f"{len(resource)} > {MAX_RESOURCE_SIZE}"
+        )
+
     for edit in STATIC_EDITS:
+        if len(edit.expected) != len(edit.payload):
+            raise AssertionError(
+                f"Static edit changes size at {edit.offset:#08x}: "
+                f"{len(edit.expected)} -> {len(edit.payload)}"
+            )
+        if not 0 <= edit.offset <= edit.offset + len(edit.payload) <= len(rom):
+            raise AssertionError(f"Static edit exceeds ROM at {edit.offset:#08x}")
         actual = base[edit.offset:edit.offset + len(edit.expected)]
         if actual != edit.expected:
             raise SystemExit(
@@ -182,8 +201,8 @@ def apply_source_edits(base: bytes, resource: bytes) -> bytearray:
         rom[edit.offset:edit.offset + len(edit.payload)] = edit.payload
 
     # Expanded-ROM metadata and generated generic Name Entry resource.
-    rom[0x00FFD7:0x00FFDC] = bytes.fromhex("0C0301C300")
-    rom[0x244000:0x244000 + len(resource)] = resource
+    rom[EXPANDED_HEADER_OFFSET:EXPANDED_HEADER_OFFSET + len(EXPANDED_HEADER)] = EXPANDED_HEADER
+    rom[RESOURCE_OFFSET:RESOURCE_OFFSET + len(resource)] = resource
     update_checksum(rom)
     return rom
 
@@ -200,6 +219,8 @@ def main() -> None:
     resource = build_naming_resource(base)
     patched = apply_source_edits(base, resource)
     ips = make_ips(base, patched)
+    if apply_ips(bytearray(base), ips) != patched:
+        raise AssertionError("IPS self-application failed")
 
     output = args.output if args.output.is_absolute() else ROOT / args.output
     output.parent.mkdir(parents=True, exist_ok=True)

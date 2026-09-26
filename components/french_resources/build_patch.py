@@ -12,7 +12,7 @@ PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from shared.core.asm import lo16
-from shared.core.ips import make_ips
+from shared.core.ips import apply_ips, make_ips
 from shared.core.rom import ROM_SIZE_OFFSET, expand_rom, update_checksum, validate_base_rom
 from shared.text.resource_translation import normalize_for_snes, normalize_weapon_description_for_snes
 from shared.text.stock import decode_text_bytes, encode_text, encode_text_with_stock_dte
@@ -696,6 +696,8 @@ def main() -> None:
     rom[ROM_SIZE_OFFSET] = 0x0C
     update_checksum(rom)
     patch = make_ips(base, bytes(rom))
+    if apply_ips(bytearray(base), patch) != rom:
+        raise AssertionError("IPS self-application failed")
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(patch)
 

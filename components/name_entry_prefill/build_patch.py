@@ -12,7 +12,7 @@ PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from shared.core.asm import MiniAssembler, lo24  # noqa: E402
-from shared.core.ips import make_ips  # noqa: E402
+from shared.core.ips import apply_ips, make_ips  # noqa: E402
 from shared.core.rom import update_checksum, validate_base_rom  # noqa: E402
 
 HOOK_OFFSET = 0x075039
@@ -25,6 +25,7 @@ DATA_OFFSET = 0x0746D0
 RECORD_SIZE = 8
 ROLE_ORDER = ("boy", "girl", "sprite")
 MAX_PREFILL_NAME = RECORD_SIZE - 1
+PREFILL_SIZE = RECORD_SIZE * len(ROLE_ORDER)
 
 # See src/prefill.asm. The builder emits the helper structurally so the
 # readable instruction sequence and the generated machine code cannot drift.
@@ -157,6 +158,12 @@ def build_records(defaults: dict[str, str]) -> bytes:
 
 
 def verify_stock_space(base: bytes, helper: bytes) -> None:
+    if len(HOOK_EXPECTED) != len(HOOK_PAYLOAD):
+        raise AssertionError(
+            f"Name Entry prefill hook changes size: {len(HOOK_EXPECTED)} -> {len(HOOK_PAYLOAD)}"
+        )
+    if HELPER_OFFSET + len(helper) != HELPER_LIMIT:
+        raise AssertionError("Name Entry prefill helper no longer fills its reserved range")
     hook = base[HOOK_OFFSET:HOOK_OFFSET + len(HOOK_EXPECTED)]
     if hook != HOOK_EXPECTED:
         raise SystemExit(
@@ -164,7 +171,7 @@ def verify_stock_space(base: bytes, helper: bytes) -> None:
         )
     for start, size, label in (
         (HELPER_OFFSET, len(helper), "prefill helper"),
-        (DATA_OFFSET, RECORD_SIZE * len(ROLE_ORDER), "prefill data"),
+        (DATA_OFFSET, PREFILL_SIZE, "prefill data"),
     ):
         actual = base[start:start + size]
         if actual != bytes([0xFF]) * size:
@@ -173,6 +180,8 @@ def verify_stock_space(base: bytes, helper: bytes) -> None:
 
 def apply(base: bytes, helper: bytes, records: bytes) -> bytearray:
     verify_stock_space(base, helper)
+    if len(records) != PREFILL_SIZE:
+        raise AssertionError("Name Entry prefill records do not fill their reserved range")
     rom = bytearray(base)
     rom[HOOK_OFFSET:HOOK_OFFSET + len(HOOK_PAYLOAD)] = HOOK_PAYLOAD
     rom[HELPER_OFFSET:HELPER_OFFSET + len(helper)] = helper
@@ -195,6 +204,8 @@ def main() -> None:
     helper = build_helper()
     patched = apply(base, helper, records)
     ips = make_ips(base, patched)
+    if apply_ips(bytearray(base), ips) != patched:
+        raise AssertionError("IPS self-application failed")
 
     output = args.output if args.output.is_absolute() else ROOT / args.output
     output.parent.mkdir(parents=True, exist_ok=True)

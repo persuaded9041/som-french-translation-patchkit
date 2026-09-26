@@ -41,7 +41,7 @@ from shared.dialogue.dte import (  # noqa: E402
     install as install_dialogue_dte_router,
     validate_stock as validate_dialogue_dte_stock,
 )
-from shared.core.ips import make_ips  # noqa: E402
+from shared.core.ips import apply_ips, make_ips  # noqa: E402
 from shared.core.rom import ROM_SIZE_OFFSET, expand_rom, update_checksum, validate_base_rom  # noqa: E402
 from shared.dialogue.structure import (  # noqa: E402
     load_structural_omission_token_indexes,
@@ -277,7 +277,10 @@ def build(
         reports.append(f"Relocated event count: {len(relocated)}")
 
     update_checksum(rom)
-    return make_ips(base, bytes(rom)), rom, reports
+    patch = make_ips(base, bytes(rom))
+    if apply_ips(bytearray(base), patch) != rom:
+        raise AssertionError("IPS self-application failed")
+    return patch, rom, reports
 
 
 def main() -> None:

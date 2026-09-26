@@ -12,7 +12,7 @@ PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from shared.core.asm import MiniAssembler, lo24  # noqa: E402
-from shared.core.ips import make_ips  # noqa: E402
+from shared.core.ips import apply_ips, make_ips  # noqa: E402
 from shared.core.rom import update_checksum, validate_base_rom  # noqa: E402
 
 HELPER_OFFSET = 0x074630
@@ -24,6 +24,7 @@ ROLE_ORDER = ("boy", "girl", "sprite")
 MAX_PREFILL_NAME = RECORD_SIZE - 1
 GENERIC_HELPER_END = 0x0746A1
 GENERIC_DATA_END = DATA_OFFSET + RECORD_SIZE * len(ROLE_ORDER)
+PREFILL_SIZE = RECORD_SIZE * len(ROLE_ORDER)
 
 
 def load_defaults(path: Path) -> dict[str, str]:
@@ -182,6 +183,8 @@ def build_helper() -> bytes:
 
 
 def verify_stock_space(base: bytes, helper: bytes) -> None:
+    if HELPER_OFFSET + len(helper) > HELPER_LIMIT:
+        raise AssertionError("French prefill helper exceeds its reserved helper range")
     # This overlay is built from the clean USA ROM like all component IPS files.
     # It intentionally overrides the dependency's helper/data only when combined.
     actual = base[HELPER_OFFSET:HELPER_OFFSET + len(helper)]
@@ -194,6 +197,8 @@ def verify_stock_space(base: bytes, helper: bytes) -> None:
 
 def apply(base: bytes, helper: bytes, records: bytes) -> bytearray:
     verify_stock_space(base, helper)
+    if len(records) != PREFILL_SIZE:
+        raise AssertionError("French prefill records do not fill their reserved range")
     rom = bytearray(base)
     rom[HELPER_OFFSET:HELPER_OFFSET + len(helper)] = helper
     rom[DATA_OFFSET:DATA_OFFSET + len(records)] = records
@@ -216,6 +221,8 @@ def main() -> None:
     helper = build_helper()
     patched = apply(base, helper, records)
     ips = make_ips(base, patched)
+    if apply_ips(bytearray(base), ips) != patched:
+        raise AssertionError("IPS self-application failed")
 
     output = args.output if args.output.is_absolute() else ROOT / args.output
     output.parent.mkdir(parents=True, exist_ok=True)

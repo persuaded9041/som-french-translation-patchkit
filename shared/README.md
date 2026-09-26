@@ -30,6 +30,34 @@ Dialogue-specific structural translation metadata belongs in `dialogue/structure
 - Do not add generated JSON/CSV/HTML reports here.
 - Shared runtime modules should validate their reserved-address bounds even when the clean base ROM has no bytes in the expanded-bank region yet.
 
+## Assembly and payload policy
+
+Component builders use one emission contract, with two intentionally distinct
+representations:
+
+- Use `shared.core.asm.MiniAssembler` for executable 65C816 code that contains
+  labels, relative branches, or generated addresses. The assembler function
+  returns `bytes`; the caller owns the ROM placement and reserved-range check.
+- Use `bytes.fromhex()` or a small local `hx()` helper for immutable machine-code
+  fragments, stock signatures, lookup tables, and other payloads whose exact
+  bytes are the important contract. Do not expand a fixed validated payload into
+  one `emit()` call per opcode merely for visual uniformity.
+- Name generated executable emitters `assemble_*` when they are pure code
+  emitters. Use `build_*` for resources, tables, and complete component payloads.
+- Keep component `.asm` files as readable source maps unless the component
+  explicitly documents another executable source. Builders must not silently read
+  a second `.asm` implementation that can drift from the Python emitter.
+- Every emitted helper or relocated payload must validate its expected size,
+  destination bounds, clean-ROM signature/free-space contract, and IPS
+  self-application. Runtime validation remains separate from these structural
+  checks.
+- Put reusable emission or validation mechanics in the narrowest appropriate
+  `shared/` package. Keep screen-, resource-, and component-specific code local.
+
+This policy deliberately standardizes ownership, validation, and source-of-truth
+rules without forcing fixed byte-exact resources and generated control-flow code
+through the same representation.
+
 When moving or adding a helper, update consumers to import from its domain package rather than re-exporting compatibility aliases at the `shared` root. Keeping old aliases would recreate the flat namespace this layout is intended to remove.
 
 ## Round 85.33 folder audit

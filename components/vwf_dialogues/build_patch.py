@@ -42,7 +42,7 @@ ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from shared.core.ips import make_ips  # noqa: E402
+from shared.core.ips import apply_ips, make_ips  # noqa: E402
 from shared.core.asm import MiniAssembler, lo24  # noqa: E402
 from shared.core.rom import ROM_SIZE_OFFSET, expand_rom, update_checksum, validate_base_rom  # noqa: E402
 from shared.charset import CHAR_TO_CODE, DIALOGUE_DTE_THRESHOLD, DIALOGUE_FRENCH_CHARS, glyph_bytes  # noqa: E402
@@ -1116,7 +1116,10 @@ def build(base: bytes) -> bytes:
 
     rom[ROM_SIZE_OFFSET] = 0x0C
     update_checksum(rom)
-    return make_ips(base, bytes(rom))
+    patch = make_ips(base, bytes(rom))
+    if apply_ips(bytearray(base), patch) != rom:
+        raise AssertionError("IPS self-application failed")
+    return patch
 
 
 def main() -> None:

@@ -28,7 +28,7 @@ from shared.charset import (  # noqa: E402
     glyph_bytes,
 )
 from shared.text.intro_event import load_document as load_intro_source, make_document as make_intro_source  # noqa: E402
-from shared.core.ips import make_ips  # noqa: E402
+from shared.core.ips import apply_ips, make_ips  # noqa: E402
 from shared.core.rom import update_checksum, validate_base_rom  # noqa: E402
 from shared.text.translation_json import load_translation, require  # noqa: E402
 from shared.extracted.assets import load_or_extract_intro_event  # noqa: E402
@@ -359,8 +359,11 @@ def main(source_rom: Path, output_path: Path, patched_rom: Path | None = None) -
 
     checksum = update_checksum(rom)
     complement = checksum ^ 0xFFFF
+    patch = make_ips(base, rom)
+    if apply_ips(base, patch) != rom:
+        raise AssertionError("IPS self-application failed")
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_bytes(make_ips(base, rom))
+    output_path.write_bytes(patch)
     if patched_rom:
         patched_rom.parent.mkdir(parents=True, exist_ok=True)
         patched_rom.write_bytes(rom)

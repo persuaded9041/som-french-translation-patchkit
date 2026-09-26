@@ -19,7 +19,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from shared.core.asm import MiniAssembler, lo16, lo24  # noqa: E402
 from shared.charset import CHAR_TO_CODE, FULL_FRENCH_CHARS, glyph_bytes  # noqa: E402
-from shared.core.ips import make_ips  # noqa: E402
+from shared.core.ips import apply_ips, make_ips  # noqa: E402
 from shared.core.rom import update_checksum, validate_base_rom  # noqa: E402
 from shared.vwf.compositor import validate_stock as validate_shared_compositor_stock, install as install_shared_compositor  # noqa: E402
 from shared.vwf.framing import SHARED_FRAMING_CPU, validate_stock as validate_shared_framing_stock, install as install_shared_framing  # noqa: E402
@@ -317,8 +317,11 @@ def main(source_rom: Path, output_path: Path, patched_rom: Path | None = None) -
 
     checksum = update_checksum(rom)
     complement = checksum ^ 0xFFFF
+    patch = make_ips(base, rom)
+    if apply_ips(base, patch) != rom:
+        raise AssertionError("IPS self-application failed")
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_bytes(make_ips(base, rom))
+    output_path.write_bytes(patch)
     if patched_rom:
         patched_rom.parent.mkdir(parents=True, exist_ok=True)
         patched_rom.write_bytes(rom)
