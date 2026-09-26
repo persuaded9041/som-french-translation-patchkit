@@ -40,7 +40,7 @@ for the owning component even when the current generated payload is shorter.
 | magic lower-panel VWF dispatcher | `0x2D8E00-0x2D90FF` | `$ED:8E00-$90FF` | `vwf_ui` reserved exact-caller 3x480px renderer; current payload 642 bytes, non-magic calls fall through to `$ED:8C00` |
 | magic lower-panel ID helpers | `0x2D9140-0x2D91FF` | `$ED:9140-$91FF` | `vwf_ui`: stock-emitted ID capture/Lumina remap helper `$9140-$918E` and reset/invalidate helper `$91C0-$91D4` |
 | French magic lower-panel rows | `0x2D9200-0x2D9F23` | `$ED:9200-$9F23` | `french_resources`: 42 × 80-byte complete Android-FR `Nom : description` records through `$9F1F`, followed by runtime marker `MFV1` at `$9F20-$9F23` |
-| Weapon/magic help candidate | `0x2DA000-0x2DA1FF` | `$ED:A000-$A1FF` | `french_menus`: two reserved 256-byte pages; weapon payload 153 bytes, magic payload 152 bytes; runtime pending |
+| Weapon/magic help | `0x2DA000-0x2DA1FF` | `$ED:A000-$A1FF` | `french_menus`: two reserved 256-byte pages; weapon payload 153 bytes, magic payload 152 bytes; runtime validated |
 | French battle/status text | `0x2E6000-0x2E6FFF` | `$EE:6000-$6FFF` | reserved relocated battle/status text pool owned by `french_resources`; current payload 1573 bytes including four runtime template prefixes |
 | French opening helper | `0x2E9000-0x2E9FFF` | `$EE:9000-$9FFF` | reserved helper region; current 37-byte renderer helper is `$EE:9000-$9024` |
 | French opening arrangement | `0x2EA000-0x2EBFFF` | `$EE:A000-$BFFF` | literal-only stock-format stream, loaded through `$C1:0014` |

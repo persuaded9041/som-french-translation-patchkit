@@ -1,7 +1,7 @@
-# Aides Niv. armes / Niv. magies — candidat du 2026-09-26
+# Aides Niv. armes / Niv. magies — validation runtime du 2026-09-26
 
-Formulations validées par l'utilisateur le 2026-09-26. Insertion construite et
-vérifiée statiquement ; validation en jeu encore attendue.
+Formulations et insertion validées par l'utilisateur le 2026-09-26. Le patch
+est promu dans la baseline française.
 
 ## Identité et provenance
 
@@ -72,7 +72,7 @@ Les blocs conservent deux séparateurs $7F et un terminateur $00 ; aucune
 modification du renderer, des cadres, des placements ou des descriptions.
 Le builder limite volontairement chaque ligne à 58 cellules (marge de deux).
 Longueurs encodées : armes 47/49/54 ; magies 46/50/53.
-La géométrie est établie statiquement ; l'aspect final reste à tester en jeu.
+La géométrie et l'aspect final ont été validés en jeu.
 
 Les textes dépassent leurs anciens blocs de 136/139 octets :
 
@@ -85,10 +85,8 @@ intacts. Aucun code 65816 ni état WRAM supplémentaire n'est introduit.
 
 ## Résultats statiques et fichiers
 
-Les hashes ci-dessous documentent le candidat historique de 2026-09-26. Ses
-artefacts ne sont pas inclus dans cette archive et ne doivent pas être traités
-comme des patches promus ; l'état actuellement promu est consigné dans
-`docs/HANDOFF.md` :
+Les hashes ci-dessous documentent l'état historique de construction du
+2026-09-26. L'état actuellement promu est consigné dans `docs/HANDOFF.md` :
 
 - french_menus.ips : b2d2c9f4a7fb27b5b63a1b09568fe5c664f489aada5324b695e201310e919a51
 - all.ips : e4b89be1aaf67c53bb815fae09ca030dc201b94a0185816e788399a9cff3ed99
@@ -104,9 +102,9 @@ Contrôles passés : construction standalone + combinaison, audit des overlaps
 (7272 octets identiques / 710 déclarés), source hygiene, round-trip des sources
 avec parsing des 2048 scripts, liaison des 33 entrées interface françaises,
 import Android resources --check, contrôle exact des pointeurs/payloads et des
-plages de différences. Ces preuves ne constituent pas une validation runtime.
+plages de différences. Ces contrôles complètent la validation runtime utilisateur.
 
-## Test en jeu attendu
+## Validation en jeu effectuée
 
 1. Charger la ROM candidate puis ouvrir Niv. armes : trois lignes complètes,
    guillemets/accents corrects, aucune coupure ou corruption de cadre.
@@ -117,6 +115,5 @@ plages de différences. Ces preuves ne constituent pas une validation runtime.
 4. Fermer/réouvrir le menu ; vérifier rapidement Caractéristiques et Sauvegardes.
 5. Faire également un contrôle des deux aides avec french_menus standalone.
 
-Appliquer les IPS à une ROM USA propre, jamais à une ROM déjà patchée.
-Après validation utilisateur seulement : promouvoir les deux IPS et actualiser
-les empreintes de référence. Le candidat Épée préexistant n'est pas requalifié.
+Appliquer les IPS à une ROM USA propre, jamais à une ROM déjà patchée. Les deux
+IPS sont désormais promus ; le candidat `Épée` préexistant n'est pas requalifié.

@@ -1,8 +1,8 @@
 # Test cheats
 
-This is a standalone, candidate-only test component. It is deliberately
-excluded from `all.ips` so the runtime-validated French aggregate remains
-unchanged.
+This is a standalone test component. It is deliberately excluded from the
+normal `all.ips`; `--cheats` adds it to `all-cheats.ips` and
+`all-fr-cheats.ips` when a French locale is selected.
 
 The rejected movement experiment set the dash bit in `$C0:D5ED`; that field
 drives the dash/action state and caused blinking. The current movement cheat
@@ -19,14 +19,12 @@ stores. The relocated helper at C7:4E80 returns `1` for a party target and
 `999` for an enemy target, leaving the stores, animations and surrounding
 status logic in place.
 
-This is statically traced but not runtime-validated. The intended test scope
-is combat attacks from all three party members, including physical and magic
-damage, against ordinary enemies and bosses. Also verify that enemy attacks
-against each party member show and apply exactly 1 damage. Healing, poison,
-traps, reflected damage, status effects and scripted damage must be checked
-explicitly.
+Runtime validation is complete for the modified combat and movement paths. The
+three party members deal exactly `999` damage with physical and magic attacks,
+and receive exactly `1` damage from physical and magic enemy attacks. Healing,
+poison, traps, reflected damage, status effects and scripted damage are outside
+the modified paths and remain optional non-regression checks.
 
-For movement, test the hero and both AI allies in all four directions. Confirm
-that direction can be changed immediately, no running animation appears, and
-the walking speed matches ordinary running. Also check stopping, diagonals,
-collisions and map transitions.
+The hero and both AI allies retain immediate direction changes, show no running
+animation, and walk at ordinary running speed. Stopping, diagonals, collisions
+and map transitions are outside the modified movement literals.

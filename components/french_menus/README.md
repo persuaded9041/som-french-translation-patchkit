@@ -177,15 +177,16 @@ patch source to synchronize: fixed addresses and assembly-level adjustments are
 documented here and in `docs/MEMORY_MAP.md`, while translated prose remains in
 root translation JSON files.
 
-## Weapon / magic default help — candidate 2026-09-26
+## Weapon / magic default help — runtime-validated 2026-09-26
 
 The user approved the JP/Android-backed wording. `french_menus` now owns the
 six source-ID-bound rows in `translations/interface_text_french.json`.
 Pointers `$C0:33C4/$33C7` target `$ED:A000/$A100`; each block reserves 256 bytes
 (153/152 used). Stock three-line fixed rendering and all descriptions remain
-unchanged. Runtime validation was confirmed by the user on 2026-09-26; the corresponding pre-Controller-Edit `french_menus.ips` / `all.ips` baseline is promoted.
-Candidate artifacts and full provenance/checks: `docs/SKILL_MENU_HELP_RESEARCH.md`
-and `build/candidates/skill-help-20260926/` at the repository root.
+unchanged. Runtime validation was confirmed by the user on 2026-09-26; the
+corresponding `french_menus.ips` / `all-fr.ips` baseline is promoted. Full
+provenance and static checks remain documented in
+`docs/SKILL_MENU_HELP_RESEARCH.md`; the candidate directory is historical.
 
 
 ## Controller Edit — candidate 2026-09-26

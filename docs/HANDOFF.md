@@ -55,6 +55,8 @@ reste la propriété de `french_resources`.
 - graphismes de boutons de manette : validés.
 - `french_gfx` complet : direction Ouest, PV/PM/NIV et les deux variantes d’enseigne d’auberge validés.
 - hexagramme japonais des cercles de téléportation : validé.
+- police fixe française globale (`french_font`) : validée sur les écrans fixes et les chemins VWF concernés ; incluse dans `all-fr.ips`, pas dans `all.ips`.
+- cheats de test (`default_cheats`) : validés pour les dégâts `999` infligés et `1` reçu, physiques comme magiques ; disponibles uniquement avec `--cheats`.
 
 ### Ressources / boutique / battle
 

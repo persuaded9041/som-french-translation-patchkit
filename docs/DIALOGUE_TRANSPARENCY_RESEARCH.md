@@ -1,6 +1,6 @@
 # Dialogue transparency — PPU / window reverse engineering
 
-Status: **promoted as standalone component `dialogue_background`; runtime-validated for the focused ordinary + type-2 inn case; intentionally excluded from `all.ips` pending compatibility work**.
+Status: **promoted as standalone component `dialogue_background`; runtime-validated for the focused ordinary + type-2 inn case; intentionally excluded from `all.ips` pending compatibility work and deferred for a later session**.
 
 Reference for this work: the clean project archive supplied on 2026-09-15 and
 `Secret of Mana (USA)` unheadered.  The dialogue text corpus is not touched.
