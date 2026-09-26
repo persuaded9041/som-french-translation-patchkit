@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the standalone combat test-cheats IPS patch."""
+"""Build the standalone test-cheats IPS patch."""
 from __future__ import annotations
 
 import argparse
@@ -22,6 +22,17 @@ DAMAGE_HOOKS = {
     0x0051DB: bytes.fromhex("A5 89 18 7D F1 E1"),
     # C8's magic-damage calculation has its own final addition.
     0x08E9F0: bytes.fromhex("85 89 18 7D F1 E1"),
+}
+
+# C1:B710 converts each party controller/AI direction into the signed
+# movement vector. Stock magnitude 2 becomes 4; the high bit remains the
+# negative-direction marker. This changes walking speed without setting the
+# dash/action state or touching the direction input.
+WALK_SPEED_EDITS = {
+    0x00B719: (bytes.fromhex("A2 02"), bytes.fromhex("A2 04")),
+    0x00B71F: (bytes.fromhex("A2 82"), bytes.fromhex("A2 84")),
+    0x00B727: (bytes.fromhex("A0 02"), bytes.fromhex("A0 04")),
+    0x00B72D: (bytes.fromhex("A0 82"), bytes.fromhex("A0 84")),
 }
 
 # C7:4E80 is stock-$FF space left free by the aggregate's C7 allocations.
@@ -62,6 +73,10 @@ def build_patch(base_rom: bytes) -> bytes:
         if base_rom[offset:offset + len(stock)] != stock:
             raise SystemExit(f"Stock final-damage hook changed at file offset 0x{offset:06X}")
         records[offset] = hook
+    for offset, (stock, replacement) in WALK_SPEED_EDITS.items():
+        if base_rom[offset:offset + len(stock)] != stock:
+            raise SystemExit(f"Stock walking-speed literal changed at file offset 0x{offset:06X}")
+        records[offset] = replacement
 
     patched = bytearray(base_rom)
     for offset, data in records.items():

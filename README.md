@@ -55,6 +55,17 @@ the repository's canonical root text/translation assets and any component-local
 non-text assets it owns. The aggregate builder
 never needs to rebuild an unchanged component when its stored IPS is available.
 
+The standalone `cheats` component is excluded from the normal aggregate. To
+build and include it explicitly, use:
+
+```bash
+python3 build.py "$ROM" --combine --cheats
+```
+
+This writes `patches/all-cheats.ips` and preserves `patches/all.ips` as the
+normal validated aggregate. Without `--cheats`, `--combine` writes the normal
+`all.ips` without the combat and movement test cheats.
+
 ## Clean-ROM extraction cache
 
 ROM-derived text documents are cached locally under the ignored root `assets/`

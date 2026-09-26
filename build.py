@@ -123,6 +123,11 @@ def main() -> None:
         help="combined IPS output path (default with --combine: <patch-dir>/all.ips)",
     )
     parser.add_argument("--patched-rom", type=Path, help="optional patched ROM output; requires --combine")
+    parser.add_argument(
+        "--cheats",
+        action="store_true",
+        help="include the standalone cheats component when combining all.ips",
+    )
     parser.add_argument("--list", action="store_true", help="list discovered components and exit")
     args = parser.parse_args()
 
@@ -137,6 +142,8 @@ def main() -> None:
         parser.error("--output is only meaningful together with --combine")
     if args.patched_rom and not args.combine:
         parser.error("--patched-rom requires --combine")
+    if args.cheats and not args.combine:
+        parser.error("--cheats requires --combine")
 
     args.rom = args.rom.resolve()
     patch_dir = args.patch_dir.resolve()
@@ -146,6 +153,10 @@ def main() -> None:
     # `--combine` with no component arguments is intentionally combine-only:
     # it reuses every standalone IPS already stored in patch_dir without rebuilding anything.
     selected = [] if args.combine and not args.components else resolve_selection(args.components, components)
+    if args.cheats:
+        cheats_component = next(component for component in components if component.id == "cheats")
+        if cheats_component not in selected:
+            selected.append(cheats_component)
 
     if selected:
         # A full rebuild warms the complete deterministic root extraction cache
@@ -174,25 +185,46 @@ def main() -> None:
         print("Use --combine to create all.ips from the complete set of stored component patches.")
         return
 
-    combined_components = aggregate_components(components)
-    patch_data = load_component_patches(combined_components, patch_dir)
-    patch, rom, checksum, identical, declared = combine_patches(base, combined_components, patch_data)
+    normal_components = aggregate_components(components)
+    normal_patch_data = load_component_patches(normal_components, patch_dir)
+    normal_patch, normal_rom, normal_checksum, normal_identical, normal_declared = combine_patches(
+        base, normal_components, normal_patch_data
+    )
     output = (args.output or (patch_dir / "all.ips")).resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_bytes(patch)
+    output.write_bytes(normal_patch)
 
     if args.patched_rom:
         args.patched_rom.parent.mkdir(parents=True, exist_ok=True)
-        args.patched_rom.write_bytes(rom)
+        args.patched_rom.write_bytes(normal_rom)
 
     print("\nCombined components:")
-    for component in combined_components:
+    for component in normal_components:
         print(f"  - {component.id}")
-    print(f"Compatible identical overlapping bytes: {identical}")
-    print(f"Declared special/header overlapping bytes: {declared}")
-    print(f"Final ROM size: 0x{len(rom):X}")
-    print(f"Final checksum: ${checksum:04X}")
+    print(f"Compatible identical overlapping bytes: {normal_identical}")
+    print(f"Declared special/header overlapping bytes: {normal_declared}")
+    print(f"Final ROM size: 0x{len(normal_rom):X}")
+    print(f"Final checksum: ${normal_checksum:04X}")
     print(f"IPS: {output}")
+
+    if args.cheats:
+        cheat_components = [*normal_components]
+        cheats_component = next(component for component in components if component.id == "cheats")
+        cheat_components.append(cheats_component)
+        cheat_patch_data = load_component_patches(cheat_components, patch_dir)
+        cheat_patch, cheat_rom, cheat_checksum, cheat_identical, cheat_declared = combine_patches(
+            base, cheat_components, cheat_patch_data
+        )
+        cheat_output = (patch_dir / "all-cheats.ips").resolve()
+        cheat_output.write_bytes(cheat_patch)
+        print("\nCombined components with cheats:")
+        for component in cheat_components:
+            print(f"  - {component.id}")
+        print(f"Compatible identical overlapping bytes: {cheat_identical}")
+        print(f"Declared special/header overlapping bytes: {cheat_declared}")
+        print(f"Final ROM size: 0x{len(cheat_rom):X}")
+        print(f"Final checksum: ${cheat_checksum:04X}")
+        print(f"IPS: {cheat_output}")
 
 
 if __name__ == "__main__":
