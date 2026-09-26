@@ -1,0 +1,7 @@
+{
+  "id": "cheats",
+  "short_name": "cheats",
+  "name": "Combat test cheats",
+  "build_order": 110,
+  "aggregate_enabled": false
+}
