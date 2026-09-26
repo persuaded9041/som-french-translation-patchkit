@@ -19,7 +19,7 @@ dans les documents de recherche dédiés.
 Baseline agrégée actuelle :
 
 - `patches/all.ips`
-- SHA-256 : `c8e495be11352aaf0f26d9caabab8b905e88d9727e71a2a3c244990ee3810430`
+- SHA-256 : `39ca0fbbda3add0bc2602fee72efaeef3b05d8827d45dbad89af048bf07f1557`
 
 ## État global
 
@@ -53,6 +53,8 @@ reste la propriété de `french_resources`.
 - Name Entry étendu : validé ;
 - noms français préremplis : validés ;
 - graphismes de boutons de manette : validés.
+- `french_gfx` complet : direction Ouest, PV/PM/NIV et les deux variantes d’enseigne d’auberge validés.
+- hexagramme japonais des cercles de téléportation : validé.
 
 ### Ressources / boutique / battle
 

@@ -106,6 +106,19 @@ is unaffected. The shared-resource replacement is runtime-validated and promoted
 Coverage remains intentionally defined as every screen that uses this common
 graphical controller-button resource; text-rendered letters are outside scope.
 
+The same component also owns the runtime-validated French direction tile,
+PV/PM/NIV icon variants, and both `Inn` → `Aub` signs. Their canonical PNGs
+re-encode byte-identically to their verified French ROM resources; the split
+alternate-sign allocation deliberately leaves `$DD:1540-$157F` stock.
+
+## default_uncensored_hexagram — Japanese warp symbol restoration
+
+`default_uncensored_hexagram` is aggregate-enabled and restores only the three
+Japanese 4bpp warp-circle tiles at `$DD:B840-$B85F` and `$DD:B900-$B93F`.
+The discontinuous storage is intentional: `$DD:B860-$B8FF` remains stock.
+The canonical 24×8 indexed PNG re-encodes to the verified Japanese bytes, and
+the in-game six-pointed symbol is runtime-validated.
+
 ## Allocations
 
 The principal ROM/WRAM allocations are documented in `docs/MEMORY_MAP.md` and

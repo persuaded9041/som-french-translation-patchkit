@@ -15,6 +15,14 @@ for the owning component even when the current generated payload is shorter.
 | French controller buttons | `0x002116-0x002118` | `$C0:2116-$2118` | `french_gfx`: skip USA-only palette override (`JSR $212F` -> three NOPs) |
 | French controller buttons | `0x12D8F0-0x12D92F` | `$D2:D8F0-$D2:D92F` | `french_gfx`: shared 16×16 controller-button graphic generated from indexed PNG |
 | French controller buttons | `0x12DBCC-0x12DBE3` | `$D2:DBCC-$DBE3` | `french_gfx`: exact French X/A/Y/B 2bpp palette ramps |
+| French direction marker | `0x07FB20-0x07FB3F` | `$C7:FB20-$FB3F` | `french_gfx`: 4bpp West direction tile (`W` → `O`) |
+| French HP indicators | `0x128A00-0x128ABF` | `$D2:8A00-$8ABF` | `french_gfx`: two compressed menu-icon variants (`HP` → `PV`) |
+| French MP indicators | `0x129B40-0x129BFF` | `$D2:9B40-$9BFF` | `french_gfx`: two compressed menu-icon variants (`MP` → `PM`) |
+| French level indicator | `0x12C420-0x12C47F` | `$D2:C420-$C47F` | `french_gfx`: compressed `LVL` → `NIV` indicator |
+| French alternate inn sign | `0x1D1500-0x1D153F`, `0x1D1580-0x1D15BF` | `$DD:1500-$153F`, `$DD:1580-$15BF` | `french_gfx`: split 4bpp `Inn` → `Aub`; intervening range remains stock |
+| French Potos inn sign | `0x1F5460-0x1F54DF` | `$DF:5460-$54DF` | `french_gfx`: 4bpp `Inn` → `Aub` |
+| Japanese warp hexagram | `0x1DB840-0x1DB85F` | `$DD:B840-$DD:B85F` | `default_uncensored_hexagram`: first restored 4bpp warp-circle tile |
+| Japanese warp hexagram | `0x1DB900-0x1DB93F` | `$DD:B900-$DD:B93F` | `default_uncensored_hexagram`: second and third restored 4bpp warp-circle tiles; `0x1DB860-0x1DB8FF` remains untouched |
 | Window Settings | `0x074700-0x07472E` | `$C7:4700-$472E` | runtime-validated 46-cell fixed-font source + terminator |
 | Window Settings | `0x074730-0x074759` | `$C7:4730-$4759` | ten-span fixed-font placement list |
 | GAME FILE money spacing | `0x074D32-0x074D3B` | `$C7:4D32-$4D3B` | 10-byte helper preserving the fixed 16-cell money upload while inserting one separator before the currency suffix |

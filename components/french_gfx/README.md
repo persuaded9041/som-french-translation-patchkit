@@ -2,7 +2,7 @@
 
 `french_gfx` owns graphical assets that are specific to the French localization. It deliberately does **not** own generic renderer logic or translated prose.
 
-## Controller buttons — first promoted asset
+## Controller buttons
 
 The first asset replaces the shared USA 16×16 controller-button graphic with the official French-release shape and restores the four PAL/Japanese SNES button colors:
 
@@ -65,4 +65,6 @@ Binary validation is deterministic:
 - every other localized graphic is guarded against its clean-USA byte sequence and replaced byte-for-byte with its French counterpart;
 - the only code change is `NOP NOP NOP` over the clean-USA `JSR $212F` at `$C0:2116`.
 
-Runtime visual validation is complete. The shared button replacement was user-validated in game and is promoted as the first stable `french_gfx` feature.
+Runtime visual validation is complete. The controller buttons, direction marker,
+PV/PM/NIV indicators, and both inn-sign variants were user-validated in game.
+They are all promoted as the stable `french_gfx` baseline.

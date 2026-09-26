@@ -30,7 +30,7 @@ The ROM itself is deliberately not included.
 - `default_name_entry_prefill` - editable default-name prefill driven by a component-local JSON (`Randi`, `Primm`, `Popoi`); requires `default_name_entry_extended` for lowercase/grid support.
 - `french_name_entry_prefill` - French default-name overlay (`Randy`, `Prim`, `Popoï`), with its own JSON and fourth-row token support; requires `name_entry_prefill` + `french_name_entry_extended`.
 - `french_menus` - French native-menu pipeline for GAME SELECT/GAME FILE, Window Settings, runtime-validated fixed-font Action Settings, and the current Status/Characteristics path. The fixed 10-cell fallback is preserved, while `french_menus` also owns the full Status-label source table consumed only by the exact `vwf_ui` backend. Window Settings is fixed-font-only (`Choix de fenêtre`, `Fond` left/right, `Bordure` top/bottom); GAME FILE uses `Sauvegardes`, the validated `1234567 PO` hybrid layout, and the 15-cell JSON-backed `Graines de Mana` source consumed by the narrow GAME FILE VWF backend.
-- `french_gfx` - French-specific graphical assets. Its first runtime-validated feature converts `assets/controller_button.png` into the shared 16×16 SNES 2bpp controller icon, installs the exact French X/A/Y/B palette ramps, and skips the USA-only purple-controller palette override. The replacement is global for screens using the shared graphical button resource and uses no free-space allocation.
+- `french_gfx` - French-specific graphical assets: controller buttons, West direction marker, PV/PM/NIV menu indicators, and both inn-sign variants. Each canonical PNG re-encodes to its verified French resource; no free-space allocation is used.
 - `french_opening` - French startup credits/opening text, including the runtime-validated two-row `É` credit overlay with stock `Z` restored and synchronized CGRAM fade.
 - `french_intro` - validated French new-game event `$0400` payload, private intro DTE and accented glyphs.
 - `default_vwf_intro` - new-game intro VWF renderer/runtime, private parser buffer and validated intro window; owns no translation.
@@ -139,8 +139,8 @@ The current build promotes the runtime-validated weapon/magic skill-row name VWF
 
 The promoted VWF performance baseline is Stage 3A for the generic Ring/UI path and Magic Stage 2 for the lower magic panel. The Ring uses true decoded counts plus the validated shared fast path and bounded post-outline repair. The magic panel rasterizes/converts each 480px sentence once and reuses the packed right half on the paired stock pass while retaining all six stock DMA submissions. See `docs/VWF_PERFORMANCE_RESEARCH.md` and `docs/MAGIC_PANEL_PERFORMANCE_RESEARCH.md`.
 
-- `patches/all.ips`: `c8e495be11352aaf0f26d9caabab8b905e88d9727e71a2a3c244990ee3810430`
-- `patches/french_gfx.ips`: `5753358d9603e6422a8ce03223e362900671e403fe83b9f57988400e3f1ffdd2`
+- `patches/all.ips`: `39ca0fbbda3add0bc2602fee72efaeef3b05d8827d45dbad89af048bf07f1557`
+- `patches/french_gfx.ips`: `ff86f86ea35881b42d99fd5e09603546dda9d72fb3933c73f3703424d7cc7e43`
 - `patches/french_menus.ips`: `c2958f205a8c47320ce912713049fdf6351da9f6cc86f0967ba48d52829c771f`
 - `patches/default_vwf_ui.ips`: `19e268c8ded2cd32c9edb99a5d0ebab3d8a188f46aa9665ba95712f5193162dc`
 - `patches/default_vwf_dialogues.ips`: `4af04bbc3500fca817b75365e71c221725a932ec6335db5fbe644b356f7b37c8`
