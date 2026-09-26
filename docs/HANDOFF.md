@@ -4,6 +4,17 @@ Date : 2026-09-20
 
 Cette archive est la **source de vérité** et prévaut sur GitHub. La ROM de référence est **Secret of Mana (USA), non headerée**, taille `0x200000`, SHA-256 `4c15013131351e694e05f22e38bb1b3e4031dedac77ec75abecebe8520d82d5f`. Elle ne doit jamais être redistribuée.
 
+## Candidat actif — 2026-09-26 : aides armes/magies
+
+L'étude JP/Android est terminée et l'utilisateur a validé les deux formulations.
+Les sources `french_menus` insèrent désormais ces aides, **en attente de validation
+en jeu**. Les IPS promus sous `patches/` restent ceux du 20 septembre ; les nouveaux
+IPS et la ROM locale sont sous `build/candidates/skill-help-20260926/`.
+Voir `docs/SKILL_MENU_HELP_RESEARCH.md` pour provenance, allocations, empreintes,
+comparaison binaire et protocole de test. Prochaine étape : tester ce candidat,
+puis le promouvoir uniquement après confirmation. Les sections suivantes décrivent
+la baseline antérieure ; leur demande d'étude préalable est désormais satisfaite.
+
 ## État de reprise
 
 Le backend battle/status `$AC` de `vwf_ui` reste **runtime-validé** et stable.

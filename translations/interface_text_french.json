@@ -85,6 +85,40 @@
       ]
     },
     {
+      "group": "weapon_skill.help",
+      "entries": [
+        {
+          "id": "C7:784C",
+          "text": "Niveaux des armes : appuyez sur “Attaque”, puis"
+        },
+        {
+          "id": "C7:7874",
+          "text": "choisissez une arme avec la croix directionnelle."
+        },
+        {
+          "id": "C7:78A8",
+          "text": "Validez avec “Attaque” pour voir les effets de l'arme."
+        }
+      ]
+    },
+    {
+      "group": "magic_skill.help",
+      "entries": [
+        {
+          "id": "C7:78D4",
+          "text": "Niveaux de magie : appuyez sur “Attaque”, puis"
+        },
+        {
+          "id": "C7:78FB",
+          "text": "choisissez un esprit avec la croix directionnelle."
+        },
+        {
+          "id": "C7:7933",
+          "text": "Validez avec “Attaque” pour voir le détail des sorts."
+        }
+      ]
+    },
+    {
       "group": "status.labels",
       "entries": [
         {

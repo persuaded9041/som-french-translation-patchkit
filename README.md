@@ -10,6 +10,14 @@ rebuilt independently within the repository. `build.py` can rebuild only the com
 on, stores their standalone IPS files under `patches/`, and can combine those
 reusable patches into `patches/all.ips` without rebuilding unchanged components.
 
+## Active candidate — 2026-09-26
+
+The weapon/magic default help now has user-approved French wording in the
+sources. Runtime validation is pending. Promoted patches below remain unchanged;
+candidate patches and the local test ROM are under
+`build/candidates/skill-help-20260926/`. See
+`docs/SKILL_MENU_HELP_RESEARCH.md` for provenance, hashes and testing instructions.
+
 ## Required base ROM
 
 - Secret of Mana (USA), unheadered

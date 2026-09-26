@@ -505,6 +505,13 @@ ACTION_HELP_IDS = {
     "GAUGE_SCALE": "C0:368F",
 }
 
+# Three fixed-font help rows per menu, via C0:33B5 entries 5/6.
+# Reserve one expanded-ROM page each; no renderer or description-table changes.
+SKILL_HELP_BLOCKS = (
+    (0x0033C4, 0xC7784C, 0x2DA000, ("C7:784C", "C7:7874", "C7:78A8")),
+    (0x0033C7, 0xC778D4, 0x2DA100, ("C7:78D4", "C7:78FB", "C7:7933")),
+)
+
 
 def load_french_rows(base: bytes) -> tuple[dict[str, str], dict[str, str], dict[str, str], dict[str, str], dict[str, str], dict[str, str], dict[str, str], dict[str, object]]:
     interface = load_or_extract_interface(base, PROJECT_ROOT / "assets" / "interface_text.json")
@@ -565,6 +572,12 @@ def load_french_rows(base: bytes) -> tuple[dict[str, str], dict[str, str], dict[
             text_id: require(menu_fr, [text_id], context="Weapon/Magic skill labels")[0]
             for text_id in SKILL_MENU_RANGES
         }
+        for _, _, _, text_ids in SKILL_HELP_BLOCKS:
+            skill_menu_rows.update(zip(
+                text_ids,
+                require(interface_fr, list(text_ids), context="Weapon/Magic skill help"),
+                strict=True,
+            ))
 
         status_labels = {
             name: require(interface_fr, [text_id], context="Status labels")[0]
@@ -1403,6 +1416,27 @@ def apply_status_screen(base: bytes, rom: bytearray, rows: dict[str, object]) ->
     _write_status_fixed_records(base, rom, rows, "MISC", STATUS_MISC_RANGES)
 
 
+def apply_skill_help(base: bytes, rom: bytearray, rows: dict[str, str]) -> None:
+    # Both stock lower frames have 6 tile rows by 30 columns: three text
+    # rows, each containing 60 fixed glyphs. Keep a two-cell safety margin.
+    for frame_offset in (0x07761C, 0x07764D):
+        if base[frame_offset:frame_offset + 5] != bytes.fromhex("01 c0 04 06 1e"):
+            raise SystemExit("Unexpected Weapon/Magic help frame geometry")
+    for pointer_offset, stock_pointer, target, text_ids in SKILL_HELP_BLOCKS:
+        if int.from_bytes(base[pointer_offset:pointer_offset + 3], "little") != stock_pointer:
+            raise SystemExit("Unexpected Weapon/Magic help source pointer")
+        encoded = [encode_text(rows[text_id], text_id) for text_id in text_ids]
+        if any(not row or len(row) > 58 for row in encoded):
+            raise SystemExit("Weapon/Magic help rows require 1..58 fixed cells")
+        payload = b"\x7f".join(encoded) + b"\x00"
+        if target + 0x100 > len(rom) or len(payload) > 0x100:
+            raise SystemExit("Weapon/Magic help exceeds its reserved page")
+        if any(rom[target:target + 0x100]):
+            raise SystemExit("Weapon/Magic help relocation page is not empty")
+        rom[target:target + len(payload)] = payload
+        rom[pointer_offset:pointer_offset + 3] = (target + 0xC00000).to_bytes(3, "little")
+
+
 def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, str], window_rows: dict[str, str], window_help_rows: dict[str, str], action_rows: dict[str, str], action_help_rows: dict[str, str], skill_menu_rows: dict[str, str], status_rows: dict[str, object]) -> tuple[bytearray, int]:
     rom = expand_rom(base)
 
@@ -1452,6 +1486,7 @@ def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, s
 
     # Weapon/Magic skill headings: four short fixed-font segments in their stock slots.
     apply_skill_menu_labels(base, rom, skill_menu_rows)
+    apply_skill_help(base, rom, skill_menu_rows)
 
     # Status / Characteristics: fixed-font data-only promotion. No VWF hooks.
     apply_status_screen(base, rom, status_rows)

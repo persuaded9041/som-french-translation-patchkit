@@ -14,3 +14,6 @@ reports/
 #translations/text_resources_french.json
 #/assets/
 #/patches/
+
+# Local emulator, settings, saves and debugging artifacts
+/.local/mesen/
