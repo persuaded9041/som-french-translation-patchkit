@@ -15,7 +15,7 @@ This component translates:
 - the two reviewed system messages (`$1FF-$200`);
 - reviewed battle/status text from `assets/battle_text.json` (0 pending manual translations / 0 pending layout adaptations);
 - the nine shop/forge response mini-events in `$D9:FE20-$FEF3`;
-- the two shop currency literals (`C7:7B6A` total money and `D0:D894` merchandise price), translated `GP -> PO`.
+- the shop-price currency literal (`D0:D894` merchandise price), translated `GP -> PO`.
 
 It does **not** own dialogue events or UI VWF rendering. `vwf_ui` owns presentation only. The D9 responses retain the stock event parser and the validated 28-visible-character capacity even when `vwf_ui` renders them proportionally through tag `$A9`. Battle/status content is displayed through the separate exact `$AC` battle-banner backend in `vwf_ui`.
 
@@ -53,7 +53,7 @@ for both records remain intentionally unfixed; see `docs/BATTLE_TEXT.md`.
 
 ### Fixed literals
 
-`translations/french_resources_reviewed_literals.json` contains the two reviewed `GP -> PO` replacements. Their clean-USA source bytes and fixed length are validated before insertion.
+`translations/french_resources_reviewed_literals.json` contains the reviewed shop-price `D0:D894` `GP -> PO` replacement. The Status total-money literal `C7:7B6A` is owned by `french_menus`.
 
 ## Storage/runtime architecture
 

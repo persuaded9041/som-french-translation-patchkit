@@ -189,7 +189,7 @@ standalone Sell-menu reset.
 `french_resources` rewrites the canonical 513-entry `$CA` resource pointer table and the translated
 reviewed payload (name families + nine Ring Menu titles) within the original stock allocation
 beginning at `$CA:98E1`. It also owns the two reviewed shop currency literals
-`$C7:7B6A` and `$D0:D894` (`GP -> PO`) from
+`$D0:D894` (`GP -> PO`) from
 `translations/french_resources_reviewed_literals.json`. The current translated `$CA` blob is 7171 bytes versus the 7315-byte stock allocation;
 weapon descriptions remain in place. Complete magic lower-panel rows use the separately
 reserved expanded-bank table at `$ED:9200-$9F23` described above. Its French
@@ -236,8 +236,8 @@ labels through an exact VWF backend:
 
 The full VWF forms `Intelligence`, `% précision` and `Déf. magique` are
 runtime-validated. No dynamic values, bars, conditions or other menus are
-routed through this backend. `$C7:7B6A-$7B6C` remains owned by
-`french_resources` for `GP -> PO`.
+routed through this backend. `$C7:7B6A-$7B6B` is owned by
+`french_menus` for the native Status `GP -> PO`.
 
 ### Weapon / magic skill-row name VWF — runtime-validated
 

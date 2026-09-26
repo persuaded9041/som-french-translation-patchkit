@@ -589,3 +589,16 @@ La baseline courante inclut donc notamment :
 
 `patches/french_menus.ips` et `patches/all.ips` correspondent à cette baseline.
 `dialogue_background` reste volontairement hors agrégat et hors chantier courant.
+
+
+### Ownership cleanup — Status `PO` in-place
+
+`C7:7B6A` (`GP`) is now explicitly translated to `PO` by `french_menus`,
+using the canonical `status.templates` entry in
+`translations/menu_text_french.json`. The shop-price literal `D0:D894`
+remains owned by `french_resources`.
+
+This is an ownership/data-model cleanup only: rebuilding the full aggregate
+produces a ROM **byte-for-byte identical** to the runtime-validated Controller
+Edit baseline (SHA-256 `a0873093913bddcbef922a3d899f8a84f9f133539403a83f29d9f27336794f41`).
+No new runtime validation is required.

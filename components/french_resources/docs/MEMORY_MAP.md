@@ -8,7 +8,6 @@ All addresses are SNES CPU addresses unless noted otherwise.
 | `$C0:7AFA-$7E45` (9 immediate operands only) | shop/forge `LDX #pointer` references retargeted to rebuilt D9 scripts |
 | `$C7:4570-$45EE` | shared context-sensitive DTE router |
 | `$C7:4C85` | shared dialogue/resource `$E8` DTE-profile marker |
-| `$C7:7B6A-$7B6B` | total-money unit literal `GP -> PO` |
 | `$CA:0800-$0C01` | complete 513-entry resource pointer table |
 | `$CA:98E1-$B4E3` | current rebuilt resource blob (7,171 bytes) |
 | `$CA:98E1-$B573` | maximum permitted stock resource allocation (7,315 bytes) |

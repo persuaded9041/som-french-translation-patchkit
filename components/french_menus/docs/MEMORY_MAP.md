@@ -124,7 +124,7 @@ localized full-label records consumed by the exact `vwf_ui` Status backend.
 - ROM `0x2D8B00-0x2D8B9F` / `$ED:8B00-$8B9F`: ten 16-byte full-label records (length + up to 15 direct glyphs);
 - ROM `0x2D8BA0-0x2D8BA1` / `$ED:8BA0-$8BA1`: marker `53 56` required by the exact VWF backend.
 
-`$C7:7B6A-$7B6C` remains outside `french_menus` ownership (`GP -> PO` belongs
+`$C7:7B6A-$7B6B` is owned by `french_menus` for the native `GP -> PO` translation;
 to `french_resources`). The full-label table is inert in standalone
 `french_menus`; only `vwf_ui` renders it.
 
@@ -137,7 +137,7 @@ to `french_resources`). The full-label table is inert in standalone
 
 No private WRAM is allocated by this component.
 
-- ROM `0x077B69` / `$C7:7B69`: one fixed-font blank used only as the Status money/unit separator; local code operand at ROM `0x0769BC` / `$CE:E9BC` changes `$7B6A -> $7B69`, so the following `GP/PO` literal remains owned by `french_resources`.
+- ROM `0x077B69` / `$C7:7B69`: one fixed-font blank used only as the Status money/unit separator; local code operand at ROM `0x0769BC` / `$CE:E9BC` changes `$7B6A -> $7B69`, so the following `PO` literal is now owned by `french_menus`.
 
 ## Weapon / magic default help — candidate 2026-09-26
 

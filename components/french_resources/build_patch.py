@@ -142,7 +142,6 @@ BATTLE_DIRECT_REFERENCE_SITES = {
 # payload comes only from REVIEWED_LITERAL_OVERRIDES; Python stores addresses
 # and expected source identity, never localized prose.
 REVIEWED_LITERAL_SITES = {
-    "C7:7B6A": 0x077B6A,  # stock MONEY total unit
     "D0:D894": 0x10D894,  # shop merchandise price unit immediate payload
 }
 FONT_BASE = 0x12DC00
@@ -675,10 +674,9 @@ def main() -> None:
     battle_source = load_or_extract_battle(base, BATTLE_ASSET)
     battle_stats = install_battle_text(rom, base, battle_source)
 
-    # Currency text ownership: keep translation in french_resources and leave
-    # vwf_ui responsible only for spacing/window geometry. Both shop sites are
-    # fixed two-glyph literals, so standalone french_resources can safely
-    # replace GP -> PO without touching renderer logic.
+    # Shop-price currency literal ownership remains in french_resources.
+    # The Status total-money unit C7:7B6A now belongs to french_menus alongside
+    # the rest of the native Status screen text.
     literal_overrides = load_reviewed_literal_overrides(base)
     for offset, payload in literal_overrides.items():
         rom[offset:offset + len(payload)] = payload

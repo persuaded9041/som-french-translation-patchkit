@@ -38,7 +38,7 @@ The main data files are:
 - `translations/opening_text_french.json` — opening prologue and startup credits;
 - `translations/intro_event_french.json` — new-game intro paragraphs;
 - `translations/text_resources_reviewed_overrides.json` — sparse, explicitly reviewed SNES-specific `$CA` resource wording layered over Android FR;
-- `translations/french_resources_reviewed_literals.json` — reviewed fixed literals owned by `french_resources` (`GP -> PO`);
+- `translations/french_resources_reviewed_literals.json` — reviewed fixed shop-price literal owned by `french_resources` (`D0:D894`, `GP -> PO`);
 - `translations/shop_text_french.json` — six direct Android-FR D9 shop/forge responses;
 - `translations/shop_text_reviewed_overrides.json` — three reviewed SNES-specific D9 adaptations;
 - `translations/battle_text_reviewed_overrides.json` — reviewed battle/status SNES/JP adaptations, including the eight manually translated records without a solid Android equivalent;

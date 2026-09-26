@@ -337,13 +337,17 @@ STATUS_NEXT_LEVEL_POINTER_STOCK = bytes.fromhex("41 7B")
 # C7:7B69 available as presentation-only padding immediately before the
 # localized unit literal at C7:7B6A. Point the unit submit one byte earlier so
 # the stock parser emits one fixed-font blank, then continues into GP/PO.
-# french_menus owns only this separator/pointer; french_resources remains the
-# sole owner of the actual ``GP -> PO`` content at C7:7B6A.
+# french_menus owns the separator/pointer and the native two-cell ``GP -> PO``
+# translation at C7:7B6A.
 STATUS_MONEY_SEPARATOR_OFFSET = 0x077B69
 STATUS_MONEY_SEPARATOR = 0x80
 STATUS_MONEY_UNIT_POINTER_OPERAND_OFFSET = 0x0769BC  # LDY #$7B6A at CE:E9BB
 STATUS_MONEY_UNIT_POINTER_STOCK = bytes.fromhex("6A 7B")
 STATUS_MONEY_UNIT_POINTER_SPACED = bytes.fromhex("69 7B")
+STATUS_MONEY_UNIT_OFFSET = 0x077B6A
+STATUS_MONEY_UNIT_STOCK = bytes.fromhex("a1 aa")  # GP
+STATUS_MONEY_UNIT_ID = "C7:7B6A"
+
 STATUS_WEAPON_RANGES = {
     "C7:7B6D": (0x077B6D, 0x077B74),
     "C7:7B74": (0x077B74, 0x077B7A),
@@ -660,6 +664,7 @@ def load_french_rows(base: bytes) -> tuple[dict[str, str], dict[str, str], dict[
                 text_id: require(menu_fr, [text_id], context="Status misc labels")[0]
                 for text_id in STATUS_MISC_RANGES
             },
+            "MONEY_UNIT": require(menu_fr, [STATUS_MONEY_UNIT_ID], context="Status money unit")[0],
         }
     except ValueError as exc:
         raise SystemExit(str(exc)) from exc
@@ -1528,6 +1533,13 @@ def apply_status_screen(base: bytes, rom: bytearray, rows: dict[str, object]) ->
         STATUS_MONEY_UNIT_POINTER_OPERAND_OFFSET:
         STATUS_MONEY_UNIT_POINTER_OPERAND_OFFSET + 2
     ] = STATUS_MONEY_UNIT_POINTER_SPACED
+
+    if base[STATUS_MONEY_UNIT_OFFSET:STATUS_MONEY_UNIT_OFFSET + 2] != STATUS_MONEY_UNIT_STOCK:
+        raise SystemExit("Unexpected clean-USA Status money unit literal")
+    money_unit = encode_text(rows["MONEY_UNIT"], "Status money unit")
+    if len(money_unit) != 2:
+        raise SystemExit("Status money unit must remain exactly two fixed-font cells")
+    rom[STATUS_MONEY_UNIT_OFFSET:STATUS_MONEY_UNIT_OFFSET + 2] = money_unit
 
     _write_status_fixed_records(base, rom, rows, "WEAPONS", STATUS_WEAPON_RANGES)
     _write_status_fixed_records(base, rom, rows, "MISC", STATUS_MISC_RANGES)

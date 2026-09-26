@@ -4,12 +4,6 @@
   "description": "Reviewed fixed-width currency literals owned by french_resources. French prose stays data-driven; vwf_ui only controls presentation geometry.",
   "entries": [
     {
-      "id": "C7:7B6A",
-      "category": "shop_money_unit",
-      "source": "GP",
-      "text": "PO"
-    },
-    {
       "id": "D0:D894",
       "category": "shop_price_unit",
       "source": "GP",
