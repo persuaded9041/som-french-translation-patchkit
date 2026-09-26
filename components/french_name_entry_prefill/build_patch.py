@@ -234,7 +234,7 @@ def main() -> None:
         print(f"Overlay-only ROM (requires declared dependencies for use): {patched_path}")
 
     print(f"Base ROM verified: {args.rom}")
-    print("Dependencies: name_entry_prefill, french_name_entry_extended")
+    print("Dependencies: default_name_entry_prefill, french_name_entry_extended")
     for role in ROLE_ORDER:
         print(f"French default {role}: {defaults[role]}")
     print(f"French helper: {len(helper)} bytes")

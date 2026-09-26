@@ -1,5 +1,5 @@
 {
-  "id": "vwf_intro",
+  "id": "default_vwf_intro",
   "short_name": "vwf-intro",
   "name": "New-game intro VWF runtime",
   "build_order": 50

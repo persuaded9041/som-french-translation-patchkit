@@ -1,0 +1,8 @@
+{
+  "id": "french_font",
+  "short_name": "french-font",
+  "name": "French global fixed font candidate",
+  "build_order": 115,
+  "french": true,
+  "aggregate_enabled": false
+}

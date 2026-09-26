@@ -2,5 +2,6 @@
   "id": "french_opening",
   "short_name": "french-opening",
   "name": "French opening and credits",
+  "french": true,
   "build_order": 40
 }

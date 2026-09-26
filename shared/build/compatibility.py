@@ -19,7 +19,7 @@ def _uses_parser_fetch_dispatcher(component) -> bool:
     return bool(component.metadata.get("parser_fetch_dispatcher"))
 
 def _is_dialogue_vwf(component) -> bool:
-    return component.id == "vwf_dialogues"
+    return component.id == "default_vwf_dialogues"
 
 def _mergeable_parser_fetch(left, right, offset: int) -> bool:
     if not (PARSER_FETCH_OFFSET <= offset < PARSER_FETCH_END):

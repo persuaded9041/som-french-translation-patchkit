@@ -71,6 +71,7 @@ intro DTE codes during event `$0400`.
 
 - `charset.json` - character assignments and profiles.
 - `french_glyphs.png` - editable 21-glyph 8×12 atlas, code order `$D3-$E7`.
+- `french_font.png` - editable direct 104-glyph 8×12 atlas, code order `$80-$E7`.
 - `charset.py` - mapping/profile/PNG conversion helpers.
 - `../dialogue_dte.py` - context-sensitive dialogue DTE router.
 - `../name_dte.py` - Name Entry / PLAYER_NAME router owned by `french_name_entry_extended`.

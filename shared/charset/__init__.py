@@ -9,6 +9,7 @@ from .charset import (
     FIRST_CODE,
     FULL_DTE_THRESHOLD,
     FULL_FRENCH_CHARS,
+    french_font_bytes,
     glyph_bytes,
     profile_chars,
     profile_first_code,

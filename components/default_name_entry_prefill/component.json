@@ -1,9 +1,9 @@
 {
-  "id": "name_entry_prefill",
+  "id": "default_name_entry_prefill",
   "short_name": "name-prefill",
   "name": "Editable default player-name prefill",
   "build_order": 25,
   "requires": [
-    "name_entry_extended"
+    "default_name_entry_extended"
   ]
 }

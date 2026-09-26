@@ -267,7 +267,7 @@ shared `$7E:9380+` scratch mutually exclusive even though `vwf_dialogues` now al
 handles ordinary `$CA` event dialogue. The validated `intro_skip` `$938A-$938B` countdown remains structurally separated by the same early interception and is used only during translated `$0400`.
 
 Renderer architecture, metrics, caller discrimination and generic event-
-interruption handling belong to `components/vwf_dialogues/docs/`, not to this
+interruption handling belong to `components/default_vwf_dialogues/docs/`, not to this
 cross-component compatibility document.
 
 ## Dialogue text compatibility

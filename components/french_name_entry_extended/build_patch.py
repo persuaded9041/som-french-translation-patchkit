@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the French localization overlay for ``name_entry_extended``.
+"""Build the French localization overlay for ``default_name_entry_extended``.
 
 The generic component owns the 9-character engine/layout and the first three
 rows. This dependent overlay owns only the French extension row, French help,
@@ -231,10 +231,10 @@ def main() -> None:
         patched_path = args.patched_rom if args.patched_rom.is_absolute() else ROOT / args.patched_rom
         patched_path.parent.mkdir(parents=True, exist_ok=True)
         patched_path.write_bytes(patched)
-        print(f"Overlay-only ROM (requires name_entry_extended for use): {patched_path}")
+        print(f"Overlay-only ROM (requires default_name_entry_extended for use): {patched_path}")
 
     print(f"Base ROM verified: {args.rom}")
-    print("Dependency: name_entry_extended")
+    print("Dependency: default_name_entry_extended")
     print(f"French resource overlay: {len(overlay)} bytes")
     print(f"IPS: {output}")
     print(f"IPS size: {len(ips)} bytes")

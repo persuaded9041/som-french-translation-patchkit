@@ -4,7 +4,7 @@ Date completed: 2026-09-15
 
 This document records the proof ladder that replaced the former experimental
 `intro_skip` implementation. The final promoted component is the 120-tick
-continuous-R hold implementation in `components/intro_skip/`.
+continuous-R hold implementation in `components/default_intro_skip/`.
 
 The dialogue corpus was frozen throughout this work and was not reopened.
 
@@ -107,7 +107,7 @@ or multi-engine commit architecture is part of the promoted component.
 
 ## Promoted artifact hashes
 
-- `patches/intro_skip.ips`: `b37d529eb25eae572212d6f7179461785e463dfef9055fd840e00f5754136c16`
+- `patches/default_intro_skip.ips`: `b37d529eb25eae572212d6f7179461785e463dfef9055fd840e00f5754136c16`
 - `patches/all.ips`: `253ffde42f6977e714e9d27351089a2fbf0400bf46293ca8ed8967e38aad6b6d`
 - validated autonomous `french_intro + vwf_intro + intro_skip 120`: `f9f21e070d898f8ef8f05709a6ce8796dbc70a2b2faf2979e56f6c2517ed5997`
 

@@ -20,7 +20,7 @@ The component does not consume generated project outputs.
 From the repository root:
 
 ```bash
-python3 components/mana_tree_original/build_patch.py "Secret of Mana (USA).sfc" \
+python3 components/default_mana_tree_original/build_patch.py "Secret of Mana (USA).sfc" \
   -o /tmp/mana_tree_original.ips
 ```
 

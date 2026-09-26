@@ -13,8 +13,8 @@ COMPONENTS = ROOT / "components"
 
 # Binary/metadata assets that are intentionally not prose translation sources.
 ALLOWED_COMPONENT_TEXTLIKE_FILES = {
-    "components/mana_tree_original/assets/mana_tree_jp.bin",
-    "components/name_entry_extended/assets/naming_characters.txt",
+    "components/default_mana_tree_original/assets/mana_tree_jp.bin",
+    "components/default_name_entry_extended/assets/naming_characters.txt",
     "components/french_intro/assets/text/intro_layout.json",
 }
 
@@ -30,18 +30,18 @@ RETIRED_NAMES = {
 
 # These components intentionally own no translatable prose.
 NO_TRANSLATION_COMPONENTS = {
-    "mana_tree_original",
-    "name_entry_extended",
-    "name_entry_prefill",
-    "vwf_intro",
-    "vwf_dialogues",
-    "intro_skip",
+    "default_mana_tree_original",
+    "default_name_entry_extended",
+    "default_name_entry_prefill",
+    "default_vwf_intro",
+    "default_vwf_dialogues",
+    "default_intro_skip",
 }
 
 # `name_entry_extended` legitimately reads the clean-USA interface source so it
 # can reproduce the relocated English help with the functional 9-character
 # limit. It still must never consume a translation JSON.
-NO_ROOT_TEXT_COMPONENTS = NO_TRANSLATION_COMPONENTS - {"name_entry_extended"}
+NO_ROOT_TEXT_COMPONENTS = NO_TRANSLATION_COMPONENTS - {"default_name_entry_extended"}
 
 
 def fail(message: str) -> None:
@@ -364,7 +364,7 @@ def main() -> None:
     print("  - no component CSV translation sources")
     print("  - no retired component-local prose BIN/CSV paths")
     print("  - upstream Android prose is isolated under sources/android/")
-    print("  - `mana_tree_original` / `name_entry_extended` / `name_entry_prefill` / `vwf_intro` / `vwf_dialogues` / `intro_skip` own no translation-JSON dependencies")
+    print("  - default components own no translation-JSON dependencies")
     print("  - remaining component-local .bin/.txt assets are explicit non-prose data")
     print("  - dialogues_french.json is only a fingerprint-validated local cache, never canonical provenance")
     print("  - dialogue regression/charset checks regenerate ignored alignment/format snapshots in memory")

@@ -1,5 +1,5 @@
 {
-  "id": "name_entry_extended",
+  "id": "default_name_entry_extended",
   "short_name": "name-entry",
   "name": "Extended player-name entry",
   "build_order": 20

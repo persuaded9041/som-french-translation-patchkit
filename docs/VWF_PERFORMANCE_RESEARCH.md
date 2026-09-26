@@ -12,7 +12,7 @@ Static inspection shows that this is expected from the current architecture: the
 
 ### 1. Ring renders 38 private slots regardless of real title length
 
-`components/vwf_ui/build_patch.py::make_ui_renderer()` clears a 38-byte private render buffer, copies the stock decoded row, then sets `$A176=$26` for Ring/Forge/D9/MONEY. Therefore padding `$80` spaces are rasterized like real characters even though the bitmap is already cleared.
+`components/default_vwf_ui/build_patch.py::make_ui_renderer()` clears a 38-byte private render buffer, copies the stock decoded row, then sets `$A176=$26` for Ring/Forge/D9/MONEY. Therefore padding `$80` spaces are rasterized like real characters even though the bitmap is already cleared.
 
 The nine reviewed Ring titles contain 4..32 real glyphs (average 20). Baseline work is always 38 glyphs = 456 font-row passes. Real-count rendering would average 240 font-row passes, a 47.4% reduction in Ring glyph passes before any lower-level optimization.
 

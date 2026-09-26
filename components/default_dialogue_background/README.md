@@ -65,7 +65,7 @@ python3 build.py '/path/to/Secret of Mana (USA).sfc' dialogue-background
 or directly:
 
 ```bash
-python3 components/dialogue_background/build_patch.py \
+python3 components/default_dialogue_background/build_patch.py \
   '/path/to/Secret of Mana (USA).sfc' \
   -o patches/dialogue_background.ips
 ```

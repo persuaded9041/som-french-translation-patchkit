@@ -54,7 +54,7 @@ This component has no dependencies. `french_name_entry_extended` and
 `name_entry_prefill` depend on it.
 
 ```bash
-python3 components/name_entry_extended/build_patch.py "Secret of Mana (USA).sfc"
+python3 components/default_name_entry_extended/build_patch.py "Secret of Mana (USA).sfc"
 python3 build.py "Secret of Mana (USA).sfc" name-entry
 ```
 

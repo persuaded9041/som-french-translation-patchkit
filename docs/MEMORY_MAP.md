@@ -140,7 +140,7 @@ intercepts translated intro event `$0400` before `vwf_dialogues` reaches its ent
 hook, so their overlapping WRAM scratch remains mutually exclusive.
 
 The complete hook-by-hook allocation, fixed addresses and scratch ownership are
-documented in `components/vwf_dialogues/docs/MEMORY_MAP.md`. This root map
+documented in `components/default_vwf_dialogues/docs/MEMORY_MAP.md`. This root map
 intentionally avoids duplicating renderer status and calibration details.
 
 `intro_skip` now runtime-validates `$7E:938A-$938B` as one 16-bit continuous-hold countdown (`$FFFF` inactive, `$0000` completed) during translated event `$0400`, and owns `$ED:7400-$74FF` for its two helpers. `vwf_intro` intercepts this event before ordinary `vwf_dialogues`, preserving the existing scratch-lifetime separation. See `docs/INTRO_SKIP_VALIDATION.md`.

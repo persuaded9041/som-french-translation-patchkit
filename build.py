@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build reusable component IPS files and safely combine them into all.ips."""
+"""Build reusable component IPS files and combine USA/French aggregates."""
 from __future__ import annotations
 
 import argparse
@@ -21,6 +21,33 @@ DEFAULT_PATCH_DIR = ROOT / "patches"
 def aggregate_components(components):
     """Components currently admitted to the validated aggregate/all.ips set."""
     return [component for component in components if component.metadata.get("aggregate_enabled", True)]
+
+
+def us_aggregate_components(components):
+    """Return aggregate components that are valid for the USA-only build."""
+    selected = {
+        component.id: component
+        for component in aggregate_components(components)
+        if not component.metadata.get("french", False)
+    }
+    changed = True
+    while changed:
+        changed = False
+        for component_id, component in list(selected.items()):
+            if any(required_id not in selected for required_id in component.metadata.get("requires", [])):
+                del selected[component_id]
+                changed = True
+    return [component for component in components if component.id in selected]
+
+
+def french_aggregate_components(components):
+    """Return aggregate-enabled or explicitly French components."""
+    return [
+        component
+        for component in components
+        if component.metadata.get("aggregate_enabled", True)
+        or component.metadata.get("french", False)
+    ]
 
 
 def resolve_selection(values: list[str], components):
@@ -96,7 +123,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
             "Rebuild reusable standalone component IPS files and optionally combine the stored "
-            "aggregate-enabled component patches into all.ips."
+            "USA-compatible component patches into all.ips, with optional French aggregates."
         )
     )
     parser.add_argument("rom", nargs="?", type=Path, help="clean unheadered Secret of Mana (USA) ROM")
@@ -126,7 +153,12 @@ def main() -> None:
     parser.add_argument(
         "--cheats",
         action="store_true",
-        help="include the standalone cheats component when combining all.ips",
+        help="also create all-cheats.ips from the USA-compatible aggregate",
+    )
+    parser.add_argument(
+        "--french",
+        action="store_true",
+        help="also create all-fr.ips, and all-fr-cheats.ips when combined with --cheats",
     )
     parser.add_argument("--list", action="store_true", help="list discovered components and exit")
     args = parser.parse_args()
@@ -134,6 +166,8 @@ def main() -> None:
     if args.list:
         for component in components:
             status = "" if component.metadata.get("aggregate_enabled", True) else " [standalone-only]"
+            if component.metadata.get("french", False):
+                status += " [French]"
             print(f"{component.short_name:20} {component.id:26} {component.name}{status}")
         return
     if args.rom is None:
@@ -144,6 +178,8 @@ def main() -> None:
         parser.error("--patched-rom requires --combine")
     if args.cheats and not args.combine:
         parser.error("--cheats requires --combine")
+    if args.french and not args.combine:
+        parser.error("--french requires --combine")
 
     args.rom = args.rom.resolve()
     patch_dir = args.patch_dir.resolve()
@@ -154,9 +190,13 @@ def main() -> None:
     # it reuses every standalone IPS already stored in patch_dir without rebuilding anything.
     selected = [] if args.combine and not args.components else resolve_selection(args.components, components)
     if args.cheats:
-        cheats_component = next(component for component in components if component.id == "cheats")
+        cheats_component = next(component for component in components if component.id == "default_cheats")
         if cheats_component not in selected:
             selected.append(cheats_component)
+    if args.french:
+        french_font = next(component for component in components if component.id == "french_font")
+        if french_font not in selected:
+            selected.append(french_font)
 
     if selected:
         # A full rebuild warms the complete deterministic root extraction cache
@@ -182,10 +222,10 @@ def main() -> None:
             print("\nRebuilt components:")
             for component in selected:
                 print(f"  - {component.id}")
-        print("Use --combine to create all.ips from the complete set of stored component patches.")
+        print("Use --combine to create all.ips from the stored USA-compatible component patches.")
         return
 
-    normal_components = aggregate_components(components)
+    normal_components = us_aggregate_components(components)
     normal_patch_data = load_component_patches(normal_components, patch_dir)
     normal_patch, normal_rom, normal_checksum, normal_identical, normal_declared = combine_patches(
         base, normal_components, normal_patch_data
@@ -209,7 +249,7 @@ def main() -> None:
 
     if args.cheats:
         cheat_components = [*normal_components]
-        cheats_component = next(component for component in components if component.id == "cheats")
+        cheats_component = next(component for component in components if component.id == "default_cheats")
         cheat_components.append(cheats_component)
         cheat_patch_data = load_component_patches(cheat_components, patch_dir)
         cheat_patch, cheat_rom, cheat_checksum, cheat_identical, cheat_declared = combine_patches(
@@ -225,6 +265,40 @@ def main() -> None:
         print(f"Final ROM size: 0x{len(cheat_rom):X}")
         print(f"Final checksum: ${cheat_checksum:04X}")
         print(f"IPS: {cheat_output}")
+
+    if args.french:
+        french_components = french_aggregate_components(components)
+        french_patch_data = load_component_patches(french_components, patch_dir)
+        french_patch, french_rom, french_checksum, french_identical, french_declared = combine_patches(
+            base, french_components, french_patch_data
+        )
+        french_output = patch_dir / "all-fr.ips"
+        french_output.write_bytes(french_patch)
+        print("\nCombined French components:")
+        for component in french_components:
+            print(f"  - {component.id}")
+        print(f"Compatible identical overlapping bytes: {french_identical}")
+        print(f"Declared special/header overlapping bytes: {french_declared}")
+        print(f"Final ROM size: 0x{len(french_rom):X}")
+        print(f"Final checksum: ${french_checksum:04X}")
+        print(f"IPS: {french_output}")
+
+        if args.cheats:
+            french_cheat_components = [*french_components, cheats_component]
+            french_cheat_data = load_component_patches(french_cheat_components, patch_dir)
+            french_cheat_patch, french_cheat_rom, french_cheat_checksum, french_cheat_identical, french_cheat_declared = combine_patches(
+                base, french_cheat_components, french_cheat_data
+            )
+            french_cheat_output = patch_dir / "all-fr-cheats.ips"
+            french_cheat_output.write_bytes(french_cheat_patch)
+            print("\nCombined French components with cheats:")
+            for component in french_cheat_components:
+                print(f"  - {component.id}")
+            print(f"Compatible identical overlapping bytes: {french_cheat_identical}")
+            print(f"Declared special/header overlapping bytes: {french_cheat_declared}")
+            print(f"Final ROM size: 0x{len(french_cheat_rom):X}")
+            print(f"Final checksum: ${french_cheat_checksum:04X}")
+            print(f"IPS: {french_cheat_output}")
 
 
 if __name__ == "__main__":

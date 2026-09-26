@@ -1,5 +1,5 @@
 {
-  "id": "vwf_dialogues",
+  "id": "default_vwf_dialogues",
   "short_name": "vwf-dialogues",
   "name": "Dialogue VWF",
   "shared_charset_profile": "dialogue_french",

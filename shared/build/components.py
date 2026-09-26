@@ -53,7 +53,7 @@ def _validate_manifest(folder: str, metadata: object, manifest: Path) -> dict[st
         if not isinstance(rule.get("reason"), str) or not rule["reason"]:
             raise SystemExit(f"{folder}: override rule needs a non-empty reason: {rule!r}")
 
-    for flag in ("dialogue_dte_router", "name_dte_router", "aggregate_enabled"):
+    for flag in ("dialogue_dte_router", "name_dte_router", "aggregate_enabled", "french"):
         if flag in metadata and not isinstance(metadata[flag], bool):
             raise SystemExit(f"{folder}: {flag} must be boolean")
     if "shared_charset_profile" in metadata and not isinstance(metadata["shared_charset_profile"], str):

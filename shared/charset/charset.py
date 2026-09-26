@@ -6,6 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 DEFINITION_FILE = ROOT / "charset.json"
 GLYPH_FILE = ROOT / "french_glyphs.png"
+FONT_FILE = ROOT / "french_font.png"
 
 
 def _load_definition() -> dict:
@@ -149,3 +150,51 @@ def glyph_bytes(chars: str | None = None) -> bytes:
                         row |= 0x80 >> x
                 out.append(row)
     return bytes(out)
+
+
+def french_font_bytes() -> bytes:
+    """Return the complete direct French fixed font from the shared PNG.
+
+    The atlas comes from the French ROM's global direct-font range, with the
+    project-owned `$D3-$E7` glyphs stored in the PNG itself. Those glyphs are
+    validated against the canonical shared glyph atlas so they cannot drift.
+    """
+    try:
+        from PIL import Image
+    except ImportError as exc:
+        raise RuntimeError(
+            "Pillow is required to read shared/charset/french_font.png"
+        ) from exc
+
+    # `$E8-$FF` are dialogue/DTE codes or adjacent data, not direct glyphs.
+    # The editable fixed-font atlas therefore ends at the project-owned `$E7`.
+    glyph_count = 0xE7 - 0x80 + 1
+    expected_size = (glyph_count * 8, 12)
+    try:
+        with Image.open(FONT_FILE) as source:
+            image = source.convert("RGBA")
+            if image.size != expected_size:
+                raise RuntimeError(
+                    f"{FONT_FILE} must be {expected_size[0]}x{expected_size[1]} pixels, "
+                    f"got {image.size[0]}x{image.size[1]}"
+                )
+            font = bytearray()
+            for glyph in range(glyph_count):
+                for y in range(12):
+                    row = 0
+                    for x in range(8):
+                        if image.getpixel((glyph * 8 + x, y))[3] != 0:
+                            row |= 0x80 >> x
+                    font.append(row)
+    except OSError as exc:
+        raise RuntimeError(f"Unable to read French font asset: {FONT_FILE}") from exc
+
+    first = min(CHAR_TO_CODE[ch] for ch in DIALOGUE_FRENCH_CHARS)
+    start = (first - 0x80) * 12
+    expected = glyph_bytes(DIALOGUE_FRENCH_CHARS)
+    actual = bytes(font[start:start + len(expected)])
+    if actual != expected:
+        raise RuntimeError(
+            f"{FONT_FILE} must preserve the canonical $D3-$E7 project glyphs"
+        )
+    return bytes(font)
