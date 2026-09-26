@@ -58,6 +58,8 @@ def _validate_manifest(folder: str, metadata: object, manifest: Path) -> dict[st
             raise SystemExit(f"{folder}: {flag} must be boolean")
     if "shared_charset_profile" in metadata and not isinstance(metadata["shared_charset_profile"], str):
         raise SystemExit(f"{folder}: shared_charset_profile must be a string")
+    if "patch_base" in metadata and (not isinstance(metadata["patch_base"], str) or not metadata["patch_base"]):
+        raise SystemExit(f"{folder}: patch_base must be a non-empty component ID")
     return metadata
 
 
@@ -117,4 +119,13 @@ def discover_components(root: Path) -> list[Component]:
                 raise SystemExit(
                     f"{component.id}: override of {overridden_id!r} must also declare it in requires"
                 )
+        patch_base = component.metadata.get("patch_base")
+        if patch_base is not None:
+            base_component = by_id.get(patch_base)
+            if base_component is None:
+                raise SystemExit(f"{component.id}: patch_base references unknown component {patch_base!r}")
+            if patch_base not in component.metadata.get("requires", []):
+                raise SystemExit(f"{component.id}: patch_base must also be declared in requires")
+            if base_component.metadata["build_order"] >= component.metadata["build_order"]:
+                raise SystemExit(f"{component.id}: patch_base {patch_base!r} must have a lower build_order")
     return components

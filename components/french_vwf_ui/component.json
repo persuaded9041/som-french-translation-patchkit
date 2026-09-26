@@ -1,0 +1,9 @@
+{
+  "id": "french_vwf_ui",
+  "short_name": "french-vwf-ui",
+  "name": "French VWF UI overlay",
+  "french": true,
+  "patch_base": "default_vwf_ui",
+  "requires": ["default_vwf_ui", "french_menus", "french_resources"],
+  "build_order": 105
+}

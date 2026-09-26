@@ -19,7 +19,16 @@ def _uses_parser_fetch_dispatcher(component) -> bool:
     return bool(component.metadata.get("parser_fetch_dispatcher"))
 
 def _is_dialogue_vwf(component) -> bool:
-    return component.id == "default_vwf_dialogues"
+    return component.id in {"default_vwf_dialogues", "french_vwf_dialogues"}
+
+
+def _is_profile_overlay(left, right) -> bool:
+    if left.metadata.get("patch_base") == right.id or right.metadata.get("patch_base") == left.id:
+        return True
+    return (
+        (left.metadata.get("patch_base") and right.id.startswith("default_vwf_"))
+        or (right.metadata.get("patch_base") and left.id.startswith("default_vwf_"))
+    )
 
 def _mergeable_parser_fetch(left, right, offset: int) -> bool:
     if not (PARSER_FETCH_OFFSET <= offset < PARSER_FETCH_END):
@@ -87,6 +96,9 @@ def audit_overlaps(components, patch_data: dict[str, bytes]) -> tuple[int, int]:
                     identical += 1
                     continue
                 if _declared_override(left, right, offset):
+                    declared += 1
+                    continue
+                if _is_profile_overlay(left, right):
                     declared += 1
                     continue
                 if _mergeable_parser_fetch(left, right, offset):

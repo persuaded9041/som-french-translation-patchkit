@@ -194,9 +194,9 @@ def main() -> None:
         if cheats_component not in selected:
             selected.append(cheats_component)
     if args.french:
-        french_font = next(component for component in components if component.id == "french_font")
-        if french_font not in selected:
-            selected.append(french_font)
+        for french_component in french_aggregate_components(components):
+            if french_component not in selected:
+                selected.append(french_component)
 
     if selected:
         # A full rebuild warms the complete deterministic root extraction cache

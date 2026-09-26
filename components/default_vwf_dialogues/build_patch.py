@@ -35,6 +35,7 @@ It contains no event-address or WAIT-opcode special cases.
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 import sys
 
@@ -142,8 +143,9 @@ CONT_LINE = 0x93D3
 CONT_TILE = 0x93D4  # 12 bytes through $93DF
 DTE_NEW_THRESHOLD = DIALOGUE_DTE_THRESHOLD
 FONT_BASE = 0x12DC00
-DIALOGUE_CHARS = DIALOGUE_FRENCH_CHARS
-GLYPH_FIRST = min(CHAR_TO_CODE[ch] for ch in DIALOGUE_CHARS)
+FRENCH_PROFILE = os.environ.get("SOM_VWF_PROFILE") == "french"
+DIALOGUE_CHARS = DIALOGUE_FRENCH_CHARS if FRENCH_PROFILE else ""
+GLYPH_FIRST = min(CHAR_TO_CODE[ch] for ch in DIALOGUE_CHARS) if DIALOGUE_CHARS else 0x80
 
 ROM_TARGET_SIZE = 0x300000
 
@@ -790,9 +792,10 @@ def make_width_table(base: bytes) -> bytes:
     """
     table = bytearray(128)
     font = bytearray(base[FONT_BASE:FONT_BASE + 128 * 12])
-    french = glyph_bytes(DIALOGUE_CHARS)
-    french_start = (GLYPH_FIRST - 0x80) * 12
-    font[french_start:french_start + len(french)] = french
+    if DIALOGUE_CHARS:
+        french = glyph_bytes(DIALOGUE_CHARS)
+        french_start = (GLYPH_FIRST - 0x80) * 12
+        font[french_start:french_start + len(french)] = french
 
     for code in range(0x80, 0x100):
         rows = font[(code - 0x80) * 12:(code - 0x80 + 1) * 12]
@@ -809,9 +812,10 @@ def make_right_edge_table(base: bytes) -> bytes:
     not cause a premature wrap when the visible ink still fits exactly.
     """
     font = bytearray(base[FONT_BASE:FONT_BASE + 128 * 12])
-    french = glyph_bytes(DIALOGUE_CHARS)
-    french_start = (GLYPH_FIRST - 0x80) * 12
-    font[french_start:french_start + len(french)] = french
+    if DIALOGUE_CHARS:
+        french = glyph_bytes(DIALOGUE_CHARS)
+        french_start = (GLYPH_FIRST - 0x80) * 12
+        font[french_start:french_start + len(french)] = french
 
     table = bytearray()
     for code in range(0x80, 0x100):
@@ -862,9 +866,10 @@ def validate_metrics(base: bytes, width_table: bytes) -> None:
 
     # Verify the stock lowercase left bearings used by the validated framing selector.
     font = bytearray(base[FONT_BASE:FONT_BASE + 128 * 12])
-    french = glyph_bytes(DIALOGUE_CHARS)
-    french_start = (GLYPH_FIRST - 0x80) * 12
-    font[french_start:french_start + len(french)] = french
+    if DIALOGUE_CHARS:
+        french = glyph_bytes(DIALOGUE_CHARS)
+        french_start = (GLYPH_FIRST - 0x80) * 12
+        font[french_start:french_start + len(french)] = french
     for code in range(0x81, 0x9B):
         rows = font[(code - 0x80) * 12:(code - 0x80 + 1) * 12]
         bounds = ink_bounds(rows)
@@ -972,7 +977,7 @@ def validate_metrics(base: bytes, width_table: bytes) -> None:
         0xD3: ((0, 6), 7),  # ♪: compact 7 px advance
         0xE6: ((1, 5), 7),  # °: 5 px ink + 1 px on each side
         0xE7: ((1, 2), 4),  # ;: 2 px ink + 1 px on each side
-    }
+    } if FRENCH_PROFILE else {}
     for code, (expected_bounds, expected_width) in extended_geometry.items():
         rows = font[(code - 0x80) * 12:(code - 0x80 + 1) * 12]
         bounds = ink_bounds(rows)
@@ -1008,7 +1013,7 @@ def validate_metrics(base: bytes, width_table: bytes) -> None:
 
     # Runtime-validated shared French charset. $D4-$E3 share a 1 px left bearing and
     # 6 px ink width; Œ/œ ($E4/$E5) are genuinely full-width.
-    for code in range(0xD4, 0xE6):
+    for code in range(0xD4, 0xE6) if FRENCH_PROFILE else ():
         rows = font[(code - 0x80) * 12:(code - 0x80 + 1) * 12]
         bounds = ink_bounds(rows)
         expected_bounds = (0, 7) if code >= 0xE4 else (1, 6)
@@ -1070,12 +1075,13 @@ def build(base: bytes) -> bytes:
     validate_shared_row_renderer_stock(base)
     validate_shared_outline_stock(base)
     rom = expand_rom(base, ROM_TARGET_SIZE)
-    validate_dialogue_dte_stock(base)
-    install_dialogue_dte_router(rom)
-    enable_extended_dialogue_dte(rom)
-    french_glyphs = glyph_bytes(DIALOGUE_CHARS)
-    glyph_start = FONT_BASE + (GLYPH_FIRST - 0x80) * 12
-    rom[glyph_start:glyph_start + len(french_glyphs)] = french_glyphs
+    if FRENCH_PROFILE:
+        validate_dialogue_dte_stock(base)
+        install_dialogue_dte_router(rom)
+        enable_extended_dialogue_dte(rom)
+        french_glyphs = glyph_bytes(DIALOGUE_CHARS)
+        glyph_start = FONT_BASE + (GLYPH_FIRST - 0x80) * 12
+        rom[glyph_start:glyph_start + len(french_glyphs)] = french_glyphs
     install_shared_ui_dispatcher(rom)
     rom[CHAR_START_FILE:CHAR_START_FILE + len(CHAR_START_HOOK)] = CHAR_START_HOOK
     rom[FONT_ROW_FILE:FONT_ROW_FILE + len(FONT_ROW_HOOK)] = FONT_ROW_HOOK

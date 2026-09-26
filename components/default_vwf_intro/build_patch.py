@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import argparse
+import os
 import struct
 import sys
 
@@ -54,7 +55,8 @@ RELOC_SOURCE_END = 0x0E8C
 RELOC_TARGET_START = 0xFF70
 RELOC_TARGET_LIMIT = 0xFFC0  # intro_skip begins here
 
-FRENCH_CHARS = FULL_FRENCH_CHARS
+FRENCH_PROFILE = os.environ.get("SOM_VWF_PROFILE") == "french"
+FRENCH_CHARS = FULL_FRENCH_CHARS if FRENCH_PROFILE else ""
 ASCII_TO_SOM = {" ": 0x80}
 ASCII_TO_SOM.update({chr(ord("a") + i): 0x81 + i for i in range(26)})
 ASCII_TO_SOM.update({chr(ord("A") + i): 0x9B + i for i in range(26)})
@@ -238,13 +240,14 @@ def make_vwf_font(base: bytearray) -> tuple[bytes, bytes, bytes]:
     width table while leaving glyph ownership entirely to `french_intro`.
     """
     virtual_font = bytearray(base[FONT_BASE : FONT_BASE + 128 * 12])
-    try:
-        french_glyphs = glyph_bytes(FRENCH_CHARS)
-    except RuntimeError as exc:
-        raise SystemExit(str(exc)) from exc
-    accent_first = min(CHAR_TO_CODE[ch] for ch in FRENCH_CHARS)
-    glyph_start = (accent_first - 0x80) * 12
-    virtual_font[glyph_start : glyph_start + len(french_glyphs)] = french_glyphs
+    if FRENCH_CHARS:
+        try:
+            french_glyphs = glyph_bytes(FRENCH_CHARS)
+        except RuntimeError as exc:
+            raise SystemExit(str(exc)) from exc
+        accent_first = min(CHAR_TO_CODE[ch] for ch in FRENCH_CHARS)
+        glyph_start = (accent_first - 0x80) * 12
+        virtual_font[glyph_start : glyph_start + len(french_glyphs)] = french_glyphs
 
     framed = bytearray()
     advances = bytearray()

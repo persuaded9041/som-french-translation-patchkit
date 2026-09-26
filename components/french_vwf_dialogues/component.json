@@ -1,0 +1,10 @@
+{
+  "id": "french_vwf_dialogues",
+  "short_name": "french-vwf-dialogues",
+  "name": "French VWF dialogue overlay",
+  "french": true,
+  "dialogue_dte_router": true,
+  "patch_base": "default_vwf_dialogues",
+  "requires": ["default_vwf_dialogues", "french_dialogues"],
+  "build_order": 85
+}

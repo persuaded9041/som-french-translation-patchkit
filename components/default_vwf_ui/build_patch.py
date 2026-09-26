@@ -8,6 +8,7 @@ of `vwf_dialogues`; only byte-identical shared VWF infrastructure is reused.
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 import sys
 
@@ -46,8 +47,9 @@ from shared.vwf.ui import (  # noqa: E402
 
 ROM_TARGET_SIZE = 0x300000
 FONT_BASE = 0x12DC00
-DIALOGUE_CHARS = DIALOGUE_FRENCH_CHARS
-GLYPH_FIRST = min(CHAR_TO_CODE[ch] for ch in DIALOGUE_CHARS)
+FRENCH_PROFILE = os.environ.get("SOM_VWF_PROFILE") == "french"
+DIALOGUE_CHARS = DIALOGUE_FRENCH_CHARS if FRENCH_PROFILE else ""
+GLYPH_FIRST = min(CHAR_TO_CODE[ch] for ch in DIALOGUE_CHARS) if DIALOGUE_CHARS else 0x80
 
 FORGE_SUBMIT_FILE = 0x10D3D2
 FORGE_SUBMIT_SIGNATURE = bytes.fromhex("A9 00 00 20 D7 D5")
@@ -1103,9 +1105,10 @@ def make_status_vwf_converter_hook() -> bytes:
 def make_width_table(base: bytes) -> bytes:
     table = bytearray(128)
     font = bytearray(base[FONT_BASE:FONT_BASE + 128 * 12])
-    french = glyph_bytes(DIALOGUE_CHARS)
-    french_start = (GLYPH_FIRST - 0x80) * 12
-    font[french_start:french_start + len(french)] = french
+    if DIALOGUE_CHARS:
+        french = glyph_bytes(DIALOGUE_CHARS)
+        french_start = (GLYPH_FIRST - 0x80) * 12
+        font[french_start:french_start + len(french)] = french
     for code in range(0x80, 0x100):
         rows = font[(code - 0x80) * 12:(code - 0x80 + 1) * 12]
         table[code - 0x80] = validated_advance(code, rows)
@@ -1743,10 +1746,10 @@ def build(base: bytes) -> bytes:
     install_outline(rom)
     enable_ui(rom)
 
-    # Ensure shared French glyph slots exist when UI resources use them.
-    french = glyph_bytes(DIALOGUE_CHARS)
-    glyph_start = FONT_BASE + (GLYPH_FIRST - 0x80) * 12
-    rom[glyph_start:glyph_start + len(french)] = french
+    if DIALOGUE_CHARS:
+        french = glyph_bytes(DIALOGUE_CHARS)
+        glyph_start = FONT_BASE + (GLYPH_FIRST - 0x80) * 12
+        rom[glyph_start:glyph_start + len(french)] = french
 
     # GAME FILE Mana exact identity. Redirect only the fourth generator entry
     # through a free C7 trampoline; the trampoline calls the private VWF submit
