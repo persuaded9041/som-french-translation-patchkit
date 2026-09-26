@@ -602,3 +602,18 @@ This is an ownership/data-model cleanup only: rebuilding the full aggregate
 produces a ROM **byte-for-byte identical** to the runtime-validated Controller
 Edit baseline (SHA-256 `a0873093913bddcbef922a3d899f8a84f9f133539403a83f29d9f27336794f41`).
 No new runtime validation is required.
+
+
+### Nettoyage du dépôt — 2026-09-26
+
+Le checkpoint de reprise a été allégé :
+
+- suppression de `build/`, des anciens candidats et des caches Python ;
+- suppression des caches de traduction générés `dialogues_french.json` et
+  `text_resources_french.json` (recréés automatiquement au build) ;
+- suppression de `docs/RESUME_PROMPT.md`, supersédé par ce handoff et le plugin ;
+- suppression de l'ancien snapshot `docs/TEXT_COMPONENT_AUDIT.md` ;
+- aucune ROM n'est conservée dans le dépôt de reprise.
+
+Les documents de recherche qui contiennent encore des contraintes, preuves
+runtime ou pièges d'architecture ont volontairement été conservés.

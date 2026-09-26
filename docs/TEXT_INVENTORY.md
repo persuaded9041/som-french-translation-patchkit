@@ -80,5 +80,5 @@ A repository-wide component audit found no additional prose source in components
 `mana_tree_original`, `vwf_dialogues`, or `intro_skip`. `mana_tree_original` owns graphics/resource data, `vwf_dialogues` owns runtime
 dialogue rendering only, and `intro_skip`'s private event consists only of event
 commands. `french_name_entry_extended`, `french_menus`, `french_opening`, `french_intro`, `french_dialogues`, and `french_resources` are the current translated component consumers of the
-root source/translation JSON architecture. See `TEXT_COMPONENT_AUDIT.md` for the
+root source/translation JSON architecture. See `TRANSLATIONS.md` for the
 file-by-file audit and the remaining intentional component-local data assets.

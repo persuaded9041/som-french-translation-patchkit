@@ -7,13 +7,11 @@ __pycache__/
 .venv/
 *.html
 *.csv
-reports/
 
-## uncomment this lines at the end of the project
-#translations/dialogues_french.json
-#translations/text_resources_french.json
-#/assets/
-#/patches/
+# Generated translation caches; canonical inputs live under assets/, recipes/,
+# sources/android/ and reviewed translation JSON files.
+translations/dialogues_french.json
+translations/text_resources_french.json
 
-# Local emulator, settings, saves and debugging artifacts
+# Local emulator/settings/debugging artifacts.
 /.local/mesen/
