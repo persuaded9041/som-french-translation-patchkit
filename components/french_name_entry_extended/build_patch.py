@@ -36,6 +36,7 @@ from shared.text.interface import (  # noqa: E402
     verify_against_rom as verify_interface_text,
 )
 from shared.core.ips import apply_ips, make_ips  # noqa: E402
+from shared.build.dependency_overlay import make_dependency_overlay  # noqa: E402
 from shared.name_entry.dte import (  # noqa: E402
     install as install_name_dte_router,
     validate_stock as validate_name_dte_stock,
@@ -220,9 +221,15 @@ def main() -> None:
     validate_base_rom(base)
     overlay = build_overlay(base)
     patched = apply(base, overlay)
-    ips = make_ips(base, patched)
-    if apply_ips(bytearray(base), ips) != patched:
+    full_ips = make_ips(base, patched)
+    if apply_ips(bytearray(base), full_ips) != patched:
         raise AssertionError("IPS self-application failed")
+    ips = make_dependency_overlay(
+        base,
+        args.rom.resolve(),
+        [PROJECT_ROOT / "components" / "default_name_entry_extended"],
+        full_ips,
+    )
 
     output = args.output if args.output.is_absolute() else ROOT / args.output
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -237,7 +244,7 @@ def main() -> None:
     print("Dependency: default_name_entry_extended")
     print(f"French resource overlay: {len(overlay)} bytes")
     print(f"IPS: {output}")
-    print(f"IPS size: {len(ips)} bytes")
+    print(f"Dependency delta IPS size: {len(ips)} bytes")
 
 
 if __name__ == "__main__":

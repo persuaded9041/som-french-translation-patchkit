@@ -13,6 +13,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from shared.core.asm import MiniAssembler, lo24  # noqa: E402
 from shared.core.ips import apply_ips, make_ips  # noqa: E402
+from shared.build.dependency_overlay import make_dependency_overlay  # noqa: E402
 from shared.core.rom import update_checksum, validate_base_rom  # noqa: E402
 
 HELPER_OFFSET = 0x074630
@@ -220,9 +221,18 @@ def main() -> None:
     records = build_records(defaults, extension_row)
     helper = build_helper()
     patched = apply(base, helper, records)
-    ips = make_ips(base, patched)
-    if apply_ips(bytearray(base), ips) != patched:
+    full_ips = make_ips(base, patched)
+    if apply_ips(bytearray(base), full_ips) != patched:
         raise AssertionError("IPS self-application failed")
+    ips = make_dependency_overlay(
+        base,
+        args.rom.resolve(),
+        [
+            PROJECT_ROOT / "components" / "default_name_entry_extended",
+            PROJECT_ROOT / "components" / "default_name_entry_prefill",
+        ],
+        full_ips,
+    )
 
     output = args.output if args.output.is_absolute() else ROOT / args.output
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -239,7 +249,7 @@ def main() -> None:
         print(f"French default {role}: {defaults[role]}")
     print(f"French helper: {len(helper)} bytes")
     print(f"IPS: {output}")
-    print(f"IPS size: {len(ips)} bytes")
+    print(f"Dependency delta IPS size: {len(ips)} bytes")
 
 
 if __name__ == "__main__":
