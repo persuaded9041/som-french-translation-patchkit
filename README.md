@@ -235,9 +235,14 @@ python3 build.py --list
 Optionally emit a patched ROM while combining:
 
 ```bash
-python3 build.py "Secret of Mana (USA).sfc" --combine \
+python3 build.py "Secret of Mana (USA).sfc" --combine --locale french \
   --patched-rom "build/Secret of Mana (USA) - French.sfc"
 ```
+
+With one `--locale`, `--patched-rom` writes that locale aggregate (and its
+cheat aggregate when `--cheats` is present). Without a locale it writes the
+default aggregate. A ROM output is intentionally refused when several locales
+are selected, because there is no unambiguous target.
 
 ROM files remain local build products and must never be committed or
 redistributed. The `patches/` directory is intentionally not ignored so its IPS

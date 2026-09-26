@@ -152,7 +152,11 @@ def main() -> None:
         type=Path,
         help="combined IPS output path (default with --combine: <patch-dir>/all.ips)",
     )
-    parser.add_argument("--patched-rom", type=Path, help="optional patched ROM output; requires --combine")
+    parser.add_argument(
+        "--patched-rom",
+        type=Path,
+        help="optional ROM for the selected aggregate; requires --combine and at most one --locale",
+    )
     parser.add_argument(
         "--cheats",
         action="store_true",
@@ -199,6 +203,8 @@ def main() -> None:
         else ([] if args.combine else us_aggregate_components(components))
     )
     locales = list(dict.fromkeys([*(args.locale or []), *( ["french"] if args.french else [])]))
+    if args.patched_rom and len(locales) > 1:
+        parser.error("--patched-rom is ambiguous with multiple --locale values")
     known_locales = {locale for component in components if (locale := component_locale(component))}
     unknown_locales = sorted(set(locales) - known_locales)
     if unknown_locales:
@@ -257,10 +263,6 @@ def main() -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_bytes(normal_patch)
 
-    if args.patched_rom:
-        args.patched_rom.parent.mkdir(parents=True, exist_ok=True)
-        args.patched_rom.write_bytes(normal_rom)
-
     print("\nCombined components:")
     for component in normal_components:
         print(f"  - {component.id}")
@@ -269,6 +271,8 @@ def main() -> None:
     print(f"Final ROM size: 0x{len(normal_rom):X}")
     print(f"Final checksum: ${normal_checksum:04X}")
     print(f"IPS: {output}")
+
+    patched_rom_data = normal_rom
 
     if args.cheats:
         cheat_components = [*normal_components]
@@ -288,6 +292,8 @@ def main() -> None:
         print(f"Final ROM size: 0x{len(cheat_rom):X}")
         print(f"Final checksum: ${cheat_checksum:04X}")
         print(f"IPS: {cheat_output}")
+        if not locales:
+            patched_rom_data = cheat_rom
 
     for locale in locales:
         locale_components = locale_aggregate_components(components, locale)
@@ -306,6 +312,7 @@ def main() -> None:
         print(f"Final ROM size: 0x{len(locale_rom):X}")
         print(f"Final checksum: ${locale_checksum:04X}")
         print(f"IPS: {locale_output}")
+        patched_rom_data = locale_rom
 
         if args.cheats:
             locale_cheat_components = [*locale_components, cheats_component]
@@ -323,6 +330,12 @@ def main() -> None:
             print(f"Final ROM size: 0x{len(locale_cheat_rom):X}")
             print(f"Final checksum: ${locale_cheat_checksum:04X}")
             print(f"IPS: {locale_cheat_output}")
+            patched_rom_data = locale_cheat_rom
+
+    if args.patched_rom:
+        args.patched_rom.parent.mkdir(parents=True, exist_ok=True)
+        args.patched_rom.write_bytes(patched_rom_data)
+        print(f"ROM: {args.patched_rom}")
 
 
 if __name__ == "__main__":
