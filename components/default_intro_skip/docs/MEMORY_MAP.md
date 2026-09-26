@@ -23,6 +23,6 @@ at `$C7:43D0-$43E7` and menu/UI allocations at `$C7:4400+` remain untouched.
 
 `$7E:938A-$938B` overlaps scratch used by `vwf_dialogues` outside the intro.
 This is safe under the validated lifetime split: `vwf_intro` intercepts translated
-`$0400` before the ordinary dialogue renderer path. `intro_skip` explicitly
-requires `french_intro` + `vwf_intro` so that assumption is part of component
-composition rather than an undocumented convention.
+`$0400` before the ordinary dialogue renderer path. The component remains safe
+in the default aggregate because its own runtime gate limits it to that
+translated normal-intro window; `french_intro` still owns the payload itself.

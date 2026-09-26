@@ -31,11 +31,10 @@ narrative text/WAIT phases before that transition.
 
 ## Dependencies
 
-The runtime proof was performed on the translated/VWF intro, so the component
-manifest explicitly requires:
-
-- `french_intro`
-- `vwf_intro`
+The runtime proof was performed on the translated/VWF intro. The manifest only
+requires `default_vwf_intro`; the runtime gate is self-contained and only arms
+inside the translated `$0400` normal-intro window. This keeps the behavior in
+the default aggregate without forcing the French intro payload into it.
 
 Standalone component IPS files are still authored against the clean unheadered
 USA ROM, as required by the patchkit; `requires` controls composition/rebuild
