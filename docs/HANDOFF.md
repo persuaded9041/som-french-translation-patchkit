@@ -552,3 +552,40 @@ IPS standalone reste autonome, comme `vwf_ui`.
 - Aucun texte, ID, condition de déblocage, destination VRAM ou ordre des six
   passes n'est modifié. Les lignes non émises restent sur le chemin blanc
   conservateur.
+
+
+### Validation 2026-09-26 — aides skill + `Épée`
+
+- Les aides par défaut `Niv. armes` / `Niv. magies` du candidat
+  `skill-help-20260926` ont été **validées en jeu** par l'utilisateur.
+- `Épée` dans Caractéristiques a également été **validé en jeu**.
+- Le pre-Controller-Edit `french_menus.ips` et l'agrégat `all.ips` issus de ce
+  candidat constituent désormais la baseline runtime-promue.
+- `dialogue_background` reste volontairement hors scope.
+
+### Controller Edit — candidat 2026-09-26
+
+Traduction JAP/USA/FR auditée et formulation française approuvée. Intégration
+entièrement fixe, sans VWF/hook/relocalisation : six labels dans la ressource
+stock `C7:7400-C7:745A`, aide raccourcie dans le bloc stock `C7:795F-C7:7A27`.
+Voir `docs/CONTROLLER_EDIT_RESEARCH.md`.
+
+**Statut : runtime-validé / promu le 2026-09-26.**
+
+
+### Baseline runtime — 2026-09-26 Controller Edit
+
+Le menu **Réglage manette / Controller Edit** a été validé en jeu par
+l'utilisateur le 2026-09-26 et est désormais promu.
+
+La baseline courante inclut donc notamment :
+
+- `Épée` dans Caractéristiques ;
+- aides par défaut `Niv. armes` / `Niv. magies` ;
+- Controller Edit : `Choisir`, `Réglage manette`, `Votre menu`,
+  `Menus alliés`, `Attaque`, `Course` ;
+- les quatre lignes d'aide Controller Edit ;
+- fonctionnement L/R, Start, Select et remappage confirmé.
+
+`patches/french_menus.ips` et `patches/all.ips` correspondent à cette baseline.
+`dialogue_background` reste volontairement hors agrégat et hors chantier courant.

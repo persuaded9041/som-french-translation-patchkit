@@ -98,3 +98,18 @@ rather than copying complete padding-heavy menu blobs. Layout spaces, dashes,
 dynamic placeholders and button glyphs remain structural ROM data. The two
 direct GAME FILE level-prefix bytes at `$C7:53C9` and `$C7:5AF1` are also
 inventoried because `french_menus` proves they are rendered text.
+
+
+## Controller Edit — runtime-validé 2026-09-26
+
+Le menu de configuration de la manette est désormais traduit et validé en jeu :
+
+- `SELECT` -> `Choisir`
+- `CONTROLLER EDIT` -> `Réglage manette`
+- `YOUR ICONS` -> `Votre menu`
+- `ALLY'S ICONS` -> `Menus alliés`
+- `ATTACK` -> `Attaque`
+- `DASH` -> `Course`
+
+Les quatre lignes d'aide sont également traduites et validées. L'intégration
+reste sur le renderer fixe stock, sans VWF, hook ni relocalisation.

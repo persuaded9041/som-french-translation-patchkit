@@ -119,6 +119,27 @@
       ]
     },
     {
+      "group": "controller_edit.help",
+      "entries": [
+        {
+          "id": "C7:795F",
+          "text": "Pour changer un bouton, maintenez-le enfoncé puis"
+        },
+        {
+          "id": "C7:7999",
+          "text": "choisissez sa fonction avec gauche/droite. Relâchez."
+        },
+        {
+          "id": "C7:79CD",
+          "text": "L/R : change le type de manette."
+        },
+        {
+          "id": "C7:79FF",
+          "text": "Start : valider.  Select : annuler."
+        }
+      ]
+    },
+    {
       "group": "status.labels",
       "entries": [
         {

@@ -183,6 +183,35 @@ The user approved the JP/Android-backed wording. `french_menus` now owns the
 six source-ID-bound rows in `translations/interface_text_french.json`.
 Pointers `$C0:33C4/$33C7` target `$ED:A000/$A100`; each block reserves 256 bytes
 (153/152 used). Stock three-line fixed rendering and all descriptions remain
-unchanged. Runtime validation is pending; promoted IPS files remain untouched.
+unchanged. Runtime validation was confirmed by the user on 2026-09-26; the corresponding pre-Controller-Edit `french_menus.ips` / `all.ips` baseline is promoted.
 Candidate artifacts and full provenance/checks: `docs/SKILL_MENU_HELP_RESEARCH.md`
 and `build/candidates/skill-help-20260926/` at the repository root.
+
+
+## Controller Edit — candidate 2026-09-26
+
+JP / USA / official-French SNES comparison was reviewed before insertion.
+Approved project wording:
+
+- `SELECT` -> `Choisir`
+- `CONTROLLER EDIT` -> `Réglage manette`
+- `YOUR ICONS` -> `Votre menu`
+- `ALLY'S ICONS` -> `Menus alliés`
+- `ATTACK` -> `Attaque`
+- `DASH` -> `Course`
+
+Approved four-row help:
+
+- `Pour changer un bouton, maintenez-le enfoncé puis`
+- `choisissez sa fonction avec gauche/droite. Relâchez.`
+- `L/R : change le type de manette.`
+- `Start : valider.  Select : annuler.`
+
+No relocation or renderer change is required. The clean-USA `C7:7400-C7:745A`
+resource already provides sufficient fixed-font slots: the translated labels
+fit while keeping the resource byte-for-byte the same physical size. The help
+payload is 172 bytes including separators/terminator versus the stock 201-byte
+allocation at `C7:795F-C7:7A27`, so it is written in place and terminates early.
+
+This stage was **runtime-validé et promu le 2026-09-26**. It is part of the current
+baseline.

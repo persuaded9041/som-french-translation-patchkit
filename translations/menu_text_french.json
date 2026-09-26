@@ -116,6 +116,35 @@
       ]
     },
     {
+      "group": "menu.controller_edit",
+      "entries": [
+        {
+          "id": "C7:7409",
+          "text": "Choisir"
+        },
+        {
+          "id": "C7:7411",
+          "text": "Réglage manette"
+        },
+        {
+          "id": "C7:7423",
+          "text": "Votre menu"
+        },
+        {
+          "id": "C7:7431",
+          "text": "Menus alliés"
+        },
+        {
+          "id": "C7:743F",
+          "text": "Attaque"
+        },
+        {
+          "id": "C7:744D",
+          "text": "Course"
+        }
+      ]
+    },
+    {
       "group": "menu.weapon_skill",
       "entries": [
         {

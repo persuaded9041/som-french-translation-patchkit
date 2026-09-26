@@ -226,6 +226,37 @@ ACTION_HELP_TILE_BASE_2_STOCK = bytes.fromhex("08 21")
 ACTION_HELP_TILE_BASE_2_FRENCH = bytes.fromhex("0C 21")
 
 
+
+# Controller Edit keeps the native fixed-font renderer and stock geometry.
+# The clean-USA source resource already reserves 8 cells for SELECT, 18 for
+# the title, and 14 logical cells for each button label (the final DASH slot
+# uses the resource terminator as its last logical cell).  The reviewed French
+# strings all fit those existing slots, so no relocation or frame change is
+# required.  Reusing the stock resource size also preserves all native source
+# cursor/tile-base behavior.
+CONTROLLER_RESOURCE_OFFSET = 0x077400
+CONTROLLER_RESOURCE_END = 0x07745B
+CONTROLLER_RESOURCE_STOCK_SIZE = CONTROLLER_RESOURCE_END - CONTROLLER_RESOURCE_OFFSET
+CONTROLLER_FIELD_SLOTS = {
+    "SELECT":     (0x077409, 8),
+    "TITLE":      (0x077411, 18),
+    "YOUR_ICONS": (0x077423, 14),
+    "ALLY_ICONS": (0x077431, 14),
+    "ATTACK":     (0x07743F, 14),
+    # C7:745A is the stock $00 terminator and doubles as the 14th logical cell.
+    "DASH":       (0x07744D, 13),
+}
+CONTROLLER_TERMINATOR_OFFSET = 0x07745A
+
+# The four stock Controller Edit help rows occupy C7:795F-C7:7A27 inclusive,
+# immediately before the Status label block.  The localized payload is shorter
+# than stock, so it can safely terminate early without moving either pointer.
+CONTROLLER_HELP_POINTER_OFFSET = 0x0033CA   # interface pointer-table entry #7
+CONTROLLER_HELP_POINTER_STOCK = 0xC7795F
+CONTROLLER_HELP_OFFSET = 0x07795F
+CONTROLLER_HELP_STOCK_END = 0x077A28       # first byte of Status labels
+CONTROLLER_HELP_IDS_ORDER = ("HELP_1", "HELP_2", "HELP_3", "HELP_4")
+
 # Weapon / magic skill-menu headings. These are fixed-width native segments
 # inside the two stock C7 resources. Keep every segment at its original length
 # and pad shorter localized labels with stock blank cells so no descriptor,
@@ -505,6 +536,21 @@ ACTION_HELP_IDS = {
     "GAUGE_SCALE": "C0:368F",
 }
 
+CONTROLLER_EDIT_IDS = {
+    "SELECT": "C7:7409",
+    "TITLE": "C7:7411",
+    "YOUR_ICONS": "C7:7423",
+    "ALLY_ICONS": "C7:7431",
+    "ATTACK": "C7:743F",
+    "DASH": "C7:744D",
+}
+CONTROLLER_HELP_IDS = {
+    "HELP_1": "C7:795F",
+    "HELP_2": "C7:7999",
+    "HELP_3": "C7:79CD",
+    "HELP_4": "C7:79FF",
+}
+
 # Three fixed-font help rows per menu, via C0:33B5 entries 5/6.
 # Reserve one expanded-ROM page each; no renderer or description-table changes.
 SKILL_HELP_BLOCKS = (
@@ -513,7 +559,7 @@ SKILL_HELP_BLOCKS = (
 )
 
 
-def load_french_rows(base: bytes) -> tuple[dict[str, str], dict[str, str], dict[str, str], dict[str, str], dict[str, str], dict[str, str], dict[str, str], dict[str, object]]:
+def load_french_rows(base: bytes) -> tuple[dict[str, str], dict[str, str], dict[str, str], dict[str, str], dict[str, str], dict[str, str], dict[str, str], dict[str, str], dict[str, str], dict[str, object]]:
     interface = load_or_extract_interface(base, PROJECT_ROOT / "assets" / "interface_text.json")
     menu = load_or_extract_menu(base, PROJECT_ROOT / "assets" / "menu_text.json")
     try:
@@ -568,6 +614,15 @@ def load_french_rows(base: bytes) -> tuple[dict[str, str], dict[str, str], dict[
         }
         action_help_rows["GAUGE_SCALE"] = canonical_action_help[ACTION_HELP_IDS["GAUGE_SCALE"]]
 
+        controller_rows = {
+            name: require(menu_fr, [text_id], context="Controller Edit")[0]
+            for name, text_id in CONTROLLER_EDIT_IDS.items()
+        }
+        controller_help_rows = {
+            name: require(interface_fr, [text_id], context="Controller Edit help")[0]
+            for name, text_id in CONTROLLER_HELP_IDS.items()
+        }
+
         skill_menu_rows = {
             text_id: require(menu_fr, [text_id], context="Weapon/Magic skill labels")[0]
             for text_id in SKILL_MENU_RANGES
@@ -608,7 +663,7 @@ def load_french_rows(base: bytes) -> tuple[dict[str, str], dict[str, str], dict[
         }
     except ValueError as exc:
         raise SystemExit(str(exc)) from exc
-    return rows, game_file_rows, window_rows, window_help_rows, action_rows, action_help_rows, skill_menu_rows, status_rows
+    return rows, game_file_rows, window_rows, window_help_rows, action_rows, action_help_rows, controller_rows, controller_help_rows, skill_menu_rows, status_rows
 
 
 def _min_even_width(text: str, context: str) -> tuple[bytes, int]:
@@ -983,6 +1038,68 @@ def apply_window_settings(base: bytes, rom: bytearray, rows: dict[str, str], hel
         raise SystemExit("Window Settings help exceeded reserved ED:8600-ED:86FF region")
     rom[WINDOW_HELP_RELOC_OFFSET:WINDOW_HELP_RELOC_OFFSET + len(help_payload)] = help_payload
     rom[WINDOW_HELP_POINTER_OFFSET:WINDOW_HELP_POINTER_OFFSET + 3] = WINDOW_HELP_RELOC_SNES.to_bytes(3, "little")
+
+
+
+def build_controller_resource(base: bytes, rows: dict[str, str]) -> bytes:
+    stock = bytearray(base[CONTROLLER_RESOURCE_OFFSET:CONTROLLER_RESOURCE_END])
+    if len(stock) != CONTROLLER_RESOURCE_STOCK_SIZE or stock[-1] != 0x00:
+        raise SystemExit("Unexpected clean-USA Controller Edit resource layout")
+
+    for name, (offset, capacity) in CONTROLLER_FIELD_SLOTS.items():
+        payload = encode_text(rows[name], f"Controller Edit {name}")
+        if len(payload) > capacity:
+            raise SystemExit(
+                f"Controller Edit {name} encodes to {len(payload)} cells; "
+                f"stock slot supports {capacity}"
+            )
+        rel = offset - CONTROLLER_RESOURCE_OFFSET
+        stock[rel:rel + capacity] = payload + b"\x80" * (capacity - len(payload))
+
+    # The final logical DASH slot uses the terminator as its 14th cell. Keep
+    # the physical terminator byte untouched after padding the 13 stored cells.
+    stock[CONTROLLER_TERMINATOR_OFFSET - CONTROLLER_RESOURCE_OFFSET] = 0x00
+    return bytes(stock)
+
+
+def build_controller_help(rows: dict[str, str]) -> bytes:
+    encoded = [
+        encode_text(rows[key], f"Controller Edit {key}")
+        for key in CONTROLLER_HELP_IDS_ORDER
+    ]
+    # The stock help renderer displays four fixed rows.  Each translated row
+    # is intentionally no longer than the corresponding clean-USA row.
+    # The fixed help box is 58 cells wide; stock rows simply use different
+    # amounts of that width.  Keep each localized row within the renderer's
+    # proven 58-cell capacity.
+    row_limit = 58
+    for key, payload in zip(CONTROLLER_HELP_IDS_ORDER, encoded, strict=True):
+        if len(payload) > row_limit:
+            raise SystemExit(
+                f"Controller Edit {key} encodes to {len(payload)} cells; fixed help renderer supports {row_limit}"
+            )
+    payload = b"\x7f".join(encoded) + b"\x00"
+    if CONTROLLER_HELP_OFFSET + len(payload) > CONTROLLER_HELP_STOCK_END:
+        raise SystemExit("Controller Edit help exceeds its clean-USA C7 allocation")
+    return payload
+
+
+def apply_controller_edit(
+    base: bytes,
+    rom: bytearray,
+    rows: dict[str, str],
+    help_rows: dict[str, str],
+) -> None:
+    if int.from_bytes(
+        base[CONTROLLER_HELP_POINTER_OFFSET:CONTROLLER_HELP_POINTER_OFFSET + 3], "little"
+    ) != CONTROLLER_HELP_POINTER_STOCK:
+        raise SystemExit("Unexpected clean-USA Controller Edit help pointer")
+
+    resource = build_controller_resource(base, rows)
+    rom[CONTROLLER_RESOURCE_OFFSET:CONTROLLER_RESOURCE_END] = resource
+
+    help_payload = build_controller_help(help_rows)
+    rom[CONTROLLER_HELP_OFFSET:CONTROLLER_HELP_OFFSET + len(help_payload)] = help_payload
 
 
 def build_action_settings_resource(rows: dict[str, str]) -> tuple[bytes, bytes]:
@@ -1437,7 +1554,7 @@ def apply_skill_help(base: bytes, rom: bytearray, rows: dict[str, str]) -> None:
         rom[pointer_offset:pointer_offset + 3] = (target + 0xC00000).to_bytes(3, "little")
 
 
-def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, str], window_rows: dict[str, str], window_help_rows: dict[str, str], action_rows: dict[str, str], action_help_rows: dict[str, str], skill_menu_rows: dict[str, str], status_rows: dict[str, object]) -> tuple[bytearray, int]:
+def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, str], window_rows: dict[str, str], window_help_rows: dict[str, str], action_rows: dict[str, str], action_help_rows: dict[str, str], controller_rows: dict[str, str], controller_help_rows: dict[str, str], skill_menu_rows: dict[str, str], status_rows: dict[str, object]) -> tuple[bytearray, int]:
     rom = expand_rom(base)
 
     # Turn $D4-$E5 into normal character codes for the stock text
@@ -1484,6 +1601,10 @@ def apply_sources(base: bytes, rows: dict[str, str], game_file_rows: dict[str, s
     apply_action_settings(base, rom, action_rows)
     apply_action_help(base, rom, action_help_rows)
 
+    # Controller Edit: all six labels fit the native fixed-font source slots;
+    # the four help rows also fit the original C7 block.
+    apply_controller_edit(base, rom, controller_rows, controller_help_rows)
+
     # Weapon/Magic skill headings: four short fixed-font segments in their stock slots.
     apply_skill_menu_labels(base, rom, skill_menu_rows)
     apply_skill_help(base, rom, skill_menu_rows)
@@ -1515,8 +1636,8 @@ def main() -> None:
     base = args.rom.read_bytes()
     validate_base_rom(base)
 
-    rows, game_file_rows, window_rows, window_help_rows, action_rows, action_help_rows, skill_menu_rows, status_rows = load_french_rows(base)
-    patched, checksum = apply_sources(base, rows, game_file_rows, window_rows, window_help_rows, action_rows, action_help_rows, skill_menu_rows, status_rows)
+    rows, game_file_rows, window_rows, window_help_rows, action_rows, action_help_rows, controller_rows, controller_help_rows, skill_menu_rows, status_rows = load_french_rows(base)
+    patched, checksum = apply_sources(base, rows, game_file_rows, window_rows, window_help_rows, action_rows, action_help_rows, controller_rows, controller_help_rows, skill_menu_rows, status_rows)
     patch = make_ips(base, bytes(patched))
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -1537,6 +1658,8 @@ def main() -> None:
     print(f"GAME FILE save-help payload: {len(build_save_help(game_file_rows))} bytes at ROM ${SAVE_HELP_RELOC_OFFSET:06X}")
     window_resource, window_placement = build_window_resource(base, window_rows)
     print(f"WINDOW SETTINGS title: {window_rows['TITLE']!r}; fixed-font frame width ${WINDOW_FRAME_WIDTH_FRENCH:02X}")
+    print(f"CONTROLLER EDIT resource: {CONTROLLER_RESOURCE_STOCK_SIZE} bytes in-place at C7:$7400")
+    print(f"CONTROLLER EDIT help: {len(build_controller_help(controller_help_rows))} bytes in-place at C7:$795F")
     print(f"WINDOW SETTINGS resource: {len(window_resource)} bytes at C7:${WINDOW_RESOURCE_RELOC_PTR:04X}")
     print(f"WINDOW SETTINGS placement: {len(window_placement)} bytes at C7:${WINDOW_PLACEMENT_RELOC_PTR:04X}; Fond left/right, Bordure top/bottom")
     print(f"WINDOW SETTINGS help: {len(build_window_help(window_help_rows))} bytes at SNES ${WINDOW_HELP_RELOC_SNES:06X}")
